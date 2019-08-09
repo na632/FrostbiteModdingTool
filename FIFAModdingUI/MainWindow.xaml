@@ -1,0 +1,141 @@
+﻿<Window x:Class="FIFAModdingUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FIFAModdingUI"
+        mc:Ignorable="d"
+        Title="paulv2k4 FIFA Modding UI" Height="450" Width="800" WindowStyle="ThreeDBorderWindow" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="23"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="600"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="txtFIFADirectory" Height="23" Text="" Grid.Column="0"/>
+            <Button Name="btnBrowseFIFADirectory" Content="Browse FIFA Directory" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
+        </Grid>
+        
+
+        <TabControl x:Name="MainViewer" Grid.Row="1" SelectionChanged="MainViewer_SelectionChanged">
+            <TabItem Header="Gameplay">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="23"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <CheckBox Name="chkUseBaseFIFAINI">Use Base FIFA 19 file (will reset your current locale.ini)</CheckBox>
+                    <Button Name="btn_GP_SaveINI" Grid.Column="1" Content="Save your locale.INI" Click="Btn_GP_SaveINI_Click"/>
+
+                    <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                        <TabItem Header="General">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                </Grid>
+                                <StackPanel>
+                                    <Label Content="General Settings"  FontWeight="Bold" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="Language" Width="200" />
+                                        <ComboBox Name="cbLanguages" />
+                                    </StackPanel>
+                                    <CheckBox Name="chkEnableUnlockBootsAndCelebrations" Checked="ChkEnableUnlockBootsAndCelebrations_Checked">Unlock Boots and Celebrations</CheckBox>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
+                                    <Label Content="These settings change game speed, AI decisions and much more!" />
+                                        <Label Content="Right/Foot Speed (Affects passing/shooting)" Grid.Column="0"></Label>
+                                        <Slider Name="sliderFOOT" Minimum="1" Maximum="100" Value="50" TickFrequency="1" Ticks="1" Grid.Column="1"></Slider>
+                                        <Label Content="Right/Left Upper Leg Speed (Affects Dribbling/shooting)" Grid.Column="0"></Label>
+                                        <Slider Name="sliderUPPERLEG" Minimum="1" Maximum="100" Value="50" TickFrequency="1" Ticks="1" Grid.Column="1"></Slider>
+                                    <CheckBox x:Name="KILL_EVERYONE" Content="Force AI Fouling (May cause too many red cards)"></CheckBox>
+                                        <Label Content="How much to reduce heading downward power" Grid.Column="0"></Label>
+                                        <Slider Name="BALL_Y_VELOCITY_HEADER_REDUCTION" Minimum="-10.0" Maximum="10.0" Value="0" TickFrequency="0.01" Ticks="0.01" Grid.Column="1"></Slider>
+
+                                        <Label Content="How much to reduce heading lateral power" Grid.Column="0"></Label>
+                                        <Slider Name="BALL_LATERAL_VELOCITY_HEADER_REDUCTION" Minimum="-10.0" Maximum="10.0" Value="0" TickFrequency="0.01" Ticks="0.01" Grid.Column="1"></Slider>
+                                </StackPanel>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="150"></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0">
+                                    <!-- OVERRIDE GRAPH -->
+                                    <Label Content="Attribute Graph (How much do the attribute vary during the match?)" FontWeight="Bold"></Label>
+                                    <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute"></CheckBox>
+                                    <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph Shape"></CheckBox>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="200"></Label>
+                                        <Slider x:Name="OVERRIDE_GRAPH_SHAPE_HIGH" Minimum="-0.99" Maximum="0.99" Value="0.2" Ticks="0.01" TickFrequency="0.01" Width="200" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="200"></Label>
+                                        <Slider x:Name="OVERRIDE_GRAPH_SHAPE_LOW" Minimum="-0.99" Maximum="0.99" Value="-0.2" Ticks="0.01" TickFrequency="0.01" Width="200"  />
+                                    </StackPanel>
+                                    <!-- ACCEL/DECEL GRAPH -->
+                                    <!--<Label Content="Acceleration / Deceleration" FontWeight="Bold"></Label>-->
+                                    
+                                </StackPanel>
+                                <ScrollViewer Grid.Row="1">
+                                    <StackPanel>
+                                        <Label Content="Attribute Weightings" FontWeight="Bold"></Label>
+                                        <StackPanel x:Name="panel_GP_AttributeWeightSystem" >
+                                        </StackPanel>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Grid>
+                            
+                        </TabItem>
+                        <TabItem Header="AI Objective System" Name="tab_GP_ObjectiveSystem">
+                            <ScrollViewer>
+                                <StackPanel>
+                                    <Label Content="This is the AI Objective System, here you can Enable/Disable all AI options within the game."></Label>
+                                    <StackPanel x:Name="panel_GP_ObjectiveSystem" 
+                                        Height="Auto"
+                                        Width="Auto" >
+
+                                    </StackPanel>
+                            </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                        <TabItem Header="Contextual" IsEnabled="False">
+                            <ScrollViewer>
+                                <StackPanel x:Name="panel_GP_ContextEffect">
+                                    
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                        <TabItem Name="tabRawFileView" Header="Raw File View" MouseDown="tabRawFileView_MouseDown" >
+                            <ScrollViewer>
+                                <TextBlock Name="tbRawFileView" Background="White"></TextBlock>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+                
+            </TabItem>
+            <TabItem Header="Career" IsEnabled="False"></TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
