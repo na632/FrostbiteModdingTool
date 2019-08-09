@@ -8,20 +8,21 @@
         Title="paulv2k4 FIFA Modding UI" Height="450" Width="800" WindowStyle="ThreeDBorderWindow" >
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="23"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="600"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="txtFIFADirectory" Height="23" Text="" Grid.Column="0"/>
-            <Button Name="btnBrowseFIFADirectory" Content="Browse FIFA Directory" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
+                <TextBox x:Name="txtFIFADirectory" Height="40" Text="" Grid.Column="0" FontSize="25"/>
+                <Button Name="btnBrowseFIFADirectory" Content="Browse FIFA Directory" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
         </Grid>
         
 
-        <TabControl x:Name="MainViewer" Grid.Row="1" SelectionChanged="MainViewer_SelectionChanged">
+        <TabControl x:Name="MainViewer" Grid.Row="2" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
             <TabItem Header="Gameplay">
                 <Grid>
                     <Grid.RowDefinitions>

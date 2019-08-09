@@ -310,7 +310,7 @@ namespace FIFAModdingUI
                 stream.Write(GetResultingFileString());
             }
 
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure you want to overwrite any existing locale.ini?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure you want to overwrite your existing locale.ini?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 if (File.Exists(FIFALocaleIni))
@@ -387,9 +387,9 @@ namespace FIFAModdingUI
             }
 
             sb.AppendLine("");
-            sb.AppendLine("// Unlock Boots");
             if (chkEnableUnlockBootsAndCelebrations.IsChecked.HasValue && chkEnableUnlockBootsAndCelebrations.IsChecked.Value)
             {
+                sb.AppendLine("// Unlock Boots");
                 file = new IniReader("ini/UnlockBootsAndCelebrations.ini");
                 foreach (var s in file.GetSections())
                 {
