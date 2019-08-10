@@ -92,8 +92,17 @@ namespace FIFAModdingUI
                         case "KILL_EVERYONE":
                             KILL_EVERYONE.IsChecked = localeini.GetValue(k, "").Trim() == "1" ? true : false;
                             break;
+                        case "UCC_MULTICHARACTER":
+                            chkEnableUnlockBootsAndCelebrations.IsChecked = localeini.GetValue(k, "").Trim() == "1" ? true : false;
+                            break;
                     }
                 }
+                var cpuaikeys = localeini.GetKeys("CPUAI");
+                if(cpuaikeys.Length > 0)
+                {
+                    chkEnableHardDifficulty.IsChecked = true;
+                }
+
             }
         }
 
@@ -407,10 +416,10 @@ namespace FIFAModdingUI
             sb.AppendLine("");
             sb.AppendLine("// Animation & Gameplay");
             sb.AppendLine("[]");
-            sb.AppendLine("RIGHTUPPERLEG=" + sliderUPPERLEG.Value);
-            sb.AppendLine("LEFTUPPERLEG=" + sliderUPPERLEG.Value);
-            sb.AppendLine("RIGHTFOOT=" + sliderFOOT.Value);
-            sb.AppendLine("LEFTFOOT=" + sliderFOOT.Value);
+            sb.AppendLine("RIGHTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value));
+            sb.AppendLine("LEFTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value));
+            sb.AppendLine("RIGHTFOOT=" + Math.Round(sliderFOOT.Value));
+            sb.AppendLine("LEFTFOOT=" + Math.Round(sliderFOOT.Value));
             sb.AppendLine("");
 
             sb.AppendLine("");
@@ -447,30 +456,54 @@ namespace FIFAModdingUI
                 sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
                 if(KILL_EVERYONE.IsChecked.Value)
                 {
-                    sb.AppendLine("foulstrictness = 100");
-                    sb.AppendLine("Cardstrictness = 1");
+                    sb.AppendLine("foulstrictness = 1");
+                    sb.AppendLine("Cardstrictness = 0");
                     sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE = 1");
                     sb.AppendLine("REFEREE_FOUL_STRICTNESS_OVERRIDE = 1");
-                    sb.AppendLine("REF_STRICTNESS = 100");
-                    sb.AppendLine("RefStrictness_0 = 100");
-                    sb.AppendLine("RefStrictness_1 = 100");
-                    sb.AppendLine("RefStrictness_2 = 100");
-                    sb.AppendLine("RefStrictness_3 = 100");
+                    sb.AppendLine("REF_STRICTNESS = 1");
+                    sb.AppendLine("RefStrictness_0 = 1");
+                    sb.AppendLine("RefStrictness_1 = 1");
+                    sb.AppendLine("RefStrictness_2 = 1");
+                    sb.AppendLine("RefStrictness_3 = 1");
                     sb.AppendLine("SLIDE_TACKLE = 0");
                     sb.AppendLine("SLIDETACKLE = 0");
                     sb.AppendLine("TACKLE = 0");
                 }
             }
 
+            sb.AppendLine("ContextEffectTrapBallInAngle=50");
+
+            sb.AppendLine("FALL = 50");
+            sb.AppendLine("STUMBLE = 10");
+
+
+
             sb.AppendLine("BALL_Y_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_Y_VELOCITY_HEADER_REDUCTION.Value, 2));
             sb.AppendLine("BALL_LATERAL_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value, 2));
 
+
+            // Do CPUAI
+            if (chkEnableHardDifficulty.IsChecked.HasValue && chkEnableHardDifficulty.IsChecked.Value)
+            {
+                sb.AppendLine("");
+                sb.AppendLine("[CPUAI]");
+                sb.AppendLine("HOME_OFFENSE_DIFFICULTY=0.75");
+                sb.AppendLine("HOME_DEFENSE_DIFFICULTY=0.02");
+                sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=0.75");
+                sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=0.02");
+                sb.AppendLine("HOME_DIFFICULTY=0.75");
+                sb.AppendLine("AWAY_DIFFICULTY=0.75");
+                sb.AppendLine("CPUAI_PROCESS_ALL_DECISIONS=0");
+            }
 
             sb.AppendLine("");
 
             return sb.ToString();
         }
 
-       
+        private void ChkEnableHardDifficulty_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
