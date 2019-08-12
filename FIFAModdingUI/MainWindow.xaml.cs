@@ -83,6 +83,15 @@ namespace FIFAModdingUI
                         case "RIGHTUPPERLEG":
                             sliderUPPERLEG.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             break;
+                        case "RIGHTANKLE":
+                            sliderANKLE.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                            break;
+                        case "TORSO":
+                            sliderTORSO.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                            break;
+                        case "HIPS":
+                            sliderHIPS.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                            break;
                         case "BALL_Y_VELOCITY_HEADER_REDUCTION":
                             BALL_Y_VELOCITY_HEADER_REDUCTION.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
                             break;
@@ -94,6 +103,9 @@ namespace FIFAModdingUI
                             break;
                         case "UCC_MULTICHARACTER":
                             chkEnableUnlockBootsAndCelebrations.IsChecked = localeini.GetValue(k, "").Trim() == "1" ? true : false;
+                            break;
+                        case "RandomSeed":
+                            chkDisableRandomSeed.IsChecked = localeini.GetValue(k, "").Trim() == "0" ? true : false;
                             break;
                     }
                 }
@@ -420,6 +432,10 @@ namespace FIFAModdingUI
             sb.AppendLine("LEFTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value));
             sb.AppendLine("RIGHTFOOT=" + Math.Round(sliderFOOT.Value));
             sb.AppendLine("LEFTFOOT=" + Math.Round(sliderFOOT.Value));
+            sb.AppendLine("RIGHTANKLE=" + Math.Round(sliderANKLE.Value));
+            sb.AppendLine("LEFTANKLE=" + Math.Round(sliderANKLE.Value));
+            sb.AppendLine("TORSO=" + Math.Round(sliderTORSO.Value));
+            sb.AppendLine("HIPS=" + Math.Round(sliderHIPS.Value));
             sb.AppendLine("");
 
             sb.AppendLine("");
@@ -450,7 +466,10 @@ namespace FIFAModdingUI
 
             sb.AppendLine("AccelerationGain=0.04");
             sb.AppendLine("DecelerationGain=2.00");
-
+            //sb.AppendLine("ENABLE_DRIBBLE_ACCEL_MOD = 1");
+            //sb.AppendLine("ACCEL = 100.0");
+            //sb.AppendLine("DECEL = 175.0");
+            
             if (KILL_EVERYONE.IsChecked.HasValue)
             {
                 sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
@@ -472,15 +491,33 @@ namespace FIFAModdingUI
             }
 
             sb.AppendLine("ContextEffectTrapBallInAngle=50");
+            sb.AppendLine("ContextEffectTrapBallXZVelocity=75");
+            sb.AppendLine("DEBUG_DISABLE_LOSE_ATTACKER_EFFECT = 1");
 
             sb.AppendLine("FALL = 50");
             sb.AppendLine("STUMBLE = 10");
 
-
-
             sb.AppendLine("BALL_Y_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_Y_VELOCITY_HEADER_REDUCTION.Value, 2));
             sb.AppendLine("BALL_LATERAL_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value, 2));
 
+            if (chkDisableRandomSeed.IsChecked.HasValue && chkDisableRandomSeed.IsChecked.Value)
+            {
+                sb.AppendLine("");
+                sb.AppendLine("[]");
+                sb.AppendLine("AI_LASTRANDOMSEED = 0");
+                sb.AppendLine("RandomSeed = 0");
+                sb.AppendLine("RandomTimeSeed = 0");
+                sb.AppendLine("RandomTickSeed = 0");
+                sb.AppendLine("RandomIntensityMin = 0");
+                sb.AppendLine("RandomIntensityMax = 0");
+                sb.AppendLine("ClipPlayerOverallRating = 80");
+
+                sb.AppendLine("[DEFAULTS]");
+                sb.AppendLine("RANDOMSEED=0");
+                sb.AppendLine("[GAMEMODE]");
+                sb.AppendLine("RANDOM_SEED=0");
+
+            }
 
             // Do CPUAI
             if (chkEnableHardDifficulty.IsChecked.HasValue && chkEnableHardDifficulty.IsChecked.Value)
@@ -494,6 +531,14 @@ namespace FIFAModdingUI
                 sb.AppendLine("HOME_DIFFICULTY=0.75");
                 sb.AppendLine("AWAY_DIFFICULTY=0.75");
                 sb.AppendLine("CPUAI_PROCESS_ALL_DECISIONS=0");
+
+                sb.AppendLine("");
+                sb.AppendLine("[]");
+                sb.AppendLine("FORCE_ANY=0.1");
+                sb.AppendLine("FORCE_BACK=0.1");
+                sb.AppendLine("FORCE_FRONT=0.1");
+                sb.AppendLine("FORCE_INSIDE=0.1");
+                sb.AppendLine("FORCE_OUTSIDE=0.1");
             }
 
             sb.AppendLine("");
@@ -502,6 +547,11 @@ namespace FIFAModdingUI
         }
 
         private void ChkEnableHardDifficulty_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ChkDisableRandomSeed_Checked(object sender, RoutedEventArgs e)
         {
 
         }
