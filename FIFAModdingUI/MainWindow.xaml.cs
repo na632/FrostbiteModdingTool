@@ -212,10 +212,18 @@ namespace FIFAModdingUI
 
         private void InitializeContextEffectSystem()
         {
+            this.panel_GP_ContextEffect.Children.Clear();
+
+            // Initialise 
+
             var aiobjsystem = new IniReader("ini/ContextEffect.ini");
             var commentBuildUp = new StringBuilder();
-            
 
+            var g = new Grid();
+            g.ColumnDefinitions.Add(new ColumnDefinition() { });
+            g.ColumnDefinitions.Add(new ColumnDefinition() { });
+            g.ColumnDefinitions.Add(new ColumnDefinition() { });
+            var i = 0;
             foreach (var k in aiobjsystem.GetKeys(""))
             {
                 if (k.StartsWith("//"))
@@ -224,36 +232,74 @@ namespace FIFAModdingUI
                 }
                 else
                 {
-                    var g = new Grid();
-                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
-                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
-                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
-                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
-                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
-
                     var checkbox = new CheckBox();
+                    checkbox.Name = "chk_" + k.Trim();
                     checkbox.Content = "Enable - " + k.Trim();
                     Grid.SetColumn(checkbox, 0);
+                    Grid.SetRow(checkbox, i);
                     g.Children.Add(checkbox);
 
                     var c = new Slider();
                     c.Name = k.Trim();
-                    c.Minimum = 0.01;
-                    c.Maximum = 1.00;
+                    c.Minimum = 0;
+                    c.Maximum = 100;
+                    c.TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight;
+                    c.TickFrequency = 5;
                     c.Width = 200;
-                    c.Value = 0.5;
+                    c.Value = 50;
                     Grid.SetColumn(c, 1);
+                    Grid.SetRow(c, i);
                     g.Children.Add(c);
 
                     var tb = new TextBlock();
                     tb.Text = commentBuildUp.ToString();
-                    Grid.SetColumn(c, 2);
+                    Grid.SetColumn(tb, 2);
+                    Grid.SetRow(tb, i);
                     g.Children.Add(tb);
 
-                    this.panel_GP_ContextEffect.Children.Add(g);
+                    g.RowDefinitions.Add(new RowDefinition() { });
+
+                    i++;
                     commentBuildUp = new StringBuilder();
                 }
             }
+            this.panel_GP_ContextEffect.Children.Add(g);
+
+            // read from locale.ini 
+            if (!chkUseBaseFIFAINI.IsChecked.Value && !string.IsNullOrEmpty(FIFALocaleIni))
+            {
+                var localeini = new IniReader(FIFALocaleIni);
+                foreach (var k in localeini.GetKeys("").OrderBy(x => x))
+                {
+                    foreach (var c in panel_GP_ContextEffect.Children)
+                    {
+                        Grid childGrid = c as Grid;
+                        if (childGrid != null)
+                        {
+                            foreach (CheckBox childCheckBox in childGrid.Children.OfType<CheckBox>())
+                            {
+                                if (childCheckBox.Name.Trim() == "chk_" + k.Trim())
+                                {
+                                    var value = localeini.GetValue(k);
+                                    childCheckBox.IsChecked = true;
+                                }
+                            }
+
+                            foreach (Slider childSlider in childGrid.Children.OfType<Slider>())
+                            {
+                                if (childSlider.Name.Trim() == k.Trim())
+                                {
+                                    var value = localeini.GetValue(k);
+                                    childSlider.Value = Convert.ToDouble(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
         }
 
         private void InitializeAIObjectiveSystem()
@@ -409,6 +455,25 @@ namespace FIFAModdingUI
                 {
                     var chkBox = ch as CheckBox;
                     sb.AppendLine(ch.Name + "=" + (chkBox.IsChecked.Value ? "1" : "0"));
+                }
+            }
+
+            sb.AppendLine("");
+            sb.AppendLine("// Context System");
+            sb.AppendLine("[]");
+            foreach (var c in panel_GP_ContextEffect.Children)
+            {
+                Grid childGrid = c as Grid;
+                if (childGrid != null)
+                {
+                    foreach (Slider childSlider in childGrid.Children.OfType<Slider>())
+                    {
+                        foreach (CheckBox childCheckBox in childGrid.Children.OfType<CheckBox>().Where(x=>x.Name.Contains(childSlider.Name)))
+                        {
+                            if(childCheckBox.IsChecked.HasValue && childCheckBox.IsChecked.Value)
+                                sb.AppendLine(childSlider.Name + "=" + childSlider.Value);
+                        }
+                    }
                 }
             }
 
