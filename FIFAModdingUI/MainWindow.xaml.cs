@@ -149,10 +149,11 @@ namespace FIFAModdingUI
                         c.Name = k.Trim();
                         c.Minimum = 1;
                         c.Maximum = 300;
-                        c.Width = 200;
+                        c.Width = 300;
                         var v = aiobjsystem.GetValue(k, "").Trim();
                         c.Value = Convert.ToDouble(v);
-                        c.TickFrequency = 1;
+                        c.TickFrequency = 10;
+                        c.TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight;
                         sp.Children.Add(c);
                     }
                     this.panel_GP_AttributeWeightSystem.Children.Add(sp);
@@ -190,29 +191,31 @@ namespace FIFAModdingUI
                 if(k.Contains("AVAILABLE_LANG_"))
                     languages.Add(file.GetValue(k, "LOCALE"), file.GetValue(k, "LOCALE"));
             }
-            cbLanguages.ItemsSource = languages;
-            cbLanguages.SelectedValuePath = "Key";
-            cbLanguages.DisplayMemberPath = "Value";
+            //cbLanguages.ItemsSource = languages;
+            //cbLanguages.SelectedValuePath = "Key";
+            //cbLanguages.DisplayMemberPath = "Value";
 
-            // read from locale.ini 
-            if (chkUseBaseFIFAINI.IsChecked.Value || string.IsNullOrEmpty(FIFALocaleIni))
-            {
-                cbLanguages.SelectedValue = file.GetValue(file.GetKeys("LOCALE").FirstOrDefault(x => x.Contains("DEFAULT_LANGUAGE")), "LOCALE");
-            }
+            //// read from locale.ini 
+            //if (chkUseBaseFIFAINI.IsChecked.Value || string.IsNullOrEmpty(FIFALocaleIni))
+            //{
+            //    cbLanguages.SelectedValue = file.GetValue(file.GetKeys("LOCALE").FirstOrDefault(x => x.Contains("DEFAULT_LANGUAGE")), "LOCALE");
+            //}
 
-            // read from locale.ini 
-            if (!chkUseBaseFIFAINI.IsChecked.Value && !string.IsNullOrEmpty(FIFALocaleIni))
-            {
-                var localeini = new IniReader(FIFALocaleIni);
-                var localeLangKeys = localeini.GetKeys("LOCALE");
-                cbLanguages.SelectedValue = localeini.GetValue(localeLangKeys.FirstOrDefault(x => x.Contains("DEFAULT_LANGUAGE")), "LOCALE");
-            }
+            //// read from locale.ini 
+            //if (!chkUseBaseFIFAINI.IsChecked.Value && !string.IsNullOrEmpty(FIFALocaleIni))
+            //{
+            //    var localeini = new IniReader(FIFALocaleIni);
+            //    var localeLangKeys = localeini.GetKeys("LOCALE");
+            //    cbLanguages.SelectedValue = localeini.GetValue(localeLangKeys.FirstOrDefault(x => x.Contains("DEFAULT_LANGUAGE")), "LOCALE");
+            //}
         }
 
         private void InitializeContextEffectSystem()
         {
             var aiobjsystem = new IniReader("ini/ContextEffect.ini");
             var commentBuildUp = new StringBuilder();
+            
+
             foreach (var k in aiobjsystem.GetKeys(""))
             {
                 if (k.StartsWith("//"))
@@ -221,16 +224,17 @@ namespace FIFAModdingUI
                 }
                 else
                 {
-                    var sp = new StackPanel();
-                    sp.Orientation = Orientation.Horizontal;
+                    var g = new Grid();
+                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
+                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
+                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
+                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
+                    g.ColumnDefinitions.Add(new ColumnDefinition() { });
 
-                    var label = new Label();
-                    label.Content = k.Trim();
-                    if (Resources.Contains(k.Trim() + "Desc"))
-                    {
-                        label.Content = Resources[k.Trim() + "Desc"];
-                    }
-                    sp.Children.Add(label);
+                    var checkbox = new CheckBox();
+                    checkbox.Content = "Enable - " + k.Trim();
+                    Grid.SetColumn(checkbox, 0);
+                    g.Children.Add(checkbox);
 
                     var c = new Slider();
                     c.Name = k.Trim();
@@ -238,13 +242,15 @@ namespace FIFAModdingUI
                     c.Maximum = 1.00;
                     c.Width = 200;
                     c.Value = 0.5;
-                    sp.Children.Add(c);
+                    Grid.SetColumn(c, 1);
+                    g.Children.Add(c);
 
                     var tb = new TextBlock();
                     tb.Text = commentBuildUp.ToString();
-                    sp.Children.Add(tb);
+                    Grid.SetColumn(c, 2);
+                    g.Children.Add(tb);
 
-                    this.panel_GP_ContextEffect.Children.Add(sp);
+                    this.panel_GP_ContextEffect.Children.Add(g);
                     commentBuildUp = new StringBuilder();
                 }
             }
@@ -277,14 +283,14 @@ namespace FIFAModdingUI
             if (!chkUseBaseFIFAINI.IsChecked.Value && !string.IsNullOrEmpty(FIFALocaleIni))
             {
                 var localeini = new IniReader(FIFALocaleIni);
-                foreach (var k in aiobjsystem.GetKeys(""))
+                foreach (var k in localeini.GetKeys("").OrderBy(x => x))
                 {
                     foreach (Control ch in panel_GP_ObjectiveSystem.Children)
                     {
                         if (ch.GetType() == typeof(CheckBox) && ch.Name.Trim() == k.Trim())
                         {
-                            var value = aiobjsystem.GetValue(k);
-                            ((CheckBox)ch).IsChecked = aiobjsystem.GetValue(k).Contains("1") ? true : false;
+                            var value = localeini.GetValue(k);
+                            ((CheckBox)ch).IsChecked = localeini.GetValue(k) == "1" ? true : false;
                         }
                     }
                 }
@@ -299,25 +305,24 @@ namespace FIFAModdingUI
 
         private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
         {
-            Ookii.Dialogs.Wpf.VistaFolderBrowserDialog dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+            var dialog = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
+            dialog.Title = "Find your FIFA exe";
+            dialog.Multiselect = false;
+            dialog.Filter = "exe files (*.exe)|*.exe";
+            dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
-            FIFADirectory = dialog.SelectedPath;
-            if (!string.IsNullOrEmpty(FIFADirectory))
+            var filePath = dialog.FileName;
+            FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\")+1);
+            var fileName = filePath.Substring(filePath.LastIndexOf("\\")+1, filePath.Length - filePath.LastIndexOf("\\")-1);
+            if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
             {
-                // Check for compatible FIFA Version
-                var filesInDirectory = Directory.EnumerateFiles(FIFADirectory).ToList();
-                // Rip out the file names
-                for (var i = 0; i < filesInDirectory.Count; i++)
-                {
-                    filesInDirectory[i] = filesInDirectory[i].Split("\\")[2];
-                }
-                // Do Check against List
-                if (filesInDirectory.Any(x => CompatibleFIFAVersions.Any(y => y == x)))
-                {
-                    txtFIFADirectory.Text = FIFADirectory;
-                    MainViewer.IsEnabled = true;
-                    InitializeIniSettings();
-                }
+                txtFIFADirectory.Text = FIFADirectory;
+                MainViewer.IsEnabled = true;
+                InitializeIniSettings();
+            }
+            else
+            {
+                throw new Exception("This Version of FIFA is incompatible with this tool");
             }
         }
 
@@ -377,14 +382,14 @@ namespace FIFAModdingUI
                     if (!k.StartsWith("//"))
                     {
                         var v = file.GetValue(k, s);
-                        if (s.Contains("LOCALE") && k.Contains("DEFAULT_LANGUAGE"))
-                        {
-                            // get changed language settings
-                            if (chkUseBaseFIFAINI.IsChecked.HasValue && !chkUseBaseFIFAINI.IsChecked.Value)
-                            {
-                                v = cbLanguages.SelectedValue.ToString();
-                            }
-                        }
+                        //if (s.Contains("LOCALE") && k.Contains("DEFAULT_LANGUAGE"))
+                        //{
+                        //    // get changed language settings
+                        //    if (chkUseBaseFIFAINI.IsChecked.HasValue && !chkUseBaseFIFAINI.IsChecked.Value)
+                        //    {
+                        //        v = cbLanguages.SelectedValue.ToString();
+                        //    }
+                        //}
 
                         sb.AppendLine(k + "=" + v);
                     }
@@ -441,6 +446,7 @@ namespace FIFAModdingUI
             sb.AppendLine("");
             sb.AppendLine("// ATTRIBUTES");
             sb.AppendLine("[]");
+            sb.AppendLine("AI_USE_ATTRIBULATOR_TO_UPDATE_GENERIC_CONVERT_TBL=1");
             foreach (StackPanel container in panel_GP_AttributeWeightSystem.Children.OfType<StackPanel>())
             {
                 foreach (Slider slider in container.Children.OfType<Slider>())

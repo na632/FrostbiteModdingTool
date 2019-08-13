@@ -23,12 +23,14 @@ namespace FIFAModdingUI
 
         private void MyHandler(object sender, UnhandledExceptionEventArgs args)
         {
+            Exception e = (Exception)args.ExceptionObject;
+            MessageBoxResult result = MessageBox.Show(e.ToString());
+
             if (File.Exists("ErrorLogging.txt"))
                 File.Delete("ErrorLogging.txt");
 
             using (StreamWriter stream = new StreamWriter("ErrorLogging.txt"))
             {
-                Exception e = (Exception)args.ExceptionObject;
                 stream.WriteLine(e.ToString());
             }
         }

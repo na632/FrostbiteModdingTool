@@ -81,8 +81,8 @@ public class IniReader
 
             if (!ini[section].ContainsKey(key))
                 return @default;
-            // TODO check for comments!!!
-            return ini[section][key];
+
+            return ini[section][key].Trim();
         }
 
         public string[] GetKeys(string section)
