@@ -61,7 +61,38 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Allows the AI to do kick up tricks.
+        ///   Looks up a localized string similar to Increasing this caused more aggressive tackles. 
+        ///Increasing this causes the &quot;dribbler&quot; to be shoved off the ball more easily.
+        /// </summary>
+        internal static string ContextEffectDribblePressure {
+            get {
+                return ResourceManager.GetString("ContextEffectDribblePressure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increasing this caused more interceptions, less dependant on ability.
+        ///Raising this caused a lesser team to beat a bigger team easily.
+        /// </summary>
+        internal static string ContextEffectPressure {
+            get {
+                return ResourceManager.GetString("ContextEffectPressure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to By saving this file using this tool, you agree to not share it without attribution to me &quot;paulv2k4&quot; with a link to my patreon https://www.patreon.com/fifa_gameplay_career_mod or website https://v2k4fifamodding.azurewebsites.net/.
+        ///
+        ///Do you agree to this and wish to overwrite your locale.ini?.
+        /// </summary>
+        internal static string SaveOverOldLocaleINIText {
+            get {
+                return ResourceManager.GetString("SaveOverOldLocaleINIText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Allows the AI to do keepy uppy tricks.
         /// </summary>
         internal static string TakePissMiniDesc {
             get {

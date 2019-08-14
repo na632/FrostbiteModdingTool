@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace FIFAModdingUI.ini
 {
@@ -15,9 +16,27 @@ public class IniReader
     {
         Dictionary<string, Dictionary<string, string>> ini = new Dictionary<string, Dictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
 
-        public IniReader(string file)
+
+        public IniReader(string file, bool isResource = false)
         {
-            var txt = File.ReadAllText(file);
+            if (isResource)
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var manifestResourceNames = assembly.GetManifestResourceNames();
+                var resourceName = manifestResourceNames.Single(str => str.EndsWith(file));  //  "MyCompany.MyProduct.MyFile.txt";
+
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    string result = reader.ReadToEnd();
+                    File.WriteAllText("_temp", result);
+                }
+            }
+
+
+            var txt = File.ReadAllText(!isResource ? file : "_temp");
+
+            if (isResource) File.Delete("_temp");
 
             Dictionary<string, string> currentSection = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 

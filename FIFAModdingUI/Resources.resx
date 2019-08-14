@@ -117,7 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ContextEffectDribblePressure" xml:space="preserve">
+    <value>Increasing this caused more aggressive tackles. 
+Increasing this causes the "dribbler" to be shoved off the ball more easily</value>
+  </data>
+  <data name="ContextEffectPressure" xml:space="preserve">
+    <value>Increasing this caused more interceptions, less dependant on ability.
+Raising this caused a lesser team to beat a bigger team easily</value>
+  </data>
+  <data name="SaveOverOldLocaleINIText" xml:space="preserve">
+    <value>By saving this file using this tool, you agree to not share it without attribution to me "paulv2k4" with a link to my patreon https://www.patreon.com/fifa_gameplay_career_mod or website https://v2k4fifamodding.azurewebsites.net/.
+
+Do you agree to this and wish to overwrite your locale.ini?</value>
+  </data>
   <data name="TakePissMiniDesc" xml:space="preserve">
-    <value>Allows the AI to do kick up tricks</value>
+    <value>Allows the AI to do keepy uppy tricks</value>
   </data>
 </root>

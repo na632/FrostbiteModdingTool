@@ -9,7 +9,34 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
     <ApplicationIcon>discordicon.ico</ApplicationIcon>
+    <Company>PARGSoft</Company>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="ini\AIObjectiveSystem.ini" />
+    <None Remove="ini\ATTRIBUTE_WEIGHTS.ini" />
+    <None Remove="ini\ContextEffect.ini" />
+    <None Remove="ini\UnlockBootsAndCelebrations.ini" />
+    <None Remove="ini\_FIFA19_base.ini" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ini\AIObjectiveSystem.ini">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ini\ATTRIBUTE_WEIGHTS.ini">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ini\ContextEffect.ini">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ini\UnlockBootsAndCelebrations.ini">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ini\_FIFA19_base.ini">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.5.0" />
@@ -29,24 +56,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="ini\AIObjectiveSystem.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ini\ATTRIBUTE_WEIGHTS.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ini\ContextEffect.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ini\UnlockBootsAndCelebrations.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ini\_FIFA19_base.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

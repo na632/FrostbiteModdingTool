@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Reflection;
 using FIFAModdingUI.ini;
 
 namespace FIFAModdingUI
@@ -121,7 +122,7 @@ namespace FIFAModdingUI
         private void InitializeAttributeWeightSystem()
         {
             panel_GP_AttributeWeightSystem.Children.Clear();
-            var aiobjsystem = new IniReader("ini/ATTRIBUTE_WEIGHTS.ini");
+            var aiobjsystem = new IniReader("ATTRIBUTE_WEIGHTS.ini", true);
             var nameOfAttribute = string.Empty;
             foreach (var k in aiobjsystem.GetKeys(""))
             {
@@ -184,7 +185,7 @@ namespace FIFAModdingUI
 
         private void InitializeLanguageSystem()
         {
-            var file = new IniReader("ini/_FIFA19_base.ini");
+            var file = new IniReader("_FIFA19_base.ini", true);
             Dictionary<string, string> languages = new Dictionary<string, string>();
             foreach (var k in file.GetKeys("LOCALE"))
             {
@@ -216,7 +217,8 @@ namespace FIFAModdingUI
 
             // Initialise 
 
-            var aiobjsystem = new IniReader("ini/ContextEffect.ini");
+            //var aiobjsystem = new IniReader("ini/ContextEffect.ini");
+            var aiobjsystem = new IniReader("ContextEffect.ini", true);
             var commentBuildUp = new StringBuilder();
 
             var g = new Grid();
@@ -224,11 +226,10 @@ namespace FIFAModdingUI
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             var i = 0;
-            foreach (var k in aiobjsystem.GetKeys(""))
+            foreach (var k in aiobjsystem.GetKeys("").OrderBy(x => x))
             {
                 if (k.StartsWith("//"))
                 {
-                    commentBuildUp.AppendLine(k.Replace("// ", ""));
                 }
                 else
                 {
@@ -252,7 +253,10 @@ namespace FIFAModdingUI
                     g.Children.Add(c);
 
                     var tb = new TextBlock();
-                    tb.Text = commentBuildUp.ToString();
+                    if(FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()) != null) {
+                        var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
+                        tb.Text = resourceDescription;
+                    }
                     Grid.SetColumn(tb, 2);
                     Grid.SetRow(tb, i);
                     g.Children.Add(tb);
@@ -260,7 +264,6 @@ namespace FIFAModdingUI
                     g.RowDefinitions.Add(new RowDefinition() { });
 
                     i++;
-                    commentBuildUp = new StringBuilder();
                 }
             }
             this.panel_GP_ContextEffect.Children.Add(g);
@@ -289,8 +292,14 @@ namespace FIFAModdingUI
                             {
                                 if (childSlider.Name.Trim() == k.Trim())
                                 {
-                                    var value = localeini.GetValue(k);
-                                    childSlider.Value = Convert.ToDouble(value);
+                                    if (double.TryParse(localeini.GetValue(k), out double value))
+                                    {
+                                        childSlider.Value = value;
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidCastException("Unable to convert " + k.Trim() + " with a value of " + localeini.GetValue(k));
+                                    }
                                 }
                             }
                         }
@@ -306,7 +315,8 @@ namespace FIFAModdingUI
         {
             panel_GP_ObjectiveSystem.Children.Clear();
 
-            var aiobjsystem = new IniReader("ini/AIObjectiveSystem.ini");
+            //var aiobjsystem = new IniReader("ini/AIObjectiveSystem.ini");
+            var aiobjsystem = new IniReader("AIObjectiveSystem.ini", true);
             foreach (var k in aiobjsystem.GetKeys("").OrderBy(x=>x))
             {
                 if (!k.StartsWith("//"))
@@ -374,15 +384,7 @@ namespace FIFAModdingUI
 
         private void Btn_GP_SaveINI_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists("newFile.ini"))
-                File.Delete("newFile.ini");
-
-            using (StreamWriter stream = new StreamWriter("newFile.ini"))
-            {
-                stream.Write(GetResultingFileString());
-            }
-
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure you want to overwrite your existing locale.ini?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(FIFAModdingUI.Resources.ResourceManager.GetString("SaveOverOldLocaleINIText"), "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 if (File.Exists(FIFALocaleIni))
@@ -419,7 +421,7 @@ namespace FIFAModdingUI
 
 
             sb.AppendLine("// Languages");
-            var file = new IniReader("ini/_FIFA19_base.ini");
+            var file = new IniReader("_FIFA19_base.ini", true);
             foreach (var s in file.GetSections())
             {
                 sb.AppendLine("[" + s + "]");
@@ -470,8 +472,8 @@ namespace FIFAModdingUI
                     {
                         foreach (CheckBox childCheckBox in childGrid.Children.OfType<CheckBox>().Where(x=>x.Name.Contains(childSlider.Name)))
                         {
-                            if(childCheckBox.IsChecked.HasValue && childCheckBox.IsChecked.Value)
-                                sb.AppendLine(childSlider.Name + "=" + childSlider.Value);
+                            if (childCheckBox.IsChecked.HasValue && childCheckBox.IsChecked.Value)
+                                sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value));
                         }
                     }
                 }
@@ -481,7 +483,7 @@ namespace FIFAModdingUI
             if (chkEnableUnlockBootsAndCelebrations.IsChecked.HasValue && chkEnableUnlockBootsAndCelebrations.IsChecked.Value)
             {
                 sb.AppendLine("// Unlock Boots");
-                file = new IniReader("ini/UnlockBootsAndCelebrations.ini");
+                file = new IniReader("UnlockBootsAndCelebrations.ini", true);
                 foreach (var s in file.GetSections())
                 {
                     sb.AppendLine("[" + s + "]");
@@ -516,7 +518,7 @@ namespace FIFAModdingUI
             {
                 foreach (Slider slider in container.Children.OfType<Slider>())
                 {
-                    sb.AppendLine(slider.Name + "=" + slider.Value);
+                    sb.AppendLine(slider.Name + "=" + Math.Round(slider.Value));
                 }
             }
             sb.AppendLine("");
@@ -546,24 +548,26 @@ namespace FIFAModdingUI
                 sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
                 if(KILL_EVERYONE.IsChecked.Value)
                 {
-                    sb.AppendLine("foulstrictness = 1");
+                    sb.AppendLine("foulstrictness = 0");
                     sb.AppendLine("Cardstrictness = 0");
                     sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE = 1");
                     sb.AppendLine("REFEREE_FOUL_STRICTNESS_OVERRIDE = 1");
-                    sb.AppendLine("REF_STRICTNESS = 1");
+                    sb.AppendLine("REF_STRICTNESS = 0");
                     sb.AppendLine("RefStrictness_0 = 1");
                     sb.AppendLine("RefStrictness_1 = 1");
                     sb.AppendLine("RefStrictness_2 = 1");
                     sb.AppendLine("RefStrictness_3 = 1");
                     sb.AppendLine("SLIDE_TACKLE = 0");
                     sb.AppendLine("SLIDETACKLE = 0");
+                    sb.AppendLine("STAND_TACKLE = 1");
+                    sb.AppendLine("STANDTACKLE = 1");
                     sb.AppendLine("TACKLE = 0");
                 }
             }
 
-            sb.AppendLine("ContextEffectTrapBallInAngle=50");
-            sb.AppendLine("ContextEffectTrapBallXZVelocity=75");
-            sb.AppendLine("DEBUG_DISABLE_LOSE_ATTACKER_EFFECT = 1");
+            //sb.AppendLine("ContextEffectTrapBallInAngle=50");
+            //sb.AppendLine("ContextEffectTrapBallXZVelocity=75");
+            //sb.AppendLine("DEBUG_DISABLE_LOSE_ATTACKER_EFFECT = 1");
 
             sb.AppendLine("FALL = 50");
             sb.AppendLine("STUMBLE = 10");
