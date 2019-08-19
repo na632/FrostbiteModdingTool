@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI"
         mc:Ignorable="d"
-        Title="paulv2k4 FIFA Modding UI" Height="720" Width="800" WindowStyle="ThreeDBorderWindow" >
+        Title="paulv2k4 FIFA Modding UI" Height="720" Width="900" WindowStyle="ThreeDBorderWindow" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="3"></RowDefinition>
@@ -50,7 +50,7 @@
                                         <ColumnDefinition></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                 </Grid>
-                                <StackPanel>
+                                <StackPanel Background="#fefefe">
                                     <Label Content="General Settings"  FontWeight="Bold" />
                                     <!--<StackPanel Orientation="Horizontal">
                                         <Label Content="Language" Width="200" />
@@ -70,7 +70,7 @@
 
                                     
                                 </StackPanel>
-                                <StackPanel Grid.Column="1">
+                                <StackPanel Background="#fafafb" Grid.Column="1">
                                     <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
                                     <Label Content="These settings change game speed, AI decisions and much more!" />
                                     <Label Content="Right/Left Foot Speed/Ability (Affects Dribbling, Passing and Shooting)" Grid.Column="0"></Label>

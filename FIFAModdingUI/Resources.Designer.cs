@@ -61,8 +61,17 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Increasing this caused more aggressive tackles. 
-        ///Increasing this causes the &quot;dribbler&quot; to be shoved off the ball more easily.
+        ///   Looks up a localized string similar to Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too.
+        /// </summary>
+        internal static string ContextEffectDribbleKickAngle {
+            get {
+                return ResourceManager.GetString("ContextEffectDribbleKickAngle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increasing ContextEffectDribblePressure caused more aggressive tackles. 
+        ///Increasing ContextEffectDribblePressure causes the &quot;dribbler&quot; to be shoved off the ball more easily.
         /// </summary>
         internal static string ContextEffectDribblePressure {
             get {
@@ -71,7 +80,16 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Increasing this caused more interceptions, less dependant on ability.
+        ///   Looks up a localized string similar to Increasing ContextEffectKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too.
+        /// </summary>
+        internal static string ContextEffectKickAngle {
+            get {
+                return ResourceManager.GetString("ContextEffectKickAngle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increasing ContextEffectPressure caused more interceptions, less dependant on ability.
         ///Raising this caused a lesser team to beat a bigger team easily.
         /// </summary>
         internal static string ContextEffectPressure {

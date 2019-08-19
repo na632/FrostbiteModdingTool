@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace FIFAModdingUI.ini
 {
@@ -17,13 +18,32 @@ public class IniReader
         Dictionary<string, Dictionary<string, string>> ini = new Dictionary<string, Dictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
 
 
-        public IniReader(string file, bool isResource = false)
+        public IniReader(string file) : base()
+        {
+            LoadFromFile(file, false, Assembly.GetCallingAssembly());
+        }
+
+        public IniReader(string file, bool isResource)
+        {
+            LoadFromFile(file, isResource, Assembly.GetCallingAssembly());
+        }
+
+        public IniReader(string file, bool isResource, Assembly assembly)
+        {
+            LoadFromFile(file, isResource, assembly);
+        }
+
+        private void LoadFromFile(string file, bool isResource, Assembly assembly)
         {
             if (isResource)
             {
-                var assembly = Assembly.GetExecutingAssembly();
+                if (assembly == null)
+                    assembly = Assembly.GetCallingAssembly();
+
                 var manifestResourceNames = assembly.GetManifestResourceNames();
-                var resourceName = manifestResourceNames.Single(str => str.EndsWith(file));  //  "MyCompany.MyProduct.MyFile.txt";
+                var resourceName = manifestResourceNames.FirstOrDefault(str => str.EndsWith(file));
+                if (resourceName == null)
+                    throw new FileNotFoundException("Could not find file " + file);
 
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 using (StreamReader reader = new StreamReader(stream))
@@ -52,7 +72,7 @@ public class IniReader
                 if (line.StartsWith("[") && line.EndsWith("]"))
                 {
                     var currentAvailableSections = GetSections().ToList();
-                    if ( (line == "[]" || line == "[ ]") && currentAvailableSections.Contains(""))
+                    if ((line == "[]" || line == "[ ]") && currentAvailableSections.Contains(""))
                     {
                         currentSection = ini[""];
                         continue;
@@ -72,14 +92,15 @@ public class IniReader
                 {
                     if (line.Contains("//"))
                     {
-                        var splitCommentedLine = line.Split("//");
-                        if(!string.IsNullOrEmpty(splitCommentedLine[0]))
-                            currentSection[line.Substring(0, idx)] = splitCommentedLine[0].Split("=")[1];
+                        var splitCommentedLine = line.Split(new string[] { "//" }, StringSplitOptions.RemoveEmptyEntries);
+                        if (!string.IsNullOrEmpty(splitCommentedLine[0]))
+                            currentSection[line.Substring(0, idx)] = splitCommentedLine[0].Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries)[1];
                     }
                     else
                         currentSection[line.Substring(0, idx)] = line.Substring(idx + 1);
                 }
             }
+
         }
 
         public string GetValue(string key)

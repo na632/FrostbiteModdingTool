@@ -117,12 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ContextEffectDribbleKickAngle" xml:space="preserve">
+    <value>Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too</value>
+  </data>
   <data name="ContextEffectDribblePressure" xml:space="preserve">
-    <value>Increasing this caused more aggressive tackles. 
-Increasing this causes the "dribbler" to be shoved off the ball more easily</value>
+    <value>Increasing ContextEffectDribblePressure caused more aggressive tackles. 
+Increasing ContextEffectDribblePressure causes the "dribbler" to be shoved off the ball more easily</value>
+  </data>
+  <data name="ContextEffectKickAngle" xml:space="preserve">
+    <value>Increasing ContextEffectKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too</value>
   </data>
   <data name="ContextEffectPressure" xml:space="preserve">
-    <value>Increasing this caused more interceptions, less dependant on ability.
+    <value>Increasing ContextEffectPressure caused more interceptions, less dependant on ability.
 Raising this caused a lesser team to beat a bigger team easily</value>
   </data>
   <data name="SaveOverOldLocaleINIText" xml:space="preserve">

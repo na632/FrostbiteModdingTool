@@ -142,7 +142,12 @@ namespace FIFAModdingUI
                     else
                     {
                         var label = new Label();
-                        label.Content = nameOfAttribute;
+                        label.Content = !nameOfAttribute.Contains("GK")
+                            ? nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[2]
+                            :
+                            nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[2] +
+                            nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[3];
+
                         label.Width = 275;
                         sp.Children.Add(label);
 
@@ -253,6 +258,9 @@ namespace FIFAModdingUI
                     g.Children.Add(c);
 
                     var tb = new TextBlock();
+                    tb.MinHeight = 100;
+                    tb.TextWrapping = TextWrapping.WrapWithOverflow;
+
                     if(FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()) != null) {
                         var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
                         tb.Text = resourceDescription;
