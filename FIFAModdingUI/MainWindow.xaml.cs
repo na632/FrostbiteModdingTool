@@ -15,13 +15,14 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Reflection;
 using FIFAModdingUI.ini;
+using MahApps.Metro.Controls;
 
 namespace FIFAModdingUI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         List<string> CompatibleFIFAVersions = new List<string>()
         {
@@ -66,6 +67,9 @@ namespace FIFAModdingUI
                 {
                     switch(k.Trim())
                     {
+                        case "SKIP_BOOTFLOW":
+                            chkSkipBootFlow.IsChecked = localeini.GetValue(k, "") == "1" ? true : false;
+                            break;
                         case "OVERRIDE_ERROR_ATTRIBUTE":
                             OVERRIDE_ERROR_ATTRIBUTE.IsChecked = localeini.GetValue(k, "") == "1" ? true : false;
                             break;
@@ -142,11 +146,13 @@ namespace FIFAModdingUI
                     else
                     {
                         var label = new Label();
-                        label.Content = !nameOfAttribute.Contains("GK")
-                            ? nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[2]
-                            :
-                            nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[2] +
-                            nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[3];
+                        //label.Content = !nameOfAttribute.Contains("GK")
+                        //    ? nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[2]
+                        //    :
+                        //    nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[2] +
+                        //    nameOfAttribute.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[3];
+
+                        label.Content = nameOfAttribute.Replace("_", " ").Replace("PLAYER ATTRIBUTE ", "");
 
                         label.Width = 275;
                         sp.Children.Add(label);
@@ -158,9 +164,30 @@ namespace FIFAModdingUI
                         c.Width = 300;
                         var v = aiobjsystem.GetValue(k, "").Trim();
                         c.Value = Convert.ToDouble(v);
-                        c.TickFrequency = 10;
+                        c.TickFrequency = 5;
+                        c.IsSnapToTickEnabled = true;
                         c.TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight;
                         sp.Children.Add(c);
+
+                        var labelSliderIndicator = new TextBox();
+                        labelSliderIndicator.TextAlignment = TextAlignment.Right;
+                        labelSliderIndicator.Width = 40;
+                        sp.Children.Add(labelSliderIndicator);
+
+
+                        labelSliderIndicator.SetBinding(TextBox.TextProperty,
+                            new Binding("Value") { Source = c });
+
+
+                        if (FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()+"_DESC") != null)
+                        {
+                            var labelDesc = new Label();
+                            labelDesc.Content = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim() + "_DESC");
+                            //labelDesc.Width = 275;
+                            sp.Children.Add(labelDesc);
+                        }
+
+                       
                     }
                     this.panel_GP_AttributeWeightSystem.Children.Add(sp);
                 }
@@ -230,6 +257,7 @@ namespace FIFAModdingUI
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
+            g.ColumnDefinitions.Add(new ColumnDefinition() { });
             var i = 0;
             foreach (var k in aiobjsystem.GetKeys("").OrderBy(x => x))
             {
@@ -241,6 +269,8 @@ namespace FIFAModdingUI
                     var checkbox = new CheckBox();
                     checkbox.Name = "chk_" + k.Trim();
                     checkbox.Content = "Enable - " + k.Trim();
+                    checkbox.VerticalAlignment = VerticalAlignment.Top;
+                    checkbox.VerticalContentAlignment = VerticalAlignment.Top;
                     Grid.SetColumn(checkbox, 0);
                     Grid.SetRow(checkbox, i);
                     g.Children.Add(checkbox);
@@ -253,9 +283,25 @@ namespace FIFAModdingUI
                     c.TickFrequency = 5;
                     c.Width = 200;
                     c.Value = 50;
+                    c.VerticalAlignment = VerticalAlignment.Top;
+                    c.VerticalContentAlignment = VerticalAlignment.Top;
                     Grid.SetColumn(c, 1);
                     Grid.SetRow(c, i);
                     g.Children.Add(c);
+
+
+                    var labelSliderIndicator = new TextBox();
+                    labelSliderIndicator.TextAlignment = TextAlignment.Right;
+                    labelSliderIndicator.Width = 40;
+                    labelSliderIndicator.VerticalAlignment = VerticalAlignment.Top;
+                    labelSliderIndicator.VerticalContentAlignment = VerticalAlignment.Top;
+                    Grid.SetColumn(labelSliderIndicator, 2);
+                    Grid.SetRow(labelSliderIndicator, i);
+                    g.Children.Add(labelSliderIndicator);
+
+
+                    labelSliderIndicator.SetBinding(TextBox.TextProperty,
+                        new Binding("Value") { Source = c });
 
                     var tb = new TextBlock();
                     tb.MinHeight = 100;
@@ -265,7 +311,7 @@ namespace FIFAModdingUI
                         var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
                         tb.Text = resourceDescription;
                     }
-                    Grid.SetColumn(tb, 2);
+                    Grid.SetColumn(tb, 3);
                     Grid.SetRow(tb, i);
                     g.Children.Add(tb);
 
@@ -551,27 +597,7 @@ namespace FIFAModdingUI
             //sb.AppendLine("ACCEL = 100.0");
             //sb.AppendLine("DECEL = 175.0");
             
-            if (KILL_EVERYONE.IsChecked.HasValue)
-            {
-                sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
-                if(KILL_EVERYONE.IsChecked.Value)
-                {
-                    sb.AppendLine("foulstrictness = 0");
-                    sb.AppendLine("Cardstrictness = 0");
-                    sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE = 1");
-                    sb.AppendLine("REFEREE_FOUL_STRICTNESS_OVERRIDE = 1");
-                    sb.AppendLine("REF_STRICTNESS = 0");
-                    sb.AppendLine("RefStrictness_0 = 1");
-                    sb.AppendLine("RefStrictness_1 = 1");
-                    sb.AppendLine("RefStrictness_2 = 1");
-                    sb.AppendLine("RefStrictness_3 = 1");
-                    sb.AppendLine("SLIDE_TACKLE = 0");
-                    sb.AppendLine("SLIDETACKLE = 0");
-                    sb.AppendLine("STAND_TACKLE = 1");
-                    sb.AppendLine("STANDTACKLE = 1");
-                    sb.AppendLine("TACKLE = 0");
-                }
-            }
+            
 
             //sb.AppendLine("ContextEffectTrapBallInAngle=50");
             //sb.AppendLine("ContextEffectTrapBallXZVelocity=75");
@@ -622,6 +648,45 @@ namespace FIFAModdingUI
                 sb.AppendLine("FORCE_FRONT=0.1");
                 sb.AppendLine("FORCE_INSIDE=0.1");
                 sb.AppendLine("FORCE_OUTSIDE=0.1");
+            }
+
+
+            if(chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value)
+            {
+                sb.AppendLine("[]");
+                sb.AppendLine("SKIP_BOOTFLOW=1");
+            }
+
+
+            sb.AppendLine("");
+            sb.AppendLine("// Cross Test");
+            sb.AppendLine("[]");
+            sb.AppendLine("CROSS=0");
+            sb.AppendLine("SCOOP=0");
+            sb.AppendLine("CROSS_LOW=100");
+            sb.AppendLine("CROSS_GROUND=100");
+            sb.AppendLine("GROUNDCROSS=100");
+
+
+            if (KILL_EVERYONE.IsChecked.HasValue && KILL_EVERYONE.IsChecked.Value)
+            {
+                sb.AppendLine("");
+                sb.AppendLine("// AI Fouling");
+                sb.AppendLine("[]");
+                sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
+                sb.AppendLine("foulstrictness=2");
+                sb.AppendLine("Cardstrictness=1");
+                sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE=1");
+                sb.AppendLine("REFEREE_FOUL_STRICTNESS_OVERRIDE=2");
+                sb.AppendLine("REF_STRICTNESS = 0");
+                for(var iRS = 0; iRS < 20; iRS++) {  
+                    sb.AppendLine("RefStrictness_" + iRS.ToString() + "=0");
+                }
+                sb.AppendLine("SLIDE_TACKLE = 0");
+                sb.AppendLine("SLIDETACKLE = 0");
+                sb.AppendLine("STAND_TACKLE = 2");
+                sb.AppendLine("STANDTACKLE = 2");
+                sb.AppendLine("TACKLE = 0");
             }
 
             sb.AppendLine("");

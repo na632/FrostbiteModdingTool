@@ -61,7 +61,16 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too.
+        ///   Looks up a localized string similar to The higher this value to worse Players are at defending (more dependant on attribute).
+        /// </summary>
+        internal static string ATTRIBUTE_10_WEIGHT_DESC {
+            get {
+                return ResourceManager.GetString("ATTRIBUTE_10_WEIGHT_DESC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI (as a poor team) and ability of players meant more, the game was slower too.
         /// </summary>
         internal static string ContextEffectDribbleKickAngle {
             get {
@@ -80,7 +89,7 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Increasing ContextEffectKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too.
+        ///   Looks up a localized string similar to Increasing ContextEffectKickAngle made it very difficult to play the AI (as a poor team). The ability of players meant more, the game was slower too.
         /// </summary>
         internal static string ContextEffectKickAngle {
             get {

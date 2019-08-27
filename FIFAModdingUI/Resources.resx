@@ -117,15 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ATTRIBUTE_10_WEIGHT_DESC" xml:space="preserve">
+    <value>The higher this value to worse Players are at defending (more dependant on attribute)</value>
+  </data>
   <data name="ContextEffectDribbleKickAngle" xml:space="preserve">
-    <value>Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too</value>
+    <value>Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI (as a poor team) and ability of players meant more, the game was slower too</value>
   </data>
   <data name="ContextEffectDribblePressure" xml:space="preserve">
     <value>Increasing ContextEffectDribblePressure caused more aggressive tackles. 
 Increasing ContextEffectDribblePressure causes the "dribbler" to be shoved off the ball more easily</value>
   </data>
   <data name="ContextEffectKickAngle" xml:space="preserve">
-    <value>Increasing ContextEffectKickAngle made it very difficult to play the AI and ability of players meant more, the game was slower too</value>
+    <value>Increasing ContextEffectKickAngle made it very difficult to play the AI (as a poor team). The ability of players meant more, the game was slower too</value>
   </data>
   <data name="ContextEffectPressure" xml:space="preserve">
     <value>Increasing ContextEffectPressure caused more interceptions, less dependant on ability.

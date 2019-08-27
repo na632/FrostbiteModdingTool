@@ -1,23 +1,24 @@
-﻿<Window x:Class="FIFAModdingUI.MainWindow"
+﻿<Controls:MetroWindow x:Class="FIFAModdingUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="paulv2k4 FIFA Modding UI" Height="720" Width="900" WindowStyle="ThreeDBorderWindow" >
+        Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStyle="ThreeDBorderWindow" >
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="3"></RowDefinition>
+            <RowDefinition Height="4"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Margin="0,10,0,10">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="600"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtFIFADirectory" Height="20" Text="" Grid.Column="0" FontSize="12" IsEnabled="False" />
+                <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
             <Button Name="btnBrowseFIFADirectory" Content="Browse for FIFA" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
         </Grid>
         
@@ -26,7 +27,7 @@
             <TabItem Header="Gameplay">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="23"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -34,10 +35,10 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     
-                    <CheckBox Name="chkUseBaseFIFAINI">Use Base FIFA 19 file (will reset your current locale.ini)</CheckBox>
+                    <CheckBox Visibility="Hidden" Name="chkUseBaseFIFAINI">Use Base FIFA 19 file (will reset your current locale.ini)</CheckBox>
                     <Button Name="btn_GP_SaveINI" Grid.Column="1" Content="Save your locale.INI" Click="Btn_GP_SaveINI_Click"/>
 
-                    <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Controls:MetroTabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" >
                         <TabItem Header="General">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -52,6 +53,7 @@
                                 </Grid>
                                 <StackPanel Background="#fefefe">
                                     <Label Content="General Settings"  FontWeight="Bold" />
+                                    <CheckBox Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing</CheckBox>
                                     <!--<StackPanel Orientation="Horizontal">
                                         <Label Content="Language" Width="200" />
                                         <ComboBox Name="cbLanguages" Width="180" />
@@ -100,29 +102,29 @@
                         <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="125"></RowDefinition>
+                                    <RowDefinition Height="150"></RowDefinition>
                                     <RowDefinition></RowDefinition>
                                 </Grid.RowDefinitions>
                                 <StackPanel Grid.Row="0">
                                     <!-- OVERRIDE GRAPH -->
-                                    <Label Content="Attribute Graph (How much do the player attributes vary during the match?)" FontWeight="Bold"></Label>
-                                    <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute"></CheckBox>
-                                    <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph Shape"></CheckBox>
+                                    <Label Content="Attribute Graph (How much do the player attributes vary during the match?)" FontWeight="Bold" FontSize="16"></Label>
+                                    <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute (Enables error touches etc.)"></CheckBox>
+                                    <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph (Enable sliders below)"></CheckBox>
                                     <StackPanel Orientation="Horizontal">
-                                        <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="200"></Label>
+                                        <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="300"></Label>
                                         <Slider x:Name="OVERRIDE_GRAPH_SHAPE_HIGH" Minimum="-1" Maximum="1" Value="0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="200"></Label>
+                                        <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="300"></Label>
                                         <Slider x:Name="OVERRIDE_GRAPH_SHAPE_LOW" Minimum="-1" Maximum="1" Value="-0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200"  />
                                     </StackPanel>
                                     <!-- ACCEL/DECEL GRAPH -->
                                     <!--<Label Content="Acceleration / Deceleration" FontWeight="Bold"></Label>-->
-                                    
+
+                                    <Label Content="Attribute Weightings" FontWeight="Bold"  FontSize="16"></Label>
                                 </StackPanel>
                                 <ScrollViewer Grid.Row="1">
                                     <StackPanel>
-                                        <Label Content="Attribute Weightings" FontWeight="Bold"></Label>
                                         <StackPanel x:Name="panel_GP_AttributeWeightSystem" >
                                         </StackPanel>
                                     </StackPanel>
@@ -133,7 +135,7 @@
                         <TabItem Header="AI Objective System" Name="tab_GP_ObjectiveSystem">
                             <ScrollViewer>
                                 <StackPanel>
-                                    <Label Content="This is the AI Objective System, here you can Enable/Disable all AI options within the game."></Label>
+                                    <Label Content="This is the AI Objective System, here you can Enable or Disable all the AI options within the game." FontSize="16" FontWeight="Bold"></Label>
                                     <StackPanel x:Name="panel_GP_ObjectiveSystem" 
                                         Height="Auto"
                                         Width="Auto" >
@@ -154,7 +156,7 @@
                                 <TextBlock Name="tbRawFileView" Background="White"></TextBlock>
                             </ScrollViewer>
                         </TabItem>
-                    </TabControl>
+                    </Controls:MetroTabControl>
                 </Grid>
                 
             </TabItem>
@@ -162,4 +164,4 @@
         </TabControl>
 
     </Grid>
-</Window>
+</Controls:MetroWindow>
