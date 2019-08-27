@@ -160,7 +160,22 @@
                 </Grid>
                 
             </TabItem>
-            <TabItem Header="Career" IsEnabled="False"></TabItem>
+            <TabItem Header="Career" IsEnabled="False">
+                <TabControl>
+                    <TabControl.Resources>
+                        <Style TargetType="{x:Type TabItem}">
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="10" />
+                        </Style>
+                    </TabControl.Resources>
+                    <TabItem Header="Settings">
+                    </TabItem>
+                    <TabItem Header="Finances">
+                    </TabItem>
+                    <TabItem Header="Morale">
+                    </TabItem>
+                </TabControl>
+            </TabItem>
         </TabControl>
 
     </Grid>

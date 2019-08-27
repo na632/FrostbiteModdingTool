@@ -4,4 +4,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="FifaLibrary19">
+      <HintPath>FifaLibrary19.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

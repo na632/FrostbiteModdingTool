@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Reflection;
 using FIFAModdingUI.ini;
 using MahApps.Metro.Controls;
+using v2k4FIFAModdingCL;
 
 namespace FIFAModdingUI
 {
@@ -429,6 +430,9 @@ namespace FIFAModdingUI
                 txtFIFADirectory.Text = FIFADirectory;
                 MainViewer.IsEnabled = true;
                 InitializeIniSettings();
+
+                FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
+
             }
             else
             {
@@ -449,22 +453,22 @@ namespace FIFAModdingUI
 
                 using (StreamWriter stream = new StreamWriter(FIFALocaleIni))
                 {
-                    stream.Write(GetResultingFileString());
+                    stream.Write(GetResultingLocaleINIString());
                 }
             }
         }
 
         protected void tabRawFileView_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            tbRawFileView.Text = GetResultingFileString();
+            tbRawFileView.Text = GetResultingLocaleINIString();
         }
 
         private void MainViewer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            tbRawFileView.Text = GetResultingFileString();
+            tbRawFileView.Text = GetResultingLocaleINIString();
         }
 
-        public string GetResultingFileString()
+        public string GetResultingLocaleINIString()
         {
             StringBuilder sb = new StringBuilder();
 
