@@ -40,7 +40,7 @@
 
                     <Controls:MetroTabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" >
                         <TabItem Header="General">
-                            <Grid>
+                            <Grid Margin="2">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition></ColumnDefinition>
                                     <ColumnDefinition></ColumnDefinition>
@@ -75,26 +75,58 @@
                                 <StackPanel Background="#fafafb" Grid.Column="1">
                                     <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
                                     <Label Content="These settings change game speed, AI decisions and much more!" />
-                                    <Label Content="Right/Left Foot Speed/Ability (Affects Dribbling, Passing and Shooting)" Grid.Column="0"></Label>
-                                    <Slider Name="sliderFOOT" Minimum="1" Maximum="100" Value="25" TickPlacement="BottomRight" TickFrequency="1"  Grid.Column="1"></Slider>
-                                    <Label Content="Right/Left Upper Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
-                                    <Slider Name="sliderUPPERLEG" Minimum="1" Maximum="100" Value="50" TickPlacement="BottomRight" TickFrequency="1"  Grid.Column="1"></Slider>
-                                    <Label Content="Ankle Speed / Use (Affects short passing and backheels)" Grid.Column="0"></Label>
-                                    <Slider Name="sliderANKLE" Minimum="1" Maximum="100" Value="75" TickPlacement="BottomRight" TickFrequency="1"  Grid.Column="1"></Slider>
-                                    <Label Content="Torso Speed (Turn speed / GK dive speed / tackle speed)" Grid.Column="0"></Label>
-                                    <Slider Name="sliderTORSO" Minimum="1" Maximum="100" Value="75" TickPlacement="BottomRight" TickFrequency="1"  Grid.Column="1"></Slider>
-                                    <Label Content="Hips Speed (Turn speed)" Grid.Column="0"></Label>
-                                    <Slider Name="sliderHIPS" Minimum="1" Maximum="100" Value="100" TickPlacement="BottomRight" TickFrequency="1"  Grid.Column="1"></Slider>
+                                    <DockPanel Margin="5">
+                                        <StackPanel>
+                                            <Label Content="Right/Left Foot Speed/Ability (Affects Dribbling, Passing and Shooting)"></Label>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Name="sliderFOOT" Minimum="0" Maximum="100" Value="25" TickPlacement="BottomRight" TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox Text="{Binding ElementName=sliderFOOT, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
 
+                                            <Label Content="Right/Left Upper Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Name="sliderUPPERLEG" Minimum="0" Maximum="100" Value="50" TickPlacement="BottomRight" TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox Text="{Binding ElementName=sliderUPPERLEG, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
+
+                                            <Label Content="Ankle Speed / Use (Affects short passing and backheels)" Grid.Column="0"></Label>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Name="sliderANKLE" Minimum="0" Maximum="100" Value="75" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox Text="{Binding ElementName=sliderANKLE, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
+
+                                            <Label Content="Torso Speed (Turn speed / GK dive speed / tackle speed)" Grid.Column="0"></Label>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Name="sliderTORSO" Minimum="0" Maximum="100" Value="100" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox Text="{Binding ElementName=sliderTORSO, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
+
+                                            <Label Content="Hips Speed (Turn speed)" Grid.Column="0"></Label>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Name="sliderHIPS" Minimum="0" Maximum="100" Value="100" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox Text="{Binding ElementName=sliderHIPS, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DockPanel>
+
+                                    <Label Content="Heading" FontWeight="Bold" />
+                                    <StackPanel Margin="1">
+                                        <Label Content="How much to reduce heading downward power" Grid.Column="0"></Label>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Slider Name="BALL_Y_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                            <TextBox Text="{Binding ElementName=BALL_Y_VELOCITY_HEADER_REDUCTION, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                        </StackPanel>
+                                       
+                                        <Label Content="How much to reduce heading lateral power" Grid.Column="0"></Label>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Slider Name="BALL_LATERAL_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                            <TextBox Text="{Binding ElementName=BALL_LATERAL_VELOCITY_HEADER_REDUCTION, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                        </StackPanel>
+
+                                    </StackPanel>
                                     <Label Content="Fouling" FontWeight="Bold" />
                                     <CheckBox x:Name="KILL_EVERYONE" Content="Force AI Fouling (May cause too many red cards)"></CheckBox>
                                     
-                                    <Label Content="Heading" FontWeight="Bold" />
-                                    <Label Content="How much to reduce heading downward power" Grid.Column="0"></Label>
-                                    <Slider Name="BALL_Y_VELOCITY_HEADER_REDUCTION" Minimum="-10.0" Maximum="10.0" Value="0" TickPlacement="BottomRight" TickFrequency="0.02" Grid.Column="1"></Slider>
-
-                                    <Label Content="How much to reduce heading lateral power" Grid.Column="0"></Label>
-                                    <Slider Name="BALL_LATERAL_VELOCITY_HEADER_REDUCTION" Minimum="-10.0" Maximum="10.0" Value="0" TickPlacement="BottomRight" TickFrequency="0.02" Grid.Column="1"></Slider>
                                     
                                 </StackPanel>
                             </Grid>
@@ -113,10 +145,12 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="300"></Label>
                                         <Slider x:Name="OVERRIDE_GRAPH_SHAPE_HIGH" Minimum="-1" Maximum="1" Value="0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200" />
+                                        <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_HIGH, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="300"></Label>
                                         <Slider x:Name="OVERRIDE_GRAPH_SHAPE_LOW" Minimum="-1" Maximum="1" Value="-0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200"  />
+                                        <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_LOW, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     </StackPanel>
                                     <!-- ACCEL/DECEL GRAPH -->
                                     <!--<Label Content="Acceleration / Deceleration" FontWeight="Bold"></Label>-->
@@ -160,7 +194,7 @@
                 </Grid>
                 
             </TabItem>
-            <TabItem Header="Career" IsEnabled="False">
+            <!--<TabItem Header="Career" IsEnabled="False">
                 <TabControl>
                     <TabControl.Resources>
                         <Style TargetType="{x:Type TabItem}">
@@ -175,7 +209,7 @@
                     <TabItem Header="Morale">
                     </TabItem>
                 </TabControl>
-            </TabItem>
+            </TabItem>-->
         </TabControl>
 
     </Grid>

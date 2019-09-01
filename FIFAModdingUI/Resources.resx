@@ -120,6 +120,24 @@
   <data name="ATTRIBUTE_10_WEIGHT_DESC" xml:space="preserve">
     <value>The higher this value to worse Players are at defending (more dependant on attribute)</value>
   </data>
+  <data name="ATTRIBUTE_24_WEIGHT_DESC" xml:space="preserve">
+    <value>The lower this value the more bad stand tacklers will use a standing tackle and be good at it</value>
+  </data>
+  <data name="ATTRIBUTE_25_WEIGHT_DESC" xml:space="preserve">
+    <value>The lower this value the more bad slide tacklers will use slide tackle and be good at it (needs FORCE Fouling to really show in game)</value>
+  </data>
+  <data name="ATTRIBUTE_2_WEIGHT_DESC" xml:space="preserve">
+    <value>The lower this value the more players use overhead kicks and quick spins/turns on the ball</value>
+  </data>
+  <data name="ContextEffectBallPosition" xml:space="preserve">
+    <value>A higher value makes it very difficult to create chances and score</value>
+  </data>
+  <data name="ContextEffectBallXZSpin" xml:space="preserve">
+    <value>The lower this value the AI tends to dribble more</value>
+  </data>
+  <data name="ContextEffectBallYSpin" xml:space="preserve">
+    <value>The lower this value the AI tends to dribble more</value>
+  </data>
   <data name="ContextEffectDribbleKickAngle" xml:space="preserve">
     <value>Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI (as a poor team) and ability of players meant more, the game was slower too</value>
   </data>

@@ -17,6 +17,8 @@ using System.Reflection;
 using FIFAModdingUI.ini;
 using MahApps.Metro.Controls;
 using v2k4FIFAModdingCL;
+using v2k4FIFAModdingCL.CustomAttributes;
+using v2k4FIFAModdingCL.Career;
 
 namespace FIFAModdingUI
 {
@@ -160,9 +162,9 @@ namespace FIFAModdingUI
 
                         var c = new Slider();
                         c.Name = k.Trim();
-                        c.Minimum = 1;
-                        c.Maximum = 300;
-                        c.Width = 300;
+                        c.Minimum = 0;
+                        c.Maximum = 350;
+                        c.Width = 350;
                         var v = aiobjsystem.GetValue(k, "").Trim();
                         c.Value = Convert.ToDouble(v);
                         c.TickFrequency = 5;
@@ -282,6 +284,7 @@ namespace FIFAModdingUI
                     c.Maximum = 100;
                     c.TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight;
                     c.TickFrequency = 5;
+                    c.IsSnapToTickEnabled = true;
                     c.Width = 200;
                     c.Value = 50;
                     c.VerticalAlignment = VerticalAlignment.Top;
@@ -432,6 +435,7 @@ namespace FIFAModdingUI
                 InitializeIniSettings();
 
                 FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
+                FIFAVersionHelper.GetCustomAttributes(new CMSettings());
 
             }
             else
@@ -607,8 +611,8 @@ namespace FIFAModdingUI
             //sb.AppendLine("ContextEffectTrapBallXZVelocity=75");
             //sb.AppendLine("DEBUG_DISABLE_LOSE_ATTACKER_EFFECT = 1");
 
-            sb.AppendLine("FALL = 50");
-            sb.AppendLine("STUMBLE = 10");
+            sb.AppendLine("FALL=50");
+            sb.AppendLine("STUMBLE=10");
 
             sb.AppendLine("BALL_Y_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_Y_VELOCITY_HEADER_REDUCTION.Value, 2));
             sb.AppendLine("BALL_LATERAL_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value, 2));
@@ -657,19 +661,20 @@ namespace FIFAModdingUI
 
             if(chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value)
             {
+                sb.AppendLine("");
                 sb.AppendLine("[]");
                 sb.AppendLine("SKIP_BOOTFLOW=1");
             }
 
 
-            sb.AppendLine("");
-            sb.AppendLine("// Cross Test");
-            sb.AppendLine("[]");
-            sb.AppendLine("CROSS=0");
-            sb.AppendLine("SCOOP=0");
-            sb.AppendLine("CROSS_LOW=100");
-            sb.AppendLine("CROSS_GROUND=100");
-            sb.AppendLine("GROUNDCROSS=100");
+            //sb.AppendLine("");
+            //sb.AppendLine("// Cross Test");
+            //sb.AppendLine("[]");
+            //sb.AppendLine("CROSS=0");
+            //sb.AppendLine("SCOOP=0");
+            //sb.AppendLine("CROSS_LOW=100");
+            //sb.AppendLine("CROSS_GROUND=100");
+            //sb.AppendLine("GROUNDCROSS=100");
 
 
             if (KILL_EVERYONE.IsChecked.HasValue && KILL_EVERYONE.IsChecked.Value)
@@ -679,18 +684,22 @@ namespace FIFAModdingUI
                 sb.AppendLine("[]");
                 sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
                 sb.AppendLine("foulstrictness=2");
-                sb.AppendLine("Cardstrictness=1");
-                sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE=1");
+                sb.AppendLine("Cardstrictness=0");
+                sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE=0");
                 sb.AppendLine("REFEREE_FOUL_STRICTNESS_OVERRIDE=2");
-                sb.AppendLine("REF_STRICTNESS = 0");
+                sb.AppendLine("REF_STRICTNESS = 2");
                 for(var iRS = 0; iRS < 20; iRS++) {  
-                    sb.AppendLine("RefStrictness_" + iRS.ToString() + "=0");
+                    sb.AppendLine("RefStrictness_" + iRS.ToString() + "=2");
                 }
-                sb.AppendLine("SLIDE_TACKLE = 0");
-                sb.AppendLine("SLIDETACKLE = 0");
-                sb.AppendLine("STAND_TACKLE = 2");
-                sb.AppendLine("STANDTACKLE = 2");
-                sb.AppendLine("TACKLE = 0");
+                for (var iRS = 0; iRS < 20; iRS++)
+                {
+                    sb.AppendLine("CardStrictness_" + iRS.ToString() + "=0");
+                }
+                sb.AppendLine("SLIDE_TACKLE = 2");
+                sb.AppendLine("SLIDETACKLE = 2");
+                sb.AppendLine("STAND_TACKLE = 0");
+                sb.AppendLine("STANDTACKLE = 0");
+                sb.AppendLine("TACKLE = 1");
             }
 
             sb.AppendLine("");

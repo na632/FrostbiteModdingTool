@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29001.49
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModdingUI", "FIFAModdingUI\FIFAModdingUI.csproj", "{6D0F7EF2-1514-4D67-A34E-2EF5E576B9AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "v2k4FIFAModdingCL", "v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModdingCL", "v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIFAModdingTests", "FIFAModdingTests\FIFAModdingTests.csproj", "{C9187925-33DD-4D62-B055-6C4F87DD95EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{808B462B-078A-4D7D-8DA1-92FCED89F32A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{808B462B-078A-4D7D-8DA1-92FCED89F32A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{808B462B-078A-4D7D-8DA1-92FCED89F32A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9187925-33DD-4D62-B055-6C4F87DD95EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9187925-33DD-4D62-B055-6C4F87DD95EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9187925-33DD-4D62-B055-6C4F87DD95EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9187925-33DD-4D62-B055-6C4F87DD95EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

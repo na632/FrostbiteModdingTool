@@ -70,6 +70,60 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The lower this value the more players use overhead kicks and quick spins/turns on the ball.
+        /// </summary>
+        internal static string ATTRIBUTE_2_WEIGHT_DESC {
+            get {
+                return ResourceManager.GetString("ATTRIBUTE_2_WEIGHT_DESC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The lower this value the more bad stand tacklers will use a standing tackle and be good at it.
+        /// </summary>
+        internal static string ATTRIBUTE_24_WEIGHT_DESC {
+            get {
+                return ResourceManager.GetString("ATTRIBUTE_24_WEIGHT_DESC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The lower this value the more bad slide tacklers will use slide tackle and be good at it (needs FORCE Fouling to really show in game).
+        /// </summary>
+        internal static string ATTRIBUTE_25_WEIGHT_DESC {
+            get {
+                return ResourceManager.GetString("ATTRIBUTE_25_WEIGHT_DESC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A higher value makes it very difficult to create chances and score.
+        /// </summary>
+        internal static string ContextEffectBallPosition {
+            get {
+                return ResourceManager.GetString("ContextEffectBallPosition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The lower this value the AI tends to dribble more.
+        /// </summary>
+        internal static string ContextEffectBallXZSpin {
+            get {
+                return ResourceManager.GetString("ContextEffectBallXZSpin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The lower this value the AI tends to dribble more.
+        /// </summary>
+        internal static string ContextEffectBallYSpin {
+            get {
+                return ResourceManager.GetString("ContextEffectBallYSpin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Increasing ContextEffectDribbleKickAngle made it very difficult to play the AI (as a poor team) and ability of players meant more, the game was slower too.
         /// </summary>
         internal static string ContextEffectDribbleKickAngle {
