@@ -15,7 +15,8 @@
   <ItemGroup>
     <None Remove="ini\AIObjectiveSystem.ini" />
     <None Remove="ini\ATTRIBUTE_WEIGHTS.ini" />
-    <None Remove="ini\ContextEffect.ini" />
+    <None Remove="ini\ContextEffect_FIFA19.ini" />
+    <None Remove="ini\ContextEffect_FIFA20.ini" />
     <None Remove="ini\UnlockBootsAndCelebrations.ini" />
     <None Remove="ini\_FIFA19_base.ini" />
   </ItemGroup>
@@ -27,7 +28,7 @@
     <EmbeddedResource Include="ini\ATTRIBUTE_WEIGHTS.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="ini\ContextEffect.ini">
+    <EmbeddedResource Include="ini\ContextEffect_FIFA19.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\UnlockBootsAndCelebrations.ini">
@@ -53,6 +54,10 @@
     <Reference Include="FifaLibrary19">
       <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ini\ContextEffect_FIFA20.ini" />
   </ItemGroup>
 
   <ItemGroup>

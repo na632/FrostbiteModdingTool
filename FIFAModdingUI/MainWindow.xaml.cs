@@ -19,6 +19,7 @@ using MahApps.Metro.Controls;
 using v2k4FIFAModdingCL;
 using v2k4FIFAModdingCL.CustomAttributes;
 using v2k4FIFAModdingCL.Career;
+using System.Text.RegularExpressions;
 
 namespace FIFAModdingUI
 {
@@ -29,7 +30,9 @@ namespace FIFAModdingUI
     {
         List<string> CompatibleFIFAVersions = new List<string>()
         {
-            "FIFA19.exe"
+            "FIFA19.exe",
+            "FIFA20_demo.exe",
+            "FIFA20.exe"
         };
 
         public static string FIFADirectory = string.Empty;
@@ -62,8 +65,14 @@ namespace FIFAModdingUI
 
         private void InitializeOtherSettings()
         {
+
+
             if(!string.IsNullOrEmpty(FIFALocaleIni))
             {
+
+                if (FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
+                    chkSkipBootFlow.IsEnabled = false;
+
                 var localeini = new IniReader(FIFALocaleIni);
                 var allKeys = localeini.GetKeys("");
                 foreach (var k in allKeys)
@@ -253,11 +262,11 @@ namespace FIFAModdingUI
             // Initialise 
 
             //var aiobjsystem = new IniReader("ini/ContextEffect.ini");
-            var aiobjsystem = new IniReader("ContextEffect.ini", true);
+            var aiobjsystem = new IniReader("ContextEffect_" + FIFAInstanceSingleton.FIFAVERSION.Replace("_demo","") + ".ini", true);
             var commentBuildUp = new StringBuilder();
 
             var g = new Grid();
-            g.ColumnDefinitions.Add(new ColumnDefinition() { });
+            g.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(400) });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
@@ -271,7 +280,13 @@ namespace FIFAModdingUI
                 {
                     var checkbox = new CheckBox();
                     checkbox.Name = "chk_" + k.Trim();
-                    checkbox.Content = "Enable - " + k.Trim();
+                    checkbox.Content = "Enable - " + k.Trim()
+                        .Replace("PASSSHOT_CONTEXTEFFECT_", "Passing/Shooting ")
+                        .Replace("TRAP_CONTEXTEFFECT_", "Ball Control ")
+                        .Replace("DRIBBLE_ERROR_", "Dribble Error ")
+                        .Replace("_", "")
+                        ;
+                    checkbox.Content = Regex.Replace(checkbox.Content.ToString(), @"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))", " $0");
                     checkbox.VerticalAlignment = VerticalAlignment.Top;
                     checkbox.VerticalContentAlignment = VerticalAlignment.Top;
                     Grid.SetColumn(checkbox, 0);
@@ -430,12 +445,14 @@ namespace FIFAModdingUI
             var fileName = filePath.Substring(filePath.LastIndexOf("\\")+1, filePath.Length - filePath.LastIndexOf("\\")-1);
             if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
             {
+                FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
+                FIFAVersionHelper.GetCustomAttributes(new CMSettings());
+
                 txtFIFADirectory.Text = FIFADirectory;
                 MainViewer.IsEnabled = true;
                 InitializeIniSettings();
 
-                FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
-                FIFAVersionHelper.GetCustomAttributes(new CMSettings());
+               
 
             }
             else
@@ -659,7 +676,7 @@ namespace FIFAModdingUI
             }
 
 
-            if(chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value)
+            if(chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value && !FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
             {
                 sb.AppendLine("");
                 sb.AppendLine("[]");
@@ -685,7 +702,7 @@ namespace FIFAModdingUI
                 sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
                 sb.AppendLine("foulstrictness=2");
                 sb.AppendLine("Cardstrictness=0");
-                sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE=0");
+                sb.AppendLine("REFEREE_CARD_STRICTNESS_OVERRIDE=1");
                 sb.AppendLine("REFEREE_FOUL_STRICTNESS_OVERRIDE=2");
                 sb.AppendLine("REF_STRICTNESS = 2");
                 for(var iRS = 0; iRS < 20; iRS++) {  
@@ -695,11 +712,20 @@ namespace FIFAModdingUI
                 {
                     sb.AppendLine("CardStrictness_" + iRS.ToString() + "=0");
                 }
-                sb.AppendLine("SLIDE_TACKLE = 2");
-                sb.AppendLine("SLIDETACKLE = 2");
+                sb.AppendLine("SLIDE_TACKLE = 1");
+                sb.AppendLine("SLIDETACKLE = 1");
                 sb.AppendLine("STAND_TACKLE = 0");
                 sb.AppendLine("STANDTACKLE = 0");
-                sb.AppendLine("TACKLE = 1");
+                sb.AppendLine("TACKLE = 0");
+            }
+
+            if (FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
+            {
+                sb.AppendLine("");
+                sb.AppendLine("[]");
+                sb.AppendLine("FIFA_DEMO = 1");
+                sb.AppendLine("[STORY_MODE]");
+                sb.AppendLine("DISABLE_ONBOARDING=1");
             }
 
             sb.AppendLine("");
