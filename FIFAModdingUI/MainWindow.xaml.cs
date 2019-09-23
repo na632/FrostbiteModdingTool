@@ -266,7 +266,7 @@ namespace FIFAModdingUI
             var commentBuildUp = new StringBuilder();
 
             var g = new Grid();
-            g.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(400) });
+            g.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(500) });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
             g.ColumnDefinitions.Add(new ColumnDefinition() { });
@@ -295,13 +295,26 @@ namespace FIFAModdingUI
 
                     var c = new Slider();
                     c.Name = k.Trim();
-                    c.Minimum = 0;
-                    c.Maximum = 100;
+
+                    //if (c.Name.StartsWith("ContextEffect"))
+                    //{
+                        c.Minimum = 0;
+                        c.Maximum = 100;
+                        c.TickFrequency = 1;
+                        c.Value = 50;
+                        c.IsSnapToTickEnabled = true;
+                    //}
+                    //else
+                    //{
+                    //    c.Minimum = 0;
+                    //    c.Maximum = 1;
+                    //    c.TickFrequency = 0.1;
+                    //    c.Ticks = new DoubleCollection(10);
+                    //    c.Value = 0.5;
+                    //}
+
                     c.TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight;
-                    c.TickFrequency = 5;
-                    c.IsSnapToTickEnabled = true;
                     c.Width = 200;
-                    c.Value = 50;
                     c.VerticalAlignment = VerticalAlignment.Top;
                     c.VerticalContentAlignment = VerticalAlignment.Top;
                     Grid.SetColumn(c, 1);
@@ -347,6 +360,7 @@ namespace FIFAModdingUI
                 var localeini = new IniReader(FIFALocaleIni);
                 foreach (var k in localeini.GetKeys("").OrderBy(x => x))
                 {
+                    var kTrimmed = k.Trim();
                     foreach (var c in panel_GP_ContextEffect.Children)
                     {
                         Grid childGrid = c as Grid;
@@ -365,9 +379,12 @@ namespace FIFAModdingUI
                             {
                                 if (childSlider.Name.Trim() == k.Trim())
                                 {
-                                    if (double.TryParse(localeini.GetValue(k), out double value))
+                                    if (float.TryParse(localeini.GetValue(k).Replace(".f", "").Replace("f",""), out float fV))
                                     {
-                                        childSlider.Value = value;
+                                        if (double.TryParse(fV.ToString(), out double value))
+                                        {
+                                            childSlider.Value = kTrimmed.StartsWith("ContextEffect") ? value : value * 100;
+                                        }
                                     }
                                     else
                                     {
@@ -389,7 +406,8 @@ namespace FIFAModdingUI
             panel_GP_ObjectiveSystem.Children.Clear();
 
             //var aiobjsystem = new IniReader("ini/AIObjectiveSystem.ini");
-            var aiobjsystem = new IniReader("AIObjectiveSystem.ini", true);
+            //var aiobjsystem = new IniReader("AIObjectiveSystem.ini", true);
+            var aiobjsystem = new IniReader("AIObjectiveSystem_" + FIFAInstanceSingleton.FIFAVERSION_NODEMO + ".ini", true);
             foreach (var k in aiobjsystem.GetKeys("").OrderBy(x=>x))
             {
                 if (!k.StartsWith("//"))
@@ -552,7 +570,22 @@ namespace FIFAModdingUI
                         foreach (CheckBox childCheckBox in childGrid.Children.OfType<CheckBox>().Where(x=>x.Name.Contains(childSlider.Name)))
                         {
                             if (childCheckBox.IsChecked.HasValue && childCheckBox.IsChecked.Value)
-                                sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value));
+                            {
+                                if (!childSlider.Name.StartsWith("ContextEffect"))
+                                {
+                                    var vString = (childSlider.Value / 100).ToString();
+                                    if (!vString.Contains("."))
+                                        vString += ".f";
+                                    else
+                                        vString += "f";
+
+                                    sb.AppendLine(childSlider.Name + "=" + vString);
+                                }
+                                else
+                                {
+                                    sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value));
+                                }
+                            }
                         }
                     }
                 }
@@ -631,6 +664,8 @@ namespace FIFAModdingUI
             sb.AppendLine("FALL=50");
             sb.AppendLine("STUMBLE=10");
 
+
+           
             sb.AppendLine("BALL_Y_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_Y_VELOCITY_HEADER_REDUCTION.Value, 2));
             sb.AppendLine("BALL_LATERAL_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value, 2));
 
@@ -729,6 +764,16 @@ namespace FIFAModdingUI
             }
 
             sb.AppendLine("");
+
+
+            sb.AppendLine("");
+            sb.AppendLine("// Match Rating tweaks");
+            sb.AppendLine("// Remove Defenders always gettings perfect ratings");
+            sb.AppendLine("[]");
+            sb.AppendLine("BLOCKED_UNINTENTIONAL=0");
+            sb.AppendLine("BLOCKED_INTENTIONAL=0");
+            sb.AppendLine("BLOCK_INP=0");
+
 
             return sb.ToString();
         }

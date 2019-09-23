@@ -13,7 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ini\AIObjectiveSystem.ini" />
+    <None Remove="ini\AIObjectiveSystem_FIFA19.ini" />
+    <None Remove="ini\AIObjectiveSystem_FIFA20.ini" />
     <None Remove="ini\ATTRIBUTE_WEIGHTS.ini" />
     <None Remove="ini\ContextEffect_FIFA19.ini" />
     <None Remove="ini\ContextEffect_FIFA20.ini" />
@@ -22,9 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ini\AIObjectiveSystem.ini">
+    <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA19.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA20.ini" />
     <EmbeddedResource Include="ini\ATTRIBUTE_WEIGHTS.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
