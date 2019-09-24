@@ -296,14 +296,16 @@ namespace FIFAModdingUI
                     var c = new Slider();
                     c.Name = k.Trim();
 
-                    //if (c.Name.StartsWith("ContextEffect"))
-                    //{
-                        c.Minimum = 0;
-                        c.Maximum = 100;
-                        c.TickFrequency = 1;
-                        c.Value = 50;
-                        c.IsSnapToTickEnabled = true;
-                    //}
+                    c.Minimum = 0;
+                    c.Maximum = 100;
+                    c.TickFrequency = 1;
+                    c.Value = 50;
+                    c.IsSnapToTickEnabled = true;
+
+                    if (!c.Name.StartsWith("ContextEffect"))
+                    {
+                        c.Maximum = 150;
+                    }
                     //else
                     //{
                     //    c.Minimum = 0;
