@@ -2,12 +2,26 @@
 using System.Collections.Generic;
 using System.Text;
 using v2k4FIFAModdingCL.CustomAttributes;
+using v2k4FIFAModdingCL.Interfaces;
 
 namespace v2k4FIFAModdingCL.Career
 {
     [FIFAVersion("ALL")]
-    public class CMSettings
+    public class CMSettings : IFIFAFile
     {
+        public string FileLocation
+        {
+            get
+            {
+                return @"dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\cmsettings.ini";
+            }
+        }
+
+        public bool IsLegacyFile
+        {
+            get { return true; }
+        }
+
         [FIFAVersion("ALL")]
         public class Fitness
         {

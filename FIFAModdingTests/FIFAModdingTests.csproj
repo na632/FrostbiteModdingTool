@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="FifaLibrary19">
       <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
     </Reference>

@@ -79,32 +79,38 @@
                                         <StackPanel>
                                             <Label Content="Right/Left Foot Speed/Ability (Affects Dribbling, Passing and Shooting)"></Label>
                                             <StackPanel Orientation="Horizontal">
-                                                <Slider Name="sliderFOOT" Minimum="0" Maximum="100" Value="25" TickPlacement="BottomRight" TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox Text="{Binding ElementName=sliderFOOT, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                <CheckBox Name="chkSliderFOOT" IsChecked="False"></CheckBox>
+                                                <Slider  IsEnabled="{Binding ElementName=chkSliderFOOT, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderFOOT" Minimum="0" Maximum="100" Value="25" TickPlacement="BottomRight" TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox  IsEnabled="{Binding ElementName=chkSliderFOOT, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderFOOT, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
 
                                             <Label Content="Right/Left Upper Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
                                             <StackPanel Orientation="Horizontal">
-                                                <Slider Name="sliderUPPERLEG" Minimum="0" Maximum="100" Value="50" TickPlacement="BottomRight" TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox Text="{Binding ElementName=sliderUPPERLEG, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                <CheckBox Name="chkSliderUPPERLEG" IsChecked="False"></CheckBox>
+                                                <Slider  IsEnabled="{Binding ElementName=chkSliderUPPERLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderUPPERLEG" Minimum="0" Maximum="100" Value="50" TickPlacement="BottomRight" TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox  IsEnabled="{Binding ElementName=chkSliderUPPERLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderUPPERLEG, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
 
                                             <Label Content="Ankle Speed / Use (Affects short passing and backheels)" Grid.Column="0"></Label>
                                             <StackPanel Orientation="Horizontal">
-                                                <Slider Name="sliderANKLE" Minimum="0" Maximum="100" Value="75" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox Text="{Binding ElementName=sliderANKLE, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                <CheckBox Name="chkSliderANKLE" IsChecked="False"></CheckBox>
+                                                <Slider IsEnabled="{Binding ElementName=chkSliderANKLE, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderANKLE" Minimum="0" Maximum="100" Value="75" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox IsEnabled="{Binding ElementName=chkSliderANKLE, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderANKLE, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
 
                                             <Label Content="Torso Speed (Turn speed / GK dive speed / tackle speed)" Grid.Column="0"></Label>
                                             <StackPanel Orientation="Horizontal">
-                                                <Slider Name="sliderTORSO" Minimum="0" Maximum="100" Value="100" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox Text="{Binding ElementName=sliderTORSO, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                <CheckBox Name="chkSliderTORSO" IsChecked="False"></CheckBox>
+
+                                                <Slider  IsEnabled="{Binding ElementName=chkSliderTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Name="sliderTORSO" Minimum="0" Maximum="100" Value="100" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox IsEnabled="{Binding ElementName=chkSliderTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderTORSO, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
 
                                             <Label Content="Hips Speed (Turn speed)" Grid.Column="0"></Label>
                                             <StackPanel Orientation="Horizontal">
-                                                <Slider Name="sliderHIPS" Minimum="0" Maximum="100" Value="100" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox Text="{Binding ElementName=sliderHIPS, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                <CheckBox Name="chksliderHIPS" IsChecked="False"></CheckBox>
+                                                <Slider   IsEnabled="{Binding ElementName=chksliderHIPS, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderHIPS" Minimum="0" Maximum="100" Value="100" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox   IsEnabled="{Binding ElementName=chksliderHIPS, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderHIPS, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
                                         </StackPanel>
                                     </DockPanel>
@@ -125,7 +131,7 @@
 
                                     </StackPanel>
                                     <Label Content="Fouling" FontWeight="Bold" />
-                                    <CheckBox x:Name="KILL_EVERYONE" Content="Force AI Fouling (May cause too many red cards)"></CheckBox>
+                                    <CheckBox x:Name="KILL_EVERYONE" Content="Force AI Fouling (May cause too many yellow/red cards)"></CheckBox>
                                     
                                     
                                 </StackPanel>
@@ -194,22 +200,8 @@
                 </Grid>
                 
             </TabItem>
-            <!--<TabItem Header="Career" IsEnabled="False">
-                <TabControl>
-                    <TabControl.Resources>
-                        <Style TargetType="{x:Type TabItem}">
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="Padding" Value="10" />
-                        </Style>
-                    </TabControl.Resources>
-                    <TabItem Header="Settings">
-                    </TabItem>
-                    <TabItem Header="Finances">
-                    </TabItem>
-                    <TabItem Header="Morale">
-                    </TabItem>
-                </TabControl>
-            </TabItem>-->
+            <TabItem Header="Career" IsEnabled="False">
+            </TabItem>
         </TabControl>
 
     </Grid>
