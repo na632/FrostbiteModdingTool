@@ -5,6 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Career\ini\cmsettings.INI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Career\ini\cmsettings.INI" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="FifaLibrary19">
       <HintPath>FifaLibrary19.dll</HintPath>
     </Reference>
@@ -12,10 +20,12 @@
 
   <ItemGroup>
     <Folder Include="Career\Interfaces\" />
+    <Folder Include="db\FIFA20\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
+    <PackageReference Include="Zstandard.Net" Version="1.1.7" />
   </ItemGroup>
 
 </Project>

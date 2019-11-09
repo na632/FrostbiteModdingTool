@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Xml.Serialization;
+using v2k4FIFAModdingCL.Career.ObjectiveHelpers;
 using v2k4FIFAModdingCL.Career.StoryAssetHelpers;
+using FifaLibrary;
 
 namespace FIFAModdingTests
 {
@@ -33,6 +35,39 @@ namespace FIFAModdingTests
             if(r!=null)
             {
 
+            }
+
+        }
+
+        [TestMethod]
+        public void TestLoadObjectivesFile()
+        {
+
+            XmlSerializer serializer = new XmlSerializer(typeof(objectives));
+
+            StreamReader reader = new StreamReader(@"J:\Work\Modding\FIFA Modding\Career Mod\FIFA-20-Career-Mod\Source\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\Objectives\objectivesProfitability.XML");
+            var r = (objectives)serializer.Deserialize(reader);
+            reader.Close();
+            if (r != null)
+            {
+
+            }
+
+        }
+
+
+        [TestMethod]
+        public void TestLoadCareerSaveFile()
+        {
+
+            CareerFile careerFile = new CareerFile(@"C:\Users\paula\Documents\FIFA 20\settings\Career20191107114315A", "fifa_ng_db-meta.xml");
+            if(careerFile!=null)
+            {
+                var dsets = careerFile.ConvertToDataSet();
+                if(dsets != null)
+                {
+
+                }
             }
 
         }

@@ -117,8 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ATTRIBUTE_0_WEIGHT_DESC" xml:space="preserve">
+    <value>The lower this value the slower the overall game and shorter the gap between players who are slow or fast</value>
+  </data>
   <data name="ATTRIBUTE_10_WEIGHT_DESC" xml:space="preserve">
     <value>The higher this value to worse Players are at defending (more dependant on attribute)</value>
+  </data>
+  <data name="ATTRIBUTE_1_WEIGHT_DESC" xml:space="preserve">
+    <value>The lower this value the slower the overall game and shorter the gap between players who are slow or fast</value>
   </data>
   <data name="ATTRIBUTE_24_WEIGHT_DESC" xml:space="preserve">
     <value>The lower this value the more bad stand tacklers will use a standing tackle and be good at it</value>
@@ -151,6 +157,12 @@ Increasing ContextEffectDribblePressure causes the "dribbler" to be shoved off t
   <data name="ContextEffectPressure" xml:space="preserve">
     <value>Increasing ContextEffectPressure caused more interceptions, less dependant on ability.
 Raising this caused a lesser team to beat a bigger team easily</value>
+  </data>
+  <data name="DRIBBLE_ERROR_FarKick_IgnorePressure_Threshold" xml:space="preserve">
+    <value>The higher this value the AI tends to dribble more</value>
+  </data>
+  <data name="DRIBBLE_ERROR_LowPressure_RelAngle_Threshold" xml:space="preserve">
+    <value>The higher this value the AI tends to dribble more</value>
   </data>
   <data name="SaveOverOldLocaleINIText" xml:space="preserve">
     <value>By saving this file using this tool, you agree to not share it without attribution to me "paulv2k4" with a link to my patreon https://www.patreon.com/fifa_gameplay_career_mod or website https://v2k4fifamodding.azurewebsites.net/.

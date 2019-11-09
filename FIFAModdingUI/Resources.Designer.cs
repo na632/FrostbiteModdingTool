@@ -61,6 +61,24 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The lower this value the slower the overall game and shorter the gap between players who are slow or fast.
+        /// </summary>
+        internal static string ATTRIBUTE_0_WEIGHT_DESC {
+            get {
+                return ResourceManager.GetString("ATTRIBUTE_0_WEIGHT_DESC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The lower this value the slower the overall game and shorter the gap between players who are slow or fast.
+        /// </summary>
+        internal static string ATTRIBUTE_1_WEIGHT_DESC {
+            get {
+                return ResourceManager.GetString("ATTRIBUTE_1_WEIGHT_DESC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The higher this value to worse Players are at defending (more dependant on attribute).
         /// </summary>
         internal static string ATTRIBUTE_10_WEIGHT_DESC {
@@ -158,6 +176,24 @@ namespace FIFAModdingUI {
         internal static string ContextEffectPressure {
             get {
                 return ResourceManager.GetString("ContextEffectPressure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The higher this value the AI tends to dribble more.
+        /// </summary>
+        internal static string DRIBBLE_ERROR_FarKick_IgnorePressure_Threshold {
+            get {
+                return ResourceManager.GetString("DRIBBLE_ERROR_FarKick_IgnorePressure_Threshold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The higher this value the AI tends to dribble more.
+        /// </summary>
+        internal static string DRIBBLE_ERROR_LowPressure_RelAngle_Threshold {
+            get {
+                return ResourceManager.GetString("DRIBBLE_ERROR_LowPressure_RelAngle_Threshold", resourceCulture);
             }
         }
         
