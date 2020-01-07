@@ -53,6 +53,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FIFACareerDLL\FIFACareerDLL.vcxproj">
+      <Private>true</Private>
+    </ProjectReference>
     <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj" />
   </ItemGroup>
 
