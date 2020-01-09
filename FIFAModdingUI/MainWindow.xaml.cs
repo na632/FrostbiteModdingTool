@@ -23,6 +23,8 @@ using System.Text.RegularExpressions;
 using Bleak;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Simple_Injector.Etc;
+using System.Data;
 
 namespace FIFAModdingUI
 {
@@ -72,6 +74,13 @@ namespace FIFAModdingUI
         static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress,
             uint dwSize, uint flAllocationType, uint flProtect);
 
+        //[DllImport("kernel32.dll")]
+        //static extern bool ReadProcessMemory(IntPtr hProcess,
+        //        IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
+
+        [DllImport("kernel32")]
+        static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
+
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
 
@@ -79,17 +88,72 @@ namespace FIFAModdingUI
         static extern IntPtr CreateRemoteThread(IntPtr hProcess,
             IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
 
-        // privileges
-        const int PROCESS_CREATE_THREAD = 0x0002;
-        const int PROCESS_QUERY_INFORMATION = 0x0400;
-        const int PROCESS_VM_OPERATION = 0x0008;
-        const int PROCESS_VM_WRITE = 0x0020;
-        const int PROCESS_VM_READ = 0x0010;
+        private static readonly Simple_Injection.Injector Injector = new Simple_Injection.Injector();
 
-        // used for memory allocation
-        const uint MEM_COMMIT = 0x00001000;
-        const uint MEM_RESERVE = 0x00002000;
-        const uint PAGE_READWRITE = 4;
+        private static readonly Status Status = new Status();
+
+        private readonly Config _config = new Config();
+
+        private readonly DataTable _processTable = new DataTable();
+
+        //// privileges
+        //const int PROCESS_CREATE_THREAD = 0x0002;
+        //const int PROCESS_QUERY_INFORMATION = 0x0400;
+        //const int PROCESS_VM_OPERATION = 0x0008;
+        //const int PROCESS_VM_WRITE = 0x0020;
+        //const int PROCESS_VM_READ = 0x0010;
+
+        //// used for memory allocation
+        //const uint MEM_COMMIT = 0x00001000;
+        //const uint MEM_RESERVE = 0x00002000;
+        //const uint PAGE_READWRITE = 4;
+
+        public static Status Inject(Config config)
+        {
+            // Inject using specified method
+
+            switch (config.InjectionMethod)
+            {
+                case "CreateRemoteThread":
+
+                    if (Injector.CreateRemoteThread(config.DllPath, config.ProcessName))
+                    {
+                        Status.InjectionOutcome = true;
+                    }
+
+                    break;
+
+                case "RtlCreateUserThread":
+
+                    if (Injector.RtlCreateUserThread(config.DllPath, config.ProcessName))
+                    {
+                        Status.InjectionOutcome = true;
+                    }
+
+                    break;
+
+                case "SetThreadContext":
+
+                    if (Injector.SetThreadContext(config.DllPath, config.ProcessName))
+                    {
+                        Status.InjectionOutcome = true;
+                    }
+
+                    break;
+            }
+
+            // Erase headers if EraseHeaders is checked
+
+            if (config.EraseHeaders)
+            {
+                if (Injector.EraseHeaders(config.DllPath, config.ProcessName))
+                {
+                    Status.EraseHeadersOutcome = true;
+                }
+            }
+
+            return Status;
+        }
 
         private void HookFIFADLL()
         {
@@ -97,31 +161,81 @@ namespace FIFAModdingUI
             {
                 // the target process - I'm using a dummy process for this
                 // if you don't have one, open Task Manager and choose wisely
-                Process targetProcess = Process.GetProcessesByName("FIFA20")[0];
-
-                // geting the handle of the process - with required privileges
-                IntPtr procHandle = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, targetProcess.Id);
-
-                // searching for the address of LoadLibraryA and storing it in a pointer
-                IntPtr loadLibraryAddr = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
-
-                // name of the dll we want to inject
-                string dllName = "FIFACareerDLL.dll";
-                if (File.Exists(dllName))
+                Process FIFAProcess;
+                var processes = Process.GetProcesses();
+                if (processes.Any(p => p.ProcessName.Contains("FIFA20")))
                 {
+                    FIFAProcess = processes.FirstOrDefault(x => x.ProcessName == "FIFA20");
 
-                    // alocating some memory on the target process - enough to store the name of the dll
-                    // and storing its address in a pointer
-                    IntPtr allocMemAddress = VirtualAllocEx(procHandle, IntPtr.Zero, (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+                    _config.DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("FIFAModdingUI.dll", "") + "\\FIFACareerDLL.dll";
+                    if (File.Exists(_config.DllPath))
+                    {
+                        _config.ProcessName = FIFAProcess.ProcessName;
+                        _config.InjectionMethod = "CreateRemoteThread";
+                        Inject(_config);
+                        //if (Injector.CreateRemoteThread(_config.DllPath, FIFAProcess.ProcessName))
+                        //{
+                        //    Status.InjectionOutcome = true;
+                        //}
+                    }
 
-                    // writing the name of the dll there
-                    UIntPtr bytesWritten;
-                    WriteProcessMemory(procHandle, allocMemAddress, Encoding.Default.GetBytes(dllName), (uint)((dllName.Length + 1) * Marshal.SizeOf(typeof(char))), out bytesWritten);
+                    // geting the handle of the process - with required privileges
+                    //IntPtr ProcessHandle = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, FIFAProcess.Id);
 
-                    // creating a thread that will call LoadLibraryA with allocMemAddress as argument
-                    CreateRemoteThread(procHandle, IntPtr.Zero, 0, loadLibraryAddr, allocMemAddress, 0, IntPtr.Zero);
+                    //IntPtr FIFABaseAddress = IntPtr.Zero;
+                    //foreach (ProcessModule pM in FIFAProcess.Modules)
+                    //{
+                    //    if(pM.ModuleName.Contains("FIFA20"))
+                    //        FIFABaseAddress = pM.BaseAddress;
+                    //}
+
+                    //VAMemory memory = new VAMemory("FIFA20");
+                    //var Addr1 = memory.ReadInt32((IntPtr)FIFABaseAddress + 0x072BC110);
+                    //var Addr2 = memory.ReadInt32((IntPtr)Addr1 + 0x18);
+                    //var Addr3 = memory.ReadInt32((IntPtr)Addr2 + 0x18);
+                    //var Addr4 = memory.ReadInt32((IntPtr)Addr3 + 0x2A8);
+                    //var Addr5 = memory.ReadInt32((IntPtr)Addr4 + 0x268);
+                    //var CurrentBudget = memory.ReadInt32((IntPtr)Addr5 + 0x8);
+                    //if(CurrentBudget != 0)
+                    //{
+
+                    //}
+
+                    //CurrentBudget = GetTransferBudget_OUT();
+                    //if(CurrentBudget!=0)
+                    //{
+
+                    //}
+
+                    //byte[] off1 = new byte[255]; var off2 = new byte[255]; var off3 = new byte[255]; var off4 = new byte[255];
+                    //byte[] baseAddress = new byte[255];
+                    //byte[] healthAddy = new byte[255];
+                    //int currentBudget = 0;
+
+                    //IntPtr pAgeAddress = new IntPtr(&currentBudget), pResultBudget = new IntPtr(&currentBudget);
+
+                    //IntPtr Addr1 = new IntPtr();
+                    //IntPtr Addr2 = new IntPtr();
+                    //IntPtr Addr3 = new IntPtr();
+                    //IntPtr Addr4 = new IntPtr();
+                    //IntPtr Addr5 = new IntPtr();
+                    //// NOT needed for anything within the Base EXE (i.e. Transfer Budget)
+                    ////char moduleName[] = "client.dll";
+
+                    //////Get Client Base Addy
+                    ////DWORD clientBase = dwGetModuleBaseAddress(t2, pID);
+                    //uint bytesRead;
+                    //ReadProcessMemory(ProcessHandle, FIFABaseAddress + 0x072BC110, Addr1, 4, out bytesRead);
+                    //ReadProcessMemory(ProcessHandle, Addr1 + 0x18, Addr2, 4, out bytesRead);
+                    //ReadProcessMemory(ProcessHandle, Addr2 + 0x18, Addr3, 4, out bytesRead);
+                    //ReadProcessMemory(ProcessHandle, Addr3 + 0x2A8, Addr4, 4, out bytesRead);
+                    //ReadProcessMemory(ProcessHandle, Addr4 + 0x268, Addr5, 4, out bytesRead);
+                    //ReadProcessMemory(ProcessHandle, Addr5 + 0x8, pResultBudget, 4, out bytesRead);
+                    //if(currentBudget > 0)
+                    //{
+
+                    //}
                 }
-
             }
         }
 
@@ -166,31 +280,31 @@ namespace FIFAModdingUI
                             OVERRIDE_GRAPH_SHAPE_LOW.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             break;
                         case "RIGHTFOOT":
-                            sliderFOOT.Value = Convert.ToDouble(localeini.GetValue(k, "")) * 100;
+                            sliderFOOT.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             chkSliderFOOT.IsChecked = true;
                             break;
                         case "RIGHTUPPERLEG":
-                            sliderUPPERLEG.Value = Convert.ToDouble(localeini.GetValue(k, ""))*100;
+                            sliderUPPERLEG.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             chkSliderUPPERLEG.IsChecked = true;
                             break;
                         case "RIGHTANKLE":
-                            sliderANKLE.Value = Convert.ToDouble(localeini.GetValue(k, "")) * 100;
+                            sliderANKLE.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             chkSliderANKLE.IsChecked = true;
                             break;
                         case "TORSO":
-                            sliderTORSO.Value = Convert.ToDouble(localeini.GetValue(k, "")) * 100;
+                            sliderTORSO.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             chkSliderTORSO.IsChecked = true;
                             break;
                         case "HIPS":
-                            sliderHIPS.Value = Convert.ToDouble(localeini.GetValue(k, "")) * 100;
+                            sliderHIPS.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             chksliderHIPS.IsChecked = true;
                             break;
                         case "BACKTORSO":
-                            sliderBACKTORSO.Value = Convert.ToDouble(localeini.GetValue(k, "")) * 100;
+                            sliderBACKTORSO.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             chkSliderBACKTORSO.IsChecked = true;
                             break;
                         case "RIGHTARM":
-                            sliderARM.Value = Convert.ToDouble(localeini.GetValue(k, "")) * 100;
+                            sliderARM.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             chkSliderARM.IsChecked = true;
                             break;
                         case "BALL_Y_VELOCITY_HEADER_REDUCTION":
@@ -685,7 +799,7 @@ namespace FIFAModdingUI
                                 //}
                                 //else
                                 //{
-                                sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value, 0));
+                                sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value, 2));
                                 //}
                             }
                         }
@@ -716,37 +830,37 @@ namespace FIFAModdingUI
             sb.AppendLine("[]");
             if (chkSliderUPPERLEG.IsChecked.HasValue && chkSliderUPPERLEG.IsChecked.Value)
             {
-                sb.AppendLine("RIGHTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value * 0.01, 2));
-                sb.AppendLine("LEFTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value * 0.01, 2));
+                sb.AppendLine("RIGHTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value, 2));
+                sb.AppendLine("LEFTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value, 2));
             }
             if (chkSliderFOOT.IsChecked.HasValue && chkSliderFOOT.IsChecked.Value)
             {
-                sb.AppendLine("RIGHTFOOT=" + Math.Round(sliderFOOT.Value * 0.01, 2));
-                sb.AppendLine("LEFTFOOT=" + Math.Round(sliderFOOT.Value * 0.01, 2));
+                sb.AppendLine("RIGHTFOOT=" + Math.Round(sliderFOOT.Value, 2));
+                sb.AppendLine("LEFTFOOT=" + Math.Round(sliderFOOT.Value, 2));
             }
             if (chkSliderANKLE.IsChecked.HasValue && chkSliderANKLE.IsChecked.Value)
             {
-                sb.AppendLine("RIGHTANKLE=" + Math.Round(sliderANKLE.Value * 0.01, 2));
-                sb.AppendLine("LEFTANKLE=" + Math.Round(sliderANKLE.Value * 0.01, 2));
+                sb.AppendLine("RIGHTANKLE=" + Math.Round(sliderANKLE.Value, 2));
+                sb.AppendLine("LEFTANKLE=" + Math.Round(sliderANKLE.Value, 2));
             }
             if (chkSliderTORSO.IsChecked.HasValue && chkSliderTORSO.IsChecked.Value)
             {
-                sb.AppendLine("TORSO=" + Math.Round(sliderTORSO.Value * 0.01, 2));
+                sb.AppendLine("TORSO=" + Math.Round(sliderTORSO.Value, 2));
             }
             if (chksliderHIPS.IsChecked.HasValue && chksliderHIPS.IsChecked.Value)
             {
-                sb.AppendLine("HIPS=" + Math.Round(sliderHIPS.Value * 0.01, 2));
+                sb.AppendLine("HIPS=" + Math.Round(sliderHIPS.Value, 2));
             }
             if (chkSliderBACKTORSO.IsChecked.HasValue && chkSliderBACKTORSO.IsChecked.Value)
             {
-                sb.AppendLine("BACKTORSO=" + Math.Round(sliderBACKTORSO.Value * 0.01, 2));
+                sb.AppendLine("BACKTORSO=" + Math.Round(sliderBACKTORSO.Value, 2));
             }
             if (chkSliderARM.IsChecked.HasValue && chkSliderARM.IsChecked.Value)
             {
-                sb.AppendLine("RIGHTARM=" + Math.Round(sliderARM.Value * 0.01, 2));
-                sb.AppendLine("LEFTARM=" + Math.Round(sliderARM.Value * 0.01, 2));
-                sb.AppendLine("RIGHTHAND=" + Math.Round(sliderARM.Value * 0.01, 2));
-                sb.AppendLine("LEFTHAND=" + Math.Round(sliderARM.Value * 0.01, 2));
+                sb.AppendLine("RIGHTARM=" + Math.Round(sliderARM.Value, 2));
+                sb.AppendLine("LEFTARM=" + Math.Round(sliderARM.Value, 2));
+                sb.AppendLine("RIGHTHAND=" + Math.Round(sliderARM.Value, 2));
+                sb.AppendLine("LEFTHAND=" + Math.Round(sliderARM.Value, 2));
             }
             sb.AppendLine("");
 
@@ -758,7 +872,7 @@ namespace FIFAModdingUI
             {
                 foreach (Slider slider in container.Children.OfType<Slider>())
                 {
-                    sb.AppendLine(slider.Name + "=" + Math.Round(slider.Value));
+                    sb.AppendLine(slider.Name + "=" + Math.Round(slider.Value, 2));
                 }
             }
             sb.AppendLine("");
@@ -776,14 +890,20 @@ namespace FIFAModdingUI
 
             sb.AppendLine("RULESCOLLISION_DISABLE_NON_USER_CONTROLLED_PLAYER_LOGIC=1");
             sb.AppendLine("RULESCOLLISION_ENABLE_INTENDED_BALLTOUCH=0");
+            //
+            sb.AppendLine("RIGHTKNEE=13.0");
+            sb.AppendLine("LEFTKNEE=13.0");
+            sb.AppendLine("FRONT=20.0");
+            sb.AppendLine("FORCE_BACK=0.2");
+            sb.AppendLine("FORCE_OUTSIDE=1.0");
 
             //sb.AppendLine("AccelerationGain=0.04");
             //sb.AppendLine("DecelerationGain=2.00");
             //sb.AppendLine("ENABLE_DRIBBLE_ACCEL_MOD = 1");
             //sb.AppendLine("ACCEL = 100.0");
             //sb.AppendLine("DECEL = 175.0");
-            
-            
+
+
 
             //sb.AppendLine("ContextEffectTrapBallInAngle=50");
             //sb.AppendLine("ContextEffectTrapBallXZVelocity=75");
@@ -849,32 +969,32 @@ namespace FIFAModdingUI
 
             //sb.AppendLine("");
             //sb.AppendLine("// Cross Test");
-            sb.AppendLine("[]");
-            sb.AppendLine("Jockey_MarkingDistance=0");
-            sb.AppendLine("Jockey_PadEffectJockeyModifyAngle=60");
-            sb.AppendLine("Jockey_MarkingDistanceShielded=1");
-            sb.AppendLine("Jockey_PadEffectJockeyShieldedModifyAngle=1");
-            sb.AppendLine("Jockey_PadEffectJockeyModifyDistance=1");
-            sb.AppendLine("Jockey_ReactionTime=1");
-            sb.AppendLine("Jockey_PadEffectJockeyShieldedModifyDistance=1");
-            sb.AppendLine("Jockey_ReactionTimeModifier=90");
-            sb.AppendLine("PushPull_BalanceIntensityScale=1");
-            sb.AppendLine("PushPull_FallContextIncreaseBalance=1");
-            sb.AppendLine("PushPull_DiverTraitMod=1000");
-            sb.AppendLine("PushPull_FallContextIncreaseStrength=1");
-            sb.AppendLine("PushPull_FallContextIncreaseDiver=1000");
-            sb.AppendLine("[]");
-            sb.AppendLine("SPINE = 1.0");
-            sb.AppendLine("SPINE1 = 1.0");
-            sb.AppendLine("SPINE2 = 1.0");
-            sb.AppendLine("NECK = 1.0");
-            sb.AppendLine("RIGHTUPLEG = 0.6");
-            sb.AppendLine("LEFTUPLEG = 0.6");
-            sb.AppendLine("RM_Shorts_Back = 1.0");
-            sb.AppendLine("RM_Shorts_Crack = 1.0");
-            sb.AppendLine("RM_Shorts_Crotch = 1.0");
-            sb.AppendLine("RightLeg = 0.6");
-            sb.AppendLine("LeftLeg = 0.6");
+            //sb.AppendLine("[]");
+            //sb.AppendLine("Jockey_MarkingDistance=0");
+            //sb.AppendLine("Jockey_PadEffectJockeyModifyAngle=60");
+            //sb.AppendLine("Jockey_MarkingDistanceShielded=1");
+            //sb.AppendLine("Jockey_PadEffectJockeyShieldedModifyAngle=1");
+            //sb.AppendLine("Jockey_PadEffectJockeyModifyDistance=1");
+            //sb.AppendLine("Jockey_ReactionTime=1");
+            //sb.AppendLine("Jockey_PadEffectJockeyShieldedModifyDistance=1");
+            //sb.AppendLine("Jockey_ReactionTimeModifier=90");
+            //sb.AppendLine("PushPull_BalanceIntensityScale=1");
+            //sb.AppendLine("PushPull_FallContextIncreaseBalance=1");
+            //sb.AppendLine("PushPull_DiverTraitMod=1000");
+            //sb.AppendLine("PushPull_FallContextIncreaseStrength=1");
+            //sb.AppendLine("PushPull_FallContextIncreaseDiver=1000");
+            //sb.AppendLine("[]");
+            //sb.AppendLine("SPINE = 1.0");
+            //sb.AppendLine("SPINE1 = 1.0");
+            //sb.AppendLine("SPINE2 = 1.0");
+            //sb.AppendLine("NECK = 1.0");
+            //sb.AppendLine("RIGHTUPLEG = 0.6");
+            //sb.AppendLine("LEFTUPLEG = 0.6");
+            //sb.AppendLine("RM_Shorts_Back = 1.0");
+            //sb.AppendLine("RM_Shorts_Crack = 1.0");
+            //sb.AppendLine("RM_Shorts_Crotch = 1.0");
+            //sb.AppendLine("RightLeg = 0.6");
+            //sb.AppendLine("LeftLeg = 0.6");
 
             sb.AppendLine("");
             if (KILL_EVERYONE.IsChecked.HasValue)

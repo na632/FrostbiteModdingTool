@@ -12,7 +12,13 @@
     <Company>PARGSoft</Company>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
+    <None Remove="etc\Simple-Injection.dll" />
     <None Remove="ini\AIObjectiveSystem_FIFA19.ini" />
     <None Remove="ini\AIObjectiveSystem_FIFA20.ini" />
     <None Remove="ini\ATTRIBUTE_WEIGHTS.ini" />
@@ -21,6 +27,10 @@
     <None Remove="ini\UnlockBootsAndCelebrations.ini" />
     <None Remove="ini\_FIFA19_base.ini" />
     <None Remove="ini\_FIFA20_base.ini" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="etc\Simple-Injection.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,15 +63,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FIFACareerDLL\FIFACareerDLL.vcxproj">
-      <Private>true</Private>
-    </ProjectReference>
     <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="FifaLibrary19">
       <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
+    </Reference>
+    <Reference Include="Simple-Injection">
+      <HintPath>etc\Simple-Injection.dll</HintPath>
+    </Reference>
+    <Reference Include="VAMemory">
+      <HintPath>VAMemory.dll</HintPath>
     </Reference>
   </ItemGroup>
 

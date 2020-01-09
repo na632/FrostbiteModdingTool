@@ -53,7 +53,7 @@
                                 </Grid>
                                 <StackPanel Background="#fefefe">
                                     <Label Content="General Settings"  FontWeight="Bold" />
-                                    <CheckBox Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing</CheckBox>
+                                    <CheckBox Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing)</CheckBox>
                                     <!--<StackPanel Orientation="Horizontal">
                                         <Label Content="Language" Width="200" />
                                         <ComboBox Name="cbLanguages" Width="180" />
@@ -161,7 +161,7 @@
                                 <StackPanel Grid.Row="0">
                                     <!-- OVERRIDE GRAPH -->
                                     <Label Content="Attribute Graph (How much do the player attributes vary during the match?)" FontWeight="Bold" FontSize="16"></Label>
-                                    <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute (Enables error touches etc.)"></CheckBox>
+                                    <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute (Enables Ability fluctations, Dribble, Pass and Shot Errors etc.)"></CheckBox>
                                     <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph (Enable sliders below)"></CheckBox>
                                     <StackPanel Orientation="Horizontal">
                                         <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="300"></Label>

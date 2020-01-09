@@ -1,3 +1,4 @@
 #pragma once
-
-void SetTransferBudget(const uintptr_t& moduleBase);
+//
+//__declspec(dllexport) int GetStartingBudget_OUT();
+//__declspec(dllexport) int GetTransferBudget_OUT();
