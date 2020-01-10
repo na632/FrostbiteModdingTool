@@ -18,27 +18,28 @@
                 <ColumnDefinition Width="600"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
+            <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
             <Button Name="btnBrowseFIFADirectory" Content="Browse for FIFA" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
         </Grid>
-        
+
 
         <TabControl x:Name="MainViewer" Grid.Row="2" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
-            <TabItem Header="Gameplay">
+            <TabItem x:Name="TabGameplay" Header="Gameplay">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="179*"></ColumnDefinition>
+                        <ColumnDefinition Width="418*"/>
+                        <ColumnDefinition Width="597*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    
-                    <CheckBox Visibility="Hidden" Name="chkUseBaseFIFAINI">Use Base FIFA 19 file (will reset your current locale.ini)</CheckBox>
-                    <Button Name="btn_GP_SaveINI" Grid.Column="1" Content="Save your locale.INI" Click="Btn_GP_SaveINI_Click"/>
 
-                    <Controls:MetroTabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" >
+                    <CheckBox Visibility="Hidden" Name="chkUseBaseFIFAINI" Grid.ColumnSpan="2">Use Base FIFA 19 file (will reset your current locale.ini)</CheckBox>
+                    <Button Name="btn_GP_SaveINI" Grid.Column="2" Content="Save your locale.INI" Click="Btn_GP_SaveINI_Click"/>
+
+                    <Controls:MetroTabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" >
                         <TabItem Header="General">
                             <Grid Margin="2">
                                 <Grid.ColumnDefinitions>
@@ -62,7 +63,7 @@
 
                                     <CheckBox Name="chkEnableUnlockBootsAndCelebrations" Checked="ChkEnableUnlockBootsAndCelebrations_Checked" Margin="0,5,0,5">Unlock Boots and Celebrations</CheckBox>
                                     <Label Content="Difficulty" Grid.Column="0" FontWeight="Bold"></Label>
-                                    
+
                                     <CheckBox Name="chkEnableHardDifficulty" Checked="ChkEnableHardDifficulty_Checked" Margin="0,5,0,5">Enable Hard Difficulty (Alpha test - AI Cheating may exist)</CheckBox>
 
 
@@ -70,7 +71,7 @@
                                     <CheckBox Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
 
 
-                                    
+
                                 </StackPanel>
                                 <StackPanel Background="#fafafb" Grid.Column="1">
                                     <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
@@ -137,7 +138,7 @@
                                             <Slider Name="BALL_Y_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
                                             <TextBox Text="{Binding ElementName=BALL_Y_VELOCITY_HEADER_REDUCTION, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                         </StackPanel>
-                                       
+
                                         <Label Content="How much to reduce heading lateral power" Grid.Column="0"></Label>
                                         <StackPanel Orientation="Horizontal">
                                             <Slider Name="BALL_LATERAL_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
@@ -147,8 +148,8 @@
                                     </StackPanel>
                                     <Label Content="Fouling" FontWeight="Bold" />
                                     <CheckBox x:Name="KILL_EVERYONE" Content="Force AI Fouling (May cause too many yellow/red cards)"></CheckBox>
-                                    
-                                    
+
+
                                 </StackPanel>
                             </Grid>
                         </TabItem>
@@ -185,7 +186,7 @@
                                     </StackPanel>
                                 </ScrollViewer>
                             </Grid>
-                            
+
                         </TabItem>
                         <TabItem Header="AI Objective System" Name="tab_GP_ObjectiveSystem">
                             <ScrollViewer>
@@ -196,13 +197,13 @@
                                         Width="Auto" >
 
                                     </StackPanel>
-                            </StackPanel>
+                                </StackPanel>
                             </ScrollViewer>
                         </TabItem>
                         <TabItem Header="Contextual" IsEnabled="True">
                             <ScrollViewer>
                                 <StackPanel x:Name="panel_GP_ContextEffect">
-                                    
+
                                 </StackPanel>
                             </ScrollViewer>
                         </TabItem>
@@ -213,9 +214,24 @@
                         </TabItem>
                     </Controls:MetroTabControl>
                 </Grid>
-                
+
             </TabItem>
-            <TabItem Header="Career" IsEnabled="False">
+            <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
+                <StackPanel>
+                    <Label Content="You are hooked into FIFA! Nice!"></Label>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <Label x:Name="lblTransferBudget" Background="White" Foreground="Black" >Transfer Budget:</Label>
+                            <TextBlock x:Name="txtTransferBudget" Background="White" Foreground="Black" />
+                            <Button x:Name="btnRequestAdditionalFunds" Background="White" Foreground="Black" Click="btnRequestAdditionalFunds_Click" >Request Additional Funds</Button>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
             </TabItem>
         </TabControl>
 

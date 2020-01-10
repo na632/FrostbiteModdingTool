@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29001.49
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModdingUI", "FIFAModdingUI\FIFAModdingUI.csproj", "{6D0F7EF2-1514-4D67-A34E-2EF5E576B9AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{25FD04F3-5675-44B2-8F8D-726C7CA45955} = {25FD04F3-5675-44B2-8F8D-726C7CA45955}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModdingCL", "v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
 EndProject
@@ -13,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp1", "Windows
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FIFACareerDLL", "FIFACareerDLL\FIFACareerDLL.vcxproj", "{25FD04F3-5675-44B2-8F8D-726C7CA45955}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIFACareerHook", "FIFACareerHook\FIFACareerHook.csproj", "{A9E69B57-D92D-478A-AFDC-996D1F9D44E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFACareerHook", "FIFACareerHook\FIFACareerHook.csproj", "{A9E69B57-D92D-478A-AFDC-996D1F9D44E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

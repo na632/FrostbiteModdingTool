@@ -137,3 +137,37 @@ public:
 	}
 };
 
+
+extern "C"
+{
+	__declspec(dllexport) int GetTransferBudget_OUT()
+	{
+		int budget = 0;
+		DWORD procId = GetProcId("FIFA20.exe");
+		
+		if (procId && v2k4::FIFAProcessHandle)
+		{
+			//Get Handle to Process
+			//hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, procId);
+
+			//Getmodulebaseaddress
+			auto moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
+			budget = FIFAFinances::GetTransferBudget(moduleBase, v2k4::FIFAProcessHandle);
+
+		}
+		return budget;
+	}
+
+	__declspec(dllexport) bool RequestAdditionalFunds_OUT()
+	{
+		bool approved = false;
+		DWORD procId = GetProcId("FIFA20.exe");
+		if (procId && v2k4::FIFAProcessHandle)
+		{
+			auto moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
+			approved = FIFAFinances::RequestAdditionalFunds(moduleBase, v2k4::FIFAProcessHandle);
+
+		}
+		return approved;
+	}
+}

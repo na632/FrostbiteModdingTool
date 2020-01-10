@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Simple_Injector.Etc;
 using System.Data;
+using System.Threading;
 
 namespace FIFAModdingUI
 {
@@ -52,41 +53,31 @@ namespace FIFAModdingUI
             }
         }
 
+        public Task HookDLLThread;
+
         public MainWindow()
         {
             InitializeComponent();
             InitializeIniSettings();
 
-            HookFIFADLL();
+            HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
 
+            EventHookedIntoFIFA += HandleCustomEvent;
         }
 
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+        // Define what actions to take when the event is raised.
+        void HandleCustomEvent(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() => {
+                TabCareer.IsEnabled = true;
+            });
+        }
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
+        [DllImport("FIFACareerDLL.dll")]
+        static extern int GetTransferBudget_OUT();
 
-        [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
-        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
-
-        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-        static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress,
-            uint dwSize, uint flAllocationType, uint flProtect);
-
-        //[DllImport("kernel32.dll")]
-        //static extern bool ReadProcessMemory(IntPtr hProcess,
-        //        IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
-
-        [DllImport("kernel32")]
-        static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out UIntPtr lpNumberOfBytesWritten);
-
-        [DllImport("kernel32.dll")]
-        static extern IntPtr CreateRemoteThread(IntPtr hProcess,
-            IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
+        [DllImport("FIFACareerDLL.dll")]
+        static extern bool RequestAdditionalFunds_OUT();
 
         private static readonly Simple_Injection.Injector Injector = new Simple_Injection.Injector();
 
@@ -95,18 +86,6 @@ namespace FIFAModdingUI
         private readonly Config _config = new Config();
 
         private readonly DataTable _processTable = new DataTable();
-
-        //// privileges
-        //const int PROCESS_CREATE_THREAD = 0x0002;
-        //const int PROCESS_QUERY_INFORMATION = 0x0400;
-        //const int PROCESS_VM_OPERATION = 0x0008;
-        //const int PROCESS_VM_WRITE = 0x0020;
-        //const int PROCESS_VM_READ = 0x0010;
-
-        //// used for memory allocation
-        //const uint MEM_COMMIT = 0x00001000;
-        //const uint MEM_RESERVE = 0x00002000;
-        //const uint PAGE_READWRITE = 4;
 
         public static Status Inject(Config config)
         {
@@ -155,86 +134,51 @@ namespace FIFAModdingUI
             return Status;
         }
 
-        private void HookFIFADLL()
+        public event EventHandler EventHookedIntoFIFA;
+
+        private bool _hookedFIFA;
+        private bool HookedFIFA
         {
-            if(FIFAInstanceSingleton.FIFAVERSION == "FIFA20")
+            get { return _hookedFIFA;  }
+            set { _hookedFIFA = value; EventHookedIntoFIFA(this, null); }
+        }
+
+        private async void HookFIFADLL()
+        {
+            while (!HookedFIFA)
             {
-                // the target process - I'm using a dummy process for this
-                // if you don't have one, open Task Manager and choose wisely
-                Process FIFAProcess;
-                var processes = Process.GetProcesses();
-                if (processes.Any(p => p.ProcessName.Contains("FIFA20")))
+                await Task.Delay(1000);
+                if (FIFAInstanceSingleton.FIFAVERSION == "FIFA20")
                 {
-                    FIFAProcess = processes.FirstOrDefault(x => x.ProcessName == "FIFA20");
-
-                    _config.DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("FIFAModdingUI.dll", "") + "\\FIFACareerDLL.dll";
-                    if (File.Exists(_config.DllPath))
+                    // the target process - I'm using a dummy process for this
+                    // if you don't have one, open Task Manager and choose wisely
+                    Process FIFAProcess;
+                    var processes = Process.GetProcesses();
+                    if (processes.Any(p => p.ProcessName.Contains("FIFA20")))
                     {
-                        _config.ProcessName = FIFAProcess.ProcessName;
-                        _config.InjectionMethod = "CreateRemoteThread";
-                        Inject(_config);
-                        //if (Injector.CreateRemoteThread(_config.DllPath, FIFAProcess.ProcessName))
+                        FIFAProcess = processes.FirstOrDefault(x => x.ProcessName == "FIFA20");
+
+                        _config.DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("FIFAModdingUI.dll", "") + "\\FIFACareerDLL.dll";
+
+                        //var budget = GetTransferBudget_OUT();
+                        //if (budget != 0)
                         //{
-                        //    Status.InjectionOutcome = true;
+
                         //}
+                        
+                        if (File.Exists(_config.DllPath))
+                        {
+                            await Task.Delay(10000);
+
+                            _config.ProcessName = FIFAProcess.ProcessName;
+                            _config.InjectionMethod = "CreateRemoteThread";
+                            Status status = Inject(_config);
+                            if(status.InjectionOutcome)
+                            {
+                                HookedFIFA = true;
+                            }
+                        }
                     }
-
-                    // geting the handle of the process - with required privileges
-                    //IntPtr ProcessHandle = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, false, FIFAProcess.Id);
-
-                    //IntPtr FIFABaseAddress = IntPtr.Zero;
-                    //foreach (ProcessModule pM in FIFAProcess.Modules)
-                    //{
-                    //    if(pM.ModuleName.Contains("FIFA20"))
-                    //        FIFABaseAddress = pM.BaseAddress;
-                    //}
-
-                    //VAMemory memory = new VAMemory("FIFA20");
-                    //var Addr1 = memory.ReadInt32((IntPtr)FIFABaseAddress + 0x072BC110);
-                    //var Addr2 = memory.ReadInt32((IntPtr)Addr1 + 0x18);
-                    //var Addr3 = memory.ReadInt32((IntPtr)Addr2 + 0x18);
-                    //var Addr4 = memory.ReadInt32((IntPtr)Addr3 + 0x2A8);
-                    //var Addr5 = memory.ReadInt32((IntPtr)Addr4 + 0x268);
-                    //var CurrentBudget = memory.ReadInt32((IntPtr)Addr5 + 0x8);
-                    //if(CurrentBudget != 0)
-                    //{
-
-                    //}
-
-                    //CurrentBudget = GetTransferBudget_OUT();
-                    //if(CurrentBudget!=0)
-                    //{
-
-                    //}
-
-                    //byte[] off1 = new byte[255]; var off2 = new byte[255]; var off3 = new byte[255]; var off4 = new byte[255];
-                    //byte[] baseAddress = new byte[255];
-                    //byte[] healthAddy = new byte[255];
-                    //int currentBudget = 0;
-
-                    //IntPtr pAgeAddress = new IntPtr(&currentBudget), pResultBudget = new IntPtr(&currentBudget);
-
-                    //IntPtr Addr1 = new IntPtr();
-                    //IntPtr Addr2 = new IntPtr();
-                    //IntPtr Addr3 = new IntPtr();
-                    //IntPtr Addr4 = new IntPtr();
-                    //IntPtr Addr5 = new IntPtr();
-                    //// NOT needed for anything within the Base EXE (i.e. Transfer Budget)
-                    ////char moduleName[] = "client.dll";
-
-                    //////Get Client Base Addy
-                    ////DWORD clientBase = dwGetModuleBaseAddress(t2, pID);
-                    //uint bytesRead;
-                    //ReadProcessMemory(ProcessHandle, FIFABaseAddress + 0x072BC110, Addr1, 4, out bytesRead);
-                    //ReadProcessMemory(ProcessHandle, Addr1 + 0x18, Addr2, 4, out bytesRead);
-                    //ReadProcessMemory(ProcessHandle, Addr2 + 0x18, Addr3, 4, out bytesRead);
-                    //ReadProcessMemory(ProcessHandle, Addr3 + 0x2A8, Addr4, 4, out bytesRead);
-                    //ReadProcessMemory(ProcessHandle, Addr4 + 0x268, Addr5, 4, out bytesRead);
-                    //ReadProcessMemory(ProcessHandle, Addr5 + 0x8, pResultBudget, 4, out bytesRead);
-                    //if(currentBudget > 0)
-                    //{
-
-                    //}
                 }
             }
         }
@@ -1026,6 +970,20 @@ namespace FIFAModdingUI
         private void ChkDisableRandomSeed_Checked(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void btnRequestAdditionalFunds_Click(object sender, RoutedEventArgs e)
+        {
+            txtTransferBudget.Text = GetTransferBudget_OUT().ToString();
+
+            if (RequestAdditionalFunds_OUT())
+            {
+                btnRequestAdditionalFunds.Background = Brushes.Green;
+            }
+            else
+            {
+                btnRequestAdditionalFunds.Background = Brushes.Red;
+            }
         }
     }
 }

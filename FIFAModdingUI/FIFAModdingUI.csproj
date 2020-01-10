@@ -83,6 +83,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\x64\Debug\FIFACareerDLL.dll" Link="FIFACareerDLL.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

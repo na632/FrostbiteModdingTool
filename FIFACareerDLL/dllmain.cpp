@@ -43,6 +43,7 @@ RECT tSize;
 MSG Message;
 
 
+
 DWORD WINAPI HackThread(HMODULE hModule) {
 
 	// create console
@@ -60,40 +61,23 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 	const int newValue = 1337;
 
 	//Get ProcId of the target process
-	DWORD procId = GetProcId(L"FIFA20.exe");
+	DWORD procId = GetProcId("FIFA20.exe");
 
-	HANDLE pHandle;
 
 	DWORD pID;
 	//Get Handles
-	hGameWindow = FindWindow(NULL, L"FIFA 20");
+	hGameWindow = FindWindow(NULL, "FIFA 20");
 	GetWindowThreadProcessId(hGameWindow, &pID);
-	pHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pID);
+	v2k4::FIFAProcessHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pID);
 	if (procId)
 	{
-		//Get Handle to Process
-		//hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, procId);
-
-		//Getmodulebaseaddress
-		moduleBase = GetModuleBaseAddress(procId, L"FIFA20.exe");
-		//std::cout << moduleBase + "\n";
-
-		//Resolve address
-		//localPtr = moduleBase + 0x072BC110;
-		//std::cout << localPtr + "\n";
-
-
-		//Resolve base address of the pointer chain
-		/*transferBudgetAddr = FindDMAAddy(hProcess, localPtr, { 0x18,  0x18,  0x2A8, 0x268, 0x8 });
-		std::cout << transferBudgetAddr + "\n";*/
-
+		moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
 		std::cout << "Found FIFA 20! \n";
-
 	}
 	else
 	{
 		std::cout << "Process not found, press enter to exit\n";
-		CloseHandle(pHandle);
+		CloseHandle(v2k4::FIFAProcessHandle);
 
 		getchar();
 		return 0;
@@ -104,13 +88,13 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 	{
 		if (GetAsyncKeyState(VK_END) & 1) {
 			FreeConsole();
-			CloseHandle(pHandle);
+			CloseHandle(v2k4::FIFAProcessHandle);
 			return 0;
 		}
 
 		if (GetAsyncKeyState(VK_NUMPAD1) & 1) {
 
-			FIFAFinances::RequestAdditionalFunds(moduleBase, pHandle);
+			FIFAFinances::RequestAdditionalFunds(moduleBase, v2k4::FIFAProcessHandle);
 		}
 
 		if (GetAsyncKeyState(VK_NUMPAD2) & 1) {
@@ -122,7 +106,7 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 		// get us out of here
 		if (GetAsyncKeyState(VK_ESCAPE) & 1) {
 			FreeConsole();
-			CloseHandle(pHandle);
+			CloseHandle(v2k4::FIFAProcessHandle);
 			return 0;
 		}
 	}

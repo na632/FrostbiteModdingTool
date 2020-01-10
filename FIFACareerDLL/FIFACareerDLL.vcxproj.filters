@@ -39,12 +39,6 @@
     <ClInclude Include="LiveEditorToCPP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DirectX.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Drawings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -54,9 +48,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="proc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Drawings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
