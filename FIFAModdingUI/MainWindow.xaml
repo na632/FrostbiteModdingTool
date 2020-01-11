@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="4"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Row="1">
@@ -21,9 +22,11 @@
             <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
             <Button Name="btnBrowseFIFADirectory" Content="Browse for FIFA" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
         </Grid>
+        <StackPanel x:Name="panelHookedIntoFIFA" Grid.Row="2" Orientation="Horizontal" Visibility="Hidden">
+            <Label Content="!! You are hooked into FIFA! Nice!"></Label>
+        </StackPanel>
 
-
-        <TabControl x:Name="MainViewer" Grid.Row="2" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
+        <TabControl x:Name="MainViewer" Grid.Row="3" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
             <TabItem x:Name="TabGameplay" Header="Gameplay">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -218,7 +221,6 @@
             </TabItem>
             <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
                 <StackPanel>
-                    <Label Content="You are hooked into FIFA! Nice!"></Label>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -228,6 +230,7 @@
                         <StackPanel>
                             <Label x:Name="lblTransferBudget" Background="White" Foreground="Black" >Transfer Budget:</Label>
                             <TextBlock x:Name="txtTransferBudget" Background="White" Foreground="Black" />
+                            <Button x:Name="btnAddOverlayToGame" Background="White" Foreground="Black" Click="btnAddOverlayToGame_Click">Add Overlay to FIFA</Button>
                             <Button x:Name="btnRequestAdditionalFunds" Background="White" Foreground="Black" Click="btnRequestAdditionalFunds_Click" >Request Additional Funds</Button>
                         </StackPanel>
                     </Grid>

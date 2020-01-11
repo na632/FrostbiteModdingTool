@@ -18,6 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="download.png" />
     <None Remove="etc\Simple-Injection.dll" />
     <None Remove="ini\AIObjectiveSystem_FIFA19.ini" />
     <None Remove="ini\AIObjectiveSystem_FIFA20.ini" />
@@ -86,6 +87,10 @@
     <Content Include="..\x64\Debug\FIFACareerDLL.dll" Link="FIFACareerDLL.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="download.png" />
   </ItemGroup>
 
   <ItemGroup>

@@ -137,7 +137,8 @@ public:
 	}
 };
 
-
+//// WHEN YOU GET BACK PAUL READ THIS
+//// USE C# to create the overlay you numpty!!!!
 extern "C"
 {
 	__declspec(dllexport) int GetTransferBudget_OUT()

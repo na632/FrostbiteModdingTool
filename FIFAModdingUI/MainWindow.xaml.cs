@@ -62,7 +62,18 @@ namespace FIFAModdingUI
 
             HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
 
+            this.Closed += MainWindow_Closed;
+
             EventHookedIntoFIFA += HandleCustomEvent;
+
+            OverlayWindow overlayWindow = new OverlayWindow();
+            overlayWindow.Show();
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            if(HookedFIFA)
+                CloseHook_OUT();
         }
 
         // Define what actions to take when the event is raised.
@@ -70,6 +81,7 @@ namespace FIFAModdingUI
         {
             Dispatcher.Invoke(() => {
                 TabCareer.IsEnabled = true;
+                panelHookedIntoFIFA.Visibility = Visibility.Visible;
             });
         }
 
@@ -78,6 +90,14 @@ namespace FIFAModdingUI
 
         [DllImport("FIFACareerDLL.dll")]
         static extern bool RequestAdditionalFunds_OUT();
+
+        [DllImport("FIFACareerDLL.dll")]
+        static extern void CloseHook_OUT();
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll")]
+        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
         private static readonly Simple_Injection.Injector Injector = new Simple_Injection.Injector();
 
@@ -984,6 +1004,12 @@ namespace FIFAModdingUI
             {
                 btnRequestAdditionalFunds.Background = Brushes.Red;
             }
+        }
+
+        private void btnAddOverlayToGame_Click(object sender, RoutedEventArgs e)
+        {
+            OverlayWindow overlayWindow = new OverlayWindow();
+            overlayWindow.Show();
         }
     }
 }

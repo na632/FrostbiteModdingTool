@@ -34,4 +34,24 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <!-- Animation to flicker, like a cursor when typing -->
+    <Storyboard x:Key="AnimateFlicker" RepeatBehavior="Forever">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="0"
+                     To="1"
+                     AutoReverse="True"
+                     BeginTime="0:0:1"
+                     Duration="0:0:0.08" />
+        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="1"
+                     To="1"
+                     AutoReverse="True"
+                     Duration="0:0:0.4" />
+        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="1"
+                     To="0"
+                     AutoReverse="True"
+                     Duration="0:0:0.08" />
+    </Storyboard>
+
 </ResourceDictionary>
