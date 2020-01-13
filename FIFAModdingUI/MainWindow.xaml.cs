@@ -94,6 +94,9 @@ namespace FIFAModdingUI
         [DllImport("FIFACareerDLL.dll")]
         static extern void CloseHook_OUT();
 
+        [DllImport("FIFACareerDLL.dll")]
+        static extern bool CareerModeLoaded_OUT();
+
         [DllImport("user32.dll")]
         private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
         [DllImport("user32.dll")]
@@ -155,12 +158,20 @@ namespace FIFAModdingUI
         }
 
         public event EventHandler EventHookedIntoFIFA;
+        public event EventHandler EventHookedIntoFIFACareerMode;
 
         private bool _hookedFIFA;
         private bool HookedFIFA
         {
             get { return _hookedFIFA;  }
             set { _hookedFIFA = value; EventHookedIntoFIFA(this, null); }
+        }
+
+        private bool _hookedFIFACareerMode;
+        private bool HookedFIFACareerMode
+        {
+            get { return _hookedFIFACareerMode; }
+            set { _hookedFIFACareerMode = value; EventHookedIntoFIFACareerMode(this, null); }
         }
 
         private async void HookFIFADLL()
@@ -196,6 +207,11 @@ namespace FIFAModdingUI
                             if(status.InjectionOutcome)
                             {
                                 HookedFIFA = true;
+                                //while(!HookedFIFACareerMode)
+                                //{
+                                //    if (CareerModeLoaded_OUT())
+                                //        HookedFIFACareerMode = true;
+                                //}
                             }
                         }
                     }

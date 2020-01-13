@@ -18,6 +18,29 @@
 class FIFAManager
 {
 public:
+
+
+	static int GetGameDate(uintptr_t moduleBase, HANDLE pHandle)
+	{
+		DWORD off1, off2, off3, off4;
+		DWORD baseAddress;
+		DWORD gameDateAddy;
+		int gamedate;
+		// NOT needed for anything within the Base EXE (i.e. Transfer Budget)
+		//char moduleName[] = "client.dll";
+
+		////Get Client Base Addy
+		//DWORD clientBase = dwGetModuleBaseAddress(t2, pID);
+		ReadProcessMemory(pHandle, (LPCVOID)(moduleBase + 0x072BC1A0), &baseAddress, sizeof(baseAddress), NULL);
+		//std::cout << "Base Addy is: " << std::hex << baseAddress << std::endl;
+		ReadProcessMemory(pHandle, (LPCVOID)(baseAddress + 0x8), &off1, sizeof(off1), NULL);
+		gameDateAddy = off1 + 0x698;
+		//std::cout << "Final Addy: " << std::hex << healthAddy << std::endl;
+		ReadProcessMemory(pHandle, (LPCVOID)(gameDateAddy), &gamedate, 4, NULL);
+		//std::cout << "Current Game Date: " << gamedate << std::endl;
+		return gamedate;
+	}
+
 	static int GetManagerRating(uintptr_t moduleBase, HANDLE pHandle)
 	{
 		DWORD off1, off2, off3, off4;
@@ -46,4 +69,38 @@ public:
 		return currentRating;
 	}
 };
+
+extern "C"
+{
+	__declspec(dllexport) int GetGameDate_OUT()
+	{
+		int date = 0;
+		DWORD procId = GetProcId("FIFA20.exe");
+
+		if (procId && v2k4::FIFAProcessHandle)
+		{
+			//Get Handle to Process
+			//hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, procId);
+
+			//Getmodulebaseaddress
+			auto moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
+			date = FIFAManager::GetGameDate(moduleBase, v2k4::FIFAProcessHandle);
+
+		}
+		return date;
+	}
+
+	__declspec(dllexport) int GetManagerRating_OUT()
+	{
+		int rating = false;
+		DWORD procId = GetProcId("FIFA20.exe");
+		if (procId && v2k4::FIFAProcessHandle)
+		{
+			auto moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
+			rating = FIFAManager::GetManagerRating(moduleBase, v2k4::FIFAProcessHandle);
+
+		}
+		return rating;
+	}
+}
 

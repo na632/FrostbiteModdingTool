@@ -26,39 +26,29 @@
 using namespace std;
 
 
-int Width = GetSystemMetrics(SM_CXSCREEN);
-int Height = GetSystemMetrics(SM_CYSCREEN);
-
-const MARGINS Margin = { 0, 0, Width, Height };
-
-char lWindowName[256] = " ";
-HWND hWnd;
-
-char tWindowName[256] = "FIFA 20";
-HWND tWnd;
-
 HWND hGameWindow;
 
 RECT tSize;
 MSG Message;
 
+bool InCareerMode = false;
 
 
 DWORD WINAPI HackThread(HMODULE hModule) {
 
 	// create console
 	AllocConsole();
-	/*FILE* f;
-	freopen_s(&f, "CONOUT$", "w", stdout);*/
+	FILE* f;
+	freopen_s(&f, "CONOUT$", "w", stdout);
 
 	std::cout << "Running Career Mod DLL \n";
 
-	/*HANDLE hProcess = 0;
+	HANDLE hProcess = 0;
 
 	uintptr_t moduleBase = 0, localPtr = 0, transferBudgetAddr = 0;
 	bool bHealth = false, bAmmo = false, bRecoil = false;
 
-	const int newValue = 1337;*/
+	const int newValue = 1337;
 
 	//Get ProcId of the target process
 	DWORD procId = GetProcId("FIFA20.exe");
@@ -71,7 +61,7 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 	v2k4::FIFAProcessHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pID);
 	if (procId)
 	{
-		//auto moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
+		moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
 		std::cout << "Found FIFA 20! \n";
 	}
 	else
@@ -83,9 +73,42 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 		return 0;
 	}
 
+
 	DWORD dwExit = 0;
 	while (true && procId)
 	{
+		try {
+			Sleep(100);
+			int gameDate = FIFAManager::GetGameDate(moduleBase, v2k4::FIFAProcessHandle);
+			Sleep(100);
+
+			if (
+				!InCareerMode
+				&&
+				(gameDate >= 20190101
+					&& gameDate <= 20990101)
+				)
+			{
+				InCareerMode = true;
+				std::cout << "In Career Mode! \n";
+			}
+			/*else if (InCareerMode
+				&&
+				(gameDate == 0
+					)
+				)
+			{
+				InCareerMode = false;
+				std::cout << "Not In Career Mode! \n";
+			}*/
+		}
+		catch (exception e) {
+			std::cout << e.what() << "\n";
+
+		}
+
+
+
 		if (GetAsyncKeyState(VK_END) & 1) {
 			FreeConsole();
 			CloseHandle(v2k4::FIFAProcessHandle);
@@ -93,9 +116,9 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 		}
 
 		if (GetAsyncKeyState(VK_NUMPAD1) & 1) {
-
-			auto moduleBase = GetModuleBaseAddress(procId, "FIFA20.exe");
-			FIFAFinances::RequestAdditionalFunds(moduleBase, v2k4::FIFAProcessHandle);
+			if (InCareerMode) {
+				FIFAFinances::RequestAdditionalFunds(moduleBase, v2k4::FIFAProcessHandle);
+			}
 		}
 
 		if (GetAsyncKeyState(VK_NUMPAD2) & 1) {
@@ -124,37 +147,23 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 }
 
 
+HANDLE Thread;
 
-HANDLE ThreadHandle;
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
 {
 	FILE* fp;
 	switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-		ThreadHandle = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)HackThread, hModule, 0, nullptr);
-		break;
+	{
+	case DLL_PROCESS_ATTACH:
+		Thread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)HackThread, hModule, 0, nullptr);
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-
-		CloseHandle(ThreadHandle);
-        break;
-    }
-    return TRUE;
-}
-
-//// WHEN YOU GET BACK PAUL READ THIS
-//// USE C# to create the overlay you numpty!!!!
-extern "C"
-{
-	__declspec(dllexport) void CloseHook_OUT()
-	{
-		CloseHandle(ThreadHandle);
+	case DLL_PROCESS_DETACH:
+		break;
 	}
-
+	return TRUE;
 }

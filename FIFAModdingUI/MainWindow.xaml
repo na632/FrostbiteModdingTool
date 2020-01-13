@@ -125,7 +125,7 @@
                                                 <TextBox   IsEnabled="{Binding ElementName=chksliderHIPS, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderHIPS, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
 
-                                            <Label Content="Arm Speed (Turn speed)" Grid.Column="0"></Label>
+                                            <Label Content="Arm Speed" Grid.Column="0"></Label>
                                             <StackPanel Orientation="Horizontal">
                                                 <CheckBox Name="chkSliderARM" IsChecked="False"></CheckBox>
                                                 <Slider   IsEnabled="{Binding ElementName=chksliderARM, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderARM" Minimum="0" Maximum="800" Value="100" TickPlacement="BottomRight"  TickFrequency="5" IsSnapToTickEnabled="True" Width="250"></Slider>

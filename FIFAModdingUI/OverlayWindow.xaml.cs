@@ -83,5 +83,23 @@ namespace FIFAModdingUI
                 txtRequestFundsAnswer.Text = "Nope!";
             }
         }
+
+        private double OpacityAmount = 0.2d;
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.F2)
+            {
+                if (WindowOpacityColor.Opacity == OpacityAmount)
+                {
+                    WindowOpacityColor.Opacity = 0;
+                    GridOfTiles.Opacity = 0;
+                }
+                else
+                {
+                    WindowOpacityColor.Opacity = OpacityAmount;
+                    GridOfTiles.Opacity = 1;
+                }
+            }
+        }
     }
 }
