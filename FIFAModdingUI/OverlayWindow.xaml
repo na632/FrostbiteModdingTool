@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:FIFAModdingUI"
         mc:Ignorable="d"
         Title="OverlayWindow" Height="450" Width="800"
-        AllowsTransparency="True" WindowStyle="None" KeyUp="Window_KeyUp">
+        AllowsTransparency="True" WindowStyle="None" >
     <Window.Background>
-        <SolidColorBrush x:Name="WindowOpacityColor" Opacity="0.2" Color="White"/>
+        <SolidColorBrush x:Name="WindowOpacityColor" Opacity="0.95" Color="Black"/>
     </Window.Background>
     <StackPanel>
         <Button Content="v2k4 F2"

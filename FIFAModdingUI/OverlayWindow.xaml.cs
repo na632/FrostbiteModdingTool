@@ -60,11 +60,14 @@ namespace FIFAModdingUI
             SetWindowLong(hwnd, -20, initialStyle | 0x80000 | 0x20);
 
             GetWindowRect(FIFAWindowHandle, out rect);
-            ////this.RenderSize = new Size(rect.right - rect.left, rect.bottom - rect.top);
-            this.Left = 0;
-            this.Top = 0;
-            this.Width = rect.right - rect.left;
-            this.Height = rect.bottom - rect.top;
+            if (rect.left > 0)
+            {
+                ////this.RenderSize = new Size(rect.right - rect.left, rect.bottom - rect.top);
+                this.Left = rect.left;
+                this.Top = rect.top;
+                this.Width = rect.right - rect.left;
+                this.Height = rect.bottom - rect.top;
+            }
 
             if(this.Width != 0 && this.Height != 0)
             {
@@ -84,22 +87,24 @@ namespace FIFAModdingUI
             }
         }
 
-        private double OpacityAmount = 0.2d;
-        private void Window_KeyUp(object sender, KeyEventArgs e)
-        {
-            if(e.Key == Key.F2)
-            {
-                if (WindowOpacityColor.Opacity == OpacityAmount)
-                {
-                    WindowOpacityColor.Opacity = 0;
-                    GridOfTiles.Opacity = 0;
-                }
-                else
-                {
-                    WindowOpacityColor.Opacity = OpacityAmount;
-                    GridOfTiles.Opacity = 1;
-                }
-            }
-        }
+        //private double OpacityAmount = 0.75d;
+
+
+        //private void Window_KeyUp(object sender, KeyEventArgs e)
+        //{
+        //    if(e.Key == Key.F2)
+        //    {
+        //        if (WindowOpacityColor.Opacity == OpacityAmount)
+        //        {
+        //            WindowOpacityColor.Opacity = 0;
+        //            GridOfTiles.Opacity = 0;
+        //        }
+        //        else
+        //        {
+        //            WindowOpacityColor.Opacity = OpacityAmount;
+        //            GridOfTiles.Opacity = 1;
+        //        }
+        //    }
+        //}
     }
 }

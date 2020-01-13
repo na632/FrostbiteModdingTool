@@ -54,6 +54,7 @@ namespace FIFAModdingUI
         }
 
         public Task HookDLLThread;
+        public OverlayWindow OverlayWindow;
 
         public MainWindow()
         {
@@ -66,9 +67,39 @@ namespace FIFAModdingUI
 
             EventHookedIntoFIFA += HandleCustomEvent;
 
-            OverlayWindow overlayWindow = new OverlayWindow();
-            overlayWindow.Show();
+
+            var tskCheckForF2 = new TaskFactory().StartNew(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(300);
+                    await Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (Keyboard.IsKeyDown(Key.F2))
+                        {
+                            if (OverlayWindow == null)
+                            {
+                                OverlayWindow = new OverlayWindow();
+                                OverlayWindow.Closed += (o, e) => OverlayWindow = null;
+                                OverlayWindow.Show();
+                                // Cannot close for 3 seconds
+                                await Task.Delay(3000);
+                            }
+                            else
+                            {
+                                OverlayWindow.Hide();
+                                OverlayWindow.Close();
+                                await Task.Delay(1000);
+                            }
+
+
+                        }
+                    });
+                    
+                }
+            });
         }
+
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
