@@ -14,7 +14,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE</DefineConstants>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -55,7 +55,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bleak" Version="3.1.1" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.5.0" />
     <PackageReference Include="MahApps.Metro" Version="1.6.5" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="1.1.0" />
@@ -74,19 +73,10 @@
     <Reference Include="Simple-Injection">
       <HintPath>etc\Simple-Injection.dll</HintPath>
     </Reference>
-    <Reference Include="VAMemory">
-      <HintPath>VAMemory.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="ini\ContextEffect_FIFA20.ini" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="..\x64\Debug\FIFACareerDLL.dll" Link="FIFACareerDLL.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>

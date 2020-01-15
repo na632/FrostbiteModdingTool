@@ -28,7 +28,8 @@ public:
 		int gamedate;
 		// NOT needed for anything within the Base EXE (i.e. Transfer Budget)
 		//char moduleName[] = "client.dll";
-
+		/*auto test = FindDMAAddy(pHandle, 0x072BC1A0, { 0x8, 0x698 });
+		std::cout << "Current Game Date: " << test << std::endl;*/
 		////Get Client Base Addy
 		//DWORD clientBase = dwGetModuleBaseAddress(t2, pID);
 		ReadProcessMemory(pHandle, (LPCVOID)(moduleBase + 0x072BC1A0), &baseAddress, sizeof(baseAddress), NULL);
@@ -37,7 +38,7 @@ public:
 		gameDateAddy = off1 + 0x698;
 		//std::cout << "Final Addy: " << std::hex << healthAddy << std::endl;
 		ReadProcessMemory(pHandle, (LPCVOID)(gameDateAddy), &gamedate, 4, NULL);
-		//std::cout << "Current Game Date: " << gamedate << std::endl;
+		std::cout << "Current Game Date: " << gamedate << std::endl;
 		return gamedate;
 	}
 

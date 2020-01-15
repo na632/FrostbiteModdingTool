@@ -8,7 +8,7 @@
         Title="OverlayWindow" Height="450" Width="800"
         AllowsTransparency="True" WindowStyle="None" >
     <Window.Background>
-        <SolidColorBrush x:Name="WindowOpacityColor" Opacity="0.95" Color="Black"/>
+        <SolidColorBrush x:Name="WindowOpacityColor" Opacity="0.85" Color="Black"/>
     </Window.Background>
     <StackPanel>
         <Button Content="v2k4 F2"
@@ -18,51 +18,69 @@
                 Width="50"
                 Visibility="Visible"
             />
+        <TextBlock x:Name="hookedtext" Background="White" Width="100" Height="25" Margin="100,-27,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                   TextAlignment="Center"
+                   Visibility="Hidden"
+                   >Hooked!</TextBlock>
         <TextBlock Background="White" Width="250" Height="25" Margin="0,-27,0,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                    TextAlignment="Center"
                    Visibility="Visible"
                    >Paulv2k4 Career Mode DLL v0 Alpha 1</TextBlock>
-        <Grid x:Name="GridOfTiles">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="300"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
+        <TabControl x:Name="MainViewer" Grid.Row="1" Margin="10" IsEnabled="False">
+            <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
+                <Grid x:Name="GridOfTiles">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-            <Button  VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" Margin="10" x:Name="btnRequestAdditionalFunds" Click="btnRequestAdditionalFunds_Click">
-                <StackPanel>
-                    <Image Source="download.png" />
-                    <TextBlock TextWrapping="Wrap" TextAlignment="Center">Request Additional Funds</TextBlock>
-                    <TextBlock x:Name="txtRequestFundsAnswer" TextWrapping="Wrap" TextAlignment="Center"></TextBlock>
-                </StackPanel>
-            </Button>
-            <StackPanel VerticalAlignment="Center"  Grid.Row="1"  Grid.Column="2" Margin="10" Background="White">
-                <StackPanel Margin="5">
-                <Image Source="download.png" />
-                    <TextBlock x:Name="txtShopDrinkPriceLabel" TextWrapping="Wrap" TextAlignment="Center">Drink Price</TextBlock>
-                    <Grid >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="-"></Button>
-                        <TextBlock Grid.Column="1" x:Name="txtShopDrinkPrice" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center">4.99</TextBlock>
-                        <Button Grid.Column="2" Content="+"></Button>
-                    </Grid>
-                </StackPanel>
-            </StackPanel>
-        </Grid>
-
+                    <StackPanel VerticalAlignment="Center"  Grid.Row="1"  Grid.Column="1" Margin="10" Background="White" x:Name="btnRequestAdditionalFunds">
+                        <StackPanel Margin="5">
+                            <Image Source="download.png" />
+                            <TextBlock x:Name="txtRequestFundsLabel" TextWrapping="Wrap" TextAlignment="Center">Request Additional Funds</TextBlock>
+                            <Grid >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                            </Grid>
+                            <Button  Click="btnRequestAdditionalFunds_Click">Request</Button>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Center"  Grid.Row="1"  Grid.Column="2" Margin="10" Background="White">
+                        <StackPanel Margin="5">
+                            <Image Source="download.png" />
+                            <TextBlock x:Name="txtShopDrinkPriceLabel" TextWrapping="Wrap" TextAlignment="Center">Drink Price</TextBlock>
+                            <Grid >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="-"></Button>
+                                <TextBlock Grid.Column="1" x:Name="txtShopDrinkPrice" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center">4.99</TextBlock>
+                                <Button Grid.Column="2" Content="+"></Button>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="TabPlayer" Header="Player" IsEnabled="False"></TabItem>
+            <TabItem x:Name="TabTeams" Header="Teams" IsEnabled="False"></TabItem>
+        </TabControl>
     </StackPanel>
 </Window>

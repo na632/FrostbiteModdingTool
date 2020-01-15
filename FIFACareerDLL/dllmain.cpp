@@ -38,6 +38,7 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 
 	// create console
 	AllocConsole();
+	SetConsoleCtrlHandler(NULL, true);
 	FILE* f;
 	freopen_s(&f, "CONOUT$", "w", stdout);
 
@@ -79,18 +80,21 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 	{
 		try {
 			Sleep(100);
-			int gameDate = FIFAManager::GetGameDate(moduleBase, v2k4::FIFAProcessHandle);
-			Sleep(100);
 
-			if (
-				!InCareerMode
-				&&
-				(gameDate >= 20190101
-					&& gameDate <= 20990101)
-				)
+			if (!InCareerMode)
 			{
-				InCareerMode = true;
-				std::cout << "In Career Mode! \n";
+				int gameDate = FIFAManager::GetGameDate(moduleBase, v2k4::FIFAProcessHandle);
+
+				if
+					(gameDate >= 20190101
+						&& gameDate <= 20990101)
+
+				{
+					InCareerMode = true;
+					std::cout << "In Career Mode! \n";
+					Sleep(1000);
+
+				}
 			}
 			/*else if (InCareerMode
 				&&
@@ -110,6 +114,7 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 
 
 		if (GetAsyncKeyState(VK_END) & 1) {
+			std::cout << "Trying to exit \n";
 			FreeConsole();
 			CloseHandle(v2k4::FIFAProcessHandle);
 			return 0;
@@ -128,11 +133,12 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 		}
 
 		// get us out of here
-		if (GetAsyncKeyState(VK_ESCAPE) & 1) {
+		/*if (GetAsyncKeyState(VK_ESCAPE) & 1) {
+			std::cout << "Trying to exit \n";
 			FreeConsole();
 			CloseHandle(v2k4::FIFAProcessHandle);
 			return 0;
-		}
+		}*/
 	}
 
 	// key input
@@ -142,8 +148,8 @@ DWORD WINAPI HackThread(HMODULE hModule) {
 
 
 	//
-
-	return 0;
+	FreeLibraryAndExitThread(hModule, 0);
+	ExitThread(0);
 }
 
 
@@ -162,8 +168,19 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		Thread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)HackThread, hModule, 0, nullptr);
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
+		Thread = NULL;
 	case DLL_PROCESS_DETACH:
+		Thread = NULL;
 		break;
 	}
 	return TRUE;
+}
+
+
+extern "C"
+{
+	__declspec(dllexport) bool CareerModeLoaded_OUT()
+	{
+		return InCareerMode;
+	}
 }

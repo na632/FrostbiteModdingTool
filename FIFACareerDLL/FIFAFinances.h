@@ -75,7 +75,7 @@ public:
 		//std::cout << "Final Addy: " << std::hex << healthAddy << std::endl;
 		ReadProcessMemory(pHandle, (LPCVOID)(healthAddy), &currentBudget, 4, NULL);
 		//std::cout << "Budget: " << currentBudget << std::endl;
-		WriteProcessMemory(pHandle, (LPVOID)(healthAddy), &newTransferBudget, sizeof(newTransferBudget), 0);
+		WriteProcessMemory(pHandle, (LPVOID)(healthAddy), &newTransferBudget, 4, 0);
 		ReadProcessMemory(pHandle, (LPCVOID)(healthAddy), &currentBudget, 4, NULL);
 		std::cout << "Transfer Budget: " << currentBudget << std::endl;
 	}

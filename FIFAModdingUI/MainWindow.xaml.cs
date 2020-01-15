@@ -20,7 +20,6 @@ using v2k4FIFAModdingCL;
 using v2k4FIFAModdingCL.CustomAttributes;
 using v2k4FIFAModdingCL.Career;
 using System.Text.RegularExpressions;
-using Bleak;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Simple_Injector.Etc;
@@ -53,7 +52,7 @@ namespace FIFAModdingUI
             }
         }
 
-        public Task HookDLLThread;
+        //public Task HookDLLThread;
         public OverlayWindow OverlayWindow;
 
         public MainWindow()
@@ -61,7 +60,7 @@ namespace FIFAModdingUI
             InitializeComponent();
             InitializeIniSettings();
 
-            HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
+            //HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
 
             this.Closed += MainWindow_Closed;
 
@@ -72,7 +71,7 @@ namespace FIFAModdingUI
             {
                 while (true)
                 {
-                    await Task.Delay(300);
+                    await Task.Delay(200);
                     await Application.Current.Dispatcher.InvokeAsync(async () =>
                     {
                         if (Keyboard.IsKeyDown(Key.F2))
@@ -82,8 +81,8 @@ namespace FIFAModdingUI
                                 OverlayWindow = new OverlayWindow();
                                 OverlayWindow.Closed += (o, e) => OverlayWindow = null;
                                 OverlayWindow.Show();
-                                // Cannot close for 3 seconds
-                                await Task.Delay(3000);
+                                // Cannot close for 2 seconds
+                                await Task.Delay(2000);
                             }
                             else
                             {
@@ -103,8 +102,10 @@ namespace FIFAModdingUI
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            if(HookedFIFA)
-                CloseHook_OUT();
+            //HookDLLThread.Dispose();
+
+            //if(HookedFIFA)
+            //    CloseHook_OUT();
         }
 
         // Define what actions to take when the event is raised.
@@ -116,77 +117,77 @@ namespace FIFAModdingUI
             });
         }
 
-        [DllImport("FIFACareerDLL.dll")]
-        static extern int GetTransferBudget_OUT();
+        //[DllImport("FIFACareerDLL.dll")]
+        //public static extern int GetTransferBudget_OUT();
 
-        [DllImport("FIFACareerDLL.dll")]
-        static extern bool RequestAdditionalFunds_OUT();
+        //[DllImport("FIFACareerDLL.dll")]
+        //public static extern bool RequestAdditionalFunds_OUT();
 
-        [DllImport("FIFACareerDLL.dll")]
-        static extern void CloseHook_OUT();
+        //[DllImport("FIFACareerDLL.dll")]
+        //public static extern void CloseHook_OUT();
 
-        [DllImport("FIFACareerDLL.dll")]
-        static extern bool CareerModeLoaded_OUT();
+        //[DllImport("FIFACareerDLL.dll")]
+        //public static extern bool CareerModeLoaded_OUT();
 
-        [DllImport("user32.dll")]
-        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-        [DllImport("user32.dll")]
-        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        //[DllImport("user32.dll")]
+        //private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        //[DllImport("user32.dll")]
+        //static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-        private static readonly Simple_Injection.Injector Injector = new Simple_Injection.Injector();
+        //private static readonly Simple_Injection.Injector Injector = new Simple_Injection.Injector();
 
-        private static readonly Status Status = new Status();
+        //private static readonly Status Status = new Status();
 
-        private readonly Config _config = new Config();
+        //private readonly Config _config = new Config();
 
-        private readonly DataTable _processTable = new DataTable();
+        //private readonly DataTable _processTable = new DataTable();
 
-        public static Status Inject(Config config)
-        {
-            // Inject using specified method
+        //public static Status Inject(Config config)
+        //{
+        //    // Inject using specified method
 
-            switch (config.InjectionMethod)
-            {
-                case "CreateRemoteThread":
+        //    switch (config.InjectionMethod)
+        //    {
+        //        case "CreateRemoteThread":
 
-                    if (Injector.CreateRemoteThread(config.DllPath, config.ProcessName))
-                    {
-                        Status.InjectionOutcome = true;
-                    }
+        //            if (Injector.CreateRemoteThread(config.DllPath, config.ProcessName))
+        //            {
+        //                Status.InjectionOutcome = true;
+        //            }
 
-                    break;
+        //            break;
 
-                case "RtlCreateUserThread":
+        //        case "RtlCreateUserThread":
 
-                    if (Injector.RtlCreateUserThread(config.DllPath, config.ProcessName))
-                    {
-                        Status.InjectionOutcome = true;
-                    }
+        //            if (Injector.RtlCreateUserThread(config.DllPath, config.ProcessName))
+        //            {
+        //                Status.InjectionOutcome = true;
+        //            }
 
-                    break;
+        //            break;
 
-                case "SetThreadContext":
+        //        case "SetThreadContext":
 
-                    if (Injector.SetThreadContext(config.DllPath, config.ProcessName))
-                    {
-                        Status.InjectionOutcome = true;
-                    }
+        //            if (Injector.SetThreadContext(config.DllPath, config.ProcessName))
+        //            {
+        //                Status.InjectionOutcome = true;
+        //            }
 
-                    break;
-            }
+        //            break;
+        //    }
 
-            // Erase headers if EraseHeaders is checked
+        //    // Erase headers if EraseHeaders is checked
 
-            if (config.EraseHeaders)
-            {
-                if (Injector.EraseHeaders(config.DllPath, config.ProcessName))
-                {
-                    Status.EraseHeadersOutcome = true;
-                }
-            }
+        //    if (config.EraseHeaders)
+        //    {
+        //        if (Injector.EraseHeaders(config.DllPath, config.ProcessName))
+        //        {
+        //            Status.EraseHeadersOutcome = true;
+        //        }
+        //    }
 
-            return Status;
-        }
+        //    return Status;
+        //}
 
         public event EventHandler EventHookedIntoFIFA;
         public event EventHandler EventHookedIntoFIFACareerMode;
@@ -205,50 +206,51 @@ namespace FIFAModdingUI
             set { _hookedFIFACareerMode = value; EventHookedIntoFIFACareerMode(this, null); }
         }
 
-        private async void HookFIFADLL()
-        {
-            while (!HookedFIFA)
-            {
-                await Task.Delay(1000);
-                if (FIFAInstanceSingleton.FIFAVERSION == "FIFA20")
-                {
-                    // the target process - I'm using a dummy process for this
-                    // if you don't have one, open Task Manager and choose wisely
-                    Process FIFAProcess;
-                    var processes = Process.GetProcesses();
-                    if (processes.Any(p => p.ProcessName.Contains("FIFA20")))
-                    {
-                        FIFAProcess = processes.FirstOrDefault(x => x.ProcessName == "FIFA20");
+        //public Process FIFAProcess;
 
-                        _config.DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("FIFAModdingUI.dll", "") + "\\FIFACareerDLL.dll";
+        //private async void HookFIFADLL()
+        //{
+        //    while (!HookedFIFA)
+        //    {
+        //        await Task.Delay(600);
+        //        if (FIFAInstanceSingleton.FIFAVERSION == "FIFA20")
+        //        {
+        //            // the target process - I'm using a dummy process for this
+        //            // if you don't have one, open Task Manager and choose wisely
+        //            var processes = Process.GetProcesses();
+        //            if (processes.Any(p => p.ProcessName.Contains("FIFA20")))
+        //            {
+        //                FIFAProcess = processes.FirstOrDefault(x => x.ProcessName == "FIFA20");
 
-                        //var budget = GetTransferBudget_OUT();
-                        //if (budget != 0)
-                        //{
+        //                _config.DllPath = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("FIFAModdingUI.dll", "") + "\\FIFACareerDLL.dll";
 
-                        //}
+        //                //var budget = GetTransferBudget_OUT();
+        //                //if (budget != 0)
+        //                //{
+
+        //                //}
                         
-                        if (File.Exists(_config.DllPath))
-                        {
-                            await Task.Delay(10000);
+        //                if (File.Exists(_config.DllPath))
+        //                {
+        //                    await Task.Delay(10000);
 
-                            _config.ProcessName = FIFAProcess.ProcessName;
-                            _config.InjectionMethod = "CreateRemoteThread";
-                            Status status = Inject(_config);
-                            if(status.InjectionOutcome)
-                            {
-                                HookedFIFA = true;
-                                //while(!HookedFIFACareerMode)
-                                //{
-                                //    if (CareerModeLoaded_OUT())
-                                //        HookedFIFACareerMode = true;
-                                //}
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        //                    _config.ProcessName = FIFAProcess.ProcessName;
+        //                    _config.InjectionMethod = "CreateRemoteThread";
+        //                    Status status = Inject(_config);
+        //                    if(status.InjectionOutcome)
+        //                    {
+        //                        HookedFIFA = true;
+        //                        //while(!HookedFIFACareerMode)
+        //                        //{
+        //                        //    if (CareerModeLoaded_OUT())
+        //                        //        HookedFIFACareerMode = true;
+        //                        //}
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         private void InitializeIniSettings()
         {
@@ -681,7 +683,7 @@ namespace FIFAModdingUI
                 txtFIFADirectory.Text = FIFADirectory;
                 MainViewer.IsEnabled = true;
 
-                HookFIFADLL();
+                //HookFIFADLL();
 
 
                 //using var injector = new Injector(fileName, "dllPath", InjectionMethod.CreateThread, InjectionFlags.None);
@@ -1041,16 +1043,16 @@ namespace FIFAModdingUI
 
         private void btnRequestAdditionalFunds_Click(object sender, RoutedEventArgs e)
         {
-            txtTransferBudget.Text = GetTransferBudget_OUT().ToString();
+            //txtTransferBudget.Text = GetTransferBudget_OUT().ToString();
 
-            if (RequestAdditionalFunds_OUT())
-            {
-                btnRequestAdditionalFunds.Background = Brushes.Green;
-            }
-            else
-            {
-                btnRequestAdditionalFunds.Background = Brushes.Red;
-            }
+            //if (RequestAdditionalFunds_OUT())
+            //{
+            //    btnRequestAdditionalFunds.Background = Brushes.Green;
+            //}
+            //else
+            //{
+            //    btnRequestAdditionalFunds.Background = Brushes.Red;
+            //}
         }
 
         private void btnAddOverlayToGame_Click(object sender, RoutedEventArgs e)

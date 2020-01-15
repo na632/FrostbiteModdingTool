@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Memory;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,6 +13,8 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using v2k4FIFAModdingCL.MemHack.Career;
+using v2k4FIFAModdingCL.MemHack.Core;
 
 namespace FIFAModdingUI
 {
@@ -39,9 +43,6 @@ namespace FIFAModdingUI
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
-        [DllImport("FIFACareerDLL.dll")]
-        static extern bool RequestAdditionalFunds_OUT();
-
         HwndSource hwndSource;
         
 
@@ -60,31 +61,41 @@ namespace FIFAModdingUI
             SetWindowLong(hwnd, -20, initialStyle | 0x80000 | 0x20);
 
             GetWindowRect(FIFAWindowHandle, out rect);
-            if (rect.left > 0)
-            {
-                ////this.RenderSize = new Size(rect.right - rect.left, rect.bottom - rect.top);
-                this.Left = rect.left;
-                this.Top = rect.top;
-                this.Width = rect.right - rect.left;
-                this.Height = rect.bottom - rect.top;
-            }
+            this.Left = rect.left;
+            this.Top = rect.top;
+            this.Width = rect.right - rect.left;
+            this.Height = rect.bottom - rect.top;
 
-            if(this.Width != 0 && this.Height != 0)
+            if(CoreHack.GetProcess(out Mem MemLib) != 0)
             {
-
+                hookedtext.Visibility = Visibility.Visible;
+                TabCareer.IsEnabled = true; MainViewer.IsEnabled = true;
             }
         }
 
         private void btnRequestAdditionalFunds_Click(object sender, RoutedEventArgs e)
         {
-            if(RequestAdditionalFunds_OUT())
+            var finances = new Finances();
+            if(finances.RequestAdditionalFunds(out string message))
             {
-                txtRequestFundsAnswer.Text = "Yes here we go!";
+                //txtRequestFundsAnswer.Text = "Yes here we go!";
+                btnRequestAdditionalFunds.Background = Brushes.Green;
             }
             else
-            {
-                txtRequestFundsAnswer.Text = "Nope!";
+            { 
+                //txtRequestFundsAnswer.Text = "Nope!";
+                btnRequestAdditionalFunds.Background = Brushes.Red;
             }
+
+            new TaskFactory().StartNew(async () => 
+                { 
+                    await Task.Delay(1000); 
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        btnRequestAdditionalFunds.Background = Brushes.White;
+                });
+            });
+
         }
 
         //private double OpacityAmount = 0.75d;
