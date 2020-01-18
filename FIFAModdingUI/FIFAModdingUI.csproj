@@ -80,7 +80,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="download.png" />
+    <Resource Include="Resources\images\cash.png" />
   </ItemGroup>
 
   <ItemGroup>

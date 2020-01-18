@@ -10,6 +10,9 @@ namespace v2k4FIFAModdingCL.MemHack.Career
 
     public class Finances
     {
+
+        //FIFA20.exe+10DA094C - 44 8B 56 08          
+
         private class POINTER_ADDRESSES
         {
             public string TRANSFER_BUDGET = "FIFA20.exe+072BC110,0x18,0x18,0x2A8,0x268,0x8";
