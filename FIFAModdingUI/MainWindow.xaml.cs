@@ -25,6 +25,9 @@ using System.Diagnostics;
 using Simple_Injector.Etc;
 using System.Data;
 using System.Threading;
+using Microsoft.VisualBasic.FileIO;
+using v2k4FIFAModdingCL.CGFE;
+
 
 namespace FIFAModdingUI
 {
@@ -699,12 +702,59 @@ namespace FIFAModdingUI
 
                 InitializeIniSettings();
 
+                var myDocs = SpecialDirectories.MyDocuments + "\\"
+                    + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
+                    + "\\settings\\";
+
+                CareerSaves.ItemsSource = Directory.GetFiles(myDocs);
+
+
+                //
+                //CareerSaves.Items.Add()
                
 
             }
             else
             {
                 throw new Exception("This Version of FIFA is incompatible with this tool");
+            }
+        }
+
+        protected void CareerSaves_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ListViewItem item = sender as ListViewItem;
+            if(item != null)
+            {
+                var iFile = item.Content.ToString();
+                new TaskFactory().StartNew(() =>
+                {
+                    var careerFile = new CareerFile(iFile, @"C:\Program Files (x86)\RDBM 20\RDBM20\Templates\FIFA 20\fifa_ng_db-meta.XML");
+
+                    List<DataSet> dataSets = new List<DataSet>();
+                    if (careerFile != null)
+                    {
+                        foreach (var dbf in careerFile.Databases.Where(x => x != null))
+                        {
+                            dataSets.Add(dbf.ConvertToDataSet());
+                        }
+                    }
+                    if (dataSets.Count > 0)
+                    {
+
+                        Dispatcher.Invoke(() =>
+                        {
+                            foreach (DataColumn col in dataSets[1].Tables["players"].Columns)
+                            {
+                                dgCareerSave.Columns.Add(new DataGridTextColumn
+                                {
+                                    Header = col.ColumnName,
+                                    Binding = new Binding(string.Format("[{0}]", col.ColumnName))
+                                });
+                            }
+                            dgCareerSave.DataContext = dataSets[1].Tables["players"].Select("playerid = '41'");
+                        });
+                    }
+                });
             }
         }
 
@@ -1060,5 +1110,7 @@ namespace FIFAModdingUI
             OverlayWindow overlayWindow = new OverlayWindow();
             overlayWindow.Show();
         }
+
+        
     }
 }

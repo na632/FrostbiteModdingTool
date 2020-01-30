@@ -18,14 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="FifaLibrary19">
-      <HintPath>FifaLibrary19.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Career\Interfaces\" />
     <Folder Include="db\FIFA20\" />
+    <Folder Include="Frosty\" />
   </ItemGroup>
 
   <ItemGroup>

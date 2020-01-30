@@ -43,6 +43,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FifaLibrary19">
+      <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
+    </Reference>
     <Reference Include="Memory, Version=1.2.18.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Memory.dll.1.2.18.1\lib\net472\Memory.dll</HintPath>
     </Reference>
@@ -56,8 +59,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FIFALibraryTests.cs" />
     <Compile Include="InjectionUnitTests.cs" />
-    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

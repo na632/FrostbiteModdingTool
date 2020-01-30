@@ -219,21 +219,27 @@
                 </Grid>
 
             </TabItem>
-            <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
+            <TabItem x:Name="TabCareer" Header="Career">
                 <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <Label x:Name="lblTransferBudget" Background="White" Foreground="Black" >Transfer Budget:</Label>
-                            <TextBlock x:Name="txtTransferBudget" Background="White" Foreground="Black" />
-                            <Button x:Name="btnAddOverlayToGame" Background="White" Foreground="Black" Click="btnAddOverlayToGame_Click">Add Overlay to FIFA</Button>
-                            <Button x:Name="btnRequestAdditionalFunds" Background="White" Foreground="Black" Click="btnRequestAdditionalFunds_Click" >Request Additional Funds</Button>
-                        </StackPanel>
-                    </Grid>
+                    
+                        <TabControl>
+                            <TabItem Header="Saves">
+                                <StackPanel Orientation="Horizontal">
+                                    <ListView x:Name="CareerSaves">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerSaves_PreviewMouseLeftButtonDown" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                    </ListView>
+                                    <DataGrid x:Name="dgCareerSave"
+                                                AutoGenerateColumns="False"
+                                                ItemsSource="{Binding}">
+                                        
+                                    </DataGrid>
+                                </StackPanel>
+                            </TabItem>
+                        </TabControl>
                 </StackPanel>
             </TabItem>
         </TabControl>

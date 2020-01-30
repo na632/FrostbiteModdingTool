@@ -25,6 +25,9 @@
     <Reference Include="FifaLibrary19">
       <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Windows.Forms.dll</HintPath>
+    </Reference>
     <Reference Include="VAMemory">
       <HintPath>..\FIFAModdingUI\VAMemory.dll</HintPath>
     </Reference>

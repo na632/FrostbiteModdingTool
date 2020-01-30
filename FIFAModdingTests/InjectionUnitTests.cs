@@ -25,21 +25,37 @@ namespace FIFAModdingTests
                 MemLib.OpenProcess(gameProcId);
                 if(MemLib.getMinAddress() > 0)
                 {
+                    //var u = MemLib.AoBScan("?? ?? ?? ?? C0 F6 15 01", true, true).Result.FirstOrDefault().ToString("X8");
+                    //var i0 = MemLib.readInt(u);
+                    //if (i0 > 0)
+                    //{
+
+                    //}
+
                     var u = MemLib.AoBScan("?? ?? ?? ?? C0 F6 15 01", true, true).Result.FirstOrDefault().ToString("X8");
                     var i0 = MemLib.readInt(u);
                     if (i0 > 0)
                     {
 
                     }
+
+                    //var dateScan = MemLib.AoBScan("?? ?? ?? ?? 00 00 00 00", true, true).Result.FirstOrDefault().ToString("X8");
+                    //var date = MemLib.readInt(dateScan);
+                    //if(date > 0)
+                    //{
+
+                    //}
+
+                    //SigScanSharp sigScan = new SigScanSharp(MemLib.theProc.Handle);
+                    //sigScan.SelectModule(MemLib.theProc.MainModule);
+                    //var offset = sigScan.FindPattern("? ? ? ? C0 F6 15 01", out long time);
+                    //if (offset > 0)
+                    //{
+
+                    //}
                 }
 
-                ////SigScanSharp sigScan = new SigScanSharp(MemLib.theProc.Handle);
-                ////sigScan.SelectModule(MemLib.theProc.MainModule);
-                ////var offset = sigScan.FindPattern("? ? ? ? C0 F6 15 01", out long time);
-                ////if (offset > 0)
-                ////{
 
-                ////}
 
 
                 //var u = MemLib.AoBScan("FIFA20.exe",                     "?? ?? ?? ?? C0 F6 15 01", true, true).Result.FirstOrDefault();

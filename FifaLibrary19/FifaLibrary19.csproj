@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{05ACB5DD-CBC0-4681-8D60-10E80DB1A4EE}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <LangVersion>8.0</LangVersion>
+    <AssemblyName>FifaLibrary19</AssemblyName>
+    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Drawing">
+      <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Drawing\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_32\System.Data\v4.0_4.0.0.0__b77a5c561934e089\System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</HintPath>
+    </Reference>
+    <Reference Include="zlib.net" />
+    <Reference Include="System.Windows.Forms">
+      <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Windows.Forms\v4.0_4.0.0.0__b77a5c561934e089\System.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <HintPath>C:\WINDOWS\Microsoft.NET\assembly\GAC_MSIL\System.Data.DataSetExtensions\v4.0_4.0.0.0__b77a5c561934e089\System.Data.DataSetExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DirectX.Direct3D">
+      <HintPath>C:\WINDOWS\assembly\GAC\Microsoft.DirectX.Direct3D\1.0.2902.0__31bf3856ad364e35\Microsoft.DirectX.Direct3D.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DirectX">
+      <HintPath>C:\WINDOWS\assembly\GAC\Microsoft.DirectX\1.0.2902.0__31bf3856ad364e35\Microsoft.DirectX.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FifaLibrary\Adboard.cs" />
+    <Compile Include="FifaLibrary\AdboardList.cs" />
+    <Compile Include="FifaLibrary\Audio.cs" />
+    <Compile Include="FifaLibrary\Ball.cs" />
+    <Compile Include="FifaLibrary\BallList.cs" />
+    <Compile Include="FifaLibrary\BhFile.cs" />
+    <Compile Include="FifaLibrary\BhFileReference.cs" />
+    <Compile Include="FifaLibrary\CareerCommonName.cs" />
+    <Compile Include="FifaLibrary\CareerCommonNameList.cs" />
+    <Compile Include="FifaLibrary\CareerFile.cs" />
+    <Compile Include="FifaLibrary\CareerFirstName.cs" />
+    <Compile Include="FifaLibrary\CareerFirstNameList.cs" />
+    <Compile Include="FifaLibrary\CareerFormation.cs" />
+    <Compile Include="FifaLibrary\CareerFormationList.cs" />
+    <Compile Include="FifaLibrary\CareerLastName.cs" />
+    <Compile Include="FifaLibrary\CareerLastNameList.cs" />
+    <Compile Include="FifaLibrary\CmsDataSet.cs" />
+    <Compile Include="FifaLibrary\CmSponsor.cs" />
+    <Compile Include="FifaLibrary\CompetitionSettings.cs" />
+    <Compile Include="FifaLibrary\Compobj.cs" />
+    <Compile Include="FifaLibrary\CompobjList.cs" />
+    <Compile Include="FifaLibrary\Confederation.cs" />
+    <Compile Include="FifaLibrary\ConfederationList.cs" />
+    <Compile Include="FifaLibrary\Country.cs" />
+    <Compile Include="FifaLibrary\CountryList.cs" />
+    <Compile Include="FifaLibrary\DbFile.cs" />
+    <Compile Include="FifaLibrary\DbReader.cs" />
+    <Compile Include="FifaLibrary\DbWriter.cs" />
+    <Compile Include="FifaLibrary\DdsFile.cs" />
+    <Compile Include="FifaLibrary\DxtBlock.cs" />
+    <Compile Include="FifaLibrary\ECompressionMode.cs" />
+    <Compile Include="FifaLibrary\EEndOfCompetitionRule.cs" />
+    <Compile Include="FifaLibrary\EFifaObjects.cs" />
+    <Compile Include="FifaLibrary\EImageType.cs" />
+    <Compile Include="FifaLibrary\ELeaguePrestige.cs" />
+    <Compile Include="FifaLibrary\EPlayingDirection.cs" />
+    <Compile Include="FifaLibrary\EPlayingIntensity.cs" />
+    <Compile Include="FifaLibrary\EQualifyingRule.cs" />
+    <Compile Include="FifaLibrary\ERole.cs" />
+    <Compile Include="FifaLibrary\ERuleApplicartionTime.cs" />
+    <Compile Include="FifaLibrary\FI.cs" />
+    <Compile Include="FifaLibrary\FieldComparer.cs" />
+    <Compile Include="FifaLibrary\FieldDescriptor.cs" />
+    <Compile Include="FifaLibrary\FifaBigFile.cs" />
+    <Compile Include="FifaLibrary\FifaEnvironment.cs" />
+    <Compile Include="FifaLibrary\FifaFat.cs" />
+    <Compile Include="FifaLibrary\FifaFile.cs" />
+    <Compile Include="FifaLibrary\FifaFileHeader.cs" />
+    <Compile Include="FifaLibrary\FifaPlatform.cs" />
+    <Compile Include="FifaLibrary\FifaUtil.cs" />
+    <Compile Include="FifaLibrary\Formation.cs" />
+    <Compile Include="FifaLibrary\FormationList.cs" />
+    <Compile Include="FifaLibrary\FreeAgent.cs" />
+    <Compile Include="FifaLibrary\FreeAgentList.cs" />
+    <Compile Include="FifaLibrary\Fsh.cs" />
+    <Compile Include="FifaLibrary\FshImage.cs" />
+    <Compile Include="FifaLibrary\FshSection.cs" />
+    <Compile Include="FifaLibrary\GenericHead.cs" />
+    <Compile Include="FifaLibrary\GkGloves.cs" />
+    <Compile Include="FifaLibrary\GkGlovesList.cs" />
+    <Compile Include="FifaLibrary\Gloves.cs" />
+    <Compile Include="FifaLibrary\GlovesList.cs" />
+    <Compile Include="FifaLibrary\GraphicUtil.cs" />
+    <Compile Include="FifaLibrary\Group.cs" />
+    <Compile Include="FifaLibrary\GroupList.cs" />
+    <Compile Include="FifaLibrary\HuffmannTree.cs" />
+    <Compile Include="FifaLibrary\IdArrayList.cs" />
+    <Compile Include="FifaLibrary\IdObject.cs" />
+    <Compile Include="FifaLibrary\IdObjectComparer.cs" />
+    <Compile Include="FifaLibrary\IdString.cs" />
+    <Compile Include="FifaLibrary\ImageDir.cs" />
+    <Compile Include="FifaLibrary\InitTeam.cs" />
+    <Compile Include="FifaLibrary\InitTeamList.cs" />
+    <Compile Include="FifaLibrary\Kit.cs" />
+    <Compile Include="FifaLibrary\KitFile.cs" />
+    <Compile Include="FifaLibrary\KitList.cs" />
+    <Compile Include="FifaLibrary\Language.cs" />
+    <Compile Include="FifaLibrary\League.cs" />
+    <Compile Include="FifaLibrary\LeagueList.cs" />
+    <Compile Include="FifaLibrary\Localization.cs" />
+    <Compile Include="FifaLibrary\Manager.cs" />
+    <Compile Include="FifaLibrary\Matrix3x3.cs" />
+    <Compile Include="FifaLibrary\Messages.cs" />
+    <Compile Include="FifaLibrary\MipMap.cs" />
+    <Compile Include="FifaLibrary\Model3D.cs" />
+    <Compile Include="FifaLibrary\MowingPattern.cs" />
+    <Compile Include="FifaLibrary\MowingPatternList.cs" />
+    <Compile Include="FifaLibrary\MultiClub.cs" />
+    <Compile Include="FifaLibrary\MultiClubList.cs" />
+    <Compile Include="FifaLibrary\NameDictionary.cs" />
+    <Compile Include="FifaLibrary\NameFont.cs" />
+    <Compile Include="FifaLibrary\NameFontList.cs" />
+    <Compile Include="FifaLibrary\Nation.cs" />
+    <Compile Include="FifaLibrary\NationList.cs" />
+    <Compile Include="FifaLibrary\Net.cs" />
+    <Compile Include="FifaLibrary\NetList.cs" />
+    <Compile Include="FifaLibrary\Newspaper.cs" />
+    <Compile Include="FifaLibrary\NumberFont.cs" />
+    <Compile Include="FifaLibrary\NumberFontList.cs" />
+    <Compile Include="FifaLibrary\OnlineFile.cs" />
+    <Compile Include="FifaLibrary\Options.cs" />
+    <Compile Include="FifaLibrary\Player.cs" />
+    <Compile Include="FifaLibrary\PlayerList.cs" />
+    <Compile Include="FifaLibrary\PlayerName.cs" />
+    <Compile Include="FifaLibrary\PlayerNames.cs" />
+    <Compile Include="FifaLibrary\PlayingRole.cs" />
+    <Compile Include="FifaLibrary\Police.cs" />
+    <Compile Include="FifaLibrary\Rank.cs" />
+    <Compile Include="FifaLibrary\RankList.cs" />
+    <Compile Include="FifaLibrary\RawImage.cs" />
+    <Compile Include="FifaLibrary\Record.cs" />
+    <Compile Include="FifaLibrary\RecordComparer.cs" />
+    <Compile Include="FifaLibrary\Referee.cs" />
+    <Compile Include="FifaLibrary\RefereeList.cs" />
+    <Compile Include="FifaLibrary\RegistryInfo.cs" />
+    <Compile Include="FifaLibrary\Role.cs" />
+    <Compile Include="FifaLibrary\RoleList.cs" />
+    <Compile Include="FifaLibrary\Roster.cs" />
+    <Compile Include="FifaLibrary\RosterComparer.cs" />
+    <Compile Include="FifaLibrary\Rx3File.cs" />
+    <Compile Include="FifaLibrary\Rx3FileDescriptor.cs" />
+    <Compile Include="FifaLibrary\Rx3Header.cs" />
+    <Compile Include="FifaLibrary\Rx3Image.cs" />
+    <Compile Include="FifaLibrary\Rx3ImageDirectory.cs" />
+    <Compile Include="FifaLibrary\Rx3ImageHeader.cs" />
+    <Compile Include="FifaLibrary\Rx3IndexArray.cs" />
+    <Compile Include="FifaLibrary\Rx3ModelDirectory.cs" />
+    <Compile Include="FifaLibrary\Rx3ModelHeader.cs" />
+    <Compile Include="FifaLibrary\Rx3RawData.cs" />
+    <Compile Include="FifaLibrary\Rx3Signatures.cs" />
+    <Compile Include="FifaLibrary\Rx3Vertex.cs" />
+    <Compile Include="FifaLibrary\Rx3VertexArray.cs" />
+    <Compile Include="FifaLibrary\SameName.cs" />
+    <Compile Include="FifaLibrary\SameNameList.cs" />
+    <Compile Include="FifaLibrary\SbrFile.cs" />
+    <Compile Include="FifaLibrary\Schedule.cs" />
+    <Compile Include="FifaLibrary\ScheduleArray.cs" />
+    <Compile Include="FifaLibrary\ScheduleComparer.cs" />
+    <Compile Include="FifaLibrary\Shoes.cs" />
+    <Compile Include="FifaLibrary\ShoesList.cs" />
+    <Compile Include="FifaLibrary\SpecificHead.cs" />
+    <Compile Include="FifaLibrary\SpecificHeadList.cs" />
+    <Compile Include="FifaLibrary\Stadium.cs" />
+    <Compile Include="FifaLibrary\StadiumList.cs" />
+    <Compile Include="FifaLibrary\Stage.cs" />
+    <Compile Include="FifaLibrary\StageList.cs" />
+    <Compile Include="FifaLibrary\Table.cs" />
+    <Compile Include="FifaLibrary\TableDescriptor.cs" />
+    <Compile Include="FifaLibrary\Task.cs" />
+    <Compile Include="FifaLibrary\Team.cs" />
+    <Compile Include="FifaLibrary\TeamList.cs" />
+    <Compile Include="FifaLibrary\TeamNews.cs" />
+    <Compile Include="FifaLibrary\TeamPlayer.cs" />
+    <Compile Include="FifaLibrary\TI.cs" />
+    <Compile Include="FifaLibrary\Trophy.cs" />
+    <Compile Include="FifaLibrary\TrophyList.cs" />
+    <Compile Include="FifaLibrary\UgcDirEntry.cs" />
+    <Compile Include="FifaLibrary\UgcFile.cs" />
+    <Compile Include="FifaLibrary\UserMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FifaLibrary\UserOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FifaLibrary\Vector3x1.cs" />
+    <Compile Include="FifaLibrary\WebGrabber.cs" />
+    <Compile Include="FifaLibrary\World.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FifaLibrary\UserMessage.resx" />
+    <EmbeddedResource Include="FifaLibrary\UserOptions.resx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
