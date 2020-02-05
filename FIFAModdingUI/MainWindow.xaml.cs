@@ -385,12 +385,23 @@ namespace FIFAModdingUI
 
                         var c = new Slider();
                         c.Name = k.Trim();
-                        c.Minimum = -100;
-                        c.Maximum = 350;
-                        c.Width = 350;
+                        if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
+                        {
+                            c.Minimum = 0;
+                            c.Maximum = 1;
+                            c.Width = 350;
+                            c.TickFrequency = 0.05;
+                        }
+                        else
+                        {
+                            c.Minimum = -100;
+                            c.Maximum = 350;
+                            c.Width = 350;
+                            c.TickFrequency = 5;
+                        }
+
                         var v = aiobjsystem.GetValue(k, "").Trim();
                         c.Value = Convert.ToDouble(v);
-                        c.TickFrequency = 5;
                         c.IsSnapToTickEnabled = true;
                         c.TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight;
                         sp.Children.Add(c);
@@ -510,10 +521,23 @@ namespace FIFAModdingUI
                     var c = new Slider();
                     c.Name = k.Trim();
 
-                    c.Minimum = 0;
-                    c.Maximum = 900;
-                    c.TickFrequency = 2;
-                    c.Value = 50;
+                    if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
+                    {
+                        c.Minimum = 0;
+                        c.Maximum = 1;
+                        c.TickFrequency = 0.05;
+                        c.Value = 1;
+                    }
+                    else
+                    {
+                        c.Minimum = 0;
+                        c.Maximum = 900;
+                        c.TickFrequency = 2;
+                        c.Value = 50;
+                    }
+
+
+                   
                     c.IsSnapToTickEnabled = true;
 
                     //if (!c.Name.StartsWith("ContextEffect"))
@@ -677,41 +701,27 @@ namespace FIFAModdingUI
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
             FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\")+1);
+            FIFAInstanceSingleton.FIFARootPath = FIFADirectory;
             var fileName = filePath.Substring(filePath.LastIndexOf("\\")+1, filePath.Length - filePath.LastIndexOf("\\")-1);
             if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
             {
                 FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
-                FIFAVersionHelper.GetCustomAttributes(new CMSettings());
+                //FIFAVersionHelper.GetCustomAttributes(new CMSettings());
 
                 txtFIFADirectory.Text = FIFADirectory;
                 MainViewer.IsEnabled = true;
 
-                //HookFIFADLL();
+                //var initfs_location = FIFAInstanceSingleton.FIFA_INITFS_Win32;
+                //var initfs_bytes = File.ReadAllBytes(initfs_location);
+                //Tools.Easfdecyption(initfs_bytes);
 
-
-                //using var injector = new Injector(fileName, "dllPath", InjectionMethod.CreateThread, InjectionFlags.None);
-
-                //// Inject the DLL into the process
-
-                //var dllBaseAddress = injector.InjectDll();
-
-                //// Eject the DLL from the process
-
-                //injector.EjectDll();
-
-
+                LoadingProgressBar.Value = 0;
                 InitializeIniSettings();
-
-                var myDocs = SpecialDirectories.MyDocuments + "\\"
-                    + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
-                    + "\\settings\\";
-
-                CareerSaves.ItemsSource = Directory.GetFiles(myDocs);
-
-
-                //
-                //CareerSaves.Items.Add()
-               
+                LoadingProgressBar.Value = 100;
+                Thread.Sleep(10);
+                LoadingProgressBar.Value = 0;
+                InitializeCareerSaves();
+                LoadingProgressBar.Value = 100;
 
             }
             else
@@ -720,15 +730,46 @@ namespace FIFAModdingUI
             }
         }
 
+        private void InitializeCareerSaves()
+        {
+            var myDocs = SpecialDirectories.MyDocuments + "\\"
+                                + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
+                                + "\\settings\\";
+
+            var r = Directory.GetFiles(myDocs, "Career*", new EnumerationOptions() { });
+            Dictionary<string, string> results = new Dictionary<string, string>();
+            foreach(var i in r)
+            {
+                byte[] test = new byte[30];
+                using (BinaryReader reader = new BinaryReader(new FileStream(i, FileMode.Open)))
+                {
+                    reader.BaseStream.Seek(18, SeekOrigin.Begin);
+                    reader.Read(test, 0, 30);
+                }
+                results.TryAdd(i, System.Text.Encoding.ASCII.GetString(test));
+            }
+
+
+            CareerSaves.ItemsSource = results;
+        }
+
         protected void CareerSaves_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             ListViewItem item = sender as ListViewItem;
             if(item != null)
             {
-                var iFile = item.Content.ToString();
+                var iFile = item.Content.ToString().Replace("{", "").Replace("[", "").Split(",")[0];
                 new TaskFactory().StartNew(() =>
                 {
+                    Dispatcher.Invoke(() =>
+                    {
+                        LoadingProgressBar.Value = 0;
+                    });
                     var careerFile = new CareerFile(iFile, @"C:\Program Files (x86)\RDBM 20\RDBM20\Templates\FIFA 20\fifa_ng_db-meta.XML");
+                    Dispatcher.Invoke(() =>
+                    {
+                        LoadingProgressBar.Value = 10;
+                    });
 
                     List<DataSet> dataSets = new List<DataSet>();
                     if (careerFile != null)
@@ -736,6 +777,11 @@ namespace FIFAModdingUI
                         foreach (var dbf in careerFile.Databases.Where(x => x != null))
                         {
                             dataSets.Add(dbf.ConvertToDataSet());
+                            Dispatcher.Invoke(() =>
+                            {
+                                LoadingProgressBar.Value += 20;
+                            });
+
                         }
                     }
                     if (dataSets.Count > 0)
@@ -752,7 +798,9 @@ namespace FIFAModdingUI
                                 });
                             }
                             dgCareerSave.DataContext = dataSets[1].Tables["players"].Select("playerid = '41'");
+                            LoadingProgressBar.Value = 100;
                         });
+
                     }
                 });
             }
@@ -806,15 +854,6 @@ namespace FIFAModdingUI
                     if (!k.StartsWith("//"))
                     {
                         var v = file.GetValue(k, s);
-                        //if (s.Contains("LOCALE") && k.Contains("DEFAULT_LANGUAGE"))
-                        //{
-                        //    // get changed language settings
-                        //    if (chkUseBaseFIFAINI.IsChecked.HasValue && !chkUseBaseFIFAINI.IsChecked.Value)
-                        //    {
-                        //        v = cbLanguages.SelectedValue.ToString();
-                        //    }
-                        //}
-
                         sb.AppendLine(k + "=" + v);
                     }
                 }
@@ -850,20 +889,7 @@ namespace FIFAModdingUI
                         {
                             if (childCheckBox.IsChecked.HasValue && childCheckBox.IsChecked.Value)
                             {
-                                //if (!childSlider.Name.StartsWith("ContextEffect"))
-                                //{
-                                //var vString = (childSlider.Value / 100).ToString();
-                                ////if (!vString.Contains("."))
-                                ////    vString += ".f";
-                                ////else
-                                ////    vString += "f";
-
-                                //sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value, 0));
-                                //}
-                                //else
-                                //{
                                 sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value, 2));
-                                //}
                             }
                         }
                     }
@@ -953,29 +979,9 @@ namespace FIFAModdingUI
 
             sb.AppendLine("RULESCOLLISION_DISABLE_NON_USER_CONTROLLED_PLAYER_LOGIC=1");
             sb.AppendLine("RULESCOLLISION_ENABLE_INTENDED_BALLTOUCH=0");
-            //
-            sb.AppendLine("RIGHTKNEE=13.0");
-            sb.AppendLine("LEFTKNEE=13.0");
-            sb.AppendLine("FRONT=20.0");
-            sb.AppendLine("FORCE_BACK=0.2");
-            sb.AppendLine("FORCE_OUTSIDE=1.0");
-
-            //sb.AppendLine("AccelerationGain=0.04");
-            //sb.AppendLine("DecelerationGain=2.00");
-            //sb.AppendLine("ENABLE_DRIBBLE_ACCEL_MOD = 1");
-            //sb.AppendLine("ACCEL = 100.0");
-            //sb.AppendLine("DECEL = 175.0");
-
-
-
-            //sb.AppendLine("ContextEffectTrapBallInAngle=50");
-            //sb.AppendLine("ContextEffectTrapBallXZVelocity=75");
-            //sb.AppendLine("DEBUG_DISABLE_LOSE_ATTACKER_EFFECT = 1");
 
             sb.AppendLine("FALL=50");
             sb.AppendLine("STUMBLE=10");
-
-
            
             sb.AppendLine("BALL_Y_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_Y_VELOCITY_HEADER_REDUCTION.Value, 2));
             sb.AppendLine("BALL_LATERAL_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value, 2));
@@ -1002,33 +1008,94 @@ namespace FIFAModdingUI
             // Do CPUAI
             if (chkEnableHardDifficulty.IsChecked.HasValue && chkEnableHardDifficulty.IsChecked.Value)
             {
-                sb.AppendLine("");
-                sb.AppendLine("[CPUAI]");
-                sb.AppendLine("HOME_OFFENSE_DIFFICULTY=1");
-                sb.AppendLine("HOME_DEFENSE_DIFFICULTY=1");
-                sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=1");
-                sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=1");
-                sb.AppendLine("HOME_DIFFICULTY=1");
-                sb.AppendLine("AWAY_DIFFICULTY=1");
-                sb.AppendLine("CPUAI_PROCESS_ALL_DECISIONS=0");
+                if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("[]");
+                    sb.AppendLine("ADAPTIVE_DIFFICULTY=0");
+                    sb.AppendLine("OVERRIDE_HOME_DEFENSE_DIFFICULTY=1");
+                    sb.AppendLine("OVERRIDE_HOME_OFFENSE_DIFFICULTY=1");
+                    sb.AppendLine("OVERRIDE_AWAY_OFFENSE_DIFFICULTY=1");
+                    sb.AppendLine("OVERRIDE_AWAY_DEFENSE_DIFFICULTY=1");
+                    sb.AppendLine("");
+                    sb.AppendLine("[CPUAI]");
+                    sb.AppendLine("HOME_OFFENSE_DIFFICULTY=0.88");
+                    sb.AppendLine("HOME_DEFENSE_DIFFICULTY=0.21");
+                    sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=0.88");
+                    sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=0.21");
+                    sb.AppendLine("HOME_DIFFICULTY=0.23");
+                    sb.AppendLine("AWAY_DIFFICULTY=0.23");
+                }
+                else
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("[CPUAI]");
+                    sb.AppendLine("HOME_OFFENSE_DIFFICULTY=1");
+                    sb.AppendLine("HOME_DEFENSE_DIFFICULTY=1");
+                    sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=1");
+                    sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=1");
+                    sb.AppendLine("HOME_DIFFICULTY=1");
+                    sb.AppendLine("AWAY_DIFFICULTY=1");
+                    sb.AppendLine("CPUAI_PROCESS_ALL_DECISIONS=0");
 
-                sb.AppendLine("");
-                sb.AppendLine("[]");
-                sb.AppendLine("FORCE_ANY=0.1");
-                sb.AppendLine("FORCE_BACK=0.1");
-                sb.AppendLine("FORCE_FRONT=0.1");
-                sb.AppendLine("FORCE_INSIDE=0.1");
-                sb.AppendLine("FORCE_OUTSIDE=0.1");
+
+                    sb.AppendLine("");
+                    sb.AppendLine("[]");
+                    sb.AppendLine("FORCE_ANY=0.1");
+                    sb.AppendLine("FORCE_BACK=0.1");
+                    sb.AppendLine("FORCE_FRONT=0.1");
+                    sb.AppendLine("FORCE_INSIDE=0.1");
+                    sb.AppendLine("FORCE_OUTSIDE=0.1");
+                }
             }
 
 
-            if(chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value && !FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
+            if (chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value && !FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
             {
                 sb.AppendLine("");
                 sb.AppendLine("[]");
                 sb.AppendLine("SKIP_BOOTFLOW=1");
             }
 
+            if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
+            {
+                sb.AppendLine("");
+                sb.AppendLine("[]");
+                sb.AppendLine("FRONT=19.0");
+                sb.AppendLine("FORCE_BACK=0.3");
+                sb.AppendLine("FORCE_OUTSIDE=0.9");
+                sb.AppendLine("FORCE_INSIDE=1.0");
+                sb.AppendLine("FORCE_FRONT=0.9");
+
+
+                sb.AppendLine("");
+                sb.AppendLine("[]");
+                sb.AppendLine("DRIBBLE=2.0");
+                sb.AppendLine("POSSESSION_TOUCH=1.9");
+                sb.AppendLine("CONTEXTUAL_TURN=0.7");
+                sb.AppendLine("HARDSTOP=0.1");
+                sb.AppendLine("EVASIVE=0.05");
+                sb.AppendLine("AVOID=0.1");
+                sb.AppendLine("PASS=0.5");
+                sb.AppendLine("SHOT=0.501");
+                sb.AppendLine("CROSS=0.1");
+                sb.AppendLine("THROUGH=0.1");
+                sb.AppendLine("LOB=0.2");
+                sb.AppendLine("UNBALANCE_TURN=4.0");
+                sb.AppendLine("STRAFE=2.0");
+                sb.AppendLine("SHIELDING=2.0");
+                sb.AppendLine("UNCONTROLLED=1.0");
+                sb.AppendLine("LOB_GROUND=3.0");
+            
+            }
+            else
+            {
+                sb.AppendLine("RIGHTKNEE=13.0");
+                sb.AppendLine("LEFTKNEE=13.0");
+                sb.AppendLine("FRONT=20.0");
+                sb.AppendLine("FORCE_BACK=0.2");
+                sb.AppendLine("FORCE_OUTSIDE=1.0");
+            }
 
             //sb.AppendLine("");
             //sb.AppendLine("// Cross Test");
