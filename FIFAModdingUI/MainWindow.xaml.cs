@@ -751,22 +751,31 @@ namespace FIFAModdingUI
                                 + "\\settings\\";
 
             var r = Directory.GetFiles(myDocs, "Career*", new EnumerationOptions() { });
+
+            /// SWITCH THIS FOR 
+            /*
+             * 
+             * DbReader dbReader = new DbReader(fileStream, FifaPlatform.PC);
+            dbReader.BaseStream.Position = 18L;
+            m_InGameName = FifaUtil.ReadNullTerminatedString(dbReader);
+             */
             Dictionary<string, string> results = new Dictionary<string, string>();
             foreach(var i in r)
             {
                 byte[] test = new byte[30];
-                using (BinaryReader reader = new BinaryReader(new FileStream(i, FileMode.Open)))
+                using(var fileStream = new FileStream(i, FileMode.Open))
+                using (DbReader dbReader = new DbReader(fileStream, FifaPlatform.PC))
                 {
-                    reader.BaseStream.Seek(18, SeekOrigin.Begin);
-                    reader.Read(test, 0, 30);
+                    dbReader.BaseStream.Position = 18L;
+                    results.TryAdd(i, FifaUtil.ReadNullTerminatedString(dbReader));
                 }
-                results.TryAdd(i, System.Text.Encoding.ASCII.GetString(test));
             }
 
 
             CareerSaves.ItemsSource = results;
         }
 
+        CareerFile CareerFile { get; set; }
         protected void CareerSaves_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             ListViewItem item = sender as ListViewItem;
@@ -779,16 +788,16 @@ namespace FIFAModdingUI
                     {
                         LoadingProgressBar.Value = 0;
                     });
-                    var careerFile = new CareerFile(iFile, @"C:\Program Files (x86)\RDBM 20\RDBM20\Templates\FIFA 20\fifa_ng_db-meta.XML");
+                    CareerFile = new CareerFile(iFile, @"C:\Program Files (x86)\RDBM 20\RDBM20\Templates\FIFA 20\fifa_ng_db-meta.XML");
                     Dispatcher.Invoke(() =>
                     {
                         LoadingProgressBar.Value = 10;
                     });
 
                     List<DataSet> dataSets = new List<DataSet>();
-                    if (careerFile != null)
+                    if (CareerFile != null)
                     {
-                        foreach (var dbf in careerFile.Databases.Where(x => x != null))
+                        foreach (var dbf in CareerFile.Databases.Where(x => x != null))
                         {
                             dataSets.Add(dbf.ConvertToDataSet());
                             Dispatcher.Invoke(() =>
@@ -800,18 +809,108 @@ namespace FIFAModdingUI
                     }
                     if (dataSets.Count > 0)
                     {
+                       
 
                         Dispatcher.Invoke(() =>
                         {
-                            foreach (DataColumn col in dataSets[1].Tables["players"].Columns)
+                            CareerOpened.Header = CareerFile.InGameName;
+                            CareerOpened.IsEnabled = true;
+
+                            CareerDatabaseTables.ItemsSource = new List<DataTable>(dataSets[1].Tables.Cast<DataTable>()).Select(x => x.TableName).OrderBy(x => x);
+
+                            //foreach (DataColumn col in dataSets[1].Tables["players"].Columns)
+                            //{
+                            //    dgCareerSave.Columns.Add(new DataGridTextColumn
+                            //    {
+                            //        Header = col.ColumnName,
+                            //        Binding = new Binding(string.Format("[{0}]", col.ColumnName))
+                            //    });
+                            //}
+                            //dgCareerSave.DataContext = dataSets[1].Tables["players"].Select("playerid = '41'");
+                            LoadingProgressBar.Value = 100;
+                        });
+
+                    }
+                });
+            }
+        }
+
+        List<DataSet> CareerDatabaseDataSets { get; set; }
+        int CareerDatabaseTable_DataSetIndex = 1;
+        List<DataRow> CareerDatabaseTable { get; set; }
+        int CareerDatabaseTable_CurrentPage = 1;
+        int CareerDatabaseTable_RecordPerPage = 80;
+
+        private void dgCareerDatabaseTable_KeyUp(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        protected void CareerDatabaseTables_Click(object sender, MouseButtonEventArgs e)
+        {
+            ListViewItem item = sender as ListViewItem;
+            if (item != null)
+            {
+                var iFile = item.Content.ToString();
+                new TaskFactory().StartNew(() =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        LoadingProgressBar.Value = 0;
+                    });
+
+                    CareerDatabaseDataSets = new List<DataSet>();
+                    if (CareerFile != null)
+                    {
+                        foreach (var dbf in CareerFile.Databases.Where(x => x != null))
+                        {
+                            CareerDatabaseDataSets.Add(dbf.ConvertToDataSet());
+                            Dispatcher.Invoke(() =>
                             {
-                                dgCareerSave.Columns.Add(new DataGridTextColumn
+                                LoadingProgressBar.Value += 20;
+                            });
+
+                        }
+                    }
+                    if (CareerDatabaseDataSets.Count > 0)
+                    {
+
+                        Dispatcher.Invoke(() =>
+                        {
+                            CareerDatabaseTable = CareerDatabaseDataSets[CareerDatabaseTable_DataSetIndex].Tables[iFile].AsEnumerable().ToList();
+                            CareerDatabaseTable_CurrentPage = 1;
+                            var numOfPages = CareerDatabaseTable.Count() / CareerDatabaseTable_RecordPerPage;
+                            for (var indx = 0; indx < numOfPages; indx++)
+                            {
+                                var b = new Button()
+                                {
+                                    Content = indx + 1
+                                    , Width = 25
+                                    , Margin = new Thickness(0,0,5,0)
+                                };
+                                b.Click += (object bS, RoutedEventArgs bE) => {
+                                    var internal_btn = (Button)bS;
+                                    CareerDatabaseTable_CurrentPage = Convert.ToInt32(internal_btn.Content);
+                                    dgCareerDatabaseTable.DataContext = CareerDatabaseTable.Skip((CareerDatabaseTable_CurrentPage - 1) * CareerDatabaseTable_RecordPerPage).Take(CareerDatabaseTable_RecordPerPage).ToList();
+                                };
+                                dgCareerDatabaseTablePages.Children.Add(b);
+
+
+                            }
+
+                            LoadingProgressBar.Value += 75;
+
+                            dgCareerDatabaseTable.Columns.Clear();
+                            foreach (DataColumn col in CareerDatabaseDataSets[CareerDatabaseTable_DataSetIndex].Tables[iFile].Columns)
+                            {
+                                dgCareerDatabaseTable.Columns.Add(new DataGridTextColumn
                                 {
                                     Header = col.ColumnName,
                                     Binding = new Binding(string.Format("[{0}]", col.ColumnName))
                                 });
                             }
-                            dgCareerSave.DataContext = dataSets[1].Tables["players"].Select("playerid = '41'");
+                            dgCareerDatabaseTable.DataContext = CareerDatabaseTable.Skip((CareerDatabaseTable_CurrentPage - 1) * CareerDatabaseTable_RecordPerPage).Take(CareerDatabaseTable_RecordPerPage).ToList(); 
+
                             LoadingProgressBar.Value = 100;
                         });
 
@@ -1192,7 +1291,8 @@ namespace FIFAModdingUI
             overlayWindow.Show();
         }
 
-        
+
+       
     }
 
     public class AppSettings

@@ -221,14 +221,17 @@
             <TabItem x:Name="TabCareer" Header="Career">
                 <StackPanel>
                     
-                        <TabControl>
+                        <TabControl x:Name="TabCareerInternal">
                             <TabItem Header="Saves">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
-                                <ListView x:Name="CareerSaves" Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <ListView x:Name="CareerSaves" Grid.Column="0">
 
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
@@ -236,15 +239,52 @@
                                         </Style>
                                     </ListView.ItemContainerStyle>
                                 </ListView>
-                                <DataGrid x:Name="dgCareerSave" Grid.Row="1"
-                                            AutoGenerateColumns="False"
-                                            ItemsSource="{Binding}">
-
-                                </DataGrid>
+                                
                             </Grid>
-                               
                         </TabItem>
-                        </TabControl>
+                        <TabItem x:Name="CareerOpened" Header="" IsEnabled="False">
+                            <TabControl>
+                                <TabItem Header="Quick Options">
+                                    <StackPanel>
+                                        <Button x:Name="CareerUpdateTeamStylesAndTraits">Update Career Team's Formations, Styles and Traits using the latest Squad File</Button>
+                                        <Button x:Name="CareerUpdateTeamStylesAndTraitsCustom">Update Career Team's Formations, Styles and Traits using a selected Squad File</Button>
+                                    </StackPanel>
+                                </TabItem>
+                                <TabItem x:Name="TabItemCareerDatabase" Header="Database">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="175"></ColumnDefinition>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="400"></RowDefinition>
+                                            <RowDefinition Height="50"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <ListView x:Name="CareerDatabaseTables" Grid.Column="0">
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerDatabaseTables_Click" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                        </ListView>
+                                        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  Grid.Column="1">
+                                            <DataGrid x:Name="dgCareerDatabaseTable" KeyUp="dgCareerDatabaseTable_KeyUp"
+
+                                                AutoGenerateColumns="False"
+                                                ItemsSource="{Binding}">
+                                            </DataGrid>
+                                        </ScrollViewer>
+                                        <ScrollViewer  HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalScrollBarVisibility="Hidden"  Grid.Column="1" Grid.Row="1">
+                                            <StackPanel x:Name="dgCareerDatabaseTablePages" Orientation="Horizontal">
+
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Grid>
+                                    
+                                </TabItem>
+                            </TabControl>
+                        </TabItem>
+                    </TabControl>
                 </StackPanel>
             </TabItem>
         </TabControl>
