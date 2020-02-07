@@ -27,7 +27,8 @@ using System.Data;
 using System.Threading;
 using Microsoft.VisualBasic.FileIO;
 using v2k4FIFAModdingCL.CGFE;
-
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace FIFAModdingUI
 {
@@ -64,6 +65,11 @@ namespace FIFAModdingUI
             InitializeIniSettings();
 
             //HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
+
+            if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath)) {
+                txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
+                InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
+            }
 
             this.Closed += MainWindow_Closed;
 
@@ -700,9 +706,17 @@ namespace FIFAModdingUI
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
-            FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\")+1);
+            InitializeOfSelectedFIFA(filePath);
+        }
+
+        private void InitializeOfSelectedFIFA(string filePath)
+        {
+            AppSettings.Settings.FIFAInstallEXEPath = filePath;
+            AppSettings.Settings.Save();
+
+            FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
             FIFAInstanceSingleton.FIFARootPath = FIFADirectory;
-            var fileName = filePath.Substring(filePath.LastIndexOf("\\")+1, filePath.Length - filePath.LastIndexOf("\\")-1);
+            var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
             if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
             {
                 FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
@@ -1179,5 +1193,52 @@ namespace FIFAModdingUI
         }
 
         
+    }
+
+    public class AppSettings
+    {
+        public static AppSettings Settings = new AppSettings("FIFAUIAppSettings.json");
+
+        public AppSettings()
+        {
+
+        }
+        public AppSettings(string filename)
+        {
+            this.FileName = filename;
+            if (!File.Exists(FullFilePath))
+            {
+                File.WriteAllText(FullFilePath, JsonConvert.SerializeObject(this));
+            }
+            Read();
+
+        }
+        public string FileName { get; set; }
+        public string FullFilePath
+        {
+            get
+            {
+                return Directory.GetParent(Assembly.GetExecutingAssembly().Location) + "\\" + FileName;
+            }
+        }
+
+        #region FIFA
+        public string FIFAInstallEXEPath { get; set; }
+
+        #endregion
+        public void Save()
+        {
+            using (StreamWriter sw = new StreamWriter(FullFilePath))
+            {
+                var serialised = JsonConvert.SerializeObject(this);
+                sw.Write(serialised);
+            }
+        }
+        public AppSettings Read()
+        {
+            var r = JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(FullFilePath));
+            FIFAInstallEXEPath = r.FIFAInstallEXEPath;
+            return r;
+        }
     }
 }

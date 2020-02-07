@@ -223,22 +223,27 @@
                     
                         <TabControl>
                             <TabItem Header="Saves">
-                                <StackPanel Orientation="Horizontal">
-                                    <ListView x:Name="CareerSaves">
-                                        
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerSaves_PreviewMouseLeftButtonDown" />
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-                                    </ListView>
-                                    <DataGrid x:Name="dgCareerSave"
-                                                AutoGenerateColumns="False"
-                                                ItemsSource="{Binding}">
-                                        
-                                    </DataGrid>
-                                </StackPanel>
-                            </TabItem>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <ListView x:Name="CareerSaves" Grid.Row="0">
+
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerSaves_PreviewMouseLeftButtonDown" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
+                                <DataGrid x:Name="dgCareerSave" Grid.Row="1"
+                                            AutoGenerateColumns="False"
+                                            ItemsSource="{Binding}">
+
+                                </DataGrid>
+                            </Grid>
+                               
+                        </TabItem>
                         </TabControl>
                 </StackPanel>
             </TabItem>
