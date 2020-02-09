@@ -15,8 +15,10 @@ namespace v2k4FIFAModdingCL.MemHack.Career
 
         private class POINTER_ADDRESSES
         {
-            public string TRANSFER_BUDGET = "FIFA20.exe+072BC110,0x18,0x18,0x2A8,0x268,0x8";
-            public string STARTING_BUDGET = "FIFA20.exe+06E01930,0x10,0x48,0x30,0x58,0x5E0";
+            /// Will need to redo this for every EA Update
+            public string TRANSFER_BUDGET = "FIFA20.exe+072BE590,0x10,0x18,0x2B8,0x8,0x8";
+            /// Will need to redo this for every EA Update
+            public string STARTING_BUDGET = "FIFA20.exe+06E039C0,0x10,0x48,0x30,0x58,0x5E0";
         }
 
         public int TransferBudget
