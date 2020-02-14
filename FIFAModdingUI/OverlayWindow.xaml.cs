@@ -44,7 +44,8 @@ namespace FIFAModdingUI
         private static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
         HwndSource hwndSource;
-        
+        CoreHack coreHack = new CoreHack();
+
 
         public OverlayWindow()
         {
@@ -71,9 +72,30 @@ namespace FIFAModdingUI
                 hookedtext.Visibility = Visibility.Visible;
                 TabCareer.IsEnabled = true; MainViewer.IsEnabled = true;
             }
+
+            txtLoadedCareerSave.Text = coreHack.SaveName;
+            GetCurrentGameDate();
+            coreHack.GameDateHasChanged += GameDateChanged;
+
+            Finance_StartingBudget.Text = Finances.GetTransferBudget().ToString();
+            Finance_TransferBudget.Text = Finances.GetTransferBudget().ToString();
+            
         }
 
-        private void btnRequestAdditionalFunds_Click(object sender, RoutedEventArgs e)
+        private void GetCurrentGameDate()
+        {
+            Dispatcher.Invoke(() => {
+                CoreHack coreHack = new CoreHack();
+                txtGameDate.Text = coreHack.GameDate.ToShortDateString();
+            });
+        }
+
+        private void GameDateChanged(object s, EventArgs e)
+        {
+            GetCurrentGameDate();
+        }
+
+    private void btnRequestAdditionalFunds_Click(object sender, RoutedEventArgs e)
         {
             var finances = new Finances();
             if(finances.RequestAdditionalFunds(out string message))
