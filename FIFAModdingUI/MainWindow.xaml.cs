@@ -29,6 +29,8 @@ using Microsoft.VisualBasic.FileIO;
 using v2k4FIFAModdingCL.CGFE;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Microsoft.Toolkit.Wpf.UI.Controls;
+using FrostySdk.IO;
 
 namespace FIFAModdingUI
 {
@@ -71,10 +73,10 @@ namespace FIFAModdingUI
                 InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
             }
 
+
             this.Closed += MainWindow_Closed;
 
             EventHookedIntoFIFA += HandleCustomEvent;
-
 
             var tskCheckForF2 = new TaskFactory().StartNew(async () =>
             {
@@ -711,36 +713,33 @@ namespace FIFAModdingUI
 
         private void InitializeOfSelectedFIFA(string filePath)
         {
-            AppSettings.Settings.FIFAInstallEXEPath = filePath;
-            AppSettings.Settings.Save();
-
-            FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-            FIFAInstanceSingleton.FIFARootPath = FIFADirectory;
-            var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-            if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
+            if (!string.IsNullOrEmpty(filePath))
             {
-                FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
-                //FIFAVersionHelper.GetCustomAttributes(new CMSettings());
+                AppSettings.Settings.FIFAInstallEXEPath = filePath;
+                AppSettings.Settings.Save();
 
-                txtFIFADirectory.Text = FIFADirectory;
-                MainViewer.IsEnabled = true;
+                FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
+                FIFAInstanceSingleton.FIFARootPath = FIFADirectory;
+                var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
+                if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
+                {
+                    FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
 
-                //var initfs_location = FIFAInstanceSingleton.FIFA_INITFS_Win32;
-                //var initfs_bytes = File.ReadAllBytes(initfs_location);
-                //Tools.Easfdecyption(initfs_bytes);
+                    txtFIFADirectory.Text = FIFADirectory;
+                    MainViewer.IsEnabled = true;
 
-                LoadingProgressBar.Value = 0;
-                InitializeIniSettings();
-                LoadingProgressBar.Value = 100;
-                Thread.Sleep(10);
-                LoadingProgressBar.Value = 0;
-                InitializeCareerSaves();
-                LoadingProgressBar.Value = 100;
-
-            }
-            else
-            {
-                throw new Exception("This Version of FIFA is incompatible with this tool");
+                    LoadingProgressBar.Value = 0;
+                    InitializeIniSettings();
+                    LoadingProgressBar.Value = 100;
+                    Thread.Sleep(10);
+                    LoadingProgressBar.Value = 0;
+                    InitializeCareerSaves();
+                    LoadingProgressBar.Value = 100;
+                }
+                else
+                {
+                    throw new Exception("This Version of FIFA is incompatible with this tool");
+                }
             }
         }
 
@@ -764,7 +763,7 @@ namespace FIFAModdingUI
             {
                 byte[] test = new byte[30];
                 using(var fileStream = new FileStream(i, FileMode.Open))
-                using (DbReader dbReader = new DbReader(fileStream, FifaPlatform.PC))
+                using (v2k4FIFAModdingCL.CGFE.DbReader dbReader = new v2k4FIFAModdingCL.CGFE.DbReader(fileStream, FifaPlatform.PC))
                 {
                     dbReader.BaseStream.Position = 18L;
                     results.TryAdd(i, FifaUtil.ReadNullTerminatedString(dbReader));
@@ -781,6 +780,9 @@ namespace FIFAModdingUI
             ListViewItem item = sender as ListViewItem;
             if(item != null)
             {
+                CareerOpened.Header = "";
+                CareerOpened.IsEnabled = false;
+
                 var iFile = item.Content.ToString().Replace("{", "").Replace("[", "").Split(",")[0];
                 new TaskFactory().StartNew(() =>
                 {
@@ -797,9 +799,14 @@ namespace FIFAModdingUI
                     List<DataSet> dataSets = new List<DataSet>();
                     if (CareerFile != null)
                     {
+                        int indexOfFiles = 0;
                         foreach (var dbf in CareerFile.Databases.Where(x => x != null))
                         {
-                            dataSets.Add(dbf.ConvertToDataSet());
+                            var convertedDS = dbf.ConvertToDataSet();
+                            string json = JsonConvert.SerializeObject(convertedDS, Formatting.Indented);
+                            File.WriteAllText(dbf.FileName + "_" + indexOfFiles + ".json", json);
+                            indexOfFiles++;
+                            dataSets.Add(convertedDS);
                             Dispatcher.Invoke(() =>
                             {
                                 LoadingProgressBar.Value += 20;
@@ -818,15 +825,6 @@ namespace FIFAModdingUI
 
                             CareerDatabaseTables.ItemsSource = new List<DataTable>(dataSets[1].Tables.Cast<DataTable>()).Select(x => x.TableName).OrderBy(x => x);
 
-                            //foreach (DataColumn col in dataSets[1].Tables["players"].Columns)
-                            //{
-                            //    dgCareerSave.Columns.Add(new DataGridTextColumn
-                            //    {
-                            //        Header = col.ColumnName,
-                            //        Binding = new Binding(string.Format("[{0}]", col.ColumnName))
-                            //    });
-                            //}
-                            //dgCareerSave.DataContext = dataSets[1].Tables["players"].Select("playerid = '41'");
                             LoadingProgressBar.Value = 100;
                         });
 
@@ -1291,8 +1289,10 @@ namespace FIFAModdingUI
             overlayWindow.Show();
         }
 
-
-       
+        private void btnLaunchFIFA_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchFIFA.Launch();
+        }
     }
 
     public class AppSettings
@@ -1324,7 +1324,7 @@ namespace FIFAModdingUI
 
         #region FIFA
         public string FIFAInstallEXEPath { get; set; }
-
+        public string FIFAFrostyModsDirectory { get; set; }
         #endregion
         public void Save()
         {

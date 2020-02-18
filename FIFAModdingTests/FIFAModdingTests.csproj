@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj" />
+    <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
   </ItemGroup>
 
   <ItemGroup>

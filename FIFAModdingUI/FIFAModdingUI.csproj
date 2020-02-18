@@ -58,6 +58,9 @@
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.5.0" />
     <PackageReference Include="MahApps.Metro" Version="1.6.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.1" />
+    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="0.8.355" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="1.1.0" />
     <PackageReference Include="System.Management" Version="4.5.0" />
@@ -65,12 +68,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="FifaLibrary19">
       <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
+    </Reference>
+    <Reference Include="FrostyHash">
+      <HintPath>..\v2k4FrostyModdingSupport\FrostyHash.dll</HintPath>
+    </Reference>
+    <Reference Include="FrostySdk">
+      <HintPath>..\v2k4FrostyModdingSupport\FrostySdk.dll</HintPath>
     </Reference>
     <Reference Include="Simple-Injection">
       <HintPath>etc\Simple-Injection.dll</HintPath>
@@ -79,6 +84,11 @@
 
   <ItemGroup>
     <EmbeddedResource Include="ini\ContextEffect_FIFA20.ini" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
+    <ProjectReference Include="..\v2k4FrostyModdingSupport\v2k4FrostyModdingSupport.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -98,6 +108,15 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Mods\DO_NOT_DELETE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Mods\REMOVE_ME.fbmod">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

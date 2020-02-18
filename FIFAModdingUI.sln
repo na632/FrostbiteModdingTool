@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.705
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModdingUI", "FIFAModdingUI\FIFAModdingUI.csproj", "{6D0F7EF2-1514-4D67-A34E-2EF5E576B9AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModdingCL", "v2k4FIFAModdingCL\v2k4FIFAModdingCL.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModding", "v2k4FIFAModdingCL\v2k4FIFAModding.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModdingTests", "FIFAModdingTests\FIFAModdingTests.csproj", "{C9187925-33DD-4D62-B055-6C4F87DD95EA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIFALibraryNETFrameworkTests", "FIFALibraryNETFrameworkTests\FIFALibraryNETFrameworkTests.csproj", "{E7891FBD-A2B3-407D-B719-71F597D5F61E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "v2k4FrostyModdingSupport", "v2k4FrostyModdingSupport\v2k4FrostyModdingSupport.csproj", "{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,18 @@ Global
 		{E7891FBD-A2B3-407D-B719-71F597D5F61E}.Release|x64.Build.0 = Release|Any CPU
 		{E7891FBD-A2B3-407D-B719-71F597D5F61E}.Release|x86.ActiveCfg = Release|Any CPU
 		{E7891FBD-A2B3-407D-B719-71F597D5F61E}.Release|x86.Build.0 = Release|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Debug|x64.Build.0 = Debug|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Debug|x86.Build.0 = Debug|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Release|x64.ActiveCfg = Release|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Release|x64.Build.0 = Release|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Release|x86.ActiveCfg = Release|Any CPU
+		{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

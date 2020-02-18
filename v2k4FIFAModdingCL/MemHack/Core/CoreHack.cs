@@ -20,6 +20,8 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
         public event EventHandler GameDateHasChanged;
 
+        public Task Ticker_GameDate;
+
         public DateTime GameDate
         {
             get
@@ -36,16 +38,16 @@ namespace v2k4FIFAModdingCL.MemHack.Core
                         isoDate
                         , out DateTime d))
                     {
-                        new TaskFactory().StartNew(async() => { 
+                        Ticker_GameDate = new TaskFactory().StartNew(() => { 
                             while(true)
                             {
                                 if (internal_gamedate != d)
                                 {
                                     internal_gamedate = d;
-                                    GameDateHasChanged.Invoke(this, null);
+                                    GameDateHasChanged.Invoke(null, null);
                                 }
 
-                                await Task.Delay(CALL_POLL_IN_SECONDS * 1000);
+                                Task.Delay(CALL_POLL_IN_SECONDS * 1000);
                             }
                         });
 

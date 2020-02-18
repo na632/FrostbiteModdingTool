@@ -18,10 +18,15 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="600"></ColumnDefinition>
+                <ColumnDefinition Width="200"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
             <Button Name="btnBrowseFIFADirectory" Content="Browse for FIFA" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
+            <Button Name="btnLaunchFIFA" Content="Launch FIFA" Grid.Column="2" 
+                    IsEnabled="False"
+                    Click="btnLaunchFIFA_Click"
+                    ToolTip="Launch FIFA with Frosty Mods" />
         </Grid>
         <StackPanel x:Name="panelHookedIntoFIFA" Grid.Row="2" Orientation="Horizontal" Visibility="Hidden">
             <Label Content="!! You are hooked into FIFA! Nice!"></Label>
@@ -286,6 +291,8 @@
                         </TabItem>
                     </TabControl>
                 </StackPanel>
+            </TabItem>
+            <TabItem x:Name="testarea" Header="testarea" Visibility="Hidden">
             </TabItem>
         </TabControl>
         <StatusBar Grid.Row="4" >
