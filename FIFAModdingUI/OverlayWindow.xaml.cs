@@ -1,6 +1,12 @@
-﻿using Memory;
+﻿using FifaLibrary;
+using Memory;
+using Microsoft.VisualBasic.FileIO;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +19,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using v2k4FIFAModding.Career;
+using v2k4FIFAModding.Career.CME.FIFA;
+using v2k4FIFAModdingCL;
 using v2k4FIFAModdingCL.MemHack.Career;
 using v2k4FIFAModdingCL.MemHack.Core;
 
@@ -73,13 +82,20 @@ namespace FIFAModdingUI
                 TabCareer.IsEnabled = true; MainViewer.IsEnabled = true;
             }
 
-            txtLoadedCareerSave.Text = coreHack.SaveName;
+            //txtLoadedCareerSave.Text = coreHack.SaveName;
             GetCurrentGameDate();
             coreHack.GameDateHasChanged += GameDateChanged;
 
             Finance_StartingBudget.Text = Finances.GetTransferBudget().ToString();
             Finance_TransferBudget.Text = Finances.GetTransferBudget().ToString();
-            
+
+
+            var myDocs = SpecialDirectories.MyDocuments + "\\"
+                                            + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
+                                            + "\\settings\\";
+            Dictionary<string, string> results = CareerUtil.GetCareerSaves(myDocs);
+
+            CareerSaves.ItemsSource = results;
         }
 
         private void GetCurrentGameDate()
@@ -111,13 +127,71 @@ namespace FIFAModdingUI
 
             new TaskFactory().StartNew(async () => 
                 { 
-                    await Task.Delay(1000); 
+                    await System.Threading.Tasks.Task.Delay(1000); 
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
                         btnRequestAdditionalFunds.Background = Brushes.White;
                 });
             });
 
+        }
+
+        private void CareerSaves_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ListViewItem item = sender as ListViewItem;
+            if (item != null)
+            {
+                var iFile = item.Content.ToString().Replace("{", "").Replace("[", "").Split(",")[0];
+                LoadCareerFile(iFile);
+            }
+        }
+
+        private void LoadCareerFile(string filePath)
+        {
+            new TaskFactory().StartNew(() =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    LoadingProgressBar.Value = 0;
+                });
+                var careerFile = new CareerFile(filePath, @"C:\Program Files (x86)\RDBM 20\RDBM20\Templates\FIFA 20\fifa_ng_db-meta.XML");
+                Dispatcher.Invoke(() =>
+                {
+                    LoadingProgressBar.Value = 10;
+                });
+
+                List<DataSet> dataSets = new List<DataSet>();
+                if (careerFile != null)
+                {
+                    int indexOfFiles = 0;
+                    foreach (var dbf in careerFile.Databases.Where(x => x != null))
+                    {
+                        var convertedDS = dbf.ConvertToDataSet();
+                        string json = JsonConvert.SerializeObject(convertedDS, Formatting.Indented);
+                        File.WriteAllText(careerFile.InGameName + "_" + indexOfFiles + ".json", json);
+                        indexOfFiles++;
+                        dataSets.Add(convertedDS);
+                        Dispatcher.Invoke(() =>
+                        {
+                            LoadingProgressBar.Value += 20;
+                        });
+                    }
+                }
+                if (dataSets.Count > 0)
+                {
+                    var d = JsonConvert.DeserializeObject<CareerDB2>(File.ReadAllText(careerFile.InGameName + "_1.json"));
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        TabFinance.IsEnabled = true;
+                        TabYouth.IsEnabled = true;
+                        txtLoadedCareerSave.Text = careerFile.InGameName;
+
+                        LoadingProgressBar.Value = 100;
+                    });
+
+                }
+            });
         }
 
         //private double OpacityAmount = 0.75d;

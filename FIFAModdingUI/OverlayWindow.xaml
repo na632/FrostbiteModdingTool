@@ -34,12 +34,28 @@
             <TextBlock  TextAlignment="Center" x:Name="txtLoadedCareerSave" Text="[CAREER_NAME_HERE]"></TextBlock>
             <TextBlock  TextAlignment="Center" x:Name="txtGameDate" Text="[CAREER_DATE]"></TextBlock>
         </StackPanel>
-        
+        <StatusBar x:Name="topStatusBar" >
+            <StatusBarItem>
+                <ProgressBar x:Name="LoadingProgressBar" Height="12" Width="200" Maximum="100" Minimum="0"></ProgressBar>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="LoadingText" Height="12" Width="200" FontSize="11" Foreground="black"></TextBlock>
+            </StatusBarItem>
+        </StatusBar>
         <TabControl x:Name="MainViewer" Grid.Row="1" Margin="10" IsEnabled="False">
             <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
-
                 <TabControl>
-                    <TabItem Header="Finance">
+                    <TabItem x:Name="TabSave" Header="Save">
+                        <ListView x:Name="CareerSaves" Grid.Column="0">
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerSaves_PreviewMouseLeftButtonDown" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </TabItem>
+                    <TabItem x:Name="TabFinance" Header="Finance" IsEnabled="False">
                         <Grid x:Name="GridOfTiles">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"></RowDefinition>
@@ -114,10 +130,21 @@
                         </Grid>
 
                     </TabItem>
+                    <TabItem x:Name="TabYouth" Header="Youth" IsEnabled="False">
+                        
+                    </TabItem>
+                    <TabItem x:Name="TabStats" Header="Stats" IsEnabled="False">
+
+                    </TabItem>
+                    <TabItem x:Name="TabTransfers" Header="Transfers" IsEnabled="False">
+
+                    </TabItem>
                 </TabControl>
             </TabItem>
             <TabItem x:Name="TabPlayer" Header="Player" IsEnabled="False"></TabItem>
             <TabItem x:Name="TabTeams" Header="Teams" IsEnabled="False"></TabItem>
         </TabControl>
+        
     </StackPanel>
+    
 </Window>

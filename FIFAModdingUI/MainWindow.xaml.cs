@@ -31,6 +31,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Microsoft.Toolkit.Wpf.UI.Controls;
 using FrostySdk.IO;
+using v2k4FIFAModding.Career;
 
 namespace FIFAModdingUI
 {
@@ -124,7 +125,7 @@ namespace FIFAModdingUI
         {
             Dispatcher.Invoke(() => {
                 TabCareer.IsEnabled = true;
-                panelHookedIntoFIFA.Visibility = Visibility.Visible;
+                //panelHookedIntoFIFA.Visibility = Visibility.Visible;
             });
         }
 
@@ -746,33 +747,14 @@ namespace FIFAModdingUI
         private void InitializeCareerSaves()
         {
             var myDocs = SpecialDirectories.MyDocuments + "\\"
-                                + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
-                                + "\\settings\\";
-
-            var r = Directory.GetFiles(myDocs, "Career*", new EnumerationOptions() { });
-
-            /// SWITCH THIS FOR 
-            /*
-             * 
-             * DbReader dbReader = new DbReader(fileStream, FifaPlatform.PC);
-            dbReader.BaseStream.Position = 18L;
-            m_InGameName = FifaUtil.ReadNullTerminatedString(dbReader);
-             */
-            Dictionary<string, string> results = new Dictionary<string, string>();
-            foreach(var i in r)
-            {
-                byte[] test = new byte[30];
-                using(var fileStream = new FileStream(i, FileMode.Open))
-                using (v2k4FIFAModdingCL.CGFE.DbReader dbReader = new v2k4FIFAModdingCL.CGFE.DbReader(fileStream, FifaPlatform.PC))
-                {
-                    dbReader.BaseStream.Position = 18L;
-                    results.TryAdd(i, FifaUtil.ReadNullTerminatedString(dbReader));
-                }
-            }
-
+                                            + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
+                                            + "\\settings\\";
+            Dictionary<string, string> results = CareerUtil.GetCareerSaves(myDocs);
 
             CareerSaves.ItemsSource = results;
         }
+
+        
 
         CareerFile CareerFile { get; set; }
         protected void CareerSaves_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

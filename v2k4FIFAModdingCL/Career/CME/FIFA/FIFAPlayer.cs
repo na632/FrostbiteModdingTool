@@ -132,5 +132,4 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public int facialhaircolorcode { get; set; }
     }
 
-444
 }

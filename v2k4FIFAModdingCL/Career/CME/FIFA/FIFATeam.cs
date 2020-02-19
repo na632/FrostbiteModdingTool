@@ -4,7 +4,7 @@ using System.Text;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
 {
-    public class Team
+    public class FIFATeam
     {
         public int assetid { get; set; }
         public int teamcolor1g { get; set; }

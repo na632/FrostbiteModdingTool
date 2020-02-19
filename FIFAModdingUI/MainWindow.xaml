@@ -23,15 +23,11 @@
             </Grid.ColumnDefinitions>
             <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
             <Button Name="btnBrowseFIFADirectory" Content="Browse for FIFA" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
-            <Button Name="btnLaunchFIFA" Content="Launch FIFA" Grid.Column="2" 
+            <Button Name="btnLaunchFIFA" Content="Launch FIFA (disabled until Frosty Mod Support is added)" Grid.Column="2" 
                     IsEnabled="False"
                     Click="btnLaunchFIFA_Click"
                     ToolTip="Launch FIFA with Frosty Mods" />
         </Grid>
-        <StackPanel x:Name="panelHookedIntoFIFA" Grid.Row="2" Orientation="Horizontal" Visibility="Hidden">
-            <Label Content="!! You are hooked into FIFA! Nice!"></Label>
-        </StackPanel>
-
         <TabControl x:Name="MainViewer" Grid.Row="3" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
             <TabItem x:Name="TabGameplay" Header="Gameplay">
                 <Grid>
@@ -44,7 +40,7 @@
                         <ColumnDefinition Width="418*"/>
                         <ColumnDefinition Width="597*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-
+                    <Label  Grid.ColumnSpan="2">NOTE: You are only editing the locale.ini here, full GP editing support will come at a later point.</Label>
                     <CheckBox Visibility="Hidden" Name="chkUseBaseFIFAINI" Grid.ColumnSpan="2">Use Base FIFA 19 file (will reset your current locale.ini)</CheckBox>
                     <Button Name="btn_GP_SaveINI" Grid.Column="2" Content="Save your locale.INI" Click="Btn_GP_SaveINI_Click"/>
 

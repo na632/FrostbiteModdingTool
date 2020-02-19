@@ -59,18 +59,18 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             }
         }
 
-        public string SaveName
-        {
-            get
-            {
-                if (GetProcess(out Mem MemLib).HasValue)
-                {
-                    var saveName = MemLib.readString(new POINTER_ADDRESSES().GAME_SAVE_NAME);
-                    return saveName;
-                }
-                return "";
-            }
-        }
+        //public string SaveName
+        //{
+        //    get
+        //    {
+        //        if (GetProcess(out Mem MemLib).HasValue)
+        //        {
+        //            var saveName = MemLib.readString(new POINTER_ADDRESSES().GAME_SAVE_NAME);
+        //            return saveName;
+        //        }
+        //        return "";
+        //    }
+        //}
 
         public static int? GetProcess(out Mem MemLib)
         {
