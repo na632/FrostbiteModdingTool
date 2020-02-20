@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FIFAModdingUI\FIFAModdingUI.csproj" />
     <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
+    <ProjectReference Include="..\v2k4FrostyModdingSupport\v2k4FrostyModdingSupport.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +38,12 @@
 
   <ItemGroup>
     <None Update="fifa_ng_db-meta.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Mods\DO_NOT_DELETE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Mods\REMOVEME.fbmod">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

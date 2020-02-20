@@ -23,8 +23,8 @@
             </Grid.ColumnDefinitions>
             <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
             <Button Name="btnBrowseFIFADirectory" Content="Browse for FIFA" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
-            <Button Name="btnLaunchFIFA" Content="Launch FIFA (disabled until Frosty Mod Support is added)" Grid.Column="2" 
-                    IsEnabled="False"
+            <Button Name="btnLaunchFIFA" Content="Launch FIFA" Grid.Column="2" 
+                    IsEnabled="True"
                     Click="btnLaunchFIFA_Click"
                     ToolTip="Launch FIFA with Frosty Mods" />
         </Grid>

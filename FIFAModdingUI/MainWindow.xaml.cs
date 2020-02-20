@@ -83,14 +83,14 @@ namespace FIFAModdingUI
             {
                 while (true)
                 {
-                    await Task.Delay(200);
+                    await Task.Delay(100);
                     await Application.Current.Dispatcher.InvokeAsync(async () =>
                     {
                         if (Keyboard.IsKeyDown(Key.F2))
                         {
                             if (OverlayWindow == null)
                             {
-                                OverlayWindow = new OverlayWindow();
+                                OverlayWindow = new OverlayWindow(this);
                                 OverlayWindow.Closed += (o, e) => OverlayWindow = null;
                                 OverlayWindow.Show();
                                 // Cannot close for 2 seconds
@@ -1267,7 +1267,7 @@ namespace FIFAModdingUI
 
         private void btnAddOverlayToGame_Click(object sender, RoutedEventArgs e)
         {
-            OverlayWindow overlayWindow = new OverlayWindow();
+            OverlayWindow overlayWindow = new OverlayWindow(this);
             overlayWindow.Show();
         }
 

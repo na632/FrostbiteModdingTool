@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using v2k4FIFAModding.Career.CME.FIFA;
+using System.Windows;
+using System.Threading;
 //using FifaLibrary;
 
 namespace FIFAModdingTests
@@ -118,6 +120,14 @@ namespace FIFAModdingTests
 
             //var m_Database[this.m_NDatabases] = new DbFile();
             //this.m_Database[this.m_NDatabases].DescriptorDataSet = this.m_DescriptorDataSet;
+        }
+
+        [TestMethod]
+        public void TestLaunchFIFAWithMods()
+        {
+
+            FIFAModdingUI.LaunchFIFA.Launch();
+
         }
     }
 }

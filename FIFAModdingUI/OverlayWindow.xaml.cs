@@ -55,10 +55,13 @@ namespace FIFAModdingUI
         HwndSource hwndSource;
         CoreHack coreHack = new CoreHack();
 
+        MainWindow ParentWindow;
 
-        public OverlayWindow()
+        public OverlayWindow(MainWindow parentWindow)
         {
             InitializeComponent();
+
+            ParentWindow = parentWindow;
 
             hwndSource = PresentationSource.FromVisual(this) as HwndSource;
             //IntPtr hwnd = hwndSource.Handle;
