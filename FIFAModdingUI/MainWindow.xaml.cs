@@ -70,9 +70,18 @@ namespace FIFAModdingUI
             GetListOfModsAndOrderThem();
             //HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
 
-            if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath)) {
-                txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
-                InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
+            try
+            {
+                if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
+                {
+                    txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
+                    InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
+                }
+            }
+            catch(Exception e)
+            {
+                txtFIFADirectory.Text = "";
+                Trace.WriteLine(e.ToString());
             }
 
 
@@ -348,6 +357,16 @@ namespace FIFAModdingUI
                         case "RandomSeed":
                             chkDisableRandomSeed.IsChecked = localeini.GetValue(k, "").Trim() == "0" ? true : false;
                             break;
+
+                        case "POSSESSION_TOUCH":
+                            chkPossessionTouch.IsChecked = true;
+                            sliderPossessionTouch.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                            break;
+
+                        case "CONTEXTUAL_TURN":
+                            chkContextualTurn.IsChecked = true;
+                            sliderContextualTurn.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                            break;
                     }
                 }
                 var cpuaikeys = localeini.GetKeys("CPUAI");
@@ -359,19 +378,19 @@ namespace FIFAModdingUI
                         {
                             case "HOME_OFFENSE_DIFFICULTY":
                                 chkDifficultyOffense.IsChecked = true;
-                                sliderDifficultyOffense.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                sliderDifficultyOffense.Value = Convert.ToDouble(localeini.GetValue(k, "CPUAI").Replace("f", ""));
                                 break;
                             case "HOME_DEFENSE_DIFFICULTY":
                                 chkDifficultyDefense.IsChecked = true;
-                                sliderDifficultyDefense.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                sliderDifficultyDefense.Value = Convert.ToDouble(localeini.GetValue(k, "CPUAI").Replace("f", ""));
                                 break;
                             case "HOME_DIFFICULTY":
                                 chkDifficultyHome.IsChecked = true;
-                                sliderDifficultyHome.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                sliderDifficultyHome.Value = Convert.ToDouble(localeini.GetValue(k, "CPUAI").Replace("f", ""));
                                 break;
                             case "AWAY_DIFFICULTY":
                                 chkDifficultyAway.IsChecked = true;
-                                sliderDifficultyAway.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                sliderDifficultyAway.Value = Convert.ToDouble(localeini.GetValue(k, "CPUAI").Replace("f", ""));
                                 break;
 
                         }
@@ -1197,8 +1216,15 @@ namespace FIFAModdingUI
                 sb.AppendLine("");
                 sb.AppendLine("[]");
                 sb.AppendLine("DRIBBLE=2.0");
-                sb.AppendLine("POSSESSION_TOUCH=1.9");
-                sb.AppendLine("CONTEXTUAL_TURN=0.7");
+
+                if(chkPossessionTouch.IsChecked.Value)
+                    sb.AppendLine("POSSESSION_TOUCH=" + Math.Round(sliderPossessionTouch.Value, 2));
+
+                if (chkContextualTurn.IsChecked.Value)
+                    sb.AppendLine("CONTEXTUAL_TURN=" + Math.Round(sliderContextualTurn.Value, 2));
+                //else
+                //    sb.AppendLine("CONTEXTUAL_TURN=0.7");
+
                 sb.AppendLine("HARDSTOP=0.1");
                 sb.AppendLine("EVASIVE=0.05");
                 sb.AppendLine("AVOID=0.1");

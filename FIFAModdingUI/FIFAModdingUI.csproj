@@ -111,10 +111,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Mods\2.GameplayMod - TC 2 Alpha 6.fbmod">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Mods\REMOVE_ME.fbmod">
+    <None Update="Mods\1.CareerMod.fbmod">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

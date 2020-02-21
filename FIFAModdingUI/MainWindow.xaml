@@ -52,16 +52,17 @@
                                     <ColumnDefinition></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition></ColumnDefinition>
-                                        <ColumnDefinition></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
                                 </Grid>
-                                <StackPanel Background="#fefefe"  Grid.Column="0">
-                                    <Label Content="General Settings"  FontWeight="Bold" />
-                                    <ScrollViewer>
+                                <Grid Grid.Column="0">
+                                    <ScrollViewer  HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
                                         <StackPanel>
-                                    <CheckBox x:Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing)</CheckBox>
+                                            <Label Content="General Settings"  FontWeight="Bold" />
+
+                                            <CheckBox x:Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing)</CheckBox>
                                     <!--<StackPanel Orientation="Horizontal">
                                         <Label Content="Language" Width="200" />
                                         <ComboBox Name="cbLanguages" Width="180" />
@@ -98,10 +99,10 @@
                                     <CheckBox x:Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
                                         </StackPanel>
                                     </ScrollViewer>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <ScrollViewer>
-                                        <StackPanel>
+                                </Grid>
+                                <Grid Grid.Column="1">
+                                    <ScrollViewer HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
+                                        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
                                             <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
                                             <Label Content="These settings change game speed, AI decisions and much more!" />
                                             <Label Content="Right/Left Foot Speed/Ability (Affects Dribbling, Passing and Shooting)"></Label>
@@ -155,6 +156,20 @@
                                                 <TextBox   IsEnabled="{Binding ElementName=chkSliderARM, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderARM, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
 
+                                            <Label Content="Possession Touch (Time between each touch)" Grid.Column="0"></Label>
+                                            <StackPanel Orientation="Horizontal">
+                                                <CheckBox Name="chkPossessionTouch" IsChecked="False"></CheckBox>
+                                                <Slider IsEnabled="{Binding ElementName=chkPossessionTouch, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderPossessionTouch" Minimum="0" Maximum="3" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox IsEnabled="{Binding ElementName=chkPossessionTouch, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderPossessionTouch, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
+
+                                            <Label Content="Contextual Turn" Grid.Column="0"></Label>
+                                            <StackPanel Orientation="Horizontal">
+                                                <CheckBox Name="chkContextualTurn" IsChecked="False"></CheckBox>
+                                                <Slider IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderContextualTurn" Minimum="0" Maximum="3" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                <TextBox IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderContextualTurn, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
+                                            
                                             <Label Content="Heading" FontWeight="Bold" />
                                             <StackPanel Margin="1">
                                                 <Label Content="How much to reduce heading downward power" Grid.Column="0"></Label>
@@ -177,8 +192,7 @@
 
 
                                     </ScrollViewer>
-
-                                </StackPanel>
+                                </Grid>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
@@ -315,8 +329,11 @@
             </TabItem>
             <TabItem x:Name="TabMods" Header="Mods">
                 <StackPanel>
-                    <Label>To add mods to your mods list copy them into the "Mods" folder where this application is.</Label>
-                    <ListBox x:Name="listMods">
+                    <Label FontSize="14" FontWeight="Bold">The mods that will be added to your FIFA when you click "Launch"</Label>
+                    <Label>To add mods to your mods list copy them into the "Mods" folder where this application is installed.</Label>
+                    <Label>Name your mods with numbers at the start for a correct load order. (i.e. 1.AIO,2.CareerMod,3.GameplayMod etc)</Label>
+                    <Label FontWeight="Bold">I will improve this process in later versions.</Label>
+                    <ListBox x:Name="listMods" BorderThickness="1">
 
                     </ListBox>
                 </StackPanel>
