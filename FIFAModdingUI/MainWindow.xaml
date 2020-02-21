@@ -59,6 +59,8 @@
                                 </Grid>
                                 <StackPanel Background="#fefefe"  Grid.Column="0">
                                     <Label Content="General Settings"  FontWeight="Bold" />
+                                    <ScrollViewer>
+                                        <StackPanel>
                                     <CheckBox x:Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing)</CheckBox>
                                     <!--<StackPanel Orientation="Horizontal">
                                         <Label Content="Language" Width="200" />
@@ -69,13 +71,36 @@
                                     <CheckBox x:Name="chkEnableUnlockBootsAndCelebrations" Checked="ChkEnableUnlockBootsAndCelebrations_Checked" Margin="0,5,0,5">Unlock Boots, Celebrations and Player Career Extras</CheckBox>
                                     <Label Content="Difficulty" Grid.Column="0" FontWeight="Bold"></Label>
 
-                                    <CheckBox x:Name="chkEnableHardDifficulty" Checked="ChkEnableHardDifficulty_Checked" Margin="0,5,0,5">Enable Hard Difficulty (Alpha test - AI Cheating may exist)</CheckBox>
+                                    <Label Content="CPU Offense Difficulty"></Label>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox Name="chkDifficultyOffense" IsChecked="False"></CheckBox>
+                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyOffense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyOffense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                    </StackPanel>
+                                    <Label Content="CPU Defense Difficulty"></Label>
+                                    <StackPanel Orientation="Horizontal">
+                                    <CheckBox Name="chkDifficultyDefense" IsChecked="False"></CheckBox>
+                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyDefense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyDefense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                    </StackPanel>
+                                    <Label Content="CPU Home Difficulty"></Label>
+                                    <StackPanel Orientation="Horizontal">
+                                    <CheckBox Name="chkDifficultyHome" IsChecked="False"></CheckBox>
+                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyHome, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyHome" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                    </StackPanel>
+                                    <Label Content="CPU Away Difficulty"></Label>
+                                        
+                                    <StackPanel Orientation="Horizontal">
+                                    <CheckBox Name="chkDifficultyAway" IsChecked="False"></CheckBox>
+                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyAway, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyAway" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                    </StackPanel>
 
 
                                     <Label Content="Random Multiplier Seed" Grid.Column="0" FontWeight="Bold"></Label>
                                     <CheckBox x:Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
+                                        </StackPanel>
+                                    </ScrollViewer>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1">
+                                    <ScrollViewer>
                                         <StackPanel>
                                             <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
                                             <Label Content="These settings change game speed, AI decisions and much more!" />
@@ -151,7 +176,7 @@
 
 
 
-
+                                    </ScrollViewer>
 
                                 </StackPanel>
                             </Grid>
@@ -219,7 +244,7 @@
                 </Grid>
 
             </TabItem>
-            <TabItem x:Name="TabCareer" Header="Career">
+            <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
                 <StackPanel>
                     
                         <TabControl x:Name="TabCareerInternal">
@@ -288,7 +313,14 @@
                     </TabControl>
                 </StackPanel>
             </TabItem>
-            <TabItem x:Name="testarea" Header="testarea" Visibility="Hidden">
+            <TabItem x:Name="TabMods" Header="Mods">
+                <StackPanel>
+                    <Label>To add mods to your mods list copy them into the "Mods" folder where this application is.</Label>
+                    <ListBox x:Name="listMods">
+
+                    </ListBox>
+                </StackPanel>
+                
             </TabItem>
         </TabControl>
         <StatusBar Grid.Row="4" >

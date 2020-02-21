@@ -32,6 +32,7 @@ using Newtonsoft.Json;
 using Microsoft.Toolkit.Wpf.UI.Controls;
 using FrostySdk.IO;
 using v2k4FIFAModding.Career;
+using System.Collections.ObjectModel;
 
 namespace FIFAModdingUI
 {
@@ -66,7 +67,7 @@ namespace FIFAModdingUI
         {
             InitializeComponent();
             InitializeIniSettings();
-
+            GetListOfModsAndOrderThem();
             //HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
 
             if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath)) {
@@ -352,8 +353,45 @@ namespace FIFAModdingUI
                 var cpuaikeys = localeini.GetKeys("CPUAI");
                 if(cpuaikeys.Length > 0)
                 {
-                    chkEnableHardDifficulty.IsChecked = true;
+                    foreach (var k in cpuaikeys)
+                    {
+                        switch (k.Trim())
+                        {
+                            case "HOME_OFFENSE_DIFFICULTY":
+                                chkDifficultyOffense.IsChecked = true;
+                                sliderDifficultyOffense.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                break;
+                            case "HOME_DEFENSE_DIFFICULTY":
+                                chkDifficultyDefense.IsChecked = true;
+                                sliderDifficultyDefense.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                break;
+                            case "HOME_DIFFICULTY":
+                                chkDifficultyHome.IsChecked = true;
+                                sliderDifficultyHome.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                break;
+                            case "AWAY_DIFFICULTY":
+                                chkDifficultyAway.IsChecked = true;
+                                sliderDifficultyAway.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                                break;
+
+                        }
+                    }
                 }
+
+                //sb.AppendLine("[]");
+                //sb.AppendLine("ADAPTIVE_DIFFICULTY=0");
+                //sb.AppendLine("OVERRIDE_HOME_DEFENSE_DIFFICULTY=1");
+                //sb.AppendLine("OVERRIDE_HOME_OFFENSE_DIFFICULTY=1");
+                //sb.AppendLine("OVERRIDE_AWAY_OFFENSE_DIFFICULTY=1");
+                //sb.AppendLine("OVERRIDE_AWAY_DEFENSE_DIFFICULTY=1");
+                //sb.AppendLine("");
+                //sb.AppendLine("[CPUAI]");
+                //sb.AppendLine("HOME_OFFENSE_DIFFICULTY=0.88");
+                //sb.AppendLine("HOME_DEFENSE_DIFFICULTY=0.21");
+                //sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=0.88");
+                //sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=0.21");
+                //sb.AppendLine("HOME_DIFFICULTY=0.23");
+                //sb.AppendLine("AWAY_DIFFICULTY=0.23");
 
             }
         }
@@ -1098,48 +1136,43 @@ namespace FIFAModdingUI
 
             }
 
-            // Do CPUAI
-            if (chkEnableHardDifficulty.IsChecked.HasValue && chkEnableHardDifficulty.IsChecked.Value)
+            // CPU AI
+            sb.AppendLine("");
+            sb.AppendLine("[]");
+            sb.AppendLine("ADAPTIVE_DIFFICULTY=0");
+            if (chkDifficultyHome.IsChecked.Value || chkDifficultyDefense.IsChecked.Value || chkDifficultyOffense.IsChecked.Value)
             {
-                if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("[]");
-                    sb.AppendLine("ADAPTIVE_DIFFICULTY=0");
-                    sb.AppendLine("OVERRIDE_HOME_DEFENSE_DIFFICULTY=1");
-                    sb.AppendLine("OVERRIDE_HOME_OFFENSE_DIFFICULTY=1");
-                    sb.AppendLine("OVERRIDE_AWAY_OFFENSE_DIFFICULTY=1");
-                    sb.AppendLine("OVERRIDE_AWAY_DEFENSE_DIFFICULTY=1");
-                    sb.AppendLine("");
-                    sb.AppendLine("[CPUAI]");
-                    sb.AppendLine("HOME_OFFENSE_DIFFICULTY=0.88");
-                    sb.AppendLine("HOME_DEFENSE_DIFFICULTY=0.21");
-                    sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=0.88");
-                    sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=0.21");
-                    sb.AppendLine("HOME_DIFFICULTY=0.23");
-                    sb.AppendLine("AWAY_DIFFICULTY=0.23");
-                }
-                else
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("[CPUAI]");
-                    sb.AppendLine("HOME_OFFENSE_DIFFICULTY=1");
-                    sb.AppendLine("HOME_DEFENSE_DIFFICULTY=1");
-                    sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=1");
-                    sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=1");
-                    sb.AppendLine("HOME_DIFFICULTY=1");
-                    sb.AppendLine("AWAY_DIFFICULTY=1");
-                    sb.AppendLine("CPUAI_PROCESS_ALL_DECISIONS=0");
+                sb.AppendLine("OVERRIDE_HOME_DEFENSE_DIFFICULTY=1");
+                sb.AppendLine("OVERRIDE_HOME_OFFENSE_DIFFICULTY=1");
+            }
+            if (chkDifficultyAway.IsChecked.Value || chkDifficultyDefense.IsChecked.Value || chkDifficultyOffense.IsChecked.Value)
+            {
+                sb.AppendLine("OVERRIDE_AWAY_OFFENSE_DIFFICULTY=1");
+                sb.AppendLine("OVERRIDE_AWAY_DEFENSE_DIFFICULTY=1");
+            }
+            sb.AppendLine("");
 
+            if (chkDifficultyHome.IsChecked.Value || chkDifficultyAway.IsChecked.Value || chkDifficultyDefense.IsChecked.Value || chkDifficultyOffense.IsChecked.Value)
+            {
+                sb.AppendLine("[CPUAI]");
+            }
 
-                    sb.AppendLine("");
-                    sb.AppendLine("[]");
-                    sb.AppendLine("FORCE_ANY=0.1");
-                    sb.AppendLine("FORCE_BACK=0.1");
-                    sb.AppendLine("FORCE_FRONT=0.1");
-                    sb.AppendLine("FORCE_INSIDE=0.1");
-                    sb.AppendLine("FORCE_OUTSIDE=0.1");
-                }
+            if(chkDifficultyHome.IsChecked.Value)
+                sb.AppendLine("HOME_DIFFICULTY=" + Math.Round(sliderDifficultyHome.Value,2));
+
+            if (chkDifficultyAway.IsChecked.Value)
+                sb.AppendLine("AWAY_DIFFICULTY=" + Math.Round(sliderDifficultyAway.Value, 2));
+
+            if (chkDifficultyOffense.IsChecked.Value)
+            {
+                sb.AppendLine("HOME_OFFENSE_DIFFICULTY=" + Math.Round(sliderDifficultyOffense.Value, 2));
+                sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=" + Math.Round(sliderDifficultyOffense.Value, 2));
+            }
+
+            if (chkDifficultyDefense.IsChecked.Value)
+            {
+                sb.AppendLine("HOME_DEFENSE_DIFFICULTY=" + Math.Round(sliderDifficultyDefense.Value, 2));
+                sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=" + Math.Round(sliderDifficultyDefense.Value, 2));
             }
 
 
@@ -1274,6 +1307,43 @@ namespace FIFAModdingUI
         private void btnLaunchFIFA_Click(object sender, RoutedEventArgs e)
         {
             LaunchFIFA.Launch();
+        }
+
+        private ObservableCollection<string> ListOfMods = new ObservableCollection<string>();
+
+        private void up_click(object sender, RoutedEventArgs e)
+        {
+            var selectedIndex = this.listMods.SelectedIndex;
+
+            if (selectedIndex > 0)
+            {
+                var itemToMoveUp = this.ListOfMods[selectedIndex];
+                this.ListOfMods.RemoveAt(selectedIndex);
+                this.ListOfMods.Insert(selectedIndex - 1, itemToMoveUp);
+                this.listMods.SelectedIndex = selectedIndex - 1;
+            }
+        }
+
+        private void down_click(object sender, RoutedEventArgs e)
+        {
+            var selectedIndex = this.listMods.SelectedIndex;
+
+            if (selectedIndex + 1 < this.ListOfMods.Count)
+            {
+                var itemToMoveDown = this.ListOfMods[selectedIndex];
+                this.ListOfMods.RemoveAt(selectedIndex);
+                this.ListOfMods.Insert(selectedIndex + 1, itemToMoveDown);
+                this.listMods.SelectedIndex = selectedIndex + 1;
+            }
+        }
+
+        private void GetListOfModsAndOrderThem()
+        {
+            ListOfMods = new ObservableCollection<string>(Directory.EnumerateFiles(
+                Directory.GetParent(Assembly.GetExecutingAssembly().Location)
+                + "\\Mods\\").Where(x => x.ToLower().Contains(".fbmod")).Select(
+                f => new FileInfo(f).Name).ToList());
+            listMods.ItemsSource = ListOfMods;
         }
     }
 
