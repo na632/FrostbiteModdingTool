@@ -21,7 +21,7 @@ namespace v2k4FIFAModding.Career.CME.Engines
                     lstTasks.Add(SimulateFixture(Fixtures.ElementAt(i)));
 
 
-                return Task.WhenAll(lstTasks).IsCompletedSuccessfully;
+                return Task.WhenAll(lstTasks) != null;
             });
         }
 

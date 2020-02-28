@@ -172,7 +172,7 @@ namespace paulv2k4ModdingExecuter
 
         private class HandlerExtraData : AssetExtraData
         {
-            public ICustomActionHandler Handler
+            public Frosty.ModSupport.Handlers.ICustomActionHandler Handler
             {
                 get;
                 set;
@@ -2955,7 +2955,7 @@ namespace paulv2k4ModdingExecuter
                                             {
                                                 if (customAttribute.ResType == (ResourceType)resAssetEntry.ResType)
                                                 {
-                                                    handlerExtraData.Handler = (ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
+                                                    handlerExtraData.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
                                                     break;
                                                 }
                                             }
@@ -3023,9 +3023,9 @@ namespace paulv2k4ModdingExecuter
                                             Type[] types = Assembly.GetExecutingAssembly().GetTypes();
                                             foreach (Type type in types)
                                             {
-                                                if (type.GetInterface(typeof(ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
+                                                if (type.GetInterface(typeof(Frosty.ModSupport.Handlers.ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
                                                 {
-                                                    handlerExtraData2.Handler = (ICustomActionHandler)Activator.CreateInstance(type);
+                                                    handlerExtraData2.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(type);
                                                     break;
                                                 }
                                             }

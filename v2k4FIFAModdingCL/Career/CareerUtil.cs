@@ -13,7 +13,7 @@ namespace v2k4FIFAModding.Career
         {
             var myDocs = directory;
 
-            var r = Directory.GetFiles(myDocs, "Career*", new EnumerationOptions() { });
+            var r = Directory.GetFiles(myDocs, "Career*", SearchOption.AllDirectories);
 
             /// SWITCH THIS FOR 
             /*
@@ -30,7 +30,7 @@ namespace v2k4FIFAModding.Career
                 using (v2k4FIFAModdingCL.CGFE.DbReader dbReader = new v2k4FIFAModdingCL.CGFE.DbReader(fileStream, FifaPlatform.PC))
                 {
                     dbReader.BaseStream.Position = 18L;
-                    results.TryAdd(i, FifaUtil.ReadNullTerminatedString(dbReader));
+                    results.Add(i, FifaUtil.ReadNullTerminatedString(dbReader));
                 }
             }
 

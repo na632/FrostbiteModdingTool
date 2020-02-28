@@ -5,263 +5,292 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStyle="ThreeDBorderWindow" >
+        Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Maximized" WindowStyle="ThreeDBorderWindow" >
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="4"></RowDefinition>
-            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="25"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="600"></ColumnDefinition>
-                <ColumnDefinition Width="200"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <TextBox x:Name="txtFIFADirectory" Grid.Column="0" FontSize="20" IsEnabled="False" Text="Browse for FIFA >>>>" />
-            <Button Name="btnBrowseFIFADirectory" Content="Browse for FIFA" Grid.Column="1" Click="btnBrowseFIFADirectory_Click" />
-            <Button Name="btnLaunchFIFA" Content="Launch FIFA" Grid.Column="2" 
-                    IsEnabled="True"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+            <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+            <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                    <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnLaunchFIFA_Click"
-                    ToolTip="Launch FIFA with Frosty Mods" />
-        </Grid>
-        <TabControl x:Name="MainViewer" Grid.Row="3" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
+                    ToolTip="Launch FIFA with Frosty Mods">
+                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                    <Label Content="Launch FIFA" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
+                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
+                    <Label Content="Default" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool" Click="btnCloseModdingTool_Click">
+                <MaterialDesign:PackIcon Kind="Power" />
+            </Button>
+        </StackPanel>
+        <TabControl x:Name="MainViewer" Grid.Row="1" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
             <TabItem x:Name="TabGameplay" Header="Gameplay">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="179*"></ColumnDefinition>
-                        <ColumnDefinition Width="418*"/>
-                        <ColumnDefinition Width="597*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Label  Grid.ColumnSpan="2">NOTE: You are only editing the locale.ini here, full GP editing support will come at a later point.</Label>
-                    <CheckBox Visibility="Hidden" Name="chkUseBaseFIFAINI" Grid.ColumnSpan="2">Use Base FIFA 19 file (will reset your current locale.ini)</CheckBox>
-                    <Button Name="btn_GP_SaveINI" Grid.Column="2" Content="Save your locale.INI" Click="Btn_GP_SaveINI_Click"/>
+                <StackPanel>
+                    <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button x:Name="btn_GP_SaveINI" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"  Click="Btn_GP_SaveINI_Click">
+                            <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                <Label Content="Save your Gameplay" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="179*"></ColumnDefinition>
+                            <ColumnDefinition Width="418*"/>
+                            <ColumnDefinition Width="597*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Controls:MetroTabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" >
+                            <TabItem Header="General">
+                                <Grid Margin="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                    </Grid>
+                                    <Grid Grid.Column="0">
+                                        <ScrollViewer  HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
+                                            <StackPanel>
+                                                <Label Content="General Settings"  FontWeight="Bold" />
 
-                    <Controls:MetroTabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" >
-                        <TabItem Header="General">
-                            <Grid Margin="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition></ColumnDefinition>
-                                    <ColumnDefinition></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
+                                                <CheckBox x:Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing)</CheckBox>
+                                        <!--<StackPanel Orientation="Horizontal">
+                                            <Label Content="Language" Width="200" />
+                                            <ComboBox Name="cbLanguages" Width="180" />
+                                        </StackPanel>-->
+                                        <Label Content="Boots" Grid.Column="0" FontWeight="Bold"></Label>
+
+                                        <CheckBox x:Name="chkEnableUnlockBootsAndCelebrations" Checked="ChkEnableUnlockBootsAndCelebrations_Checked" Margin="0,5,0,5">Unlock Boots, Celebrations and Player Career Extras</CheckBox>
+                                        <Label Content="Difficulty" Grid.Column="0" FontWeight="Bold"></Label>
+
+                                        <Label Content="CPU Offense Difficulty"></Label>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox Name="chkDifficultyOffense" IsChecked="False"></CheckBox>
+                                            <Slider  IsEnabled="{Binding ElementName=chkDifficultyOffense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyOffense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                        </StackPanel>
+                                        <Label Content="CPU Defense Difficulty"></Label>
+                                        <StackPanel Orientation="Horizontal">
+                                        <CheckBox Name="chkDifficultyDefense" IsChecked="False"></CheckBox>
+                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyDefense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyDefense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                        </StackPanel>
+                                        <Label Content="CPU Home Difficulty"></Label>
+                                        <StackPanel Orientation="Horizontal">
+                                        <CheckBox Name="chkDifficultyHome" IsChecked="False"></CheckBox>
+                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyHome, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyHome" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                        </StackPanel>
+                                        <Label Content="CPU Away Difficulty"></Label>
+                                        
+                                        <StackPanel Orientation="Horizontal">
+                                        <CheckBox Name="chkDifficultyAway" IsChecked="False"></CheckBox>
+                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyAway, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyAway" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                        </StackPanel>
+
+
+                                        <Label Content="Random Multiplier Seed" Grid.Column="0" FontWeight="Bold"></Label>
+                                        <CheckBox x:Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Grid>
+                                    <Grid Grid.Column="1">
+                                        <ScrollViewer HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
+                                            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
+                                                <Label Content="These settings change game speed, AI decisions and much more!" />
+                                                <Label Content="Right/Left Foot Speed/Ability (Affects Dribbling, Passing and Shooting)"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkSliderFOOT" IsChecked="False"></CheckBox>
+                                                    <Slider  IsEnabled="{Binding ElementName=chkSliderFOOT, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderFOOT" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox  IsEnabled="{Binding ElementName=chkSliderFOOT, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderFOOT, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Right/Left Upper Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkSliderUPPERLEG" IsChecked="False"></CheckBox>
+                                                    <Slider  IsEnabled="{Binding ElementName=chkSliderUPPERLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderUPPERLEG" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox  IsEnabled="{Binding ElementName=chkSliderUPPERLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderUPPERLEG, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Ankle Speed / Use (Affects short passing and backheels)" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkSliderANKLE" IsChecked="False"></CheckBox>
+                                                    <Slider IsEnabled="{Binding ElementName=chkSliderANKLE, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderANKLE" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox IsEnabled="{Binding ElementName=chkSliderANKLE, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderANKLE, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Torso Speed (Turn speed / GK dive speed / tackle speed)" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkSliderTORSO" IsChecked="False"></CheckBox>
+
+                                                    <Slider  IsEnabled="{Binding ElementName=chkSliderTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Name="sliderTORSO" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox IsEnabled="{Binding ElementName=chkSliderTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderTORSO, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Back Torso Speed (Turn and move speed / Pass Decision)" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkSliderBACKTORSO" IsChecked="False"></CheckBox>
+
+                                                    <Slider  IsEnabled="{Binding ElementName=chkSliderBACKTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Name="sliderBACKTORSO" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox IsEnabled="{Binding ElementName=chkSliderBACKTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderBACKTORSO, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Hips Speed (Turn speed)" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chksliderHIPS" IsChecked="False"></CheckBox>
+                                                    <Slider   IsEnabled="{Binding ElementName=chksliderHIPS, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderHIPS" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox   IsEnabled="{Binding ElementName=chksliderHIPS, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderHIPS, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Arm Speed (Affects Goalkeepers)" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkSliderARM" IsChecked="False"></CheckBox>
+                                                    <Slider   IsEnabled="{Binding ElementName=chkSliderARM, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderARM" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox   IsEnabled="{Binding ElementName=chkSliderARM, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderARM, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Possession Touch (Time between each touch)" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkPossessionTouch" IsChecked="False"></CheckBox>
+                                                    <Slider IsEnabled="{Binding ElementName=chkPossessionTouch, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderPossessionTouch" Minimum="0" Maximum="3" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox IsEnabled="{Binding ElementName=chkPossessionTouch, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderPossessionTouch, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+
+                                                <Label Content="Contextual Turn" Grid.Column="0"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkContextualTurn" IsChecked="False"></CheckBox>
+                                                    <Slider IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderContextualTurn" Minimum="0" Maximum="3" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                    <TextBox IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderContextualTurn, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                </StackPanel>
+                                            
+                                                <Label Content="Heading" FontWeight="Bold" />
+                                                <StackPanel Margin="1">
+                                                    <Label Content="How much to reduce heading downward power" Grid.Column="0"></Label>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Slider Name="BALL_Y_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                        <TextBox Text="{Binding ElementName=BALL_Y_VELOCITY_HEADER_REDUCTION, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                    </StackPanel>
+
+                                                    <Label Content="How much to reduce heading lateral power" Grid.Column="0"></Label>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Slider Name="BALL_LATERAL_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                        <TextBox Text="{Binding ElementName=BALL_LATERAL_VELOCITY_HEADER_REDUCTION, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                    </StackPanel>
+
+                                                </StackPanel>
+                                                <Label Content="Fouling" FontWeight="Bold" />
+                                                <CheckBox x:Name="KILL_EVERYONE" Content="Force AI Fouling (May cause too many yellow/red cards)"></CheckBox>
+                                            </StackPanel>
+
+
+
+                                        </ScrollViewer>
+                                    </Grid>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition Height="150"></RowDefinition>
                                         <RowDefinition></RowDefinition>
                                     </Grid.RowDefinitions>
-                                </Grid>
-                                <Grid Grid.Column="0">
-                                    <ScrollViewer  HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
+                                    <StackPanel Grid.Row="0">
+                                        <!-- OVERRIDE GRAPH -->
+                                        <Label Content="Attribute Graph (How much do the player attributes vary during the match?)" FontWeight="Bold" FontSize="16"></Label>
+                                        <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute (Enables Ability fluctations, Dribble, Pass and Shot Errors etc.)"></CheckBox>
+                                        <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph (Enable sliders below)"></CheckBox>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="300"></Label>
+                                            <Slider x:Name="OVERRIDE_GRAPH_SHAPE_HIGH" Minimum="-1" Maximum="1" Value="0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200" />
+                                            <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_HIGH, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="300"></Label>
+                                            <Slider x:Name="OVERRIDE_GRAPH_SHAPE_LOW" Minimum="-1" Maximum="1" Value="-0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200"  />
+                                            <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_LOW, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                        </StackPanel>
+                                        <!-- ACCEL/DECEL GRAPH -->
+                                        <!--<Label Content="Acceleration / Deceleration" FontWeight="Bold"></Label>-->
+
+                                        <Label Content="Attribute Weightings" FontWeight="Bold"  FontSize="16"></Label>
+                                    </StackPanel>
+                                    <ScrollViewer Grid.Row="1">
                                         <StackPanel>
-                                            <Label Content="General Settings"  FontWeight="Bold" />
-
-                                            <CheckBox x:Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing)</CheckBox>
-                                    <!--<StackPanel Orientation="Horizontal">
-                                        <Label Content="Language" Width="200" />
-                                        <ComboBox Name="cbLanguages" Width="180" />
-                                    </StackPanel>-->
-                                    <Label Content="Boots" Grid.Column="0" FontWeight="Bold"></Label>
-
-                                    <CheckBox x:Name="chkEnableUnlockBootsAndCelebrations" Checked="ChkEnableUnlockBootsAndCelebrations_Checked" Margin="0,5,0,5">Unlock Boots, Celebrations and Player Career Extras</CheckBox>
-                                    <Label Content="Difficulty" Grid.Column="0" FontWeight="Bold"></Label>
-
-                                    <Label Content="CPU Offense Difficulty"></Label>
-                                    <StackPanel Orientation="Horizontal">
-                                        <CheckBox Name="chkDifficultyOffense" IsChecked="False"></CheckBox>
-                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyOffense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyOffense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                    </StackPanel>
-                                    <Label Content="CPU Defense Difficulty"></Label>
-                                    <StackPanel Orientation="Horizontal">
-                                    <CheckBox Name="chkDifficultyDefense" IsChecked="False"></CheckBox>
-                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyDefense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyDefense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                    </StackPanel>
-                                    <Label Content="CPU Home Difficulty"></Label>
-                                    <StackPanel Orientation="Horizontal">
-                                    <CheckBox Name="chkDifficultyHome" IsChecked="False"></CheckBox>
-                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyHome, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyHome" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                    </StackPanel>
-                                    <Label Content="CPU Away Difficulty"></Label>
-                                        
-                                    <StackPanel Orientation="Horizontal">
-                                    <CheckBox Name="chkDifficultyAway" IsChecked="False"></CheckBox>
-                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyAway, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyAway" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                    </StackPanel>
-
-
-                                    <Label Content="Random Multiplier Seed" Grid.Column="0" FontWeight="Bold"></Label>
-                                    <CheckBox x:Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
+                                            <StackPanel x:Name="panel_GP_AttributeWeightSystem" >
+                                            </StackPanel>
                                         </StackPanel>
                                     </ScrollViewer>
                                 </Grid>
-                                <Grid Grid.Column="1">
-                                    <ScrollViewer HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
-                                        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
-                                            <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
-                                            <Label Content="These settings change game speed, AI decisions and much more!" />
-                                            <Label Content="Right/Left Foot Speed/Ability (Affects Dribbling, Passing and Shooting)"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkSliderFOOT" IsChecked="False"></CheckBox>
-                                                <Slider  IsEnabled="{Binding ElementName=chkSliderFOOT, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderFOOT" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox  IsEnabled="{Binding ElementName=chkSliderFOOT, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderFOOT, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
 
-                                            <Label Content="Right/Left Upper Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkSliderUPPERLEG" IsChecked="False"></CheckBox>
-                                                <Slider  IsEnabled="{Binding ElementName=chkSliderUPPERLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderUPPERLEG" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox  IsEnabled="{Binding ElementName=chkSliderUPPERLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderUPPERLEG, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-
-                                            <Label Content="Ankle Speed / Use (Affects short passing and backheels)" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkSliderANKLE" IsChecked="False"></CheckBox>
-                                                <Slider IsEnabled="{Binding ElementName=chkSliderANKLE, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderANKLE" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox IsEnabled="{Binding ElementName=chkSliderANKLE, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderANKLE, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-
-                                            <Label Content="Torso Speed (Turn speed / GK dive speed / tackle speed)" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkSliderTORSO" IsChecked="False"></CheckBox>
-
-                                                <Slider  IsEnabled="{Binding ElementName=chkSliderTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Name="sliderTORSO" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox IsEnabled="{Binding ElementName=chkSliderTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderTORSO, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-
-                                            <Label Content="Back Torso Speed (Turn and move speed / Pass Decision)" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkSliderBACKTORSO" IsChecked="False"></CheckBox>
-
-                                                <Slider  IsEnabled="{Binding ElementName=chkSliderBACKTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Name="sliderBACKTORSO" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox IsEnabled="{Binding ElementName=chkSliderBACKTORSO, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderBACKTORSO, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-
-                                            <Label Content="Hips Speed (Turn speed)" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chksliderHIPS" IsChecked="False"></CheckBox>
-                                                <Slider   IsEnabled="{Binding ElementName=chksliderHIPS, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderHIPS" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox   IsEnabled="{Binding ElementName=chksliderHIPS, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderHIPS, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-
-                                            <Label Content="Arm Speed (Affects Goalkeepers)" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkSliderARM" IsChecked="False"></CheckBox>
-                                                <Slider   IsEnabled="{Binding ElementName=chkSliderARM, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderARM" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox   IsEnabled="{Binding ElementName=chkSliderARM, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderARM, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-
-                                            <Label Content="Possession Touch (Time between each touch)" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkPossessionTouch" IsChecked="False"></CheckBox>
-                                                <Slider IsEnabled="{Binding ElementName=chkPossessionTouch, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderPossessionTouch" Minimum="0" Maximum="3" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox IsEnabled="{Binding ElementName=chkPossessionTouch, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderPossessionTouch, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-
-                                            <Label Content="Contextual Turn" Grid.Column="0"></Label>
-                                            <StackPanel Orientation="Horizontal">
-                                                <CheckBox Name="chkContextualTurn" IsChecked="False"></CheckBox>
-                                                <Slider IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderContextualTurn" Minimum="0" Maximum="3" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                <TextBox IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderContextualTurn, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                            </StackPanel>
-                                            
-                                            <Label Content="Heading" FontWeight="Bold" />
-                                            <StackPanel Margin="1">
-                                                <Label Content="How much to reduce heading downward power" Grid.Column="0"></Label>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Slider Name="BALL_Y_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                    <TextBox Text="{Binding ElementName=BALL_Y_VELOCITY_HEADER_REDUCTION, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                                </StackPanel>
-
-                                                <Label Content="How much to reduce heading lateral power" Grid.Column="0"></Label>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Slider Name="BALL_LATERAL_VELOCITY_HEADER_REDUCTION" Minimum="-10" Maximum="10" Value="0" TickPlacement="BottomRight" TickFrequency="0.3" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                                    <TextBox Text="{Binding ElementName=BALL_LATERAL_VELOCITY_HEADER_REDUCTION, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                                </StackPanel>
-
-                                            </StackPanel>
-                                            <Label Content="Fouling" FontWeight="Bold" />
-                                            <CheckBox x:Name="KILL_EVERYONE" Content="Force AI Fouling (May cause too many yellow/red cards)"></CheckBox>
-                                        </StackPanel>
-
-
-
-                                    </ScrollViewer>
-                                </Grid>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="150"></RowDefinition>
-                                    <RowDefinition></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <StackPanel Grid.Row="0">
-                                    <!-- OVERRIDE GRAPH -->
-                                    <Label Content="Attribute Graph (How much do the player attributes vary during the match?)" FontWeight="Bold" FontSize="16"></Label>
-                                    <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute (Enables Ability fluctations, Dribble, Pass and Shot Errors etc.)"></CheckBox>
-                                    <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph (Enable sliders below)"></CheckBox>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="300"></Label>
-                                        <Slider x:Name="OVERRIDE_GRAPH_SHAPE_HIGH" Minimum="-1" Maximum="1" Value="0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200" />
-                                        <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_HIGH, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="300"></Label>
-                                        <Slider x:Name="OVERRIDE_GRAPH_SHAPE_LOW" Minimum="-1" Maximum="1" Value="-0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200"  />
-                                        <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_LOW, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                    </StackPanel>
-                                    <!-- ACCEL/DECEL GRAPH -->
-                                    <!--<Label Content="Acceleration / Deceleration" FontWeight="Bold"></Label>-->
-
-                                    <Label Content="Attribute Weightings" FontWeight="Bold"  FontSize="16"></Label>
-                                </StackPanel>
-                                <ScrollViewer Grid.Row="1">
+                            </TabItem>
+                            <TabItem Header="AI Objective System" x:Name="tab_GP_ObjectiveSystem">
+                                <ScrollViewer>
                                     <StackPanel>
-                                        <StackPanel x:Name="panel_GP_AttributeWeightSystem" >
+                                        <Label Content="This is the AI Objective System, here you can Enable or Disable all the AI options within the game." FontSize="16" FontWeight="Bold"></Label>
+                                        <StackPanel x:Name="panel_GP_ObjectiveSystem" 
+                                            Height="Auto"
+                                            Width="Auto" >
+
                                         </StackPanel>
                                     </StackPanel>
                                 </ScrollViewer>
-                            </Grid>
-
-                        </TabItem>
-                        <TabItem Header="AI Objective System" x:Name="tab_GP_ObjectiveSystem">
-                            <ScrollViewer>
-                                <StackPanel>
-                                    <Label Content="This is the AI Objective System, here you can Enable or Disable all the AI options within the game." FontSize="16" FontWeight="Bold"></Label>
-                                    <StackPanel x:Name="panel_GP_ObjectiveSystem" 
-                                        Height="Auto"
-                                        Width="Auto" >
+                            </TabItem>
+                            <TabItem Header="Contextual" IsEnabled="True">
+                                <ScrollViewer>
+                                    <StackPanel x:Name="panel_GP_ContextEffect">
 
                                     </StackPanel>
-                                </StackPanel>
-                            </ScrollViewer>
-                        </TabItem>
-                        <TabItem Header="Contextual" IsEnabled="True">
-                            <ScrollViewer>
-                                <StackPanel x:Name="panel_GP_ContextEffect">
-
-                                </StackPanel>
-                            </ScrollViewer>
-                        </TabItem>
-                        <TabItem Name="tabRawFileView" Header="Raw File View" MouseDown="tabRawFileView_MouseDown" >
-                            <ScrollViewer>
-                                <TextBlock Name="tbRawFileView" Background="White"></TextBlock>
-                            </ScrollViewer>
-                        </TabItem>
-                    </Controls:MetroTabControl>
-                </Grid>
-
+                                </ScrollViewer>
+                            </TabItem>
+                            <TabItem Name="tabRawFileView" Header="Raw File View" MouseDown="tabRawFileView_MouseDown" >
+                                <ScrollViewer>
+                                    <TextBlock Name="tbRawFileView" Background="White"></TextBlock>
+                                </ScrollViewer>
+                            </TabItem>
+                        </Controls:MetroTabControl>
+                    </Grid>
+                </StackPanel>
             </TabItem>
-            <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
+            <TabItem x:Name="TabCareer" Header="Career" IsEnabled="True">
                 <StackPanel>
                     
                         <TabControl x:Name="TabCareerInternal">
+                            
+                        <TabItem Header="Modding Integration">
+                            <StackPanel>
+                                <Button x:Name="btnModdingIntegrationExtractLegacy" Click="btnModdingIntegrationExtractLegacy_Click">Extract Legacy Files</Button>
+                                <TabControl x:Name="TabCareerModdingItems" TabStripPlacement="Left" >
+        
+                                </TabControl>
+                            </StackPanel>
+                        </TabItem>
                             <TabItem Header="Saves">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -340,7 +369,7 @@
                 
             </TabItem>
         </TabControl>
-        <StatusBar Grid.Row="4" >
+        <StatusBar Grid.Row="2" >
             <StatusBarItem>
                 <ProgressBar x:Name="LoadingProgressBar" Height="12" Width="200" Maximum="100" Minimum="0"></ProgressBar>
             </StatusBarItem>

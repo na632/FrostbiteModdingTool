@@ -32,6 +32,7 @@ using Newtonsoft.Json;
 using FrostySdk.IO;
 using v2k4FIFAModding.Career;
 using System.Collections.ObjectModel;
+using v2k4FIFAModding;
 
 namespace FIFAModdingUI
 {
@@ -59,6 +60,10 @@ namespace FIFAModdingUI
             }
         }
 
+        Mods.ModList modList = new Mods.ModList();
+
+        public bool HasCareerExpansionModBeenUsed = false;
+
         //public Task HookDLLThread;
         public OverlayWindow OverlayWindow;
 
@@ -69,6 +74,12 @@ namespace FIFAModdingUI
 
             InitializeIniSettings();
             GetListOfModsAndOrderThem();
+            //if(IsLegacyExtractionComplete())
+            //{
+            //    btnModdingIntegrationExtractLegacy.Visibility = Visibility.Hidden;
+            //    InitializeCareerModdingSuite();
+            //}
+
             //HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
 
             try
@@ -95,33 +106,88 @@ namespace FIFAModdingUI
                 while (true)
                 {
                     await Task.Delay(100);
-                    await Application.Current.Dispatcher.InvokeAsync(async () =>
+                    if (Application.Current != null)
                     {
-                        if (Keyboard.IsKeyDown(Key.F2))
+                        await Application.Current.Dispatcher.InvokeAsync(async () =>
                         {
-                            if (OverlayWindow == null)
+                            if (Keyboard.IsKeyDown(Key.F2))
                             {
-                                OverlayWindow = new OverlayWindow(this);
-                                OverlayWindow.Closed += (o, e) => OverlayWindow = null;
-                                OverlayWindow.Show();
+                                if (OverlayWindow == null)
+                                {
+                                    OverlayWindow = new OverlayWindow(this);
+                                    OverlayWindow.Closed += (o, e) => OverlayWindow = null;
+                                    OverlayWindow.Show();
                                 // Cannot close for 2 seconds
                                 await Task.Delay(2000);
-                            }
-                            else
-                            {
-                                OverlayWindow.Hide();
-                                OverlayWindow.Close();
-                                await Task.Delay(1000);
-                            }
+                                }
+                                else
+                                {
+                                    OverlayWindow.Hide();
+                                    OverlayWindow.Close();
+                                    await Task.Delay(1000);
+                                }
 
 
-                        }
-                    });
+                            }
+                        });
+                    }
                     
                 }
             });
         }
 
+        private void InitializeCareerModdingSuite()
+        {
+            var files = Directory.EnumerateFiles(
+                Directory.GetParent(Assembly.GetExecutingAssembly().Location)
+                + @"\EditorMod\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data");
+            foreach(var f in files)
+            {
+                if(f.LastIndexOf('\\') > 0)
+                {
+                    var indexOfBackslash = f.LastIndexOf('\\') + 1;
+                    var length = f.Length;
+                    TabItem tabItem = new TabItem();
+                    tabItem.Header = f.Substring(indexOfBackslash, length - indexOfBackslash).Replace(".ini", "").Replace(".csv", "");
+                    StackPanel stackPanel = new StackPanel();
+
+
+                    FIFAModdingUI.ini.IniReader iniReader = new IniReader(f) { StripComments = true };
+                    var sections = iniReader.GetSections();
+                    foreach (var section in sections)
+                    {
+                        StackPanel sectionStackPanel = new StackPanel();
+                        sectionStackPanel.Children.Add(new Label() { Content = section, FontSize = 14 });
+
+                        var keys = iniReader.GetKeys(section);
+                        foreach (var key in keys)
+                        {
+                            StackPanel keyValueStackPanel = new StackPanel();
+                            keyValueStackPanel.Orientation = Orientation.Horizontal;
+                            keyValueStackPanel.Children.Add(new Label() { Name = section.Trim() + key.Trim(), Content = key });
+                            sectionStackPanel.Children.Add(keyValueStackPanel);
+                        }
+
+                        stackPanel.Children.Add(sectionStackPanel);
+
+                    }
+
+
+                    tabItem.Content = stackPanel;
+                    TabCareerModdingItems.Items.Add(tabItem);
+                    
+                }
+                else
+                    TabCareerModdingItems.Items.Add(f);
+
+
+            }
+        }
+
+        private bool IsLegacyExtractionComplete()
+        {
+            return Directory.Exists("EditorMod\\Legacy");
+        }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
@@ -380,7 +446,7 @@ namespace FIFAModdingUI
             }
 
             // read from locale.ini 
-            if (!chkUseBaseFIFAINI.IsChecked.Value && !string.IsNullOrEmpty(FIFALocaleIni))
+            if (!string.IsNullOrEmpty(FIFALocaleIni))
             {
                 var localeini = new IniReader(FIFALocaleIni);
                 var allKeys = localeini.GetKeys("");
@@ -544,7 +610,7 @@ namespace FIFAModdingUI
             this.panel_GP_ContextEffect.Children.Add(g);
 
             // read from locale.ini 
-            if (!chkUseBaseFIFAINI.IsChecked.Value && !string.IsNullOrEmpty(FIFALocaleIni))
+            if (!string.IsNullOrEmpty(FIFALocaleIni))
             {
                 var localeini = new IniReader(FIFALocaleIni);
                 foreach (var k in localeini.GetKeys("").OrderBy(x => x))
@@ -617,7 +683,7 @@ namespace FIFAModdingUI
             panel_GP_ObjectiveSystem.UpdateLayout();
 
             // read from locale.ini 
-            if (!chkUseBaseFIFAINI.IsChecked.Value && !string.IsNullOrEmpty(FIFALocaleIni))
+            if (!string.IsNullOrEmpty(FIFALocaleIni))
             {
                 var localeini = new IniReader(FIFALocaleIni);
                 foreach (var k in localeini.GetKeys("").OrderBy(x => x))
@@ -705,7 +771,7 @@ namespace FIFAModdingUI
                 CareerOpened.Header = "";
                 CareerOpened.IsEnabled = false;
 
-                var iFile = item.Content.ToString().Replace("{", "").Replace("[", "").Split(",")[0];
+                var iFile = item.Content.ToString().Replace("{", "").Replace("[", "").Split(',')[0];
                 new TaskFactory().StartNew(() =>
                 {
                     Dispatcher.Invoke(() =>
@@ -757,7 +823,7 @@ namespace FIFAModdingUI
 
         List<DataSet> CareerDatabaseDataSets { get; set; }
         int CareerDatabaseTable_DataSetIndex = 1;
-        List<DataRow> CareerDatabaseTable { get; set; }
+        IEnumerable<DataRow> CareerDatabaseTable { get; set; }
         int CareerDatabaseTable_CurrentPage = 1;
         int CareerDatabaseTable_RecordPerPage = 80;
 
@@ -797,7 +863,8 @@ namespace FIFAModdingUI
 
                         Dispatcher.Invoke(() =>
                         {
-                            CareerDatabaseTable = CareerDatabaseDataSets[CareerDatabaseTable_DataSetIndex].Tables[iFile].AsEnumerable().ToList();
+                            CareerDatabaseTable = CareerDatabaseDataSets[CareerDatabaseTable_DataSetIndex].Tables[iFile]
+                            .ToEnumerable();
                             CareerDatabaseTable_CurrentPage = 1;
                             var numOfPages = CareerDatabaseTable.Count() / CareerDatabaseTable_RecordPerPage;
                             for (var indx = 0; indx < numOfPages; indx++)
@@ -1253,6 +1320,24 @@ namespace FIFAModdingUI
                 + "\\Mods\\").Where(x => x.ToLower().Contains(".fbmod")).Select(
                 f => new FileInfo(f).Name).ToList());
             listMods.ItemsSource = ListOfMods;
+        }
+
+        private void btnModdingIntegrationExtractLegacy_Click(object sender, RoutedEventArgs e)
+        {
+            var pWindow = new ProcessingWindow();
+            pWindow.Show();
+            new TaskFactory().StartNew(() =>
+            {
+                new v2k4FIFAModding.Frosty.ExtractAllFrostyLegacyFiles().Extract();
+            });
+            pWindow.Hide();
+            if (IsLegacyExtractionComplete())
+                btnModdingIntegrationExtractLegacy.Visibility = Visibility.Hidden;
+        }
+
+        private void btnCloseModdingTool_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 

@@ -9,8 +9,8 @@ using System.IO;
 namespace Frosty.ModSupport.Handlers
 {
 	[ActionHandler(3181116261u)]
-	public class LegacyCustomActionHandler : ICustomActionHandler
-	{
+	public class LegacyCustomActionHandler : Frosty.ModSupport.Handlers.ICustomActionHandler
+    {
 		private class LegacyFileEntry
 		{
 			public int Hash

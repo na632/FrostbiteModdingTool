@@ -17,6 +17,7 @@ public class IniReader
     {
         Dictionary<string, Dictionary<string, string>> ini = new Dictionary<string, Dictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
 
+        public bool StripComments = false;
 
         public IniReader(string file) : base()
         {
@@ -64,9 +65,9 @@ public class IniReader
 
             foreach (var line in txt.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
                                    .Where(t => !string.IsNullOrWhiteSpace(t))
-                                   .Select(t => t.Trim()))
+                                   .Select(t => t.Trim().Replace(@"\t","")))
             {
-                if (line.StartsWith(";"))
+                if (StripComments && (line.StartsWith(";") || line.IndexOf("/") < 2))
                     continue;
 
                 if (line.StartsWith("[") && line.EndsWith("]"))
@@ -93,8 +94,10 @@ public class IniReader
                     if (line.Contains("//"))
                     {
                         var splitCommentedLine = line.Split(new string[] { "//" }, StringSplitOptions.RemoveEmptyEntries);
-                        if (!string.IsNullOrEmpty(splitCommentedLine[0]))
+                        if (splitCommentedLine.Length > 0 && !string.IsNullOrEmpty(splitCommentedLine[0]))
+                        {
                             currentSection[line.Substring(0, idx)] = splitCommentedLine[0].Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries)[1];
+                        }
                     }
                     else
                         currentSection[line.Substring(0, idx)] = line.Substring(idx + 1);

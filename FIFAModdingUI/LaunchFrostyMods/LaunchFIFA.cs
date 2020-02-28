@@ -7,12 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using paulv2k4ModdingExecuter;
 using System.IO;
 using v2k4FIFAModdingCL;
 using System.Reflection;
 using System.Diagnostics;
-
+using paulv2k4ModdingExecuter;
 
 namespace FIFAModdingUI
 {
@@ -45,10 +44,11 @@ namespace FIFAModdingUI
             //    Directory.GetParent(Assembly.GetExecutingAssembly().Location)
             //    + "\\Mods\\")
             //    .Where(x => x.ToLower().Contains(".fbmod"));
-            files = Directory.EnumerateFiles(
-                Directory.GetParent(Assembly.GetExecutingAssembly().Location)
-                + "\\Mods\\").Where(x => x.ToLower().Contains(".fbmod")).Select(
-                f => new FileInfo(f).Name).ToList();
+            //files = Directory.EnumerateFiles(
+            //    Directory.GetParent(Assembly.GetExecutingAssembly().Location)
+            //    + "\\Mods\\").Where(x => x.ToLower().Contains(".fbmod")).Select(
+            //    f => new FileInfo(f).Name).ToList();
+            files = new Mods.ModList().ModListItems;
 
             //var files = new List<string>() { "REMOVEME.fbmod" };
             var tsk = new FrostyModExecutor().Run(fileSystem, testLog, "Mods/", "", files.ToArray());

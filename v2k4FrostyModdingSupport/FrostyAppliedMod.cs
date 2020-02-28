@@ -1,3 +1,5 @@
+using FrostySdk;
+
 namespace Frosty.ModSupport
 {
 	public class FrostyAppliedMod

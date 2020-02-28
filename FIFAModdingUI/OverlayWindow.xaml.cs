@@ -62,6 +62,7 @@ namespace FIFAModdingUI
             InitializeComponent();
 
             ParentWindow = parentWindow;
+            ParentWindow.HasCareerExpansionModBeenUsed = true;
 
             hwndSource = PresentationSource.FromVisual(this) as HwndSource;
             //IntPtr hwnd = hwndSource.Handle;
@@ -144,7 +145,7 @@ namespace FIFAModdingUI
             ListViewItem item = sender as ListViewItem;
             if (item != null)
             {
-                var iFile = item.Content.ToString().Replace("{", "").Replace("[", "").Split(",")[0];
+                var iFile = item.Content.ToString().Replace("{", "").Replace("[", "").Split(',')[0];
                 LoadCareerFile(iFile);
             }
         }
@@ -195,6 +196,11 @@ namespace FIFAModdingUI
 
                 }
             });
+        }
+
+        private void btnCloseCareerExpansionMod_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
 
         //private double OpacityAmount = 0.75d;

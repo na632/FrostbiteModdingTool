@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI"
+        xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
         Title="OverlayWindow" Height="720" Width="1280"
         AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" WindowState="Maximized" >
@@ -11,6 +13,16 @@
         <SolidColorBrush x:Name="WindowOpacityColor" Opacity="0.95" Color="White"/>
     </Window.Background>
     <StackPanel>
+
+        <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+       
+        <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseCareerExpansionMod" Click="btnCloseCareerExpansionMod_Click">
+                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Power" VerticalAlignment="Center" />
+                    <Label Content="Exit CEM (F2)" VerticalAlignment="Center" />
+                </StackPanel>
+        </Button>
+    </StackPanel>
         <Button Content="v2k4 F2"
                 HorizontalAlignment="Left"
                 Margin="0,0,0,0"
@@ -24,7 +36,7 @@
                    TextAlignment="Center"
                    Visibility="Hidden"
                    >Hooked!</TextBlock>
-        <StackPanel Background="White" Width="250" Height="50" Margin="0,-27,0,0"
+        <StackPanel Background="White" Width="250" Height="50" Margin="0,-50,0,0" 
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                    Visibility="Visible">
