@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FIFALibraryNETFrameworkTests</RootNamespace>
     <AssemblyName>FIFALibraryNETFrameworkTests</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
@@ -20,6 +20,7 @@
     <TestProjectType>UnitTest</TestProjectType>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,7 +59,42 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="fifa20.key">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="FIFA20Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="FrostyModManager FIFA20.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FrostySdk\FrostySdk.csproj">
+      <Project>{3d489d9a-0def-4e80-8ec8-15e265c29a36}</Project>
+      <Name>FrostySdk</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj">
+      <Project>{808b462b-078a-4d7d-8da1-92fced89f32a}</Project>
+      <Name>v2k4FIFAModding</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\v2k4FIFASDKGenerator\v2k4FIFASDKGenerator.csproj">
+      <Project>{1dbc8811-e837-4701-8fae-6a8b03f5c876}</Project>
+      <Name>v2k4FIFASDKGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj">
+      <Project>{8d172f0e-658a-4507-870f-c5b7ae1bca6e}</Project>
+      <Name>paulv2k4FrostyModdingSupport</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FrostyHash.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Profiles\FIFA20SDK.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

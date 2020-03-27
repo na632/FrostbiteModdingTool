@@ -8,7 +8,9 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Maximized" WindowStyle="ThreeDBorderWindow" >
+        Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStartupLocation="CenterScreen"
+                      WindowState="Maximized" WindowStyle="ThreeDBorderWindow"
+                      ShowMaxRestoreButton="True" ShowCloseButton="False" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"></RowDefinition>
@@ -24,6 +26,15 @@
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                     <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
                     <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
+                    VerticalAlignment="Center" IsEnabled="False"
+                     Click="btnBuildFIFASDK_Click"
+                    ToolTip="Build FIFA Modding SDK">
+                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
+                    <Label Content="Build FIFA SDK" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
             <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
@@ -48,10 +59,18 @@
             <TabItem x:Name="TabGameplay" Header="Gameplay">
                 <StackPanel>
                     <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
-                        <Button x:Name="btn_GP_SaveINI" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"  Click="Btn_GP_SaveINI_Click">
+                        <Button x:Name="btn_GP_SaveINIToProfile" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"
+                                Click="Btn_GP_SaveINI_Click">
                             <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                <Label Content="Save your Gameplay" VerticalAlignment="Center" />
+                                <Label Content="Save your Gameplay Profile" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btn_GP_SaveINIToGame" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"
+                                Click="btn_GP_SaveINIToGame_Click">
+                            <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                <Label Content="Save and Copy GP Profile to Game" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -66,18 +85,7 @@
                         </Grid.ColumnDefinitions>
                         <Controls:MetroTabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" >
                             <TabItem Header="General">
-                                <Grid Margin="2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition></ColumnDefinition>
-                                        <ColumnDefinition></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition></RowDefinition>
-                                            <RowDefinition></RowDefinition>
-                                        </Grid.RowDefinitions>
-                                    </Grid>
-                                    <Grid Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
                                         <ScrollViewer  HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
                                             <StackPanel>
                                                 <Label Content="General Settings"  FontWeight="Bold" />
@@ -119,8 +127,7 @@
                                         <CheckBox x:Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
                                             </StackPanel>
                                         </ScrollViewer>
-                                    </Grid>
-                                    <Grid Grid.Column="1">
+                                
                                         <ScrollViewer HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
                                             <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
                                                 <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
@@ -212,8 +219,7 @@
 
 
                                         </ScrollViewer>
-                                    </Grid>
-                                </Grid>
+                                </StackPanel>
                             </TabItem>
                             <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
                                 <Grid>
@@ -270,9 +276,11 @@
                                 </ScrollViewer>
                             </TabItem>
                             <TabItem Name="tabRawFileView" Header="Raw File View" MouseDown="tabRawFileView_MouseDown" >
-                                <ScrollViewer>
-                                    <TextBlock Name="tbRawFileView" Background="White"></TextBlock>
-                                </ScrollViewer>
+                                <TextBox MaxLines="9999999" Name="tbRawFileView" Background="White" Height="500" MinHeight="500"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                             
+                                            ></TextBox>
                             </TabItem>
                         </Controls:MetroTabControl>
                     </Grid>

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModdingTests", "FIFAMod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIFALibraryNETFrameworkTests", "FIFALibraryNETFrameworkTests\FIFALibraryNETFrameworkTests.csproj", "{E7891FBD-A2B3-407D-B719-71F597D5F61E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FrostyModdingSupport", "v2k4FrostyModdingSupport\v2k4FrostyModdingSupport.csproj", "{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "paulv2k4FrostyModdingSupport", "v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj", "{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFASDKGenerator", "v2k4FIFASDKGenerator\v2k4FIFASDKGenerator.csproj", "{1DBC8811-E837-4701-8FAE-6A8B03F5C876}"
 EndProject

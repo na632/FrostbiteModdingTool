@@ -33,6 +33,10 @@ using FrostySdk.IO;
 using v2k4FIFAModding.Career;
 using System.Collections.ObjectModel;
 using v2k4FIFAModding;
+using FIFAModdingUI.Windows;
+using FrostySdk;
+using FrostySdk.Managers;
+using Frosty;
 
 namespace FIFAModdingUI
 {
@@ -67,10 +71,43 @@ namespace FIFAModdingUI
         //public Task HookDLLThread;
         public OverlayWindow OverlayWindow;
 
+        private AssetManager AssetManager;
+        private ResourceManager ResourceManager;
+        private FrostySdk.FileSystem FileSystem;
+        private FrostyProject FrostyProject;
+
+        public static string CURRENT_MOD_PROFILE = "Default";
+        public static string CURRENT_MOD_PROFILE_LOCALEINI_PATH = "ModProfiles/Default/locale.ini";
+
         public MainWindow()
         {
             InitializeComponent();
+            // -----------------------------
+            // -- Create Folders
+            if (!Directory.Exists("Mods"))
+                Directory.CreateDirectory("Mods");
 
+            if (!Directory.Exists("ModProfiles"))
+                Directory.CreateDirectory("ModProfiles");
+
+            if (!Directory.Exists("ModProfiles/Default"))
+                Directory.CreateDirectory("ModProfiles/Default");
+
+
+            //
+            try
+            {
+                if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
+                {
+                    txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
+                    InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
+                }
+            }
+            catch (Exception e)
+            {
+                txtFIFADirectory.Text = "";
+                Trace.WriteLine(e.ToString());
+            }
 
             InitializeIniSettings();
             GetListOfModsAndOrderThem();
@@ -82,25 +119,29 @@ namespace FIFAModdingUI
 
             //HookDLLThread = new TaskFactory().StartNew(HookFIFADLL);
 
-            try
-            {
-                if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
-                {
-                    txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
-                    InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
-                }
-            }
-            catch(Exception e)
-            {
-                txtFIFADirectory.Text = "";
-                Trace.WriteLine(e.ToString());
-            }
+            
+
+            // ------------------------------------------------------------------------------------
+
 
 
             this.Closed += MainWindow_Closed;
 
             EventHookedIntoFIFA += HandleCustomEvent;
 
+            //
+            //OpenFrostyFiles openFrostyFiles = new OpenFrostyFiles();
+            //openFrostyFiles.Extract();
+
+            // F2 Check
+            F2ForCareerExpansionMod();
+
+
+             
+        }
+
+        private void F2ForCareerExpansionMod()
+        {
             var tskCheckForF2 = new TaskFactory().StartNew(async () =>
             {
                 while (true)
@@ -117,8 +158,8 @@ namespace FIFAModdingUI
                                     OverlayWindow = new OverlayWindow(this);
                                     OverlayWindow.Closed += (o, e) => OverlayWindow = null;
                                     OverlayWindow.Show();
-                                // Cannot close for 2 seconds
-                                await Task.Delay(2000);
+                                    // Cannot close for 2 seconds
+                                    await Task.Delay(2000);
                                 }
                                 else
                                 {
@@ -131,7 +172,7 @@ namespace FIFAModdingUI
                             }
                         });
                     }
-                    
+
                 }
             });
         }
@@ -225,11 +266,16 @@ namespace FIFAModdingUI
 
         private void InitializeIniSettings()
         {
-            InitializeLanguageSystem();
-            InitializeAIObjectiveSystem();
-            InitializeContextEffectSystem();
-            InitializeAttributeWeightSystem();
-            InitializeOtherSettings();
+            if (FIFAInstanceSingleton.INITIALIZED)
+            {
+                InitializeLanguageSystem();
+                InitializeAIObjectiveSystem();
+                InitializeContextEffectSystem();
+                InitializeAttributeWeightSystem();
+                InitializeOtherSettings();
+                if(!File.Exists(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
+                    File.Copy(FIFAInstanceSingleton.FIFALocaleINIPath, CURRENT_MOD_PROFILE_LOCALEINI_PATH);
+            }
         }
 
         private void InitializeOtherSettings()
@@ -911,6 +957,23 @@ namespace FIFAModdingUI
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(FIFAModdingUI.Resources.ResourceManager.GetString("SaveOverOldLocaleINIText"), "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
+                if (File.Exists(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
+                {
+                    File.Delete(CURRENT_MOD_PROFILE_LOCALEINI_PATH);
+                }
+
+                using (StreamWriter stream = new StreamWriter(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
+                {
+                    stream.Write(GetResultingLocaleINIString());
+                }
+            }
+        }
+
+        private void btn_GP_SaveINIToGame_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(FIFAModdingUI.Resources.ResourceManager.GetString("SaveOverOldLocaleINIText"), "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
                 if (File.Exists(FIFALocaleIni))
                 {
                     File.Copy(FIFALocaleIni, FIFADirectory + "\\Data\\locale.ini." + DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss") + ".backup");
@@ -936,6 +999,9 @@ namespace FIFAModdingUI
 
         public string GetResultingLocaleINIString()
         {
+            if (!FIFAInstanceSingleton.INITIALIZED)
+                return "";
+
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine("// -------------------------------------------------");
@@ -1282,7 +1348,7 @@ namespace FIFAModdingUI
 
         private void btnLaunchFIFA_Click(object sender, RoutedEventArgs e)
         {
-            LaunchFIFA.Launch();
+            LaunchFIFA.Launch(FIFAInstanceSingleton.FIFARootPath, "Mods/", new Mods.ModList().ModListItems);
         }
 
         private ObservableCollection<string> ListOfMods = new ObservableCollection<string>();
@@ -1339,6 +1405,18 @@ namespace FIFAModdingUI
         {
             Application.Current.Shutdown();
         }
+
+        private void btnBuildFIFASDK_Click(object sender, RoutedEventArgs e)
+        {
+            BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
+            var result = buildSDKAndCacheWindow.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                btnBuildFIFASDK.IsEnabled = false;
+            }
+        }
+
+        
     }
 
     public class AppSettings

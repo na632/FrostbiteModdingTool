@@ -10,7 +10,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
     {
         private class POINTER_ADDRESSES
         {
-            public string GAME_DATE = "FIFA20.exe+072BE688,0x8,0x698";
+            public string GAME_DATE = "FIFA20.exe+072E69C8,0x8,0x788";
             public string GAME_SAVE_NAME = "FIFA20.exe+06DFF960,0xA0,0x5CC";
         }
 
@@ -22,38 +22,47 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
         public Task Ticker_GameDate;
 
-        public DateTime GameDate
+        public DateTime? GameDate
         {
             get
             {
                 if (GetProcess(out Mem MemLib).HasValue)
                 {
                     var gDate = MemLib.readInt(new POINTER_ADDRESSES().GAME_DATE);
-                    var isoDate = gDate.ToString().Substring(0, 4)
-                        + "-"
-                        + gDate.ToString().Substring(4, 2)
-                        + "-"
-                        + gDate.ToString().Substring(6, 2);
-                    if (DateTime.TryParse(
-                        isoDate
-                        , out DateTime d))
+                    if (gDate > 0 && gDate.ToString().Length > 8)
                     {
-                        Ticker_GameDate = new TaskFactory().StartNew(() => { 
-                            while(true)
+                        var isoDate = gDate.ToString().Substring(0, 4)
+                            + "-"
+                            + gDate.ToString().Substring(4, 2)
+                            + "-"
+                            + gDate.ToString().Substring(6, 2);
+                        if (DateTime.TryParse(
+                            isoDate
+                            , out DateTime d))
+                        {
+                            Ticker_GameDate = new TaskFactory().StartNew(() =>
                             {
-                                if (internal_gamedate != d)
+                                while (true)
                                 {
-                                    internal_gamedate = d;
-                                    GameDateHasChanged.Invoke(null, null);
+                                    if (internal_gamedate != d)
+                                    {
+                                        internal_gamedate = d;
+                                        GameDateHasChanged.Invoke(null, null);
+                                    }
+
+                                    Task.Delay(CALL_POLL_IN_SECONDS * 1000);
                                 }
-
-                                Task.Delay(CALL_POLL_IN_SECONDS * 1000);
-                            }
-                        });
+                            });
 
 
-                        return d;
+                            return d;
+                        }
+                        else
+                            return null;
                     }
+                    else
+                        return null;
+
                 }
                 return DateTime.Now;
             }

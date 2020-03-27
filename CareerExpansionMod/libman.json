@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "angular.js@1.7.9",
+      "destination": "wwwroot/lib/angularjs",
+      "files": [ "angular.min.js" ]
+    }
+    ,
+    {
+      "library": "angular-route-segment@1.5.1", "destination": "wwwroot/lib/angularjs/route-segment", "files": ["angular-route-segment.min.js"]
+    }
+  ]
+}

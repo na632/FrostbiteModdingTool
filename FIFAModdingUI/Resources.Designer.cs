@@ -198,7 +198,7 @@ namespace FIFAModdingUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to By saving this file using this tool, you agree to not share it without attribution to me &quot;paulv2k4&quot; with a link to my patreon https://www.patreon.com/fifa_gameplay_career_mod or website https://v2k4fifamodding.azurewebsites.net/.
+        ///   Looks up a localized string similar to By saving this file using this tool, you agree to not share it without attribution to me &quot;paulv2k4&quot; with a link to my patreon https://www.patreon.com/fifa_gameplay_career_mod or website https:/www.fifa-mods.com/.
         ///
         ///Do you agree to this and wish to overwrite your locale.ini?.
         /// </summary>

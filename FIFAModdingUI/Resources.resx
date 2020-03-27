@@ -165,7 +165,7 @@ Raising this caused a lesser team to beat a bigger team easily</value>
     <value>The higher this value the AI tends to dribble more</value>
   </data>
   <data name="SaveOverOldLocaleINIText" xml:space="preserve">
-    <value>By saving this file using this tool, you agree to not share it without attribution to me "paulv2k4" with a link to my patreon https://www.patreon.com/fifa_gameplay_career_mod or website https://v2k4fifamodding.azurewebsites.net/.
+    <value>By saving this file using this tool, you agree to not share it without attribution to me "paulv2k4" with a link to my patreon https://www.patreon.com/fifa_gameplay_career_mod or website https:/www.fifa-mods.com/.
 
 Do you agree to this and wish to overwrite your locale.ini?</value>
   </data>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,6 +34,11 @@ namespace FIFAModdingUI
             {
                 stream.WriteLine(e.ToString());
             }
+
+            Trace.WriteLine(e.ToString());
+            Console.WriteLine(e.ToString());
+            Debug.WriteLine(e.ToString());
+
         }
     }
 }

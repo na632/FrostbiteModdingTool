@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>paulv2k4 Career Expansion Mod</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container text-center">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">paulv2k4 Career Expansion Mod (ALPHA)</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            @*<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+
+                                    Home
+                                </a>*@
+                            <span id="lblLoadedCareerSave" name="lblLoadedCareerSave">
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+
+            <div id="panelWelcomePleaseLoad" class="text-center">
+                <h1 class="display-4">Welcome to the Career Expansion Mod</h1>
+                <p>Please load your Career Save to continue...</p>
+                <p></p>
+            </div>
+            <div id="panelFancyLoading" class="text-center" style="display:none;">
+                <h1 class="display-4">Loading</h1>
+            </div>
+            <div id="panelMain" class="text-center" style="display:none;">
+                <h1 class="display-4" id="CareerSaveName">Career Save Name</h1>
+
+                <header>
+                    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                        <div class="container text-center">
+                            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                                <ul class="navbar-nav flex-grow-1">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" href="#">
+                                            Finances
+                                        </a>
+
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" href="#">
+                                            Under 23s
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                </header>
+
+            </div>
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - paulv2k4 Career Expansion Mod&trade;
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/angularjs/angular.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+
+    <script>
+
+        var bIsInCareerMode = false;
+
+        setInterval(() => {
+            $.getJSON("/IsCareerModeActive/", function (d) {
+                //alert(d);
+                console.log(d);
+                $('#lblLoadedCareerSave').html(d);
+
+                if (!bIsInCareerMode) {
+                    bIsInCareerMode = true;
+                    $('#panelWelcomePleaseLoad').hide(1000);
+                    $('#panelFancyLoading').show(1000).delay(1000).hide(1000);
+                    setTimeout(function () {
+                        $('#panelMain').show(1000);
+                    }, 1000);
+
+                }
+
+            }).catch(function (t, u, v) {
+                console.log(t);
+                console.log(u);
+                console.log(v);
+
+            });
+
+        }, 1000);
+    </script>
+</body>
+</html>

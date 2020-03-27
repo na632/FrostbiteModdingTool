@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using v2k4FIFAModding.Career.CME.FIFA;
 using System.Windows;
 using System.Threading;
+using FrostySdk;
+using FrostySdk.Managers;
 //using FifaLibrary;
 
 namespace FIFAModdingTests
@@ -126,8 +128,22 @@ namespace FIFAModdingTests
         public void TestLaunchFIFAWithMods()
         {
 
-            FIFAModdingUI.LaunchFIFA.Launch();
+            FIFAModdingUI.LaunchFIFA.Launch(@"E:\Origin Games\FIFA 20", "Mods/", new FIFAModdingUI.Mods.ModList().ModListItems);
 
+        }
+
+        [TestMethod]
+        public void LoadFrostyGameplayProject()
+        {
+            var FileSystem = new FrostySdk.FileSystem(@"E:\Origin Games\FIFA 20");
+            var ResourceManager = new ResourceManager(FileSystem);
+            var AssetManager = new AssetManager(FileSystem, ResourceManager);
+            var FrostyProject = new FrostyProject(AssetManager, FileSystem);
+            FrostyProject.Load(@"J:\Work\Modding\FIFA Modding\Gameplay mod\Version TC 2 Alpha 10\paulv2k4 FIFA 20 Gameplay Mod - TC 2 Alpha 10.fbproject");
+            if (FrostyProject != null)
+            {
+
+            }
         }
     }
 }
