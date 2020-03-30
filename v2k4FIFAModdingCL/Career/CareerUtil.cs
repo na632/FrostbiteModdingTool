@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,11 +10,19 @@ namespace v2k4FIFAModding.Career
 {
     public class CareerUtil
     {
+        public static Dictionary<string,string> GetCareerSaves()
+        {
+            var myDocs = SpecialDirectories.MyDocuments + "\\"
+                                            + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
+                                            + "\\settings\\";
+            return GetCareerSaves(myDocs);
+        }
+
         public static Dictionary<string, string> GetCareerSaves(string directory)
         {
             var myDocs = directory;
 
-            var r = Directory.GetFiles(myDocs, "Career*", SearchOption.AllDirectories);
+            var r = Directory.GetFiles(myDocs, "Career*", System.IO.SearchOption.AllDirectories);
 
             /// SWITCH THIS FOR 
             /*
@@ -36,5 +45,6 @@ namespace v2k4FIFAModding.Career
 
             return results;
         }
+
     }
 }

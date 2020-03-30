@@ -48,7 +48,53 @@ namespace CareerExpansionMod.Controllers
                 else
                     return new JsonResult($"{Startup.FIFAProcess.ProcessName} is running");
             }
-            return new JsonResult("FIFA hasn't been started");
+            return new JsonResult("FIFA hasn't been started: ERR:001");
+        }
+
+        [HttpGet]
+        [Route("~/GetCareerModeSaveName")]
+        public JsonResult GetCareerModeSaveName()
+        {
+            if (Startup.FIFAProcess != null)
+            {
+                var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
+                if (!string.IsNullOrEmpty(coreHack.SaveName))
+                {
+                    return new JsonResult($"{coreHack.SaveName}");
+                }
+                return new JsonResult("Career Mode Name Invalid Value: ERR:001");
+            }
+            return new JsonResult("Career Mode Name Invalid Value: ERR:002");
+        }
+
+        [HttpGet]
+        [Route("~/GetCareerModeGameDate")]
+        public JsonResult GetCareerModeGameDate()
+        {
+            if (Startup.FIFAProcess != null)
+            {
+                var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
+                if (coreHack.GameDate.HasValue)
+                {
+                    return new JsonResult($"{coreHack.GameDate}");
+                }
+                return new JsonResult("Career Mode Game Date Invalid Value: ERR:001");
+            }
+            return new JsonResult("Career Mode Game Date Invalid Value: ERR:002");
+        }
+
+
+        [HttpGet]
+        [Route("~/IsBGLoading")]
+        public JsonResult IsBGLoading()
+        {
+            dynamic rJson = new { BGLoading = v2k4FIFAModdingCL.MemHack.Core.CoreHack.IsBGLoading, BGLoadingWhat = string.Empty };
+
+            if (Startup.FIFAProcess != null)
+            {
+                
+            }
+            return new JsonResult(rJson);
         }
     }
 }

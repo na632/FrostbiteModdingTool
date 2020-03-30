@@ -370,7 +370,7 @@ namespace Memory
                 // Lets set the process to 64bit or not here (cuts down on api calls)
                 Is64Bit = Environment.Is64BitOperatingSystem && (IsWow64Process(pHandle, out bool retVal) && !retVal);
 
-                Debug.WriteLine("Program is operating at Administrative level. Process #" + theProc + " is open and modules are stored.");
+                //Debug.WriteLine("Program is operating at Administrative level. Process #" + theProc + " is open and modules are stored.");
 
                 return true;
             }

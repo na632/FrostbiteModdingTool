@@ -1,0 +1,128 @@
+﻿@using Microsoft.AspNetCore.Components
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Finances</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">General Finances</div>
+                <div class="card-body">
+                    <div>
+                        <label class="col-form-label">Starting Budget</label>
+                        <input class="form-control" disabled="disabled" id="txtStartingBudget" />
+                    </div>
+                    <div>
+                        <label class="col-form-label">Transfer Budget</label>
+                        <div class="row">
+                            <input class="form-control col-9" id="txtTransferBudget" />
+                            <button class="btn btn-primary col-3" onclick="setBudget()">Set</button>
+                        </div>
+                    </div>
+                    <div class="pt-3">
+                        <button id="btnRequestFunds" class="btn btn-primary" onclick="requestFunds()">Request Funds</button>
+                    </div>
+                    <div class="pt-3">
+                        <span id="txtRequestFundsMessage"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">Prices</div>
+                <div class="card-body">
+                    <form>
+                        <div>
+                            <label class="col-form-label">Burger Price</label>
+                            <input class="form-control" id="txtBurgerPrice" type="number" value="4.99" min="1.00" max="9.99" required />
+                        </div>
+                        <div>
+                            <label class="col-form-label">Fries Price</label>
+                            <input class="form-control" id="txtFriesPrice" type="number" value="4.99" min="1.00" max="9.99" required />
+                        </div>
+                        <div>
+                            <label class="col-form-label">Fizzy Drink Price</label>
+                            <input class="form-control" id="txtFizzyDrinkPrice" type="number" value="2.99" min="1.00" max="9.99" required />
+                        </div>
+                        <div>
+                            <label class="col-form-label">Beer/Cider/Lager Price</label>
+                            <input class="form-control" id="txtAlcoholDrinkPrice" type="number" value="4.99" min="1.00" max="9.99" required />
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $.getJSON("Finances/GetStartingBudget", function (d) {
+
+            $('#txtStartingBudget').val(d);
+
+        });
+
+        $.getJSON("Finances/GetTransferBudget", function (d) {
+
+            $('#txtTransferBudget').val(d);
+
+        });
+
+        function setBudget() {
+                //alert("set a budget: " + $('#txtTransferBudget').val());
+
+            var url = "Finances/SetTransferBudget?amount=" + $('#txtTransferBudget').val();
+                //alert(url);
+
+            $.getJSON(url, function (d) {
+
+                //alert(d);
+                $('#txtTransferBudget').val();
+
+            });
+
+        }
+
+        function requestFunds() {
+
+            var url = "Finances/RequestFunds/";
+                //alert(url);
+
+            $.getJSON(url, function (d) {
+
+                console.log(d);
+                $('#btnRequestFunds').removeClass("btn-primary");
+                if (d.success == "true") {
+
+                    $('#btnRequestFunds').addClass("btn-success");
+                    $('#txtRequestFundsMessage').html(d.message);
+
+                }
+                else {
+
+                    $('#btnRequestFunds').addClass("btn-danger");
+                    $('#txtRequestFundsMessage').html(d.message);
+                }
+                setTimeout(function () {
+                    $('#btnRequestFunds').removeClass("btn-success");
+                    $('#btnRequestFunds').removeClass("btn-danger");
+                    $('#btnRequestFunds').addClass("btn-primary");
+
+                }, 3000);
+
+            });
+
+        }
+    </script>
+}

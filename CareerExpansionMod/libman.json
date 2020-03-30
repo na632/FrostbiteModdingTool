@@ -5,11 +5,15 @@
     {
       "library": "angular.js@1.7.9",
       "destination": "wwwroot/lib/angularjs",
-      "files": [ "angular.min.js" ]
-    }
-    ,
+      "files": [ "angular.min.js", "angular.js" ]
+    },
     {
-      "library": "angular-route-segment@1.5.1", "destination": "wwwroot/lib/angularjs/route-segment", "files": ["angular-route-segment.min.js"]
+      "library": "font-awesome@5.13.0",
+      "destination": "wwwroot/lib/font-awesome"
+    },
+    {
+      "library": "angular-ui-router@1.0.25",
+      "destination": "wwwroot/lib/angular-ui-router/"
     }
   ]
 }

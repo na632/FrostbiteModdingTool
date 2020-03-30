@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using v2k4FIFAModdingCL;
 
 namespace CareerExpansionMod
 {
@@ -318,6 +319,8 @@ namespace CareerExpansionMod
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
             services.AddControllersWithViews();
         }
 
@@ -326,6 +329,8 @@ namespace CareerExpansionMod
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            FIFAInstanceSingleton.FIFAVERSION = "FIFA20";
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -348,12 +353,13 @@ namespace CareerExpansionMod
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
+                endpoints.MapBlazorHub();
             });
             SetupKeyPressAndFIFAIntegration();
 
             var browserWindowOptions = new BrowserWindowOptions()
             {
-                //AlwaysOnTop = true,
                 AutoHideMenuBar = true,
                 Movable = false,
 
@@ -362,7 +368,16 @@ namespace CareerExpansionMod
                 Width = 1280
                     ,
                 Height = 720
-                //, Fullscreen = true
+                ,
+                 WebPreferences = new WebPreferences()
+                 {
+                         AllowRunningInsecureContent = true,
+                          TextAreasAreResizable = false,
+                           WebSecurity = false,
+                            NodeIntegration = false,
+                             NodeIntegrationInWorker = false,
+                              
+                 }
             };
             // Open the Electron-Window here
             Task.Run(async () =>
@@ -375,6 +390,9 @@ namespace CareerExpansionMod
 
         }
 
+        /// <summary>
+        /// Setup (F2) Key Press And FIFA Integration
+        /// </summary>
         private void SetupKeyPressAndFIFAIntegration()
         {
             thread = new Thread(new ThreadStart(() =>
