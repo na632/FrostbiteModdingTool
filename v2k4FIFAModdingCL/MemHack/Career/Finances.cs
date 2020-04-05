@@ -11,12 +11,12 @@ namespace v2k4FIFAModdingCL.MemHack.Career
     public class Finances : IDisposable
     {
 
-        private class POINTER_ADDRESSES
+        private static class POINTER_ADDRESSES
         {
             /// Will need to redo this for every EA Update
-            public static string TRANSFER_BUDGET = "FIFA20.exe+072E6980,0x18,0x18,0x2A8,0x268,0x8";
+            public static string TRANSFER_BUDGET = "FIFA20.exe+072E7900,0x10,0x18,0x2B0,0x8,0x8";
             /// Will need to redo this for every EA Update
-            public static string STARTING_BUDGET = "FIFA20.exe+06E2D988,0x538,0x0,0x20,0x238,0x5E0";
+            public static string STARTING_BUDGET = "FIFA20.exe+06E2B010,0x10,0x48,0x30,0x58,0x5E0";
         }
 
         
@@ -77,20 +77,37 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             return success;
         }
 
+        private static Finances _financeInstance;
+        public static Finances FinanceInstance
+        {
+            get
+            {
+                if (_financeInstance == null)
+                    _financeInstance = new Finances();
+
+                return _financeInstance;
+            }
+        }
+
         public static int GetTransferBudget()
         {
-            return new Finances().TransferBudget;
+            return FinanceInstance.TransferBudget;
         }
 
         public static void SetTransferBudget(int newBudget)
         {
-            new Finances().TransferBudget = newBudget;
+            FinanceInstance.TransferBudget = newBudget;
         }
 
         public void Dispose()
         {
             //~Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        ~Finances()
+        {
+
         }
     }
 }

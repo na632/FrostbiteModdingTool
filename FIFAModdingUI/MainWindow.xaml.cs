@@ -68,9 +68,6 @@ namespace FIFAModdingUI
 
         public bool HasCareerExpansionModBeenUsed = false;
 
-        //public Task HookDLLThread;
-        public OverlayWindow OverlayWindow;
-
         private AssetManager AssetManager;
         private ResourceManager ResourceManager;
         private FrostySdk.FileSystem FileSystem;
@@ -129,52 +126,6 @@ namespace FIFAModdingUI
 
             EventHookedIntoFIFA += HandleCustomEvent;
 
-            //
-            //OpenFrostyFiles openFrostyFiles = new OpenFrostyFiles();
-            //openFrostyFiles.Extract();
-
-            // F2 Check
-            F2ForCareerExpansionMod();
-
-
-             
-        }
-
-        private void F2ForCareerExpansionMod()
-        {
-            var tskCheckForF2 = new TaskFactory().StartNew(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(100);
-                    if (Application.Current != null)
-                    {
-                        await Application.Current.Dispatcher.InvokeAsync(async () =>
-                        {
-                            if (Keyboard.IsKeyDown(Key.F2))
-                            {
-                                if (OverlayWindow == null)
-                                {
-                                    OverlayWindow = new OverlayWindow(this);
-                                    OverlayWindow.Closed += (o, e) => OverlayWindow = null;
-                                    OverlayWindow.Show();
-                                    // Cannot close for 2 seconds
-                                    await Task.Delay(2000);
-                                }
-                                else
-                                {
-                                    OverlayWindow.Hide();
-                                    OverlayWindow.Close();
-                                    await Task.Delay(1000);
-                                }
-
-
-                            }
-                        });
-                    }
-
-                }
-            });
         }
 
         private void InitializeCareerModdingSuite()
@@ -1342,8 +1293,6 @@ namespace FIFAModdingUI
 
         private void btnAddOverlayToGame_Click(object sender, RoutedEventArgs e)
         {
-            OverlayWindow overlayWindow = new OverlayWindow(this);
-            overlayWindow.Show();
         }
 
         private void btnLaunchFIFA_Click(object sender, RoutedEventArgs e)

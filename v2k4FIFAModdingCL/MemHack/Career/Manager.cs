@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using v2k4FIFAModdingCL.MemHack.Core;
 
@@ -11,7 +12,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
     {
         private class POINTER_ADDRESSES
         {
-            public string MANAGER_RATING = "FIFA20.exe+06E045B0,0x538,0x0,0x20,0x240,0x574";
+            public string MANAGER_RATING = "FIFA20.exe+05712C7C,0x38,0x10,0x8,0x5F8";
         }
 
         public int ManagerRating
@@ -47,25 +48,25 @@ namespace v2k4FIFAModdingCL.MemHack.Career
         }
 
         public static bool Unsackable = false;
-        public static Task UnsackableTask;
+        public static Thread UnsackableThread;
 
         public static void MakeMeUnsackable(bool yes)
         {
             Unsackable = yes;
             if(Unsackable)
             {
-                UnsackableTask = new TaskFactory().StartNew(async () =>
+                UnsackableThread = new Thread(() =>
                 {
                     while (Unsackable)
                     {
                         Manager.SetManagerRating(99);
-                        await Task.Delay(60 * 100);
+                        Thread.Sleep(10000);
                     }
                 });
             }
             else
             {
-                UnsackableTask = null;
+
             }
         }
     }

@@ -9,6 +9,7 @@ using v2k4FIFAModding.Career;
 using v2k4FIFAModdingCL.MemHack.Career;
 using System.Linq;
 using System.Threading;
+using System.Diagnostics;
 
 namespace v2k4FIFAModdingCL.MemHack.Core
 {
@@ -18,8 +19,8 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
         private class POINTER_ADDRESSES
         {
-            public string GAME_DATE = "FIFA20.exe+072E6A58,0x8,0x688";
-            public string GAME_SAVE_NAME = "FIFA20.exe+06DDA5F0,0x20,0x20,0x5CC";
+            public string GAME_DATE = "FIFA20.exe+072E79F8,0x8,0x3C0";
+            public string GAME_SAVE_NAME = "FIFA20.exe+06DDB5F0,0x20,0x20,0x5CC";
         }
 
         private const int CALL_POLL_IN_SECONDS = 5;
@@ -114,14 +115,17 @@ namespace v2k4FIFAModdingCL.MemHack.Core
         public static GameSaveState GameSaveStateInstance = new GameSaveState();
 
         static bool SavingToFile;
+        static DateTime TimeLastSaved = DateTime.Now;
         public void SaveToFile()
         {
-            if (!SavingToFile)
+            if (!SavingToFile && TimeLastSaved.AddMinutes(1) < DateTime.Today)
             {
                 var SavingToFileThread = new Thread(() =>
                 {
                     SavingToFile = true;
-                    File.WriteAllText(GameSaveStateInstance.CoreHack.SaveName + "-" + Guid.NewGuid() + ".json", JsonConvert.SerializeObject("test"));
+                    Debug.WriteLine("Saving to file");
+                    Trace.WriteLine("Saving to file");
+                    //File.WriteAllText(GameSaveStateInstance.CoreHack.SaveName + "-" + Guid.NewGuid() + ".json", JsonConvert.SerializeObject("test"));
                     SavingToFile = false;
                 });
                 SavingToFileThread.Start();

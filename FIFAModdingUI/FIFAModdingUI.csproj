@@ -131,13 +131,10 @@
     <None Update="FIFA20Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Mods\2.GameplayMod - TC 2 Alpha 6.fbmod">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Mods\1.CareerMod.fbmod">
+    <None Update="Mods\paulv2k4 FIFA 20 Career Mod - Version 1.6.3.fbmod">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Profiles\FIFA20SDK.dll">

@@ -106,3 +106,9 @@ body {
   -o-animation: rotating 2s linear infinite;
   animation: rotating 2s linear infinite;
 }
+
+.card {
+    border-radius: 0 !important;
+    height: 250px;
+    overflow-y: auto;
+}
