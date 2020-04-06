@@ -19,7 +19,13 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             public static string STARTING_BUDGET = "FIFA20.exe+06E2B010,0x10,0x48,0x30,0x58,0x5E0";
         }
 
-        
+        private static class AOB_ADDRESSES
+        {
+            // DOESN'T WORK!
+            public static string TRANSFER_BUDGET = "?? D9 39 01 70 A3 23 00 AC FC 28 01 78 29 20 69 E9 1A 02 00 8D 16 F4 00";
+        }
+
+
 
         public int TransferBudget
         {

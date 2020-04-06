@@ -11,7 +11,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm text-white border-bottom box-shadow mb-3">
             <div class="container text-center">
                 <span class="navbar-brand">paulv2k4 Career Expansion Mod (ALPHA)</span>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
@@ -47,40 +47,34 @@
                 <h1 class="display-4"><i class="fa fa-cog rotating"></i>&nbsp;Loading</h1>
             </div>
             <div id="panelMain" class="text-center" style="display:none;">
-                <header>
-                    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-                        <div class="container text-center">
-                            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                                <ul class="navbar-nav flex-grow-1">
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" href="@Url.Action("Index", "Finances")">
-                                            <i class="fa fa-money-bill" aria-hidden="true"></i>&nbsp;Finances
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" href="@Url.Action("Index", "YouthSystem")">
-                                            <i class="fa fa-child" aria-hidden="true"></i>&nbsp;Youth System
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" href="@Url.Action("Index", "Stats")">
-                                            <i class="fas fa-signal" aria-hidden="true"></i>&nbsp;Stats
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" href="@Url.Action("Index", "Transfers")">
-                                            <i class="fas fa-exchange-alt" aria-hidden="true"></i>&nbsp;Transfers
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" href="@Url.Action("Index", "Cheats")">
-                                            <i class="fas fa-tools" aria-hidden="true"></i>&nbsp;Cheats
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </nav>
+                <header class="pb-2">
+                    <ul class="nav nav-justified">
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Finances")">
+                                <i class="fa fa-money-bill" aria-hidden="true"></i>&nbsp;Finances
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "YouthSystem")">
+                                <i class="fa fa-child" aria-hidden="true"></i>&nbsp;Youth System
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Stats")">
+                                <i class="fas fa-signal" aria-hidden="true"></i>&nbsp;Stats
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Transfers")">
+                                <i class="fas fa-exchange-alt" aria-hidden="true"></i>&nbsp;Transfers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Cheats")">
+                                <i class="fas fa-tools" aria-hidden="true"></i>&nbsp;Cheats
+                            </a>
+                        </li>
+                    </ul>
                 </header>
                 @*<div ui-view></div>*@
 
@@ -110,7 +104,7 @@
     <script>
 
         var bIsInCareerMode = false;
-        var debug = false;
+        var debug = true;
 
         setInterval(() => {
             $.getJSON("/IsCareerModeActive/", function (d) {

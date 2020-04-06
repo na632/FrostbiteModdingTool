@@ -4,65 +4,129 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Finances</h1>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-4">
-            <div class="card">
-                <div class="card-header">General Finances</div>
-                <div class="card-body">
-                    <div>
-                        <label class="col-form-label">Starting Budget</label>
-                        <input class="form-control" disabled="disabled" id="txtStartingBudget" />
-                    </div>
-                    <div>
-                        <label class="col-form-label">Transfer Budget</label>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body" id="budgetEdit" style="display:none;">
+                        <h4>Overview</h4>
+                        <hr />
                         <div class="row">
-                            <input class="form-control col-9" id="txtTransferBudget" />
-                            <button class="btn btn-primary col-3" onclick="setBudget()">Set</button>
+                            <label class="col-form-label col-6">Starting Budget</label>
+                            <input class="form-control mt-1 col-6" disabled="disabled" id="txtStartingBudget" />
+                        </div>
+                        <div class="row">
+                            <label class="col-form-label col-6">Transfer Budget</label>
+                                <input class="form-control  mt-1 col-6" id="txtTransferBudget" onchange="setBudget()" />
                         </div>
                     </div>
-                    <div class="pt-3">
-                        <button id="btnRequestFunds" class="btn btn-primary" onclick="requestFunds()">Request Funds</button>
-                    </div>
-                    <div class="pt-3">
-                        <span id="txtRequestFundsMessage"></span>
+                    <div class="card-body" id="budgetView" style="display:block;">
+                        <h4>Overview</h4>
+                        <span class="float-right text-right" onclick="editBudgets()"><i class="fa fa-edit fa-align-right"></i></span>
+                        <hr />
+                        <div class="row">
+                            <label class="col-form-label col-6">Starting Budget</label>
+                            <label class="col-form-label col-6" id="lblStartingBudget" />
+                        </div>
+                        <div class="row">
+                            <label class="col-form-label col-6">Transfer Budget</label>
+                            <label class="col-form-label col-6" id="lblTransferBudget" />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-4">
-            <div class="card">
-                <div class="card-header">Prices</div>
-                <div class="card-body">
-                    <form>
-                        <div>
-                            <label class="col-form-label">Burger Price</label>
-                            <input class="form-control" id="txtBurgerPrice" type="number" value="4.99" min="1.00" max="9.99" required />
-                        </div>
-                        <div>
-                            <label class="col-form-label">Fries Price</label>
-                            <input class="form-control" id="txtFriesPrice" type="number" value="4.99" min="1.00" max="9.99" required />
-                        </div>
-                        <div>
-                            <label class="col-form-label">Fizzy Drink Price</label>
-                            <input class="form-control" id="txtFizzyDrinkPrice" type="number" value="2.99" min="1.00" max="9.99" required />
-                        </div>
-                        <div>
-                            <label class="col-form-label">Beer/Cider/Lager Price</label>
-                            <input class="form-control" id="txtAlcoholDrinkPrice" type="number" value="4.99" min="1.00" max="9.99" required />
-                        </div>
-                    </form>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Prices</h4>
+                        <form>
+                            <div class="row">
+                                <label class="col-form-label col-6">Burgers</label>
+                                <input class="form-control form-control-sm col-6" id="txtBurgerPrice" type="range" value="5" min="1" max="10" required />
+                            </div>
+                            <div class="row">
+                                <label class="col-form-label col-6">Fries</label>
+                                <input class="form-control form-control-sm col-6" id="txtFriesPrice" type="range" value="5" min="1" max="10" required />
+                            </div>
+                            <div class="row">
+                                <label class="col-form-label col-6">Fizzy Drink</label>
+                                <input class="form-control form-control-sm col-6" id="txtFizzyDrinkPrice" type="range" value="3" min="1" max="10" required />
+                            </div>
+                            <div class="row">
+                                <label class="col-form-label col-6">Alcohol Price</label>
+                                <input class="form-control form-control-sm col-6" id="txtAlcoholDrinkPrice" type="range" value="5" min="1" max="10" required />
+                            </div>
+                        </form>
 
+                    </div>
+                    <div class="card-footer">
+                        <a href="Finances/Prices">
+                            >&nbsp;View full price breakdown
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
+                        <h4>Request Funds</h4>
+                        <div class="pt-3">
+                            <strong>Request Funds from your board</strong>
+                        </div>
+                        <div class="pt-3">
+                            <span id="txtRequestFundsMessage"></span>
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="col-4">
-
+        <div class="row mt-1">
+            <div class="col-8">
+                <div class="card">
+                    <a class="card-body" href="Finances/Sponsors" style="text-align:left; vertical-align: top;">
+                        <h4>Sponsorship</h4>
+                        <div class="row">
+                            <div class="pt-3 col-6">
+                                <strong>View your current sponsorship</strong>
+                            </div>
+                            <div class="pt-3 col-6">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <img src="~/images/yobet.png" style="width:100px;" />
+                                    </div>
+                                    <div class="col-4">
+                                        <img src="~/images/joma.png" style="width:100px;" />
+                                    </div>
+                                    <div class="col-4">
+                                        <img src="~/images/low-cost-vans.png" style="width:100px;" />
+                                    </div>
+                                    <div class="col-4">
+                                        <img src="~/images/swansea-university.png" style="width:100px;" />
+                                    </div>
+                                    <div class="col-4">
+                                    </div>
+                                    <div class="col-4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
+                        <h4>Debts &amp; Loans</h4>
+                        <div class="pt-3">
+                            <strong>View your current Debts and Loans</strong>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
 
 @section Scripts {
@@ -70,34 +134,38 @@
         $.getJSON("Finances/GetStartingBudget", function (d) {
 
             $('#txtStartingBudget').val(d);
+            $('#lblStartingBudget').html("£" + d.toString());
 
         });
 
         $.getJSON("Finances/GetTransferBudget", function (d) {
 
             $('#txtTransferBudget').val(d);
+            $('#lblTransferBudget').html("£" + d.toString());
 
         });
 
         function setBudget() {
-                //alert("set a budget: " + $('#txtTransferBudget').val());
+            //alert("set a budget: " + $('#txtTransferBudget').val());
 
             var url = "Finances/SetTransferBudget?amount=" + $('#txtTransferBudget').val();
-                //alert(url);
+            //alert(url);
 
             $.getJSON(url, function (d) {
-
-                //alert(d);
-                $('#txtTransferBudget').val();
 
             });
 
         }
 
+        function editBudgets() {
+            $('#budgetView').hide();
+            $('#budgetEdit').show();
+        }
+
         function requestFunds() {
 
             var url = "Finances/RequestFunds/";
-                //alert(url);
+            //alert(url);
 
             $.getJSON(url, function (d) {
 

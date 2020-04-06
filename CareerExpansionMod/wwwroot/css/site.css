@@ -61,6 +61,8 @@ html {
 body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
+  background-color: #1e293b;
+  color:white;
 }
 .footer {
   position: absolute;
@@ -109,6 +111,54 @@ body {
 
 .card {
     border-radius: 0 !important;
-    height: 250px;
+    height: 275px;
     overflow-y: auto;
+    background-color: #12233f;
+    color: #fff503;
+}
+
+button {
+    border-radius: 0;
+    border: 0;
+    outline: 0;
+}
+
+.card-body {
+    text-align: left;
+    padding-bottom: 0;
+}
+
+button.card-body, a.card-body {
+    border-radius: 0;
+    border: 0;
+    outline: 0;
+    background-color: #12233f;
+    color: #fff503;
+    transition: 0.5s;
+    text-align:left;
+    vertical-align: top;
+    line-height: 12px;
+    align-items: start;
+}
+
+button.card-body:hover, button.card-body:focus, button.card-body:active, a.card-body:hover {
+    border-right: 2px solid red;
+    background-color: #fff503;
+    color: #12233f;
+    transition: 0.5s;
+    align-items: start;
+    text-decoration: none;
+}
+
+.navbar {
+    background: transparent;
+}
+
+.nav-link {
+    color: #fff503 !important;
+    border-bottom: 1px solid transparent !important;
+}
+
+.nav-link:hover {
+    border-bottom: 1px solid #fff503 !important;
 }

@@ -16,6 +16,16 @@ namespace CareerExpansionMod.Controllers
             return View();
         }
 
+        public IActionResult Prices()
+        {
+            return View();
+        }
+
+        public IActionResult Sponsors()
+        {
+            return View();
+        }
+
         [HttpGet]
         public JsonResult GetStartingBudget()
         {
