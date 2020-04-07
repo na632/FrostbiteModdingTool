@@ -24,6 +24,10 @@
                             <span id="CareerSaveName" name="CareerSaveName">
                             </span>
                         </li>
+                        <li class="nav-item pl-3">
+                            <span id="CareerSaveFileName" name="CareerSaveFileName">
+                            </span>
+                        </li>
                         <li class="nav-item float-right pl-5" style="display: none;">
                             <span id="IsBGLoading" name="IsBGLoading" style="color:grey;">
                                 <i class="fa fa-cog rotating"></i>&nbsp;Loading&nbsp;<span id="BGLoadingWhat"></span>
@@ -140,7 +144,21 @@
             if (bIsInCareerMode) {
                 $.getJSON("/GetCareerModeSaveName/", function (d) {
                     $('#CareerSaveName').html(d);
-                    pollSaveNameTime = 30000;
+                    pollSaveNameTime = 10000;
+                }).catch(function (t, u, v) {
+                    console.log(t);
+                    console.log(u);
+                    console.log(v);
+
+                });
+            }
+            pollSaveNameTime = 1000;
+        }, pollSaveNameTime);
+
+        setInterval(() => {
+            if (bIsInCareerMode) {
+                $.getJSON("/GetCareerModeSaveFileName/", function (d) {
+                    $('#CareerSaveFileName').html(d);
                 }).catch(function (t, u, v) {
                     console.log(t);
                     console.log(u);

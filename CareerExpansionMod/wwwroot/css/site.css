@@ -61,7 +61,8 @@ html {
 body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
-  background-color: #1e293b;
+ background: rgb(30,41,48);
+background: linear-gradient(194deg, rgba(30,41,48,1) 0%, rgba(30,41,48,1) 35%, rgba(69,84,96,1) 100%);
   color:white;
 }
 .footer {
@@ -113,8 +114,10 @@ body {
     border-radius: 0 !important;
     height: 275px;
     overflow-y: auto;
-    background-color: #12233f;
+    background: rgb(18,35,63);
+background: linear-gradient(122deg, rgba(18,35,63,1) 0%, rgba(12,26,49,1) 95%, rgba(255,245,3,1) 100%);
     color: #fff503;
+    box-shadow: rgba(0,0,0,0.5) 7px 5px;
 }
 
 button {
@@ -132,18 +135,20 @@ button.card-body, a.card-body {
     border-radius: 0;
     border: 0;
     outline: 0;
-    background-color: #12233f;
+    background: rgb(18,35,63);
+background: linear-gradient(122deg, rgba(18,35,63,1) 0%, rgba(12,26,49,1) 95%, rgba(255,245,3,1) 100%);
     color: #fff503;
     transition: 0.5s;
     text-align:left;
     vertical-align: top;
     line-height: 12px;
     align-items: start;
+
 }
 
 button.card-body:hover, button.card-body:focus, button.card-body:active, a.card-body:hover {
     border-right: 2px solid red;
-    background-color: #fff503;
+    background: #fff503;
     color: #12233f;
     transition: 0.5s;
     align-items: start;

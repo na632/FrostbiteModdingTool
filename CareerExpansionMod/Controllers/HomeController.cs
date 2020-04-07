@@ -68,6 +68,22 @@ namespace CareerExpansionMod.Controllers
         }
 
         [HttpGet]
+        [Route("~/GetCareerModeSaveFileName")]
+        public JsonResult GetCareerModeSaveFileName()
+        {
+            if (Startup.FIFAProcess != null)
+            {
+                var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
+                if (!string.IsNullOrEmpty(coreHack.SaveFileName))
+                {
+                    return new JsonResult($"{coreHack.SaveFileName}");
+                }
+                return new JsonResult("Career Mode file name Invalid Value: ERR:001");
+            }
+            return new JsonResult("Career Mode file name Invalid Value: ERR:002");
+        }
+
+        [HttpGet]
         [Route("~/GetCareerModeGameDate")]
         public JsonResult GetCareerModeGameDate()
         {

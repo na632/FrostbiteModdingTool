@@ -13,7 +13,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using v2k4FIFAModding.Career.CME.FIFA;
 using v2k4FIFAModdingCL;
+using v2k4FIFAModdingCL.MemHack.Core;
 
 namespace CareerExpansionMod
 {
@@ -324,13 +326,12 @@ namespace CareerExpansionMod
             services.AddControllersWithViews();
         }
 
+        public static CME.CMECore CMECore = new CME.CMECore();
         static Thread thread;
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            FIFAInstanceSingleton.FIFAVERSION = "FIFA20";
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CareerExpansionMod", "CareerExpansionMod\CareerExpansionMod.csproj", "{766C601B-CE7C-42C0-BFCE-385773C6CE7F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModding", "v2k4FIFAModdingCL\v2k4FIFAModding.csproj", "{A611631E-3256-46FF-8939-ED9C501C7DF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMEUnitTests", "CMEUnitTests\CMEUnitTests.csproj", "{F3AC732E-107E-4555-9712-9217FA3787FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{766C601B-CE7C-42C0-BFCE-385773C6CE7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{766C601B-CE7C-42C0-BFCE-385773C6CE7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{766C601B-CE7C-42C0-BFCE-385773C6CE7F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A611631E-3256-46FF-8939-ED9C501C7DF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A611631E-3256-46FF-8939-ED9C501C7DF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A611631E-3256-46FF-8939-ED9C501C7DF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A611631E-3256-46FF-8939-ED9C501C7DF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3AC732E-107E-4555-9712-9217FA3787FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3AC732E-107E-4555-9712-9217FA3787FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3AC732E-107E-4555-9712-9217FA3787FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3AC732E-107E-4555-9712-9217FA3787FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
