@@ -28,6 +28,9 @@
     <Folder Include="Data\" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="CME\Data\fifa_ng_db-meta.XML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="CME\Data\leagues.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

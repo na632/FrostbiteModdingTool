@@ -26,14 +26,18 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             /// <summary>
             /// To get in Cheat Engine. Load a game where you know the saved date. Then load another with a different date. Then pointer search.
             /// </summary>
-            public static string GAME_SAVE_FILE = "FIFA20.exe+06E27A88,0x10,0x78,0x8,0x18,0x7BC";
+            public static string GAME_SAVE_FILE = "FIFA20.exe+06DDB5F0,0x20,0x18,0x7BC";
+        }
+
+        public static class AOB_ADDRESSES
+        {
+            // As this is not working in memory you can use this to scan in Cheat Engine to find some stuff quicker
+            public static string GAME_SAVE_FILE = "43 61 72 65 65 72 32 30 32 30 30 34 30 37";
         }
 
         private static DateTime internal_gamedate = DateTime.Now;
 
         public static bool IsBGLoading = false;
-
-        public event EventGameDateChangedHandler EventGameDateChanged;
 
         public DateTime? GameDate
         {
@@ -80,7 +84,6 @@ namespace v2k4FIFAModdingCL.MemHack.Core
         private string _saveName;
 
         public static bool DBHandling;
-        Thread DBHandlingTask;
 
         public string SaveName
         {
@@ -102,7 +105,22 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
                 if (GetProcess(out Mem MemLib).HasValue)
                 {
+                    //var aob = MemLib.AoBScan("43 61 72 65 65 72 32 30 32 30 30 34 30 37", true, true).Result.FirstOrDefault();
+                    //var code = MemLib.get64bitCode(aob.ToString());
+                    //if(code != null)
+                    //{
+
+                    //}
+                    //Debug.WriteLine(aob);
+                    //foreach (var abi in aob)
+                    //{
+                    //    var result = MemLib.readString(abi.ToString());
+                    //    Debug.WriteLine(result);
+
                     return MemLib.readString(POINTER_ADDRESSES.GAME_SAVE_FILE);
+
+                    //}
+                    //return result;
                 }
                 return null;
             }

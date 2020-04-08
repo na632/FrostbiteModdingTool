@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CareerExpansionMod.Controllers
 {
-    public class CheatsController : Controller
+    public class SettingsController : Controller
     {
         public IActionResult Index()
         {
