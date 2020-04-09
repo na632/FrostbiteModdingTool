@@ -2,58 +2,95 @@
 @{
     ViewData["Title"] = "Sponsors";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var AlcoholSponsor = ViewBag.AlcoholSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var DrinksSponsor = ViewBag.DrinksSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var FoodSponsor = ViewBag.FoodSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var GeneralSponsor = ViewBag.GeneralSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var GymSponsor = ViewBag.GymSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var HospitalitySponsor = ViewBag.HospitalitySponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var KitSponsor = ViewBag.KitSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var LegalSponsor = ViewBag.LegalSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var MainSponsor = ViewBag.MainSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var NutritionalSponsor = ViewBag.NutritionalSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var TrainingSponsor = ViewBag.TrainingSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var TravelSponsor = ViewBag.TravelSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
 }
 
 <h1>Club Sponsors and Partnerships</h1>
 
 <div class="row">
-    <div class="card col-4">
-        <div class="card-body">
-            <img src="~/images/yobet.png" style="width: 100%;" />
+    @if (MainSponsor != null)
+    {
+        <div class="col-4">
+            <div class="card plain">
+                <div class="card-body plain">
+                    <img src="@MainSponsor.GetSponsorImageUrl()" style="width: 100%;" />
+                </div>
+                <div class="card-footer">
+                    <span>Payout:&nbsp;</span>@String.Format("{0:C}", MainSponsor.SponsorPayoutPerYearMax)&nbsp;per year
+                    <br />
+                    Main Sponsor
+                </div>
+            </div>
         </div>
-        <div class="card-footer">
-            Official Main Sponsor
+    }
+    @if (KitSponsor != null)
+    {
+        <div class="col-4">
+            <div class="card plain">
+                <div class="card-body plain">
+                    <img src="@KitSponsor.GetSponsorImageUrl()" style="width: 100%;" />
+                </div>
+                <div class="card-footer">
+                    <span>Payout:&nbsp;</span>@String.Format("{0:C}", KitSponsor.SponsorPayoutPerYearMax)&nbsp;per year
+                    <br />
+                    Kit Sponsor
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="card col-4">
-        <div class="card-body">
-            <img src="~/images/joma.png" style="width: 100%;" />
+    }
+    else
+    {
+        <div class="col-4">
+            <div class="card plain">
+                <div class="card-header">
+                    Select your Kit Sponsor
+                </div>
+                <div class="card-body">
+                    <img id="offeredKitSponsorImage" />
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn btn-primary btn-block">Previous</button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-primary btn-block">Next</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span>Payout:&nbsp;</span><span id="offeredKitSponsorPayout"></span>&nbsp;per year
+                    <br />
+                    
+                </div>
+            </div>
         </div>
-        <div class="card-footer">
-            Official Sportswear Partner
+    }
+    @if (TrainingSponsor != null)
+    {
+        <div class="col-4">
+            <div class="card plain">
+                <div class="card-body plain">
+                    <img src="@TrainingSponsor.GetSponsorImageUrl()" style="width: 100%;" />
+                </div>
+                <div class="card-footer">
+                    <span>Payout:&nbsp;</span>@String.Format("{0:C}", TrainingSponsor.SponsorPayoutPerYearMax)&nbsp;per year
+                    <br />
+                    Training Sponsor
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="card col-4">
-        <div class="card-body">
-            <img src="~/images/low-cost-vans.png" style="width: 100%;" />
-        </div>
-        <div class="card-footer">
-            Official Club Partner
-        </div>
-    </div>
-    <div class="card col-4">
-        <div class="card-body">
-            <img src="~/images/swansea-university.png" style="width: 100%;" />
-        </div>
-        <div class="card-footer">
-            Official Training Wear Partner
-        </div>
-    </div>
-    <div class="card col-4">
-        <div class="card-body">
-            <img src="~/images/village-hotels.png" style="width: 100%;" />
-        </div>
-        <div class="card-footer">
-            Official Gym Supplier
-        </div>
-    </div>
-    <div class="card col-4">
-        <div class="card-body">
-            <img src="~/images/carling.jpg" style="width: 100%;" />
-        </div>
-        <div class="card-footer">
-            Official Alcohol Drink Supplier
-        </div>
-    </div>
+    }
+
 </div>
 

@@ -515,7 +515,7 @@ namespace v2k4FIFAModdingCL.CGFE
             DataSet[] array = new DataSet[m_NDatabases];
             for (int i = 0; i < m_NDatabases; i++)
             {
-                if(m_Database[i] != null)
+                if(m_Database[i] != null && array.Length > i-1)
                     array[i] = m_Database[i].ConvertToDataSet();
             }
             return array;

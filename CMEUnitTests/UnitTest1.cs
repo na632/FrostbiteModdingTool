@@ -17,14 +17,23 @@ namespace CMEUnitTests
         [TestMethod]
         public void SaveSwanseaSponsorsToFile()
         {
-            Sponsor sponsor = new Sponsor()
+            Sponsor sponsorNone = new Sponsor()
+            {
+                SponsorType = eSponsorType.General,
+                SponsorLevels = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                SponsorName = "none",
+                SponsorPayoutPerYearMax = 0
+            };
+            sponsorNone.Save();
+
+            Sponsor sponsorYobet = new Sponsor()
             {
                 SponsorType = eSponsorType.Main,
                 SponsorLevels = new List<int>() { 2, 3 },
                 SponsorName = "yobet",
                 SponsorPayoutPerYearMax = 1000000
             };
-            sponsor.Save();
+            sponsorYobet.Save();
 
             Sponsor sponsorLCV = new Sponsor()
             {

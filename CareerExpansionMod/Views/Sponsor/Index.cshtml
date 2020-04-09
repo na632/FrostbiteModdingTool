@@ -1,0 +1,38 @@
+﻿@model IEnumerable<v2k4FIFAModding.Career.CME.Finances.Sponsor>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+@if (Model != null)
+{
+    <table class="table">
+        <thead></thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @item.SponsorName
+                </td>
+                <td>
+                    @foreach(var level in item.SponsorLevels)
+                    {
+                        <span>@level</span>
+                    }
+                </td>
+                <td>
+                    @item.SponsorType
+                </td>
+            </tr>
+            }
+        </tbody>
+        <tfoot></tfoot>
+    </table>
+}
+else
+{
+    <span class="alert alert-danger">No Items</span>
+}

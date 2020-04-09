@@ -167,3 +167,8 @@ button.card-body:hover, button.card-body:focus, button.card-body:active, a.card-
 .nav-link:hover {
     border-bottom: 1px solid #fff503 !important;
 }
+
+.plain {
+    background: white;
+    color: #222222;
+}

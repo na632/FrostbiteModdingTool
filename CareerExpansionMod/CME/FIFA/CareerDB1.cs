@@ -8,6 +8,6 @@ namespace CareerExpansionMod.CME.FIFA
     public class CareerDB1
     {
         public static CareerDB1 Current;
-        public IEnumerable<FIFAUsers> career_users { get; set; }
+        public List<FIFAUsers> career_users { get; set; }
     }
 }
