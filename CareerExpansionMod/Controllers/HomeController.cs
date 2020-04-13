@@ -92,7 +92,7 @@ namespace CareerExpansionMod.Controllers
                 var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
                 if (coreHack.GameDate.HasValue)
                 {
-                    return new JsonResult($"{coreHack.GameDate}");
+                    return new JsonResult($"{coreHack.GameDate.Value.ToShortDateString()}");
                 }
                 return new JsonResult("Career Mode Game Date Invalid Value: ERR:001");
             }

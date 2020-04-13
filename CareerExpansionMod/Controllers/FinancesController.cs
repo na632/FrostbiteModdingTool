@@ -27,44 +27,44 @@ namespace CareerExpansionMod.Controllers
             // THIS IS VERY HACKY BUT I DONT CARE
 
             var FullListOfSponsors = Sponsor.LoadAll();
-            var CurrentTeamSponsors = CareerDB1.Current != null ? SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.Current.career_users.First().clubteamid)
-                                            : SponsorsToTeam.LoadSponsorsForTeam(1961);
+            var CurrentTeamSponsors = CareerDB1.Current != null ? SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid)
+                                            : SponsorsToTeam.LoadSponsorsForTeam(1960);
             ViewBag.CurrentTeamSponsors = CurrentTeamSponsors;
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Alcohol))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Alcohol))
                 ViewBag.AlcoholSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Alcohol).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Drinks))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Drinks))
                 ViewBag.DrinksSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Drinks).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Food))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Food))
                 ViewBag.FoodSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Food).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.General))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.General))
                 ViewBag.GeneralSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.General).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Gym))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Gym))
                 ViewBag.GymSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Gym).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Hospitality))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Hospitality))
                 ViewBag.HospitalitySponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Hospitality).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Kit))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Kit))
                 ViewBag.KitSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Kit).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Legal))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Legal))
                 ViewBag.LegalSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Legal).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Main))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Main))
                 ViewBag.MainSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Main).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Nutritional))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Nutritional))
                 ViewBag.NutritionalSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Nutritional).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Training))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Training))
                 ViewBag.TrainingSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Training).SponsorName);
 
-            if(CurrentTeamSponsors.Exists(x=>x.SponsorType == eSponsorType.Travel))
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Travel))
                 ViewBag.TravelSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Travel).SponsorName);
 
             return View();
@@ -86,8 +86,8 @@ namespace CareerExpansionMod.Controllers
         //[Route("Finance/SetTransferBudget/{amount}")]
         public JsonResult SetTransferBudget(int amount)
         {
-                CMECore.CMECoreInstance.Finances.TransferBudget = amount;
-                return Json(CMECore.CMECoreInstance.Finances.TransferBudget);
+            CMECore.CMECoreInstance.Finances.TransferBudget = amount;
+            return Json(CMECore.CMECoreInstance.Finances.TransferBudget);
 
             //return Json("ERR: 001");
         }
@@ -95,13 +95,22 @@ namespace CareerExpansionMod.Controllers
         [HttpGet]
         public JsonResult RequestFunds()
         {
-                var success = CMECore.CMECoreInstance.Finances.RequestAdditionalFunds(out string return_message);
-                dynamic rJson = new { Success = true, Message = string.Empty };
-                //rJson.Success = true;
-                //rJson.Message = return_message;
-                return Json(rJson);
+            var success = CMECore.CMECoreInstance.Finances.RequestAdditionalFunds(out string return_message);
+            dynamic rJson = new { Success = true, Message = string.Empty };
+            //rJson.Success = true;
+            //rJson.Message = return_message;
+            return Json(rJson);
 
             //return Json("ERR: 001");
+        }
+
+        [HttpGet]
+        public JsonResult GetSponsorOptions(int type)
+        {
+            if (type <= -1)
+                return Json(Sponsor.LoadAll());
+            else
+                return Json(Sponsor.LoadAll().Where(x => (int)x.SponsorType == type));
         }
     }
 }

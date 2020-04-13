@@ -36,6 +36,8 @@ namespace v2k4FIFAModding.Career.CME.Finances
 
         public decimal SponsorPayoutPerYearMax { get; set; }
 
+        public int SpecificTeamId { get; set; }
+
         public static string CMESponsorDirectory
         { 
             get
@@ -97,14 +99,14 @@ namespace v2k4FIFAModding.Career.CME.Finances
         public int TeamId { get; set; }
         public bool IsUserTeam { get; set; }
         public eSponsorType SponsorType { get; set; }
+        public int ContractLengthInMonths { get; set; }
+        public DateTime GameDateStarted { get; set; }
 
         public static string CMESponsorsToTeamDirectory
         {
             get
             {
-                var datalocation = CMECore.CMEMyDocumentsDirectory + "\\Data\\CME\\DB\\";
-                Directory.CreateDirectory(datalocation);
-                return datalocation;
+                return CMECore.CMEMyDocumentsDbSaveDirectory;
 
             }
         }
@@ -129,6 +131,17 @@ namespace v2k4FIFAModding.Career.CME.Finances
         public static List<SponsorsToTeam> LoadSponsorsForTeam(int teamId)
         {
             return Load().Where(x => x.TeamId == teamId).ToList();
+        }
+
+        public static int GetCalculatedContractLengthInMonths(int teamid, string sponsor)
+        {
+            return 12;
+        }
+
+        public static int GetCalculatedContractLengthInYears(int teamid, string sponsor)
+        {
+            var calcMonths = GetCalculatedContractLengthInMonths(teamid, sponsor);
+            return calcMonths > 0 ? Convert.ToInt32(Math.Ceiling((double)calcMonths / 12.0)) : 1;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿
+﻿@using CareerExpansionMod.CME
+@using CareerExpansionMod.CME.FIFA
+@using v2k4FIFAModding.Career.CME.Finances
 @{
     ViewData["Title"] = "Sponsors";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -58,20 +60,30 @@
                     Select your Kit Sponsor
                 </div>
                 <div class="card-body">
-                    <img id="offeredKitSponsorImage" />
-                    <div class="row">
-                        <div class="col-6">
-                            <button class="btn btn-primary btn-block">Previous</button>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-primary btn-block">Next</button>
-                        </div>
-                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>PPY</th>
+                                <th>Length</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var kitSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Kit))
+                            {
+                            <tr onclick="popupAreYouSureSponsor('@eSponsorType.Kit', '@kitSponsor.SponsorName', '@kitSponsor.GetSponsorImageUrl()', '@kitSponsor.SponsorPayoutPerYearMax')">
+                                <td><img src="@kitSponsor.GetSponsorImageUrl()" width="40" /></td>
+                                <td>@kitSponsor.SponsorName</td>
+                                <td>@kitSponsor.SponsorPayoutPerYearMax</td>
+                                <td>@SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                    
                 </div>
                 <div class="card-footer">
-                    <span>Payout:&nbsp;</span><span id="offeredKitSponsorPayout"></span>&nbsp;per year
-                    <br />
-                    
                 </div>
             </div>
         </div>
@@ -93,4 +105,31 @@
     }
 
 </div>
+
+@section Scripts {
+
+    <script>
+    var app4 = new Vue({
+        el: '#app-4',
+        data: {
+            todos: [
+                { text: 'Learn JavaScript' },
+                { text: 'Learn Vue' },
+                { text: 'Build something awesome' }
+            ]
+        }
+    })
+
+    $.getJSON("Finances/GetSponsorOptions/?type=-1", function (data) {
+
+        console.log(data);
+
+    });
+
+        function popupAreYouSureSponsor(type, name, imageUrl, payout) {
+            alert('hi there');
+        }
+    </script>
+
+}
 

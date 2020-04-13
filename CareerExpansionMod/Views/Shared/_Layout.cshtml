@@ -54,6 +54,11 @@
                 <header class="pb-2">
                     <ul class="nav nav-justified">
                         <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Home")">
+                                <i class="fa fa-road" aria-hidden="true"></i>&nbsp;Roadmap
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="@Url.Action("Index", "Finances")">
                                 <i class="fa fa-money-bill" aria-hidden="true"></i>&nbsp;Finances
                             </a>
@@ -88,7 +93,7 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer">
         <div class="container">
             <div class="float-left">
                 &copy; 2020 - paulv2k4 Career Expansion Mod&trade;
@@ -103,6 +108,7 @@
     <script src="~/lib/angularjs/angular.min.js"></script>
     <script src="~/lib/angular-ui-router/angular-ui-router.js"></script>
     <script src="_framework/blazor.server.js"></script>
+    <script src="~/lib/vue/vue.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
 
@@ -114,7 +120,7 @@
         setInterval(() => {
             $.getJSON("/IsCareerModeActive/", function (d) {
                 //alert(d);
-                console.log(d);
+                //console.log(d);
                 $('#lblLoadedCareerSave').html(d);
 
                 if ((d.indexOf("ERR:") == -1 && !bIsInCareerMode) || (!bIsInCareerMode && debug)) {
@@ -188,7 +194,7 @@
 
         // poll Career Game Date
         setInterval(() => {
-            
+
             $.getJSON("/IsBGLoading/", function (d) {
 
                 if (d.BGLoading == "true") {

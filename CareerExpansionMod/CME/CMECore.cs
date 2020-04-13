@@ -26,6 +26,19 @@ namespace CareerExpansionMod.CME
             }
         }
 
+        public static string CMEMyDocumentsDbSaveDirectory
+        {
+            get
+            {
+                var saveLocation = CMECore.CMECoreInstance != null && CMECore.CMECoreInstance.CoreHack != null && !string.IsNullOrEmpty(CMECore.CMECoreInstance.CoreHack.SaveName)
+                    ? CMECore.CMECoreInstance.CoreHack.SaveName : "Unknown";
+                var datalocation = CMECore.CMEMyDocumentsDirectory + $"\\Data\\CME\\DB\\{saveLocation}\\";
+                Directory.CreateDirectory(datalocation);
+                return datalocation;
+
+            }
+        }
+
         public static CMECore CMECoreInstance;
         public CMECore()
         {
@@ -81,11 +94,12 @@ namespace CareerExpansionMod.CME
             CareerDB2.Current = new CareerDB2();
 
 
-            if (CareerDB1.Current.career_users == null)
+            if (CareerDB1.FIFAUser == null)
             {
                 var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
-                CareerDB1.Current.career_users = new List<FIFAUsers>();
-                    CareerDB1.Current.career_users.Add(CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]));
+                // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
+                CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
+                CareerDB1.FIFAUser.clubteamid--;
             }
 
             if (CareerDB2.Current.teams == null)

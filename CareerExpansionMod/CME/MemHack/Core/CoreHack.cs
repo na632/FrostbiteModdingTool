@@ -96,6 +96,10 @@ namespace v2k4FIFAModdingCL.MemHack.Core
                 }
                 return _saveName;
             }
+            set
+            {
+                _saveName = value;
+            }
         }
 
         public string SaveFileName
@@ -126,7 +130,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             }
         }
 
-        
+
 
         static bool SavingToFile;
         static DateTime TimeLastSaved = DateTime.Now;
