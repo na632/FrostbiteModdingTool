@@ -1,22 +1,22 @@
 ﻿@using CareerExpansionMod.CME
 @using CareerExpansionMod.CME.FIFA
-@using v2k4FIFAModding.Career.CME.Finances
+@using CareerExpansionMod.CME.Finances
 @{
     ViewData["Title"] = "Sponsors";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var AlcoholSponsor = ViewBag.AlcoholSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var DrinksSponsor = ViewBag.DrinksSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var FoodSponsor = ViewBag.FoodSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var GeneralSponsor = ViewBag.GeneralSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var GymSponsor = ViewBag.GymSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var HospitalitySponsor = ViewBag.HospitalitySponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var KitSponsor = ViewBag.KitSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var LegalSponsor = ViewBag.LegalSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var MainSponsor = ViewBag.MainSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var NutritionalSponsor = ViewBag.NutritionalSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var TrainingSponsor = ViewBag.TrainingSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
-    var TravelSponsor = ViewBag.TravelSponsor as v2k4FIFAModding.Career.CME.Finances.Sponsor;
+    var AlcoholSponsor = ViewBag.AlcoholSponsor as Sponsor;
+    var DrinksSponsor = ViewBag.DrinksSponsor as Sponsor;
+    var FoodSponsor = ViewBag.FoodSponsor as Sponsor;
+    var GeneralSponsor = ViewBag.GeneralSponsor as Sponsor;
+    var GymSponsor = ViewBag.GymSponsor as Sponsor;
+    var HospitalitySponsor = ViewBag.HospitalitySponsor as Sponsor;
+    var KitSponsor = ViewBag.KitSponsor as Sponsor;
+    var LegalSponsor = ViewBag.LegalSponsor as Sponsor;
+    var MainSponsor = ViewBag.MainSponsor as Sponsor;
+    var NutritionalSponsor = ViewBag.NutritionalSponsor as Sponsor;
+    var TrainingSponsor = ViewBag.TrainingSponsor as Sponsor;
+    var TravelSponsor = ViewBag.TravelSponsor as Sponsor;
 }
 
 <h1>Club Sponsors and Partnerships</h1>
@@ -66,17 +66,32 @@
                                 <th></th>
                                 <th>Name</th>
                                 <th>PPY</th>
-                                <th>Length</th>
+                                <th>Yrs.</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var kitSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Kit))
                             {
                             <tr onclick="popupAreYouSureSponsor('@eSponsorType.Kit', '@kitSponsor.SponsorName', '@kitSponsor.GetSponsorImageUrl()', '@kitSponsor.SponsorPayoutPerYearMax')">
-                                <td><img src="@kitSponsor.GetSponsorImageUrl()" width="40" /></td>
+                                <td><img src="@kitSponsor.GetSponsorImageUrl()" width="100" /></td>
                                 <td>@kitSponsor.SponsorName</td>
-                                <td>@kitSponsor.SponsorPayoutPerYearMax</td>
-                                <td>@SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)</td>
+                                <td>
+                                    @if (CareerDB1.FIFAUser != null)
+                                    {
+                                        @SponsorsToTeam.GetCaclulatedPayoutAmount(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)
+                                    }
+                                    else
+                                    {
+                                        @kitSponsor.SponsorPayoutPerYearMax
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (CareerDB1.FIFAUser != null)
+                                    {
+                                        @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)
+                                    }
+                                </td>
                             </tr>
                             }
                         </tbody>

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CareerExpansionMod.CME;
 using CareerExpansionMod.CME.FIFA;
+using CareerExpansionMod.CME.Finances;
 using Microsoft.AspNetCore.Mvc;
-using v2k4FIFAModding.Career.CME.Finances;
 
 namespace CareerExpansionMod.Controllers
 {
@@ -27,7 +27,8 @@ namespace CareerExpansionMod.Controllers
             // THIS IS VERY HACKY BUT I DONT CARE
 
             var FullListOfSponsors = Sponsor.LoadAll();
-            var CurrentTeamSponsors = CareerDB1.Current != null ? SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid)
+            var CurrentTeamSponsors = CareerDB1.Current != null && CareerDB1.FIFAUser != null
+                                            ? SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid)
                                             : SponsorsToTeam.LoadSponsorsForTeam(1960);
             ViewBag.CurrentTeamSponsors = CurrentTeamSponsors;
 

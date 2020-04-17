@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CareerExpansionMod.CME.Data;
+using CareerExpansionMod.CME.Finances;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using v2k4FIFAModding.Career.CME.Finances;
 
 namespace CareerExpansionMod.Controllers
 {
@@ -46,22 +47,32 @@ namespace CareerExpansionMod.Controllers
             }
         }
 
-        // GET: Admin/Edit/5
-        public ActionResult Edit(int id)
+        [Route("~/Sponsor/Edit/{name}")]
+        public ActionResult Edit(string name)
         {
-            return View();
+            var sponsor = Sponsor.Load(name);
+            if (sponsor != null)
+            {
+                return View("EditSponsor", sponsor);
+            }
+            else
+            {
+                return View();
+            }
         }
 
-        // POST: Admin/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        [Route("~/Sponsor/Edit/{name}")]
+        public ActionResult Edit(string name, IFormCollection collection)
         {
             try
             {
                 // TODO: Add update logic here
+                var form = Request.Form;
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToActionPermanent("Edit", name);
+                //return View();
             }
             catch
             {

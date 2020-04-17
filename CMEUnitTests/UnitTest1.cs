@@ -3,8 +3,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using v2k4FIFAModding.Career.CME.FIFA;
-using v2k4FIFAModding.Career.CME.Finances;
+using CareerExpansionMod.CME.Finances;
 using v2k4FIFAModdingCL.MemHack.Core;
+using CareerExpansionMod.CME.Data;
 
 namespace CMEUnitTests
 {
@@ -25,71 +26,9 @@ namespace CMEUnitTests
             CoreHack coreHack = new CoreHack();
             coreHack.SaveName = "Test";
 
-            Sponsor sponsorNone = new Sponsor()
-            {
-                SponsorType = eSponsorType.General,
-                SponsorLevels = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
-                SponsorName = "none",
-                SponsorPayoutPerYearMax = 0
-            };
-            sponsorNone.Save();
+            DbDataCache.CreateAllSponsorFiles();
 
-            Sponsor sponsorYobet = new Sponsor()
-            {
-                SponsorType = eSponsorType.Main,
-                SponsorLevels = new List<int>() { 2, 3 },
-                SponsorName = "yobet",
-                SponsorPayoutPerYearMax = 1000000
-            };
-            sponsorYobet.Save();
-
-            Sponsor sponsorLCV = new Sponsor()
-            {
-                SponsorType = eSponsorType.Travel,
-                SponsorLevels = new List<int>() { 3 },
-                SponsorName = "lowcostvans",
-                SponsorPayoutPerYearMax = 500000
-            };
-            sponsorLCV.Save();
-
-            Sponsor sponsorKit = new Sponsor()
-            {
-                SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<int>() { 2,3,4 },
-                SponsorName = "joma",
-                SponsorPayoutPerYearMax = 750000
-            };
-            sponsorKit.Save();
-
-            Sponsor sponsorKitAdidas = new Sponsor()
-            {
-                SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<int>() { 1, 2, 3 },
-                SponsorName = "adidas",
-                SponsorPayoutPerYearMax = 5000000
-            };
-            sponsorKitAdidas.Save();
-
-            Sponsor sponsorDrink = new Sponsor()
-            {
-                SponsorType = eSponsorType.Alcohol,
-                SponsorLevels = new List<int>() { 1, 2, 3, 4 },
-                SponsorName = "carling",
-                SponsorPayoutPerYearMax = 750000
-            };
-            sponsorDrink.Save();
-
-            Sponsor sponsorTraining = new Sponsor()
-            {
-                SponsorType = eSponsorType.Training,
-                SponsorLevels = new List<int>() { 1, 2, 3, 4 },
-                SponsorName = "swanseauniversity",
-                SponsorPayoutPerYearMax = 250000,
-                SpecificTeamId = 1960
-            };
-            sponsorTraining.Save();
-
-            SponsorsToTeam.SponsorsToTeams.AddRange(
+            DbDataCache.SponsorsToTeams.AddRange(
                 new List<SponsorsToTeam>() {
                 new SponsorsToTeam()
                 {

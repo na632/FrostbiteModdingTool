@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CareerExpansionMod.CME.FIFA;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
@@ -24,6 +25,7 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public List<dynamic> formations { get; set; }
         public List<dynamic> default_teamsheets { get; set; }
         public List<dynamic> editedplayernames { get; set; }
+        public List<FIFALeagueTeamLink> leagueteamlinks { get; set; }
         public List<dynamic> teamkits { get; set; }
         public List<dynamic> competition { get; set; }
         public List<dynamic> leagues { get; set; }

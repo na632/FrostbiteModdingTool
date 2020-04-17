@@ -1,4 +1,4 @@
-﻿using CareerExpansionMod.CME;
+﻿using CareerExpansionMod.CME.Data;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,8 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using v2k4FIFAModding.Career.CME.FIFA;
 
-namespace v2k4FIFAModding.Career.CME.Finances
+namespace CareerExpansionMod.CME.Finances
 {
     public enum eSponsorType : int
     {
@@ -30,13 +31,13 @@ namespace v2k4FIFAModding.Career.CME.Finances
     {
         public string SponsorName { get; set; }
 
-        public List<int> SponsorLevels { get; set; }
+        public bool[] SponsorLevels = new bool[10];
 
         public eSponsorType SponsorType { get; set; }
 
         public decimal SponsorPayoutPerYearMax { get; set; }
 
-        public int SpecificTeamId { get; set; }
+        public int? SpecificTeamId { get; set; }
 
         public static string CMESponsorDirectory
         { 
@@ -54,7 +55,7 @@ namespace v2k4FIFAModding.Career.CME.Finances
             var dlllocation = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
             //Directory.EnumerateFiles(dlllocation + "Career/CME/Data/")
 
-            var finalValue = Directory.EnumerateFiles(dlllocation + "/wwwroot/images/sponsors/").ToList().FirstOrDefault(x=>x.Contains(SponsorName));
+            var finalValue = Directory.EnumerateFiles(dlllocation + "/wwwroot/images/sponsors/").ToList().FirstOrDefault(x=>x.Contains(SponsorName.ToLower()));
             if (finalValue == null)
             {
                 finalValue = "/images/sponsors/noimage.jpg";
@@ -66,17 +67,28 @@ namespace v2k4FIFAModding.Career.CME.Finances
             return finalValue;
         }
 
-        public void Save()
+        public void Save(bool saveToFile = true)
         {
             var finalLocation = CMESponsorDirectory + SponsorName + ".json";
-            File.WriteAllText(finalLocation, JsonConvert.SerializeObject(this));
+            DbDataCache.Sponsors.RemoveAll(x => x.SponsorName == SponsorName);
+            DbDataCache.Sponsors.Add(this);
+            if(saveToFile)
+                File.WriteAllText(finalLocation, JsonConvert.SerializeObject(this));
         }
 
         public static Sponsor Load(string sponsorName)
         {
+            var existingRecord = DbDataCache.Sponsors.Find(x => x.SponsorName == sponsorName);
+            if (existingRecord != null)
+                return existingRecord;
+
             var finalLocation = CMESponsorDirectory + sponsorName + ".json";
             if (File.Exists(finalLocation))
-                return JsonConvert.DeserializeObject<Sponsor>(File.ReadAllText(finalLocation));
+            {
+                var fileRecord = JsonConvert.DeserializeObject<Sponsor>(File.ReadAllText(finalLocation));
+                DbDataCache.Sponsors.Add(fileRecord);
+                return fileRecord;
+            }
             else
                 return null;
         }
@@ -86,12 +98,17 @@ namespace v2k4FIFAModding.Career.CME.Finances
             var datalocation = CMESponsorDirectory;
             var files = Directory.EnumerateFiles(datalocation);
 
-            foreach(var f in files)
+            if (DbDataCache.Sponsors.Count == 0)
             {
-                yield return JsonConvert.DeserializeObject<Sponsor>(File.ReadAllText(f));
+                foreach (var f in files)
+                {
+                    DbDataCache.Sponsors.Add(JsonConvert.DeserializeObject<Sponsor>(File.ReadAllText(f)));
+                }
             }
+            return DbDataCache.Sponsors;
         }
     }
+
 
     public class SponsorsToTeam
     {
@@ -111,21 +128,20 @@ namespace v2k4FIFAModding.Career.CME.Finances
             }
         }
 
-        public static List<SponsorsToTeam> SponsorsToTeams = new List<SponsorsToTeam>();
 
         public static void Save()
         {
             var finalLocation = CMESponsorsToTeamDirectory + "SponsorsToTeams.json";
-            File.WriteAllText(finalLocation, JsonConvert.SerializeObject(SponsorsToTeams));
+            File.WriteAllText(finalLocation, JsonConvert.SerializeObject(DbDataCache.SponsorsToTeams));
         }
 
         public static List<SponsorsToTeam> Load()
         {
             var finalLocation = CMESponsorsToTeamDirectory + "SponsorsToTeams.json";
-            if (File.Exists(finalLocation))
-                SponsorsToTeams = JsonConvert.DeserializeObject<List<SponsorsToTeam>>(File.ReadAllText(finalLocation));
+            if (File.Exists(finalLocation) && DbDataCache.SponsorsToTeams.Count == 0)
+                DbDataCache.SponsorsToTeams = JsonConvert.DeserializeObject<List<SponsorsToTeam>>(File.ReadAllText(finalLocation));
 
-            return SponsorsToTeams;
+            return DbDataCache.SponsorsToTeams;
         }
 
         public static List<SponsorsToTeam> LoadSponsorsForTeam(int teamId)
@@ -142,6 +158,30 @@ namespace v2k4FIFAModding.Career.CME.Finances
         {
             var calcMonths = GetCalculatedContractLengthInMonths(teamid, sponsor);
             return calcMonths > 0 ? Convert.ToInt32(Math.Ceiling((double)calcMonths / 12.0)) : 1;
+        }
+
+        public static int GetCaclulatedPayoutAmount(int teamid, string sponsorName)
+        {
+            var sponsor = Sponsor.Load(sponsorName);
+            if (sponsor != null) 
+            {
+                var team = CareerDB2.Current.teams.FirstOrDefault(x => x.teamid == teamid);
+                if (team != null)
+                {
+                    var prestige = team.domesticprestige;
+                    var leagueRank = team.domesticprestige;
+                    if (team != null)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+
+            return 0;
         }
     }
 }

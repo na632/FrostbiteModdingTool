@@ -363,6 +363,7 @@ namespace CareerExpansionMod
             {
                 AutoHideMenuBar = true,
                 Movable = false,
+                BackgroundColor = "#00000000",
 
                 Frame = true,
 
@@ -377,6 +378,7 @@ namespace CareerExpansionMod
                            WebSecurity = false,
                             NodeIntegration = false,
                              NodeIntegrationInWorker = false,
+                              
                               
                  }
             };

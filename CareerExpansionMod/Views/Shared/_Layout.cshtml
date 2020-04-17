@@ -5,6 +5,7 @@
     <base href="~/" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>paulv2k4 Career Expansion Mod</title>
+    <link rel="stylesheet" href="~/lib/reset/minireset.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
@@ -125,12 +126,12 @@
 
                 if ((d.indexOf("ERR:") == -1 && !bIsInCareerMode) || (!bIsInCareerMode && debug)) {
                     bIsInCareerMode = true;
-                    $('#panelWelcomePleaseLoad').hide(1000);
-                    $('#panelFancyLoading').show(1000).delay(1000).hide(1000);
-                    setTimeout(function () {
-                        $('#panelMain').show(1000);
-                    }, 1000);
-
+                    $('#panelWelcomePleaseLoad').fadeOut(500);
+                    //$('#panelFancyLoading').show(1000).delay(1000).hide(1000);
+                    //setTimeout(function () {
+                    //    $('#panelMain').show(1000);
+                    //}, 1000);
+                    $('#panelMain').fadeIn(500);
                 }
                 else if (!bIsInCareerMode) {
                     $('#panelWelcomePleaseLoad').show(1000);

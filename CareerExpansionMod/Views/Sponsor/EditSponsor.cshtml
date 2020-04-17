@@ -1,0 +1,68 @@
+﻿@model CareerExpansionMod.CME.Finances.Sponsor
+@{
+    ViewData["Title"] = "EditSponsor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit Sponsor</h1>
+
+<div class="card">
+    <div class="card-body">
+
+        @using (Html.BeginForm("Edit", "Sponsor"))
+        {
+            <button class="btn btn-success btn-sm" type="submit"><i class="fa fa-save"></i> Save</button>
+            <h2>Details</h2>
+            @Html.LabelFor(x => x.SponsorName)
+            <br />
+            @Html.EditorFor(x => x.SponsorName)
+            <br />
+            @Html.LabelFor(x => x.SpecificTeamId)
+            <br />
+            @Html.EditorFor(x => x.SpecificTeamId)
+            <br />
+            @Html.LabelFor(x => x.SponsorType)
+            <br />
+            @Html.DropDownListFor(x=>x.SponsorType, Html.GetEnumSelectList<CareerExpansionMod.CME.Finances.eSponsorType>())
+            <br />
+            @Html.LabelFor(x => x.SponsorPayoutPerYearMax)
+            <br />
+            @Html.EditorFor(x => x.SponsorPayoutPerYearMax)
+            <br />
+            <h2>Levels</h2>
+            @Html.CheckBox("chkLevel1", Model.SponsorLevels[0])
+            @Html.CheckBox("chkLevel2", Model.SponsorLevels[1])
+            @Html.CheckBox("chkLevel3", Model.SponsorLevels[2])
+            @Html.CheckBox("chkLevel4", Model.SponsorLevels[3])
+            @Html.CheckBox("chkLevel5", Model.SponsorLevels[4])
+            @Html.CheckBox("chkLevel6", Model.SponsorLevels[5])
+            @Html.CheckBox("chkLevel7", Model.SponsorLevels[6])
+            @Html.CheckBox("chkLevel8", Model.SponsorLevels[7])
+            @Html.CheckBox("chkLevel9", Model.SponsorLevels[8])
+            @Html.CheckBox("chkLevel10", Model.SponsorLevels[9])
+            @*<input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />
+            <input id="chkLevel1" name="chkLevel1" type="checkbox" value="0" />*@
+        }
+        <h2>Types</h2>
+        <table class="table">
+            <tbody>
+            </tbody>
+        </table>
+        <h2>Sponsoring</h2>
+        <table class="table">
+            <tbody>
+            </tbody>
+        </table>
+
+
+    </div>
+</div>
+
+

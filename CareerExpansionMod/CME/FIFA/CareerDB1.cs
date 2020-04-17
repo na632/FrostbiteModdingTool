@@ -7,6 +7,7 @@ namespace CareerExpansionMod.CME.FIFA
 {
     public class CareerDB1
     {
+        
         public static CareerDB1 Current;
         public static FIFAUsers FIFAUser { get; set; }
     }

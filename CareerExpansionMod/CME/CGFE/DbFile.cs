@@ -529,6 +529,10 @@ namespace v2k4FIFAModdingCL.CGFE
                 {
                     return m_Table[i];
                 }
+                if (m_Table[i].TableDescriptor.TableShortName == longName)
+                {
+                    return m_Table[i];
+                }
             }
             return null;
         }
