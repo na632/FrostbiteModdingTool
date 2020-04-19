@@ -109,7 +109,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
                 if (GetProcess(out Mem MemLib).HasValue)
                 {
-                    //var aob = MemLib.AoBScan("43 61 72 65 65 72 32 30 32 30 30 34 30 37", true, true).Result.FirstOrDefault();
+                    //var aob = MemLib.AoBScan("?? ?? 00 00 32 7D A2 0A 00", true, true, true).Result.FirstOrDefault();
                     //var code = MemLib.get64bitCode(aob.ToString());
                     //if(code != null)
                     //{

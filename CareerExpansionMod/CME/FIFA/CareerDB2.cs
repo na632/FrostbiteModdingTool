@@ -8,6 +8,8 @@ namespace v2k4FIFAModding.Career.CME.FIFA
 {
     public partial class CareerDB2
     {
+        public DataSet ParentDataSet { get; set; }
+
         public static CareerDB2 Current { get; set; }
 
         public CareerDB2()
@@ -15,7 +17,7 @@ namespace v2k4FIFAModding.Career.CME.FIFA
             Current = this;
         }
 
-        public List<FIFATeam> teams { get; set; }
+        public DataTable teams { get; set; }
         public List<FIFAPlayer> players { get; set; }
         public List<FIFAPlayerToTeam> teamplayerlinks { get; set; }
         public List<dynamic> teamstadiumlinks { get; set; }
@@ -25,7 +27,7 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public List<dynamic> formations { get; set; }
         public List<dynamic> default_teamsheets { get; set; }
         public List<dynamic> editedplayernames { get; set; }
-        public List<FIFALeagueTeamLink> leagueteamlinks { get; set; }
+        public EnumerableRowCollection<DataRow> leagueteamlinks { get; set; }
         public List<dynamic> teamkits { get; set; }
         public List<dynamic> competition { get; set; }
         public List<dynamic> leagues { get; set; }

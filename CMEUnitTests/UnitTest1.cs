@@ -36,7 +36,7 @@ namespace CMEUnitTests
                      IsUserTeam = false,
                       SponsorName = "yobet",
                        SponsorType = eSponsorType.Main,
-                        ContractLengthInMonths = 12,
+                        ContractLengthInYears = 12,
                          GameDateStarted = DateTime.Now
                 }
                 , new SponsorsToTeam()
@@ -45,7 +45,7 @@ namespace CMEUnitTests
                     IsUserTeam = false,
                     SponsorName = "lowcostvans",
                     SponsorType = eSponsorType.Travel,
-                        ContractLengthInMonths = 12,
+                        ContractLengthInYears = 12,
                          GameDateStarted = DateTime.Now
                 }
                 , new SponsorsToTeam()
@@ -54,7 +54,7 @@ namespace CMEUnitTests
                     IsUserTeam = false,
                     SponsorName = "carling",
                     SponsorType = eSponsorType.Alcohol,
-                        ContractLengthInMonths = 12,
+                        ContractLengthInYears = 12,
                          GameDateStarted = DateTime.Now
                 }
                 , new SponsorsToTeam()
@@ -63,7 +63,7 @@ namespace CMEUnitTests
                     IsUserTeam = false,
                     SponsorName = "swanseauniversity",
                     SponsorType = eSponsorType.Training,
-                        ContractLengthInMonths = 12,
+                        ContractLengthInYears = 12,
                          GameDateStarted = DateTime.Now
                 }
                 }

@@ -58,6 +58,19 @@ namespace CareerExpansionMod.CME
             }
         }
 
+        public static string CMEInternalDataDirectory
+        {
+            get
+            {
+                var baseDir = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
+                var dataFolder = baseDir + "\\CME\\Data\\";
+                if (!Directory.Exists(dataFolder))
+                    Directory.CreateDirectory(dataFolder);
+
+                return dataFolder;
+            }
+        }
+
         public static CMECore CMECoreInstance;
         public CMECore()
         {
@@ -102,65 +115,65 @@ namespace CareerExpansionMod.CME
 
         private bool SetupCareerFile()
         {
-            var baseDir = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
-            var dataFolder = baseDir + "\\Data\\";
-            if (!Directory.Exists(dataFolder))
-                Directory.CreateDirectory(dataFolder);
+            
 
             //var CareerFileThread = new Thread(() =>
             //{
 
             if (CareerFile == null)
             {
-                CareerFile = new CareerFile(dataFolder + CoreHack.SaveFileName, dataFolder + "fifa_ng_db-meta.XML");
-                CareerFile.LoadXml(dataFolder + "fifa_ng_db-meta.XML");
-                CareerFile.LoadEA(dataFolder + CoreHack.SaveFileName);
+                CareerFile = new CareerFile(CMEInternalDataDirectory + CoreHack.SaveFileName, CMEInternalDataDirectory + "fifa_ng_db-meta.XML");
+                //CareerFile.LoadXml(dataFolder + "fifa_ng_db-meta.XML");
+                //CareerFile.LoadEA(dataFolder + CoreHack.SaveFileName);
                 // Setup Internal Career Entities
                 CareerDB1.Current = new CareerDB1();
+                CareerDB1.Current.ParentDataSet = CareerFile.Databases[0].ConvertToDataSet();
                 CareerDB2.Current = new CareerDB2();
+                CareerDB2.Current.ParentDataSet = CareerFile.Databases[1].ConvertToDataSet();
                 CurrentSaveFileName = CoreHack.SaveFileName;
             }
             //});
             //CareerFileThread.Start();
             //CareerFileThread.Join();
 
-            if (CareerDB1.FIFAUser == null)
+            if (CareerFile != null && CareerFile.Databases.Length > 0)
             {
-                var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
-                // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
-                CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
-                CareerDB1.FIFAUser.clubteamid--;
-            }
 
-            //Thread teamThread = new Thread(() =>
-            //{
 
-                if (CareerDB2.Current.teams == null)
+                if (CareerDB1.FIFAUser == null)
                 {
-                    //tableNameToSearch = "teams";
-                    CareerDB2.Current.teams = new List<FIFATeam>();
-                    var teamsDt = CareerFile.Databases[1].GetTable("lyxL").ConvertToDataTable();
-                    foreach (DataRow t in teamsDt.Rows)
-                    {
-                        if (CareerDB2.Current.teams != null)
-                            CareerDB2.Current.teams.Add(CreateItemFromRow<FIFATeam>(t, "lyxL"));
-                    }
+                    var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
+                    // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
+                    CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
                 }
-            //});
-            //teamThread.Start();
 
-            if (CareerDB2.Current.leagueteamlinks == null)
-            {
+                //Thread teamThread = new Thread(() =>
+                //{
+
+
+                if (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null)
+                {
+                    var dbTeams = CareerFile.Databases[1].GetTable("teams");
+                    CareerDB2.Current.teams = dbTeams.ConvertToDataTable();
+                    var firstteam = CareerDB2.Current.teams.Rows[0];
+                    var teams = (from myRow in CareerDB2.Current.teams.AsEnumerable()
+                                 where myRow.Field<int>("teamid") == CareerDB1.FIFAUser.clubteamid
+                                 select myRow);
+                    var team = teams.FirstOrDefault();
+                    if (team != null)
+                        CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
+
+                }
+                //});
+                //teamThread.Start();
+
+                if (CareerDB2.Current.leagueteamlinks == null)
+                {
                     //tableNameToSearch = "leagueteamlinks";
-                CareerDB2.Current.leagueteamlinks = new List<FIFALeagueTeamLink>();
-                var teamsDt = CareerFile.Databases[1].GetTable("qdZF").ConvertToDataTable();
-                foreach (DataRow t in teamsDt.Rows)
-                {
-                    if (CareerDB2.Current.leagueteamlinks != null)
-                        CareerDB2.Current.leagueteamlinks.Add(CreateItemFromRow<FIFALeagueTeamLink>(t, "qdZF"));
+                    CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
                 }
-            }
 
+            }
 
             //teamThread.Join();
 
@@ -176,7 +189,7 @@ namespace CareerExpansionMod.CME
             T item = new T();
 
             // set the item
-            SetItemFromRow(item, row);
+            SetItemFromRow(item, row, tableShortName);
 
             // return 
             return item;
@@ -187,24 +200,17 @@ namespace CareerExpansionMod.CME
             // go through each column
             foreach (DataColumn c in row.Table.Columns)
             {
-                // find the property for the column
-                //PropertyInfo p = item.GetType().GetProperty(c.ColumnName);
-                var long_name = GetColumnLongNameFromShortName(tableShortName != null ? tableShortName : row.Table.TableName, c.ColumnName);;
-                if (!string.IsNullOrEmpty(long_name))
-                {
-                    PropertyInfo p = item.GetType().GetProperty(long_name);
+                
+                    PropertyInfo p = item.GetType().GetProperty(c.ColumnName);
 
 
                     // if exists, set the value
                     if (p != null && row[c] != DBNull.Value)
                     {
-                        //if (int.TryParse(row[c].ToString(), out int iV))
-                        //    p.SetValue(item, iV, null);
-                        //else
+                       
                             p.SetValue(item, row[c], null);
 
                     }
-                }
             }
         }
 
@@ -251,10 +257,7 @@ namespace CareerExpansionMod.CME
 
         private bool CreateCopyOfSave()
         {
-            var baseDir = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
-            var dataFolder = baseDir + "\\Data\\";
-            if (!Directory.Exists(dataFolder))
-                Directory.CreateDirectory(dataFolder);
+            
             // backup save file
             var myDocuments = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 20\\settings\\";
 #pragma warning disable CS0162 // Unreachable code detected
@@ -263,7 +266,7 @@ namespace CareerExpansionMod.CME
             {
                 try
                 {
-                    File.Copy(myDocuments + CoreHack.SaveFileName, dataFolder + CoreHack.SaveFileName, true);
+                    File.Copy(myDocuments + CoreHack.SaveFileName, CMEInternalDataDirectory + CoreHack.SaveFileName, true);
                     return true;
                 }
                 catch

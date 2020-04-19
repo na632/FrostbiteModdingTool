@@ -1,132 +1,159 @@
 ﻿@using Microsoft.AspNetCore.Components
+@using CareerExpansionMod.CME.FIFA
+@using CareerExpansionMod.CME.Finances
+@model CareerExpansionMod.CME.Finances.TeamFinance
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var MainSponsor = ViewBag.MainSponsor as Sponsor;
+
 }
 
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-4">
-                <div class="card">
-                    <div class="card-body" id="budgetEdit" style="display:none;">
-                        <h4>Overview</h4>
-                        <hr />
-                        <div class="row">
-                            <label class="col-form-label col-6">Starting Budget</label>
-                            <input class="form-control mt-1 col-6" disabled="disabled" id="txtStartingBudget" />
-                        </div>
-                        <div class="row">
-                            <label class="col-form-label col-6">Transfer Budget</label>
-                                <input class="form-control  mt-1 col-6" id="txtTransferBudget" onchange="setBudget()" />
-                        </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body" id="budgetEdit" style="display:none;">
+                    <h4>Overview</h4>
+                    <hr />
+                    <div class="row">
+                        <label class="col-form-label col-6">Starting Budget</label>
+                        <input class="form-control mt-1 col-6" disabled="disabled" id="txtStartingBudget" />
                     </div>
-                    <div class="card-body" id="budgetView" style="display:block;">
-                        <h4>Overview</h4>
-                        <span class="float-right text-right" onclick="editBudgets()"><i class="fa fa-edit fa-align-right"></i></span>
-                        <hr />
-                        <div class="row">
-                            <label class="col-form-label col-6">Starting Budget</label>
-                            <label class="col-form-label col-6" id="lblStartingBudget" />
-                        </div>
-                        <div class="row">
-                            <label class="col-form-label col-6">Transfer Budget</label>
-                            <label class="col-form-label col-6" id="lblTransferBudget" />
-                        </div>
+                    <div class="row">
+                        <label class="col-form-label col-6">Transfer Budget</label>
+                        <input class="form-control  mt-1 col-6" id="txtTransferBudget" onchange="setBudget()" />
+                    </div>
+                </div>
+                <div class="card-body" id="budgetView" style="display:block;">
+                    <h4>Overview</h4>
+                    <span class="float-right text-right" onclick="editBudgets()"><i class="fa fa-edit fa-align-right"></i></span>
+                    <hr />
+                    <div class="row">
+                        <label class="col-form-label col-6">Starting Budget</label>
+                        <label class="col-form-label col-6" id="lblStartingBudget" />
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label col-6">Transfer Budget</label>
+                        <label class="col-form-label col-6" id="lblTransferBudget" />
                     </div>
                 </div>
             </div>
-            <div class="col-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h4>Prices</h4>
-                        <form>
-                            <div class="row">
-                                <label class="col-form-label col-6">Burgers</label>
-                                <input class="form-control form-control-sm col-6" id="txtBurgerPrice" type="range" value="5" min="1" max="10" required />
-                            </div>
-                            <div class="row">
-                                <label class="col-form-label col-6">Fries</label>
-                                <input class="form-control form-control-sm col-6" id="txtFriesPrice" type="range" value="5" min="1" max="10" required />
-                            </div>
-                            <div class="row">
-                                <label class="col-form-label col-6">Fizzy Drink</label>
-                                <input class="form-control form-control-sm col-6" id="txtFizzyDrinkPrice" type="range" value="3" min="1" max="10" required />
-                            </div>
-                            <div class="row">
-                                <label class="col-form-label col-6">Alcohol Price</label>
-                                <input class="form-control form-control-sm col-6" id="txtAlcoholDrinkPrice" type="range" value="5" min="1" max="10" required />
-                            </div>
-                        </form>
+            <div class="card">
+                <div class="card-body">
+                    <h4>Prices</h4>
+                    <form>
+                        <div class="row">
+                            <label class="col-form-label col-6">Burgers</label>
+                            <input class="form-control form-control-sm col-6" id="txtBurgerPrice" type="range" value="5" min="1" max="10" required />
+                        </div>
+                        <div class="row">
+                            <label class="col-form-label col-6">Fries</label>
+                            <input class="form-control form-control-sm col-6" id="txtFriesPrice" type="range" value="5" min="1" max="10" required />
+                        </div>
+                        <div class="row">
+                            <label class="col-form-label col-6">Fizzy Drink</label>
+                            <input class="form-control form-control-sm col-6" id="txtFizzyDrinkPrice" type="range" value="3" min="1" max="10" required />
+                        </div>
+                        <div class="row">
+                            <label class="col-form-label col-6">Alcohol Price</label>
+                            <input class="form-control form-control-sm col-6" id="txtAlcoholDrinkPrice" type="range" value="5" min="1" max="10" required />
+                        </div>
+                    </form>
 
-                    </div>
-                    <div class="card-footer">
-                        <a href="Finances/Prices">
-                            >&nbsp;View full price breakdown
-                        </a>
-                    </div>
                 </div>
-
-            </div>
-            <div class="col-4">
-                <div class="card">
-                    <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
-                        <h4>Request Funds</h4>
-                        <div class="pt-3">
-                            <strong>Request Funds from your board</strong>
-                        </div>
-                        <div class="pt-3">
-                            <span id="txtRequestFundsMessage"></span>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-1">
-            <div class="col-8">
-                <div class="card">
-                    <a class="card-body" href="Finances/Sponsors" style="text-align:left; vertical-align: top;">
-                        <h4>Sponsorship</h4>
-                        <div class="row">
-                            <div class="pt-3 col-6">
-                                <strong>View your current sponsorship</strong>
-                            </div>
-                            <div class="pt-3 col-6">
-                                <div class="row">
-                                    <div class="col-4">
-                                        <img src="~/images/yobet.png" style="width:100px;" />
-                                    </div>
-                                    <div class="col-4">
-                                        <img src="~/images/joma.png" style="width:100px;" />
-                                    </div>
-                                    <div class="col-4">
-                                        <img src="~/images/low-cost-vans.png" style="width:100px;" />
-                                    </div>
-                                    <div class="col-4">
-                                        <img src="~/images/swansea-university.png" style="width:100px;" />
-                                    </div>
-                                    <div class="col-4">
-                                    </div>
-                                    <div class="col-4">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="card-footer">
+                    <a href="Finances/Prices">
+                        >&nbsp;View full price breakdown
                     </a>
                 </div>
             </div>
-            <div class="col-4">
-                <div class="card">
-                    <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
-                        <h4>Debts &amp; Loans</h4>
-                        <div class="pt-3">
-                            <strong>View your current Debts and Loans</strong>
+        </div>
+        <div class="col-4">
+            <div class="card card-2x">
+                <a class="card-body" href="Finances/Sponsors" style="text-align:left; vertical-align: top;">
+                    <h4>Sponsorship</h4>
+                    <hr />
+                    <div class="text-center">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                @if (MainSponsor != null)
+                                {
+                                <img src="@MainSponsor.GetSponsorImageUrl()" style="width:100%;" />
+                                }
+                            </div>
                         </div>
-                    </button>
-                </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-6">
+                                <i class="fa fa-money"></i>&nbsp;£&nbsp;5m/yr
+                            </div>
+                            <div class="col-6">
+                                <i class="fa fa-clock"></i>&nbsp;£&nbsp;2 years
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Confidence</h5>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-4">
+
+                            </div>
+                            <div class="col-4">
+
+                            </div>
+                            <div class="col-4">
+
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
+                    <h4>Request Funds</h4>
+                    <div class="pt-3">
+                        <strong>Request Funds from your board</strong>
+                    </div>
+                    <div class="pt-3">
+                        <span id="txtRequestFundsMessage"></span>
+                    </div>
+                </button>
+            </div>
+            <div class="card">
+                <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
+                    <h4>Debts &amp; Loans</h4>
+                    <div class="pt-3">
+                        <strong>View your current Debts and Loans</strong>
+                    </div>
+                </button>
             </div>
         </div>
     </div>
+    <div class="row mt-1">
+        <div class="col-4">
+
+
+        </div>
+
+
+    </div>
+</div>
 
 
 @section Scripts {

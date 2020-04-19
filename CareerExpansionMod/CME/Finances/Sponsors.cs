@@ -1,7 +1,9 @@
 ﻿using CareerExpansionMod.CME.Data;
+using CareerExpansionMod.CME.FIFA;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +37,7 @@ namespace CareerExpansionMod.CME.Finances
 
         public eSponsorType SponsorType { get; set; }
 
-        public decimal SponsorPayoutPerYearMax { get; set; }
+        public double SponsorPayoutPerYearMax { get; set; }
 
         public int? SpecificTeamId { get; set; }
 
@@ -116,8 +118,12 @@ namespace CareerExpansionMod.CME.Finances
         public int TeamId { get; set; }
         public bool IsUserTeam { get; set; }
         public eSponsorType SponsorType { get; set; }
-        public int ContractLengthInMonths { get; set; }
+        public int ContractLengthInYears { get; set; }
         public DateTime GameDateStarted { get; set; }
+
+        public int PayoutPerYear { get; set; }
+
+        public int Confidence { get; set; }
 
         public static string CMESponsorsToTeamDirectory
         {
@@ -160,23 +166,23 @@ namespace CareerExpansionMod.CME.Finances
             return calcMonths > 0 ? Convert.ToInt32(Math.Ceiling((double)calcMonths / 12.0)) : 1;
         }
 
-        public static int GetCaclulatedPayoutAmount(int teamid, string sponsorName)
+        public static int GetCaclulatedPayoutAmountPerYear(int teamid, string sponsorName)
         {
             var sponsor = Sponsor.Load(sponsorName);
-            if (sponsor != null) 
+            if (sponsor != null && CareerDB2.Current.ParentDataSet != null) 
             {
-                var team = CareerDB2.Current.teams.FirstOrDefault(x => x.teamid == teamid);
+                var team = CareerDB1.UserTeam;
                 if (team != null)
                 {
-                    var prestige = team.domesticprestige;
-                    var leagueRank = team.domesticprestige;
+                    var prestige = Convert.ToInt32(team.domesticprestige);
+                    var leagueRank = (from ltl in CareerDB2.Current.ParentDataSet.Tables["leagueteamlinks"].AsEnumerable()
+                                      join l in CareerDB2.Current.ParentDataSet.Tables["leagues"].AsEnumerable() on ltl.Field<int>("leagueid") equals l.Field<int>("leagueid")
+                                      where Convert.ToInt32(ltl["teamid"]) == teamid
+                                      select l.Field<int>("level")).FirstOrDefault();
+                    var rankRatio = Convert.ToDouble(11 - leagueRank);
                     if (team != null)
                     {
-
-                    }
-                    else
-                    {
-
+                        return Convert.ToInt32(Math.Ceiling(sponsor.SponsorPayoutPerYearMax * (rankRatio * 0.1d) * (prestige * 0.1)));
                     }
                 }
             }

@@ -7,6 +7,18 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="CME\Data\fifa_ng_db-meta.XML" />
+    <None Remove="CME\Data\leagues.csv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CME\Data\fifa_ng_db-meta.XML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CME\Data\leagues.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="CsvHelper" Version="15.0.4" />
     <PackageReference Include="ElectronNET.API" Version="7.30.2" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.2.0-preview1.20073.1" />
@@ -18,6 +30,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0-preview1.19506.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">
@@ -68,13 +81,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="CME\Data\fifa_ng_db-meta.XML">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="CME\Data\leagues.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>
