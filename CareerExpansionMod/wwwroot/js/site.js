@@ -1,4 +1,23 @@
-﻿//var app = angular.module('InfiniteLearning', ['ui.router']);
+﻿function FormatCurrencyNumber(num)
+{
+    num = parseFloat(num);
+    num = num.toFixed(2);
+
+    if (num >= 1000000) {
+
+        return "£" + (num / 1000000).toFixed(2) + "M";
+
+    }
+    else if (num >= 100000)
+        return FormatCurrencyNumber(num / 1000);
+    else if (num >= 10000) {
+        return "£" + (num / 1000).toFixed(2) + "K";
+    }
+    return "£" + num;
+}
+
+
+//var app = angular.module('InfiniteLearning', ['ui.router']);
 
 //app.config(function ($stateProvider, $urlRouterProvider) {
 
@@ -70,5 +89,8 @@ var app_youth_system = angular.module('YouthSystem', ['ui.router']);
 
 //        ;
 //});
+
+
+
 
 

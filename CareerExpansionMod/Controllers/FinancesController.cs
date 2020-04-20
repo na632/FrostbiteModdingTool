@@ -11,63 +11,69 @@ namespace CareerExpansionMod.Controllers
 {
     public class FinancesController : Controller
     {
+        IEnumerable<Sponsor> FullListOfSponsors = Sponsor.LoadAll();
+        List<SponsorsToTeam> CurrentTeamSponsors = CareerDB1.Current != null && CareerDB1.FIFAUser != null
+                                        ? SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid)
+                                        : SponsorsToTeam.LoadSponsorsForTeam(1960);
+
+        private void LoadSponsorsIntoViewBag()
+        {
+            ViewBag.CurrentTeamSponsors = CurrentTeamSponsors;
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Alcohol))
+                ViewBag.AlcoholSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Alcohol);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Drinks))
+                ViewBag.DrinksSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Drinks);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Food))
+                ViewBag.FoodSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Food);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.General))
+                ViewBag.GeneralSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.General);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Gym))
+                ViewBag.GymSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Gym);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Hospitality))
+                ViewBag.HospitalitySponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Hospitality);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Kit))
+                ViewBag.KitSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Kit);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Legal))
+                ViewBag.LegalSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Legal);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Main))
+                ViewBag.MainSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Main);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Nutritional))
+                ViewBag.NutritionalSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Nutritional);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Training))
+                ViewBag.TrainingSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Training);
+
+            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Travel))
+                ViewBag.TravelSponsor = CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Travel);
+
+        }
+
         public IActionResult Index()
         {
+            LoadSponsorsIntoViewBag();
             return View();
         }
 
         public IActionResult Prices()
         {
+            LoadSponsorsIntoViewBag();
             return View();
         }
 
         public IActionResult Sponsors()
         {
-            // TODO: Clean Up
-            // THIS IS VERY HACKY BUT I DONT CARE
-
-            var FullListOfSponsors = Sponsor.LoadAll();
-            var CurrentTeamSponsors = CareerDB1.Current != null && CareerDB1.FIFAUser != null
-                                            ? SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid)
-                                            : SponsorsToTeam.LoadSponsorsForTeam(1960);
-            ViewBag.CurrentTeamSponsors = CurrentTeamSponsors;
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Alcohol))
-                ViewBag.AlcoholSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Alcohol).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Drinks))
-                ViewBag.DrinksSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Drinks).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Food))
-                ViewBag.FoodSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Food).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.General))
-                ViewBag.GeneralSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.General).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Gym))
-                ViewBag.GymSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Gym).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Hospitality))
-                ViewBag.HospitalitySponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Hospitality).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Kit))
-                ViewBag.KitSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Kit).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Legal))
-                ViewBag.LegalSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Legal).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Main))
-                ViewBag.MainSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Main).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Nutritional))
-                ViewBag.NutritionalSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Nutritional).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Training))
-                ViewBag.TrainingSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Training).SponsorName);
-
-            if (CurrentTeamSponsors.Exists(x => x.SponsorType == eSponsorType.Travel))
-                ViewBag.TravelSponsor = Sponsor.Load(CurrentTeamSponsors.FirstOrDefault(x => x.SponsorType == eSponsorType.Travel).SponsorName);
-
+            LoadSponsorsIntoViewBag();
+            
             return View();
         }
 
@@ -112,6 +118,12 @@ namespace CareerExpansionMod.Controllers
                 return Json(Sponsor.LoadAll());
             else
                 return Json(Sponsor.LoadAll().Where(x => (int)x.SponsorType == type));
+        }
+
+        [HttpPost]
+        public JsonResult AcceptSponsor(string type, string sponsorName)
+        {
+            return Json("");
         }
     }
 }

@@ -6,7 +6,9 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var MainSponsor = ViewBag.MainSponsor as Sponsor;
+    var MainSponsor = ViewBag.MainSponsor as SponsorsToTeam;
+    var KitSponsor = ViewBag.KitSponsor as SponsorsToTeam;
+    var TrainingSponsor = ViewBag.TrainingSponsor as SponsorsToTeam;
 
 }
 
@@ -17,6 +19,9 @@
             <div class="card">
                 <div class="card-body" id="budgetEdit" style="display:none;">
                     <h4>Overview</h4>
+                    <div class="card-body-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
                     <hr />
                     <div class="row">
                         <label class="col-form-label col-6">Starting Budget</label>
@@ -29,6 +34,9 @@
                 </div>
                 <div class="card-body" id="budgetView" style="display:block;">
                     <h4>Overview</h4>
+                    <div class="card-body-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
                     <span class="float-right text-right" onclick="editBudgets()"><i class="fa fa-edit fa-align-right"></i></span>
                     <hr />
                     <div class="row">
@@ -44,22 +52,31 @@
             <div class="card">
                 <div class="card-body">
                     <h4>Prices</h4>
+                    <div class="card-body-icon">
+                        <i class="fa fa-money-bill" aria-hidden="true"></i>
+                    </div>
                     <form>
                         <div class="row">
-                            <label class="col-form-label col-6">Burgers</label>
-                            <input class="form-control form-control-sm col-6" id="txtBurgerPrice" type="range" value="5" min="1" max="10" required />
+                            <label class="col-form-label col-5"><i class="fas fa-hamburger"></i>&nbsp;Burgers</label>
+                            <div class="col-4">
+                                <input class="" id="txtBurgerPrice" type="range" value="5" min="1" max="9.99" step="0.5" onchange="ChangedPrices()" required />
+                            </div>
+                            <span class="col-form-label col-3" id="numBurgerPrice"></span>
                         </div>
                         <div class="row">
-                            <label class="col-form-label col-6">Fries</label>
-                            <input class="form-control form-control-sm col-6" id="txtFriesPrice" type="range" value="5" min="1" max="10" required />
+                            <label class="col-form-label col-5"><i class="fas fa-utensils"></i>&nbsp;Fries</label>
+                            <input class="col-4" id="txtFriesPrice" type="range" value="3" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                            <span class="col-form-label col-3" id="numFriesPrice"></span>
                         </div>
                         <div class="row">
-                            <label class="col-form-label col-6">Fizzy Drink</label>
-                            <input class="form-control form-control-sm col-6" id="txtFizzyDrinkPrice" type="range" value="3" min="1" max="10" required />
+                            <label class="col-form-label col-5"><i class="fas fa-coffee"></i>&nbsp;Soft Drink</label>
+                            <input class="col-4" id="txtSoftDrinkPrice" type="range" value="2.50" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                            <span class="col-form-label col-3" id="numSoftDrinkPrice"></span>
                         </div>
                         <div class="row">
-                            <label class="col-form-label col-6">Alcohol Price</label>
-                            <input class="form-control form-control-sm col-6" id="txtAlcoholDrinkPrice" type="range" value="5" min="1" max="10" required />
+                            <label class="col-form-label col-5"><i class="fas fa-beer"></i>&nbsp;Alcohol</label>
+                            <input class="col-4" id="txtAlcoholDrinkPrice" type="range" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                            <span class="col-form-label col-3" id="numAlcoholDrinkPrice"></span>
                         </div>
                     </form>
 
@@ -75,23 +92,47 @@
             <div class="card card-2x">
                 <a class="card-body" href="Finances/Sponsors" style="text-align:left; vertical-align: top;">
                     <h4>Sponsorship</h4>
+                    <div class="card-body-icon">
+                        @if (MainSponsor != null)
+                        {
+                            <img src="@MainSponsor.GetSponsor().GetSponsorImageUrl()" />
+                        }
+                    </div>
                     <hr />
                     <div class="text-center">
                         <div class="row">
                             <div class="col-12 text-center">
                                 @if (MainSponsor != null)
                                 {
-                                <img src="@MainSponsor.GetSponsorImageUrl()" style="width:100%;" />
+                                    <img src="@MainSponsor.GetSponsor().GetSponsorImageUrl()" style="width:100%;" />
                                 }
                             </div>
                         </div>
                         <hr />
                         <div class="row">
                             <div class="col-6">
-                                <i class="fa fa-money"></i>&nbsp;£&nbsp;5m/yr
+                                @if (MainSponsor != null)
+                                {
+
+                                    <i class="fa fa-money"></i>
+                                    <span>&nbsp;£&nbsp; @MainSponsor.PayoutPerYear m / yr</span>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-money"></i>
+                                    <span>&nbsp;£&nbsp; 0m / yr</span>
+                                }
                             </div>
                             <div class="col-6">
-                                <i class="fa fa-clock"></i>&nbsp;£&nbsp;2 years
+                                @if (MainSponsor != null)
+                                {
+
+                                    <i class="fa fa-clock"></i><span>&nbsp;@MainSponsor.ContractLengthInYears&nbsp;year(s)</span>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-clock"></i><span>&nbsp;0 year(s)</span>
+                                }
                             </div>
                         </div>
                         <div class="row mt-4">
@@ -108,15 +149,75 @@
                                 <i class="fa fa-star"></i>
                             </div>
                         </div>
-                        <div class="row mt-4">
-                            <div class="col-4">
-
+                        <hr />
+                        <div class="row mt-1">
+                            <div class="col-6">
+                                @if (KitSponsor != null)
+                                {
+                                    <h6>Kit Creator</h6>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <img src="@KitSponsor.GetSponsor().GetSponsorImageUrl()" style="width: 50px; height: 50px;" />
+                                        </div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-12">
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <h6>Kit Creator</h6>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <img src="~/images/sponsors/none.jfif" style="width: 50px; height: 50px;" />
+                                        </div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-12">
+                                            <strong>No Kit Creator</strong>
+                                        </div>
+                                    </div>
+                                }
                             </div>
-                            <div class="col-4">
-
-                            </div>
-                            <div class="col-4">
-
+                            <div class="col-6">
+                                @if (TrainingSponsor != null)
+                                {
+                                    <h6>Training Sponsor</h6>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <img src="@TrainingSponsor.GetSponsor().GetSponsorImageUrl()" style="width: 50px; height: 50px;" />
+                                        </div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-12">
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <h6>Training Sponsor</h6>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <img src="~/images/sponsors/none.jfif" style="width: 50px; height: 50px;" />
+                                        </div>
+                                    </div>
+                                    <div class="row mt-1">
+                                        <div class="col-12">
+                                            <strong>No Training Sponsor</strong>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -125,23 +226,29 @@
         </div>
         <div class="col-4">
             <div class="card">
-                <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
+                <a class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
                     <h4>Request Funds</h4>
+                    <div class="card-body-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
                     <div class="pt-3">
                         <strong>Request Funds from your board</strong>
                     </div>
                     <div class="pt-3">
                         <span id="txtRequestFundsMessage"></span>
                     </div>
-                </button>
+                </a>
             </div>
             <div class="card">
-                <button class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
+                <a class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
                     <h4>Debts &amp; Loans</h4>
+                    <div class="card-body-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
                     <div class="pt-3">
                         <strong>View your current Debts and Loans</strong>
                     </div>
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -161,14 +268,14 @@
         $.getJSON("Finances/GetStartingBudget", function (d) {
 
             $('#txtStartingBudget').val(d);
-            $('#lblStartingBudget').html("£" + d.toString());
+            $('#lblStartingBudget').html(FormatCurrencyNumber(d));
 
         });
 
         $.getJSON("Finances/GetTransferBudget", function (d) {
 
             $('#txtTransferBudget').val(d);
-            $('#lblTransferBudget').html("£" + d.toString());
+            $('#lblTransferBudget').html(FormatCurrencyNumber(d));
 
         });
 
@@ -219,5 +326,13 @@
             });
 
         }
+
+        function ChangedPrices() {
+            $('#numBurgerPrice').html(FormatCurrencyNumber($('#txtBurgerPrice').val()));
+            $('#numFriesPrice').html(FormatCurrencyNumber($('#txtFriesPrice').val()));
+            $('#numSoftDrinkPrice').html(FormatCurrencyNumber($('#txtSoftDrinkPrice').val()));
+            $('#numAlcoholDrinkPrice').html(FormatCurrencyNumber($('#txtAlcoholDrinkPrice').val()));
+        }
+        ChangedPrices();
     </script>
 }

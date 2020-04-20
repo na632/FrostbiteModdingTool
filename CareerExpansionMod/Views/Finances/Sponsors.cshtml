@@ -5,146 +5,202 @@
     ViewData["Title"] = "Sponsors";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var AlcoholSponsor = ViewBag.AlcoholSponsor as Sponsor;
-    var DrinksSponsor = ViewBag.DrinksSponsor as Sponsor;
-    var FoodSponsor = ViewBag.FoodSponsor as Sponsor;
-    var GeneralSponsor = ViewBag.GeneralSponsor as Sponsor;
-    var GymSponsor = ViewBag.GymSponsor as Sponsor;
-    var HospitalitySponsor = ViewBag.HospitalitySponsor as Sponsor;
-    var KitSponsor = ViewBag.KitSponsor as Sponsor;
-    var LegalSponsor = ViewBag.LegalSponsor as Sponsor;
-    var MainSponsor = ViewBag.MainSponsor as Sponsor;
-    var NutritionalSponsor = ViewBag.NutritionalSponsor as Sponsor;
-    var TrainingSponsor = ViewBag.TrainingSponsor as Sponsor;
-    var TravelSponsor = ViewBag.TravelSponsor as Sponsor;
+    var AlcoholSponsor = ViewBag.AlcoholSponsor as SponsorsToTeam;
+    var DrinksSponsor = ViewBag.DrinksSponsor as SponsorsToTeam;
+    var FoodSponsor = ViewBag.FoodSponsor as SponsorsToTeam;
+    var GeneralSponsor = ViewBag.GeneralSponsor as SponsorsToTeam;
+    var GymSponsor = ViewBag.GymSponsor as SponsorsToTeam;
+    var HospitalitySponsor = ViewBag.HospitalitySponsor as SponsorsToTeam;
+    var KitSponsor = ViewBag.KitSponsor as SponsorsToTeam;
+    var LegalSponsor = ViewBag.LegalSponsor as SponsorsToTeam;
+    var MainSponsor = ViewBag.MainSponsor as SponsorsToTeam;
+    var NutritionalSponsor = ViewBag.NutritionalSponsor as SponsorsToTeam;
+    var TrainingSponsor = ViewBag.TrainingSponsor as SponsorsToTeam;
+    var TravelSponsor = ViewBag.TravelSponsor as SponsorsToTeam;
 }
 
 <h1>Club Sponsors and Partnerships</h1>
+@if (CareerDB1.FIFAUser != null)
+{
+    <div class="row">
+        @if (MainSponsor != null)
+        {
+            <div class="col-4">
+                <div class="card plain">
+                    <div class="card-body plain">
+                        <img src="@MainSponsor.GetSponsor().GetSponsorImageUrl()" style="width: 100%;" />
+                    </div>
+                    <div class="card-footer">
+                        <span>Payout:&nbsp;</span>@String.Format("{0:C}", MainSponsor.PayoutPerYear)&nbsp;per year
+                        <br />
+                        Main Sponsor
+                    </div>
+                </div>
+            </div>
+        }
+        @if (KitSponsor != null)
+        {
+            <div class="col-4">
+                <div class="card plain">
+                    <div class="card-body plain">
+                        <img src="@KitSponsor.GetSponsor().GetSponsorImageUrl()" style="width: 100%;" />
+                    </div>
+                    <div class="card-footer">
+                        <span>Payout:&nbsp;</span>@String.Format("{0:C}", KitSponsor.PayoutPerYear)&nbsp;per year
+                        <br />
+                        Kit Sponsor
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-4">
+                <div class="card plain allow-overflow-y">
+                    <div class="card-header">
+                        Select your Kit Sponsor
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>PPY</th>
+                                    <th>Yrs.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var kitSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Kit))
+                                {
+                                    <tr onclick="popupAreYouSureSponsor('@eSponsorType.Kit', '@kitSponsor.SponsorName', '@kitSponsor.GetSponsorImageUrl()', '@kitSponsor.SponsorPayoutPerYearMax')">
+                                        <td><img src="@kitSponsor.GetSponsorImageUrl()" width="100" /></td>
+                                        <td>@kitSponsor.SponsorName</td>
+                                        <td>
+                                            @if (CareerDB1.FIFAUser != null)
+                                            {
 
-<div class="row">
-    @if (MainSponsor != null)
-    {
-        <div class="col-4">
-            <div class="card plain">
-                <div class="card-body plain">
-                    <img src="@MainSponsor.GetSponsorImageUrl()" style="width: 100%;" />
-                </div>
-                <div class="card-footer">
-                    <span>Payout:&nbsp;</span>@String.Format("{0:C}", MainSponsor.SponsorPayoutPerYearMax)&nbsp;per year
-                    <br />
-                    Main Sponsor
-                </div>
-            </div>
-        </div>
-    }
-    @if (KitSponsor != null)
-    {
-        <div class="col-4">
-            <div class="card plain">
-                <div class="card-body plain">
-                    <img src="@KitSponsor.GetSponsorImageUrl()" style="width: 100%;" />
-                </div>
-                <div class="card-footer">
-                    <span>Payout:&nbsp;</span>@String.Format("{0:C}", KitSponsor.SponsorPayoutPerYearMax)&nbsp;per year
-                    <br />
-                    Kit Sponsor
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="col-4">
-            <div class="card plain">
-                <div class="card-header">
-                    Select your Kit Sponsor
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Name</th>
-                                <th>PPY</th>
-                                <th>Yrs.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var kitSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Kit))
-                            {
-                            <tr onclick="popupAreYouSureSponsor('@eSponsorType.Kit', '@kitSponsor.SponsorName', '@kitSponsor.GetSponsorImageUrl()', '@kitSponsor.SponsorPayoutPerYearMax')">
-                                <td><img src="@kitSponsor.GetSponsorImageUrl()" width="100" /></td>
-                                <td>@kitSponsor.SponsorName</td>
-                                <td>
-                                    @if (CareerDB1.FIFAUser != null)
-                                    {
-                                        @SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)
-                                    }
-                                    else
-                                    {
-                                        @kitSponsor.SponsorPayoutPerYearMax
-                                    }
-                                </td>
+                                                @CMEUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName))
+                                            }
+                                            else
+                                            {
+                                                @CMEUtilities.FormatCurrencyNumber(Convert.ToInt32(kitSponsor.SponsorPayoutPerYearMax))
+                                            }
+                                        </td>
 
-                                <td>
-                                    @if (CareerDB1.FIFAUser != null)
-                                    {
-                                        @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)
-                                    }
-                                </td>
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
-                    
-                </div>
-                <div class="card-footer">
-                </div>
-            </div>
-        </div>
-    }
-    @if (TrainingSponsor != null)
-    {
-        <div class="col-4">
-            <div class="card plain">
-                <div class="card-body plain">
-                    <img src="@TrainingSponsor.GetSponsorImageUrl()" style="width: 100%;" />
-                </div>
-                <div class="card-footer">
-                    <span>Payout:&nbsp;</span>@String.Format("{0:C}", TrainingSponsor.SponsorPayoutPerYearMax)&nbsp;per year
-                    <br />
-                    Training Sponsor
-                </div>
-            </div>
-        </div>
-    }
+                                        <td>
+                                            @if (CareerDB1.FIFAUser != null)
+                                            {
+                                                @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
 
+                    </div>
+                    <div class="card-footer">
+                    </div>
+                </div>
+            </div>
+        }
+        @if (TrainingSponsor != null)
+        {
+            <div class="col-4">
+                <div class="card plain">
+                    <div class="card-body plain">
+                        <img src="@TrainingSponsor.GetSponsor().GetSponsorImageUrl()" style="width: 100%;" />
+                    </div>
+                    <div class="card-footer">
+                        <span>Payout:&nbsp;</span>@String.Format("{0:C}", TrainingSponsor.PayoutPerYear)&nbsp;per year
+                        <br />
+                        Training Sponsor
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">
+        Something has gone wrong and CME can't find your team! Try leaving and coming back to this page.
+    </div>
+}
+
+<div id="myModal" class="modal text-black-50" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="ConfirmSponsorTitle" class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="container">
+                    <div class="row">
+                        <img id="BodySponsorImage" src="" style="width: 25%; margin: 0 auto;" />
+                    </div>
+                    <div class="row h5">Are you sure you want to select&nbsp;<span id="BodySponsorName"></span>&nbsp;as your&nbsp;<span id="BodySponsorType"></span> earning <span id="BodySponsorPayout"></span> per year?</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="ConfirmSponsorSelect()">Accept</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
 </div>
 
-@section Scripts {
+    <input type="hidden" id="SponsorName" name="SponsorName" />
+    <input type="hidden" id="SponsorType" name="SponsorType" />
+    <input type="hidden" id="SponsorPayout" name="SponsorPayout" />
 
-    <script>
-    var app4 = new Vue({
-        el: '#app-4',
-        data: {
-            todos: [
-                { text: 'Learn JavaScript' },
-                { text: 'Learn Vue' },
-                { text: 'Build something awesome' }
-            ]
-        }
-    })
+    @section Scripts {
 
-    $.getJSON("Finances/GetSponsorOptions/?type=-1", function (data) {
+        <script>
 
-        console.log(data);
+            $('#myModal').modal({
+                show: false
+            })
 
-    });
+            var app4 = new Vue({
+                el: '#app-4',
+                data: {
+                    todos: [
+                        { text: 'Learn JavaScript' },
+                        { text: 'Learn Vue' },
+                        { text: 'Build something awesome' }
+                    ]
+                }
+            });
 
-        function popupAreYouSureSponsor(type, name, imageUrl, payout) {
-            alert('hi there');
-        }
-    </script>
+            $.getJSON("Finances/GetSponsorOptions/?type=-1", function (data) {
+                console.log(data);
+            });
 
-}
+            function popupAreYouSureSponsor(type, name, imageUrl, payout) {
+                $('#SponsorName').val(name);
+                $('#SponsorType').val(type);
+                $('#SponsorPayout').val(payout);
+                $('#ConfirmSponsorTitle').html(name + ' as your ' + type + ' sponsor?');
+                $('#BodySponsorName').html(name);
+                $('#BodySponsorType').html(type)
+                $('#BodySponsorImage').attr('src', imageUrl);
+                $('#myModal').modal('show')
+
+            }
+
+            function ConfirmSponsorSelect() {
+                $.post("Finances/AcceptSponsor/?type=" + $('#SponsorType').val() + "&SponsorName=" + $('#SponsorName').val(), function (d) {
+
+                });
+
+            }
+        </script>
+
+    }
 

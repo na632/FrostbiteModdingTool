@@ -39,6 +39,7 @@ namespace CareerExpansionMod.CME.Finances
 
         public double SponsorPayoutPerYearMax { get; set; }
 
+
         public int? SpecificTeamId { get; set; }
 
         public static string CMESponsorDirectory
@@ -120,10 +121,13 @@ namespace CareerExpansionMod.CME.Finances
         public eSponsorType SponsorType { get; set; }
         public int ContractLengthInYears { get; set; }
         public DateTime GameDateStarted { get; set; }
-
         public int PayoutPerYear { get; set; }
-
         public int Confidence { get; set; }
+
+        public Sponsor GetSponsor()
+        {
+            return Sponsor.Load(SponsorName);
+        }
 
         public static string CMESponsorsToTeamDirectory
         {
