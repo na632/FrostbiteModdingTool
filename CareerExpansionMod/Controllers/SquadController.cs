@@ -2,35 +2,44 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CareerExpansionMod.CEM.Data;
-using CareerExpansionMod.CEM.Finances;
+using CareerExpansionMod.CEM;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CareerExpansionMod.Controllers
 {
-    public class SponsorController : Controller
+    public class SquadController : Controller
     {
-        // GET: Admin
+        // GET: Squad
         public ActionResult Index()
         {
-            var sponsors = Sponsor.LoadAll();
-            return View(sponsors);
+            return Squad();
         }
 
-        // GET: Admin/Details/5
+        public ActionResult Squad()
+        {
+            return View("Squad");
+        }
+
+        public PartialViewResult TeamDynamic()
+        {
+
+            return PartialView("TeamDynamic");
+        }
+
+        // GET: Squad/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: Admin/Create
+        // GET: Squad/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Admin/Create
+        // POST: Squad/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -47,32 +56,22 @@ namespace CareerExpansionMod.Controllers
             }
         }
 
-        [Route("~/Sponsor/Edit/{name}")]
-        public ActionResult Edit(string name)
+        // GET: Squad/Edit/5
+        public ActionResult Edit(int id)
         {
-            var sponsor = Sponsor.Load(name);
-            if (sponsor != null)
-            {
-                return View("EditSponsor", sponsor);
-            }
-            else
-            {
-                return View();
-            }
+            return View();
         }
 
+        // POST: Squad/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("~/Sponsor/Edit/{name}")]
-        public ActionResult Edit(string name, IFormCollection collection)
+        public ActionResult Edit(int id, IFormCollection collection)
         {
             try
             {
                 // TODO: Add update logic here
-                var form = Request.Form;
 
-                return RedirectToActionPermanent("Edit", name);
-                //return View();
+                return RedirectToAction(nameof(Index));
             }
             catch
             {
@@ -80,13 +79,13 @@ namespace CareerExpansionMod.Controllers
             }
         }
 
-        // GET: Admin/Delete/5
+        // GET: Squad/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: Admin/Delete/5
+        // POST: Squad/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CareerExpansionMod.CME.Finances
+namespace CareerExpansionMod.CEM.Finances
 {
     public class TeamFinance
     {

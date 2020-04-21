@@ -1,6 +1,10 @@
-﻿using System;
+﻿using CareerExpansionMod.CEM;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using CareerExpansionMod.CEM.FIFA;
+using System.Security.Cryptography;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
 {
@@ -93,5 +97,75 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public int genericint1 { get; set; }
         public int trait1vstrong { get; set; }
         public int matchdayattackrating { get; set; }
+
+        public List<FIFAPlayer> GetPlayers()
+        {
+            List<FIFAPlayer> players = new List<FIFAPlayer>();
+
+            var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == CareerDB1.FIFAUser.clubteamid.ToString());
+            var ps = (from tpl in tplinks
+                      join p in CareerDB2.Current.players on tpl["playerid"].ToString() equals p["playerid"].ToString()
+                      select p) ;
+            
+            foreach(var i in ps)
+            {
+
+                var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == i["playerid"].ToString());
+                if(pl != null)
+                {
+                    players.Add(
+                    CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl)
+                    );
+                }
+
+
+            }
+           //var plays = CareerDB2.Current.players.Where(x => tplinks.Any(y => y["playerid"].ToString() == x["playerid"].ToString()));
+
+            //for (var i = 0; i < ps.Count(); i++)
+            //{
+            //    players.Add(
+            //    CEMUtilities.CreateItemFromRow<FIFAPlayer>(ps.ElementAt(i))
+            //    );
+            //}
+
+            return players;
+        }
+
+        public double InfluenceCalculation(FIFAPlayer p)
+        {
+           
+
+            var leadership = (6 - p.emotion) + p.personality;
+
+            var dateJoined = CEMUtilities.FIFACoreDateTime.AddDays(p.playerjointeamdate);
+
+            leadership += Convert.ToInt32(Math.Ceiling(p.TimeAtClubInYears > 2 ? p.TimeAtClubInYears * 0.5 : p.TimeAtClubInYears));
+
+
+            return leadership;
+        }
+
+        public List<FIFAPlayer> GetTeamLeaders()
+        {
+            List<FIFAPlayer> players = GetPlayers().OrderByDescending(x => InfluenceCalculation(x)).Take(3).ToList();
+
+            return players;
+        }
+
+        public List<FIFAPlayer> GetTeamInfluences()
+        {
+            List<FIFAPlayer> players = GetPlayers().OrderByDescending(x => InfluenceCalculation(x)).Skip(3).Take(4).ToList();
+
+            return players;
+        }
+
+        public List<FIFAPlayer> GetTeamTroubleMakers()
+        {
+             List<FIFAPlayer> players = GetPlayers().OrderBy(x => InfluenceCalculation(x)).Take(3).ToList();
+
+
+            return players;
+        }
     }
 }

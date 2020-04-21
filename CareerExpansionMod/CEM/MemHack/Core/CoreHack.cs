@@ -10,7 +10,7 @@ using v2k4FIFAModdingCL.MemHack.Career;
 using System.Linq;
 using System.Threading;
 using System.Diagnostics;
-using CareerExpansionMod.CME;
+using CareerExpansionMod.CEM;
 
 namespace v2k4FIFAModdingCL.MemHack.Core
 {
@@ -57,11 +57,11 @@ namespace v2k4FIFAModdingCL.MemHack.Core
                             isoDate
                             , out DateTime d))
                         {
-                            CMECore.CMECoreInstance.CoreHack = this;
+                            CEMCore.CEMCoreInstance.CoreHack = this;
                             if (d.Date != internal_gamedate.Date)
                             {
                                 //EventGameDateChanged?.Invoke(internal_gamedate.Date, d.Date);
-                                CMECore.CMECoreInstance.GameDateChanged(internal_gamedate.Date, d.Date);
+                                CEMCore.CEMCoreInstance.GameDateChanged(internal_gamedate.Date, d.Date);
                                 internal_gamedate = d.Date;
                             }
                             return d;

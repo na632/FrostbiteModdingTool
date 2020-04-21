@@ -1,6 +1,6 @@
-﻿@using CareerExpansionMod.CME
-@using CareerExpansionMod.CME.FIFA
-@using CareerExpansionMod.CME.Finances
+﻿@using CareerExpansionMod.CEM
+@using CareerExpansionMod.CEM.FIFA
+@using CareerExpansionMod.CEM.Finances
 @{
     ViewData["Title"] = "Sponsors";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -80,11 +80,11 @@
                                             @if (CareerDB1.FIFAUser != null)
                                             {
 
-                                                @CMEUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName))
+                                                @CEMUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName))
                                             }
                                             else
                                             {
-                                                @CMEUtilities.FormatCurrencyNumber(Convert.ToInt32(kitSponsor.SponsorPayoutPerYearMax))
+                                                @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(kitSponsor.SponsorPayoutPerYearMax))
                                             }
                                         </td>
 

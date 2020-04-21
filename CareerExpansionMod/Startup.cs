@@ -326,7 +326,7 @@ namespace CareerExpansionMod
             services.AddControllersWithViews();
         }
 
-        public static CME.CMECore CMECore = new CME.CMECore();
+        public static CEM.CEMCore CMECore = new CEM.CEMCore();
         static Thread thread;
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

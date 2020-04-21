@@ -1,11 +1,11 @@
-using CareerExpansionMod.CME.FIFA;
+using CareerExpansionMod.CEM.FIFA;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using v2k4FIFAModding.Career.CME.FIFA;
-using CareerExpansionMod.CME.Finances;
+using CareerExpansionMod.CEM.Finances;
 using v2k4FIFAModdingCL.MemHack.Core;
-using CareerExpansionMod.CME.Data;
+using CareerExpansionMod.CEM.Data;
 
 namespace CMEUnitTests
 {

@@ -1,4 +1,4 @@
-﻿@model CareerExpansionMod.CME.Finances.Sponsor
+﻿@model CareerExpansionMod.CEM.Finances.Sponsor
 @{
     ViewData["Title"] = "EditSponsor";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -23,7 +23,7 @@
             <br />
             @Html.LabelFor(x => x.SponsorType)
             <br />
-            @Html.DropDownListFor(x=>x.SponsorType, Html.GetEnumSelectList<CareerExpansionMod.CME.Finances.eSponsorType>())
+            @Html.DropDownListFor(x=>x.SponsorType, Html.GetEnumSelectList<CareerExpansionMod.CEM.Finances.eSponsorType>())
             <br />
             @Html.LabelFor(x => x.SponsorPayoutPerYearMax)
             <br />

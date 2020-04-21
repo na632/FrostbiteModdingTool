@@ -1,5 +1,5 @@
-﻿using CareerExpansionMod.CME.Data;
-using CareerExpansionMod.CME.FIFA;
+﻿using CareerExpansionMod.CEM.Data;
+using CareerExpansionMod.CEM.FIFA;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using v2k4FIFAModding.Career.CME.FIFA;
 
-namespace CareerExpansionMod.CME.Finances
+namespace CareerExpansionMod.CEM.Finances
 {
     public enum eSponsorType : int
     {
@@ -46,7 +46,7 @@ namespace CareerExpansionMod.CME.Finances
         { 
             get
             {
-                var datalocation = CMECore.CMEMyDocumentsDirectory + "\\Data\\CME\\Sponsors\\";
+                var datalocation = CEMCore.CEMMyDocumentsDirectory + "\\Data\\CEM\\Sponsors\\";
                 Directory.CreateDirectory(datalocation);
                 return datalocation;
 
@@ -133,7 +133,7 @@ namespace CareerExpansionMod.CME.Finances
         {
             get
             {
-                return CMECore.CMEMyDocumentsDbSaveDirectory;
+                return CEMCore.CEMMyDocumentsDbSaveDirectory;
 
             }
         }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using v2k4FIFAModding.Career.CME.FIFA;
 
-namespace CareerExpansionMod.CME.FIFA
+namespace CareerExpansionMod.CEM.FIFA
 {
     public class CareerDB1
     {
@@ -15,5 +15,7 @@ namespace CareerExpansionMod.CME.FIFA
         public static CareerDB1 Current;
         public static FIFAUsers FIFAUser { get; set; }
         public static FIFATeam UserTeam { get; set; }
+
+        public static List<FIFAPlayer> UserPlayers { get; set; }
     }
 }

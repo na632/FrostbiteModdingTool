@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CareerExpansionMod.CME;
-using CareerExpansionMod.CME.FIFA;
-using CareerExpansionMod.CME.Finances;
+using CareerExpansionMod.CEM;
+using CareerExpansionMod.CEM.FIFA;
+using CareerExpansionMod.CEM.Finances;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CareerExpansionMod.Controllers
@@ -80,21 +80,21 @@ namespace CareerExpansionMod.Controllers
         [HttpGet]
         public JsonResult GetStartingBudget()
         {
-            return Json(CMECore.CMECoreInstance.Finances.StartingBudget);
+            return Json(CEMCore.CEMCoreInstance.Finances.StartingBudget);
         }
 
         [HttpGet]
         public JsonResult GetTransferBudget()
         {
-            return Json(CMECore.CMECoreInstance.Finances.TransferBudget);
+            return Json(CEMCore.CEMCoreInstance.Finances.TransferBudget);
         }
 
         [HttpGet]
         //[Route("Finance/SetTransferBudget/{amount}")]
         public JsonResult SetTransferBudget(int amount)
         {
-            CMECore.CMECoreInstance.Finances.TransferBudget = amount;
-            return Json(CMECore.CMECoreInstance.Finances.TransferBudget);
+            CEMCore.CEMCoreInstance.Finances.TransferBudget = amount;
+            return Json(CEMCore.CEMCoreInstance.Finances.TransferBudget);
 
             //return Json("ERR: 001");
         }
@@ -102,7 +102,7 @@ namespace CareerExpansionMod.Controllers
         [HttpGet]
         public JsonResult RequestFunds()
         {
-            var success = CMECore.CMECoreInstance.Finances.RequestAdditionalFunds(out string return_message);
+            var success = CEMCore.CEMCoreInstance.Finances.RequestAdditionalFunds(out string return_message);
             dynamic rJson = new { Success = true, Message = string.Empty };
             //rJson.Success = true;
             //rJson.Message = return_message;

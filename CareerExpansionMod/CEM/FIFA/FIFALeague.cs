@@ -31,7 +31,7 @@ namespace v2k4FIFAModding.Career.CME.FIFA
                 return FIFALeagues;
 
             var dlllocation = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
-            var fulllocation = dlllocation + "\\CME\\Data\\leagues.csv";
+            var fulllocation = dlllocation + "\\CEM\\Data\\leagues.csv";
             using (var reader = new StreamReader(fulllocation))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {

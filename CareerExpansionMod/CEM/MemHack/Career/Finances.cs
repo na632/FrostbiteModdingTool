@@ -1,4 +1,4 @@
-﻿using CareerExpansionMod.CME;
+﻿using CareerExpansionMod.CEM;
 using Memory;
 using System;
 using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             {
                 if (CoreHack.GetProcess(out Mem MemLib).HasValue) { 
                     var transferbudget = MemLib.readInt(POINTER_ADDRESSES.TRANSFER_BUDGET);
-                    CMECore.CMECoreInstance.Finances = this;
+                    CEMCore.CEMCoreInstance.Finances = this;
                     return transferbudget;
                 }
                 return -1;
@@ -45,7 +45,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
                 if (CoreHack.GetProcess(out Mem MemLib).HasValue)
                 {
                     MemLib.writeMemory(POINTER_ADDRESSES.TRANSFER_BUDGET, "int", value.ToString());
-                    CMECore.CMECoreInstance.Finances = this;
+                    CEMCore.CEMCoreInstance.Finances = this;
                 }
 
             }
@@ -58,7 +58,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
                 if (CoreHack.GetProcess(out Mem MemLib).HasValue)
                 {
                     var budget = MemLib.readInt(POINTER_ADDRESSES.STARTING_BUDGET);
-                    CMECore.CMECoreInstance.Finances = this;
+                    CEMCore.CEMCoreInstance.Finances = this;
                     return budget;
                 }
                 return -1;
@@ -80,7 +80,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
                 success = false;
             }
 
-            CMECore.CMECoreInstance.Finances = this;
+            CEMCore.CEMCoreInstance.Finances = this;
             return success;
         }
 

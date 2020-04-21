@@ -1,10 +1,10 @@
-﻿using CareerExpansionMod.CME.Finances;
+﻿using CareerExpansionMod.CEM.Finances;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CareerExpansionMod.CME.Data
+namespace CareerExpansionMod.CEM.Data
 {
     public static class DbDataCache
     {

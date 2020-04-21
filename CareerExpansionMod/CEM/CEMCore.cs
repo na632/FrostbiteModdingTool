@@ -1,7 +1,8 @@
-﻿using CareerExpansionMod.CME.FIFA;
+﻿using CareerExpansionMod.CEM.FIFA;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,9 +14,9 @@ using v2k4FIFAModdingCL.CGFE;
 using v2k4FIFAModdingCL.MemHack.Career;
 using v2k4FIFAModdingCL.MemHack.Core;
 
-namespace CareerExpansionMod.CME
+namespace CareerExpansionMod.CEM
 {
-    public class CMECore
+    public class CEMCore
     {
         public static string MyDocumentsDirectory
         {
@@ -35,35 +36,53 @@ namespace CareerExpansionMod.CME
             }
         }
 
-        public static string CMEMyDocumentsDirectory
+        public static string CEMMyDocumentsDirectory
         {
             get
             {
-                var myDocuments = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 20\\CME\\";
+                var myDocuments = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 20\\CEM\\";
                 Directory.CreateDirectory(myDocuments);
                 return myDocuments;
             }
         }
 
-        public static string CMEMyDocumentsDbSaveDirectory
+
+
+        public static string CEMMyDocumentsDbSaveDirectory
         {
             get
             {
-                var saveLocation = CMECore.CMECoreInstance != null && CMECore.CMECoreInstance.CoreHack != null && !string.IsNullOrEmpty(CMECore.CMECoreInstance.CoreHack.SaveName)
-                    ? CMECore.CMECoreInstance.CoreHack.SaveName : "Unknown";
-                var datalocation = CMECore.CMEMyDocumentsDirectory + $"\\Data\\CME\\DB\\{saveLocation}\\";
+                var saveLocation = SaveFolder;
+                var datalocation = CEMCore.CEMMyDocumentsDirectory + $"\\Data\\CEM\\DB\\{saveLocation}\\";
                 Directory.CreateDirectory(datalocation);
                 return datalocation;
 
             }
         }
 
-        public static string CMEInternalDataDirectory
+        public static string SaveFolder
+        {
+            get
+            {
+                var saveLocation = CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && !string.IsNullOrEmpty(CEMCore.CEMCoreInstance.CoreHack.SaveName)
+                        ? CEMCore.CEMCoreInstance.CoreHack.SaveName : "Unknown";
+
+                var settings = new CEMCoreSettings();
+                if (!string.IsNullOrEmpty(settings.OtherSaveFolder))
+                {
+                    saveLocation = new CEMCoreSettings().OtherSaveFolder;
+                }
+
+                return saveLocation;
+            }
+        }
+
+        public static string CEMInternalDataDirectory
         {
             get
             {
                 var baseDir = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
-                var dataFolder = baseDir + "\\CME\\Data\\";
+                var dataFolder = baseDir + "\\CEM\\Data\\";
                 if (!Directory.Exists(dataFolder))
                     Directory.CreateDirectory(dataFolder);
 
@@ -71,8 +90,9 @@ namespace CareerExpansionMod.CME
             }
         }
 
-        public static CMECore CMECoreInstance;
-        public CMECore()
+        public static CEMCoreSettings CEMCoreSettings;
+        public static CEMCore CEMCoreInstance;
+        public CEMCore()
         {
 
             // Initialize FIFA Leagues CSV to Enumerable
@@ -80,7 +100,7 @@ namespace CareerExpansionMod.CME
 
 
             // Setup Singleton
-            CMECoreInstance = this;
+            CEMCoreInstance = this;
         }
 
         public void CoreHack_EventGameDateChanged(DateTime oldDate, DateTime newDate)
@@ -102,7 +122,7 @@ namespace CareerExpansionMod.CME
             {
                 if (SetupCareerFile())
                 {
-
+                    CEMCoreSettings = new CEMCoreSettings();
 
                     // Refresh
                     v2k4FIFAModdingCL.MemHack.Career.Finances.GetTransferBudget();
@@ -122,7 +142,7 @@ namespace CareerExpansionMod.CME
 
             if (CareerFile == null)
             {
-                CareerFile = new CareerFile(CMEInternalDataDirectory + CoreHack.SaveFileName, CMEInternalDataDirectory + "fifa_ng_db-meta.XML");
+                CareerFile = new CareerFile(CEMInternalDataDirectory + CoreHack.SaveFileName, CEMInternalDataDirectory + "fifa_ng_db-meta.XML");
                 //CareerFile.LoadXml(dataFolder + "fifa_ng_db-meta.XML");
                 //CareerFile.LoadEA(dataFolder + CoreHack.SaveFileName);
                 // Setup Internal Career Entities
@@ -142,17 +162,23 @@ namespace CareerExpansionMod.CME
 
                 if (CareerDB1.FIFAUser == null)
                 {
+                    Stopwatch swTeams = new Stopwatch();
+                    swTeams.Start();
+
                     var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
                     // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
                     CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
+
+                    swTeams.Stop();
+                    Debug.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                    Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
                 }
-
-                //Thread teamThread = new Thread(() =>
-                //{
-
 
                 if (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null)
                 {
+                    Stopwatch swTeams = new Stopwatch();
+                    swTeams.Start();
+
                     var dbTeams = CareerFile.Databases[1].GetTable("teams");
                     CareerDB2.Current.teams = dbTeams.ConvertToDataTable();
                     var firstteam = CareerDB2.Current.teams.Rows[0];
@@ -163,19 +189,34 @@ namespace CareerExpansionMod.CME
                     if (team != null)
                         CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
 
+                    swTeams.Stop();
+                    Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
+                    Trace.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
                 }
-                //});
-                //teamThread.Start();
+
+                if (CareerDB1.UserPlayers == null)
+                {
+
+                    Stopwatch swTeams = new Stopwatch();
+                    swTeams.Start();
+
+                    CareerDB2.Current.players = CareerFile.Databases[1].GetTable("players").ConvertToDataTable().AsEnumerable();
+                    CareerDB2.Current.teamplayerlinks = CareerFile.Databases[1].GetTable("teamplayerlinks").ConvertToDataTable().AsEnumerable();
+                    CareerDB2.Current.editedplayernames = CareerFile.Databases[1].GetTable("editedplayernames").ConvertToDataTable().AsEnumerable();
+
+
+                    swTeams.Stop();
+                    Debug.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
+                    Trace.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
+                }
 
                 if (CareerDB2.Current.leagueteamlinks == null)
                 {
-                    //tableNameToSearch = "leagueteamlinks";
                     CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
                 }
 
             }
 
-            //teamThread.Join();
 
             return true;
         }
@@ -219,7 +260,7 @@ namespace CareerExpansionMod.CME
             var tableLongName = GetTableLongNameFromShortName(tableShortName);
 
             var baseDir = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
-            var dataFolder = baseDir + "\\CME\\Data\\";
+            var dataFolder = baseDir + "\\CEM\\Data\\";
             var xmlMetaData = dataFolder + "fifa_ng_db-meta.XML";
 
             // Loading from a file, you can also load from a stream
@@ -241,7 +282,7 @@ namespace CareerExpansionMod.CME
         public static string GetTableLongNameFromShortName(string shortName)
         {
             var baseDir = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
-            var dataFolder = baseDir + "\\CME\\Data\\";
+            var dataFolder = baseDir + "\\CEM\\Data\\";
             var xmlMetaData = dataFolder + "fifa_ng_db-meta.XML";
 
             // Loading from a file, you can also load from a stream
@@ -266,7 +307,7 @@ namespace CareerExpansionMod.CME
             {
                 try
                 {
-                    File.Copy(myDocuments + CoreHack.SaveFileName, CMEInternalDataDirectory + CoreHack.SaveFileName, true);
+                    File.Copy(myDocuments + CoreHack.SaveFileName, CEMInternalDataDirectory + CoreHack.SaveFileName, true);
                     return true;
                 }
                 catch
@@ -277,4 +318,5 @@ namespace CareerExpansionMod.CME
             return false;
         }
     }
+
 }

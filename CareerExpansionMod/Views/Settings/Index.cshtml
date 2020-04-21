@@ -1,0 +1,11 @@
+﻿@model CareerExpansionMod.CEM.CEMCoreSettings
+
+
+
+
+@using (Html.BeginForm("Edit", "Settings"))
+{
+    @Html.LabelFor(m=>m.OtherSaveFolder)
+    <br />
+    @Html.EditorFor(m => m.OtherSaveFolder)
+}

@@ -1,0 +1,46 @@
+﻿@using CareerExpansionMod.CEM.FIFA
+@{
+
+
+
+
+    var User = CareerDB1.FIFAUser;
+    var Team = CareerDB1.UserTeam;
+    var TeamPlayers = Team.GetPlayers();
+    var TeamLeaderPlayers = Team.GetTeamLeaders();
+    var TeamInfluencePlayers = Team.GetTeamInfluences();
+    var TeamRegularPlayers = Team.GetPlayers();
+    var TeamTroubleMakers = Team.GetTeamTroubleMakers();
+
+
+}
+
+    <div class="">
+        <div class="">
+            <h5>Leaders</h5>
+            @foreach (var p in TeamLeaderPlayers)
+            {
+                <div class="hierachy-tile">
+                    @p.Name
+                </div>
+            }
+        </div>
+        <div class="">
+            <h5>Influencers</h5>
+            @foreach (var p in TeamInfluencePlayers)
+            {
+                <div class="hierachy-tile">
+                    @p.Name
+                </div>
+            }
+        </div>
+        <div class="">
+            <h5>Trouble Makers</h5>
+            @foreach (var p in TeamTroubleMakers)
+            {
+                <div class="hierachy-tile">
+                    @p.Name
+                </div>
+            }
+        </div>
+    </div>

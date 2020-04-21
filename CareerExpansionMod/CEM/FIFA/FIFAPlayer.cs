@@ -1,9 +1,28 @@
-﻿using System;
+﻿using CareerExpansionMod.CEM;
+using CareerExpansionMod.CEM.FIFA;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
 {
+    public enum PersonalityTypes
+    {
+Selfish = 1,
+     Individual = 2,
+         Normal = 3,
+              TeamPlayer = 4,
+                   UltimateProfessional = 5
+    }
+
+    public enum EmotionalTypes
+    {
+        VeryCalm = 1,
+        Calm = 2,
+        Normal = 3,
+        HotTemper = 4,
+        Volcano = 5
+    }
     public class FIFAPlayer
     {
         public int firstnameid { get; set; }
@@ -103,6 +122,14 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public int sideburnscode { get; set; }
         public int weakfootabilitytypecode { get; set; }
         public int jumping { get; set; }
+        /// <summary>
+        /// Personality of the player - How professional they are
+        /// 1 - Selfish
+        /// 2 - Individual
+        /// 3 - Balanced
+        /// 4 - Team Player / Exceptional Group Player
+        /// 5 - Ultimate Professional / Team Leader
+        /// </summary>
         public int personality { get; set; }
         public int gkkickstyle { get; set; }
         public int stamina { get; set; }
@@ -116,6 +143,15 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public int shortstyle { get; set; }
         public int overallrating { get; set; }
         public int smallsidedshoetypecode { get; set; }
+
+        /// <summary>
+        /// How emotional a player is 
+        /// 1 - 
+        /// 2 - 
+        /// 3 - Balanced
+        /// 4 - Somewhat emotional
+        /// 5 - Highly Emotional (Volcano)
+        /// </summary>
         public int emotion { get; set; }
         public int runstylecode { get; set; }
         public int jerseyfit { get; set; }
@@ -130,6 +166,42 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public int accessorycolourcode2 { get; set; }
         public int tattoorightleg { get; set; }
         public int facialhaircolorcode { get; set; }
-    }
+
+
+        public string Name
+        {
+            get
+            {
+                return FIFAPlayerName.GetNameFromFIFAPlayer(this);
+            }
+        }
+
+        /// Custom Additions
+        /// 
+
+        public DateTime DateJoined
+        {
+            get
+            {
+                return CEMUtilities.FIFACoreDateTime.AddDays(playerjointeamdate);
+            }
+        }
+
+        public int TimeAtClubInYears
+        {
+            get
+            {
+                var gameDate = CEMCore.CEMCoreInstance.CoreHack.GameDate;
+                if (gameDate.HasValue)
+                {
+                    int TimeAtClubInYears = Convert.ToInt32(Math.Ceiling((gameDate - DateJoined).Value.TotalDays / 365));
+                    return TimeAtClubInYears > 0 ? TimeAtClubInYears : 1;
+                }
+                return 1;
+            }
+        }
+
+        
+}
 
 }

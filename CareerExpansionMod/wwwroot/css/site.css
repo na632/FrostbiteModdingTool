@@ -338,3 +338,10 @@ input[type=range]:focus::-ms-fill-lower {
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
+
+
+
+
+.hierachy-tile {
+    width: 100px; height: 100px; margin: 10px; padding: 5px; border: 1px solid black; display: inline-flex;
+}
