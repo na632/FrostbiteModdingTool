@@ -1,18 +1,16 @@
 ﻿@model CareerExpansionMod.CEM.Finances.Sponsor
 @{
-    ViewData["Title"] = "EditSponsor";
-    Layout = "~/Views/Shared/_LayoutEditMode.cshtml";
+    ViewData["Title"] = "CreateSponsor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 
 <div class="card card-2x">
     <div class="card-header">
-        <h1>Edit Sponsor</h1>
+        <h1>Create a Sponsor</h1>
     </div>
     <div class="card-body allow-overflow-y">
 
-        @*@using (Html.BeginForm("Edit", "Sponsor"))*@
-        <form action="Sponsor/Edit/@Model.SponsorName" method="post">
+        <form action="Sponsor/Create" method="post">
             <button class="btn btn-success btn-sm" type="submit"><i class="fa fa-save"></i> Save</button>
             <h2>Details</h2>
             @Html.LabelFor(x => x.SponsorName)
@@ -40,8 +38,6 @@
             @Html.EditorFor(x => x.SponsorImageUrl)
             <br />
             <h2>Levels</h2>
-
-
             @Html.DropDownList("ddlSponsorLevel0", CareerExpansionMod.CEM.CEMUtilities.GetNumberTrueFalseSelectList(Model.SponsorLevels[0]));
             @Html.DropDownList("ddlSponsorLevel1", CareerExpansionMod.CEM.CEMUtilities.GetNumberTrueFalseSelectList(Model.SponsorLevels[1]));
             @Html.DropDownList("ddlSponsorLevel2", CareerExpansionMod.CEM.CEMUtilities.GetNumberTrueFalseSelectList(Model.SponsorLevels[2]));
@@ -52,16 +48,10 @@
             @Html.DropDownList("ddlSponsorLevel7", CareerExpansionMod.CEM.CEMUtilities.GetNumberTrueFalseSelectList(Model.SponsorLevels[7]));
             @Html.DropDownList("ddlSponsorLevel8", CareerExpansionMod.CEM.CEMUtilities.GetNumberTrueFalseSelectList(Model.SponsorLevels[8]));
             @Html.DropDownList("ddlSponsorLevel9", CareerExpansionMod.CEM.CEMUtilities.GetNumberTrueFalseSelectList(Model.SponsorLevels[9]));
-
         </form>
-        <h2>Sponsoring</h2>
-        <table class="table">
-            <tbody>
-            </tbody>
-        </table>
-
-
     </div>
 </div>
+
+
 
 

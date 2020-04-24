@@ -1,0 +1,24 @@
+﻿@model CareerExpansionMod.CEM.CSVImportSponsor
+
+@{
+    ViewData["Title"] = "ImportFromCSV";
+    Layout = "~/Views/Shared/_LayoutEditMode.cshtml";
+}
+
+<h1>Import From CSV</h1>
+<form asp-action="ImportFromCSV" asp-controller="Sponsor" style="color:black;" enctype="multipart/form-data">
+
+    @if(ViewBag.Error == true)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorText
+        </div>
+    }
+
+<strong>Upload the CSV:</strong>
+    <br />
+    <input type="file" asp-for="File" accept=".csv" />
+
+    <button class="btn btn-sm btn-success" type="submit">Submit</button>
+</form>
+

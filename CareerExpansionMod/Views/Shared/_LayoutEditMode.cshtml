@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <base href="~/" />
+    <meta name="viewport" content="width=device-width" />
+    <title>CEM - Edit Mode</title>
+    <link rel="stylesheet" href="~/lib/reset/minireset.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @*<link rel="stylesheet" href="~/css/site.css" />*@
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+    @*<style>
+        body {
+            background: #fdfdfd;
+        }
+    </style>*@
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm text-black border-bottom box-shadow mb-3">
+            <div class="container text-center">
+                <span class="navbar-brand">paulv2k4 Career Expansion Mod (EDIT MODE)</span>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            <header class="pb-2">
+                <ul class="nav nav-justified">
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Home")">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>&nbsp;Game Mode
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Sponsor")">
+                            <i class="fa fa-money-bill" aria-hidden="true"></i>&nbsp;Sponsors
+                        </a>
+                    </li>
+                </ul>
+            </header>
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/angularjs/angular.min.js"></script>
+    <script src="~/lib/angular-ui-router/angular-ui-router.js"></script>
+    <script src="_framework/blazor.server.js"></script>
+    <script src="~/lib/vue/vue.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

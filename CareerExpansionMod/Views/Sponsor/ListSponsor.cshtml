@@ -1,0 +1,55 @@
+﻿@model IEnumerable<CareerExpansionMod.CEM.Finances.Sponsor>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutEditMode.cshtml";
+}
+
+    <div class="container">
+
+
+        @Html.ActionLink("Create", "Create", "Sponsor")
+        &nbsp;
+        @Html.ActionLink("Import", "ImportFromCSV", "Sponsor")
+
+
+
+        @if (Model != null)
+        {
+            <table class="table">
+                <thead>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@item.GetSponsorImageUrl()" style="width: 50px;" />
+                            </td>
+                            <td>
+                                @item.SponsorName
+                            </td>
+                            <td>
+                                @foreach (var level in item.SponsorLevels)
+                                {
+                                    <span>@level</span>
+                                }
+                            </td>
+                            <td>
+                                @item.SponsorType
+                            </td>
+                            <td>
+                                @Html.ActionLink("Edit", "Edit", "Sponsor", new { @name = item.SponsorName })
+                                @Html.ActionLink("Delete", "Delete", "Sponsor", new { @name = item.SponsorName })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot></tfoot>
+            </table>
+        }
+        else
+        {
+            <span class="alert alert-danger">No Items</span>
+        }
+
+    </div>

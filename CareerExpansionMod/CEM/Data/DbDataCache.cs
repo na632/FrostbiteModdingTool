@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static CareerExpansionMod.CEM.Finances.Sponsor;
 
 namespace CareerExpansionMod.CEM.Data
 {
@@ -16,7 +17,7 @@ namespace CareerExpansionMod.CEM.Data
             Sponsor sponsorNone = new Sponsor()
             {
                 SponsorType = eSponsorType.General,
-                SponsorLevels = new List<bool>() { true, true, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
                 SponsorName = "none",
                 SponsorPayoutPerYearMax = 0
             };
@@ -25,7 +26,7 @@ namespace CareerExpansionMod.CEM.Data
             Sponsor sponsorYobet = new Sponsor()
             {
                 SponsorType = eSponsorType.Main,
-                SponsorLevels = new List<bool>() { false, true, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
                 SponsorName = "yobet",
                 SponsorPayoutPerYearMax = 1000000
             };
@@ -34,7 +35,7 @@ namespace CareerExpansionMod.CEM.Data
             Sponsor sponsorLCV = new Sponsor()
             {
                 SponsorType = eSponsorType.Travel,
-                SponsorLevels = new List<bool>() { false, false, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
                 SponsorName = "lowcostvans",
                 SponsorPayoutPerYearMax = 500000
             };
@@ -45,7 +46,7 @@ namespace CareerExpansionMod.CEM.Data
             Sponsor sponsorDrink = new Sponsor()
             {
                 SponsorType = eSponsorType.Alcohol,
-                SponsorLevels = new List<bool>() { true, true, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
                 SponsorName = "carling",
                 SponsorPayoutPerYearMax = 750000
             };
@@ -54,7 +55,7 @@ namespace CareerExpansionMod.CEM.Data
             Sponsor sponsorTraining = new Sponsor()
             {
                 SponsorType = eSponsorType.Training,
-                SponsorLevels = new List<bool>() { true, true, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
                 SponsorName = "swanseauniversity",
                 SponsorPayoutPerYearMax = 250000,
                 SpecificTeamId = 1960
@@ -70,7 +71,7 @@ namespace CareerExpansionMod.CEM.Data
             Sponsor sponsorKitAdidas = new Sponsor()
             {
                 SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<bool>() { true, true, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
                 SponsorName = "Adidas",
                 SponsorPayoutPerYearMax = 5000000
             };
@@ -80,7 +81,8 @@ namespace CareerExpansionMod.CEM.Data
             Sponsor sponsorKitEmirates = new Sponsor()
             {
                 SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
+                //SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
                 SponsorName = "Emirates",
                 SponsorPayoutPerYearMax = 5000000
             };
@@ -89,7 +91,8 @@ namespace CareerExpansionMod.CEM.Data
             new Sponsor()
             {
                 SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
+                //SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
                 SponsorName = "Etihad",
                 SponsorPayoutPerYearMax = 5000000
             }.Save();
@@ -97,7 +100,8 @@ namespace CareerExpansionMod.CEM.Data
             new Sponsor()
             {
                 SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
+                //SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
                 SponsorName = "JDSports",
                 SponsorPayoutPerYearMax = 5000000
             }.Save();
@@ -105,7 +109,8 @@ namespace CareerExpansionMod.CEM.Data
             new Sponsor()
             {
                 SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
+                //SponsorLevels = new List<bool>() { true, true, false, false, false, false, false, false, false, false }.ToArray(),
                 SponsorName = "JDSports",
                 SponsorPayoutPerYearMax = 5000000
             }.Save();
@@ -113,7 +118,8 @@ namespace CareerExpansionMod.CEM.Data
             new Sponsor()
             {
                 SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<bool>() { false, true, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
+                //SponsorLevels = new List<bool>() { false, true, true, true, true, true, true, true, true, true }.ToArray(),
                 SponsorName = "Joma",
                 SponsorPayoutPerYearMax = 750000
             }.Save();
@@ -121,7 +127,8 @@ namespace CareerExpansionMod.CEM.Data
             new Sponsor()
             {
                 SponsorType = eSponsorType.Kit,
-                SponsorLevels = new List<bool>() { true, true, true, true, true, true, true, true, true, true }.ToArray(),
+                SponsorLevels = new List<int>() { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }.ToArray(),
+                //SponsorLevels = new List<bool>() { true, true, true, true, true, true, true, true, true, true }.ToArray(),
                 SponsorName = "Nike",
                 SponsorPayoutPerYearMax = 5000000
             }.Save();

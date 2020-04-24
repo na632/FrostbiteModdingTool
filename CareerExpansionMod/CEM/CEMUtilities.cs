@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -7,8 +8,32 @@ using System.Threading.Tasks;
 
 namespace CareerExpansionMod.CEM
 {
+    public enum NumberTrueFalse
+    {
+        False = 0,
+        True = 1
+    }
     public static class CEMUtilities
     {
+        
+        public static List<SelectListItem> GetNumberTrueFalseSelectList(int? isTrue)
+        {
+            var lstItems = new List<SelectListItem>();
+
+            if (isTrue.HasValue)
+            {
+                lstItems.Add(new SelectListItem("True", "1", isTrue.Value > 0 ? true : false));
+                lstItems.Add(new SelectListItem("False", "0", isTrue.Value <= 0 ? true : false));
+            }
+            else
+            {
+                lstItems.Add(new SelectListItem("True", "1"));
+                lstItems.Add(new SelectListItem("False", "0"));
+            }
+
+            return lstItems;
+        }
+
         public static DateTime FIFACoreDateTime
         {
             get

@@ -41,7 +41,7 @@ namespace CareerExpansionMod.Controllers
             if(Startup.FIFAProcess != null)
             {
                 var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
-                if(!coreHack.GameDate.HasValue)
+                if(coreHack.GameDate.HasValue)
                 {
                     return new JsonResult($"Career Mode is running");
                 }

@@ -3,7 +3,9 @@ using CareerExpansionMod.CEM.FIFA;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +20,8 @@ namespace CareerExpansionMod.CEM.Finances
         General,
         Main,
         Kit,
+        [Display(Name = "Kit Sleeve")]
+        Kit_Sleeve,
         Alcohol,
         Drinks,
         Food,
@@ -31,18 +35,44 @@ namespace CareerExpansionMod.CEM.Finances
 
     public class Sponsor
     {
+        public Sponsor()
+        {
+
+        }
+
+        private bool AllowOverwrite = true;
+
+        public Sponsor(string name)
+        {
+            var finalLocation = CEMSponsorDirectory + SponsorName + ".json";
+            if (File.Exists(finalLocation))
+            {
+                AllowOverwrite = false;
+                return;
+            }
+
+            SponsorName = name;
+        }
+
         public string SponsorName { get; set; }
 
-        public bool[] SponsorLevels = new bool[10];
+        public int[] SponsorLevels = new int[10];
 
         public eSponsorType SponsorType { get; set; }
 
         public double SponsorPayoutPerYearMax { get; set; }
 
+        /// <summary>
+        /// If NULL or Empty searches the CEM Directory of images
+        /// </summary>
+        [Display(Name = "Image Url - Leave blank to use internal image")]
+        public string SponsorImageUrl { get; set; }
 
         public int? SpecificTeamId { get; set; }
 
-        public static string CMESponsorDirectory
+        public string ParentSponsorName { get; set; }
+
+        public static string CEMSponsorDirectory
         { 
             get
             {
@@ -55,13 +85,26 @@ namespace CareerExpansionMod.CEM.Finances
 
         public string GetSponsorImageUrl()
         {
-            var dlllocation = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
-            //Directory.EnumerateFiles(dlllocation + "Career/CME/Data/")
+            // External Link
+            if (!string.IsNullOrEmpty(SponsorImageUrl))
+                return SponsorImageUrl;
 
-            var finalValue = Directory.EnumerateFiles(dlllocation + "/wwwroot/images/sponsors/").ToList().FirstOrDefault(x=>x.Contains(SponsorName.ToLower()));
-            if (finalValue == null)
+
+            // Internal file
+            var dlllocation = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
+
+            var allFiles = Directory.EnumerateFiles(dlllocation + "/wwwroot/images/sponsors/");
+            var finalValue = allFiles
+                .FirstOrDefault(x=>
+                    x.ToLower().Contains(SponsorName.ToLower())
+                    || x.ToLower().Replace("_", " ").Contains(SponsorName.ToLower()));
+            if (finalValue == null && string.IsNullOrEmpty(ParentSponsorName))
             {
-                finalValue = "/images/sponsors/noimage.jpg";
+                finalValue = "/images/sponsors/none.jtif";
+            }
+            else if(!string.IsNullOrEmpty(ParentSponsorName))
+            {
+                finalValue = Sponsor.Load(ParentSponsorName).GetSponsorImageUrl();
             }
             else
             {
@@ -72,11 +115,19 @@ namespace CareerExpansionMod.CEM.Finances
 
         public void Save(bool saveToFile = true)
         {
-            var finalLocation = CMESponsorDirectory + SponsorName + ".json";
-            DbDataCache.Sponsors.RemoveAll(x => x.SponsorName == SponsorName);
-            DbDataCache.Sponsors.Add(this);
-            if(saveToFile)
-                File.WriteAllText(finalLocation, JsonConvert.SerializeObject(this));
+            if (AllowOverwrite)
+            {
+                var finalLocation = CEMSponsorDirectory + SponsorName + ".json";
+                DbDataCache.Sponsors.RemoveAll(x => x.SponsorName == SponsorName);
+                DbDataCache.Sponsors.Add(this);
+                if (saveToFile)
+                    File.WriteAllText(finalLocation, JsonConvert.SerializeObject(this));
+            }
+            else
+            {
+                Debug.WriteLine("We haven't overwritten " + SponsorName);
+                Trace.WriteLine("We haven't overwritten " + SponsorName);
+            }
         }
 
         public static Sponsor Load(string sponsorName)
@@ -85,7 +136,7 @@ namespace CareerExpansionMod.CEM.Finances
             if (existingRecord != null)
                 return existingRecord;
 
-            var finalLocation = CMESponsorDirectory + sponsorName + ".json";
+            var finalLocation = CEMSponsorDirectory + sponsorName + ".json";
             if (File.Exists(finalLocation))
             {
                 var fileRecord = JsonConvert.DeserializeObject<Sponsor>(File.ReadAllText(finalLocation));
@@ -98,17 +149,25 @@ namespace CareerExpansionMod.CEM.Finances
 
         public static IEnumerable<Sponsor> LoadAll()
         {
-            var datalocation = CMESponsorDirectory;
+            var datalocation = CEMSponsorDirectory;
             var files = Directory.EnumerateFiles(datalocation);
 
-            if (DbDataCache.Sponsors.Count == 0)
+            DbDataCache.Sponsors = new List<Sponsor>();
+            //if (DbDataCache.Sponsors.Count == 0)
+            //{
+            foreach (var f in files)
             {
-                foreach (var f in files)
-                {
-                    DbDataCache.Sponsors.Add(JsonConvert.DeserializeObject<Sponsor>(File.ReadAllText(f)));
-                }
+                DbDataCache.Sponsors.Add(JsonConvert.DeserializeObject<Sponsor>(File.ReadAllText(f)));
             }
+            //}
             return DbDataCache.Sponsors;
+        }
+
+        public void Delete()
+        {
+            var finalLocation = CEMSponsorDirectory + SponsorName + ".json";
+            DbDataCache.Sponsors.RemoveAll(x => x.SponsorName == SponsorName);
+            File.Delete(finalLocation);
         }
     }
 
@@ -121,7 +180,7 @@ namespace CareerExpansionMod.CEM.Finances
         public eSponsorType SponsorType { get; set; }
         public int ContractLengthInYears { get; set; }
         public DateTime GameDateStarted { get; set; }
-        public int PayoutPerYear { get; set; }
+        public double PayoutPerYear { get; set; }
         public int Confidence { get; set; }
 
         public Sponsor GetSponsor()
@@ -141,6 +200,7 @@ namespace CareerExpansionMod.CEM.Finances
 
         public static void Save()
         {
+
             var finalLocation = CMESponsorsToTeamDirectory + "SponsorsToTeams.json";
             File.WriteAllText(finalLocation, JsonConvert.SerializeObject(DbDataCache.SponsorsToTeams));
         }
@@ -159,6 +219,28 @@ namespace CareerExpansionMod.CEM.Finances
             return Load().Where(x => x.TeamId == teamId).ToList();
         }
 
+        public static List<Sponsor> GetAvailableSponsorsForTeamAndType(int teamid, eSponsorType type)
+        {
+            if (CareerDB1.UserTeam != null && CareerDB2.Current.ParentDataSet != null)
+            {
+                var team = CareerDB1.UserTeam;
+                if (team != null)
+                {
+                    var prestige = Convert.ToInt32(team.domesticprestige);
+                    var leagueRank = (from ltl in CareerDB2.Current.ParentDataSet.Tables["leagueteamlinks"].AsEnumerable()
+                                      join l in CareerDB2.Current.ParentDataSet.Tables["leagues"].AsEnumerable() on ltl.Field<int>("leagueid") equals l.Field<int>("leagueid")
+                                      where Convert.ToInt32(ltl["teamid"]) == teamid
+                                      select l.Field<int>("level")).FirstOrDefault();
+                    var rankRatio = Convert.ToDouble(11 - leagueRank);
+
+                    var leagueRankSponsors = Sponsor.LoadAll().Where(x => x.SponsorType == type && x.SponsorLevels[leagueRank] == 1);
+                    return leagueRankSponsors.ToList();
+                    
+                }
+            }
+            throw new NotImplementedException();
+        }
+
         public static int GetCalculatedContractLengthInMonths(int teamid, string sponsor)
         {
             return 12;
@@ -173,7 +255,7 @@ namespace CareerExpansionMod.CEM.Finances
         public static int GetCaclulatedPayoutAmountPerYear(int teamid, string sponsorName)
         {
             var sponsor = Sponsor.Load(sponsorName);
-            if (sponsor != null && CareerDB2.Current.ParentDataSet != null) 
+            if (sponsor != null && CareerDB2.Current != null && CareerDB2.Current.ParentDataSet != null) 
             {
                 var team = CareerDB1.UserTeam;
                 if (team != null)
