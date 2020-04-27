@@ -34,10 +34,10 @@
                 </div>
                 <div class="card-body" id="budgetView" style="display:block;">
                     <h4>Overview</h4>
+                    <button class="" style="z-index:9999999;" onclick="editBudgets()"><i class="fa fa-edit fa-align-right"></i></button>
                     <div class="card-body-icon">
                         <i class="fas fa-wallet"></i>
                     </div>
-                    <span class="float-right text-right" onclick="editBudgets()"><i class="fa fa-edit fa-align-right"></i></span>
                     <hr />
                     <div class="row">
                         <label class="col-form-label col-6">Starting Budget</label>
@@ -235,12 +235,12 @@
                         <strong>Request Funds from your board</strong>
                     </div>
                     <div class="pt-3">
-                        <span id="txtRequestFundsMessage"></span>
+                        <div style="line-height: 1em;" id="txtRequestFundsMessage"></div>
                     </div>
                 </a>
             </div>
             <div class="card">
-                <a class="card-body" onclick="requestFunds()" style="text-align:left; vertical-align: top;">
+                <a class="card-body" href="@Url.Action("LoansAndDebts")" style="text-align:left; vertical-align: top;">
                     <h4>Debts &amp; Loans</h4>
                     <div class="card-body-icon">
                         <i class="fas fa-credit-card"></i>
@@ -265,6 +265,17 @@
 
 @section Scripts {
     <script>
+
+        function getTransferBudget() {
+            $.getJSON("Finances/GetTransferBudget", function (d) {
+
+                $('#txtTransferBudget').val(d);
+                $('#lblTransferBudget').html(FormatCurrencyNumber(d));
+
+            });
+        }
+        getTransferBudget();
+
         $.getJSON("Finances/GetStartingBudget", function (d) {
 
             $('#txtStartingBudget').val(d);
@@ -272,12 +283,7 @@
 
         });
 
-        $.getJSON("Finances/GetTransferBudget", function (d) {
-
-            $('#txtTransferBudget').val(d);
-            $('#lblTransferBudget').html(FormatCurrencyNumber(d));
-
-        });
+        
 
         function setBudget() {
             //alert("set a budget: " + $('#txtTransferBudget').val());
@@ -304,24 +310,27 @@
             $.getJSON(url, function (d) {
 
                 console.log(d);
-                $('#btnRequestFunds').removeClass("btn-primary");
-                if (d.success == "true") {
+                alert(d.message);
+                $('#txtRequestFundsMessage').html(d.message);
+                getTransferBudget();
+                //$('#btnRequestFunds').removeClass("btn-primary");
+                //if (d.success == "true") {
 
-                    $('#btnRequestFunds').addClass("btn-success");
-                    $('#txtRequestFundsMessage').html(d.message);
+                //    $('#btnRequestFunds').addClass("btn-success");
+                //    $('#txtRequestFundsMessage').html(d.message);
 
-                }
-                else {
+                //}
+                //else {
 
-                    $('#btnRequestFunds').addClass("btn-danger");
-                    $('#txtRequestFundsMessage').html(d.message);
-                }
-                setTimeout(function () {
-                    $('#btnRequestFunds').removeClass("btn-success");
-                    $('#btnRequestFunds').removeClass("btn-danger");
-                    $('#btnRequestFunds').addClass("btn-primary");
+                //    $('#btnRequestFunds').addClass("btn-danger");
+                //    $('#txtRequestFundsMessage').html(d.message);
+                //}
+                //setTimeout(function () {
+                //    $('#btnRequestFunds').removeClass("btn-success");
+                //    $('#btnRequestFunds').removeClass("btn-danger");
+                //    $('#btnRequestFunds').addClass("btn-primary");
 
-                }, 3000);
+                //}, 3000);
 
             });
 

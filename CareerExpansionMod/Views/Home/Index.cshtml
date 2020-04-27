@@ -58,17 +58,31 @@
                     <h2>Mailbox</h2>
                 </div>
                 <div class="card-body allow-overflow-y">
-                    <ul>
-                        <li>
-                            <h5>Item 1 </h5>
-                            <ul>
-                                <li>There will be live mail here!</li>
-                            </ul>
-                        </li>
-                    </ul>
+                    <div id="app-4">
+                        <ul class="list-unstyled">
+                            <li v-for="todo in todos">
+                                <h3>{{ todo.headline }}</h3>
+                                <p>{{todo.content}}</p>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+<script>
+
+    $.getJSON('GetMailNews', function (data) {
+        var app4 = new Vue({
+            el: '#app-4',
+            data: {
+                todos: data
+            }
+        })
+    });
+</script>
+}
 

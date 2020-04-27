@@ -133,9 +133,12 @@ namespace CareerExpansionMod.CEM
 
         public string CurrentSaveFileName;
 
+        public static bool SetupCareerFileComplete = false;
+
         private bool SetupCareerFile()
         {
-            
+
+            SetupCareerFileComplete = false;
 
             //var CareerFileThread = new Thread(() =>
             //{
@@ -217,7 +220,7 @@ namespace CareerExpansionMod.CEM
 
             }
 
-
+            SetupCareerFileComplete = true;
             return true;
         }
 

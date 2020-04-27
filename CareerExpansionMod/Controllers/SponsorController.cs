@@ -279,7 +279,7 @@ namespace CareerExpansionMod.Controllers
                                         };
                                         DbDataCache.SponsorsToTeams.Add(stadiumSponsorToTeam);
                                     }
-                                    SponsorsToTeam.Save();
+                                    SponsorsToTeam.SaveAll();
                                     row++;
                                 }
 

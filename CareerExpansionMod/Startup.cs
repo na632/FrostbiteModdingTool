@@ -415,7 +415,7 @@ namespace CareerExpansionMod
                         {
                             if (!BrowserWindow.IsFocusedAsync().Result)
                             {
-                                for (var iFocus = 0; iFocus < 4; iFocus++)
+                                for (var iFocus = 0; iFocus < 5; iFocus++)
                                 {
                                     BrowserWindow.Focus();
                                     BrowserWindow.FocusOnWebView();

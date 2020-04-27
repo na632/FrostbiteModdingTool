@@ -70,7 +70,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Index", "Squad")">
+                            <a id="navSquad" class="nav-link" href="@Url.Action("Index", "Squad")" disabled="disabled" >
                                 <i class="fas fa-users" aria-hidden="true"></i>&nbsp;Squad
                             </a>
                         </li>
@@ -194,16 +194,38 @@
         }, 1000);
 
         // poll Career Game Date
+        //setInterval(() => {
+
+        //    $.getJSON("/IsBGLoading/", function (d) {
+
+        //        if (d.BGLoading == "true") {
+        //            $('#IsBGLoading').css('display', 'block');
+        //            $('#BGLoadingWhat').html(d.BGLoadingWhat);
+        //        }
+        //        else {
+        //            $('#IsBGLoading').css('display', 'none');
+        //        }
+
+        //    }).catch(function (t, u, v) {
+        //        console.log(t);
+        //        console.log(u);
+        //        console.log(v);
+
+        //    });
+
+        //}, 1000);
+
         setInterval(() => {
 
-            $.getJSON("/IsBGLoading/", function (d) {
+            $.getJSON("/IsCareerFileLoadComplete/", function (d) {
 
-                if (d.BGLoading == "true") {
+                if (d == "false") {
                     $('#IsBGLoading').css('display', 'block');
-                    $('#BGLoadingWhat').html(d.BGLoadingWhat);
+                    $('#navSquad').click(function () { return false; })
                 }
                 else {
                     $('#IsBGLoading').css('display', 'none');
+                    $('#navSquad').click(function () { return true; })
                 }
 
             }).catch(function (t, u, v) {
@@ -214,6 +236,8 @@
             });
 
         }, 1000);
+
+
     </script>
 
     @RenderSection("Scripts", false)

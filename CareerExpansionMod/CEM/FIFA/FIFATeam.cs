@@ -132,7 +132,7 @@ namespace v2k4FIFAModding.Career.CME.FIFA
             return players;
         }
 
-        public double InfluenceCalculation(FIFAPlayer p)
+        public static double InfluenceCalculation(FIFAPlayer p)
         {
            
 
@@ -140,10 +140,34 @@ namespace v2k4FIFAModding.Career.CME.FIFA
 
             var dateJoined = CEMUtilities.FIFACoreDateTime.AddDays(p.playerjointeamdate);
 
-            leadership += Convert.ToInt32(Math.Ceiling(p.TimeAtClubInYears > 2 ? p.TimeAtClubInYears * 0.5 : p.TimeAtClubInYears));
+            leadership += Convert.ToInt32(Math.Ceiling(p.TimeAtClubInYears > 2 ? p.TimeAtClubInYears * 0.75 : p.TimeAtClubInYears));
 
+            leadership += Convert.ToInt32(Math.Ceiling(p.AgeInYears * 0.1));
 
             return leadership;
+        }
+
+        public EmotionalTypes EmotionalTypeOfTeam
+        {
+            get
+            {
+                var avgEmotion = GetPlayers().Average(x => x.emotion);
+                var t = (EmotionalTypes)Math.Round(avgEmotion);
+
+                return t;
+            }
+
+        }
+
+        public PersonalityTypes PersonalityTypeOfTeam 
+        {
+            get
+            {
+                var avg = GetPlayers().Average(x => x.personality);
+                var t = (PersonalityTypes)Math.Round(avg);
+
+                return t;
+            }
         }
 
         public List<FIFAPlayer> GetTeamLeaders()

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using CareerExpansionMod.Models;
+using CareerExpansionMod.CEM;
 
 namespace CareerExpansionMod.Controllers
 {
@@ -111,6 +112,22 @@ namespace CareerExpansionMod.Controllers
                 
             }
             return new JsonResult(rJson);
+        }
+
+        [HttpGet]
+        [Route("~/IsCareerFileLoadComplete")]
+        public JsonResult IsCareerFileLoadComplete()
+        {
+            return new JsonResult(CEMCore.SetupCareerFileComplete);
+        }
+
+        [HttpGet]
+        [Route("~/GetMailNews")]
+        public JsonResult GetMailNews()
+        {
+            List<CEMNews> news = new List<CEMNews>();
+            news.Add(new CEMNews() { Headline = "Phase 1 is out now!", Content = "Hi all, Welcome to the early Phase 1 test of CEM" });
+            return new JsonResult(news);
         }
     }
 }

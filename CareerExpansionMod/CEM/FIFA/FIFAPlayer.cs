@@ -2,6 +2,8 @@
 using CareerExpansionMod.CEM.FIFA;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
@@ -11,15 +13,23 @@ namespace v2k4FIFAModding.Career.CME.FIFA
 Selfish = 1,
      Individual = 2,
          Normal = 3,
+              [Display(Name = "Team Player")]
+              [Description("Team Player")]
               TeamPlayer = 4,
+        [Display(Name = "Ultimate Professional")]
+              [Description("Ultimate Professional")]
                    UltimateProfessional = 5
     }
 
     public enum EmotionalTypes
     {
+        [Description("Very Calm")]
+        [Display(Name = "Very Calm")]
         VeryCalm = 1,
         Calm = 2,
         Normal = 3,
+        [Description("Hot Temper")]
+        [Display(Name = "Hot Temper")]
         HotTemper = 4,
         Volcano = 5
     }
@@ -131,6 +141,16 @@ Selfish = 1,
         /// 5 - Ultimate Professional / Team Leader
         /// </summary>
         public int personality { get; set; }
+
+        public PersonalityTypes PersonalityType
+        {
+            get
+            {
+                return (PersonalityTypes)personality;
+            }
+        }
+
+
         public int gkkickstyle { get; set; }
         public int stamina { get; set; }
         public int playerid { get; set; }
@@ -153,6 +173,14 @@ Selfish = 1,
         /// 5 - Highly Emotional (Volcano)
         /// </summary>
         public int emotion { get; set; }
+
+        public EmotionalTypes EmotionalType
+        {
+            get
+            {
+                return (EmotionalTypes)emotion;
+            }
+        }
         public int runstylecode { get; set; }
         public int jerseyfit { get; set; }
         public int accessorycode2 { get; set; }
@@ -187,6 +215,14 @@ Selfish = 1,
             }
         }
 
+        public DateTime DateOfBirth
+        {
+            get
+            {
+                return CEMUtilities.FIFACoreDateTime.AddDays(birthdate);
+            }
+        }
+
         public int TimeAtClubInYears
         {
             get
@@ -201,7 +237,21 @@ Selfish = 1,
             }
         }
 
-        
-}
+        public int AgeInYears
+        {
+            get
+            {
+                var gameDate = CEMCore.CEMCoreInstance.CoreHack.GameDate;
+                if (gameDate.HasValue)
+                {
+                    int TimeAtClubInYears = Convert.ToInt32(Math.Ceiling((gameDate - this.DateOfBirth).Value.TotalDays / 365));
+                    return TimeAtClubInYears > 0 ? TimeAtClubInYears : 1;
+                }
+                return 18;
+            }
+        }
+
+
+    }
 
 }

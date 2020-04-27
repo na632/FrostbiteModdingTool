@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CareerExpansionMod.CEM;
+using CareerExpansionMod.CEM.FIFA;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,13 +19,13 @@ namespace CareerExpansionMod.Controllers
 
         public ActionResult Squad()
         {
-            return View("Squad");
+            return View("Squad", CareerDB1.UserTeam);
         }
 
         public PartialViewResult TeamDynamic()
         {
 
-            return PartialView("TeamDynamic");
+            return PartialView("TeamDynamic", CareerDB1.UserTeam);
         }
 
         // GET: Squad/Details/5

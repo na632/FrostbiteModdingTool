@@ -197,8 +197,14 @@ namespace CareerExpansionMod.CEM.Finances
             }
         }
 
+        public void Save()
+        {
+            DbDataCache.SponsorsToTeams.Add(this);
+            SaveAll();
+        }
 
-        public static void Save()
+
+        public static void SaveAll()
         {
 
             var finalLocation = CMESponsorsToTeamDirectory + "SponsorsToTeams.json";

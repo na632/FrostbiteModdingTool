@@ -61,7 +61,7 @@ namespace CareerExpansionMod.Controllers
         public IActionResult Index()
         {
             LoadSponsorsIntoViewBag();
-            return View();
+            return View("FinanceDashboard");
         }
 
         public IActionResult Prices()
@@ -74,6 +74,11 @@ namespace CareerExpansionMod.Controllers
         {
             LoadSponsorsIntoViewBag();
             
+            return View();
+        }
+
+        public IActionResult LoansAndDebts()
+        {
             return View();
         }
 
@@ -103,7 +108,7 @@ namespace CareerExpansionMod.Controllers
         public JsonResult RequestFunds()
         {
             var success = CEMCore.CEMCoreInstance.Finances.RequestAdditionalFunds(out string return_message);
-            dynamic rJson = new { Success = true, Message = string.Empty };
+            dynamic rJson = new { Success = success, Message = return_message };
             //rJson.Success = true;
             //rJson.Message = return_message;
             return Json(rJson);
@@ -121,9 +126,19 @@ namespace CareerExpansionMod.Controllers
         }
 
         [HttpPost]
-        public JsonResult AcceptSponsor(string type, string sponsorName)
+        public JsonResult AcceptSponsor(string Type, string SponsorName, string sponsorPayout)
         {
-            return Json("");
+            SponsorsToTeam sponsor = new SponsorsToTeam();
+            sponsor.IsUserTeam = true;
+            sponsor.PayoutPerYear = double.Parse(sponsorPayout.Trim());
+            sponsor.SponsorName = SponsorName;
+            sponsor.SponsorType = Enum.Parse<eSponsorType>(Type);
+            sponsor.TeamId = CareerDB1.FIFAUser.clubteamid;
+            sponsor.Save();
+            SponsorsToTeam.SaveAll();
+
+
+            return Json(new { success = true, data = sponsor });
         }
     }
 }

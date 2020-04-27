@@ -69,7 +69,7 @@ namespace CMEUnitTests
                 }
                 );
 
-            SponsorsToTeam.Save();
+            SponsorsToTeam.SaveAll();
         }
     }
 }
