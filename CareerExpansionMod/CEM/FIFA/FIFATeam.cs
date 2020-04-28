@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using CareerExpansionMod.CEM.FIFA;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
 {
@@ -98,38 +99,44 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         public int trait1vstrong { get; set; }
         public int matchdayattackrating { get; set; }
 
+        private static List<FIFAPlayer> CachedPlayers = new List<FIFAPlayer>();
+        private static DateTime CachedPlayersDate = DateTime.Now;
+
         public List<FIFAPlayer> GetPlayers()
         {
-            List<FIFAPlayer> players = new List<FIFAPlayer>();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
-            var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == CareerDB1.FIFAUser.clubteamid.ToString());
-            var ps = (from tpl in tplinks
-                      join p in CareerDB2.Current.players on tpl["playerid"].ToString() equals p["playerid"].ToString()
-                      select p) ;
-            
-            foreach(var i in ps)
+            if(CachedPlayers.Count == 0 || CachedPlayersDate.AddMinutes(1) < DateTime.Now)
             {
+                CachedPlayers = new List<FIFAPlayer>();
 
-                var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == i["playerid"].ToString());
-                if(pl != null)
+                var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == CareerDB1.FIFAUser.clubteamid.ToString());
+                var ps = (from tpl in tplinks
+                          join p in CareerDB2.Current.players on tpl["playerid"].ToString() equals p["playerid"].ToString()
+                          select p) ;
+            
+                foreach(var i in ps)
                 {
-                    players.Add(
-                    CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl)
-                    );
+
+                    var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == i["playerid"].ToString());
+                    if(pl != null)
+                    {
+                        CachedPlayers.Add(
+                        CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl)
+                        );
+                    }
+
+
                 }
-
-
+                CachedPlayersDate = DateTime.Now;
             }
-           //var plays = CareerDB2.Current.players.Where(x => tplinks.Any(y => y["playerid"].ToString() == x["playerid"].ToString()));
 
-            //for (var i = 0; i < ps.Count(); i++)
-            //{
-            //    players.Add(
-            //    CEMUtilities.CreateItemFromRow<FIFAPlayer>(ps.ElementAt(i))
-            //    );
-            //}
+            sw.Stop();
+            Debug.WriteLine($"GetPlayers() took :: {sw.Elapsed.TotalSeconds}s");
+            Trace.WriteLine($"GetPlayers() took :: {sw.Elapsed.TotalSeconds}s");
 
-            return players;
+            return CachedPlayers;
         }
 
         public static double InfluenceCalculation(FIFAPlayer p)
@@ -167,6 +174,14 @@ namespace v2k4FIFAModding.Career.CME.FIFA
                 var t = (PersonalityTypes)Math.Round(avg);
 
                 return t;
+            }
+        }
+
+        public string IdealCaptainOfTeam
+        {
+            get
+            {
+                return GetPlayers().OrderByDescending(x => InfluenceCalculation(x)).FirstOrDefault().Name;
             }
         }
 

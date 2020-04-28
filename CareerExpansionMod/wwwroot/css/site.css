@@ -172,8 +172,19 @@ button.card-body:hover, button.card-body:focus, button.card-body:active, a.card-
     /*background: yellow;*/
 }
 
+.allow-overflow {
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.allow-overflow-x {
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+
 .allow-overflow-y {
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .navbar {

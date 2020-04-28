@@ -20,8 +20,8 @@ namespace CareerExpansionMod.CEM.FIFA
         public static IEnumerable<FIFAPlayerName> FIFAPlayerNames;
         public static IEnumerable<FIFAPlayerName> GetFIFAPlayerNames()
         {
-            //if (FIFAPlayerNames != null)
-            //    return FIFAPlayerNames;
+            if (FIFAPlayerNames != null)
+                return FIFAPlayerNames;
 
             var dlllocation = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
             var fulllocation = dlllocation + "\\CEM\\Data\\playernames.csv";
@@ -33,6 +33,8 @@ namespace CareerExpansionMod.CEM.FIFA
             }
 
         }
+
+        //public static IDictionary<int,string> NamesInMemory = new 
 
         public static string GetNameFromFIFAPlayer(FIFAPlayer player)
         {

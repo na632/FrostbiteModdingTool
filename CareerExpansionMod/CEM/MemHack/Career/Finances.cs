@@ -15,9 +15,9 @@ namespace v2k4FIFAModdingCL.MemHack.Career
         private static class POINTER_ADDRESSES
         {
             /// Will need to redo this for every EA Update
-            public static string TRANSFER_BUDGET = "FIFA20.exe+072E7900,0x10,0x18,0x2B0,0x8,0x8";
+            public static string TRANSFER_BUDGET = "FIFA20.exe+06E30D80,0x10,0x48,0x30,0x58,0x5F8";
             /// Will need to redo this for every EA Update
-            public static string STARTING_BUDGET = "FIFA20.exe+06E2B010,0x10,0x48,0x30,0x58,0x5E0";
+            public static string STARTING_BUDGET = "FIFA20.exe+06E30098,0x10,0x48,0x30,0x58,0x5E0";
         }
 
         private static class AOB_ADDRESSES
@@ -32,8 +32,8 @@ namespace v2k4FIFAModdingCL.MemHack.Career
         {
             get
             {
-                if (CoreHack.GetProcess(out Mem MemLib).HasValue) { 
-                    var transferbudget = MemLib.readInt(POINTER_ADDRESSES.TRANSFER_BUDGET);
+                if (CoreHack.GetProcess().HasValue) { 
+                    var transferbudget = CoreHack.MemLib.readInt(POINTER_ADDRESSES.TRANSFER_BUDGET);
                     CEMCore.CEMCoreInstance.Finances = this;
                     return transferbudget;
                 }
@@ -42,9 +42,9 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             set
             {
 
-                if (CoreHack.GetProcess(out Mem MemLib).HasValue)
+                if (CoreHack.GetProcess().HasValue)
                 {
-                    MemLib.writeMemory(POINTER_ADDRESSES.TRANSFER_BUDGET, "int", value.ToString());
+                    CoreHack.MemLib.writeMemory(POINTER_ADDRESSES.TRANSFER_BUDGET, "int", value.ToString());
                     CEMCore.CEMCoreInstance.Finances = this;
                 }
 
@@ -55,9 +55,9 @@ namespace v2k4FIFAModdingCL.MemHack.Career
         {
             get
             {
-                if (CoreHack.GetProcess(out Mem MemLib).HasValue)
+                if (CoreHack.GetProcess().HasValue)
                 {
-                    var budget = MemLib.readInt(POINTER_ADDRESSES.STARTING_BUDGET);
+                    var budget = CoreHack.MemLib.readInt(POINTER_ADDRESSES.STARTING_BUDGET);
                     CEMCore.CEMCoreInstance.Finances = this;
                     return budget;
                 }

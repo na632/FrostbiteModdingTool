@@ -19,9 +19,9 @@ namespace v2k4FIFAModdingCL.MemHack.Career
         {
             get
             {
-                if (CoreHack.GetProcess(out Mem MemLib).HasValue)
+                if (CoreHack.GetProcess().HasValue)
                 {
-                    var transferbudget = MemLib.readInt(new POINTER_ADDRESSES().MANAGER_RATING);
+                    var transferbudget = CoreHack.MemLib.readInt(new POINTER_ADDRESSES().MANAGER_RATING);
                     return transferbudget;
                 }
                 return 0;
@@ -29,9 +29,9 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             set
             {
 
-                if (CoreHack.GetProcess(out Mem MemLib).HasValue)
+                if (CoreHack.GetProcess().HasValue)
                 {
-                    MemLib.writeMemory(new POINTER_ADDRESSES().MANAGER_RATING, "int", value.ToString());
+                    CoreHack.MemLib.writeMemory(new POINTER_ADDRESSES().MANAGER_RATING, "int", value.ToString());
                 }
 
             }

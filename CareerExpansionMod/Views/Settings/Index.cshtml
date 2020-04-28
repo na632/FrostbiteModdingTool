@@ -1,11 +1,31 @@
 ﻿@model CareerExpansionMod.CEM.CEMCoreSettings
 
 
+    <div class="card card-2x allow-overflow-y">
 
+        <div class="card-body">
 
-@using (Html.BeginForm("Edit", "Settings"))
-{
-    @Html.LabelFor(m=>m.OtherSaveFolder)
-    <br />
-    @Html.EditorFor(m => m.OtherSaveFolder)
-}
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="container">
+                        <div class="row">
+                            @using (Html.BeginForm("Edit", "Settings"))
+                            {
+
+                                @Html.LabelFor(m => m.OtherSaveFolder)
+                                <br />
+                                @Html.EditorFor(m => m.OtherSaveFolder)
+                                <br />
+                                <button class="btn btn-success" type="submit">Save</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="m-5">
+                <button class="btn btn-primary" disabled="disabled">Force Financial Takeover</button>
+            </div>
+        </div>
+    </div>

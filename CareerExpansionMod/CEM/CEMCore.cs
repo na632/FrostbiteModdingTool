@@ -1,4 +1,5 @@
 ﻿using CareerExpansionMod.CEM.FIFA;
+using CareerExpansionMod.CEM.Finances;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -123,6 +124,20 @@ namespace CareerExpansionMod.CEM
                 if (SetupCareerFile())
                 {
                     CEMCoreSettings = new CEMCoreSettings();
+
+
+                    // Finances - Payout Sponsor Money
+                    if(CoreHack.GameDate.HasValue && CoreHack.GameDate.Value.DayOfWeek == DayOfWeek.Monday)
+                    {
+                        var allSponsorsForTeam = SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid);
+                        if(allSponsorsForTeam != null && allSponsorsForTeam.Count > 0)
+                        {
+
+                        }
+                    }
+                    // Finances - Take money away
+
+
 
                     // Refresh
                     v2k4FIFAModdingCL.MemHack.Career.Finances.GetTransferBudget();

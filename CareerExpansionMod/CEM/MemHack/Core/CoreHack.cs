@@ -20,19 +20,29 @@ namespace v2k4FIFAModdingCL.MemHack.Core
     {
         private class POINTER_ADDRESSES
         {
-            public string GAME_DATE = "FIFA20.exe+072E79F8,0x8,0x3C0";
-            public string GAME_SAVE_NAME = "FIFA20.exe+06DDB5F0,0x20,0x20,0x5CC";
+            public string GAME_DATE = "FIFA20.exe+072ECAF8,0x8,0x3C0";
+            public string GAME_SAVE_NAME = "FIFA20.exe+06E2CB40,0x10,0x78,0x8,0x28,0x35C";
 
             /// <summary>
             /// To get in Cheat Engine. Load a game where you know the saved date. Then load another with a different date. Then pointer search.
             /// </summary>
-            public static string GAME_SAVE_FILE = "FIFA20.exe+06DDB5F0,0x20,0x18,0x7BC";
+            public static string GAME_SAVE_FILE = "FIFA20.exe+06DE0688,0x20,0x18,0x7BC";
+
+
         }
 
         public static class AOB_ADDRESSES
         {
             // As this is not working in memory you can use this to scan in Cheat Engine to find some stuff quicker
             public static string GAME_SAVE_FILE = "43 61 72 65 65 72 32 30 32 30 30 34 30 37";
+
+            public static string GAME_DATE = "?? ?? 34 01 00 00 00 00 ?? ?? ?? ?? FF FF FF FF ?? ?? 00 00 00 00 00 00 FF FF FF FF FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 3A B6 61 03 06 6C 38";
+                
+        }
+
+        public static class SAVED_ADDRESSES
+        {
+            public static string GAME_DATE = string.Empty;
         }
 
         private static DateTime internal_gamedate = DateTime.Now;
@@ -43,8 +53,11 @@ namespace v2k4FIFAModdingCL.MemHack.Core
         {
             get
             {
-                if (GetProcess(out Mem MemLib).HasValue)
+                if (GetProcess().HasValue)
                 {
+                    //var aobgDate = memory.Scanner.GetScannerAndReadAddress(AOB_ADDRESSES.GAME_DATE);
+                    //var gDate = MemLib.readInt(aobgDate.ToString());
+
                     var gDate = MemLib.readInt(new POINTER_ADDRESSES().GAME_DATE);
                     if (gDate > 0 && gDate.ToString().Length == 8)
                     {
@@ -90,7 +103,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             get
             {
 
-                if (GetProcess(out Mem MemLib).HasValue)
+                if (GetProcess().HasValue)
                 {
                         _saveName = MemLib.readString(new POINTER_ADDRESSES().GAME_SAVE_NAME);
                 }
@@ -107,7 +120,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             get
             {
 
-                if (GetProcess(out Mem MemLib).HasValue)
+                if (GetProcess().HasValue)
                 {
                     //var aob = MemLib.AoBScan("?? ?? 00 00 32 7D A2 0A 00", true, true, true).Result.FirstOrDefault();
                     //var code = MemLib.get64bitCode(aob.ToString());
@@ -150,17 +163,29 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             }
         }
 
-        public static int? GetProcess(out Mem MemLib)
-        {
-            MemLib = new Mem();
-            int gameProcId = MemLib.getProcIDFromName("FIFA20");
+        private static int? gameProcId;
+        public static Mem MemLib;
 
-            if (gameProcId != 0)
+        public static int? GetProcess()
+        {
+            //MemLib = StaticMemLib;
+            //if (StaticMemLib == null)
+            //{
+            if (MemLib != null && gameProcId.HasValue && gameProcId > 0)
+                return gameProcId;
+
+            MemLib = new Mem();
+            gameProcId = MemLib.getProcIDFromName("FIFA20");
+
+            if (gameProcId.HasValue && gameProcId > 0)
             {
-                MemLib.OpenProcess(gameProcId);
+                MemLib.OpenProcess(gameProcId.Value);
                 return gameProcId;
             }
+            //}
+
             return null;
+
         }
 
 

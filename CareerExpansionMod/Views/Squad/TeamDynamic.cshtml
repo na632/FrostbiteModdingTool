@@ -10,10 +10,10 @@
     var User = CareerDB1.FIFAUser;
     var Team = CareerDB1.UserTeam;
     var TeamPlayers = Team.GetPlayers();
-    var TeamLeaderPlayers = Team.GetTeamLeaders();
-    var TeamInfluencePlayers = Team.GetTeamInfluences();
-    var TeamRegularPlayers = Team.GetPlayers();
-    var TeamTroubleMakers = Team.GetTeamTroubleMakers();
+    //var TeamLeaderPlayers = Team.GetTeamLeaders();
+    //var TeamInfluencePlayers = Team.GetTeamInfluences();
+    //var TeamRegularPlayers = Team.GetPlayers();
+    //var TeamTroubleMakers = Team.GetTeamTroubleMakers();
 
     var TeamPersonality = Team.PersonalityTypeOfTeam;
     var TeamEmotionality = Team.EmotionalTypeOfTeam;
@@ -88,7 +88,7 @@
                             </div>
                             break;
                         case EmotionalTypes.Normal:
-                            <div class="text-dark bg-success p-2">
+                            <div class="text-white bg-success p-2">
                                 <i class="fas fa-smile"></i>
                                 @TeamEmotionality
                             </div>
@@ -149,6 +149,14 @@
                     }
 
                 </div>
+
+                <h6>Ideal Captain</h6>
+                <div class="p-2">
+                    <div class="text-white bg-success p-2">
+                        <i class="fas fa-user-cog"></i>
+                        @Html.Raw(Model.IdealCaptainOfTeam)
+                    </div>
+                </div>
             </div>
             <div class="alert alert-info mt-1">
                 <h6>Help</h6>
@@ -162,42 +170,13 @@
                 </div>
                 <div class="row col-12">
                     <strong>All of my Youth players are "Selfish" and "Very Calm"</strong>
-                    <p>Welcome to EA's infinite wisdom. They created a whole new feature and didn't bother embedding it into the Youth System.
-                    &nbsp;In Phase 2, I will allow you to fix that via this page.</p>
+                    <p>
+                        Welcome to EA's infinite wisdom. They created a whole new feature and didn't bother embedding it into the Youth System.
+                        &nbsp;In Phase 2, I will allow you to fix that via this page.
+                    </p>
                 </div>
             </div>
         </div>
 
     </div>
-    @*<div class="col-6">
-            <div class="">
-                <h5>Leaders</h5>
-                @foreach (var p in TeamLeaderPlayers)
-                                        {
-                    <div class="hierachy-tile">
-                        @p.Name
-                    </div>
-                                    }
-            </div>
-            <div class="">
-                <h5>Influencers</h5>
-                @foreach (var p in TeamInfluencePlayers)
-                                    {
-                    <div class="hierachy-tile">
-                        @p.Name
-                    </div>
-                        }
-            </div>
-            <div class="">
-                <h5>Trouble Makers</h5>
-                @foreach (var p in TeamTroubleMakers)
-                                    {
-                    <div class="hierachy-tile">
-                        @p.Name
-                    </div>
-                }
-            </div>
-        </div>*@
-
 </div>
-    </div>
