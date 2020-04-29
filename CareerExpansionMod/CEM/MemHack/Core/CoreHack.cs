@@ -21,7 +21,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
         private class POINTER_ADDRESSES
         {
             public string GAME_DATE = "FIFA20.exe+072ECAF8,0x8,0x3C0";
-            public string GAME_SAVE_NAME = "FIFA20.exe+06E2CB40,0x10,0x78,0x8,0x28,0x35C";
+            public string GAME_SAVE_NAME = "FIFA20.exe+06de0688,0x20,0x20,0x5CC";
 
             /// <summary>
             /// To get in Cheat Engine. Load a game where you know the saved date. Then load another with a different date. Then pointer search.
@@ -45,54 +45,90 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             public static string GAME_DATE = string.Empty;
         }
 
-        private static DateTime internal_gamedate = DateTime.Now;
+        private static DateTime internal_gamedate = DateTime.Now.Date;
 
         public static bool IsBGLoading = false;
+
+        public static bool IsSettingDate = false;
+
+        private DateTime? _gamedate;
 
         public DateTime? GameDate
         {
             get
             {
                 if (GetProcess().HasValue)
+                    _gamedate = GetInGameDate();
+
+                return _gamedate;
+            }
+            set
+            {
+                _gamedate = value;
+            }
+        }
+
+        public DateTime? GetInGameDate()
+        {
+            if (GetProcess().HasValue)
                 {
                     //var aobgDate = memory.Scanner.GetScannerAndReadAddress(AOB_ADDRESSES.GAME_DATE);
                     //var gDate = MemLib.readInt(aobgDate.ToString());
 
-                    var gDate = MemLib.readInt(new POINTER_ADDRESSES().GAME_DATE);
-                    if (gDate > 0 && gDate.ToString().Length == 8)
+                    if (!IsSettingDate && !IsBGLoading) 
                     {
-                        var isoDate = gDate.ToString().Substring(0, 4)
-                            + "-"
-                            + gDate.ToString().Substring(4, 2)
-                            + "-"
-                            + gDate.ToString().Substring(6, 2);
-                        if (DateTime.TryParse(
-                            isoDate
-                            , out DateTime d))
+                        IsSettingDate = true;
+                        var gDate = MemLib.readInt(new POINTER_ADDRESSES().GAME_DATE);
+                        if (gDate > 0 && gDate.ToString().Length == 8)
                         {
-                            CEMCore.CEMCoreInstance.CoreHack = this;
-                            if (d.Date != internal_gamedate.Date)
+                            var isoDate = gDate.ToString().Substring(0, 4)
+                                + "-"
+                                + gDate.ToString().Substring(4, 2)
+                                + "-"
+                                + gDate.ToString().Substring(6, 2);
+                            if (DateTime.TryParse(
+                                isoDate
+                                , out DateTime d))
                             {
-                                //EventGameDateChanged?.Invoke(internal_gamedate.Date, d.Date);
-                                CEMCore.CEMCoreInstance.GameDateChanged(internal_gamedate.Date, d.Date);
-                                internal_gamedate = d.Date;
+                                if (CEMCore.CEMCoreInstance == null)
+                                    return null;
+
+                                CEMCore.CEMCoreInstance.CoreHack = this;
+                                if (d.Date != internal_gamedate.Date)
+                                {
+                                    //EventGameDateChanged?.Invoke(internal_gamedate.Date, d.Date);
+                                    if(d.Date.AddDays(-1).Date == internal_gamedate.Date || internal_gamedate.Date == DateTime.Now.Date)
+                                        CEMCore.CEMCoreInstance.GameDateChanged(internal_gamedate.Date, d.Date);
+                                    else
+                                    {
+                                        var diffDays = (d.Date - internal_gamedate.Date).Days;
+                                        for(var i = 0; i<diffDays; i++)
+                                        {
+                                            CEMCore.CEMCoreInstance.GameDateChanged(internal_gamedate.Date, internal_gamedate.Date.AddDays(i));
+                                        }
+}
+
+internal_gamedate = d.Date;
+                                }
+
+                                IsSettingDate = false;
+                                return d;
                             }
-                            return d;
                         }
-                        else
-                            return null;
-                    }
-                    else
+
+                        IsSettingDate = false;
                         return null;
+
+                    }
 
                 }
                 return DateTime.Now;
-            }
         }
 
         public string CareerSaveFileLocation { get; set; }
 
         public static string LastSaveName;
+        public static string NonAutosaveName;
 
         private string _saveName;
 
@@ -105,7 +141,21 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
                 if (GetProcess().HasValue)
                 {
-                        _saveName = MemLib.readString(new POINTER_ADDRESSES().GAME_SAVE_NAME);
+
+                    _saveName = MemLib.readString(new POINTER_ADDRESSES().GAME_SAVE_NAME);
+
+                    //if (!string.IsNullOrEmpty(LastSaveName) && LastSaveName != _saveName)
+                    if (!string.IsNullOrEmpty(_saveName) && LastSaveName != _saveName)
+                    {
+                        // Reinitialise Core
+                        var cemcore = new CEMCore();
+                    }
+
+                    if (_saveName.ToLower().Contains("autosave"))
+                        _saveName = LastSaveName;
+
+                    LastSaveName = _saveName;
+
                 }
                 return _saveName;
             }
@@ -122,22 +172,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
                 if (GetProcess().HasValue)
                 {
-                    //var aob = MemLib.AoBScan("?? ?? 00 00 32 7D A2 0A 00", true, true, true).Result.FirstOrDefault();
-                    //var code = MemLib.get64bitCode(aob.ToString());
-                    //if(code != null)
-                    //{
-
-                    //}
-                    //Debug.WriteLine(aob);
-                    //foreach (var abi in aob)
-                    //{
-                    //    var result = MemLib.readString(abi.ToString());
-                    //    Debug.WriteLine(result);
-
                     return MemLib.readString(POINTER_ADDRESSES.GAME_SAVE_FILE);
-
-                    //}
-                    //return result;
                 }
                 return null;
             }

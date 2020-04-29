@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components
+@using CareerExpansionMod.CEM
 @using CareerExpansionMod.CEM.FIFA
 @using CareerExpansionMod.CEM.Finances
 @model CareerExpansionMod.CEM.Finances.TeamFinance
@@ -59,23 +60,23 @@
                         <div class="row">
                             <label class="col-form-label col-5"><i class="fas fa-hamburger"></i>&nbsp;Burgers</label>
                             <div class="col-4">
-                                <input class="" id="txtBurgerPrice" type="range" value="5" min="1" max="9.99" step="0.5" onchange="ChangedPrices()" required />
+                                <input class="" id="txtBurgerPrice" disabled="disabled" type="range" value="5" min="1" max="9.99" step="0.5" onchange="ChangedPrices()" required />
                             </div>
                             <span class="col-form-label col-3" id="numBurgerPrice"></span>
                         </div>
                         <div class="row">
                             <label class="col-form-label col-5"><i class="fas fa-utensils"></i>&nbsp;Fries</label>
-                            <input class="col-4" id="txtFriesPrice" type="range" value="3" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                            <input class="col-4" id="txtFriesPrice" disabled="disabled" type="range" value="3" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
                             <span class="col-form-label col-3" id="numFriesPrice"></span>
                         </div>
                         <div class="row">
                             <label class="col-form-label col-5"><i class="fas fa-coffee"></i>&nbsp;Soft Drink</label>
-                            <input class="col-4" id="txtSoftDrinkPrice" type="range" value="2.50" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                            <input class="col-4" id="txtSoftDrinkPrice" disabled="disabled" type="range" value="2.50" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
                             <span class="col-form-label col-3" id="numSoftDrinkPrice"></span>
                         </div>
                         <div class="row">
                             <label class="col-form-label col-5"><i class="fas fa-beer"></i>&nbsp;Alcohol</label>
-                            <input class="col-4" id="txtAlcoholDrinkPrice" type="range" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                            <input class="col-4" id="txtAlcoholDrinkPrice" disabled="disabled" type="range" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
                             <span class="col-form-label col-3" id="numAlcoholDrinkPrice"></span>
                         </div>
                     </form>
@@ -115,7 +116,7 @@
                                 {
 
                                     <i class="fa fa-money"></i>
-                                    <span>&nbsp;£&nbsp; @MainSponsor.PayoutPerYear m / yr</span>
+                                    <span>&nbsp;£&nbsp; @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(MainSponsor.PayoutPerYear)) / yr</span>
                                 }
                                 else
                                 {
@@ -283,7 +284,7 @@
 
         });
 
-        
+
 
         function setBudget() {
             //alert("set a budget: " + $('#txtTransferBudget').val());
@@ -310,7 +311,7 @@
             $.getJSON(url, function (d) {
 
                 console.log(d);
-                alert(d.message);
+                //alert(d.message);
                 $('#txtRequestFundsMessage').html(d.message);
                 getTransferBudget();
                 //$('#btnRequestFunds').removeClass("btn-primary");

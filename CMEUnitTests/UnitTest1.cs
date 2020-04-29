@@ -6,6 +6,8 @@ using v2k4FIFAModding.Career.CME.FIFA;
 using CareerExpansionMod.CEM.Finances;
 using v2k4FIFAModdingCL.MemHack.Core;
 using CareerExpansionMod.CEM.Data;
+using CareerExpansionMod.CEM;
+using System.Threading;
 
 namespace CMEUnitTests
 {
@@ -70,6 +72,20 @@ namespace CMEUnitTests
                 );
 
             SponsorsToTeam.SaveAll();
+        }
+    
+    
+        [TestMethod]
+        public void TestChangeOfSave()
+        {
+            CEMCore core = new CEMCore();
+            for(var i = 0; i < 3; i++)
+            {
+                var getGameDate = core.CoreHack.GameDate;
+                Thread.Sleep(1000);
+
+            }
+
         }
     }
 }

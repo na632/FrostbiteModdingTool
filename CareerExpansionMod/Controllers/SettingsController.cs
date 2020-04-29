@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CareerExpansionMod.CEM;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CareerExpansionMod.Controllers
@@ -10,7 +11,16 @@ namespace CareerExpansionMod.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            CEMCoreSettings settings = new CEMCoreSettings();
+            settings.Load();
+            return View("Index", settings);
+        }
+
+        [HttpPost]
+        public RedirectToActionResult Edit(CEMCoreSettings settings)
+        {
+            settings.Save();
+            return new RedirectToActionResult("Index", "Settings", null);
         }
     }
 }

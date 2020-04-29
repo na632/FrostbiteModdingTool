@@ -26,158 +26,214 @@
 
         @if (CareerDB1.FIFAUser != null)
         {
-    <div class="row">
-        @if (MainSponsor != null)
-        {
-            <div class="col-4">
-                <div class="card plain">
-                    <div class="card-body plain">
-                        <img src="@MainSponsor.GetSponsor().GetSponsorImageUrl()" style="width: 100%;" />
+            <div class="row">
+                @if (MainSponsor != null)
+                {
+                    <div class="col-4">
+                        <div class="card plain">
+                            <div class="card-body plain">
+                                <img src="@MainSponsor.GetSponsor().GetSponsorImageUrl()" class="center" />
+                            </div>
+                            <div class="card-footer">
+                                <span>Payout:&nbsp;</span>
+                                @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(MainSponsor.PayoutPerYear))
+                                &nbsp;per year
+                                <br />
+                                Main Sponsor
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-footer">
-                        <span>Payout:&nbsp;</span>@String.Format("{0:C}", MainSponsor.PayoutPerYear)&nbsp;per year
-                        <br />
-                        Main Sponsor
+                }
+                else
+                {
+                    <div class="col-4">
+                        <div class="card plain allow-overflow-y">
+                            <div class="card-header">
+                                Select your Main Sponsor
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>PPY</th>
+                                            <th>Yrs.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var mainSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Main).OrderByDescending(x => x.SponsorPayoutPerYearMax))
+                                        {
+                                            <tr onclick="popupAreYouSureSponsor('@eSponsorType.Main', '@mainSponsor.SponsorName', '@mainSponsor.GetSponsorImageUrl()', '@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, mainSponsor.SponsorName)', '@SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, mainSponsor.SponsorName)')">
+                                                <td><img src="@mainSponsor.GetSponsorImageUrl()" width="100" /></td>
+                                                <td>@mainSponsor.SponsorName</td>
+                                                <td>
+                                                    @if (CareerDB1.FIFAUser != null)
+                                                    {
+
+                                                        @CEMUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, mainSponsor.SponsorName))
+                                                    }
+                                                    else
+                                                    {
+                                                        @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(mainSponsor.SponsorPayoutPerYearMax))
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    @if (CareerDB1.FIFAUser != null)
+                                                    {
+                                                        @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, mainSponsor.SponsorName)
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
                     </div>
-                </div>
+                }
+                @if (KitSponsor != null)
+                {
+                    <div class="col-4">
+                        <div class="card plain">
+                            <div class="card-body plain">
+                                <img src="@KitSponsor.GetSponsor().GetSponsorImageUrl()" class="center" />
+                            </div>
+                            <div class="card-footer">
+                                <span>Payout:&nbsp;</span>@CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(KitSponsor.PayoutPerYear))&nbsp;per year
+                                <br />
+                                Kit Sponsor
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-4">
+                        <div class="card plain allow-overflow-y">
+                            <div class="card-header">
+                                Select your Kit make Company
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>PPY</th>
+                                            <th>Yrs.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var kitSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Kit).OrderByDescending(x => x.SponsorPayoutPerYearMax))
+                                        {
+                                            <tr onclick="popupAreYouSureSponsor('@eSponsorType.Kit', '@kitSponsor.SponsorName', '@kitSponsor.GetSponsorImageUrl()', '@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)', '@SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)')">
+                                                <td><img src="@kitSponsor.GetSponsorImageUrl()" width="100" /></td>
+                                                <td>@kitSponsor.SponsorName</td>
+                                                <td>
+                                                    @if (CareerDB1.FIFAUser != null)
+                                                    {
+
+                                                        @CEMUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName))
+                                                    }
+                                                    else
+                                                    {
+                                                        @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(kitSponsor.SponsorPayoutPerYearMax))
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    @if (CareerDB1.FIFAUser != null)
+                                                    {
+                                                        @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (TrainingSponsor != null)
+                {
+                    <div class="col-4">
+                        <div class="card plain">
+                            <div class="card-body plain">
+                                <img src="@TrainingSponsor.GetSponsor().GetSponsorImageUrl()" class="center" />
+                            </div>
+                            <div class="card-footer">
+                                <span>Payout:&nbsp;</span>@CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(TrainingSponsor.PayoutPerYear))&nbsp;per year
+                                <br />
+                                Training Sponsor
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-4">
+                        <div class="card plain allow-overflow-y">
+                            <div class="card-header">
+                                Select your Training Sponsor
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>PPY</th>
+                                            <th>Yrs.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var trainingSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Training && !x.SpecificTeamId.HasValue).OrderByDescending(x => x.SponsorPayoutPerYearMax))
+                                        {
+                                            <tr onclick="popupAreYouSureSponsor('@eSponsorType.Training', '@trainingSponsor.SponsorName', '@trainingSponsor.GetSponsorImageUrl()'
+        , '@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, trainingSponsor.SponsorName)
+    , '@SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, trainingSponsor.SponsorName)')">
+                                                <td><img src="@trainingSponsor.GetSponsorImageUrl()" width="100" /></td>
+                                                <td>@trainingSponsor.SponsorName</td>
+                                                <td>
+                                                    @if (CareerDB1.FIFAUser != null)
+                                                    {
+
+                                                        @CEMUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, trainingSponsor.SponsorName))
+                                                    }
+                                                    else
+                                                    {
+                                                        @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(trainingSponsor.SponsorPayoutPerYearMax))
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    @if (CareerDB1.FIFAUser != null)
+                                                    {
+                                                        @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, trainingSponsor.SponsorName)
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                    </div>
+                }
+
             </div>
-        }
-        else
-        {
-            <div class="col-4">
-                <div class="card plain allow-overflow-y">
-                    <div class="card-header">
-                        Select your Main Sponsor
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Name</th>
-                                    <th>PPY</th>
-                                    <th>Yrs.</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var mainSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Main))
-                                {
-                                    <tr onclick="popupAreYouSureSponsor('@eSponsorType.Main', '@mainSponsor.SponsorName', '@mainSponsor.GetSponsorImageUrl()', '@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, mainSponsor.SponsorName)')">
-                                        <td><img src="@mainSponsor.GetSponsorImageUrl()" width="100" /></td>
-                                        <td>@mainSponsor.SponsorName</td>
-                                        <td>
-                                            @if (CareerDB1.FIFAUser != null)
-                                            {
-
-                                                @CEMUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, mainSponsor.SponsorName))
-                                            }
-                                            else
-                                            {
-                                                @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(mainSponsor.SponsorPayoutPerYearMax))
-                                            }
-                                        </td>
-
-                                        <td>
-                                            @if (CareerDB1.FIFAUser != null)
-                                            {
-                                                @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, mainSponsor.SponsorName)
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-                    </div>
-                    <div class="card-footer">
-                    </div>
-                </div>
-            </div>
-        }
-        @if (KitSponsor != null)
-        {
-            <div class="col-4">
-                <div class="card plain">
-                    <div class="card-body plain">
-                        <img src="@KitSponsor.GetSponsor().GetSponsorImageUrl()" class="center" />
-                    </div>
-                    <div class="card-footer">
-                        <span>Payout:&nbsp;</span>@String.Format("{0:C}", KitSponsor.PayoutPerYear)&nbsp;per year
-                        <br />
-                        Kit Sponsor
-                    </div>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="col-4">
-                <div class="card plain allow-overflow-y">
-                    <div class="card-header">
-                        Select your Kit make Company
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Name</th>
-                                    <th>PPY</th>
-                                    <th>Yrs.</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var kitSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Kit))
-                                {
-                                    <tr onclick="popupAreYouSureSponsor('@eSponsorType.Kit', '@kitSponsor.SponsorName', '@kitSponsor.GetSponsorImageUrl()', '@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)')">
-                                        <td><img src="@kitSponsor.GetSponsorImageUrl()" width="100" /></td>
-                                        <td>@kitSponsor.SponsorName</td>
-                                        <td>
-                                            @if (CareerDB1.FIFAUser != null)
-                                            {
-
-                                                @CEMUtilities.FormatCurrencyNumber(@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName))
-                                            }
-                                            else
-                                            {
-                                                @CEMUtilities.FormatCurrencyNumber(Convert.ToInt32(kitSponsor.SponsorPayoutPerYearMax))
-                                            }
-                                        </td>
-
-                                        <td>
-                                            @if (CareerDB1.FIFAUser != null)
-                                            {
-                                                @SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, kitSponsor.SponsorName)
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-                    </div>
-                    <div class="card-footer">
-                    </div>
-                </div>
-            </div>
-        }
-        @if (TrainingSponsor != null)
-        {
-            <div class="col-4">
-                <div class="card plain">
-                    <div class="card-body plain">
-                        <img src="@TrainingSponsor.GetSponsor().GetSponsorImageUrl()" style="width: 100%;" />
-                    </div>
-                    <div class="card-footer">
-                        <span>Payout:&nbsp;</span>@String.Format("{0:C}", TrainingSponsor.PayoutPerYear)&nbsp;per year
-                        <br />
-                        Training Sponsor
-                    </div>
-                </div>
-            </div>
-        }
-
-    </div>
         }
         else
         {
@@ -221,6 +277,7 @@
 <input type="hidden" id="SponsorName" name="SponsorName" />
 <input type="hidden" id="SponsorType" name="SponsorType" />
 <input type="hidden" id="SponsorPayout" name="SponsorPayout" />
+<input type="hidden" id="SponsorContractLength" name="SponsorContractLength" />
 
 @section Scripts {
 
@@ -245,10 +302,13 @@
             console.log(data);
         });
 
-        function popupAreYouSureSponsor(type, name, imageUrl, payout) {
+        function popupAreYouSureSponsor(type, name, imageUrl, payout, length) {
+            // hiddens
             $('#SponsorName').val(name);
             $('#SponsorType').val(type);
             $('#SponsorPayout').val(payout);
+            $('#SponsorContractLength').val(length);
+
             $('#ConfirmSponsorTitle').html(name + ' as your ' + type + ' sponsor?');
             $('#BodySponsorName').html(name);
             $('#BodySponsorType').html(type)
@@ -260,9 +320,12 @@
 
         function ConfirmSponsorSelect() {
             $.post("Finances/AcceptSponsor/?Type=" + $('#SponsorType').val() + "&SponsorName=" + $('#SponsorName').val() + "&SponsorPayout=" + $('#SponsorPayout').val(), function (d) {
+                console.log(d);
+                $('#myModal').modal('hide');
                 if (d.success == "true") {
-                    $('#myModal').modal('hide')
+                    $('#myModal').modal('hide');
                 }
+                window.location = '@Url.Action("Sponsors", "Finances")';
             });
 
         }

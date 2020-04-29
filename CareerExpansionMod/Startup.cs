@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CareerExpansionMod.CEM;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -344,6 +345,7 @@ namespace CareerExpansionMod
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            
 
             app.UseRouting();
 
@@ -357,6 +359,7 @@ namespace CareerExpansionMod
                 endpoints.MapRazorPages();
                 endpoints.MapBlazorHub();
             });
+            CEMCore.InitialStartupOfCEM();
             SetupKeyPressAndFIFAIntegration();
 
             var browserWindowOptions = new BrowserWindowOptions()

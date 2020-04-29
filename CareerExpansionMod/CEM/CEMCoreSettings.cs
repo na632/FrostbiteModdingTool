@@ -15,7 +15,7 @@ namespace CareerExpansionMod.CEM
         {
             get
             {
-                return CEMCore.CEMMyDocumentsDirectory + CEMCore.SaveFolder + ".json";
+                return CEMCore.CEMMyDocumentsDirectory + CEMCore.SaveFolder + CEMCore.CEMCoreInstance.CoreHack.SaveName + "-Settings.json";
             }
         }
 

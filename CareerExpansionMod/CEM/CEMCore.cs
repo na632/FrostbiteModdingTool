@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -91,23 +92,63 @@ namespace CareerExpansionMod.CEM
             }
         }
 
+        public static void InitialStartupOfCEM()
+        {
+            // If needed copy sponsor options to the My Documents directory
+            if (File.Exists(CEMInternalDataDirectory + "BaseData\\Sponsors.zip"))
+            {
+                var archive = ZipFile.Open(CEMInternalDataDirectory + "BaseData\\Sponsors.zip", ZipArchiveMode.Read);
+                foreach (var ent in archive.Entries)
+                {
+                    if (!File.Exists(Sponsor.CEMSponsorDirectory + ent.Name))
+                    {
+                        using (var f = ent.Open())
+                        {
+                            using (FileStream fileStream = new FileStream(Sponsor.CEMSponsorDirectory + ent.Name, FileMode.OpenOrCreate))
+                            {
+                                //f.Position = 0;
+                                f.CopyTo(fileStream);
+                                f.Flush();
+                                fileStream.Flush();
+                            }
+                        }
+                    }
+                }
+                ZipFile.ExtractToDirectory(CEMInternalDataDirectory + "BaseData\\Sponsors.zip"
+                    , Sponsor.CEMSponsorDirectory, true);
+            }
+        }
+
         public static CEMCoreSettings CEMCoreSettings;
         public static CEMCore CEMCoreInstance;
         public CEMCore()
         {
+            CareerDB1.Current = null;
+            CareerDB2.Current = null;
+            CareerDB1.FIFAUser = null;
+            CareerDB1.UserPlayers = null;
+            CareerDB1.UserTeam = null;
 
+            if (CoreHack.GameDate.HasValue) { }
+            
             // Initialize FIFA Leagues CSV to Enumerable
             FIFALeague.GetFIFALeagues();
 
-
             // Setup Singleton
-            CEMCoreInstance = this;
+            if (CreateCopyOfSave(DateTime.Now))
+            {
+                if (SetupCareerFile(DateTime.Now))
+                {
+
+                    CEMCoreInstance = this;
+                }
+            }
         }
 
-        public void CoreHack_EventGameDateChanged(DateTime oldDate, DateTime newDate)
-        {
-            GameDateChanged(oldDate, newDate);
-        }
+        //public void CoreHack_EventGameDateChanged(DateTime oldDate, DateTime newDate)
+        //{
+        //    GameDateChanged(oldDate, newDate);
+        //}
 
         public CoreHack CoreHack = new CoreHack();
         public v2k4FIFAModdingCL.MemHack.Career.Finances Finances = new v2k4FIFAModdingCL.MemHack.Career.Finances();
@@ -119,24 +160,44 @@ namespace CareerExpansionMod.CEM
 
         internal void GameDateChanged(DateTime oldDate, DateTime newDate)
         {
-            if (CreateCopyOfSave())
+            var dayOfWeek = newDate.DayOfWeek;
+            if (CreateCopyOfSave(newDate))
             {
-                if (SetupCareerFile())
+                if (SetupCareerFile(newDate))
                 {
                     CEMCoreSettings = new CEMCoreSettings();
 
 
+
                     // Finances - Payout Sponsor Money
-                    if(CoreHack.GameDate.HasValue && CoreHack.GameDate.Value.DayOfWeek == DayOfWeek.Monday)
+                    if(dayOfWeek == DayOfWeek.Monday)
                     {
+                        var totalWeeklyIncome = 0d;
+
                         var allSponsorsForTeam = SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid);
                         if(allSponsorsForTeam != null && allSponsorsForTeam.Count > 0)
                         {
 
+                            var sponsorCount = allSponsorsForTeam.Count();
+                            for(var iSponsor = 0; iSponsor < sponsorCount; iSponsor++)
+                            {
+                                var weeklyPayout = allSponsorsForTeam[iSponsor].PayoutPerYear / 52;
+
+                                totalWeeklyIncome += weeklyPayout;
+                            }
+                        }
+
+                        if(totalWeeklyIncome != 0)
+                        {
+                            totalWeeklyIncome = Math.Round(totalWeeklyIncome);
+                            var oldTransferBudget = v2k4FIFAModdingCL.MemHack.Career.Finances.GetTransferBudget();
+                            var newTransferBudget = oldTransferBudget + Convert.ToInt32(totalWeeklyIncome);
+                            
+                            v2k4FIFAModdingCL.MemHack.Career.Finances.SetTransferBudget(newTransferBudget);
+
                         }
                     }
                     // Finances - Take money away
-
 
 
                     // Refresh
@@ -150,7 +211,7 @@ namespace CareerExpansionMod.CEM
 
         public static bool SetupCareerFileComplete = false;
 
-        private bool SetupCareerFile()
+        private bool SetupCareerFile(DateTime currentGameDate)
         {
 
             SetupCareerFileComplete = false;
@@ -158,7 +219,7 @@ namespace CareerExpansionMod.CEM
             //var CareerFileThread = new Thread(() =>
             //{
 
-            if (CareerFile == null)
+            if (CareerFile == null || (CareerFile != null && currentGameDate.DayOfWeek == DayOfWeek.Monday))
             {
                 CareerFile = new CareerFile(CEMInternalDataDirectory + CoreHack.SaveFileName, CEMInternalDataDirectory + "fifa_ng_db-meta.XML");
                 //CareerFile.LoadXml(dataFolder + "fifa_ng_db-meta.XML");
@@ -169,70 +230,72 @@ namespace CareerExpansionMod.CEM
                 CareerDB2.Current = new CareerDB2();
                 CareerDB2.Current.ParentDataSet = CareerFile.Databases[1].ConvertToDataSet();
                 CurrentSaveFileName = CoreHack.SaveFileName;
-            }
-            //});
-            //CareerFileThread.Start();
-            //CareerFileThread.Join();
+                //});
+                //CareerFileThread.Start();
+                //CareerFileThread.Join();
 
-            if (CareerFile != null && CareerFile.Databases.Length > 0)
-            {
-
-
-                if (CareerDB1.FIFAUser == null)
-                {
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
-
-                    var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
-                    // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
-                    CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
-
-                    swTeams.Stop();
-                    Debug.WriteLine("User took: " + swTeams.Elapsed + " to build");
-                    Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
-                }
-
-                if (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null)
-                {
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
-
-                    var dbTeams = CareerFile.Databases[1].GetTable("teams");
-                    CareerDB2.Current.teams = dbTeams.ConvertToDataTable();
-                    var firstteam = CareerDB2.Current.teams.Rows[0];
-                    var teams = (from myRow in CareerDB2.Current.teams.AsEnumerable()
-                                 where myRow.Field<int>("teamid") == CareerDB1.FIFAUser.clubteamid
-                                 select myRow);
-                    var team = teams.FirstOrDefault();
-                    if (team != null)
-                        CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
-
-                    swTeams.Stop();
-                    Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
-                    Trace.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
-                }
-
-                if (CareerDB1.UserPlayers == null)
+                if (CareerFile.Databases.Length > 0)
                 {
 
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
 
-                    CareerDB2.Current.players = CareerFile.Databases[1].GetTable("players").ConvertToDataTable().AsEnumerable();
-                    CareerDB2.Current.teamplayerlinks = CareerFile.Databases[1].GetTable("teamplayerlinks").ConvertToDataTable().AsEnumerable();
-                    CareerDB2.Current.editedplayernames = CareerFile.Databases[1].GetTable("editedplayernames").ConvertToDataTable().AsEnumerable();
+                    if (CareerDB1.FIFAUser == null)
+                    {
+                        Stopwatch swTeams = new Stopwatch();
+                        swTeams.Start();
+
+                        var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
+                        // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
+                        CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
+
+                        swTeams.Stop();
+                        Debug.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                        Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                    }
+
+                    if (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null)
+                    {
+                        Stopwatch swTeams = new Stopwatch();
+                        swTeams.Start();
+
+                        var dbTeams = CareerFile.Databases[1].GetTable("teams");
+                        CareerDB2.Current.teams = dbTeams.ConvertToDataTable();
+                        var firstteam = CareerDB2.Current.teams.Rows[0];
+                        var teams = (from myRow in CareerDB2.Current.teams.AsEnumerable()
+                                     where myRow.Field<int>("teamid") == CareerDB1.FIFAUser.clubteamid
+                                     select myRow);
+                        var team = teams.FirstOrDefault();
+                        if (team != null)
+                            CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
+
+                        swTeams.Stop();
+                        Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
+                        Trace.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
+                    }
+
+                    if (CareerDB1.UserPlayers == null)
+                    {
+
+                        Stopwatch swTeams = new Stopwatch();
+                        swTeams.Start();
+
+                        CareerDB2.Current.players = CareerFile.Databases[1].GetTable("players").ConvertToDataTable().AsEnumerable();
+                        CareerDB2.Current.teamplayerlinks = CareerFile.Databases[1].GetTable("teamplayerlinks").ConvertToDataTable().AsEnumerable();
+                        CareerDB2.Current.editedplayernames = CareerFile.Databases[1].GetTable("editedplayernames").ConvertToDataTable().AsEnumerable();
 
 
-                    swTeams.Stop();
-                    Debug.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
-                    Trace.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
+                        swTeams.Stop();
+                        Debug.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
+                        Trace.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
+                    }
+
+                    if (CareerDB2.Current.leagueteamlinks == null)
+                    {
+                        CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
+                    }
+
                 }
 
-                if (CareerDB2.Current.leagueteamlinks == null)
-                {
-                    CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
-                }
-
+               
             }
 
             SetupCareerFileComplete = true;
@@ -314,26 +377,33 @@ namespace CareerExpansionMod.CEM
             return table.FirstOrDefault();
         }
 
-        private bool CreateCopyOfSave()
+        private bool CreateCopyOfSave(DateTime gameDate)
         {
-            
-            // backup save file
-            var myDocuments = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 20\\settings\\";
-#pragma warning disable CS0162 // Unreachable code detected
-            for (int iAttempt = 0; iAttempt < 5; iAttempt++)
-#pragma warning restore CS0162 // Unreachable code detected
+            var internalSaveFileLocation = CEMInternalDataDirectory + CoreHack.SaveFileName;
+            if (!File.Exists(internalSaveFileLocation) || gameDate.DayOfWeek == DayOfWeek.Monday)
             {
-                try
+                // backup save file
+                var myDocuments = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 20\\settings\\";
+#pragma warning disable CS0162 // Unreachable code detected
+                for (int iAttempt = 0; iAttempt < 5; iAttempt++)
+#pragma warning restore CS0162 // Unreachable code detected
                 {
-                    File.Copy(myDocuments + CoreHack.SaveFileName, CEMInternalDataDirectory + CoreHack.SaveFileName, true);
-                    return true;
+                    try
+                    {
+                        File.Copy(myDocuments + CoreHack.SaveFileName, internalSaveFileLocation, true);
+                        Debug.WriteLine("Created copy of " + CoreHack.SaveFileName);
+                        //Trace.WriteLine("Created copy of " + CoreHack.SaveFileName);
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
                 }
-                catch
-                {
-                    return false;
-                }
+                return false;
             }
-            return false;
+
+            return true;
         }
     }
 

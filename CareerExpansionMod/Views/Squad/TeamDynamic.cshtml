@@ -8,18 +8,21 @@
 
 
     var User = CareerDB1.FIFAUser;
-    var Team = CareerDB1.UserTeam;
-    var TeamPlayers = Team.GetPlayers();
+    FIFATeam Team = CareerDB1.UserTeam;
+    List<FIFAPlayer> TeamPlayers = Team != null ? Team.GetPlayers() : null;
     //var TeamLeaderPlayers = Team.GetTeamLeaders();
     //var TeamInfluencePlayers = Team.GetTeamInfluences();
     //var TeamRegularPlayers = Team.GetPlayers();
     //var TeamTroubleMakers = Team.GetTeamTroubleMakers();
 
-    var TeamPersonality = Team.PersonalityTypeOfTeam;
-    var TeamEmotionality = Team.EmotionalTypeOfTeam;
+    var TeamPersonality = Team != null ? Team.PersonalityTypeOfTeam : PersonalityTypes.Normal;
+    var TeamEmotionality = Team != null ? Team.EmotionalTypeOfTeam : EmotionalTypes.Normal;
 
 
 }
+
+@if (Team != null)
+{
 <div class="container">
     <div class="row">
         <div class="col-6">
@@ -180,3 +183,4 @@
 
     </div>
 </div>
+}

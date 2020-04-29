@@ -126,14 +126,16 @@ namespace CareerExpansionMod.Controllers
         }
 
         [HttpPost]
-        public JsonResult AcceptSponsor(string Type, string SponsorName, string sponsorPayout)
+        public JsonResult AcceptSponsor(string Type, string SponsorName, string sponsorPayout, string numOfYears)
         {
             SponsorsToTeam sponsor = new SponsorsToTeam();
             sponsor.IsUserTeam = true;
             sponsor.PayoutPerYear = double.Parse(sponsorPayout.Trim());
             sponsor.SponsorName = SponsorName;
             sponsor.SponsorType = Enum.Parse<eSponsorType>(Type);
+            sponsor.ContractLengthInYears = int.Parse(numOfYears.Trim());
             sponsor.TeamId = CareerDB1.FIFAUser.clubteamid;
+
             sponsor.Save();
             SponsorsToTeam.SaveAll();
 

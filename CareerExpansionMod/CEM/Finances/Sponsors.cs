@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -121,7 +122,14 @@ namespace CareerExpansionMod.CEM.Finances
                 DbDataCache.Sponsors.RemoveAll(x => x.SponsorName == SponsorName);
                 DbDataCache.Sponsors.Add(this);
                 if (saveToFile)
+                {
                     File.WriteAllText(finalLocation, JsonConvert.SerializeObject(this));
+
+                    if (File.Exists(CEMCore.CEMInternalDataDirectory + "BaseData\\Sponsors.zip"))
+                        File.Delete(CEMCore.CEMInternalDataDirectory + "BaseData\\Sponsors.zip");
+
+                    ZipFile.CreateFromDirectory(Sponsor.CEMSponsorDirectory, CEMCore.CEMInternalDataDirectory + "BaseData\\Sponsors.zip", CompressionLevel.Optimal, false);
+                }
             }
             else
             {
@@ -247,9 +255,25 @@ namespace CareerExpansionMod.CEM.Finances
             throw new NotImplementedException();
         }
 
-        public static int GetCalculatedContractLengthInMonths(int teamid, string sponsor)
+        public static int GetCalculatedContractLengthInMonths(int teamid, string sponsorName)
         {
-            return 12;
+            Sponsor s = Sponsor.Load(sponsorName);
+            s.SponsorPayoutPerYearMax = s.SponsorPayoutPerYearMax > 0 ? s.SponsorPayoutPerYearMax : 5000000;
+            var maxCalcValue = 50000000d;
+            switch(s.SponsorType)
+            {
+                case eSponsorType.Kit:
+                    maxCalcValue = 25000000d;
+                    break;
+                case eSponsorType.Training:
+                    maxCalcValue = 10000000d;
+                    break;
+            }
+
+            var firstCalc = Math.Round(maxCalcValue / Math.Max(10000000, Math.Min(s.SponsorPayoutPerYearMax, 25000000d)));
+            var months = Math.Min(12 * 5, Math.Max(12, Convert.ToInt32(Math.Round(firstCalc * 12))));
+            
+            return months;
         }
 
         public static int GetCalculatedContractLengthInYears(int teamid, string sponsor)

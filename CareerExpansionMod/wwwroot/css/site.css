@@ -363,3 +363,7 @@ input[type=range]:focus::-ms-fill-upper {
     margin-right: auto;
     width: 50%;
 }
+
+.fa-star {
+    color: #c2bb22;
+}

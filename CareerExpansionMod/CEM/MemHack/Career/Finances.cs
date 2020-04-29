@@ -86,15 +86,14 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             return success;
         }
 
-        private static Finances _financeInstance;
         public static Finances FinanceInstance
         {
             get
             {
-                if (_financeInstance == null)
-                    _financeInstance = new Finances();
+                if (CEMCore.CEMCoreInstance.Finances == null)
+                    CEMCore.CEMCoreInstance.Finances = new Finances();
 
-                return _financeInstance;
+                return CEMCore.CEMCoreInstance.Finances;
             }
         }
 
