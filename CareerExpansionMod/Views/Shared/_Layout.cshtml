@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
 </head>
-<body>
+<body ng-app="myApp">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm text-white border-bottom box-shadow mb-3">
             <div class="container text-center">
@@ -70,7 +70,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a id="navSquad" class="nav-link" href="@Url.Action("Index", "Squad")" disabled="disabled" >
+                            <a id="navSquad" class="nav-link" href="@Url.Action("Index", "Squad")" disabled="disabled">
                                 <i class="fas fa-users" aria-hidden="true"></i>&nbsp;Squad
                             </a>
                         </li>
@@ -87,9 +87,9 @@
                         </li>
                     </ul>
                 </header>
-                @*<div ui-view></div>*@
+                <ng-view></ng-view>
 
-                @RenderBody()
+                @*@RenderBody()*@
             </div>
         </main>
     </div>
@@ -106,7 +106,8 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/angularjs/angular.min.js"></script>
+    <script src="~/lib/angularjs/angular.js"></script>
+    <script src="~/lib/angular-route/angular-route.js"></script>
     <script src="~/lib/angular-ui-router/angular-ui-router.js"></script>
     <script src="_framework/blazor.server.js"></script>
     <script src="~/lib/vue/vue.min.js"></script>
@@ -116,7 +117,7 @@
     <script>
 
         var bIsInCareerMode = false;
-        var debug = true;
+        var debug = false;
 
         setInterval(() => {
             $.getJSON("/IsCareerModeActive/", function (d) {
@@ -151,7 +152,6 @@
             if (bIsInCareerMode) {
                 $.getJSON("/GetCareerModeSaveName/", function (d) {
                     $('#CareerSaveName').html(d);
-                    pollSaveNameTime = 10000;
                 }).catch(function (t, u, v) {
                     console.log(t);
                     console.log(u);
@@ -159,7 +159,7 @@
 
                 });
             }
-        }, 5000);
+        }, 2000);
 
         setInterval(() => {
             if (bIsInCareerMode) {
@@ -172,7 +172,7 @@
 
                 });
             }
-        }, 5000);
+        }, 2000);
 
 
         // poll Career Game Date
@@ -188,7 +188,7 @@
                 });
             }
 
-        }, 5000);
+        }, 3000);
 
         // poll Career Game Date
         //setInterval(() => {
@@ -238,5 +238,12 @@
     </script>
 
     @RenderSection("Scripts", false)
+
+    @* JavaScript only section *@
+    <script>
+        $.ready(function () {
+            @RenderSection("ScriptsJS", false)
+        });
+    </script>
 </body>
 </html>

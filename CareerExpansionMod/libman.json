@@ -22,6 +22,14 @@
     {
       "library": "minireset.css@0.0.2",
       "destination": "wwwroot/lib/reset/"
+    },
+    {
+      "library": "angular-route@1.7.9",
+      "destination": "wwwroot/lib/angular-route/"
+    },
+    {
+      "library": "angular-ui-bootstrap@2.5.0",
+      "destination": "wwwroot/lib/angular-ui-bootstrap/"
     }
   ]
 }

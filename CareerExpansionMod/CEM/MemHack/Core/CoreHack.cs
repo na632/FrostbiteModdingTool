@@ -70,11 +70,12 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
         public DateTime? GetInGameDate()
         {
-            if (GetProcess().HasValue)
-                {
-                    //var aobgDate = memory.Scanner.GetScannerAndReadAddress(AOB_ADDRESSES.GAME_DATE);
-                    //var gDate = MemLib.readInt(aobgDate.ToString());
+            try
+            {
 
+            
+                if (GetProcess().HasValue)
+                {
                     if (!IsSettingDate && !IsBGLoading) 
                     {
                         IsSettingDate = true;
@@ -91,7 +92,10 @@ namespace v2k4FIFAModdingCL.MemHack.Core
                                 , out DateTime d))
                             {
                                 if (CEMCore.CEMCoreInstance == null)
+                                {
+                                    IsSettingDate = false;
                                     return null;
+                                }
 
                                 CEMCore.CEMCoreInstance.CoreHack = this;
                                 if (d.Date != internal_gamedate.Date)
@@ -106,9 +110,9 @@ namespace v2k4FIFAModdingCL.MemHack.Core
                                         {
                                             CEMCore.CEMCoreInstance.GameDateChanged(internal_gamedate.Date, internal_gamedate.Date.AddDays(i));
                                         }
-}
+                                    }
 
-internal_gamedate = d.Date;
+                                    internal_gamedate = d.Date;
                                 }
 
                                 IsSettingDate = false;
@@ -123,6 +127,11 @@ internal_gamedate = d.Date;
 
                 }
                 return DateTime.Now;
+            }
+            finally
+            {
+                IsSettingDate = false;
+            }
         }
 
         public string CareerSaveFileLocation { get; set; }

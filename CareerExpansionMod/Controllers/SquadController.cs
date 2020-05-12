@@ -24,8 +24,12 @@ namespace CareerExpansionMod.Controllers
 
         public PartialViewResult TeamDynamic()
         {
-
             return PartialView("TeamDynamic", CareerDB1.UserTeam);
+        }
+
+        public PartialViewResult TeamStats()
+        {
+            return PartialView("TeamStats", CareerDB1.UserTeam);
         }
 
         // GET: Squad/Details/5

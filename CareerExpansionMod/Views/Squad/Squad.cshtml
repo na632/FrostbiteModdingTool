@@ -1,13 +1,38 @@
 ﻿
 @{
     ViewData["Title"] = "Squad";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container">
     <div class="card card-2x allow-overflow-y">
         <div class="card-body">
-            @await Html.PartialAsync("TeamDynamic")
+            <ul id="rowTab" class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link " data-toggle="tab" data-target="#dynamics">Dynamics</a></li>
+                <li class="nav-item"><a class="nav-link " data-toggle="tab" data-target="#stats">Statistics</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="dynamics" class="tab-pane fade in active">
+                </div>
+                <div id="stats" class="tab-pane fade">
+                   @await Html.PartialAsync("TeamStats")
+                </div>
+            </div>
+
+
         </div>
     </div>
 </div>
+
+    <script type="text/javascript">
+        //alert('hello')
+        $(document).ready(function () {
+        });
+
+        $.get("Squad/TeamDynamic", function (data) {
+            $('.nav-tabs > li:first-child > a')[0].click();
+            $('#dynamics').html(data);
+
+        });
+    </script>

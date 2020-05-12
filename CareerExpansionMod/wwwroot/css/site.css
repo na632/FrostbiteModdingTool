@@ -188,17 +188,29 @@ button.card-body:hover, button.card-body:focus, button.card-body:active, a.card-
 }
 
 .navbar {
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.95);
 }
 
 .nav-link {
-    color: #fff503 !important;
+    color: #fff503;
     border-bottom: 1px solid transparent !important;
+    font-family: EAFont;
 }
 
-.nav-link:hover {
+.nav-link:hover, .nav .nav-item a:hover {
     border-bottom: 1px solid #fff503 !important;
 }
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active, .nav-tabs .nav-link {
+    color: black;
+}
+
+.nav .nav-item a:hover {
+}
+
+
+
+
 
 .plain {
     background: white;
@@ -350,8 +362,11 @@ input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
 
+/**
 
+    EO SLIDER
 
+*/
 
 .hierachy-tile {
     width: 100px; height: 100px; margin: 10px; padding: 5px; border: 1px solid black; display: inline-flex;
@@ -366,4 +381,19 @@ input[type=range]:focus::-ms-fill-upper {
 
 .fa-star {
     color: #c2bb22;
+}
+
+.tab-content {
+    padding: 1em;
+}
+
+@font-face {
+    font-family: 'EAFont';
+    src: url('Fonts/EASPORTS15.ttf'); /* IE9 Compat Modes */
+    src: url('Fonts/EASPORTS15.ttf') format('truetype');
+}
+
+
+.EAFont, h1, h2, h3, h4, h5, h6 {
+    font-family: EAFont, Impact;
 }

@@ -5,7 +5,7 @@
 @model CareerExpansionMod.CEM.Finances.TeamFinance
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
 
     var MainSponsor = ViewBag.MainSponsor as SponsorsToTeam;
     var KitSponsor = ViewBag.KitSponsor as SponsorsToTeam;
@@ -51,12 +51,12 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-body">
+                <a class="card-body" ng-href="#!Finances/Prices">
                     <h4>Prices</h4>
                     <div class="card-body-icon">
-                        <i class="fa fa-money-bill" aria-hidden="true"></i>
+                        <i class="fas fa-beer" aria-hidden="true"></i>
                     </div>
-                    <form>
+                    @*<form>
                         <div class="row">
                             <label class="col-form-label col-5"><i class="fas fa-hamburger"></i>&nbsp;Burgers</label>
                             <div class="col-4">
@@ -79,19 +79,14 @@
                             <input class="col-4" id="txtAlcoholDrinkPrice" disabled="disabled" type="range" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
                             <span class="col-form-label col-3" id="numAlcoholDrinkPrice"></span>
                         </div>
-                    </form>
+                    </form>*@
 
-                </div>
-                <div class="card-footer">
-                    <a href="Finances/Prices">
-                        >&nbsp;View full price breakdown
-                    </a>
-                </div>
+                </a>
             </div>
         </div>
         <div class="col-4">
             <div class="card card-2x allow-overflow-y">
-                <a class="card-body" href="Finances/Sponsors" style="text-align:left; vertical-align: top;">
+                <a class="card-body" href="#!Finances/Sponsors" style="text-align:left; vertical-align: top;">
                     <h4>Sponsorship</h4>
                     <div class="card-body-icon">
                         @if (MainSponsor != null)
@@ -241,8 +236,8 @@
                 </a>
             </div>
             <div class="card">
-                <a class="card-body" href="@Url.Action("LoansAndDebts")" style="text-align:left; vertical-align: top;">
-                    <h4>Debts &amp; Loans</h4>
+                <a class="card-body" ng-href="#!FinancesLoansAndDebts" style="text-align:left; vertical-align: top;">
+                    <h4>Debts and Loans</h4>
                     <div class="card-body-icon">
                         <i class="fas fa-credit-card"></i>
                     </div>
@@ -264,7 +259,6 @@
 </div>
 
 
-@section Scripts {
     <script>
 
         function getTransferBudget() {
@@ -345,4 +339,3 @@
         }
         ChangedPrices();
     </script>
-}

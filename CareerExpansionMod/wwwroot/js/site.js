@@ -89,6 +89,38 @@ var app_youth_system = angular.module('YouthSystem', ['ui.router']);
 
 //        ;
 //});
+var app = angular.module("myApp", ["ngRoute", "ui.bootstrap"]);
+app.config(function ($routeProvider) {
+    $routeProvider
+        .when("/Home", {
+            templateUrl: "/Home/Roadmap"
+        })
+        .when("/Finances", {
+            templateUrl: "/Finances/Index/"
+        })
+        .when("/YouthSystem", {
+            templateUrl: "/YouthSystem"
+        })
+        .when("/Squad", {
+            templateUrl: "/Squad/Squad"
+        })
+        .when("/Transfers", {
+            templateUrl: "/Transfers/Index"
+        })
+        .when("/Settings", {
+            templateUrl: "/Settings/Index"
+        })
+        .when("/FinancesLoansAndDebts", {
+            templateUrl: "/Finances/LoansAndDebts"
+        })
+        .when("/Finances/Sponsors", {
+            templateUrl: "/Finances/Sponsors"
+        })
+        .when("/Finances/Prices", {
+            templateUrl: "/Finances/Prices"
+        })
+        .otherwise({ redirectTo: "/Home" })
+});
 
 
 

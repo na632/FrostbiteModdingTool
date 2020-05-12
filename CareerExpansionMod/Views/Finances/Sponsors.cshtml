@@ -3,7 +3,7 @@
 @using CareerExpansionMod.CEM.Finances
 @{
     ViewData["Title"] = "Sponsors";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
 
     var AlcoholSponsor = ViewBag.AlcoholSponsor as SponsorsToTeam;
     var DrinksSponsor = ViewBag.DrinksSponsor as SponsorsToTeam;
@@ -11,7 +11,7 @@
     var GeneralSponsor = ViewBag.GeneralSponsor as SponsorsToTeam;
     var GymSponsor = ViewBag.GymSponsor as SponsorsToTeam;
     var HospitalitySponsor = ViewBag.HospitalitySponsor as SponsorsToTeam;
-    var KitSponsor = ViewBag.KitSponsor as SponsorsToTeam;
+    SponsorsToTeam KitSponsor = ViewBag.KitSponsor as SponsorsToTeam;
     var LegalSponsor = ViewBag.LegalSponsor as SponsorsToTeam;
     var MainSponsor = ViewBag.MainSponsor as SponsorsToTeam;
     var NutritionalSponsor = ViewBag.NutritionalSponsor as SponsorsToTeam;
@@ -49,7 +49,7 @@
                     <div class="col-4">
                         <div class="card plain allow-overflow-y">
                             <div class="card-header">
-                                Select your Main Sponsor
+                                <h5>Select your Main Sponsor</h5>
                             </div>
                             <div class="card-body">
                                 <table class="table">
@@ -116,7 +116,7 @@
                     <div class="col-4">
                         <div class="card plain allow-overflow-y">
                             <div class="card-header">
-                                Select your Kit make Company
+                                <h5>Select your Kit Make</h5>
                             </div>
                             <div class="card-body">
                                 <table class="table">
@@ -183,7 +183,7 @@
                     <div class="col-4">
                         <div class="card plain allow-overflow-y">
                             <div class="card-header">
-                                Select your Training Sponsor
+                                <h5>Select your Stadium Sponsor</h5>
                             </div>
                             <div class="card-body">
                                 <table class="table">
@@ -199,7 +199,7 @@
                                         @foreach (var trainingSponsor in Sponsor.LoadAll().Where(x => x.SponsorType == eSponsorType.Training && !x.SpecificTeamId.HasValue).OrderByDescending(x => x.SponsorPayoutPerYearMax))
                                         {
                                             <tr onclick="popupAreYouSureSponsor('@eSponsorType.Training', '@trainingSponsor.SponsorName', '@trainingSponsor.GetSponsorImageUrl()'
-        , '@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, trainingSponsor.SponsorName)
+        , '@SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(CareerDB1.FIFAUser.clubteamid, trainingSponsor.SponsorName)'
     , '@SponsorsToTeam.GetCalculatedContractLengthInYears(CareerDB1.FIFAUser.clubteamid, trainingSponsor.SponsorName)')">
                                                 <td><img src="@trainingSponsor.GetSponsorImageUrl()" width="100" /></td>
                                                 <td>@trainingSponsor.SponsorName</td>
@@ -279,7 +279,6 @@
 <input type="hidden" id="SponsorPayout" name="SponsorPayout" />
 <input type="hidden" id="SponsorContractLength" name="SponsorContractLength" />
 
-@section Scripts {
 
     <script>
 
@@ -314,22 +313,29 @@
             $('#BodySponsorType').html(type)
             $('#BodySponsorImage').attr('src', imageUrl);
             $('#BodySponsorPayout').html(payout);
-            $('#myModal').modal('show')
+            $('#myModal').modal('show');
 
         }
 
         function ConfirmSponsorSelect() {
-            $.post("Finances/AcceptSponsor/?Type=" + $('#SponsorType').val() + "&SponsorName=" + $('#SponsorName').val() + "&SponsorPayout=" + $('#SponsorPayout').val(), function (d) {
+            $.post("Finances/AcceptSponsor/?Type=" + $('#SponsorType').val() + "&SponsorName=" + $('#SponsorName').val() + "&SponsorPayout=" + $('#SponsorPayout').val() + "&NumOfYears=" + $('#SponsorContractLength').val()
+
+                , function (d) {
                 console.log(d);
                 $('#myModal').modal('hide');
                 if (d.success == "true") {
                     $('#myModal').modal('hide');
                 }
                 window.location = '@Url.Action("Sponsors", "Finances")';
+            }).fail(function (event, jqXHR, settings, exception) {
+
+                console.error(exception);
+                alert("error");
+                alert(exception);
+
             });
 
         }
     </script>
 
-}
 

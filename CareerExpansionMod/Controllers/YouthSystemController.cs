@@ -10,7 +10,7 @@ namespace CareerExpansionMod.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Dashboard");
         }
 
         public IActionResult Team()
@@ -20,7 +20,7 @@ namespace CareerExpansionMod.Controllers
 
         public IActionResult Dashboard()
         {
-            return View();
+            return View("YSDashboard");
         }
     }
 }

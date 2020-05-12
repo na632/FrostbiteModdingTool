@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Text;
 
 namespace v2k4FIFAModding.Career.CME.FIFA
@@ -164,6 +165,8 @@ Selfish = 1,
         public int overallrating { get; set; }
         public int smallsidedshoetypecode { get; set; }
 
+       
+
         /// <summary>
         /// How emotional a player is 
         /// 1 - 
@@ -195,6 +198,63 @@ Selfish = 1,
         public int tattoorightleg { get; set; }
         public int facialhaircolorcode { get; set; }
 
+        public enum AttributeGroup
+        {
+            Goalkeeping,
+            Defending,
+            Dribbling,
+            Passing,
+            Shooting,
+            Intelligence
+        }
+
+        public static Dictionary<AttributeGroup, List<string>> AttributeToGroup = new Dictionary<AttributeGroup, List<string>>()
+        {
+            {
+                AttributeGroup.Goalkeeping, new List<string>() { "gkkicking", "gkreflexes", "gkhandling", "" }
+            },
+            {
+                AttributeGroup.Defending, new List<string>() { "standingtackle", "slidingtackle", "marking", "interceptions" }
+            },
+            {
+                AttributeGroup.Dribbling, new List<string>() { "dribbling", "acceleration", "sprintspeed", "ballcontrol" }
+            },
+            {
+                AttributeGroup.Passing, new List<string>() { "shortpassing", "longpassing", "vision" }
+            },
+            {
+                AttributeGroup.Shooting, new List<string>() { "finishing", "composure", "longshots" }
+            },
+            {
+                AttributeGroup.Intelligence, new List<string>() { "composure", "marking", "interceptions", "positioning" }
+            }
+        };
+
+        public int GetAbilityRatingForAttributeGroup(AttributeGroup group)
+        {
+            Type t = typeof(FIFAPlayer);
+            int rating = 0;
+
+            if (AttributeToGroup[group].Count > 0)
+            {
+                for (var i = 0; i < AttributeToGroup[group].Count; i++)
+                {
+                    PropertyInfo prop = t.GetProperty(AttributeToGroup[group][i]);
+                    if (null != prop)
+                    {
+                        if (int.TryParse(prop.GetValue(this, null).ToString(), out int v))
+                        {
+                            rating += v;
+                        }
+
+                    }
+                }
+
+                rating = Convert.ToInt32(Math.Round((double)rating / (double)AttributeToGroup[group].Count));
+            }
+
+            return rating;
+        }
 
         public string Name
         {

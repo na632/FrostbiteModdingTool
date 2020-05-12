@@ -190,10 +190,10 @@ namespace CareerExpansionMod.CEM
                         if(totalWeeklyIncome != 0)
                         {
                             totalWeeklyIncome = Math.Round(totalWeeklyIncome);
-                            var oldTransferBudget = v2k4FIFAModdingCL.MemHack.Career.Finances.GetTransferBudget();
-                            var newTransferBudget = oldTransferBudget + Convert.ToInt32(totalWeeklyIncome);
-                            
-                            v2k4FIFAModdingCL.MemHack.Career.Finances.SetTransferBudget(newTransferBudget);
+                            var oldBalance = v2k4FIFAModdingCL.MemHack.Career.Finances.StartingBudget;
+                            var newBalance = oldBalance + Convert.ToInt32(totalWeeklyIncome);
+
+                            v2k4FIFAModdingCL.MemHack.Career.Finances.StartingBudget = newBalance;
 
                         }
                     }

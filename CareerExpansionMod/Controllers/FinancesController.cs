@@ -6,6 +6,7 @@ using CareerExpansionMod.CEM;
 using CareerExpansionMod.CEM.FIFA;
 using CareerExpansionMod.CEM.Finances;
 using Microsoft.AspNetCore.Mvc;
+using v2k4FIFAModdingCL.MemHack.Career;
 
 namespace CareerExpansionMod.Controllers
 {
@@ -79,27 +80,27 @@ namespace CareerExpansionMod.Controllers
 
         public IActionResult LoansAndDebts()
         {
-            return View();
+            return View("LoansAndDebts");
         }
 
         [HttpGet]
         public JsonResult GetStartingBudget()
         {
-            return Json(CEMCore.CEMCoreInstance.Finances.StartingBudget);
+            return Json(Finances.StartingBudget);
         }
 
         [HttpGet]
         public JsonResult GetTransferBudget()
         {
-            return Json(CEMCore.CEMCoreInstance.Finances.TransferBudget);
+            return Json(Finances.TransferBudget);
         }
 
         [HttpGet]
         //[Route("Finance/SetTransferBudget/{amount}")]
         public JsonResult SetTransferBudget(int amount)
         {
-            CEMCore.CEMCoreInstance.Finances.TransferBudget = amount;
-            return Json(CEMCore.CEMCoreInstance.Finances.TransferBudget);
+            Finances.TransferBudget = amount;
+            return Json(Finances.TransferBudget);
 
             //return Json("ERR: 001");
         }

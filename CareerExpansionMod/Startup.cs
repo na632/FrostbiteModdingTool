@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -227,10 +228,17 @@ namespace CareerExpansionMod
             VK_PA1 = 0xFD,
             VK_OEM_CLEAR = 0xFE
         }
-        public bool IsPressed()
+        public bool IsF2Pressed()
         {
-
             return Convert.ToBoolean(GetKeyState(VirtualKeyStates.VK_F2) & KEY_PRESSED);
+        }
+        public bool IsF10Pressed()
+        {
+            return Convert.ToBoolean(GetKeyState(VirtualKeyStates.VK_F10) & KEY_PRESSED);
+        }
+        public bool IsF12Pressed()
+        {
+            return Convert.ToBoolean(GetKeyState(VirtualKeyStates.VK_F12) & KEY_PRESSED);
         }
 
 
@@ -329,10 +337,22 @@ namespace CareerExpansionMod
 
         public static CEM.CEMCore CMECore = new CEM.CEMCore();
         static Thread thread;
+        public static bool LoggingToFile = false;
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
+            {
+                Debug.WriteLine(eventArgs.Exception.ToString());
+                Trace.WriteLine(eventArgs.Exception.ToString());
+                if (!LoggingToFile)
+                {
+                    LoggingToFile = true;
+                    File.WriteAllText("Log.txt", eventArgs.Exception.ToString());
+                }
+            };
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -364,8 +384,8 @@ namespace CareerExpansionMod
 
             var browserWindowOptions = new BrowserWindowOptions()
             {
-                AutoHideMenuBar = true,
-                Movable = false,
+                //AutoHideMenuBar = true,
+                //Movable = false,
                 BackgroundColor = "#00000000",
 
                 Frame = true,
@@ -408,23 +428,26 @@ namespace CareerExpansionMod
                 {
                     Thread.Sleep(500);
 
-                    if (IsPressed())
+                    if (IsF2Pressed())
                     {
                         Console.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
                         Trace.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
                         Debug.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
+                        File.WriteAllText("Log.txt", $"F2 Pressed - {DateTime.Now.ToString()}");
 
                         if (BrowserWindow != null && ElectronProcesses != null)
                         {
                             if (!BrowserWindow.IsFocusedAsync().Result)
                             {
-                                for (var iFocus = 0; iFocus < 5; iFocus++)
-                                {
+                                //for (var iFocus = 0; iFocus < 5; iFocus++)
+                                //{
+                                    BrowserWindow.Minimize();
                                     BrowserWindow.Focus();
                                     BrowserWindow.FocusOnWebView();
+                        File.WriteAllText("Log.txt", $"F2 Pressed FOCUS- {DateTime.Now.ToString()}");
                                     Thread.Sleep(200);
 
-                                }
+                               // }
                             }
                             else
                             {
@@ -434,6 +457,17 @@ namespace CareerExpansionMod
                         }
 
                         Thread.Sleep(500);
+                    }
+
+                    if(IsF10Pressed() || IsF12Pressed())
+                    {
+                        if (BrowserWindow != null && ElectronProcesses != null)
+                        {
+                            BrowserWindow.SetAutoHideMenuBar(BrowserWindow.IsMenuBarAutoHideAsync().Result);
+
+                            File.WriteAllText("Log.txt", $"F10/F12 Pressed AutoHide- {DateTime.Now.ToString()}");
+
+                        }
                     }
 
                     var fifaprocesses = Process.GetProcessesByName("FIFA20");

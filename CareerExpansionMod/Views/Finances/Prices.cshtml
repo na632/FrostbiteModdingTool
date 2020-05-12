@@ -1,8 +1,118 @@
 ﻿
 @{
     ViewData["Title"] = "Prices";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
 }
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <div class="card card-2x">
+                    <div class="card-body">
+                        <h4 class="EAFont text-center">Alcohol</h4>
+                        <img src="~/images/finances/prices/cafefootball-bar-grey-rescale.jpg" style="width:100%; height: 200px;" />
+                        <div class="mt-3">
+                            <form>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-4" for="txtAlcoholDrinkPrice">Price</label>
+                                    <div class="input-group col-8">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">£</span>
+                                        </div>
+                                        <input class="form-control" id="txtAlcoholDrinkPrice" type="number" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="form-group">
+                                <label>Recommended Price</label>
+                                <span for="txtAlcoholDrinkRecommendedPrice">1 - 4.99</span>
+                            </div>
+                        </div>
 
-<h1>Not available in this version</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="card card-2x">
+                    <div class="card-body">
+                        <h4 class="EAFont text-center">Soft Drink</h4>
+                        <img src="~/images/finances/prices/SoftDrink.jpg" style="width:100%; height: 200px;" />
+                        <div class="mt-3">
+                            <form>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-4" for="txtSoftDrinkPrice">Price</label>
+                                    <div class="input-group col-8">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">£</span>
+                                        </div>
+                                        <input class="form-control" id="txtSoftDrinkPrice" type="number" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="form-group">
+                                <label>Recommended Price</label>
+                                <span for="txtSoftDrinkRecommendedPrice">1 - 4.99</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="card card-2x">
+                    <div class="card-body">
+                        <h4 class="EAFont text-center">Fries</h4>
+                        <img src="~/images/finances/prices/Fries.jpg" style="width:100%; height: 200px;" />
+                        <div class="mt-3">
+                            <form>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-4" for="txtAlcoholDrinkPrice">Price</label>
+                                    <div class="input-group col-8">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">£</span>
+                                        </div>
+                                        <input class="form-control" id="txtAlcoholDrinkPrice" type="number" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="form-group">
+                                <label>Recommended Price</label>
+                                <span for="txtAlcoholDrinkRecommendedPrice">1 - 4.99</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="card card-2x">
+                    <div class="card-body">
+                        <h4 class="EAFont text-center">Burgers</h4>
+                        <img src="~/images/finances/prices/Burger.jpg" style="width:100%; height: 200px;" />
+                        <div class="mt-3">
+                            <form>
+                                <div class="form-group row">
+                                    <label class="col-form-label col-4" for="txtAlcoholDrinkPrice">Price</label>
+                                    <div class="input-group col-8">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">£</span>
+                                        </div>
+                                        <input class="form-control" id="txtAlcoholDrinkPrice" type="number" value="4" min="1" max="4.99" step="0.5" onchange="ChangedPrices()" required />
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="form-group">
+                                <label>Recommended Price</label>
+                                <span for="txtAlcoholDrinkRecommendedPrice">1 - 4.99</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
