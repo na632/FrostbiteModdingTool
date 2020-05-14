@@ -22,5 +22,10 @@ namespace CareerExpansionMod.Controllers
         {
             return View("YSDashboard");
         }
+
+        public IActionResult NoYouthSystemExists()
+        {
+            return View("NoYouthSystemExists");
+        }
     }
 }

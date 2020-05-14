@@ -143,13 +143,20 @@ namespace v2k4FIFAModding.Career.CME.FIFA
         {
            
 
-            var leadership = (6 - p.emotion) + p.personality;
+            var leadership = (6 - p.emotion) + (p.personality * 1.25);
 
             var dateJoined = CEMUtilities.FIFACoreDateTime.AddDays(p.playerjointeamdate);
 
             leadership += Convert.ToInt32(Math.Ceiling(p.TimeAtClubInYears > 2 ? p.TimeAtClubInYears * 0.75 : p.TimeAtClubInYears));
 
-            leadership += Convert.ToInt32(Math.Ceiling(p.AgeInYears * 0.1));
+            leadership += Convert.ToInt32(Math.Ceiling(p.AgeInYears * 0.09));
+
+            leadership = Math.Max(0, Math.Min(20, leadership));
+
+            if(leadership > 0)
+            {
+                leadership = Math.Round((leadership / 20) * 10);
+            }
 
             return leadership;
         }

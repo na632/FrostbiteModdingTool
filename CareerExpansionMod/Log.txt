@@ -1,2 +1,157 @@
-Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'CurrentTeamSponsors'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
+
+14/05/2020 18:24:49 - FIFAProcess has been found
+14/05/2020 18:24:51 - System.IO.IOException: The process cannot access the file 'G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\bin\Debug\netcoreapp3.1\CEM\Data\Career20200504204219' because it is being used by another process.
+   at System.IO.FileSystem.CopyFile(String sourceFullPath, String destFullPath, Boolean overwrite)
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+   at CareerExpansionMod.CEM.CEMCore..ctor() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 140
+   at v2k4FIFAModdingCL.MemHack.Core.CoreHack.get_SaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\MemHack\Core\CoreHack.cs:line 160
+   at CareerExpansionMod.Controllers.HomeController.GetCareerModeSaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\Controllers\HomeController.cs:line 67
+   at lambda_method(Closure , Object , Object[] )
+   at Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(Object target, Object[] parameters)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+   at CareerExpansionMod.CEM.CEMCore..ctor() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 140
+   at v2k4FIFAModdingCL.MemHack.Core.CoreHack.get_SaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\MemHack\Core\CoreHack.cs:line 160
+   at CareerExpansionMod.Controllers.HomeController.GetCareerModeSaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\Controllers\HomeController.cs:line 67
+   at lambda_method(Closure , Object , Object[] )
+   at Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(Object target, Object[] parameters)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+   at CareerExpansionMod.CEM.CEMCore..ctor() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 140
+   at v2k4FIFAModdingCL.MemHack.Core.CoreHack.get_SaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\MemHack\Core\CoreHack.cs:line 160
+   at CareerExpansionMod.Controllers.HomeController.GetCareerModeSaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\Controllers\HomeController.cs:line 67
+   at lambda_method(Closure , Object , Object[] )
+   at Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(Object target, Object[] parameters)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|24_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+   at CareerExpansionMod.CEM.CEMCore..ctor() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 140
+   at v2k4FIFAModdingCL.MemHack.Core.CoreHack.get_SaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\MemHack\Core\CoreHack.cs:line 160
+   at CareerExpansionMod.Controllers.HomeController.GetCareerModeSaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\Controllers\HomeController.cs:line 67
+   at lambda_method(Closure , Object , Object[] )
+   at Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(Object target, Object[] parameters)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|24_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeFilterPipelineAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+   at CareerExpansionMod.CEM.CEMCore..ctor() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 140
+   at v2k4FIFAModdingCL.MemHack.Core.CoreHack.get_SaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\MemHack\Core\CoreHack.cs:line 160
+   at CareerExpansionMod.Controllers.HomeController.GetCareerModeSaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\Controllers\HomeController.cs:line 67
+   at lambda_method(Closure , Object , Object[] )
+   at Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(Object target, Object[] parameters)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|24_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeFilterPipelineAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+   at CareerExpansionMod.CEM.CEMCore..ctor() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 140
+   at v2k4FIFAModdingCL.MemHack.Core.CoreHack.get_SaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\MemHack\Core\CoreHack.cs:line 160
+   at CareerExpansionMod.Controllers.HomeController.GetCareerModeSaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\Controllers\HomeController.cs:line 67
+   at lambda_method(Closure , Object , Object[] )
+   at Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(Object target, Object[] parameters)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|24_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeFilterPipelineAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+14/05/2020 18:24:58 - System.NullReferenceException: Object reference not set to an instance of an object.
+   at CareerExpansionMod.CEM.CEMCore.SetupCareerFile(DateTime currentGameDate) in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 283
+   at CareerExpansionMod.CEM.CEMCore..ctor() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\CEMCore.cs:line 140
+   at v2k4FIFAModdingCL.MemHack.Core.CoreHack.get_SaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\CEM\MemHack\Core\CoreHack.cs:line 160
+   at CareerExpansionMod.Controllers.HomeController.GetCareerModeSaveName() in G:\Work\FIFA Modding\FIFAModdingUI\CareerExpansionMod\Controllers\HomeController.cs:line 67
+   at lambda_method(Closure , Object , Object[] )
+   at Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(Object target, Object[] parameters)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|24_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeFilterPipelineAsync()
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+14/05/2020 18:30:58 - ElectronProcess has been found
+14/05/2020 18:30:58 - ElectronProcess has been lost
+14/05/2020 18:31:01 - ElectronProcess has been found
+14/05/2020 18:32:07 - F2 Pressed
+14/05/2020 18:32:09 - F2 Pressed
+14/05/2020 18:32:10 - F2 Pressed
+14/05/2020 18:32:12 - F2 Pressed
+14/05/2020 18:32:13 - F2 Pressed
+14/05/2020 18:32:21 - F2 Pressed
