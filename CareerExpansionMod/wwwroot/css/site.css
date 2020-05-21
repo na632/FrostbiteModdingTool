@@ -144,6 +144,7 @@ input {
 
 .card-body {
     text-align: left;
+    padding: 0.4em;
     padding-bottom: 0;
 }
 
@@ -192,18 +193,22 @@ button.card-body:hover, button.card-body:focus, button.card-body:active, a.card-
 }
 
 .nav-link {
-    color: #fff503;
-    border-bottom: 1px solid transparent !important;
-    font-family: EAFont;
+    
 }
 
 .nav-link:hover, .nav .nav-item a:hover {
-    border-bottom: 1px solid #fff503 !important;
 }
 
 .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active, .nav-tabs .nav-link {
     color: black;
 }
+
+header .nav .nav-item .nav-link {
+    color: #fff503;
+    border-bottom: 1px solid transparent !important;
+    font-family: EAFont;
+}
+
 
 .nav .nav-item a:hover {
 }

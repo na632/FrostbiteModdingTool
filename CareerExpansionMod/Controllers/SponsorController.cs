@@ -226,58 +226,65 @@ namespace CareerExpansionMod.Controllers
                                         DbDataCache.SponsorsToTeams.Add(mainSponsorToTeam);
                                     }
 
-                                    // Kit Sleeve Creator
-                                    var sleeveSponsor = new Sponsor(dict["Sleeve Sponsor"].ToString())
+                                    if (!string.IsNullOrEmpty(dict["Sleeve Sponsor"].ToString()))
                                     {
-                                        SponsorImageUrl = dict["Sleeve Sponsor Logo"].ToString(),
-                                        SponsorPayoutPerYearMax =
-                                         !string.IsNullOrEmpty(dict["Sleeve Sponsor Money"].ToString())
-                                            ? Convert.ToInt32(dict["Sleeve Sponsor Money"].ToString()) : 1000000,
-                                        SponsorType = eSponsorType.Kit_Sleeve,
-                                        SponsorLevels = new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-                                    };
-                                    sleeveSponsor.Save();
-                                    if (!DbDataCache.SponsorsToTeams.Any(x => x.TeamId == teamid
-                                                && x.SponsorType == eSponsorType.Kit_Sleeve
-                                        ))
-                                    {
-                                        var sleeveSponsorToTeam = new SponsorsToTeam()
+                                        // Kit Sleeve Creator
+                                        var sleeveSponsor = new Sponsor(dict["Sleeve Sponsor"].ToString())
                                         {
-                                            Confidence = 5,
-                                            ContractLengthInYears = 2,
-                                            SponsorName = sleeveSponsor.SponsorName,
-                                            PayoutPerYear = SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(teamid, sleeveSponsor.SponsorName),
+                                            SponsorImageUrl = dict["Sleeve Sponsor Logo"].ToString(),
+                                            SponsorPayoutPerYearMax =
+                                             !string.IsNullOrEmpty(dict["Sleeve Sponsor Money"].ToString())
+                                                ? Convert.ToInt32(dict["Sleeve Sponsor Money"].ToString()) : 1000000,
                                             SponsorType = eSponsorType.Kit_Sleeve,
-                                            TeamId = teamid
+                                            SponsorLevels = new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
                                         };
-                                        DbDataCache.SponsorsToTeams.Add(sleeveSponsorToTeam);
+                                        sleeveSponsor.Save();
+                                        if (!DbDataCache.SponsorsToTeams.Any(x => x.TeamId == teamid
+                                                    && x.SponsorType == eSponsorType.Kit_Sleeve
+
+                                            ))
+                                        {
+                                            var sleeveSponsorToTeam = new SponsorsToTeam()
+                                            {
+                                                Confidence = 5,
+                                                ContractLengthInYears = 2,
+                                                SponsorName = sleeveSponsor.SponsorName,
+                                                PayoutPerYear = SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(teamid, sleeveSponsor.SponsorName),
+                                                SponsorType = eSponsorType.Kit_Sleeve,
+                                                TeamId = teamid
+                                            };
+                                            DbDataCache.SponsorsToTeams.Add(sleeveSponsorToTeam);
+                                        }
                                     }
 
-                                    // Stadium / Training Ground Sponsor
-                                    var stadiumSponsor = new Sponsor(dict["Stadium Sponsor"].ToString())
+                                    if (!string.IsNullOrEmpty(dict["Stadium Sponsor"].ToString()))
                                     {
-                                        SponsorImageUrl = dict["Stadium Sponsor Logo"].ToString(),
-                                        SponsorPayoutPerYearMax =
-                                         !string.IsNullOrEmpty(dict["Stadium Sponsor Logo"].ToString())
-                                            ? Convert.ToInt32(dict["Stadium Sponsor Money"].ToString()) : 1000000,
-                                        SponsorType = eSponsorType.Training,
-                                        SponsorLevels = new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-                                    };
-                                    stadiumSponsor.Save();
-                                    if (!DbDataCache.SponsorsToTeams.Any(x => x.TeamId == teamid
-                                                && x.SponsorType == eSponsorType.Kit_Sleeve
-                                        ))
-                                    {
-                                        var stadiumSponsorToTeam = new SponsorsToTeam()
+                                        // Stadium / Training Ground Sponsor
+                                        var stadiumSponsor = new Sponsor(dict["Stadium Sponsor"].ToString())
                                         {
-                                            Confidence = 5,
-                                            ContractLengthInYears = 2,
-                                            SponsorName = stadiumSponsor.SponsorName,
-                                            PayoutPerYear = SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(teamid, stadiumSponsor.SponsorName),
+                                            SponsorImageUrl = dict["Stadium Sponsor Logo"].ToString(),
+                                            SponsorPayoutPerYearMax =
+                                         !string.IsNullOrEmpty(dict["Stadium Sponsor Money"].ToString())
+                                            ? Convert.ToInt32(dict["Stadium Sponsor Money"].ToString()) : 1000000,
                                             SponsorType = eSponsorType.Training,
-                                            TeamId = teamid
+                                            SponsorLevels = new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
                                         };
-                                        DbDataCache.SponsorsToTeams.Add(stadiumSponsorToTeam);
+                                        stadiumSponsor.Save();
+                                        if (!DbDataCache.SponsorsToTeams.Any(x => x.TeamId == teamid
+                                                    && x.SponsorType == eSponsorType.Kit_Sleeve
+                                            ))
+                                        {
+                                            var stadiumSponsorToTeam = new SponsorsToTeam()
+                                            {
+                                                Confidence = 5,
+                                                ContractLengthInYears = 2,
+                                                SponsorName = stadiumSponsor.SponsorName,
+                                                PayoutPerYear = SponsorsToTeam.GetCaclulatedPayoutAmountPerYear(teamid, stadiumSponsor.SponsorName),
+                                                SponsorType = eSponsorType.Training,
+                                                TeamId = teamid
+                                            };
+                                            DbDataCache.SponsorsToTeams.Add(stadiumSponsorToTeam);
+                                        }
                                     }
                                     SponsorsToTeam.SaveAll();
                                     row++;

@@ -230,6 +230,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="CEM\Data\BaseData\" />
     <Folder Include="Data\" />
     <Folder Include="Views\Player\" />
   </ItemGroup>
@@ -237,10 +238,5 @@
     <Content Include="CEM\Data\playernames.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="CEM\Data\BaseData\Sponsors.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>

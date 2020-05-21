@@ -20,13 +20,13 @@ namespace v2k4FIFAModdingCL.MemHack.Core
     {
         private class POINTER_ADDRESSES
         {
-            public string GAME_DATE = "FIFA20.exe+072ECAF8,0x8,0x3C0";
-            public string GAME_SAVE_NAME = "FIFA20.exe+06de0688,0x20,0x20,0x5CC";
+            public string GAME_DATE = "FIFA20.exe+072F2C60,0x8,0x3C0";
+            public string GAME_SAVE_NAME = "FIFA20.exe+06DE6708,0x20,0x20,0x5CC";
 
             /// <summary>
             /// To get in Cheat Engine. Load a game where you know the saved date. Then load another with a different date. Then pointer search.
             /// </summary>
-            public static string GAME_SAVE_FILE = "FIFA20.exe+06DE0688,0x20,0x18,0x7BC";
+            public static string GAME_SAVE_FILE = "FIFA20.exe+06DE6708,0x20,0x18,0x7BC";
 
 
         }

@@ -14,10 +14,17 @@ namespace v2k4FIFAModdingCL.MemHack.Career
 
         private static class POINTER_ADDRESSES
         {
+
+            public static string STARTING_POINTER_ADDRESS = "FIFA20.exe+06E36128,0x10,0x48,0x30,0x58,0x5E0";
+
             /// Will need to redo this for every EA Update
-            public static string TRANSFER_BUDGET = "FIFA20.exe+06E30D80,0x10,0x48,0x30,0x58,0x5F8";
+            public static string STARTING_BUDGET = "FIFA20.exe+06E36128,0x10,0x48,0x30,0x58,0x5E0";
+
             /// Will need to redo this for every EA Update
-            public static string STARTING_BUDGET = "FIFA20.exe+06E30098,0x10,0x48,0x30,0x58,0x5E0";
+            public static string TRANSFER_BUDGET = "FIFA20.exe+06E36128,0x10,0x48,0x30,0x58,0x5F8";
+
+            /// Will need to redo this for every EA Update
+            public static string TEAMID = "FIFA20.exe+06E36128,0x10,0x48,0x30,0x58,0x618";
         }
 
         private static class AOB_ADDRESSES

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace CareerExpansionMod.CEM
             }
         }
 
+        [Display(Name="Save Folder")]
         public string OtherSaveFolder { get; set; }
 
         public void Load()

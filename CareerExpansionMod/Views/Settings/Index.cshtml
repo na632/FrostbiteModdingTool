@@ -5,26 +5,25 @@
 
         <div class="card-body">
 
-            <div class="card">
-                <div class="card-body">
 
-                    <div class="container">
-                        <div class="row">
-                            @using (Html.BeginForm("Edit", "Settings"))
-                            {
-
-                                @Html.LabelFor(m => m.OtherSaveFolder)
-                                <br />
-                                @Html.EditorFor(m => m.OtherSaveFolder)
-                                <br />
-                                <button class="btn btn-success" type="submit">Save</button>
-                            }
-                        </div>
-                    </div>
+            <div class="container">
+                <h4>Settings</h4>
+                @using (Html.BeginForm("Edit", "Settings"))
+                {
+            <div class="form-group row">
+                @Html.LabelFor(m => m.OtherSaveFolder, new { @class = "col-sm-2 col-form-label" })
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(m => m.OtherSaveFolder, htmlAttributes: new { @class = "form-control" })
                 </div>
             </div>
+                    
 
-            <div class="m-5">
+                    <button class="btn btn-success" type="submit">Save</button>
+                }
+            </div>
+            <hr />
+            <div class="container">
+                <h4>Cheats</h4>
                 <button class="btn btn-primary" disabled="disabled">Force Financial Takeover</button>
             </div>
         </div>
