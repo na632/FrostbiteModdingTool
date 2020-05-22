@@ -11,6 +11,7 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="CEM\Data\BaseData\Sponsors.zip" />
     <None Remove="CEM\Data\fifa_ng_db-meta.XML" />
     <None Remove="CEM\Data\leagues.csv" />
     <None Remove="CEM\Data\playernames.csv" />
@@ -230,12 +231,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CEM\Data\BaseData\" />
     <Folder Include="Data\" />
     <Folder Include="Views\Player\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CEM\Data\playernames.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CEM\Data\BaseData\Sponsors.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

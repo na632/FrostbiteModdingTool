@@ -7,7 +7,7 @@
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" WindowState="Maximized"
+        WindowStyle="ToolWindow" ResizeMode="NoResize" WindowState="Normal"
         Title="Build FIFA SDK and Cache" Height="450" Width="800">
     <Grid>
         <StackPanel>
@@ -21,6 +21,7 @@
             <Button x:Name="btnRunBuild" Click="btnRunBuild_Click">
                 Run
             </Button>
+            <ListBox x:Name="tasksListBox"></ListBox>
         </StackPanel>
     </Grid>
 </Window>

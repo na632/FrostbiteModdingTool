@@ -173,16 +173,17 @@ namespace CareerExpansionMod.Controllers
 
 
                                     // Kit Creator
-                                    var kitSponsor = new Sponsor(dict["Kit Manufacturer"].ToString())
+                                    var kitSponsor = SponsorFactory.CreateSponsor(dict["Kit Manufacturer"].ToString());
+                                    if(kitSponsor.AllowOverwrite)
                                     {
-                                        SponsorImageUrl = dict["Kit Manufacturer Logo"].ToString(),
-                                        SponsorPayoutPerYearMax =
+                                        kitSponsor.SponsorImageUrl = dict["Kit Manufacturer Logo"].ToString();
+                                        kitSponsor.SponsorPayoutPerYearMax =
                                          !string.IsNullOrEmpty(dict["Kit Money"].ToString())
-                                            ? Convert.ToInt32(dict["Kit Money"].ToString()) : 1000000,
-                                         SponsorType = eSponsorType.Kit, 
-                                         SponsorLevels = new [] { 1,1,1,1,1,1,1,1,1,1 }
+                                            ? Convert.ToInt32(dict["Kit Money"].ToString()) : 1000000;
+                                        kitSponsor.SponsorType = eSponsorType.Kit;
+                                        kitSponsor.SponsorLevels = new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+                                        kitSponsor.Save();
                                     };
-                                    kitSponsor.Save();
                                     if (!DbDataCache.SponsorsToTeams.Any(x => x.TeamId == teamid 
                                                 && x.SponsorType == eSponsorType.Kit
                                         ))
@@ -200,16 +201,17 @@ namespace CareerExpansionMod.Controllers
                                     }
 
                                     // Main Creator
-                                    var mainSponsor = new Sponsor(dict["Main Shirt Sponsor"].ToString())
+                                    var mainSponsor = SponsorFactory.CreateSponsor(dict["Main Shirt Sponsor"].ToString());
+                                    if (mainSponsor.AllowOverwrite)
                                     {
-                                        SponsorImageUrl = dict["Main Shirt Sponsor Logo"].ToString(),
-                                        SponsorPayoutPerYearMax =
+                                        mainSponsor.SponsorImageUrl = dict["Main Shirt Sponsor Logo"].ToString();
+                                        mainSponsor.SponsorPayoutPerYearMax =
                                          !string.IsNullOrEmpty(dict["Main Shirt Sponsor Money"].ToString())
-                                            ? Convert.ToInt32(dict["Main Shirt Sponsor Money"].ToString()) : 1000000,
-                                        SponsorType = eSponsorType.Main,
-                                        SponsorLevels = new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+                                            ? Convert.ToInt32(dict["Main Shirt Sponsor Money"].ToString()) : 1000000;
+                                        mainSponsor.SponsorType = eSponsorType.Main;
+                                        mainSponsor.SponsorLevels = new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+                                        mainSponsor.Save();
                                     };
-                                    mainSponsor.Save();
                                     if (!DbDataCache.SponsorsToTeams.Any(x => x.TeamId == teamid
                                                 && x.SponsorType == eSponsorType.Main
                                         ))

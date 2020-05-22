@@ -50,6 +50,7 @@
     <None Remove="ini\UnlockBootsAndCelebrations.ini" />
     <None Remove="ini\_FIFA19_base.ini" />
     <None Remove="ini\_FIFA20_base.ini" />
+    <None Remove="Resources\Classes.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -74,6 +75,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\_FIFA20_base.ini" />
+    <EmbeddedResource Include="Resources\Classes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -102,6 +106,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
+    <ProjectReference Include="..\v2k4FIFASDKGenerator\v2k4FIFASDKGenerator.csproj" />
     <ProjectReference Include="..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
   </ItemGroup>
 

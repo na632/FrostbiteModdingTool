@@ -357,43 +357,15 @@ namespace v2k4FIFASDKGenerator
 
         public bool GatherTypeInfos(SdkUpdateTask task)
         {
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.Classes.txt"))
+            //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.Classes.txt"))
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Resources.Classes.txt"))
             {
                 if (stream != null)
                 {
                     classMetaList = TypeLibrary.LoadClassesSDK(stream);
                 }
             }
-            //if (ProfilesLibrary.DataVersion == 20181207)
-            //{
-            //    using (NativeReader nativeReader = new NativeReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.AnthemDemo-Strings.txt")))
-            //    {
-            //        int num = int.Parse(nativeReader.ReadLine());
-            //        for (int i = 0; i < num; i++)
-            //        {
-            //            string[] array = nativeReader.ReadLine().Split(',');
-            //            Strings.stringHash.Add(uint.Parse(array[0]), array[1]);
-            //        }
-            //        num = int.Parse(nativeReader.ReadLine());
-            //        for (int j = 0; j < num; j++)
-            //        {
-            //            string[] array2 = nativeReader.ReadLine().Split(',');
-            //            Strings.classHash.Add(uint.Parse(array2[0]), array2[1]);
-            //        }
-            //        num = int.Parse(nativeReader.ReadLine());
-            //        for (int k = 0; k < num; k++)
-            //        {
-            //            int key = int.Parse(nativeReader.ReadLine());
-            //            int num2 = int.Parse(nativeReader.ReadLine());
-            //            Strings.fieldHash.Add((uint)key, new Dictionary<uint, string>());
-            //            for (int l = 0; l < num2; l++)
-            //            {
-            //                string[] array3 = nativeReader.ReadLine().Split(',');
-            //                Strings.fieldHash[(uint)key].Add(uint.Parse(array3[0]), array3[1]);
-            //            }
-            //        }
-            //    }
-            //}
+            
             classList = DumpClasses(task);
             if (classList != null)
             {
@@ -994,27 +966,27 @@ namespace v2k4FIFASDKGenerator
         private DbObject DumpClasses(SdkUpdateTask task)
         {
             MemoryReader memoryReader = null;
-            string str = "FrostyEditor.ClassesSdkCreator+";
-            if (ProfilesLibrary.DataVersion == 20181207)
-            {
-                str = "FrostyEditor.Anthem.";
-            }
-            else if (ProfilesLibrary.DataVersion == 20190729)
-            {
-                str = "FrostyEditor.Madden20.";
-            }
-            else if (ProfilesLibrary.DataVersion == 20190905)
-            {
-                str = "FrostyEditor.Madden20.";
-            }
-            else if (ProfilesLibrary.DataVersion == 20190911)
-            {
-                str = "FrostyEditor.Madden20.";
-            }
-            else if (ProfilesLibrary.DataVersion == 20191101)
-            {
-                str = "FrostyEditor.Madden20.";
-            }
+            //string str = "FrostyEditor.ClassesSdkCreator+";
+            //if (ProfilesLibrary.DataVersion == 20181207)
+            //{
+            //    str = "FrostyEditor.Anthem.";
+            //}
+            //else if (ProfilesLibrary.DataVersion == 20190729)
+            //{
+            //    str = "FrostyEditor.Madden20.";
+            //}
+            //else if (ProfilesLibrary.DataVersion == 20190905)
+            //{
+            //    str = "FrostyEditor.Madden20.";
+            //}
+            //else if (ProfilesLibrary.DataVersion == 20190911)
+            //{
+                string typeStr = "v2k4FIFASDKGenerator.Madden20.";
+            //}
+            //else if (ProfilesLibrary.DataVersion == 20191101)
+            //{
+            //    str = "FrostyEditor.Madden20.";
+            //}
             long typeInfoOffset = state.TypeInfoOffset;
             memoryReader = new MemoryReader(state.Process, typeInfoOffset);
             offsetClassInfoMapping.Clear();
@@ -1031,7 +1003,8 @@ namespace v2k4FIFASDKGenerator
             {
                 task.StatusMessage = $"Found {++num} type(s)";
                 memoryReader.Position = offset;
-                ClassInfo classInfo = (ClassInfo)Activator.CreateInstance(Type.GetType(str + "ClassInfo"));
+                var t = Type.GetType(typeStr + "ClassInfo");
+                ClassInfo classInfo = (ClassInfo)Activator.CreateInstance(t);
                 classInfo.Read(memoryReader);
                 classInfos.Add(classInfo);
                 offsetClassInfoMapping.Add(typeInfoOffset, classInfo);

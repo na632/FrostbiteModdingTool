@@ -34,6 +34,14 @@ namespace CareerExpansionMod.CEM.Finances
         Hospitality
     }
 
+    public static class SponsorFactory 
+    {
+        public static Sponsor CreateSponsor(string name)
+        {
+            return new Sponsor(name);
+        }
+    }
+
     public class Sponsor
     {
         public Sponsor()
@@ -41,10 +49,11 @@ namespace CareerExpansionMod.CEM.Finances
 
         }
 
-        private bool AllowOverwrite = true;
+        public bool AllowOverwrite = true;
 
         public Sponsor(string name)
         {
+            SponsorName = name;
             var finalLocation = CEMSponsorDirectory + SponsorName + ".json";
             if (File.Exists(finalLocation))
             {
@@ -52,7 +61,6 @@ namespace CareerExpansionMod.CEM.Finances
                 return;
             }
 
-            SponsorName = name;
         }
 
         public string SponsorName { get; set; }
