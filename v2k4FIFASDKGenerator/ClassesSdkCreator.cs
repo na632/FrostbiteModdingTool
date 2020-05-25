@@ -2,6 +2,7 @@
 using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
+using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using static Frosty.OpenFrostyFiles;
 
 namespace v2k4FIFASDKGenerator
 {
@@ -324,12 +326,6 @@ namespace v2k4FIFASDKGenerator
 
         public static long offset;
 
-        private IMAGE_FILE_HEADER fileHeader;
-
-        private static IMAGE_OPTIONAL_HEADER optHeader;
-
-        private static IMAGE_SECTION_HEADER[] sections;
-
         private List<ClassInfo> classInfos = new List<ClassInfo>();
 
         private List<string> alreadyProcessedClasses = new List<string>();
@@ -357,8 +353,10 @@ namespace v2k4FIFASDKGenerator
 
         public bool GatherTypeInfos(SdkUpdateTask task)
         {
+            var executingAssembly = Assembly.GetExecutingAssembly();
+            var names = executingAssembly.GetManifestResourceNames();
             //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.Classes.txt"))
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Resources.Classes.txt"))
+            using (Stream stream = executingAssembly.GetManifestResourceStream("v2k4FIFASDKGenerator.Classes.txt"))
             {
                 if (stream != null)
                 {
@@ -374,8 +372,56 @@ namespace v2k4FIFASDKGenerator
             return false;
         }
 
+        private int LoadData()
+        {
+
+            if (ProfilesLibrary.Initialize("FIFA20"))
+            {
+                if (ProfilesLibrary.RequiresKey)
+                {
+                    byte[] array;
+
+                    array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
+                    byte[] array2 = new byte[16];
+                    Array.Copy(array, array2, 16);
+                    KeyManager.Instance.AddKey("Key1", array2);
+                    if (array.Length > 16)
+                    {
+                        array2 = new byte[16];
+                        Array.Copy(array, 16, array2, 0, 16);
+                        KeyManager.Instance.AddKey("Key2", array2);
+                        array2 = new byte[16384];
+                        Array.Copy(array, 32, array2, 0, 16384);
+                        KeyManager.Instance.AddKey("Key3", array2);
+                    }
+
+                    TypeLibrary.Initialize();
+                    ILogger logger = new NullLogger();
+                    AssetManagerImportResult result = new AssetManagerImportResult();
+
+                    FileSystem = new FileSystem(@"E:\Origin Games\FIFA 20\");
+                    foreach (FileSystemSource source in ProfilesLibrary.Sources)
+                    {
+                        FileSystem.AddSource(source.Path, source.SubDirs);
+                    }
+                    byte[] key = KeyManager.Instance.GetKey("Key1");
+                    FileSystem.Initialize(key);
+                    ResourceManager = new ResourceManager(FileSystem);
+                    ResourceManager.SetLogger(logger);
+                    ResourceManager.Initialize();
+                    AssetManager = new AssetManager(FileSystem, ResourceManager);
+                    LegacyFileManager.AssetManager = AssetManager;
+                    AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+                    AssetManager.SetLogger(logger);
+                    AssetManager.Initialize(additionalStartup: true, result);
+                }
+            }
+            return 0;
+        }
+
         public bool CrossReferenceAssets(SdkUpdateTask task)
         {
+            LoadData();
             mapping = new Dictionary<string, Tuple<EbxClass, DbObject>>();
             fieldMapping = new Dictionary<string, List<EbxField>>();
             if (FileSystem.HasFileInMemoryFs("SharedTypeDescriptors.ebx"))

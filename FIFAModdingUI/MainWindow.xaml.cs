@@ -68,11 +68,6 @@ namespace FIFAModdingUI
 
         public bool HasCareerExpansionModBeenUsed = false;
 
-        private AssetManager AssetManager;
-        private ResourceManager ResourceManager;
-        private FrostySdk.FileSystem FileSystem;
-        private FrostyProject FrostyProject;
-
         public static string CURRENT_MOD_PROFILE = "Default";
         public static string CURRENT_MOD_PROFILE_LOCALEINI_PATH = "ModProfiles/Default/locale.ini";
 

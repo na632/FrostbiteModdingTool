@@ -84,6 +84,7 @@ namespace FIFAModdingUI.Windows
 		{
 			Process process = null;
 			SdkUpdateState sdkUpdateState = state as SdkUpdateState;
+			int attemptToFindProcess = 0;
 			do
 			{
 				Process[] processes = Process.GetProcesses().Where(x => x.ProcessName.Contains("FIFA20")).ToArray();
@@ -94,6 +95,9 @@ namespace FIFAModdingUI.Windows
 					process = process2;
 					
 				}
+				attemptToFindProcess++;
+				if (attemptToFindProcess > 5)
+					throw new Exception("Cannot find the FIFA Process!");
 			}
 			while (process == null);
 			if (process.TotalProcessorTime < TimeSpan.FromSeconds(5.0))
@@ -156,6 +160,8 @@ namespace FIFAModdingUI.Windows
 			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 			return flag;
 		}
+
+		
 
 		private bool OnCrossReferenceAssets(SdkUpdateTask task, object state)
 		{

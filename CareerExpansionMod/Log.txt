@@ -1,70 +1,7 @@
 
-22/05/2020 20:48:26 - FIFAProcess has been found
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'CurrentTeamSponsors'
+24/05/2020 17:55:59 - System.IO.DirectoryNotFoundException: Could not find a part of the path 'C:\Users\paula\Documents\FIFA 20\settings\'.
+   at System.IO.FileSystem.CopyFile(String sourceFullPath, String destFullPath, Boolean overwrite)
+24/05/2020 17:58:17 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'Error'
    at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'CurrentTeamSponsors'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'MainSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'MainSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'MainSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'MainSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'KitSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'KitSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'TrainingSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:49 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'TrainingSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'AlcoholSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'AlcoholSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'DrinksSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'DrinksSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'FoodSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'FoodSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'GeneralSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'GeneralSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'GymSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'GymSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'HospitalitySponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'HospitalitySponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'KitSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'KitSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'LegalSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'LegalSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'MainSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'MainSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'NutritionalSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'NutritionalSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'TrainingSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'TrainingSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'TravelSponsor'
-   at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
-22/05/2020 20:48:50 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'TravelSponsor'
+24/05/2020 17:58:17 - Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: 'System.Dynamic.DynamicObject' does not contain a definition for 'Error'
    at Microsoft.CSharp.RuntimeBinder.RuntimeBinder.BindProperty(ICSharpBinder payload, ArgumentObject argument, LocalVariableSymbol local, Expr optionalIndexerArguments)
