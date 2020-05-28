@@ -26,6 +26,8 @@ namespace v2k4FIFAModding.Frosty
                     array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
                     byte[] array2 = new byte[16];
                     Array.Copy(array, array2, 16);
+                    // From byte array to string
+                    string s = System.Text.Encoding.UTF8.GetString(array2, 0, array2.Length);
                     KeyManager.Instance.AddKey("Key1", array2);
                     if (array.Length > 16)
                     {
@@ -97,11 +99,7 @@ namespace v2k4FIFAModding.Frosty
             ResourceManager.Initialize();
             AssetManager = new AssetManager(FileSystem, ResourceManager);
             LegacyFileManager.AssetManager = AssetManager;
-            if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905)
-            {
-                AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-                //AssetManager.RegisterLegacyAssetManager();
-            }
+            AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
             AssetManager.SetLogger(logger);
             AssetManager.Initialize(additionalStartup: true, result);
             return 0;

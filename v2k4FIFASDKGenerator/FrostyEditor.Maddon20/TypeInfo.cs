@@ -3,7 +3,7 @@ using FrostySdk;
 
 namespace v2k4FIFASDKGenerator.Madden20
 {
-	public class TypeInfo : ClassesSdkCreator.TypeInfo
+	public class TypeInfo : BaseInfo.TypeInfo
 	{
 		private uint nameHash;
 

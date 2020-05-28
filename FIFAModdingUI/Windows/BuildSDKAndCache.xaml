@@ -10,7 +10,7 @@
         WindowStyle="ToolWindow" ResizeMode="NoResize" WindowState="Normal"
         Title="Build FIFA SDK and Cache" Height="450" Width="800">
     <Grid>
-        <StackPanel>
+        <StackPanel  HorizontalAlignment="Center" VerticalAlignment="Center" Width="600">
             <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                 <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
                 <Label Content="Rebuilding SDK" VerticalAlignment="Center" />
@@ -21,7 +21,7 @@
             <Button x:Name="btnRunBuild" Click="btnRunBuild_Click">
                 Run
             </Button>
-            <ListBox x:Name="tasksListBox"></ListBox>
+            <TextBlock x:Name="txtOuputMessage"></TextBlock>
         </StackPanel>
     </Grid>
 </Window>

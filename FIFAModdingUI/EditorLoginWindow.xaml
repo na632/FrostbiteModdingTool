@@ -1,0 +1,21 @@
+﻿<Window x:Class="FIFAModdingUI.EditorLoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FIFAModdingUI"
+        mc:Ignorable="d"
+        Title="Editor Login" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions></Grid.RowDefinitions>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+            <Label>Email</Label>
+            <TextBox x:Name="Email" Text="Email"></TextBox>
+            <Label>Password</Label>
+            <PasswordBox x:Name="Password" />
+            
+            <Button x:Name="btnLogin" Click="btnLogin_Click">Login</Button>
+            <TextBlock x:Name="txtStatus" ></TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>

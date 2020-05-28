@@ -7,10 +7,13 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using v2k4FIFASDKGenerator.BaseInfo;
 using static Frosty.OpenFrostyFiles;
+using FieldInfo = v2k4FIFASDKGenerator.BaseInfo.FieldInfo;
 
 namespace v2k4FIFASDKGenerator
 {
@@ -26,303 +29,8 @@ namespace v2k4FIFASDKGenerator
 
         public static string configFilename = "FrostyEditor.ini";
 
-        public class TypeInfo
-        {
-            public string name;
 
-            public ushort flags;
-
-            public uint size;
-
-            public Guid guid;
-
-            public ushort padding1;
-
-            public string nameSpace;
-
-            public ushort alignment;
-
-            public uint fieldCount;
-
-            public uint padding3;
-
-            public long parentClass;
-
-            public List<FieldInfo> fields = new List<FieldInfo>();
-
-            public int Type => (flags >> 4) & 0x1F;
-
-            public virtual void Read(MemoryReader reader)
-            {
-                bool flag = ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20140225;
-                name = reader.ReadNullTerminatedString();
-                flags = reader.ReadUShort();
-                if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20180628)
-                {
-                    flags >>= 1;
-                }
-                size = reader.ReadUInt();
-                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729)
-                {
-                    reader.Position -= 4L;
-                    size = reader.ReadUShort();
-                    guid = reader.ReadGuid();
-                    reader.ReadUShort();
-                }
-                padding1 = reader.ReadUShort();
-                long position = reader.ReadLong();
-                if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20180628)
-                {
-                    reader.ReadLong();
-                }
-                alignment = (flag ? reader.ReadByte() : reader.ReadUShort());
-                fieldCount = (flag ? reader.ReadByte() : reader.ReadUShort());
-                if (flag)
-                {
-                    padding3 = reader.ReadUShort();
-                }
-                padding3 = reader.ReadUInt();
-                long[] array = new long[7];
-                for (int i = 0; i < 7; i++)
-                {
-                    array[i] = reader.ReadLong();
-                }
-                reader.Position = position;
-                nameSpace = reader.ReadNullTerminatedString();
-                bool flag2 = false;
-                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729)
-                {
-                    parentClass = array[0];
-                    if (Type == 2)
-                    {
-                        reader.Position = array[6];
-                        flag2 = true;
-                    }
-                    else if (Type == 3)
-                    {
-                        reader.Position = array[1];
-                        flag2 = true;
-                    }
-                    else if (Type == 8)
-                    {
-                        parentClass = 0L;
-                        reader.Position = array[0];
-                        if (reader.Position == array[0])
-                        {
-                            reader.Position = array[1];
-                            long num2 = reader.Position = reader.ReadLong();
-                            uint num3 = fieldCount;
-                            while (num3 != 0)
-                            {
-                                num2 = reader.ReadLong();
-                                long position2 = reader.Position;
-                                reader.Position = num2;
-                                long num4 = 4294967295L;
-                                long num5 = 0L;
-                                while (num3 != 0)
-                                {
-                                    num4 = reader.ReadLong();
-                                    num5 = reader.ReadLong();
-                                    if (num4 == 0L && num5 == 0L)
-                                    {
-                                        break;
-                                    }
-                                    num3--;
-                                    FieldInfo fieldInfo = new FieldInfo();
-                                    fieldInfo.typeOffset = num4;
-                                    reader.Position -= 8L;
-                                    fieldInfo.name = reader.ReadNullTerminatedString();
-                                    fields.Add(fieldInfo);
-                                }
-                                reader.Position = position2;
-                                if (num3 != 0)
-                                {
-                                    num2 = (reader.Position = reader.ReadLong());
-                                }
-                            }
-                            flag2 = false;
-                        }
-                        else
-                        {
-                            flag2 = true;
-                        }
-                    }
-                }
-                else if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180628)
-                {
-                    parentClass = array[0];
-                    if (Type == 2)
-                    {
-                        reader.Position = array[5];
-                        flag2 = true;
-                    }
-                    else if (Type == 3)
-                    {
-                        reader.Position = array[1];
-                        flag2 = true;
-                    }
-                    else if (Type == 8)
-                    {
-                        reader.Position = array[0];
-                        flag2 = true;
-                        parentClass = 0L;
-                    }
-                }
-                else if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927)
-                {
-                    parentClass = array[0];
-                    if (Type == 2)
-                    {
-                        reader.Position = array[3];
-                        flag2 = true;
-                    }
-                    else if (Type == 3)
-                    {
-                        reader.Position = array[1];
-                        flag2 = true;
-                    }
-                    else if (Type == 8)
-                    {
-                        reader.Position = array[0];
-                        flag2 = true;
-                        parentClass = 0L;
-                    }
-                }
-                else if (ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20140225 || ProfilesLibrary.DataVersion == 20141117)
-                {
-                    parentClass = array[0];
-                    if (Type == 2)
-                    {
-                        reader.Position = array[1];
-                        flag2 = true;
-                    }
-                    else if (Type == 3)
-                    {
-                        reader.Position = array[2];
-                        flag2 = true;
-                    }
-                    else if (Type == 8)
-                    {
-                        reader.Position = array[0];
-                        flag2 = true;
-                        parentClass = 0L;
-                    }
-                }
-                else if (Type == 2)
-                {
-                    reader.Position = array[1];
-                    flag2 = true;
-                }
-                else if (Type == 3)
-                {
-                    reader.Position = array[2];
-                    flag2 = true;
-                }
-                else if (Type == 8)
-                {
-                    reader.Position = array[0];
-                    flag2 = true;
-                    parentClass = 0L;
-                }
-                else if (Type == 4)
-                {
-                    parentClass = array[0];
-                }
-                if (flag2)
-                {
-                    for (int j = 0; j < fieldCount; j++)
-                    {
-                        FieldInfo fieldInfo2 = new FieldInfo();
-                        fieldInfo2.Read(reader);
-                        fieldInfo2.index = j;
-                        fields.Add(fieldInfo2);
-                    }
-                }
-            }
-
-            public virtual void Modify(DbObject classObj)
-            {
-            }
-        }
-
-        public class ClassInfo
-        {
-            public TypeInfo typeInfo;
-
-            public ushort id;
-
-            public ushort isDataContainer;
-
-            public byte[] padding;
-
-            public long parentClass;
-
-            public virtual void Read(MemoryReader reader)
-            {
-                long position = reader.Position;
-                long position2 = reader.ReadLong();
-                offset = reader.ReadLong();
-                Guid guid = Guid.Empty;
-                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180628)
-                {
-                    guid = reader.ReadGuid();
-                }
-                id = reader.ReadUShort();
-                isDataContainer = reader.ReadUShort();
-                padding = new byte[4]
-                {
-                    reader.ReadByte(),
-                    reader.ReadByte(),
-                    reader.ReadByte(),
-                    reader.ReadByte()
-                };
-                parentClass = reader.ReadLong();
-                reader.Position = position2;
-                typeInfo = new TypeInfo();
-                typeInfo.Read(reader);
-                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180628)
-                {
-                    typeInfo.guid = guid;
-                }
-                if (typeInfo.parentClass != 0L)
-                {
-                    parentClass = typeInfo.parentClass;
-                }
-                reader.Position = parentClass;
-                if (reader.Position == position)
-                {
-                    parentClass = 0L;
-                }
-            }
-        }
-
-        public class FieldInfo
-        {
-            public string name;
-
-            public ushort flags;
-
-            public uint offset;
-
-            public ushort padding1;
-
-            public long typeOffset;
-
-            public int index;
-
-            public virtual void Read(MemoryReader reader)
-            {
-                name = reader.ReadNullTerminatedString();
-                flags = reader.ReadUShort();
-                offset = reader.ReadUInt();
-                padding1 = reader.ReadUShort();
-                typeOffset = reader.ReadLong();
-            }
-
-            public virtual void Modify(DbObject fieldObj)
-            {
-            }
-        }
+        
 
         public static long offset;
 
@@ -353,10 +61,15 @@ namespace v2k4FIFASDKGenerator
 
         public bool GatherTypeInfos(SdkUpdateTask task)
         {
+            Trace.WriteLine("GatherTypeInfos");
+            Debug.WriteLine("GatherTypeInfos");
+            Console.WriteLine("GatherTypeInfos");
+
             var executingAssembly = Assembly.GetExecutingAssembly();
             var names = executingAssembly.GetManifestResourceNames();
             //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.Classes.txt"))
-            using (Stream stream = executingAssembly.GetManifestResourceStream("v2k4FIFASDKGenerator.Classes.txt"))
+            //using (Stream stream = executingAssembly.GetManifestResourceStream("v2k4FIFASDKGenerator.Classes.txt"))
+            using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
             {
                 if (stream != null)
                 {
@@ -367,61 +80,21 @@ namespace v2k4FIFASDKGenerator
             classList = DumpClasses(task);
             if (classList != null)
             {
+                Trace.WriteLine("Classes Dumped");
+                Debug.WriteLine("Classes Dumped");
+                Console.WriteLine("Classes Dumped");
+
                 return classList.Count > 0;
             }
             return false;
         }
 
-        private int LoadData()
-        {
-
-            if (ProfilesLibrary.Initialize("FIFA20"))
-            {
-                if (ProfilesLibrary.RequiresKey)
-                {
-                    byte[] array;
-
-                    array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
-                    byte[] array2 = new byte[16];
-                    Array.Copy(array, array2, 16);
-                    KeyManager.Instance.AddKey("Key1", array2);
-                    if (array.Length > 16)
-                    {
-                        array2 = new byte[16];
-                        Array.Copy(array, 16, array2, 0, 16);
-                        KeyManager.Instance.AddKey("Key2", array2);
-                        array2 = new byte[16384];
-                        Array.Copy(array, 32, array2, 0, 16384);
-                        KeyManager.Instance.AddKey("Key3", array2);
-                    }
-
-                    TypeLibrary.Initialize();
-                    ILogger logger = new NullLogger();
-                    AssetManagerImportResult result = new AssetManagerImportResult();
-
-                    FileSystem = new FileSystem(@"E:\Origin Games\FIFA 20\");
-                    foreach (FileSystemSource source in ProfilesLibrary.Sources)
-                    {
-                        FileSystem.AddSource(source.Path, source.SubDirs);
-                    }
-                    byte[] key = KeyManager.Instance.GetKey("Key1");
-                    FileSystem.Initialize(key);
-                    ResourceManager = new ResourceManager(FileSystem);
-                    ResourceManager.SetLogger(logger);
-                    ResourceManager.Initialize();
-                    AssetManager = new AssetManager(FileSystem, ResourceManager);
-                    LegacyFileManager.AssetManager = AssetManager;
-                    AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-                    AssetManager.SetLogger(logger);
-                    AssetManager.Initialize(additionalStartup: true, result);
-                }
-            }
-            return 0;
-        }
+        
 
         public bool CrossReferenceAssets(SdkUpdateTask task)
         {
-            LoadData();
+            // Data must be loaded and cached before SDK is built
+
             mapping = new Dictionary<string, Tuple<EbxClass, DbObject>>();
             fieldMapping = new Dictionary<string, List<EbxField>>();
             if (FileSystem.HasFileInMemoryFs("SharedTypeDescriptors.ebx"))
@@ -481,7 +154,9 @@ namespace v2k4FIFASDKGenerator
             DbObject dbObject = new DbObject(bObject: false);
             values = mapping.Values.ToList();
             values.Sort((Tuple<EbxClass, DbObject> a, Tuple<EbxClass, DbObject> b) => a.Item1.Name.CompareTo(b.Item1.Name));
-            Console.WriteLine("Creating SDK");
+
+            Debug.WriteLine("Creating SDK");
+
             for (int i = 0; i < values.Count; i++)
             {
                 Tuple<EbxClass, DbObject> tuple = values[i];
@@ -782,6 +457,9 @@ namespace v2k4FIFASDKGenerator
                 list.Sort((EbxField a, EbxField b) => a.DataOffset.CompareTo(b.DataOffset));
                 foreach (EbxField field in list)
                 {
+                    if (field.Name == string.Empty)
+                        continue;
+
                     if (field.DebugType != 0)
                     {
                         DbObject dbObject7 = null;
@@ -1012,7 +690,9 @@ namespace v2k4FIFASDKGenerator
         private DbObject DumpClasses(SdkUpdateTask task)
         {
             MemoryReader memoryReader = null;
-            //string str = "FrostyEditor.ClassesSdkCreator+";
+            //string typeStr = "v2k4FIFASDKGenerator.ClassesSdkCreator+ClassInfo";
+            string typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
+
             //if (ProfilesLibrary.DataVersion == 20181207)
             //{
             //    str = "FrostyEditor.Anthem.";
@@ -1025,14 +705,29 @@ namespace v2k4FIFASDKGenerator
             //{
             //    str = "FrostyEditor.Madden20.";
             //}
-            //else if (ProfilesLibrary.DataVersion == 20190911)
-            //{
-                string typeStr = "v2k4FIFASDKGenerator.Madden20.";
-            //}
+            //else 
+            if (ProfilesLibrary.DataVersion == 20190911)
+            {
+                typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
+            }
+            else if (ProfilesLibrary.DisplayName.Contains("18"))
+            {
+                typeStr = "v2k4FIFASDKGenerator.FIFA18.ClassInfo";
+            }
             //else if (ProfilesLibrary.DataVersion == 20191101)
             //{
             //    str = "FrostyEditor.Madden20.";
             //}
+
+            // Find types to find out all is good
+            //Assembly thisLibClasses = typeof(v2k4FIFASDKGenerator.ClassesSdkCreator).Assembly;
+            //var types = thisLibClasses.GetTypes();
+            //foreach (Type type in types)
+            //{
+            //    Debug.WriteLine(type.FullName);
+            //}
+
+
             long typeInfoOffset = state.TypeInfoOffset;
             memoryReader = new MemoryReader(state.Process, typeInfoOffset);
             offsetClassInfoMapping.Clear();
@@ -1049,7 +744,7 @@ namespace v2k4FIFASDKGenerator
             {
                 task.StatusMessage = $"Found {++num} type(s)";
                 memoryReader.Position = offset;
-                var t = Type.GetType(typeStr + "ClassInfo");
+                var t = Type.GetType(typeStr);
                 ClassInfo classInfo = (ClassInfo)Activator.CreateInstance(t);
                 classInfo.Read(memoryReader);
                 classInfos.Add(classInfo);

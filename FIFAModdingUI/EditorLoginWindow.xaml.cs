@@ -11,33 +11,24 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Xamarin.Forms;
 
 namespace FIFAModdingUI
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for EditorLoginWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class EditorLoginWindow : Window
     {
-        public MainWindow()
+        public EditorLoginWindow()
         {
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void btnEditor_Click(object sender, RoutedEventArgs e)
-        {
-            new EditorLoginWindow().Show();
+            new EditorWindow().Show();
             this.Close();
-        }
-
-        private void btnLauncher_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

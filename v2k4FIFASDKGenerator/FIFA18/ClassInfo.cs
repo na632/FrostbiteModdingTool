@@ -1,8 +1,10 @@
 using FrostyEditor.IO;
+using FrostySdk;
 using System;
 using v2k4FIFASDKGenerator;
 
-namespace v2k4FIFASDKGenerator.Madden20
+
+namespace v2k4FIFASDKGenerator.FIFA18
 {
 	public class ClassInfo : BaseInfo.ClassInfo
 	{
@@ -11,7 +13,7 @@ namespace v2k4FIFASDKGenerator.Madden20
 			long position = reader.Position;
 			long position2 = reader.ReadLong();
 			ClassesSdkCreator.offset = reader.ReadLong();
-			_ = Guid.Empty;
+            Guid guid = reader.ReadGuid();
 			id = reader.ReadUShort();
 			isDataContainer = reader.ReadUShort();
 			padding = new byte[4]
@@ -25,6 +27,7 @@ namespace v2k4FIFASDKGenerator.Madden20
 			reader.Position = position2;
 			typeInfo = new TypeInfo();
 			typeInfo.Read(reader);
+            typeInfo.guid = guid;
 			if (typeInfo.parentClass != 0L)
 			{
 				parentClass = typeInfo.parentClass;

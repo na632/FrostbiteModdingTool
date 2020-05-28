@@ -133,13 +133,16 @@ namespace FrostyEditor.IO
 			while (true)
 			{
 				char c = (char)ReadByte();
-				if (c == '\0')
+				//if (c == '\0' || Position > num2 + 100 || Position < 0)
+				if (c == '\0' || Position < 0 || Position > num2 + int.MaxValue)
 				{
 					break;
 				}
 				stringBuilder.Append(c);
 			}
 			Position = num2;
+
+			//Debug.WriteLine(stringBuilder.ToString());
 			return stringBuilder.ToString();
 		}
 

@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModdingUI", "FIFAModdingUI\FIFAModdingUI.csproj", "{6D0F7EF2-1514-4D67-A34E-2EF5E576B9AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3D489D9A-0DEF-4E80-8EC8-15E265C29A36} = {3D489D9A-0DEF-4E80-8EC8-15E265C29A36}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModding", "v2k4FIFAModdingCL\v2k4FIFAModding.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
 EndProject
