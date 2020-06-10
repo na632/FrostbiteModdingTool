@@ -143,9 +143,6 @@
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Mods\paulv2k4 FIFA 20 Career Mod - Version 1.6.3.fbmod">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Profiles\FIFA20SDK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

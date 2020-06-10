@@ -364,18 +364,6 @@
                     </TabControl>
                 </StackPanel>
             </TabItem>
-            <TabItem x:Name="TabMods" Header="Mods">
-                <StackPanel>
-                    <Label FontSize="14" FontWeight="Bold">The mods that will be added to your FIFA when you click "Launch"</Label>
-                    <Label>To add mods to your mods list copy them into the "Mods" folder where this application is installed.</Label>
-                    <Label>Name your mods with numbers at the start for a correct load order. (i.e. 1.AIO,2.CareerMod,3.GameplayMod etc)</Label>
-                    <Label FontWeight="Bold">I will improve this process in later versions.</Label>
-                    <ListBox x:Name="listMods" BorderThickness="1">
-
-                    </ListBox>
-                </StackPanel>
-                
-            </TabItem>
         </TabControl>
         <StatusBar Grid.Row="2" >
             <StatusBarItem>

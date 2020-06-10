@@ -37,7 +37,8 @@ namespace FIFAModdingUI
 
         private void btnLauncher_Click(object sender, RoutedEventArgs e)
         {
-
+            new LaunchWindow().Show();
+            this.Close();
         }
     }
 }

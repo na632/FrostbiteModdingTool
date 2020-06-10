@@ -102,7 +102,6 @@ namespace FIFAModdingUI
             }
 
             InitializeIniSettings();
-            GetListOfModsAndOrderThem();
             //if(IsLegacyExtractionComplete())
             //{
             //    btnModdingIntegrationExtractLegacy.Visibility = Visibility.Hidden;
@@ -1292,45 +1291,15 @@ namespace FIFAModdingUI
 
         private void btnLaunchFIFA_Click(object sender, RoutedEventArgs e)
         {
-            LaunchFIFA.Launch(FIFAInstanceSingleton.FIFARootPath, "Mods/", new Mods.ModList().ModListItems);
+            LaunchWindow launchWindow = new LaunchWindow();
+            // do export of editor mod here
+
+            // show launch window
+            launchWindow.EditorModIncluded = true;
+            launchWindow.Show();
         }
 
-        private ObservableCollection<string> ListOfMods = new ObservableCollection<string>();
-
-        private void up_click(object sender, RoutedEventArgs e)
-        {
-            var selectedIndex = this.listMods.SelectedIndex;
-
-            if (selectedIndex > 0)
-            {
-                var itemToMoveUp = this.ListOfMods[selectedIndex];
-                this.ListOfMods.RemoveAt(selectedIndex);
-                this.ListOfMods.Insert(selectedIndex - 1, itemToMoveUp);
-                this.listMods.SelectedIndex = selectedIndex - 1;
-            }
-        }
-
-        private void down_click(object sender, RoutedEventArgs e)
-        {
-            var selectedIndex = this.listMods.SelectedIndex;
-
-            if (selectedIndex + 1 < this.ListOfMods.Count)
-            {
-                var itemToMoveDown = this.ListOfMods[selectedIndex];
-                this.ListOfMods.RemoveAt(selectedIndex);
-                this.ListOfMods.Insert(selectedIndex + 1, itemToMoveDown);
-                this.listMods.SelectedIndex = selectedIndex + 1;
-            }
-        }
-
-        private void GetListOfModsAndOrderThem()
-        {
-            ListOfMods = new ObservableCollection<string>(Directory.EnumerateFiles(
-                Directory.GetParent(Assembly.GetExecutingAssembly().Location)
-                + "\\Mods\\").Where(x => x.ToLower().Contains(".fbmod")).Select(
-                f => new FileInfo(f).Name).ToList());
-            listMods.ItemsSource = ListOfMods;
-        }
+       
 
         private void btnModdingIntegrationExtractLegacy_Click(object sender, RoutedEventArgs e)
         {

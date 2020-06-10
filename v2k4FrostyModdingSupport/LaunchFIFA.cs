@@ -25,7 +25,7 @@ namespace FIFAModdingUI
             fileSystem.Initialize();
             _ = new FrostyProfile("Default");
 
-            var tsk = new FrostyModExecutor().Run(fileSystem, testLog, ModDirectory, "", OrderedListOfMods.ToArray());
+            var tsk = new FrostyModExecutor().Run(fileSystem, testLog, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
             tsk.Wait();
         }
     }

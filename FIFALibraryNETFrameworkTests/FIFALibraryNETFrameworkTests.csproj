@@ -65,6 +65,9 @@
     <None Include="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="FIFA20Profile - Copy.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="FIFA20Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

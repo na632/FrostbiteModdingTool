@@ -18,6 +18,7 @@ using Microsoft.Extensions.Hosting;
 using v2k4FIFAModding.Career.CME.FIFA;
 using v2k4FIFAModdingCL;
 using v2k4FIFAModdingCL.MemHack.Core;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 
 namespace CareerExpansionMod
 {
@@ -335,6 +336,11 @@ namespace CareerExpansionMod
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddControllersWithViews();
+            // In production, the Angular files will be served from this directory
+            //services.AddSpaStaticFiles(configuration =>
+            //{
+            //    configuration.RootPath = "ClientApp/dist";
+            //});
         }
 
         public static CEM.CEMCore CMECore = new CEM.CEMCore();

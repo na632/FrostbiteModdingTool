@@ -1,0 +1,42 @@
+﻿<Window x:Class="FIFAModdingUI.LaunchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FIFAModdingUI"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+        mc:Ignorable="d"
+        Title="Launch FIFA with Mods" Height="450" Width="800">
+    <Grid>
+        <StackPanel>
+            <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+                <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                        <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool" Click="btnCloseModdingTool_Click">
+                    <MaterialDesign:PackIcon Kind="Power" />
+                </Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <StackPanel>
+                    <Label FontSize="14" FontWeight="Bold">The mods that will be added to your FIFA when you click "Launch"</Label>
+                    <ListBox x:Name="listMods" BorderThickness="1">
+                    </ListBox>
+                    <Button x:Name="btnLaunch" Click="btnLaunch_Click" IsEnabled="False">Launch</Button>
+                </StackPanel>
+                <StackPanel>
+                    <Button x:Name="btnUp" Click="up_click">Up</Button>
+                    <Button x:Name="btnDown" Click="down_click">Down</Button>
+                    <Button x:Name="btnRemove" Click="btnRemove_Click">Remove mod</Button>
+                    <Button x:Name="btnAdd" Click="btnAdd_Click">Import mod</Button>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
