@@ -11,123 +11,125 @@
         Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStartupLocation="CenterScreen"
                       WindowState="Maximized" WindowStyle="ThreeDBorderWindow"
                       ShowMaxRestoreButton="True" ShowCloseButton="False" >
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="25"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
-            <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
-            <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
-                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
-                    <Label Content="Browse FIFA" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-            <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
+    <DockPanel>
+
+        <Grid DockPanel.Dock="Top" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+                <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                        <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
                     VerticalAlignment="Center" IsEnabled="False"
                      Click="btnBuildFIFASDK_Click"
                     ToolTip="Build FIFA Modding SDK">
-                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
-                    <Label Content="Build FIFA SDK" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-            <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
+                        <Label Content="Build FIFA SDK" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnLaunchFIFA_Click"
                     ToolTip="Launch FIFA with Frosty Mods">
-                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                    <Label Content="Launch FIFA" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-            <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
-                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
-                    <Label Content="Default" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-            <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool" Click="btnCloseModdingTool_Click">
-                <MaterialDesign:PackIcon Kind="Power" />
-            </Button>
-        </StackPanel>
-        <TabControl x:Name="MainViewer" Grid.Row="1" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
-            <TabItem x:Name="TabGameplay" Header="Gameplay">
-                <StackPanel>
-                    <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
-                        <Button x:Name="btn_GP_SaveINIToProfile" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"
-                                Click="Btn_GP_SaveINI_Click">
-                            <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                <Label Content="Save your Gameplay Profile" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btn_GP_SaveINIToGame" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"
-                                Click="btn_GP_SaveINIToGame_Click">
-                            <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                <Label Content="Save and Copy GP Profile to Game" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                        <Label Content="Launch FIFA" VerticalAlignment="Center" />
                     </StackPanel>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="179*"></ColumnDefinition>
-                            <ColumnDefinition Width="418*"/>
-                            <ColumnDefinition Width="597*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Controls:MetroTabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" >
-                            <TabItem Header="General">
-                                <StackPanel Orientation="Horizontal">
+                </Button>
+                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
+                        <Label Content="Default" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool" Click="btnCloseModdingTool_Click">
+                    <MaterialDesign:PackIcon Kind="Power" />
+                </Button>
+            </StackPanel>
+            <TabControl x:Name="MainViewer" Grid.Row="1" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
+                <TabItem x:Name="TabGameplay" Header="Gameplay">
+                    <StackPanel>
+                        <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+                            <Button x:Name="btn_GP_SaveINIToProfile" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"
+                                Click="Btn_GP_SaveINI_Click">
+                                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                    <Label Content="Save your Gameplay Profile" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="btn_GP_SaveINIToGame" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"
+                                Click="btn_GP_SaveINIToGame_Click">
+                                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                    <Label Content="Save and Copy GP Profile to Game" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="179*"></ColumnDefinition>
+                                <ColumnDefinition Width="418*"/>
+                                <ColumnDefinition Width="597*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Controls:MetroTabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" >
+                                <TabItem Header="General">
+                                    <StackPanel Orientation="Horizontal">
                                         <ScrollViewer  HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
                                             <StackPanel>
                                                 <Label Content="General Settings"  FontWeight="Bold" />
 
                                                 <CheckBox x:Name="chkSkipBootFlow" Margin="0,5,0,5">Skip Bootflow (disable load/save, fast-start for testing)</CheckBox>
-                                        <!--<StackPanel Orientation="Horizontal">
+                                                <!--<StackPanel Orientation="Horizontal">
                                             <Label Content="Language" Width="200" />
                                             <ComboBox Name="cbLanguages" Width="180" />
                                         </StackPanel>-->
-                                        <Label Content="Boots" Grid.Column="0" FontWeight="Bold"></Label>
+                                                <Label Content="Boots" Grid.Column="0" FontWeight="Bold"></Label>
 
-                                        <CheckBox x:Name="chkEnableUnlockBootsAndCelebrations" Checked="ChkEnableUnlockBootsAndCelebrations_Checked" Margin="0,5,0,5">Unlock Boots, Celebrations and Player Career Extras</CheckBox>
-                                        <Label Content="Difficulty" Grid.Column="0" FontWeight="Bold"></Label>
+                                                <CheckBox x:Name="chkEnableUnlockBootsAndCelebrations" Checked="ChkEnableUnlockBootsAndCelebrations_Checked" Margin="0,5,0,5">Unlock Boots, Celebrations and Player Career Extras</CheckBox>
+                                                <Label Content="Difficulty" Grid.Column="0" FontWeight="Bold"></Label>
 
-                                        <Label Content="CPU Offense Difficulty"></Label>
-                                        <StackPanel Orientation="Horizontal">
-                                            <CheckBox Name="chkDifficultyOffense" IsChecked="False"></CheckBox>
-                                            <Slider  IsEnabled="{Binding ElementName=chkDifficultyOffense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyOffense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                        </StackPanel>
-                                        <Label Content="CPU Defense Difficulty"></Label>
-                                        <StackPanel Orientation="Horizontal">
-                                        <CheckBox Name="chkDifficultyDefense" IsChecked="False"></CheckBox>
-                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyDefense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyDefense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                        </StackPanel>
-                                        <Label Content="CPU Home Difficulty"></Label>
-                                        <StackPanel Orientation="Horizontal">
-                                        <CheckBox Name="chkDifficultyHome" IsChecked="False"></CheckBox>
-                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyHome, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyHome" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                        </StackPanel>
-                                        <Label Content="CPU Away Difficulty"></Label>
-                                        
-                                        <StackPanel Orientation="Horizontal">
-                                        <CheckBox Name="chkDifficultyAway" IsChecked="False"></CheckBox>
-                                        <Slider  IsEnabled="{Binding ElementName=chkDifficultyAway, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyAway" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
-                                        </StackPanel>
+                                                <Label Content="CPU Offense Difficulty"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkDifficultyOffense" IsChecked="False"></CheckBox>
+                                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyOffense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyOffense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                </StackPanel>
+                                                <Label Content="CPU Defense Difficulty"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkDifficultyDefense" IsChecked="False"></CheckBox>
+                                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyDefense, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyDefense" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                </StackPanel>
+                                                <Label Content="CPU Home Difficulty"></Label>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkDifficultyHome" IsChecked="False"></CheckBox>
+                                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyHome, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyHome" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                </StackPanel>
+                                                <Label Content="CPU Away Difficulty"></Label>
+
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox Name="chkDifficultyAway" IsChecked="False"></CheckBox>
+                                                    <Slider  IsEnabled="{Binding ElementName=chkDifficultyAway, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderDifficultyAway" Minimum="0" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                </StackPanel>
 
 
-                                        <Label Content="Random Multiplier Seed" Grid.Column="0" FontWeight="Bold"></Label>
-                                        <CheckBox x:Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
+                                                <Label Content="Random Multiplier Seed" Grid.Column="0" FontWeight="Bold"></Label>
+                                                <CheckBox x:Name="chkDisableRandomSeed" Checked="ChkDisableRandomSeed_Checked" Margin="0,5,0,5">Disable randomizer which changes abilities at match start</CheckBox>
                                             </StackPanel>
                                         </ScrollViewer>
-                                
+
                                         <ScrollViewer HorizontalAlignment="Left" VerticalAlignment="Top"  Height="450" VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top">
                                             <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
                                                 <Label Content="Animation and Gameplay Settings" FontWeight="Bold" />
@@ -196,7 +198,7 @@
                                                     <Slider IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderContextualTurn" Minimum="0" Maximum="3" Value="1" TickPlacement="BottomRight"  TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
                                                     <TextBox IsEnabled="{Binding ElementName=chkContextualTurn, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Text="{Binding ElementName=sliderContextualTurn, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                                 </StackPanel>
-                                            
+
                                                 <Label Content="Heading" FontWeight="Bold" />
                                                 <StackPanel Margin="1">
                                                     <Label Content="How much to reduce heading downward power" Grid.Column="0"></Label>
@@ -219,153 +221,161 @@
 
 
                                         </ScrollViewer>
-                                </StackPanel>
-                            </TabItem>
-                            <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="150"></RowDefinition>
-                                        <RowDefinition></RowDefinition>
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0">
-                                        <!-- OVERRIDE GRAPH -->
-                                        <Label Content="Attribute Graph (How much do the player attributes vary during the match?)" FontWeight="Bold" FontSize="16"></Label>
-                                        <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute (Enables Ability fluctations, Dribble, Pass and Shot Errors etc.)"></CheckBox>
-                                        <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph (Enable sliders below)"></CheckBox>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="300"></Label>
-                                            <Slider x:Name="OVERRIDE_GRAPH_SHAPE_HIGH" Minimum="-1" Maximum="1" Value="0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200" />
-                                            <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_HIGH, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="300"></Label>
-                                            <Slider x:Name="OVERRIDE_GRAPH_SHAPE_LOW" Minimum="-1" Maximum="1" Value="-0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200"  />
-                                            <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_LOW, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                        </StackPanel>
-                                        <!-- ACCEL/DECEL GRAPH -->
-                                        <!--<Label Content="Acceleration / Deceleration" FontWeight="Bold"></Label>-->
-
-                                        <Label Content="Attribute Weightings" FontWeight="Bold"  FontSize="16"></Label>
                                     </StackPanel>
-                                    <ScrollViewer Grid.Row="1">
-                                        <StackPanel>
-                                            <StackPanel x:Name="panel_GP_AttributeWeightSystem" >
+                                </TabItem>
+                                <TabItem Header="Attribute Weights"  Name="tab_GP_AttributeWeightSystem">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="150"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0">
+                                            <!-- OVERRIDE GRAPH -->
+                                            <Label Content="Attribute Graph (How much do the player attributes vary during the match?)" FontWeight="Bold" FontSize="16"></Label>
+                                            <CheckBox x:Name="OVERRIDE_ERROR_ATTRIBUTE" Content="Override Error Attribute (Enables Ability fluctations, Dribble, Pass and Shot Errors etc.)"></CheckBox>
+                                            <CheckBox x:Name="OVERRIDE_GRAPH_SHAPE" Content="Override Graph (Enable sliders below)"></CheckBox>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="OVERRIDE_GRAPH_SHAPE_HIGH" Width="300"></Label>
+                                                <Slider x:Name="OVERRIDE_GRAPH_SHAPE_HIGH" Minimum="-1" Maximum="1" Value="0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200" />
+                                                <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_HIGH, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                             </StackPanel>
-                                        </StackPanel>
-                                    </ScrollViewer>
-                                </Grid>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="OVERRIDE_GRAPH_SHAPE_LOW" Width="300"></Label>
+                                                <Slider x:Name="OVERRIDE_GRAPH_SHAPE_LOW" Minimum="-1" Maximum="1" Value="-0.2" TickPlacement="BottomRight" IsSnapToTickEnabled="True" TickFrequency="0.05"  Width="200"  />
+                                                <TextBox Text="{Binding ElementName=OVERRIDE_GRAPH_SHAPE_LOW, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                            </StackPanel>
+                                            <!-- ACCEL/DECEL GRAPH -->
+                                            <!--<Label Content="Acceleration / Deceleration" FontWeight="Bold"></Label>-->
 
-                            </TabItem>
-                            <TabItem Header="AI Objective System" x:Name="tab_GP_ObjectiveSystem">
-                                <ScrollViewer>
-                                    <StackPanel>
-                                        <Label Content="This is the AI Objective System, here you can Enable or Disable all the AI options within the game." FontSize="16" FontWeight="Bold"></Label>
-                                        <StackPanel x:Name="panel_GP_ObjectiveSystem" 
+                                            <Label Content="Attribute Weightings" FontWeight="Bold"  FontSize="16"></Label>
+                                        </StackPanel>
+                                        <ScrollViewer Grid.Row="1">
+                                            <StackPanel>
+                                                <StackPanel x:Name="panel_GP_AttributeWeightSystem" >
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Grid>
+
+                                </TabItem>
+                                <TabItem Header="AI Objective System" x:Name="tab_GP_ObjectiveSystem">
+                                    <ScrollViewer>
+                                        <StackPanel>
+                                            <Label Content="This is the AI Objective System, here you can Enable or Disable all the AI options within the game." FontSize="16" FontWeight="Bold"></Label>
+                                            <StackPanel x:Name="panel_GP_ObjectiveSystem" 
                                             Height="Auto"
                                             Width="Auto" >
 
+                                            </StackPanel>
                                         </StackPanel>
-                                    </StackPanel>
-                                </ScrollViewer>
-                            </TabItem>
-                            <TabItem Header="Contextual" IsEnabled="True">
-                                <ScrollViewer>
-                                    <StackPanel x:Name="panel_GP_ContextEffect">
+                                    </ScrollViewer>
+                                </TabItem>
+                                <TabItem Header="Contextual" IsEnabled="True">
+                                    <ScrollViewer>
+                                        <StackPanel x:Name="panel_GP_ContextEffect">
 
-                                    </StackPanel>
-                                </ScrollViewer>
-                            </TabItem>
-                            <TabItem Name="tabRawFileView" Header="Raw File View" MouseDown="tabRawFileView_MouseDown" >
-                                <TextBox MaxLines="9999999" Name="tbRawFileView" Background="White" Height="500" MinHeight="500"
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </TabItem>
+                                <TabItem Name="tabRawFileView" Header="Raw File View" MouseDown="tabRawFileView_MouseDown" >
+                                    <TextBox MaxLines="9999999" Name="tbRawFileView" Background="White" Height="500" MinHeight="500"
                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                                              
                                             ></TextBox>
-                            </TabItem>
-                        </Controls:MetroTabControl>
-                    </Grid>
-                </StackPanel>
-            </TabItem>
-            <TabItem x:Name="TabCareer" Header="Career" IsEnabled="True">
-                <StackPanel>
-                    
-                        <TabControl x:Name="TabCareerInternal">
-                            
-                        <TabItem Header="Modding Integration">
-                            <StackPanel>
-                                <Button x:Name="btnModdingIntegrationExtractLegacy" Click="btnModdingIntegrationExtractLegacy_Click">Extract Legacy Files</Button>
-                                <TabControl x:Name="TabCareerModdingItems" TabStripPlacement="Left" >
-        
-                                </TabControl>
-                            </StackPanel>
-                        </TabItem>
-                            <TabItem Header="Saves">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <ListView x:Name="CareerSaves" Grid.Column="0">
-
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerSaves_PreviewMouseLeftButtonDown" />
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                </ListView>
-                                
-                            </Grid>
-                        </TabItem>
-                        <TabItem x:Name="CareerOpened" Header="" IsEnabled="False">
-                            <TabControl>
-                                <TabItem Header="Quick Options">
-                                    <StackPanel>
-                                        <Button x:Name="CareerUpdateTeamStylesAndTraits">Update Career Team's Formations, Styles and Traits using the latest Squad File</Button>
-                                        <Button x:Name="CareerUpdateTeamStylesAndTraitsCustom">Update Career Team's Formations, Styles and Traits using a selected Squad File</Button>
-                                    </StackPanel>
                                 </TabItem>
-                                <TabItem x:Name="TabItemCareerDatabase" Header="Database">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="175"></ColumnDefinition>
-                                            <ColumnDefinition Width="*"></ColumnDefinition>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="400"></RowDefinition>
-                                            <RowDefinition Height="50"></RowDefinition>
-                                        </Grid.RowDefinitions>
-                                        <ListView x:Name="CareerDatabaseTables" Grid.Column="0">
-                                            <ListView.ItemContainerStyle>
-                                                <Style TargetType="ListViewItem">
-                                                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerDatabaseTables_Click" />
-                                                </Style>
-                                            </ListView.ItemContainerStyle>
-                                        </ListView>
-                                        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  Grid.Column="1">
-                                            <DataGrid x:Name="dgCareerDatabaseTable" KeyUp="dgCareerDatabaseTable_KeyUp"
+                                <TabItem Name="tabFrostyView" Header="Frosty View" PreviewMouseLeftButtonUp="tabFrostyView_PreviewMouseLeftButtonUp">
+                                    
+                                </TabItem>
+                            </Controls:MetroTabControl>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+                <TabItem x:Name="TabCareer" Header="Career" IsEnabled="True">
+                    <StackPanel>
+
+                        <TabControl x:Name="TabCareerInternal">
+
+                            <TabItem Header="Modding Integration">
+                                <StackPanel>
+                                    <Button x:Name="btnModdingIntegrationExtractLegacy" Click="btnModdingIntegrationExtractLegacy_Click">Extract Legacy Files</Button>
+                                    <TabControl x:Name="TabCareerModdingItems" TabStripPlacement="Left" >
+
+                                    </TabControl>
+                                </StackPanel>
+                            </TabItem>
+                            <TabItem Header="Saves">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <ListView x:Name="CareerSaves" Grid.Column="0">
+
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerSaves_PreviewMouseLeftButtonDown" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                    </ListView>
+
+                                </Grid>
+                            </TabItem>
+                            <TabItem x:Name="CareerOpened" Header="" IsEnabled="False">
+                                <TabControl>
+                                    <TabItem Header="Quick Options">
+                                        <StackPanel>
+                                            <Button x:Name="CareerUpdateTeamStylesAndTraits">Update Career Team's Formations, Styles and Traits using the latest Squad File</Button>
+                                            <Button x:Name="CareerUpdateTeamStylesAndTraitsCustom">Update Career Team's Formations, Styles and Traits using a selected Squad File</Button>
+                                        </StackPanel>
+                                    </TabItem>
+                                    <TabItem x:Name="TabItemCareerDatabase" Header="Database">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="175"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="400"></RowDefinition>
+                                                <RowDefinition Height="50"></RowDefinition>
+                                            </Grid.RowDefinitions>
+                                            <ListView x:Name="CareerDatabaseTables" Grid.Column="0">
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="CareerDatabaseTables_Click" />
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                            </ListView>
+                                            <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  Grid.Column="1">
+                                                <DataGrid x:Name="dgCareerDatabaseTable" KeyUp="dgCareerDatabaseTable_KeyUp"
 
                                                 AutoGenerateColumns="False"
                                                 ItemsSource="{Binding}">
-                                            </DataGrid>
-                                        </ScrollViewer>
-                                        <ScrollViewer  HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalScrollBarVisibility="Hidden"  Grid.Column="1" Grid.Row="1">
-                                            <StackPanel x:Name="dgCareerDatabaseTablePages" Orientation="Horizontal">
+                                                </DataGrid>
+                                            </ScrollViewer>
+                                            <ScrollViewer  HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalScrollBarVisibility="Hidden"  Grid.Column="1" Grid.Row="1">
+                                                <StackPanel x:Name="dgCareerDatabaseTablePages" Orientation="Horizontal">
 
-                                            </StackPanel>
-                                        </ScrollViewer>
-                                    </Grid>
-                                    
-                                </TabItem>
-                            </TabControl>
-                        </TabItem>
-                    </TabControl>
-                </StackPanel>
-            </TabItem>
-        </TabControl>
-        <StatusBar Grid.Row="2" >
+                                                </StackPanel>
+                                            </ScrollViewer>
+                                        </Grid>
+
+                                    </TabItem>
+                                </TabControl>
+                            </TabItem>
+                        </TabControl>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="#FFF3F1F1" BorderBrush="#FFC8C8C8"  >
+            <StatusBarItem>
+                <TextBlock Name="lblProgressText" Text="" Foreground="#FF483939" />
+            </StatusBarItem>
             <StatusBarItem>
                 <ProgressBar x:Name="LoadingProgressBar" Height="12" Width="200" Maximum="100" Minimum="0"></ProgressBar>
             </StatusBarItem>
@@ -373,6 +383,5 @@
                 <TextBlock x:Name="LoadingText" Height="12" Width="200" FontSize="11" Foreground="black"></TextBlock>
             </StatusBarItem>
         </StatusBar>
-
-    </Grid>
+    </DockPanel>
 </Controls:MetroWindow>
