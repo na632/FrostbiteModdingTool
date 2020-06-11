@@ -8,10 +8,10 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="Launch FIFA with Mods" Height="450" Width="800">
-    <Grid>
-        <StackPanel>
-            <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+        Title="Launch FIFA with Mods" Height="500" Width="800">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" VerticalAlignment="Top">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
                 <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
                     <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -26,7 +26,7 @@
             <StackPanel Orientation="Horizontal">
                 <StackPanel>
                     <Label FontSize="14" FontWeight="Bold">The mods that will be added to your FIFA when you click "Launch"</Label>
-                    <ListBox x:Name="listMods" BorderThickness="1">
+                    <ListBox x:Name="listMods" BorderThickness="1" Height="200">
                     </ListBox>
                     <Button x:Name="btnLaunch" Click="btnLaunch_Click" IsEnabled="False">Launch</Button>
                 </StackPanel>
@@ -38,5 +38,11 @@
                 </StackPanel>
             </StackPanel>
         </StackPanel>
-    </Grid>
+
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="#FFF3F1F1" BorderBrush="#FFC8C8C8"  >
+            <StatusBarItem>
+                <TextBlock Name="lblProgressText" Text="" Foreground="#FF483939" />
+            </StatusBarItem>
+        </StatusBar>
+    </DockPanel>
 </Window>

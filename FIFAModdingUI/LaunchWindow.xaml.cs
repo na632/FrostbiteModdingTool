@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI.Mods;
+using FrostySdk.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,7 +25,7 @@ namespace FIFAModdingUI
     /// <summary>
     /// Interaction logic for LaunchWindow.xaml
     /// </summary>
-    public partial class LaunchWindow : Window
+    public partial class LaunchWindow : Window, ILogger
     {
         public LaunchWindow()
         {
@@ -54,7 +55,8 @@ namespace FIFAModdingUI
         {
             "FIFA19.exe",
             "FIFA20_demo.exe",
-            "FIFA20.exe"
+            "FIFA20.exe",
+            "FIFA21_demo.exe"
         };
 
         private void up_click(object sender, RoutedEventArgs e)
@@ -102,10 +104,25 @@ namespace FIFAModdingUI
             listMods.ItemsSource = ListOfMods;
         }
 
-        private void btnLaunch_Click(object sender, RoutedEventArgs e)
-        {
-            LaunchFIFA.Launch(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems);
+        Task<int> LaunchingTask = null;
 
+        private async void btnLaunch_Click(object sender, RoutedEventArgs e)
+        {
+            await new TaskFactory().StartNew(async() =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    btnLaunch.IsEnabled = false;
+                });
+                LaunchingTask = LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems, this);
+                await LaunchingTask;
+                await Task.Delay(10 * 1000);
+                Dispatcher.Invoke(() =>
+                {
+                    btnLaunch.IsEnabled = true;
+                    LaunchingTask = null;
+                });
+            });
         }
 
         private void btnRemove_Click(object sender, RoutedEventArgs e)
@@ -177,6 +194,24 @@ namespace FIFAModdingUI
                     btnLaunch.IsEnabled = true;
                 }
             }
+        }
+
+        public void Log(string text, params object[] vars)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                lblProgressText.Text = text;
+            });
+        }
+
+        public void LogWarning(string text, params object[] vars)
+        {
+           
+        }
+
+        public void LogError(string text, params object[] vars)
+        {
+            
         }
     }
 

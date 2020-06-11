@@ -71,6 +71,11 @@ namespace FIFAModdingUI
         public static string CURRENT_MOD_PROFILE = "Default";
         public static string CURRENT_MOD_PROFILE_LOCALEINI_PATH = "ModProfiles/Default/locale.ini";
 
+        public void LoggedInAsPowerUser()
+        {
+            btnBuildFIFASDK.IsEnabled = true;
+        }
+
         public EditorWindow()
         {
             InitializeComponent();

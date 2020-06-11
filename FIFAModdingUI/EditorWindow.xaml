@@ -29,7 +29,7 @@
                 </StackPanel>
             </Button>
             <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
-                    VerticalAlignment="Center" IsEnabled="True"
+                    VerticalAlignment="Center" IsEnabled="False"
                      Click="btnBuildFIFASDK_Click"
                     ToolTip="Build FIFA Modding SDK">
                 <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">

@@ -5,14 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using paulv2k4ModdingExecuter;
+using System.Threading.Tasks;
 
 namespace FIFAModdingUI
 {
     public static class LaunchFIFA
     {
-        public static void Launch(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods)
+        public static void Launch(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null)
         {
-            TestLog testLog = new TestLog();
+            LaunchAsync(FIFARootPath, ModDirectory, OrderedListOfMods, logger).Wait();
+        }
+
+        public static async Task<int> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null)
+        {
+            if (logger == null)
+                logger = new TestLog();
+
             if (!ProfilesLibrary.Initialize("FIFA20"))
             {
                 throw new Exception("Unable to Initialize Profile");
@@ -24,9 +32,7 @@ namespace FIFAModdingUI
             }
             fileSystem.Initialize();
             _ = new FrostyProfile("Default");
-
-            var tsk = new FrostyModExecutor().Run(fileSystem, testLog, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
-            tsk.Wait();
+            return await new FrostyModExecutor().Run(fileSystem, logger, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
         }
     }
 
@@ -36,24 +42,21 @@ namespace FIFAModdingUI
         {
             TextWriterTraceListener tr1 = new TextWriterTraceListener(System.Console.Out);
 
-            Console.WriteLine(text);
-            Trace.WriteLine(text);
+            Debug.WriteLine(text);
         }
 
         public void LogError(string text, params object[] vars)
         {
             TextWriterTraceListener tr1 = new TextWriterTraceListener(System.Console.Out);
 
-            Console.WriteLine(text);
-            Trace.WriteLine(text);
+            Debug.WriteLine(text);
         }
 
         public void LogWarning(string text, params object[] vars)
         {
             TextWriterTraceListener tr1 = new TextWriterTraceListener(System.Console.Out);
 
-            Console.WriteLine(text);
-            Trace.WriteLine(text);
+            Debug.WriteLine(text);
         }
     }
 }
