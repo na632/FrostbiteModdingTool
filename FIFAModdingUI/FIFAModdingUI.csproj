@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-	<TargetFrameworks>net48;</TargetFrameworks>
-    <!--<TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>-->
+	<TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
     <PublishTrimmed>false</PublishTrimmed>
     <PublishSingleFile>false</PublishSingleFile>
