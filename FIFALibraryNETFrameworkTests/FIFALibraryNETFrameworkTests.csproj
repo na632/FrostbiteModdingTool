@@ -101,7 +101,7 @@
     <Content Include="FrostyHash.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Profiles\FIFA20SDK.dll">
+    <Content Include="SDK\FIFA20SDK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

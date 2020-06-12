@@ -25,6 +25,8 @@ namespace FIFAModdingUI
 
         public static IPublicClientApplication PublicClientApp { get { return _clientApp; } }
 
+        public static EditorWindow MainEditorWindow;
+
         protected override void OnStartup(StartupEventArgs e)
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;

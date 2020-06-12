@@ -143,13 +143,12 @@
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Profiles\FIFA20SDK.dll">
+    <None Update="SDK\FIFA20SDK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Profiles\FIFA20\" />
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
 

@@ -285,7 +285,9 @@
                                             ></TextBox>
                                 </TabItem>
                                 <TabItem Name="tabFrostyView" Header="Frosty View" PreviewMouseLeftButtonUp="tabFrostyView_PreviewMouseLeftButtonUp">
-                                    
+                                    <Frame x:Name="GPFrostyGameplayMainFrame">
+                                        
+                                    </Frame>
                                 </TabItem>
                             </Controls:MetroTabControl>
                         </Grid>

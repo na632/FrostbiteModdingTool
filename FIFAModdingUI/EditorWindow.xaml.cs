@@ -81,6 +81,8 @@ namespace FIFAModdingUI
         public EditorWindow()
         {
             InitializeComponent();
+
+            App.MainEditorWindow = this;
             // -----------------------------
             // -- Create Folders
             if (!Directory.Exists("Mods"))
@@ -129,80 +131,8 @@ namespace FIFAModdingUI
 
         }
 
-        FrostyProject FrostyProject = null;
-        AssetManager AssetManager = null;
+      
 
-
-        private async Task<FrostyProject> StartNewProject()
-        {
-            return await new TaskFactory().StartNew(() =>
-            {
-
-                if (ProfilesLibrary.Initialize("FIFA20"))
-                {
-                    if (ProfilesLibrary.RequiresKey)
-                    {
-                        byte[] array;
-
-                        array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
-                        byte[] array2 = new byte[16];
-                        Array.Copy(array, array2, 16);
-                        // From byte array to string
-                        string s = System.Text.Encoding.UTF8.GetString(array2, 0, array2.Length);
-                        KeyManager.Instance.AddKey("Key1", array2);
-                        if (array.Length > 16)
-                        {
-                            array2 = new byte[16];
-                            Array.Copy(array, 16, array2, 0, 16);
-                            KeyManager.Instance.AddKey("Key2", array2);
-                            array2 = new byte[16384];
-                            Array.Copy(array, 32, array2, 0, 16384);
-                            KeyManager.Instance.AddKey("Key3", array2);
-                        }
-
-                        TypeLibrary.Initialize();
-
-                        AssetManagerImportResult result = new AssetManagerImportResult();
-                        var FileSystem = new FrostySdk.FileSystem(FIFAInstanceSingleton.FIFARootPath);
-                        foreach (FileSystemSource source in ProfilesLibrary.Sources)
-                        {
-                            FileSystem.AddSource(source.Path, source.SubDirs);
-                        }
-                        FileSystem.Initialize(KeyManager.Instance.GetKey("Key1"));
-                        var ResourceManager = new ResourceManager(FileSystem);
-                        ResourceManager.SetLogger(this);
-                        ResourceManager.Initialize();
-                        AssetManager = new AssetManager(FileSystem, ResourceManager);
-                        LegacyFileManager.AssetManager = AssetManager;
-                        AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-                        AssetManager.SetLogger(this);
-                        AssetManager.Initialize(additionalStartup: true, result);
-
-                        //if (!ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
-                        //{
-                        //    throw new Exception("Unable to Initialize Profile");
-                        //}
-                        //TypeLibrary.Initialize();
-
-                        //FrostySdk.FileSystem fileSystem = new FrostySdk.FileSystem(FIFAInstanceSingleton.FIFARootPath);
-                        //foreach (FileSystemSource source in ProfilesLibrary.Sources)
-                        //    fileSystem.AddSource(source.Path, source.SubDirs);
-
-                        //fileSystem.Initialize();
-                        //ResourceManager resourceManager = new ResourceManager(fileSystem);
-                        //resourceManager.SetLogger(this);
-                        //resourceManager.Initialize();
-                        //AssetManager = new AssetManager(fileSystem, resourceManager);
-                        //AssetManager.SetLogger(this);
-                        //AssetManager.Initialize();
-
-                        return FrostyProject = new FrostyProject(AssetManager, FileSystem);
-                    }
-                }
-
-                return null;
-            });
-        }
 
         private void InitializeCareerModdingSuite()
         {
@@ -1437,16 +1367,19 @@ namespace FIFAModdingUI
 
         private async void tabFrostyView_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            await StartNewProject();
+            GPFrostyGameplayMainFrame.Source = new Uri("Pages/Gameplay/FrostyGameplayMain.xaml", UriKind.Relative);
 
-            var ebxItems = FrostyProject.AssetManager.EnumerateEbx();
-            if(ebxItems != null)
-            {
-                foreach (var i in ebxItems.Where(x=>x.Filename.StartsWith("gp_")))
-                {
-                    Debug.WriteLine(i.Filename);
-                }
-            }
+
+            //await StartNewProject();
+
+            //var ebxItems = FrostyProject.AssetManager.EnumerateEbx();
+            //if(ebxItems != null)
+            //{
+            //    foreach (var i in ebxItems.Where(x=>x.Filename.StartsWith("gp_")))
+            //    {
+            //        Debug.WriteLine(i.Filename);
+            //    }
+            //}
         }
     }
 
