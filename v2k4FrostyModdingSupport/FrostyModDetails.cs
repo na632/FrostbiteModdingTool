@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Xamarin.Forms;
+//using System.IO;
+//using Xamarin.Forms;
 
 namespace Frosty.ModSupport
 {
@@ -17,9 +17,9 @@ namespace Frosty.ModSupport
 
 		private string category;
 
-		private ImageSource icon;
+		//private ImageSource icon;
 
-		private List<ImageSource> screenshots = new List<ImageSource>();
+		//private List<ImageSource> screenshots = new List<ImageSource>();
 
 		public string Title => title;
 
@@ -41,9 +41,9 @@ namespace Frosty.ModSupport
 			}
 		}
 
-		public ImageSource Icon => icon;
+		//public ImageSource Icon => icon;
 
-		public List<ImageSource> Screenshots => screenshots;
+		//public List<ImageSource> Screenshots => screenshots;
 
 		public FrostyModDetails(string inTitle, string inAuthor, string inCategory, string inVersion, string inDescription)
 		{

@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="FIFAModdingUI.Pages.Common.Editor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="GeneralFileItemTemplate">
+            <TextBlock Text="{Binding}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ImageFileItemTemplate">
+            <Image Source="{Binding}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FloatItemTemplate">
+            <StackPanel>
+            <Label Content="{Binding Item1}"/>
+            <TextBox Text="{Binding Item3, Mode=OneWay}"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="PointerRefItemTemplate">
+        </DataTemplate>
+        <local:FileItemTemplateSelector x:Key="FileItemTemplateSelector" 
+                                        GeneralFileItemTemplate="{StaticResource GeneralFileItemTemplate}"
+                                        ImageFileItemTemplate="{StaticResource ImageFileItemTemplate}"
+                                        FloatItemTemplate="{StaticResource FloatItemTemplate}"
+                                        PointerRefItemTemplate="{StaticResource PointerRefItemTemplate}"
+                                        />
+        <local:PointerRefTemplateSelector x:Key="PointerRefTemplateSelector"
+                                        FloatItemTemplate="{StaticResource FloatItemTemplate}"
+                                        PointerRefItemTemplate="{StaticResource PointerRefItemTemplate}"
+                                          ></local:PointerRefTemplateSelector>
+    </UserControl.Resources>
+    <!-- <ListView ItemsSource="{Binding RootObjectProperties}"  ItemTemplateSelector="{StaticResource FileItemTemplateSelector}">
+        <ListView.ItemTemplate>
+            <DataTemplate DataType="System.Single">
+                <TextBlock Text="{Binding Item3}"/>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>-->
+    <TreeView x:Name="TreeView1">
+    </TreeView>
+    
+
+</UserControl>

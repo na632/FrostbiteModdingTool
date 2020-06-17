@@ -11,7 +11,7 @@
         Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStartupLocation="CenterScreen"
                       WindowState="Maximized" WindowStyle="ThreeDBorderWindow"
                       ShowMaxRestoreButton="True" ShowCloseButton="False" >
-    <DockPanel>
+    <DockPanel LastChildFill="True">
 
         <Grid DockPanel.Dock="Top" VerticalAlignment="Top">
             <Grid.RowDefinitions>
@@ -59,7 +59,8 @@
             </StackPanel>
             <TabControl x:Name="MainViewer" Grid.Row="1" SelectionChanged="MainViewer_SelectionChanged" IsEnabled="False">
                 <TabItem x:Name="TabGameplay" Header="Gameplay">
-                    <StackPanel>
+                    <Grid>
+                        <Grid>
                         <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
                             <Button x:Name="btn_GP_SaveINIToProfile" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center"
                                 Click="Btn_GP_SaveINI_Click">
@@ -141,7 +142,14 @@
                                                     <TextBox  IsEnabled="{Binding ElementName=chkSliderFOOT, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderFOOT, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                                 </StackPanel>
 
-                                                <Label Content="Right/Left Upper Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
+                                                <Label Content="Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <CheckBox Name="chkSliderLEG" IsChecked="False"></CheckBox>
+                                                        <Slider  IsEnabled="{Binding ElementName=chkSliderLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderLEG" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
+                                                        <TextBox  IsEnabled="{Binding ElementName=chkSliderLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"  Text="{Binding ElementName=sliderLEG, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                                    </StackPanel>
+
+                                                    <Label Content="Right/Left Upper Leg Speed (Affects Dribbling and Long Shooting)" Grid.Column="0"></Label>
                                                 <StackPanel Orientation="Horizontal">
                                                     <CheckBox Name="chkSliderUPPERLEG" IsChecked="False"></CheckBox>
                                                     <Slider  IsEnabled="{Binding ElementName=chkSliderUPPERLEG, Path=IsChecked, UpdateSourceTrigger=PropertyChanged}" Name="sliderUPPERLEG" Minimum="0" Maximum="2" Value="1" TickPlacement="BottomRight" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="250"></Slider>
@@ -291,7 +299,8 @@
                                 </TabItem>
                             </Controls:MetroTabControl>
                         </Grid>
-                    </StackPanel>
+                        </Grid>
+                    </Grid>
                 </TabItem>
                 <TabItem x:Name="TabCareer" Header="Career" IsEnabled="True">
                     <StackPanel>

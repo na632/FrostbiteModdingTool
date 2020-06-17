@@ -9,20 +9,23 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
     </UserControl.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <TreeView x:Name="FrostyTreeView" Grid.Column="0">
-        </TreeView>
-        <DockPanel Grid.Column="1">
-            <ScrollViewer>
-                
-                <StackPanel x:Name="spPropertyPanel">
+    <Grid HorizontalAlignment="Stretch">
+        <ScrollViewer Name="scroll1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TreeView x:Name="FrostyTreeView" Grid.Column="0" >
+                </TreeView>
 
-                </StackPanel>
-            </ScrollViewer>
-        </DockPanel>
+                <DockPanel Grid.Column="1">
+
+                    <StackPanel x:Name="spPropertyPanel">
+
+                    </StackPanel>
+                </DockPanel>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

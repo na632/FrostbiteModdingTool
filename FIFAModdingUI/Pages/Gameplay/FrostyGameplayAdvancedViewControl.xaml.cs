@@ -24,5 +24,10 @@ namespace FIFAModdingUI.Pages.Gameplay
         {
             InitializeComponent();
         }
+
+        private void FrostyTreeView_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+        {
+
+        }
     }
 }
