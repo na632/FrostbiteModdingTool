@@ -19,6 +19,7 @@ using v2k4FIFAModding.Frosty;
 using v2k4FIFAModding;
 using FrostySdk.FrostySdk.Ebx;
 using FIFAModdingUI.Pages.Common;
+using v2k4FIFAModding.Frostbite.EbxTypes;
 
 namespace FIFAModdingUI.Pages.Gameplay
 {
@@ -28,10 +29,14 @@ namespace FIFAModdingUI.Pages.Gameplay
     public partial class FrostyGameplayMain : Page
     {
         public static ProjectManagement GameplayProjectManagement { get; set; }
+
+        AttribSchema_gp_actor_movement Movement = AttribSchema_gp_actor_movement.GetAttrib();
         public FrostyGameplayMain()
         {
             InitializeComponent();
             tabsGameplayMain.IsEnabled = false;
+
+            
 
             new TaskFactory().StartNew(async() => {
 
@@ -255,7 +260,7 @@ namespace FIFAModdingUI.Pages.Gameplay
             getEbx_movement.AddObject(root);
             //getEbx_movement.AddRootObject(root);
             GameplayProjectManagement.FrostyProject.AssetManager.ModifyEbx(ebxItem_movement.Name, getEbx_movement);
-            btnTestChangeSpeed.IsEnabled = false;
+            //btnTestChangeSpeed.IsEnabled = false;
         }
     }
 }

@@ -15,8 +15,20 @@
         <TabControl x:Name="tabsGameplayMain">
             <TabItem Header="Basic">
                 <TabControl>
-                    <TabItem Header="Movement">
-                        <Button x:Name="btnTestChangeSpeed" Content="Button" Height="100" Width="75" Click="btnTestChangeSpeed_Click" />
+                    <TabItem Header="Movement" DataContext="{Binding Movement}">
+                        <StackPanel>
+                            <!--<Button x:Name="btnTestChangeSpeed" Content="Button" Height="100" Width="75" Click="btnTestChangeSpeed_Click" />-->
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Movement Speed: </Label>
+                                <ComboBox DataContext="{Binding Movement.MovementSpeed}">
+                                    <ComboBoxItem Tag="0">Very Slow</ComboBoxItem>
+                                    <ComboBoxItem Tag="1">Slow</ComboBoxItem>
+                                    <ComboBoxItem Tag="2">Vanilla</ComboBoxItem>
+                                    <ComboBoxItem Tag="3">Fast</ComboBoxItem>
+                                    <ComboBoxItem Tag="4">Very Fast</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
                     </TabItem>
                 </TabControl>
             </TabItem>

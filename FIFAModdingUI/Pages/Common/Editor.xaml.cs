@@ -61,13 +61,16 @@ namespace FIFAModdingUI.Pages.Common
 			}
 			set
             {
+				//var originalAssetEntry = FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name == AssetEntry.Name);
+				FrostyProject.AssetManager.RevertAsset(AssetEntry);
+
 				var copyOfRoot = RootObject;
 				_rootObjProps = value;
 				foreach(var item in _rootObjProps.Where(x=> !x.Item1.StartsWith("__")))
                 {
 					v2k4Util.SetPropertyValue(copyOfRoot, item.Item1, item.Item3);
                 }
-				asset.AddRootObject(copyOfRoot);
+				asset.AddObject(copyOfRoot);
 				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
 			}
         }

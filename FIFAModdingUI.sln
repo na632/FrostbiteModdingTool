@@ -20,8 +20,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFASDKGenerator", "v2k
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostySdk", "FrostySdk\FrostySdk.csproj", "{3D489D9A-0DEF-4E80-8EC8-15E265C29A36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIFAModdingUIV2", "FIFAModdingUIV2\FIFAModdingUIV2.csproj", "{0027C223-C483-4241-BEAA-4E14DD223013}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,18 +110,6 @@ Global
 		{3D489D9A-0DEF-4E80-8EC8-15E265C29A36}.Release|x64.ActiveCfg = Release|x64
 		{3D489D9A-0DEF-4E80-8EC8-15E265C29A36}.Release|x64.Build.0 = Release|x64
 		{3D489D9A-0DEF-4E80-8EC8-15E265C29A36}.Release|x86.ActiveCfg = Release|x64
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Debug|x64.Build.0 = Debug|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Debug|x86.Build.0 = Debug|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Release|x64.ActiveCfg = Release|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Release|x64.Build.0 = Release|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Release|x86.ActiveCfg = Release|Any CPU
-		{0027C223-C483-4241-BEAA-4E14DD223013}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
