@@ -47,6 +47,14 @@
                         <Label Content="Launch FIFA" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
+                <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                    Click="btnLaunchFIFAInEditor_Click"
+                    ToolTip="Launch FIFA with Editor Only Mod">
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                        <Label Content="Launch FIFA (Editor Projects)" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
                 <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
                     <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
@@ -292,7 +300,7 @@
                                              
                                             ></TextBox>
                                 </TabItem>
-                                <TabItem Name="tabFrostyView" Header="Frosty View" PreviewMouseLeftButtonUp="tabFrostyView_PreviewMouseLeftButtonUp">
+                                <TabItem Name="tabFrostyView" Header="Frostbite View" PreviewMouseLeftButtonUp="tabFrostyView_PreviewMouseLeftButtonUp">
                                     <Frame x:Name="GPFrostyGameplayMainFrame">
                                         
                                     </Frame>

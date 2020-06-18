@@ -1,4 +1,5 @@
-﻿using FrostySdk.Interfaces;
+﻿using FrostySdk;
+using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -41,7 +42,12 @@ namespace FIFAModdingUI.Pages.Common
 
 		public object RootObject { get { return asset.RootObject; } }
 
-
+		private List<Tuple<string, string, object>> _rootObjProps;
+		/// <summary>
+		/// Item 1: PropertyName
+		/// Item 2: PropertyType
+		/// Item 3: PropertyValue
+		/// </summary>
 		public List<Tuple<string,string,object>> RootObjectProperties
         {
             get
@@ -55,8 +61,15 @@ namespace FIFAModdingUI.Pages.Common
 			}
 			set
             {
-				//asset.AddRootObject
-            }
+				var copyOfRoot = RootObject;
+				_rootObjProps = value;
+				foreach(var item in _rootObjProps.Where(x=> !x.Item1.StartsWith("__")))
+                {
+					v2k4Util.SetPropertyValue(copyOfRoot, item.Item1, item.Item3);
+                }
+				asset.AddRootObject(copyOfRoot);
+				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
+			}
         }
 
 
@@ -76,21 +89,24 @@ namespace FIFAModdingUI.Pages.Common
 
 		public IEnumerable<object> Objects => asset.Objects;
 
-		public AssetEntry AssetEntry
-		{
-			get
-			{
-				return (AssetEntry)GetValue(AssetEntryProperty);
-			}
-			private set
-			{
-				SetValue(AssetEntryProperty, value);
-			}
-		}
+		//public AssetEntry AssetEntry
+		//{
+		//	get
+		//	{
+		//		return (AssetEntry)GetValue(AssetEntryProperty);
+		//	}
+		//	private set
+		//	{
+		//		SetValue(AssetEntryProperty, value);
+		//	}
+		//}
+		public AssetEntry AssetEntry { get; set; }
 
 		public EbxAsset Asset { get { return asset; } set { asset = value; } }
 
-		public bool AssetModified
+        public FrostyProject FrostyProject { get; }
+
+        public bool AssetModified
 		{
 			get
 			{
@@ -137,11 +153,15 @@ namespace FIFAModdingUI.Pages.Common
 			this.DataContext = Asset;
 		}
 
-		public Editor(EbxAsset inAsset)
+		public Editor(AssetEntry inAssetEntry, EbxAsset inAsset, FrostyProject frostyProject)
 		{
 			InitializeComponent();
+			// intialise objs
+			AssetEntry = inAssetEntry;
 			Asset = inAsset;
-			this.DataContext = this;
+			FrostyProject = frostyProject;
+
+            this.DataContext = this;
 			this.TreeView1.Items.Clear();
 			foreach (var p in RootObjectProperties.OrderBy(x=>x.Item1))
 			{
@@ -194,18 +214,18 @@ namespace FIFAModdingUI.Pages.Common
 
 									TreeViewItem SubChild1ItemX = new TreeViewItem();
 									SubChild1ItemX.Header = "X";
-									var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "X", Text = FloatCurve.Points[i].X.ToString() };
+									var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_X", Text = FloatCurve.Points[i].X.ToString() };
                                     txtPointX.TextChanged += (object sender, TextChangedEventArgs e) => {
-										AssetHasChanged();
+										AssetHasChanged(sender as TextBox, p.Item1);
 									};
 									SubChild1ItemX.Items.Add(txtPointX);
 									Child1Item.Items.Add(SubChild1ItemX);
 
 									TreeViewItem SubChild1ItemY = new TreeViewItem();
 									SubChild1ItemY.Header = "Y";
-									var txtPointY = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "Y", Text = FloatCurve.Points[i].Y.ToString() };
+									var txtPointY = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_Y", Text = FloatCurve.Points[i].Y.ToString() };
 									txtPointY.TextChanged += (object sender, TextChangedEventArgs e) => {
-										AssetHasChanged();
+										AssetHasChanged(sender as TextBox, p.Item1);
 									};
 									SubChild1ItemY.Items.Add(txtPointY);
 									
@@ -225,7 +245,11 @@ namespace FIFAModdingUI.Pages.Common
 						SysSingleTreeView.Header = "Value";
 
 						TextBox txt = new TextBox();
+						txt.Name = p.Item1;
 						txt.Text = p.Item3.ToString();
+						txt.TextChanged += (object sender, TextChangedEventArgs e) => {
+							AssetHasChanged(sender as TextBox, p.Item1);
+						};
 
 						SysSingleTreeView.Items.Add(txt);
 
@@ -247,9 +271,9 @@ namespace FIFAModdingUI.Pages.Common
 
 							TreeViewItem SubChild1ItemX = new TreeViewItem();
 							SubChild1ItemX.Header = "Value";
-							var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "X", Text = listSingle[i].ToString() };
+							var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "Value", Text = listSingle[i].ToString() };
 							txtPointX.TextChanged += (object sender, TextChangedEventArgs e) => {
-								AssetHasChanged();
+								AssetHasChanged(sender as TextBox, p.Item1);
 							};
 							SubChild1ItemX.Items.Add(txtPointX);
 							Child1Item.Items.Add(SubChild1ItemX);
@@ -267,7 +291,6 @@ namespace FIFAModdingUI.Pages.Common
 
 						TextBox txtCS = new TextBox();
 						txtCS.Text = p.Item3.ToString();
-
 						SysCStringTreeView.Items.Add(txtCS);
 
 
@@ -280,10 +303,70 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		public void AssetHasChanged()
+		public void AssetHasChanged(TextBox sender, string propName)
+		{
+			string txtboxName = sender.Name;
+			if (!string.IsNullOrEmpty(txtboxName))
+			{
+				var rootProp = RootObjectProperties.Find(x => x.Item1 == propName);
+				if (rootProp != null)
+				{
+					if (!txtboxName.StartsWith("_") && !txtboxName.StartsWith("ATTR_") && txtboxName.Contains("_"))
+					{
+						// format should be 
+						// PROPNAME _ ITEM
+						// PROPNAME _ POINTS _ INDEX _ (X OR Y)
+						// PROPNAME _ POINTS _ INDEX _ (VALUE)
+						var splitPropName = txtboxName.Split('_');
+						if (splitPropName.Length > 3)
+						{
+							if (splitPropName[3] == "X" || splitPropName[3] == "Y")
+							{
+								var index = int.Parse(splitPropName[2]);
+
+								var FloatCurve = rootProp.Item3.GetPropertyValue("Internal");
+								var fcPoint = FloatCurve.Points[index];
+
+								if (splitPropName[3] == "X")
+								{
+									fcPoint.X = float.Parse(sender.Text);
+                                    v2k4Util.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
+                                }
+								else
+								{
+									fcPoint.Y = float.Parse(sender.Text);
+								}
+
+							}
+						}
+						else if (splitPropName.Length > 2)// && splitPropName[3] == "VALUE")
+						{
+
+						}
+					}
+					else
+                    {
+						var replacementitem3 = rootProp.Item3;
+						replacementitem3 = System.Single.Parse(sender.Text);
+						var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
+						newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+						RootObjectProperties = newlist;
+					}
+
+				}
+            }
+
+			SaveToRootObject();
+		}
+
+        private void SaveToRootObject()
+        {
+        }
+
+        public void AssetHasChanged(TextBox sender, TreeViewItem treetopmostparent, TreeViewItem treeofpropertychanged)
         {
 
-        }
+		}
 
     }
 

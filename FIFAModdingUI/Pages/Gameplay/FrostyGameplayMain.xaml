@@ -12,11 +12,11 @@
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <TextBlock>Hello From GP</TextBlock>
         
-        <TabControl>
+        <TabControl x:Name="tabsGameplayMain">
             <TabItem Header="Basic">
                 <TabControl>
                     <TabItem Header="Movement">
-                        
+                        <Button x:Name="btnTestChangeSpeed" Content="Button" Height="100" Width="75" Click="btnTestChangeSpeed_Click" />
                     </TabItem>
                 </TabControl>
             </TabItem>

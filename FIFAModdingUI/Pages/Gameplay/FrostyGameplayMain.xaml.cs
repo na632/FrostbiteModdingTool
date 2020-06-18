@@ -27,16 +27,17 @@ namespace FIFAModdingUI.Pages.Gameplay
     /// </summary>
     public partial class FrostyGameplayMain : Page
     {
-        
-        ProjectManagement GameplayProjectManagement;
+        public static ProjectManagement GameplayProjectManagement { get; set; }
         public FrostyGameplayMain()
         {
             InitializeComponent();
+            tabsGameplayMain.IsEnabled = false;
 
             new TaskFactory().StartNew(async() => {
 
                 GameplayProjectManagement = new ProjectManagement();
                 GameplayProjectManagement.Logger = App.MainEditorWindow;
+                
                 await GameplayProjectManagement.StartNewProject();
 
                 var ebxItems = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx();
@@ -70,6 +71,9 @@ namespace FIFAModdingUI.Pages.Gameplay
                             treeItem.Items.Add(innerTreeItem);
 
                         }
+
+                        tabsGameplayMain.IsEnabled = true;
+
                     });
                     //foreach (var i in ebxItems.Where(x => x.Filename.StartsWith("gp_")))
                     //{
@@ -88,10 +92,10 @@ namespace FIFAModdingUI.Pages.Gameplay
                 return;
             }
             FrostyGameplayAdvancedView.spPropertyPanel.Children.Clear();
-            var ae = GameplayProjectManagement.FrostyProject.AssetManager.GetEbx(asset as EbxAssetEntry);
-            if(ae != null)
+            var ebx = GameplayProjectManagement.FrostyProject.AssetManager.GetEbx(asset as EbxAssetEntry);
+            if(ebx != null)
             {
-                FrostyGameplayAdvancedView.spPropertyPanel.Children.Add(new Editor(ae));
+                FrostyGameplayAdvancedView.spPropertyPanel.Children.Add(new Editor(asset, ebx, GameplayProjectManagement.FrostyProject));
 
                 //var aeObjects = ae.RootObject.
                 //var propsOfEbx = ae.RootObject.GetType().GetProperties();
@@ -229,6 +233,29 @@ namespace FIFAModdingUI.Pages.Gameplay
         private void WebView1_FrameNavigationCompleted(object sender, Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT.WebViewControlNavigationCompletedEventArgs e)
         {
 
+        }
+
+        private void btnTestChangeSpeed_Click(object sender, RoutedEventArgs e)
+        {
+
+            var ebxItem_movement = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name == "Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime");
+            var getEbx_movement = GameplayProjectManagement.FrostyProject.AssetManager.GetEbx(ebxItem_movement);
+            GameplayProjectManagement.FrostyProject.AssetManager.RevertAsset(ebxItem_movement);
+
+            var ebxItem_markingdist = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name == "Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_markingdist_runtime");
+            var getEbx_markingdist = GameplayProjectManagement.FrostyProject.AssetManager.GetEbx(ebxItem_movement);
+
+            var root = getEbx_movement.RootObject as dynamic;
+            root.ATTR_DribbleJogSpeed = 0.01f;
+            root.ATTR_JogSpeed = 0.01f;
+            root.ATTR_SprintSpeedTbl = new List<float>() { 0.01f, 0.02f };
+            //getEbx_movement.Objects.Count(x=>x.)
+            //getEbx_movement.AddRootObject(root);
+            //getEbx_movement.RemoveObject(root);
+            getEbx_movement.AddObject(root);
+            //getEbx_movement.AddRootObject(root);
+            GameplayProjectManagement.FrostyProject.AssetManager.ModifyEbx(ebxItem_movement.Name, getEbx_movement);
+            btnTestChangeSpeed.IsEnabled = false;
         }
     }
 }

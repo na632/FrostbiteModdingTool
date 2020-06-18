@@ -39,6 +39,7 @@ using FrostySdk.Managers;
 using Frosty;
 using FrostySdk.Interfaces;
 using v2k4FIFAModding.Frosty;
+using FIFAModdingUI.Pages.Gameplay;
 
 namespace FIFAModdingUI
 {
@@ -1380,6 +1381,57 @@ namespace FIFAModdingUI
             //        Debug.WriteLine(i.Filename);
             //    }
             //}
+        }
+
+        Random randomModNumber = new Random();
+
+        private async void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
+        {
+            string editorModName = "EditorMod" + randomModNumber.Next(10000, 99999).ToString("D5") + ".fbmod";
+            ModSettings editorSettings = new ModSettings
+            {
+                Title = "Editor Mod",
+                Author = "Frosty Editor",
+                Version = "1",
+                Category = "Editor"
+            };
+            await Task.Run(delegate
+            {
+                if (FrostyGameplayMain.GameplayProjectManagement != null)
+                {
+                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.Save(editorModName);
+                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.WriteToMod(editorModName, new ModSettings() { Title = "Editor GP", Author = "Editor", Version = "1" });
+                }
+                //ExportMod(editorSettings, editorModName, bSilent: true);
+            });
+
+            await new TaskFactory().StartNew(async () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    btnLaunchFIFA.IsEnabled = false;
+                    btnLaunchFIFAInEditor.IsEnabled = false;
+                });
+                var editormodlocation = AppDomain.CurrentDomain.BaseDirectory + editorModName;
+
+                await LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new List<string>() { editormodlocation }, this);
+                await Task.Delay(10 * 1000);
+                Dispatcher.Invoke(() =>
+                {
+                    btnLaunchFIFA.IsEnabled = true;
+                });
+            });
+
+            //FrostyTask.Update("");
+            //string additionalArgs = "";
+            //await new FrostyModExecutor().Run(App.FileSystem, new FrostyTask.Logger(), "", additionalArgs, editorModName);
+            foreach (string item in Directory.EnumerateFiles(new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName, "EditorMod*"))
+            {
+                File.Delete(item);
+            }
+            //launchButton.IsEnabled = true;
+            //FrostyTask.End();
+            //App.Logger.Log("Done");
         }
     }
 

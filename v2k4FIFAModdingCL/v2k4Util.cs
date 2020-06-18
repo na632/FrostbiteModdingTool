@@ -33,6 +33,20 @@ namespace v2k4FIFAModding
             return p.GetValue(obj);
         }
 
+        public static void SetPropertyValue(object obj, string propName, dynamic value)
+        {
+            Type t = obj.GetType();
+            var p = t.GetProperty(propName);
+            p.SetValue(obj, value);
+        }
+
+        //public static void SetPropertyValue(this object obj, string propName, dynamic value)
+        //{
+        //    Type t = obj.GetType();
+        //    var p = t.GetProperty(propName);
+        //    p.SetValue(obj, value);
+        //}
+
         public static T GetObjectAsType<T>(this object obj)
         {
             Type t = obj.GetType();
