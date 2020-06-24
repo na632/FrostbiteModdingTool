@@ -90,6 +90,8 @@
                 <ng-view></ng-view>
 
                 @*@RenderBody()*@
+
+
             </div>
         </main>
     </div>
@@ -104,6 +106,16 @@
             </div>
         </div>
     </footer>
+
+    <div class="toast">
+        <div class="toast-header">
+            Toast Header
+        </div>
+        <div class="toast-body">
+            Some text inside the toast body
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/angularjs/angular.js"></script>
@@ -233,6 +245,13 @@
             });
 
         }, 1000);
+
+        $(document).ready(function () { 
+
+            $('.toast').toast('show');
+
+
+        });
 
 
     </script>

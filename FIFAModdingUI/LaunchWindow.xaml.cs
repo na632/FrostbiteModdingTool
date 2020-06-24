@@ -114,7 +114,7 @@ namespace FIFAModdingUI
                 {
                     btnLaunch.IsEnabled = false;
                 });
-                LaunchingTask = LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems, this);
+                LaunchingTask = LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems, this, FIFAInstanceSingleton.FIFAVERSION);
                 await LaunchingTask;
                 await Task.Delay(10 * 1000);
                 Dispatcher.Invoke(() =>

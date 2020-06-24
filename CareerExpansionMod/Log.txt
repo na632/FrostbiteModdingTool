@@ -1,3 +1,2 @@
 
-04/06/2020 11:55:39 - System.IO.DirectoryNotFoundException: Could not find a part of the path 'C:\Users\paula\Documents\FIFA 20\settings\'.
-   at System.IO.FileSystem.CopyFile(String sourceFullPath, String destFullPath, Boolean overwrite)
+24/06/2020 15:51:06 - FIFAProcess has been found

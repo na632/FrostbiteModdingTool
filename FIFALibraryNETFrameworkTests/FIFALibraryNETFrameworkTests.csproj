@@ -71,6 +71,9 @@
     <None Include="FIFA20Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="FIFA20_demoProfile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="FrostyModManager FIFA20.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

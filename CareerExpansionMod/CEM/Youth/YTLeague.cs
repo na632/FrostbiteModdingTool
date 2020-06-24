@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,7 +13,12 @@ namespace CareerExpansionMod.CEM.Youth
         {
             get
             {
-                return CEMCore.CEMMyDocumentsDbSaveDirectory + "YouthTeam\\League\\";
+
+                var s = CEMCore.CEMMyDocumentsDbSaveDirectory + "YouthTeam\\League\\";
+                if (!Directory.Exists(s))
+                    Directory.CreateDirectory(s);
+
+                return s;
 
             }
         }
@@ -20,7 +27,7 @@ namespace CareerExpansionMod.CEM.Youth
         {
             get
             {
-                return YouthTeamLeagueDirectory + $"{YTLeagueId}-{LeagueName}.json";
+                return YouthTeamLeagueDirectory + $"{YTLeagueId}.json";
 
             }
         }
@@ -34,5 +41,18 @@ namespace CareerExpansionMod.CEM.Youth
         public int MaxAge { get; set; }
 
         public int MaxAmountOfOverage { get; set; }
+
+        public string NationId { get; set; }
+
+        public void Save()
+        {
+            var objSerialized = JsonConvert.SerializeObject(this);
+            File.WriteAllText(YouthTeamFileNameLocation, objSerialized);
+        }
+
+        public static YTLeague Load(int id)
+        {
+            return JsonConvert.DeserializeObject<YTLeague>(YouthTeamLeagueDirectory + $"{id}.json");
+        }
     }
 }

@@ -7,11 +7,13 @@ using System.Globalization;
 using System.IO;
 using FrostySdk.IO;
 using v2k4FIFASDKGenerator;
+using FrostySdk.Interfaces;
+using System.Diagnostics;
 
 namespace FIFALibraryNETFrameworkTests
 {
     [TestClass]
-    public class GeneralTests
+    public class GeneralTests : ILogger
     {
         [TestMethod]
         public void TestMethod1()
@@ -59,8 +61,9 @@ namespace FIFALibraryNETFrameworkTests
         public void TestBuildCacheAndSDK()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
+            //buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
             //buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
+            buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
 
             var buildSDK = new BuildSDK();
             var b = buildSDK.Build().Result;
@@ -71,7 +74,7 @@ namespace FIFALibraryNETFrameworkTests
         public void TestBuildCache()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
+            buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
         }
 
         [TestMethod]
@@ -93,5 +96,20 @@ namespace FIFALibraryNETFrameworkTests
 		{
             ProfilesLibrary.DumpFrostyProfile("FIFA19");
 		}
+
+        public void Log(string text, params object[] vars)
+        {
+            Debug.WriteLine(text);
+        }
+
+        public void LogWarning(string text, params object[] vars)
+        {
+            Debug.WriteLine("WARNING:" + text);
+        }
+
+        public void LogError(string text, params object[] vars)
+        {
+            Debug.WriteLine("ERROR:" + text);
+        }
     }
 }

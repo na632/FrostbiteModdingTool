@@ -20,6 +20,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using v2k4FIFAModdingCL;
 using v2k4FIFASDKGenerator;
 using static Frosty.OpenFrostyFiles;
 
@@ -28,13 +29,51 @@ namespace FIFAModdingUI.Windows
     /// <summary>
     /// Interaction logic for BuildSDKAndCache.xaml
     /// </summary>
-    public partial class BuildSDKAndCache : Window
+    public partial class BuildSDKAndCache : Window, ILogger
     {
         public BuildSDKAndCache()
         {
             InitializeComponent();
 
 
+        }
+
+        public void Log(string text, params object[] vars)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                txtOuputMessage.Text = text;
+            });
+        }
+
+        public void LogError(string text, params object[] vars)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                txtOuputMessage.Text = text;
+            });
+        }
+
+        public void LogWarning(string text, params object[] vars)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                txtOuputMessage.Text = text;
+            });
+        }
+
+        private async void btnRunBuildCache_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var buildCache = new BuildCache();
+                await buildCache.LoadDataAsync(FIFAInstanceSingleton.FIFAVERSION, FIFAInstanceSingleton.FIFARootPath, this, true);
+            }
+            catch(Exception ex)
+            {
+                txtOuputMessage.Text = "There was an error during the cache building process";
+                File.WriteAllText("log_cache_error.txt", ex.ToString());
+            }
         }
 
         private async void btnRunBuild_Click(object sender, RoutedEventArgs e)
@@ -47,8 +86,6 @@ namespace FIFAModdingUI.Windows
 			Dispatcher.Invoke(() => btnRunBuild.IsEnabled = true);
 		}
 
-		
-
-
-	}
+      
+    }
 }

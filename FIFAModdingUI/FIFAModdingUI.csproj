@@ -45,9 +45,11 @@
     <None Remove="FrostySdk.Profiles.bin" />
     <None Remove="ini\AIObjectiveSystem_FIFA19.ini" />
     <None Remove="ini\AIObjectiveSystem_FIFA20.ini" />
+    <None Remove="ini\AnimationGameplay.ini" />
     <None Remove="ini\ATTRIBUTE_WEIGHTS.ini" />
     <None Remove="ini\ContextEffect_FIFA19.ini" />
     <None Remove="ini\ContextEffect_FIFA20.ini" />
+    <None Remove="ini\Goalkeeping.ini" />
     <None Remove="ini\UnlockBootsAndCelebrations.ini" />
     <None Remove="ini\_FIFA19_base.ini" />
     <None Remove="ini\_FIFA20_base.ini" />
@@ -66,10 +68,16 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA20.ini" />
+    <EmbeddedResource Include="ini\AnimationGameplay.ini">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="ini\ATTRIBUTE_WEIGHTS.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\ContextEffect_FIFA19.ini">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ini\Goalkeeping.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\UnlockBootsAndCelebrations.ini">
@@ -145,6 +153,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="FIFA20Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="fifa20_demo.key">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="FIFA20_demoProfile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Mods\DO_NOT_DELETE.txt">

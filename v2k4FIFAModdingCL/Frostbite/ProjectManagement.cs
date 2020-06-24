@@ -4,6 +4,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,7 +44,7 @@ namespace v2k4FIFAModding.Frosty
             return await new TaskFactory().StartNew(() =>
             {
 
-                if (ProfilesLibrary.Initialize("FIFA20"))
+                if (ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
                 {
                     if (KeyManager.Instance.ReadInKeys())
                     {
@@ -68,6 +69,10 @@ namespace v2k4FIFAModding.Frosty
                             FrostyProject = new FrostyProject(AssetManager, FileSystem);
                             return FrostyProject;
                         }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Could not read in keys");
                     }
                 }
 

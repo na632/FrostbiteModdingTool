@@ -27,5 +27,10 @@ namespace CareerExpansionMod.Controllers
         {
             return View("NoYouthSystemExists");
         }
+
+        public IActionResult LeagueEditor()
+        {
+            return View("LeagueEditor");
+        }
     }
 }

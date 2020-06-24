@@ -11,17 +11,17 @@ namespace FIFAModdingUI
 {
     public static class LaunchFIFA
     {
-        public static void Launch(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null)
+        public static void Launch(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true)
         {
-            LaunchAsync(FIFARootPath, ModDirectory, OrderedListOfMods, logger).Wait();
+            LaunchAsync(FIFARootPath, ModDirectory, OrderedListOfMods, logger, FIFAVERSION, buildMods).Wait();
         }
 
-        public static async Task<int> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null)
+        public static async Task<int> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true)
         {
             if (logger == null)
                 logger = new TestLog();
 
-            if (!ProfilesLibrary.Initialize("FIFA20"))
+            if (!ProfilesLibrary.Initialize(FIFAVERSION))
             {
                 throw new Exception("Unable to Initialize Profile");
             }
@@ -32,7 +32,8 @@ namespace FIFAModdingUI
             }
             fileSystem.Initialize();
             _ = new FrostyProfile("Default");
-            return await new FrostyModExecutor().Run(fileSystem, logger, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
+            var fme = new FrostyModExecutor();
+            return await fme.Run(fileSystem, logger, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
         }
     }
 

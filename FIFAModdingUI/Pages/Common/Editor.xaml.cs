@@ -178,66 +178,70 @@ namespace FIFAModdingUI.Pages.Common
 						if (p.Item3.PropertyExists("Internal"))
 						{
 							var FloatCurve = p.Item3.GetPropertyValue("Internal");
-
-							// Guid
-							var spGuid = new StackPanel() { Orientation = Orientation.Horizontal };
-							var lblGuid = new TextBlock() { Text = "__Guid" };
-							spGuid.Children.Add(lblGuid);
-							var txtGuid = new TextBlock() { Name = p.Item1 + "___Guid", Text = FloatCurve.__InstanceGuid.ToString() };
-							spGuid.Children.Add(txtGuid);
-							propTreeViewParent.Items.Add(spGuid);
-
-							// Min X
-							var spMinX = new StackPanel() { Orientation = Orientation.Horizontal };
-							var lblMinX = new TextBlock() { Text = "MinX" };
-							spMinX.Children.Add(lblMinX);
-							var txtMinX = new TextBox() { Name = "MinX", Text = FloatCurve.MinX.ToString() };
-							spMinX.Children.Add(txtMinX);
-							propTreeViewParent.Items.Add(spMinX);
-
-							// Max X 
-							var spMaxX = new StackPanel() { Orientation = Orientation.Horizontal };
-							var lblMaxX = new TextBlock() { Text = "MaxX" };
-							spMaxX.Children.Add(lblMaxX);
-							var txtMaxX = new TextBox() { Name = "MaxX", Text = FloatCurve.MaxX.ToString() };
-							spMaxX.Children.Add(txtMaxX);
-							propTreeViewParent.Items.Add(spMaxX);
-
-							TreeViewItem PointsTreeViewParent = new TreeViewItem();
-							PointsTreeViewParent.Name = "Points";
-							PointsTreeViewParent.Header = "Points";
-							propTreeViewParent.Items.Add(PointsTreeViewParent);
-							for (var i = 0; i < FloatCurve.Points.Count; i++)
+							if (FloatCurve != null)
 							{
-								var point = FloatCurve.Points[i];
-								if (point != null)
+
+								// Guid
+								var spGuid = new StackPanel() { Orientation = Orientation.Horizontal };
+								var lblGuid = new TextBlock() { Text = "__Guid" };
+								spGuid.Children.Add(lblGuid);
+								var txtGuid = new TextBlock() { Name = p.Item1 + "___Guid", Text = FloatCurve.__InstanceGuid.ToString() };
+								spGuid.Children.Add(txtGuid);
+								propTreeViewParent.Items.Add(spGuid);
+
+								// Min X
+								var spMinX = new StackPanel() { Orientation = Orientation.Horizontal };
+								var lblMinX = new TextBlock() { Text = "MinX" };
+								spMinX.Children.Add(lblMinX);
+								var txtMinX = new TextBox() { Name = "MinX", Text = FloatCurve.MinX.ToString() };
+								spMinX.Children.Add(txtMinX);
+								propTreeViewParent.Items.Add(spMinX);
+
+								// Max X 
+								var spMaxX = new StackPanel() { Orientation = Orientation.Horizontal };
+								var lblMaxX = new TextBlock() { Text = "MaxX" };
+								spMaxX.Children.Add(lblMaxX);
+								var txtMaxX = new TextBox() { Name = "MaxX", Text = FloatCurve.MaxX.ToString() };
+								spMaxX.Children.Add(txtMaxX);
+								propTreeViewParent.Items.Add(spMaxX);
+
+								TreeViewItem PointsTreeViewParent = new TreeViewItem();
+								PointsTreeViewParent.Name = "Points";
+								PointsTreeViewParent.Header = "Points";
+								propTreeViewParent.Items.Add(PointsTreeViewParent);
+								for (var i = 0; i < FloatCurve.Points.Count; i++)
 								{
-									TreeViewItem Child1Item = new TreeViewItem();
-									Child1Item.Header = "[" + i.ToString() + "]";
+									var point = FloatCurve.Points[i];
+									if (point != null)
+									{
+										TreeViewItem Child1Item = new TreeViewItem();
+										Child1Item.Header = "[" + i.ToString() + "]";
 
-									TreeViewItem SubChild1ItemX = new TreeViewItem();
-									SubChild1ItemX.Header = "X";
-									var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_X", Text = FloatCurve.Points[i].X.ToString() };
-                                    txtPointX.TextChanged += (object sender, TextChangedEventArgs e) => {
-										AssetHasChanged(sender as TextBox, p.Item1);
-									};
-									SubChild1ItemX.Items.Add(txtPointX);
-									Child1Item.Items.Add(SubChild1ItemX);
+										TreeViewItem SubChild1ItemX = new TreeViewItem();
+										SubChild1ItemX.Header = "X";
+										var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_X", Text = FloatCurve.Points[i].X.ToString() };
+										txtPointX.TextChanged += (object sender, TextChangedEventArgs e) =>
+										{
+											AssetHasChanged(sender as TextBox, p.Item1);
+										};
+										SubChild1ItemX.Items.Add(txtPointX);
+										Child1Item.Items.Add(SubChild1ItemX);
 
-									TreeViewItem SubChild1ItemY = new TreeViewItem();
-									SubChild1ItemY.Header = "Y";
-									var txtPointY = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_Y", Text = FloatCurve.Points[i].Y.ToString() };
-									txtPointY.TextChanged += (object sender, TextChangedEventArgs e) => {
-										AssetHasChanged(sender as TextBox, p.Item1);
-									};
-									SubChild1ItemY.Items.Add(txtPointY);
-									
-									Child1Item.Items.Add(SubChild1ItemY);
+										TreeViewItem SubChild1ItemY = new TreeViewItem();
+										SubChild1ItemY.Header = "Y";
+										var txtPointY = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_Y", Text = FloatCurve.Points[i].Y.ToString() };
+										txtPointY.TextChanged += (object sender, TextChangedEventArgs e) =>
+										{
+											AssetHasChanged(sender as TextBox, p.Item1);
+										};
+										SubChild1ItemY.Items.Add(txtPointY);
 
-									PointsTreeViewParent.Items.Add(Child1Item);
+										Child1Item.Items.Add(SubChild1ItemY);
+
+										PointsTreeViewParent.Items.Add(Child1Item);
+									}
 								}
 							}
-
 
 
 
@@ -274,7 +278,7 @@ namespace FIFAModdingUI.Pages.Common
 
 							TreeViewItem SubChild1ItemX = new TreeViewItem();
 							SubChild1ItemX.Header = "Value";
-							var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "Value", Text = listSingle[i].ToString() };
+							var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_Value", Text = listSingle[i].ToString() };
 							txtPointX.TextChanged += (object sender, TextChangedEventArgs e) => {
 								AssetHasChanged(sender as TextBox, p.Item1);
 							};
@@ -333,8 +337,8 @@ namespace FIFAModdingUI.Pages.Common
 								if (splitPropName[3] == "X")
 								{
 									fcPoint.X = float.Parse(sender.Text);
-                                    v2k4Util.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
-                                }
+									v2k4Util.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
+								}
 								else
 								{
 									fcPoint.Y = float.Parse(sender.Text);
@@ -347,8 +351,20 @@ namespace FIFAModdingUI.Pages.Common
 
 						}
 					}
+					else if (propName.StartsWith("ATTR_"))
+					{
+						var splitPropName = txtboxName.Split('_');
+						if (splitPropName.Length == 2)
+						{
+							var replacementitem3 = rootProp.Item3;
+							replacementitem3 = System.Single.Parse(sender.Text);
+							var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
+							newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+							RootObjectProperties = newlist;
+						}
+					}
 					else
-                    {
+					{
 						var replacementitem3 = rootProp.Item3;
 						replacementitem3 = System.Single.Parse(sender.Text);
 						var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();

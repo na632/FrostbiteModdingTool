@@ -17,7 +17,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-4">
-            <div class="card">
+            <div class="card overflow-hidden">
                 <div class="card-body" id="budgetEdit" style="display:none;">
                     <h4>Overview</h4>
                     <div class="card-body-icon">
@@ -47,6 +47,10 @@
                     <div class="row">
                         <label class="col-form-label col-6">Transfer Budget</label>
                         <label class="col-form-label col-6" id="lblTransferBudget" />
+                    </div>
+                    <div class="row">
+                        <label class="col-form-label col-6">Additional Income:</label>
+                        <label class="col-form-label col-6" id="lblAdditionalIncome" />
                     </div>
                 </div>
             </div>
@@ -228,7 +232,10 @@
                         <i class="fas fa-handshake"></i>
                     </div>
                     <div class="pt-3">
-                        <strong>Request Funds from your board</strong>
+                        <strong>Request Funds from your board&nbsp;(<span id="txtRequestFundsRemaining">0</span>/<span id="txtRequestFundsAllowed">0</span>)</strong>
+                    </div>
+                    <div class="pt-3 text-hide">
+                        You last requested funds from the board on <span id="txtRequestFundsLastDate"></span> you cannot request funds again until <span id="txtRequestFundsNextDate"></span>
                     </div>
                     <div class="pt-3">
                         <div style="line-height: 1em;" id="txtRequestFundsMessage"></div>
@@ -278,7 +285,23 @@
 
         });
 
+        $.getJSON("Finances/GetAdditionalIncome", function (d) {
 
+            $('#lblAdditionalIncome').html(FormatCurrencyNumber(d));
+
+        });
+
+        $.getJSON("Finances/GetNumberOfRequestFundsAllowed", function (d) {
+
+            $('#txtRequestFundsAllowed').html(d);
+
+        });
+
+        $.getJSON("Finances/GetNumberOfRequestFundsRemaining", function (d) {
+
+            $('#txtRequestFundsRemaining').html(d);
+
+        });
 
         function setBudget() {
             //alert("set a budget: " + $('#txtTransferBudget').val());
@@ -304,28 +327,10 @@
 
             $.getJSON(url, function (d) {
 
-                console.log(d);
-                //alert(d.message);
+                //console.log(d);
+
                 $('#txtRequestFundsMessage').html(d.message);
                 getTransferBudget();
-                //$('#btnRequestFunds').removeClass("btn-primary");
-                //if (d.success == "true") {
-
-                //    $('#btnRequestFunds').addClass("btn-success");
-                //    $('#txtRequestFundsMessage').html(d.message);
-
-                //}
-                //else {
-
-                //    $('#btnRequestFunds').addClass("btn-danger");
-                //    $('#txtRequestFundsMessage').html(d.message);
-                //}
-                //setTimeout(function () {
-                //    $('#btnRequestFunds').removeClass("btn-success");
-                //    $('#btnRequestFunds').removeClass("btn-danger");
-                //    $('#btnRequestFunds').addClass("btn-primary");
-
-                //}, 3000);
 
             });
 

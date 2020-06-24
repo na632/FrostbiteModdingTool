@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
+using System.Diagnostics;
 
 namespace FrostyEditor
 {
@@ -135,29 +136,29 @@ namespace FrostyEditor
 					stringBuilder.AppendLine("public class Delegate_" + @class.GetValue<Guid>("guid").ToString().Replace('-', '_') + " { }\r\n}");
 				}
 			}
-			if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20140225)
-			{
-				DbObject dbObject2 = DbObject.CreateObject();
-				dbObject2.SetValue("name", "RenderFormat");
-				List<string> list = CreateOldFB3PFs();
-				DbObject dbObject3 = DbObject.CreateList();
-				int num = 0;
-				foreach (string item in list)
-				{
-					DbObject dbObject4 = DbObject.CreateObject();
-					dbObject4.SetValue("name", item);
-					dbObject4.SetValue("value", num++);
-					dbObject3.Add(dbObject4);
-				}
-				dbObject2.SetValue("fields", dbObject3);
-				stringBuilder.Append(WriteEnum(dbObject2));
-			}
+			//if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20140225)
+			//{
+			//	DbObject dbObject2 = DbObject.CreateObject();
+			//	dbObject2.SetValue("name", "RenderFormat");
+			//	List<string> list = CreateOldFB3PFs();
+			//	DbObject dbObject3 = DbObject.CreateList();
+			//	int num = 0;
+			//	foreach (string item in list)
+			//	{
+			//		DbObject dbObject4 = DbObject.CreateObject();
+			//		dbObject4.SetValue("name", item);
+			//		dbObject4.SetValue("value", num++);
+			//		dbObject3.Add(dbObject4);
+			//	}
+			//	dbObject2.SetValue("fields", dbObject3);
+			//	stringBuilder.Append(WriteEnum(dbObject2));
+			//}
 			stringBuilder.AppendLine("}");
 			using (NativeWriter nativeWriter = new NativeWriter(new FileStream("temp.cs", FileMode.Create)))
 			{
 				nativeWriter.WriteLine(stringBuilder.ToString());
 			}
-			new Microsoft.CSharp.CSharpCodeProvider().CompileAssemblyFromFile(new CompilerParameters
+			var results = new Microsoft.CSharp.CSharpCodeProvider().CompileAssemblyFromFile(new CompilerParameters
 			{
 				GenerateExecutable = false,
 				OutputAssembly = filename,
@@ -168,18 +169,57 @@ namespace FrostyEditor
 				},
 				CompilerOptions = "-define:DV_" + ProfilesLibrary.DataVersion
 			}, "temp.cs");
+
+			Debug.WriteLine("All errors");
+			foreach(var i in results.Errors)
+			{
+				Debug.WriteLine(i);
+            }
+			Debug.WriteLine("All output");
+			foreach (var i in results.Output)
+			{
+				Debug.WriteLine(i);
+			}
+
             File.Delete("temp.cs");
+		}
+		public string GetAlphabets(int i)
+
+		{
+
+			//Declare string for alphabet
+
+			string strAlpha = ((char)i+65).ToString();
+
+
+			return strAlpha;
+
+
 		}
 
 		private string WriteEnum(DbObject enumObj)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
+
 			stringBuilder.Append(WriteClassAttributes(enumObj));
+
 			stringBuilder.AppendLine("public enum " + enumObj.GetValue<string>("name"));
 			stringBuilder.AppendLine("{");
+			var index = 0;
 			foreach (DbObject item in enumObj.GetValue<DbObject>("fields"))
 			{
-				stringBuilder.AppendLine(item.GetValue<string>("name") + " = " + item.GetValue("value", 0) + ",");
+				var name = item.GetValue<string>("name");
+				//if(string.IsNullOrEmpty(name))
+    //            {
+				//	name = GetAlphabets(index);
+    //            }
+
+				var value = item.GetValue("value", 0);
+				if (!string.IsNullOrEmpty(name))
+				{
+					stringBuilder.AppendLine(name + " = " + value + ",");
+				}
+				index++;
 			}
 			stringBuilder.AppendLine("}");
 			return stringBuilder.ToString();

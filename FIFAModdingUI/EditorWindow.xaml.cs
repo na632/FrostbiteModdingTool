@@ -40,6 +40,8 @@ using Frosty;
 using FrostySdk.Interfaces;
 using v2k4FIFAModding.Frosty;
 using FIFAModdingUI.Pages.Gameplay;
+using FrostyModManager;
+using paulv2k4ModdingExecuter;
 
 namespace FIFAModdingUI
 {
@@ -52,7 +54,9 @@ namespace FIFAModdingUI
         {
             "FIFA19.exe",
             "FIFA20_demo.exe",
-            "FIFA20.exe"
+            "FIFA20.exe",
+            "FIFA21_demo.exe",
+            "FIFA21.exe"
         };
 
         public static string FIFADirectory = string.Empty;
@@ -101,8 +105,11 @@ namespace FIFAModdingUI
             {
                 if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
                 {
-                    txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
-                    InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
+                    if (Directory.Exists(AppSettings.Settings.FIFAInstallEXEPath))
+                    {
+                        txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
+                        InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
+                    }
                 }
             }
             catch (Exception e)
@@ -230,10 +237,19 @@ namespace FIFAModdingUI
                 InitializeAIObjectiveSystem();
                 InitializeContextEffectSystem();
                 InitializeAttributeWeightSystem();
+                InitializeGameplayAnimation();
                 InitializeOtherSettings();
-                if(!File.Exists(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
+                InitializeCustomSettings();
+                if (!File.Exists(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
                     File.Copy(FIFAInstanceSingleton.FIFALocaleINIPath, CURRENT_MOD_PROFILE_LOCALEINI_PATH);
             }
+        }
+
+        private void InitializeCustomSettings()
+        {
+            //var page = GPCustomSettingsFrame.Source as LocaleCustomSettings;
+            controlLocaleCustomSettings.InitializeSettings();
+
         }
 
         private void InitializeOtherSettings()
@@ -267,40 +283,44 @@ namespace FIFAModdingUI
                         case "OVERRIDE_GRAPH_SHAPE_LOW":
                             OVERRIDE_GRAPH_SHAPE_LOW.Value = Convert.ToDouble(localeini.GetValue(k, ""));
                             break;
-                        case "RIGHTFOOT":
-                            sliderFOOT.Value = Convert.ToDouble(localeini.GetValue(k, ""));
-                            chkSliderFOOT.IsChecked = true;
-                            break;
-                        case "RIGHTUPPERLEG":
-                            sliderUPPERLEG.Value = Convert.ToDouble(localeini.GetValue(k, ""));
-                            chkSliderUPPERLEG.IsChecked = true;
-                            break;
-                        case "RIGHTANKLE":
-                            sliderANKLE.Value = Convert.ToDouble(localeini.GetValue(k, ""));
-                            chkSliderANKLE.IsChecked = true;
-                            break;
-                        case "TORSO":
-                            sliderTORSO.Value = Convert.ToDouble(localeini.GetValue(k, ""));
-                            chkSliderTORSO.IsChecked = true;
-                            break;
-                        case "HIPS":
-                            sliderHIPS.Value = Convert.ToDouble(localeini.GetValue(k, ""));
-                            chksliderHIPS.IsChecked = true;
-                            break;
-                        case "BACKTORSO":
-                            sliderBACKTORSO.Value = Convert.ToDouble(localeini.GetValue(k, ""));
-                            chkSliderBACKTORSO.IsChecked = true;
-                            break;
-                        case "RIGHTARM":
-                            sliderARM.Value = Convert.ToDouble(localeini.GetValue(k, ""));
-                            chkSliderARM.IsChecked = true;
-                            break;
-                        case "BALL_Y_VELOCITY_HEADER_REDUCTION":
-                            BALL_Y_VELOCITY_HEADER_REDUCTION.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
-                            break;
-                        case "BALL_LATERAL_VELOCITY_HEADER_REDUCTION":
-                            BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
-                            break;
+                        //case "RIGHTFOOT":
+                        //    sliderFOOT.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chkSliderFOOT.IsChecked = true;
+                        //    break;
+                        //case "RIGHTUPPERLEG":
+                        //    sliderUPPERLEG.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chkSliderUPPERLEG.IsChecked = true;
+                        //    break;
+                        //case "RIGHTLEG":
+                        //    sliderLEG.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chkSliderLEG.IsChecked = true;
+                        //    break;
+                        //case "RIGHTANKLE":
+                        //    sliderANKLE.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chkSliderANKLE.IsChecked = true;
+                        //    break;
+                        //case "TORSO":
+                        //    sliderTORSO.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chkSliderTORSO.IsChecked = true;
+                        //    break;
+                        //case "HIPS":
+                        //    sliderHIPS.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chksliderHIPS.IsChecked = true;
+                        //    break;
+                        //case "BACKTORSO":
+                        //    sliderBACKTORSO.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chkSliderBACKTORSO.IsChecked = true;
+                        //    break;
+                        //case "RIGHTARM":
+                        //    sliderARM.Value = Convert.ToDouble(localeini.GetValue(k, ""));
+                        //    chkSliderARM.IsChecked = true;
+                        //    break;
+                        //case "BALL_Y_VELOCITY_HEADER_REDUCTION":
+                        //    BALL_Y_VELOCITY_HEADER_REDUCTION.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                        //    break;
+                        //case "BALL_LATERAL_VELOCITY_HEADER_REDUCTION":
+                        //    BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                        //    break;
                         case "KILL_EVERYONE":
                             KILL_EVERYONE.IsChecked = localeini.GetValue(k, "").Trim() == "1" ? true : false;
                             break;
@@ -310,16 +330,14 @@ namespace FIFAModdingUI
                         case "RandomSeed":
                             chkDisableRandomSeed.IsChecked = localeini.GetValue(k, "").Trim() == "0" ? true : false;
                             break;
-
-                        case "POSSESSION_TOUCH":
-                            chkPossessionTouch.IsChecked = true;
-                            sliderPossessionTouch.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
-                            break;
-
-                        case "CONTEXTUAL_TURN":
-                            chkContextualTurn.IsChecked = true;
-                            sliderContextualTurn.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
-                            break;
+                        //case "POSSESSION_TOUCH":
+                        //    chkPossessionTouch.IsChecked = true;
+                        //    sliderPossessionTouch.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                        //    break;
+                        //case "CONTEXTUAL_TURN":
+                        //    chkContextualTurn.IsChecked = true;
+                        //    sliderContextualTurn.Value = Convert.ToDouble(localeini.GetValue(k, "").Replace("f", ""));
+                        //    break;
                     }
                 }
                 var cpuaikeys = localeini.GetKeys("CPUAI");
@@ -349,27 +367,17 @@ namespace FIFAModdingUI
                         }
                     }
                 }
-
-                //sb.AppendLine("[]");
-                //sb.AppendLine("ADAPTIVE_DIFFICULTY=0");
-                //sb.AppendLine("OVERRIDE_HOME_DEFENSE_DIFFICULTY=1");
-                //sb.AppendLine("OVERRIDE_HOME_OFFENSE_DIFFICULTY=1");
-                //sb.AppendLine("OVERRIDE_AWAY_OFFENSE_DIFFICULTY=1");
-                //sb.AppendLine("OVERRIDE_AWAY_DEFENSE_DIFFICULTY=1");
-                //sb.AppendLine("");
-                //sb.AppendLine("[CPUAI]");
-                //sb.AppendLine("HOME_OFFENSE_DIFFICULTY=0.88");
-                //sb.AppendLine("HOME_DEFENSE_DIFFICULTY=0.21");
-                //sb.AppendLine("AWAY_OFFENSE_DIFFICULTY=0.88");
-                //sb.AppendLine("AWAY_DEFENSE_DIFFICULTY=0.21");
-                //sb.AppendLine("HOME_DIFFICULTY=0.23");
-                //sb.AppendLine("AWAY_DIFFICULTY=0.23");
-
             }
         }
 
         private void InitializeAttributeWeightSystem()
         {
+            if(FIFAInstanceSingleton.FIFAVERSION == "FIFA20")
+            {
+                scrollV_GP_AttributeWeightSystem.Visibility = Visibility.Hidden;
+                return;
+            }
+
             panel_GP_AttributeWeightSystem.Children.Clear();
             var aiobjsystem = new IniReader("ATTRIBUTE_WEIGHTS.ini", true);
             var nameOfAttribute = string.Empty;
@@ -660,6 +668,137 @@ namespace FIFAModdingUI
 
 
         }
+
+        private void InitializeGameplayAnimation()
+        {
+            this.panel_AnimationGameplay.Children.Clear();
+
+            // Initialise 
+
+            //var aiobjsystem = new IniReader("ini/ContextEffect.ini");
+            var aiobjsystem = new IniReader("AnimationGameplay.ini", true);
+            var commentBuildUp = new StringBuilder();
+
+            var comment = "";
+            var i = 0;
+            foreach (var k in aiobjsystem.GetKeys("").OrderBy(x => x))
+            {
+                if (k.StartsWith("//"))
+                {
+                    comment = k.Replace("//", "");
+                }
+                else
+                {
+                    var sp = new StackPanel() { Orientation = Orientation.Vertical };
+                    var label = new Label();
+                    label.Content = k.Trim();
+                    if (FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()) != null)
+                    {
+                        var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
+                        label.Content = resourceDescription;
+                    }
+                    sp.Children.Add(label);
+
+                    var sp2 = new StackPanel() { Orientation = Orientation.Horizontal };
+
+                    var checkbox = new CheckBox();
+                    checkbox.Name = "chk_" + k.Trim();
+                    //checkbox.Content = "Enable - " + k.Trim();
+                    //checkbox.Content = Regex.Replace(checkbox.Content.ToString(), @"((?<=\p{Ll})\p{Lu})|((?!\A)\p{Lu}(?>\p{Ll}))", " $0");
+                    checkbox.VerticalAlignment = VerticalAlignment.Top;
+                    checkbox.VerticalContentAlignment = VerticalAlignment.Top;
+                    sp2.Children.Add(checkbox);
+
+                    var c = new Slider();
+                    c.Name = k.Trim();
+                    c.Minimum = 0;
+                    c.Maximum = 2;
+                    c.TickFrequency = 0.05;
+                    c.Value = 0.5;
+                    c.IsSnapToTickEnabled = true;
+
+                    c.TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight;
+                    c.Width = 200;
+                    c.Margin = new Thickness(10, 0, 10, 0);
+                    c.VerticalAlignment = VerticalAlignment.Top;
+                    c.VerticalContentAlignment = VerticalAlignment.Top;
+                    c.SetBinding(Slider.IsEnabledProperty,
+                        new Binding("IsChecked") { Source = checkbox });
+                    sp2.Children.Add(c);
+
+                    var labelSliderIndicator = new TextBox();
+                    labelSliderIndicator.TextAlignment = TextAlignment.Right;
+                    labelSliderIndicator.Width = 40;
+                    labelSliderIndicator.VerticalAlignment = VerticalAlignment.Top;
+                    labelSliderIndicator.VerticalContentAlignment = VerticalAlignment.Top;
+                    sp2.Children.Add(labelSliderIndicator);
+
+                    labelSliderIndicator.SetBinding(TextBox.TextProperty,
+                        new Binding("Value") { Source = c });
+                    labelSliderIndicator.SetBinding(TextBox.IsEnabledProperty,
+                        new Binding("IsChecked") { Source = checkbox });
+
+
+                    sp.Children.Add(sp2);
+
+                    panel_AnimationGameplay.Children.Add(sp);
+
+                    i++;
+                }
+
+                comment = string.Empty;
+            }
+
+            // read from locale.ini 
+            if (!string.IsNullOrEmpty(FIFALocaleIni))
+            {
+                var localeini = new IniReader(FIFALocaleIni);
+                foreach (var k in localeini.GetKeys("").OrderBy(x => x))
+                {
+                    var kTrimmed = k.Trim();
+                    foreach (var c in panel_AnimationGameplay.Children)
+                    {
+                        StackPanel childParentStackPanel = c as StackPanel;
+                        if (childParentStackPanel != null)
+                        {
+                            var controlStackPanel = childParentStackPanel.Children[1] as StackPanel;
+                            foreach (CheckBox childCheckBox in controlStackPanel.Children.OfType<CheckBox>())
+                            {
+                                if (childCheckBox.Name.Trim() == "chk_" + k.Trim())
+                                {
+                                    var value = localeini.GetValue(k);
+                                    childCheckBox.IsChecked = true;
+                                }
+                            }
+
+                            foreach (Slider childSlider in controlStackPanel.Children.OfType<Slider>())
+                            {
+                                if (childSlider.Name.Trim() == k.Trim())
+                                {
+                                    if (float.TryParse(localeini.GetValue(k).Replace(".f", "").Replace("f", ""), out float fV))
+                                    {
+                                        if (double.TryParse(fV.ToString(), out double value))
+                                        {
+                                            childSlider.Value = value;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidCastException("Unable to convert " + k.Trim() + " with a value of " + localeini.GetValue(k));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+        }
+
+
+
 
         private void InitializeAIObjectiveSystem()
         {
@@ -1041,51 +1180,78 @@ namespace FIFAModdingUI
             sb.AppendLine("");
             sb.AppendLine("// Animation & Gameplay");
             sb.AppendLine("[]");
-            if (chkSliderUPPERLEG.IsChecked.HasValue && chkSliderUPPERLEG.IsChecked.Value)
+            foreach (var c in panel_AnimationGameplay.Children)
             {
-                sb.AppendLine("RIGHTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value, 2));
-                sb.AppendLine("LEFTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value, 2));
+                StackPanel childParentStackPanel = c as StackPanel;
+                if (childParentStackPanel != null)
+                {
+                    var controlStackPanel = childParentStackPanel.Children[1] as StackPanel;
+                    foreach (Slider childSlider in controlStackPanel.Children.OfType<Slider>())
+                    {
+                        foreach (CheckBox childCheckBox in controlStackPanel.Children.OfType<CheckBox>().Where(x => x.Name.Contains(childSlider.Name)))
+                        {
+                            if (childCheckBox.IsChecked.HasValue && childCheckBox.IsChecked.Value)
+                            {
+                                sb.AppendLine(childSlider.Name + "=" + Math.Round(childSlider.Value, 2));
+                            }
+                        }
+                    }
+                }
             }
-            if (chkSliderFOOT.IsChecked.HasValue && chkSliderFOOT.IsChecked.Value)
-            {
-                sb.AppendLine("RIGHTFOOT=" + Math.Round(sliderFOOT.Value, 2));
-                sb.AppendLine("LEFTFOOT=" + Math.Round(sliderFOOT.Value, 2));
-            }
-            if (chkSliderANKLE.IsChecked.HasValue && chkSliderANKLE.IsChecked.Value)
-            {
-                sb.AppendLine("RIGHTANKLE=" + Math.Round(sliderANKLE.Value, 2));
-                sb.AppendLine("LEFTANKLE=" + Math.Round(sliderANKLE.Value, 2));
-            }
-            if (chkSliderTORSO.IsChecked.HasValue && chkSliderTORSO.IsChecked.Value)
-            {
-                sb.AppendLine("TORSO=" + Math.Round(sliderTORSO.Value, 2));
-            }
-            if (chksliderHIPS.IsChecked.HasValue && chksliderHIPS.IsChecked.Value)
-            {
-                sb.AppendLine("HIPS=" + Math.Round(sliderHIPS.Value, 2));
-            }
-            if (chkSliderBACKTORSO.IsChecked.HasValue && chkSliderBACKTORSO.IsChecked.Value)
-            {
-                sb.AppendLine("BACKTORSO=" + Math.Round(sliderBACKTORSO.Value, 2));
-            }
-            if (chkSliderARM.IsChecked.HasValue && chkSliderARM.IsChecked.Value)
-            {
-                sb.AppendLine("RIGHTARM=" + Math.Round(sliderARM.Value, 2));
-                sb.AppendLine("LEFTARM=" + Math.Round(sliderARM.Value, 2));
-                sb.AppendLine("RIGHTHAND=" + Math.Round(sliderARM.Value, 2));
-                sb.AppendLine("LEFTHAND=" + Math.Round(sliderARM.Value, 2));
-            }
+            //if (chkSliderUPPERLEG.IsChecked.HasValue && chkSliderUPPERLEG.IsChecked.Value)
+            //{
+            //    sb.AppendLine("RIGHTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value, 2));
+            //    sb.AppendLine("LEFTUPPERLEG=" + Math.Round(sliderUPPERLEG.Value, 2));
+            //}
+            //if (chkSliderLEG.IsChecked.HasValue && chkSliderLEG.IsChecked.Value)
+            //{
+            //    sb.AppendLine("RIGHTLEG=" + Math.Round(sliderLEG.Value, 2));
+            //    sb.AppendLine("LEFTLEG=" + Math.Round(sliderLEG.Value, 2));
+            //}
+            //if (chkSliderFOOT.IsChecked.HasValue && chkSliderFOOT.IsChecked.Value)
+            //{
+            //    sb.AppendLine("RIGHTFOOT=" + Math.Round(sliderFOOT.Value, 2));
+            //    sb.AppendLine("LEFTFOOT=" + Math.Round(sliderFOOT.Value, 2));
+            //}
+            //if (chkSliderANKLE.IsChecked.HasValue && chkSliderANKLE.IsChecked.Value)
+            //{
+            //    sb.AppendLine("RIGHTANKLE=" + Math.Round(sliderANKLE.Value, 2));
+            //    sb.AppendLine("LEFTANKLE=" + Math.Round(sliderANKLE.Value, 2));
+            //}
+            //if (chkSliderTORSO.IsChecked.HasValue && chkSliderTORSO.IsChecked.Value)
+            //{
+            //    sb.AppendLine("TORSO=" + Math.Round(sliderTORSO.Value, 2));
+            //}
+            //if (chksliderHIPS.IsChecked.HasValue && chksliderHIPS.IsChecked.Value)
+            //{
+            //    sb.AppendLine("HIPS=" + Math.Round(sliderHIPS.Value, 2));
+            //}
+            //if (chkSliderBACKTORSO.IsChecked.HasValue && chkSliderBACKTORSO.IsChecked.Value)
+            //{
+            //    sb.AppendLine("BACKTORSO=" + Math.Round(sliderBACKTORSO.Value, 2));
+            //}
+            //if (chkSliderARM.IsChecked.HasValue && chkSliderARM.IsChecked.Value)
+            //{
+            //    sb.AppendLine("RIGHTARM=" + Math.Round(sliderARM.Value, 2));
+            //    sb.AppendLine("LEFTARM=" + Math.Round(sliderARM.Value, 2));
+            //    sb.AppendLine("RIGHTHAND=" + Math.Round(sliderARM.Value, 2));
+            //    sb.AppendLine("LEFTHAND=" + Math.Round(sliderARM.Value, 2));
+            //}
             sb.AppendLine("");
 
-            sb.AppendLine("");
-            sb.AppendLine("// ATTRIBUTES");
-            sb.AppendLine("[]");
-            sb.AppendLine("AI_USE_ATTRIBULATOR_TO_UPDATE_GENERIC_CONVERT_TBL=1");
-            foreach (StackPanel container in panel_GP_AttributeWeightSystem.Children.OfType<StackPanel>())
+            // Not Available in FIFA 20+
+            if (FIFAInstanceSingleton.FIFAVERSION == "FIFA19")
             {
-                foreach (Slider slider in container.Children.OfType<Slider>())
+                sb.AppendLine("");
+                sb.AppendLine("// ATTRIBUTES");
+                sb.AppendLine("[]");
+                sb.AppendLine("AI_USE_ATTRIBULATOR_TO_UPDATE_GENERIC_CONVERT_TBL=1");
+                foreach (StackPanel container in panel_GP_AttributeWeightSystem.Children.OfType<StackPanel>())
                 {
-                    sb.AppendLine(slider.Name + "=" + Math.Round(slider.Value, 2));
+                    foreach (Slider slider in container.Children.OfType<Slider>())
+                    {
+                        sb.AppendLine(slider.Name + "=" + Math.Round(slider.Value, 2));
+                    }
                 }
             }
             sb.AppendLine("");
@@ -1107,8 +1273,8 @@ namespace FIFAModdingUI
             sb.AppendLine("FALL=50");
             sb.AppendLine("STUMBLE=10");
            
-            sb.AppendLine("BALL_Y_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_Y_VELOCITY_HEADER_REDUCTION.Value, 2));
-            sb.AppendLine("BALL_LATERAL_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value, 2));
+            //sb.AppendLine("BALL_Y_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_Y_VELOCITY_HEADER_REDUCTION.Value, 2));
+            //sb.AppendLine("BALL_LATERAL_VELOCITY_HEADER_REDUCTION=" + Math.Round(BALL_LATERAL_VELOCITY_HEADER_REDUCTION.Value, 2));
 
             if (chkDisableRandomSeed.IsChecked.HasValue && chkDisableRandomSeed.IsChecked.Value)
             {
@@ -1178,40 +1344,40 @@ namespace FIFAModdingUI
 
             if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
             {
-                sb.AppendLine("");
-                sb.AppendLine("[]");
-                sb.AppendLine("FRONT=19.0");
-                sb.AppendLine("FORCE_BACK=0.3");
-                sb.AppendLine("FORCE_OUTSIDE=0.9");
-                sb.AppendLine("FORCE_INSIDE=1.0");
-                sb.AppendLine("FORCE_FRONT=0.9");
+                //sb.AppendLine("");
+                //sb.AppendLine("[]");
+                //sb.AppendLine("FRONT=19.0");
+                //sb.AppendLine("FORCE_BACK=0.3");
+                //sb.AppendLine("FORCE_OUTSIDE=0.9");
+                //sb.AppendLine("FORCE_INSIDE=1.0");
+                //sb.AppendLine("FORCE_FRONT=0.9");
 
 
-                sb.AppendLine("");
-                sb.AppendLine("[]");
-                sb.AppendLine("DRIBBLE=2.0");
+                //sb.AppendLine("");
+                //sb.AppendLine("[]");
+                //sb.AppendLine("DRIBBLE=2.0");
 
-                if(chkPossessionTouch.IsChecked.Value)
-                    sb.AppendLine("POSSESSION_TOUCH=" + Math.Round(sliderPossessionTouch.Value, 2));
+                ////if(chkPossessionTouch.IsChecked.Value)
+                ////    sb.AppendLine("POSSESSION_TOUCH=" + Math.Round(sliderPossessionTouch.Value, 2));
 
-                if (chkContextualTurn.IsChecked.Value)
-                    sb.AppendLine("CONTEXTUAL_TURN=" + Math.Round(sliderContextualTurn.Value, 2));
-                //else
-                //    sb.AppendLine("CONTEXTUAL_TURN=0.7");
+                ////if (chkContextualTurn.IsChecked.Value)
+                ////    sb.AppendLine("CONTEXTUAL_TURN=" + Math.Round(sliderContextualTurn.Value, 2));
+                ////else
+                ////    sb.AppendLine("CONTEXTUAL_TURN=0.7");
 
-                sb.AppendLine("HARDSTOP=0.1");
-                sb.AppendLine("EVASIVE=0.05");
-                sb.AppendLine("AVOID=0.1");
-                sb.AppendLine("PASS=0.5");
-                sb.AppendLine("SHOT=0.501");
-                sb.AppendLine("CROSS=0.1");
-                sb.AppendLine("THROUGH=0.1");
-                sb.AppendLine("LOB=0.2");
-                sb.AppendLine("UNBALANCE_TURN=4.0");
-                sb.AppendLine("STRAFE=2.0");
-                sb.AppendLine("SHIELDING=2.0");
-                sb.AppendLine("UNCONTROLLED=1.0");
-                sb.AppendLine("LOB_GROUND=3.0");
+                //sb.AppendLine("HARDSTOP=0.1");
+                //sb.AppendLine("EVASIVE=0.05");
+                //sb.AppendLine("AVOID=0.1");
+                //sb.AppendLine("PASS=0.5");
+                //sb.AppendLine("SHOT=0.501");
+                //sb.AppendLine("CROSS=0.1");
+                //sb.AppendLine("THROUGH=0.1");
+                //sb.AppendLine("LOB=0.2");
+                //sb.AppendLine("UNBALANCE_TURN=4.0");
+                //sb.AppendLine("STRAFE=2.0");
+                //sb.AppendLine("SHIELDING=2.0");
+                //sb.AppendLine("UNCONTROLLED=1.0");
+                //sb.AppendLine("LOB_GROUND=3.0");
             
             }
             else
@@ -1414,7 +1580,7 @@ namespace FIFAModdingUI
                 });
                 var editormodlocation = AppDomain.CurrentDomain.BaseDirectory + editorModName;
 
-                await LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new List<string>() { editormodlocation }, this);
+                await LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new List<string>() { editormodlocation }, this, FIFAInstanceSingleton.FIFAVERSION);
                 await Task.Delay(10 * 1000);
                 Dispatcher.Invoke(() =>
                 {
@@ -1432,6 +1598,71 @@ namespace FIFAModdingUI
             //launchButton.IsEnabled = true;
             //FrostyTask.End();
             //App.Logger.Log("Done");
+        }
+
+        private async void btnBuildModsLive_Click(object sender, RoutedEventArgs e)
+        {
+            string editorModName = "EditorMod" + randomModNumber.Next(10000, 99999).ToString("D5") + ".fbmod";
+            ModSettings editorSettings = new ModSettings
+            {
+                Title = "Editor Mod",
+                Author = "Frosty Editor",
+                Version = "1",
+                Category = "Editor"
+            };
+            await Task.Run(delegate
+            {
+                if (FrostyGameplayMain.GameplayProjectManagement != null)
+                {
+                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.Save(editorModName);
+                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.WriteToMod(editorModName, new ModSettings() { Title = "Editor GP", Author = "Editor", Version = "1" });
+                }
+                //ExportMod(editorSettings, editorModName, bSilent: true);
+            });
+
+            await new TaskFactory().StartNew(async () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    btnLaunchFIFA.IsEnabled = false;
+                    btnLaunchFIFAInEditor.IsEnabled = false;
+                });
+                var editormodlocation = AppDomain.CurrentDomain.BaseDirectory + editorModName;
+
+                if (!ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+                {
+                    throw new Exception("Unable to Initialize Profile");
+                }
+                FrostySdk.FileSystem fileSystem = new FrostySdk.FileSystem(FIFAInstanceSingleton.FIFARootPath);
+                foreach (FileSystemSource source in ProfilesLibrary.Sources)
+                {
+                    fileSystem.AddSource(source.Path, source.SubDirs);
+                }
+                fileSystem.Initialize();
+                _ = new FrostyProfile("Default");
+
+
+                await new FrostyModExecutor().BuildModData(fileSystem, this, "", "", editormodlocation);
+
+                await Task.Delay(10 * 1000);
+                Dispatcher.Invoke(() =>
+                {
+                    btnLaunchFIFA.IsEnabled = true;
+                });
+            });
+
+            //FrostyTask.Update("");
+            //string additionalArgs = "";
+            //await new FrostyModExecutor().Run(App.FileSystem, new FrostyTask.Logger(), "", additionalArgs, editorModName);
+            foreach (string item in Directory.EnumerateFiles(new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName, "EditorMod*"))
+            {
+                File.Delete(item);
+            }
+        }
+
+        private void tabCustomSettings_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 

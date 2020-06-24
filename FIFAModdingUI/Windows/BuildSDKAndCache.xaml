@@ -11,17 +11,32 @@
         Title="Build FIFA SDK and Cache" Height="450" Width="800">
     <Grid>
         <StackPanel  HorizontalAlignment="Center" VerticalAlignment="Center" Width="600">
-            <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
-                <Label Content="Rebuilding SDK" VerticalAlignment="Center" />
+            <StackPanel>
+                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
+                    <Label Content="Rebuilding Frostbite Cache" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock>
+                You must build the cache before building the SDK
+                </TextBlock>
+                <Button x:Name="btnRunBuildCache" Click="btnRunBuildCache_Click">
+                    Run
+                </Button>
             </StackPanel>
-            <TextBlock>
+            <StackPanel>
+                <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
+                    <Label Content="Rebuilding FIFA SDK" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock>
                 Remember to have FIFA open and on the main menu during this procedure
-            </TextBlock>
-            <Button x:Name="btnRunBuild" Click="btnRunBuild_Click">
-                Run
-            </Button>
-            <TextBlock x:Name="txtOuputMessage"></TextBlock>
+                </TextBlock>
+                <Button x:Name="btnRunBuild" Click="btnRunBuild_Click">
+                    Run
+                </Button>
+                <TextBlock x:Name="txtOuputMessage"></TextBlock>
+            </StackPanel>
+            
         </StackPanel>
     </Grid>
 </Window>

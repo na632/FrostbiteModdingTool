@@ -12,7 +12,11 @@ namespace v2k4FIFAModdingCL.Career.CME.Youth
     {
         public static string YouthTeamDirectory { get
             {
-                return CEMCore.CEMMyDocumentsDbSaveDirectory + "YouthTeam\\";
+                var s = CEMCore.CEMMyDocumentsDbSaveDirectory + "YouthTeam\\";
+                if (!Directory.Exists(s))
+                    Directory.CreateDirectory(s);
+
+                return s;
                 
             } }
 
@@ -20,7 +24,7 @@ namespace v2k4FIFAModdingCL.Career.CME.Youth
         {
             get
             {
-                return YouthTeamDirectory + $"{YouthTeamId}-{TeamName}.json";
+                return YouthTeamDirectory + $"{YouthTeamId}.json";
 
             }
         }
@@ -47,6 +51,11 @@ namespace v2k4FIFAModdingCL.Career.CME.Youth
         {
             var raw = JsonConvert.SerializeObject(this);
             File.WriteAllText(YouthTeamFileNameLocation, raw);
+        }
+
+        public static YouthTeam Load(int id)
+        {
+            return JsonConvert.DeserializeObject<YouthTeam>(YouthTeamDirectory + $"{id}.json");
         }
 
     }

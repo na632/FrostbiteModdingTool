@@ -30,13 +30,18 @@ namespace FIFAModdingUI.Pages.Gameplay
     {
         public static ProjectManagement GameplayProjectManagement { get; set; }
 
-        AttribSchema_gp_actor_movement Movement = AttribSchema_gp_actor_movement.GetAttrib();
+        class DC
+        {
+            AttribSchema_gp_actor_movement Movement = AttribSchema_gp_actor_movement.GetAttrib();
+        };
+
+        DC dc = new DC();
+
         public FrostyGameplayMain()
         {
             InitializeComponent();
             tabsGameplayMain.IsEnabled = false;
-
-            
+            this.DataContext = dc;
 
             new TaskFactory().StartNew(async() => {
 
@@ -210,34 +215,6 @@ namespace FIFAModdingUI.Pages.Gameplay
 
             //}
             }
-        }
-
-        private void WebView1_Loaded(object sender, RoutedEventArgs e)
-        {
-            new TaskFactory().StartNew(() =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    //WebView1.Source = new Uri("https://localhost:3000");
-                    //WebView1.Navigate(new Uri("https://localhost:3000"));
-                    //WebView1.BringIntoView();
-                });
-            });
-        }
-
-        private void WebView1_FrameNavigationStarting(object sender, Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT.WebViewControlNavigationStartingEventArgs e)
-        {
-
-        }
-
-        private void WebView1_FrameContentLoading(object sender, Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT.WebViewControlContentLoadingEventArgs e)
-        {
-
-        }
-
-        private void WebView1_FrameNavigationCompleted(object sender, Microsoft.Toolkit.Win32.UI.Controls.Interop.WinRT.WebViewControlNavigationCompletedEventArgs e)
-        {
-
         }
 
         private void btnTestChangeSpeed_Click(object sender, RoutedEventArgs e)

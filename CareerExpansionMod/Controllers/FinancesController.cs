@@ -106,6 +106,12 @@ namespace CareerExpansionMod.Controllers
         }
 
         [HttpGet]
+        public JsonResult GetAdditionalIncome()
+        {
+            return Json(0);
+        }
+
+        [HttpGet]
         public JsonResult RequestFunds()
         {
             var success = CEMCore.CEMCoreInstance.Finances.RequestAdditionalFunds(out string return_message);
@@ -115,6 +121,18 @@ namespace CareerExpansionMod.Controllers
             return Json(rJson);
 
             //return Json("ERR: 001");
+        }
+
+        [HttpGet]
+        public JsonResult GetNumberOfRequestFundsAllowed()
+        {
+            return Json(3);
+        }
+
+        [HttpGet]
+        public JsonResult GetNumberOfRequestFundsRemaining()
+        {
+            return Json(3);
         }
 
         [HttpGet]

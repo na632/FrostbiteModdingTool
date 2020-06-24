@@ -1,0 +1,33 @@
+﻿@model IEnumerable<CareerExpansionMod.CEM.Youth.YTLeague>
+@{
+    ViewData["Title"] = "League Editor - Search";
+    Layout = "~/Views/Shared/_LayoutEditMode.cshtml";
+}
+
+<h1>League Editor</h1>
+
+@if (Model != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>League Name</th>
+                <th>Level</th>
+                <th>NationId</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.LeagueName</td>
+                    <td>@item.Level</td>
+                    <td>@item.NationId</td>
+                    <td><a href='@Url.Action("Edit","YouthSystem",new { id = item.YTLeagueId })'>Edit</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
