@@ -11,12 +11,23 @@
                 @using (Html.BeginForm("Edit", "Settings"))
                 {
             <div class="form-group row">
-                @Html.LabelFor(m => m.OtherSaveFolder, new { @class = "col-sm-2 col-form-label" })
-                <div class="col-sm-10">
-                    @Html.TextBoxFor(m => m.OtherSaveFolder, htmlAttributes: new { @class = "form-control" })
+                @Html.LabelFor(m => m.OtherSaveFolder, new { @class = "col-sm-4 col-form-label" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(m => m.OtherSaveFolder, htmlAttributes: new { @class = "form-control form-control-sm" })
                 </div>
             </div>
-                    
+            <div class="form-group row">
+                @Html.LabelFor(m => m.AllowModificationOfManagerRating, new { @class = "col-sm-4 col-form-label" })
+                <div class="col-sm-8">
+                    <div class="input-group mt-1">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                @Html.EditorFor(m => m.AllowModificationOfManagerRating)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
                     <button class="btn btn-success" type="submit">Save</button>
                 }
@@ -24,7 +35,12 @@
             <hr />
             <div class="container">
                 <h4>Cheats</h4>
-                <button class="btn btn-primary" disabled="disabled">Force Financial Takeover</button>
+                <div class="col-3">
+                    <button class="btn btn-sm btn-secondary" disabled="disabled">Force Financial Takeover (DISABLED)</button>
+                    <hr />
+                    <button class="btn btn-sm btn-secondary" disabled="disabled">Make Manager Rating 100 (DISABLED)</button>
+                    <hr />
+                </div>
             </div>
         </div>
     </div>

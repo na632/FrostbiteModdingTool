@@ -12,28 +12,26 @@ namespace v2k4FIFAModdingCL.MemHack.Career
     public class Finances : IDisposable
     {
 
-        private static class POINTER_ADDRESSES
-        {
-
-            public static string STARTING_POINTER_ADDRESS = "FIFA20.exe+06E3a228,0x10,0x48,0x30,0x58,0x5E0";
-
-            /// Will need to redo this for every EA Update
-            public static string STARTING_BUDGET = "FIFA20.exe+06E3a228,0x10,0x48,0x30,0x58,0x5E0";
-
-            /// Will need to redo this for every EA Update
-            public static string TRANSFER_BUDGET = "FIFA20.exe+06E3a228,0x10,0x48,0x30,0x58,0x5F8";
-
-            /// Will need to redo this for every EA Update
-            public static string TEAMID = "FIFA20.exe+06E3a228,0x10,0x48,0x30,0x58,0x618";
-        }
-
         private static class AOB_ADDRESSES
         {
             // DOESN'T WORK!
             public static string TRANSFER_BUDGET = "?? D9 39 01 70 A3 23 00 AC FC 28 01 78 29 20 69 E9 1A 02 00 8D 16 F4 00";
         }
 
-        private static int? PreviousInGameTransferBudget;
+        //private static int? PreviousInGameTransferBudget;
+
+        private static CoreHack.POINTER_ADDRESSES _ADDRESSES;
+
+        public static CoreHack.POINTER_ADDRESSES POINTER_ADDRESSES
+        {
+            get {
+                if (_ADDRESSES == null)
+                    _ADDRESSES = CoreHack.POINTER_ADDRESSES.LoadPointerAddresses();
+
+                return _ADDRESSES; 
+            }
+            set { _ADDRESSES = value; }
+        }
 
         /// <summary>
         /// Actual transfer budget
@@ -43,7 +41,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             get
             {
                 if (CoreHack.GetProcess().HasValue) { 
-                    var transferbudget = CoreHack.MemLib.readInt(POINTER_ADDRESSES.TRANSFER_BUDGET);
+                    var transferbudget = CoreHack.MemLib.readInt(POINTER_ADDRESSES.FinancePointers["FINANCES_TRANSFER_BUDGET"]);
                     return transferbudget;
                 }
                 return -1;
@@ -53,7 +51,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
 
                 if (CoreHack.GetProcess().HasValue)
                 {
-                    CoreHack.MemLib.writeMemory(POINTER_ADDRESSES.TRANSFER_BUDGET, "int", value.ToString());
+                    CoreHack.MemLib.writeMemory(POINTER_ADDRESSES.FinancePointers["FINANCES_TRANSFER_BUDGET"], "int", value.ToString());
                 }
 
             }
@@ -68,7 +66,7 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             {
                 if (CoreHack.GetProcess().HasValue)
                 {
-                    var budget = CoreHack.MemLib.readInt(POINTER_ADDRESSES.STARTING_BUDGET);
+                    var budget = CoreHack.MemLib.readInt(POINTER_ADDRESSES.FinancePointers["FINANCES_STARTING_BUDGET"]);
                     return budget;
                 }
                 return -1;
@@ -78,9 +76,22 @@ namespace v2k4FIFAModdingCL.MemHack.Career
 
                 if (CoreHack.GetProcess().HasValue)
                 {
-                    CoreHack.MemLib.writeMemory(POINTER_ADDRESSES.STARTING_BUDGET, "int", value.ToString());
+                    CoreHack.MemLib.writeMemory(POINTER_ADDRESSES.FinancePointers["FINANCES_STARTING_BUDGET"], "int", value.ToString());
                 }
 
+            }
+        }
+
+        public static int TeamId
+        {
+            get
+            {
+                if (CoreHack.GetProcess().HasValue)
+                {
+                    var budget = CoreHack.MemLib.readInt(POINTER_ADDRESSES.FinancePointers["FINANCES_TEAMID"]);
+                    return budget;
+                }
+                return -1;
             }
         }
 
@@ -105,17 +116,6 @@ namespace v2k4FIFAModdingCL.MemHack.Career
             CEMCore.CEMCoreInstance.Finances = this;
             return success;
         }
-
-        //public static Finances FinanceInstance
-        //{
-        //    get
-        //    {
-        //        if (CEMCore.CEMCoreInstance.Finances == null)
-        //            CEMCore.CEMCoreInstance.Finances = new Finances();
-
-        //        return CEMCore.CEMCoreInstance.Finances;
-        //    }
-        //}
 
         public static int GetTransferBudget()
         {

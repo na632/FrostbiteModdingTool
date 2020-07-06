@@ -30,6 +30,11 @@
     {
       "library": "angular-ui-bootstrap@2.5.0",
       "destination": "wwwroot/lib/angular-ui-bootstrap/"
+    },
+    {
+      "library": "mouse0270-bootstrap-notify@3.1.7",
+      "destination": "wwwroot/lib/bootstrap-notify",
+      "files": ["bootstrap-notify.min.js"]
     }
   ]
 }

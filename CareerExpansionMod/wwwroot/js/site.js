@@ -123,6 +123,35 @@ app.config(function ($routeProvider) {
 });
 
 
+function Notify(user, message) {
+    $.notify(message);
+}
 
+var ctrlLoanAndDebts = app.controller('ctrlLoanAndDebts', ['$scope', function ($scope) {
+
+    $scope.IsLoanAvailable = true;
+    $.getJSON("Finances/IsLoanAvailable", function (d) {
+        $scope.IsLoanAvailable = true;
+    });
+    $scope.AcceptLoan = function (cpm, months) {
+
+        $.post("Finances/AcceptLoan", null, function (d) {
+            $scope.IsLoanAvailable = false;
+            $scope.apply();
+
+
+
+        }).fail(function (a, b, c) {
+
+
+        });
+
+
+        $.notify('Unable to Accept Loans in this Version');
+        //$.notify('accepted ' + cpm + ' for ' + months + ' months');
+
+    };
+
+}]);
 
 

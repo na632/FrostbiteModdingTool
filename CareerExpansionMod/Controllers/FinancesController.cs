@@ -16,6 +16,12 @@ namespace CareerExpansionMod.Controllers
         List<SponsorsToTeam> CurrentTeamSponsors = CareerDB1.Current != null && CareerDB1.FIFAUser != null
                                         ? SponsorsToTeam.LoadSponsorsForTeam(CareerDB1.FIFAUser.clubteamid)
                                         : SponsorsToTeam.LoadSponsorsForTeam(1960);
+        TeamFinance TeamFinance = TeamFinance.Load();
+
+        private void LoadTeamIdIntoViewBag()
+        {
+            ViewBag.TeamId = CareerDB1.Current != null && CareerDB1.FIFAUser != null ? CareerDB1.FIFAUser.clubteamid : 1960;
+        }
 
         private void LoadSponsorsIntoViewBag()
         {
@@ -80,7 +86,8 @@ namespace CareerExpansionMod.Controllers
 
         public IActionResult LoansAndDebts()
         {
-            return View("LoansAndDebts");
+            LoadTeamIdIntoViewBag();
+            return View("LoansAndDebts", TeamFinance);
         }
 
         [HttpGet]
@@ -160,6 +167,21 @@ namespace CareerExpansionMod.Controllers
 
 
             return Json(new { success = true, data = sponsor });
+        }
+
+        [HttpPost]
+        public JsonResult AcceptLoan()
+        {
+            var loanAmount = CareerExpansionMod.CEM.Finances.Loan.CalculateLoanAmountForTeam(null);
+            var costPerMonth = CareerExpansionMod.CEM.Finances.Loan.CalculateLoanCostPerMonth(null,
+                                          CareerExpansionMod.CEM.Finances.Loan.CalculateLoanAmountForTeam(null), 12.5, 48);
+
+            var tfinances = CEM.Finances.TeamFinance.Load();
+            tfinances.Loans.Add(new Loan() { InterestRate = 12.5, LoanAmount = loanAmount, LoanLength = 48, LoanPaybackIntervalInDays = 28, TeamId = v2k4FIFAModdingCL.MemHack.Career.Finances.TeamId });
+            tfinances.Save();
+;
+            return Json(new { success = true });
+
         }
     }
 }

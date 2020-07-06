@@ -122,9 +122,14 @@ background: linear-gradient(122deg, rgba(18,35,63,1) 0%, rgba(12,26,49,1) 95%, r
     color: #fff503;*/
     background: #fefefe;
     color: #222222;
-    box-shadow: rgba(0,0,0,0.5) 7px 5px;
+    box-shadow: rgba(0,0,0,0.4) 7px 5px;
     margin-top: 10px;
 }
+
+    .card:hover {
+        box-shadow: rgba(0,0,0,0.2) 10px 10px;
+        animation: ease-in 4s;
+    }
 
 .card-2x {
     height: 560px;

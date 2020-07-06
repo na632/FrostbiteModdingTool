@@ -1,15 +1,12 @@
 ﻿using CareerExpansionMod.CEM.FIFA;
 using CareerExpansionMod.CEM.Finances;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using v2k4FIFAModding.Career.CME.FIFA;
 using v2k4FIFAModdingCL.CGFE;
@@ -34,7 +31,7 @@ namespace CareerExpansionMod.CEM
             get
             {
                 var myDocuments = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 20\\settings\\";
-                return myDocuments;
+                return myDocuments.Trim();
             }
         }
 
@@ -44,7 +41,7 @@ namespace CareerExpansionMod.CEM
             {
                 var myDocuments = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 20\\CEM\\";
                 Directory.CreateDirectory(myDocuments);
-                return myDocuments;
+                return myDocuments.Trim();
             }
         }
 
@@ -57,8 +54,38 @@ namespace CareerExpansionMod.CEM
                 var saveLocation = SaveFolder;
                 var datalocation = CEMCore.CEMMyDocumentsDirectory + $"\\Data\\CEM\\DB\\{saveLocation}\\";
                 Directory.CreateDirectory(datalocation);
-                return datalocation;
+                return datalocation.Trim();
 
+            }
+        }
+
+        public static string CEMMyDocumentsDbSaveDirectory_RAW
+        {
+            get
+            {
+                var saveLocation = SaveFolderRaw;
+                var datalocation = CEMCore.CEMMyDocumentsDirectory + $"\\Data\\CEM\\DB\\{saveLocation}\\";
+                Directory.CreateDirectory(datalocation);
+                return datalocation.Trim();
+
+            }
+        }
+
+        /// <summary>
+        /// Get the save folder before it is handled by the settings
+        /// </summary>
+        public static string SaveFolderRaw
+        {
+            get
+            {
+                var saveName = CEMCore.CEMCoreInstance.CoreHack.GetSaveName();
+                var saveLocation = CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && !string.IsNullOrEmpty(saveName)
+                        ? saveName : "Unknown";
+
+                saveLocation += "\\";
+                
+
+                return saveLocation.Trim();
             }
         }
 
@@ -66,16 +93,15 @@ namespace CareerExpansionMod.CEM
         {
             get
             {
-                var saveLocation = CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && !string.IsNullOrEmpty(CEMCore.CEMCoreInstance.CoreHack.SaveName)
-                        ? CEMCore.CEMCoreInstance.CoreHack.SaveName : "Unknown";
+                var saveLocation = SaveFolderRaw;
 
-                var settings = new CEMCoreSettings();
+                var settings = CEMCoreSettings.Load();
                 if (!string.IsNullOrEmpty(settings.OtherSaveFolder))
                 {
-                    saveLocation = new CEMCoreSettings().OtherSaveFolder;
+                    saveLocation = settings.OtherSaveFolder;
                 }
 
-                return saveLocation;
+                return saveLocation.Trim();
             }
         }
 
@@ -88,7 +114,7 @@ namespace CareerExpansionMod.CEM
                 if (!Directory.Exists(dataFolder))
                     Directory.CreateDirectory(dataFolder);
 
-                return dataFolder;
+                return dataFolder.Trim();
             }
         }
 
@@ -121,6 +147,7 @@ namespace CareerExpansionMod.CEM
 
         public static CEMCoreSettings CEMCoreSettings;
         public static CEMCore CEMCoreInstance;
+
         public CEMCore()
         {
             CareerDB1.Current = null;
@@ -145,6 +172,10 @@ namespace CareerExpansionMod.CEM
             }
         }
 
+        public CEMCore(CoreHack coreHack) : base()
+        {
+        }
+
         //public void CoreHack_EventGameDateChanged(DateTime oldDate, DateTime newDate)
         //{
         //    GameDateChanged(oldDate, newDate);
@@ -155,8 +186,10 @@ namespace CareerExpansionMod.CEM
         public Manager Manager = new Manager();
 
         public CareerFile CareerFile = null;
-       
 
+        public static bool NeedsReloadOfSave { get; set; }
+        public event EventGameSaveChangedHandler GameSaveChanged;
+        public event EventHandler ThresholdReached;
 
         internal void GameDateChanged(DateTime oldDate, DateTime newDate)
         {
@@ -165,7 +198,7 @@ namespace CareerExpansionMod.CEM
             {
                 if (SetupCareerFile(newDate))
                 {
-                    CEMCoreSettings = new CEMCoreSettings();
+                    CEMCoreSettings = CEMCoreSettings.Load();
 
 
 
@@ -252,7 +285,7 @@ namespace CareerExpansionMod.CEM
                         Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
                     }
 
-                    if (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null)
+                    if (CareerDB2.Current != null && (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null))
                     {
                         Stopwatch swTeams = new Stopwatch();
                         swTeams.Start();

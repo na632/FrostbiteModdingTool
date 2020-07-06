@@ -11,6 +11,12 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="%2a%2a\**" />
+    <Content Remove="%2a%2a\**" />
+    <EmbeddedResource Remove="%2a%2a\**" />
+    <None Remove="%2a%2a\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="CEM\Data\BaseData\Sponsors.zip" />
     <None Remove="CEM\Data\fifa_ng_db-meta.XML" />
     <None Remove="CEM\Data\leagues.csv" />
@@ -25,17 +31,19 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="15.0.4" />
-    <PackageReference Include="ElectronNET.API" Version="7.30.2" />
+    <PackageReference Include="CsvHelper" Version="15.0.5" />
+    <PackageReference Include="DynamicJavascriptRuntime.Blazor.Evaluator" Version="1.1.0" />
+    <PackageReference Include="ElectronNET.API" Version="9.31.1" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.2.0-preview1.20073.1" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.4" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0-preview1.19506.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0-preview1.19506.2">
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0-preview1.19506.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
@@ -231,11 +239,6 @@
     <Content Update="wwwroot\images\youth\TrainingPitches.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="ClientApp\" />
-    <Folder Include="Views\Player\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CEM\Data\playernames.csv">

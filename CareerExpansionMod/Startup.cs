@@ -19,6 +19,9 @@ using v2k4FIFAModding.Career.CME.FIFA;
 using v2k4FIFAModdingCL;
 using v2k4FIFAModdingCL.MemHack.Core;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.AspNetCore.ResponseCompression;
+using CareerExpansionMod.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CareerExpansionMod
 {
@@ -333,9 +336,15 @@ namespace CareerExpansionMod
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddControllersWithViews();
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
             // In production, the Angular files will be served from this directory
             //services.AddSpaStaticFiles(configuration =>
             //{
@@ -343,13 +352,25 @@ namespace CareerExpansionMod
             //});
         }
 
-        public static CEM.CEMCore CMECore = new CEM.CEMCore();
+        //public static CEM.CEMCore CMECore = new CEM.CEMCore();
         static Thread thread;
         public static bool LoggingToFile = false;
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        private void OnShutdown()
         {
+            //thread.Abort();
+            //thread = null;
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+            ////Wait while the data is flushed
+            //System.Threading.Thread.Sleep(1000);
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Microsoft.Extensions.Hosting.IHostApplicationLifetime applicationLifetime)
+        {
+            //applicationLifetime.ApplicationStopping.Register(OnShutdown);
+
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
             {
                 Debug.WriteLine(eventArgs.Exception.ToString());
@@ -372,9 +393,11 @@ namespace CareerExpansionMod
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseResponseCompression();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             
+
 
             app.UseRouting();
 
@@ -385,6 +408,7 @@ namespace CareerExpansionMod
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<InfoHub>("/infohub");
                 endpoints.MapRazorPages();
                 endpoints.MapBlazorHub();
             });
@@ -403,16 +427,16 @@ namespace CareerExpansionMod
                     ,
                 Height = 720
                 ,
-                 WebPreferences = new WebPreferences()
-                 {
-                         AllowRunningInsecureContent = true,
-                          TextAreasAreResizable = false,
-                           WebSecurity = false,
-                            NodeIntegration = false,
-                             NodeIntegrationInWorker = false,
-                              
-                              
-                 }
+                WebPreferences = new WebPreferences()
+                {
+                    AllowRunningInsecureContent = true,
+                    TextAreasAreResizable = false,
+                    WebSecurity = false,
+                    NodeIntegration = false,
+                    NodeIntegrationInWorker = false,
+
+
+                }
             };
             // Open the Electron-Window here
             Task.Run(async () =>
@@ -432,122 +456,129 @@ namespace CareerExpansionMod
         /// </summary>
         private void SetupKeyPressAndFIFAIntegration()
         {
-            thread = new Thread(new ThreadStart(() =>
+            thread = new Thread((object o) =>
             {
-
+                var parent = o as Startup;
                 while (true)
                 {
-                    Thread.Sleep(500);
-
-                    if (IsF2Pressed())
+                    try
                     {
-                        Console.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
-                        Trace.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
-                        Debug.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
-                        File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - F2 Pressed" + Environment.NewLine);
-
-                        if (BrowserWindow != null && ElectronProcesses != null)
-                        {
-                            var isFocused = BrowserWindow.IsFocusedAsync().Result;
-                            if (!isFocused)
-                            {
-                                BrowserWindow.Minimize();
-                                BrowserWindow.Focus();
-                                BrowserWindow.FocusOnWebView();
-                                File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - F2 Pressed FOCUS" + Environment.NewLine);
-                                Thread.Sleep(200);
-
-                            }
-                            else
-                            {
-                                BrowserWindow.Minimize();
-                            }
-
-                        }
-
                         Thread.Sleep(500);
-                    }
 
-                    if(IsF10Pressed() || IsF12Pressed())
-                    {
-                        if (BrowserWindow != null && ElectronProcesses != null)
+                        if (IsF2Pressed())
                         {
-                            BrowserWindow.SetAutoHideMenuBar(BrowserWindow.IsMenuBarAutoHideAsync().Result);
+                            Console.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
+                            Trace.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
+                            Debug.WriteLine($"Is Pressed {DateTime.Now.ToString()}");
+                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - F2 Pressed" + Environment.NewLine);
 
-                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - F10/F12 Pressed AutoHide" + Environment.NewLine);
+                            if (parent.BrowserWindow != null && ElectronProcesses != null)
+                            {
+                                var isFocused = parent.BrowserWindow.IsFocusedAsync().Result;
+                                if (!isFocused)
+                                {
+                                    parent.BrowserWindow.Minimize();
+                                    parent.BrowserWindow.Focus();
+                                    parent.BrowserWindow.FocusOnWebView();
+                                    File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - F2 Pressed FOCUS" + Environment.NewLine);
+                                    Thread.Sleep(200);
 
+                                }
+                                else
+                                {
+                                    BrowserWindow.Minimize();
+                                }
+
+                            }
+
+                            Thread.Sleep(500);
+                        }
+
+                        //if(IsF10Pressed() || IsF12Pressed())
+                        //{
+                        //    if (BrowserWindow != null && ElectronProcesses != null)
+                        //    {
+                        //        BrowserWindow.SetAutoHideMenuBar(BrowserWindow.IsMenuBarAutoHideAsync().Result);
+
+                        //        File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - F10/F12 Pressed AutoHide" + Environment.NewLine);
+
+                        //    }
+                        //}
+
+                        var fifaprocesses = Process.GetProcessesByName("FIFA20");
+                        if (fifaprocesses.Length > 0 && FIFAProcess == null)
+                        {
+                            FIFAProcess = fifaprocesses[0];
+                            Console.WriteLine($"FIFAProcess has been found");
+                            Trace.WriteLine($"FIFAProcess has been found");
+                            Debug.WriteLine($"FIFAProcess has been found");
+                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - FIFAProcess has been found" + Environment.NewLine);
+                        }
+                        else if (fifaprocesses.Length == 0 && FIFAProcess != null)
+                        {
+                            FIFAProcess = null;
+                            Console.WriteLine($"FIFAProcess has been lost");
+                            Trace.WriteLine($"FIFAProcess has been lost");
+                            Debug.WriteLine($"FIFAProcess has been lost");
+                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - FIFAProcess has been lost" + Environment.NewLine);
+                        }
+
+                        if (!DontUseElectronProcess)
+                        {
+                            var electron_processes = Process.GetProcessesByName("Electron");
+                            if (electron_processes.Length > 0 && ElectronProcesses == null)
+                            {
+                                ElectronProcesses = electron_processes;
+                                Console.WriteLine($"ElectronProcess has been found");
+                                Trace.WriteLine($"ElectronProcess has been found");
+                                Debug.WriteLine($"ElectronProcess has been found");
+                                File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been found" + Environment.NewLine);
+                                DontUseCEMProcess = true;
+                            }
+                            else if (electron_processes.Length == 0 && ElectronProcesses != null)
+                            {
+                                ElectronProcesses = null;
+                                Console.WriteLine($"ElectronProcess has been lost");
+                                Trace.WriteLine($"ElectronProcess has been lost");
+                                Debug.WriteLine($"ElectronProcess has been lost");
+                                File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been lost" + Environment.NewLine);
+                            }
+                        }
+
+                        if (!DontUseCEMProcess)
+                        {
+                            var cem_processes = Process.GetProcessesByName("Career Expansion Mod");
+                            if (cem_processes.Length > 0 && ElectronProcesses == null)
+                            {
+                                ElectronProcesses = cem_processes;
+                                Console.WriteLine($"ElectronProcess has been found");
+                                Trace.WriteLine($"ElectronProcess has been found");
+                                Debug.WriteLine($"ElectronProcess has been found");
+                                File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been found" + Environment.NewLine);
+                                DontUseElectronProcess = true;
+                            }
+                            else if (cem_processes.Length == 0 && ElectronProcesses != null)
+                            {
+                                ElectronProcesses = null;
+                                Console.WriteLine($"ElectronProcess has been lost");
+                                Trace.WriteLine($"ElectronProcess has been lost");
+                                Debug.WriteLine($"ElectronProcess has been lost");
+                                File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been lost" + Environment.NewLine);
+                            }
                         }
                     }
-
-                    var fifaprocesses = Process.GetProcessesByName("FIFA20");
-                    if (fifaprocesses.Length > 0 && FIFAProcess == null)
+                    catch (Exception e)
                     {
-                        FIFAProcess = fifaprocesses[0];
-                        Console.WriteLine($"FIFAProcess has been found");
-                        Trace.WriteLine($"FIFAProcess has been found");
-                        Debug.WriteLine($"FIFAProcess has been found");
-                        File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - FIFAProcess has been found" + Environment.NewLine);
+                        Debug.WriteLine(e);
                     }
-                    else if (fifaprocesses.Length == 0 && FIFAProcess != null)
-                    {
-                        FIFAProcess = null;
-                        Console.WriteLine($"FIFAProcess has been lost");
-                        Trace.WriteLine($"FIFAProcess has been lost");
-                        Debug.WriteLine($"FIFAProcess has been lost");
-                        File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - FIFAProcess has been lost" + Environment.NewLine);
-                    }
-
-                    if (!DontUseElectronProcess)
-                    {
-                        var electron_processes = Process.GetProcessesByName("Electron");
-                        if (electron_processes.Length > 0 && ElectronProcesses == null)
-                        {
-                            ElectronProcesses = electron_processes;
-                            Console.WriteLine($"ElectronProcess has been found");
-                            Trace.WriteLine($"ElectronProcess has been found");
-                            Debug.WriteLine($"ElectronProcess has been found");
-                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been found" + Environment.NewLine);
-                            DontUseCEMProcess = true;
-                        }
-                        else if (electron_processes.Length == 0 && ElectronProcesses != null)
-                        {
-                            ElectronProcesses = null;
-                            Console.WriteLine($"ElectronProcess has been lost");
-                            Trace.WriteLine($"ElectronProcess has been lost");
-                            Debug.WriteLine($"ElectronProcess has been lost");
-                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been lost" + Environment.NewLine);
-                        }
-                    }
-
-                    if (!DontUseCEMProcess)
-                    {
-                        var cem_processes = Process.GetProcessesByName("Career Expansion Mod");
-                        if (cem_processes.Length > 0 && ElectronProcesses == null)
-                        {
-                            ElectronProcesses = cem_processes;
-                            Console.WriteLine($"ElectronProcess has been found");
-                            Trace.WriteLine($"ElectronProcess has been found");
-                            Debug.WriteLine($"ElectronProcess has been found");
-                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been found" + Environment.NewLine);
-                            DontUseElectronProcess = true;
-                        }
-                        else if (cem_processes.Length == 0 && ElectronProcesses != null)
-                        {
-                            ElectronProcesses = null;
-                            Console.WriteLine($"ElectronProcess has been lost");
-                            Trace.WriteLine($"ElectronProcess has been lost");
-                            Debug.WriteLine($"ElectronProcess has been lost");
-                            File.AppendAllText("Log.txt", $"{DateTime.Now.ToString()} - ElectronProcess has been lost" + Environment.NewLine);
-                        }
-                    }
-
                 }
 
-            }));
-            thread.Start();
+            });
+            thread.Name = "Window Popup And Integration";
+            thread.Start(this);
         }
 
-        public static BrowserWindow BrowserWindow;
+        public BrowserWindow BrowserWindow;
         public static Process FIFAProcess;
         public static Process[] ElectronProcesses;
     }

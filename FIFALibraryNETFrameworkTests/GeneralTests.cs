@@ -86,6 +86,46 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void TestUnpackAndRepackInitfs()
+        {
+            if (ProfilesLibrary.Initialize("FIFA20"))
+            {
+                byte[] array;
+
+                //array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
+                // change this so it reads the easy version of the key
+                // 0B0E04030409080C010708010E0B0B02﻿
+                array = NativeReader.ReadInStream(new FileStream("fifa20.key", FileMode.Open, FileAccess.Read));
+                byte[] array2 = new byte[16];
+                Array.Copy(array, array2, 16);
+                KeyManager.Instance.AddKey("Key1", array2);
+                if (array.Length > 16)
+                {
+                    array2 = new byte[16];
+                    Array.Copy(array, 16, array2, 0, 16);
+                    KeyManager.Instance.AddKey("Key2", array2);
+                    array2 = new byte[16384];
+                    Array.Copy(array, 32, array2, 0, 16384);
+                    KeyManager.Instance.AddKey("Key3", array2);
+                }
+
+                if (TypeLibrary.Initialize(false))
+                {
+                    AssetManagerImportResult result = new AssetManagerImportResult();
+
+                    ClassesSdkCreator.FileSystem = new FileSystem(@"E:\Origin Games\FIFA 20");
+                    foreach (FileSystemSource source in ProfilesLibrary.Sources)
+                    {
+                        ClassesSdkCreator.FileSystem.AddSource(source.Path, source.SubDirs);
+                    }
+                    byte[] key = KeyManager.Instance.GetKey("Key1");
+                    ClassesSdkCreator.FileSystem.LoadInitfs(key);
+                    //ClassesSdkCreator.FileSystem.Initialize(key);
+                }
+            }
+        }
+
+        [TestMethod]
         public void DumpAllFrostyProfiles()
         {
             ProfilesLibrary.DumpAllFrostyProfiles();

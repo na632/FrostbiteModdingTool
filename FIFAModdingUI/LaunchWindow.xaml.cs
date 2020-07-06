@@ -152,10 +152,13 @@ namespace FIFAModdingUI
             //var filePathSplit = filePath.Split('\\');
             //var filename = filePathSplit[filePathSplit.Length-1];
             //File.Copy(filePath, "Mods\\" + filename);
-            var mL = new Mods.ModList();
-            mL.ModListItems.Add(filePath);
-            mL.Save();
-            GetListOfModsAndOrderThem();
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                var mL = new Mods.ModList();
+                mL.ModListItems.Add(filePath);
+                mL.Save();
+                GetListOfModsAndOrderThem();
+            }
 
         }
 

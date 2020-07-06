@@ -13,7 +13,33 @@ namespace CMEUnitTests
 {
     [TestClass]
     public class UnitTest1
+
+
     {
+
+        [TestMethod]
+        public void LoadFIFAGameDBPointers()
+        {
+            var proc = CoreHack.GetProcess();
+            if(proc.HasValue)
+            {
+
+                var codeGameDB_addy = CoreHack.MemLib.AoBScan("44 8B 7A 34 44 8B 62 38", true, true).Result;
+                //if(codeGameDB_addy > 0)
+                //{
+                //}
+
+
+            }
+
+    //        var codeGameDB = tonumber(get_validated_address('AOB_codeGameDB'), 16)
+    //local base_ptr = readPointer(byteTableToDword(readBytes(codeGameDB + 4, 4, true)) + codeGameDB + 8)
+    //if DEBUG_MODE then
+    //    do_log(string.format("codeGameDB base_ptr %X", base_ptr))
+    //end
+        }
+
+
         [TestMethod]
         public void LoadFIFALeaguesFromCSV()
         {
@@ -26,7 +52,7 @@ namespace CMEUnitTests
             CareerDB1.FIFAUser = new FIFAUsers();
             CareerDB1.FIFAUser.clubteamid = 1960;
             CoreHack coreHack = new CoreHack();
-            coreHack.SaveName = "Test";
+            //coreHack.SaveName = "Test";
 
             DbDataCache.CreateAllSponsorFiles();
 

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using CareerExpansionMod.Models;
 using CareerExpansionMod.CEM;
+using CareerExpansionMod.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CareerExpansionMod.Controllers
 {
@@ -14,9 +16,19 @@ namespace CareerExpansionMod.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IHubContext<InfoHub> _hubContext;
+
+        private readonly v2k4FIFAModdingCL.MemHack.Core.CoreHack coreHack;
+
+        public HomeController(ILogger<HomeController> logger, IHubContext<InfoHub> hubContext)
         {
+            _hubContext = hubContext;
             _logger = logger;
+
+            coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack(hubContext);
+
+            if (CEMCore.CEMCoreInstance == null)
+                CEMCore.CEMCoreInstance = new CEMCore(coreHack);
         }
 
         public IActionResult Index()
@@ -46,7 +58,6 @@ namespace CareerExpansionMod.Controllers
         {
             if(Startup.FIFAProcess != null)
             {
-                var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
                 if(coreHack.GameDate.HasValue)
                 {
                     return new JsonResult($"Career Mode is running");
@@ -59,14 +70,14 @@ namespace CareerExpansionMod.Controllers
 
         [HttpGet]
         [Route("~/GetCareerModeSaveName")]
-        public JsonResult GetCareerModeSaveName()
+        public async Task<JsonResult> GetCareerModeSaveName()
         {
             if (Startup.FIFAProcess != null)
             {
-                var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
-                if (!string.IsNullOrEmpty(coreHack.SaveName))
+                var saveName = await coreHack.GetSaveNameAsync();
+                if (!string.IsNullOrEmpty(saveName))
                 {
-                    return new JsonResult($"{coreHack.SaveName}");
+                    return new JsonResult($"{saveName}");
                 }
                 return new JsonResult("Career Mode Name Invalid Value: ERR:001");
             }
@@ -75,18 +86,20 @@ namespace CareerExpansionMod.Controllers
 
         [HttpGet]
         [Route("~/GetCareerModeSaveFileName")]
-        public JsonResult GetCareerModeSaveFileName()
+        public async Task<JsonResult> GetCareerModeSaveFileName()
         {
-            if (Startup.FIFAProcess != null)
+            return await new TaskFactory().StartNew(() =>
             {
-                var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
-                if (!string.IsNullOrEmpty(coreHack.SaveFileName))
+                if (Startup.FIFAProcess != null)
                 {
-                    return new JsonResult($"{coreHack.SaveFileName}");
+                    if (!string.IsNullOrEmpty(coreHack.SaveFileName))
+                    {
+                        return new JsonResult($"{coreHack.SaveFileName}");
+                    }
+                    return new JsonResult("Career Mode file name Invalid Value: ERR:001");
                 }
-                return new JsonResult("Career Mode file name Invalid Value: ERR:001");
-            }
-            return new JsonResult("Career Mode file name Invalid Value: ERR:002");
+                return new JsonResult("Career Mode file name Invalid Value: ERR:002");
+            });
         }
 
         [HttpGet]
@@ -95,7 +108,6 @@ namespace CareerExpansionMod.Controllers
         {
             if (Startup.FIFAProcess != null)
             {
-                var coreHack = new v2k4FIFAModdingCL.MemHack.Core.CoreHack();
                 if (coreHack.GameDate.HasValue)
                 {
                     return new JsonResult($"{coreHack.GameDate.Value.ToShortDateString()}");

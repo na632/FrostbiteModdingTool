@@ -10,11 +10,13 @@ namespace CareerExpansionMod.CEM.Finances
 {
     public class TeamFinance
     {
+        public static TeamFinance TeamFinanceInstance;
         public List<Debt> Debts { get; set; }
         public List<Loan> Loans { get; set; }
-        public Sponsor Sponsor { get; set; }
 
-        public static string CMETeamFinanceDirectory
+        public List<Payment> Payments { get; set; }
+
+        public static string CEMTeamFinanceDirectory
         {
             get
             {
@@ -23,7 +25,7 @@ namespace CareerExpansionMod.CEM.Finances
             }
         }
 
-        public static string CMETeamFinanceSaveFile
+        public static string CEMTeamFinanceSaveFile
         {
             get
             {
@@ -33,15 +35,34 @@ namespace CareerExpansionMod.CEM.Finances
 
         public static TeamFinance Load()
         {
-            if (File.Exists(CMETeamFinanceSaveFile))
-                return JsonConvert.DeserializeObject<TeamFinance>(File.ReadAllText(CMETeamFinanceSaveFile));
+            if (File.Exists(CEMTeamFinanceSaveFile))
+            {
+                TeamFinanceInstance = JsonConvert.DeserializeObject<TeamFinance>(File.ReadAllText(CEMTeamFinanceSaveFile));
+            }
             else
-                return new TeamFinance();
+            {
+                TeamFinanceInstance = new TeamFinance() { Debts = new List<Debt>(), Loans = new List<Loan>(), Payments = new List<Payment>() };
+            }
+
+            return TeamFinanceInstance;
         }
 
         public void Save()
         {
-            File.WriteAllText(CMETeamFinanceSaveFile, JsonConvert.SerializeObject(this));
+            TeamFinanceInstance = this;
+            lock (TeamFinanceInstance)
+            {
+                //using (FileStream fileStream = new FileStream(CMETeamFinanceSaveFile, FileMode.OpenOrCreate))
+                //{
+                //    fileStream.Write()
+                //}
+                //    Stream s = this.GetStream();
+                //IAsyncResult ar = s.BeginWrite(data, 0, data.Length, SendAsync, state);
+                //if (!ar.IsCompleted)
+                //    ar.AsyncWaitHandle.WaitOne();
+
+                File.WriteAllText(CEMTeamFinanceSaveFile, JsonConvert.SerializeObject(TeamFinanceInstance));
+            }
         }
     }
 }

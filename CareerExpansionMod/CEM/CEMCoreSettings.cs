@@ -16,26 +16,42 @@ namespace CareerExpansionMod.CEM
         {
             get
             {
-                return CEMCore.CEMMyDocumentsDirectory + CEMCore.SaveFolder + CEMCore.CEMCoreInstance.CoreHack.SaveName + "-Settings.json";
+                //return CEMCore.CEMMyDocumentsDbSaveDirectory + "Settings.json";
+                return CEMCore.CEMMyDocumentsDbSaveDirectory_RAW + "\\Settings.json";
             }
         }
 
         [Display(Name="Save Folder")]
         public string OtherSaveFolder { get; set; }
 
-        public void Load()
+        [Display(Name="Allow CEM to Modify Manager Rating")]
+        public bool AllowModificationOfManagerRating { get; set; }
+
+        public CEMCoreSettings()
         {
-            if(!File.Exists(CEMSettingsSaveLocation))
+            //Load();
+        }
+
+        public static CEMCoreSettings Load()
+        {
+            //if (!Directory.Exists(CEMCore.CEMMyDocumentsDbSaveDirectory))
+            //    Directory.CreateDirectory(CEMCore.CEMMyDocumentsDbSaveDirectory);
+
+            if (!File.Exists(CEMSettingsSaveLocation))
             {
-                File.WriteAllText(CEMSettingsSaveLocation, JsonConvert.SerializeObject(this));
+                File.WriteAllText(CEMSettingsSaveLocation, JsonConvert.SerializeObject(new CEMCoreSettings()));
             }
 
             var settings = JsonConvert.DeserializeObject<CEMCoreSettings>(File.ReadAllText(CEMSettingsSaveLocation));
-            OtherSaveFolder = settings.OtherSaveFolder;
+            return settings;
+            //return new CEMCoreSettings();
         }
 
         public void Save()
         {
+            if (!Directory.Exists(CEMCore.CEMMyDocumentsDbSaveDirectory))
+                Directory.CreateDirectory(CEMCore.CEMMyDocumentsDbSaveDirectory);
+
             if (File.Exists(CEMSettingsSaveLocation))
                 File.Delete(CEMSettingsSaveLocation);
 

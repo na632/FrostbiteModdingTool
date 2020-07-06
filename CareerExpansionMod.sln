@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CareerExpansionMod", "CareerExpansionMod\CareerExpansionMod.csproj", "{766C601B-CE7C-42C0-BFCE-385773C6CE7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMEUnitTests", "CMEUnitTests\CMEUnitTests.csproj", "{F3AC732E-107E-4555-9712-9217FA3787FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CMEUnitTests", "CMEUnitTests\CMEUnitTests.csproj", "{F3AC732E-107E-4555-9712-9217FA3787FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModding", "v2k4FIFAModdingCL\v2k4FIFAModding.csproj", "{27F8BD59-72DF-44F8-A40F-A38041DC0834}"
 EndProject

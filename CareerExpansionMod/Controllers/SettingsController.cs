@@ -11,8 +11,7 @@ namespace CareerExpansionMod.Controllers
     {
         public IActionResult Index()
         {
-            CEMCoreSettings settings = new CEMCoreSettings();
-            settings.Load();
+            CEMCoreSettings settings = CEMCoreSettings.Load();
             return View("Index", settings);
         }
 
