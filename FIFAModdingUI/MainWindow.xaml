@@ -8,18 +8,18 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 FIFA Modding UI 2020.2" Height="150" Width="800" ResizeMode="NoResize">
+        Title="paulv2k4 FIFA Modding UI 2020.2" Height="300" Width="400" ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="380"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
             <ColumnDefinition Width="20"></ColumnDefinition>
-            <ColumnDefinition Width="380"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Button x:Name="btnEditor" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnEditor_Click"
                     ToolTip="Launcher">
             <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" FontSize="20" />
                 <Label Content="Editor" VerticalAlignment="Center" />
             </StackPanel>
         </Button>
