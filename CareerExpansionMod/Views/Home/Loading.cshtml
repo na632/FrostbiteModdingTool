@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <base href="~/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>paulv2k4 Career Expansion Mod</title>
+    <link rel="stylesheet" href="~/lib/reset/minireset.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm text-white border-bottom box-shadow mb-3">
+            <div class="container text-center EAFont">
+                <span style="font-family: Impact;">&copy;&nbsp;</span><span>paulv2k4&nbsp;CEM<span style="font-family: Impact;">&nbsp;&trade;</span>&nbsp;0.1.4</span>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+
+
+            <div id="panelWelcomePleaseLoad" class="text-center" style="display:none;">
+                <h1 class="display-4">Welcome to the Career Expansion Mod</h1>
+                <p>Please load your Career Save to continue...</p>
+                <p></p>
+            </div>
+            <div id="panelFancyLoading" class="text-center" style="display:none;">
+                <h1 class="display-4"><i class="fa fa-cog rotating"></i>&nbsp;Loading</h1>
+            </div>
+        </main>
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="~/lib/angularjs/angular.js"></script>
+    <script src="~/lib/angular-route/angular-route.js"></script>
+    <script src="~/lib/angular-ui-bootstrap/ui-bootstrap.js"></script>
+    <script src="_framework/blazor.server.js"></script>
+    <script src="~/lib/vue/vue.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+            //$.notify({
+            //    // options
+            //    message: 'Game Saved (Quicksave)'
+            //}, {
+            //    // settings
+            //    type: 'success'
+            //});
+        });
+    </script>
+
+
+    <script>
+
+        var bIsInCareerMode = false;
+        var debug = false;
+
+        setInterval(() => {
+            $.getJSON("@Url.Action("WhatAreYouDoingCanILoad", "Home")", function (d) {
+                console.log(d);
+                console.log(d.load);
+                if (d.load == true) {
+                    window.location.href = '@Url.Action("Main","Home")';
+                }
+
+            }).catch(function (t, u, v) {
+                console.log(t);
+                console.log(u);
+                console.log(v);
+
+            });
+
+        }, 2000);
+
+
+    </script>
+
+    @*@RenderSection("Scripts", false)
+
+        <script>
+            $.ready(function () {
+                @RenderSection("ScriptsJS", false)
+            });
+        </script>*@
+</body>
+</html>

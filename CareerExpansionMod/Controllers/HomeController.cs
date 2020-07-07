@@ -34,7 +34,21 @@ namespace CareerExpansionMod.Controllers
         public IActionResult Index()
         {
             return View();
+            //return View("Loading");
         }
+
+        [HttpGet]
+        [Route("~/WhatAreYouDoingCanILoad")]
+        public JsonResult WhatAreYouDoingCanILoad()
+        {
+            return new JsonResult(new { load = true });
+        }
+
+        public IActionResult Main()
+        {
+            return View("Main");
+        }
+
 
         public IActionResult Privacy()
         {

@@ -97,7 +97,6 @@
         </main>
     </div>
 
-    @(await Html.RenderComponentAsync<CareerExpansionMod.Components.InfoNotification>(RenderMode.ServerPrerendered, new { }))
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -128,22 +127,13 @@
         var debug = false;
 
         setInterval(() => {
-            $.getJSON("/IsCareerModeActive/", function (d) {
-                //alert(d);
-                //console.log(d);
-                $('#lblLoadedCareerSave').html(d);
-
-                if ((d.indexOf("ERR:") == -1 && !bIsInCareerMode) || (!bIsInCareerMode && debug)) {
-                    bIsInCareerMode = true;
+            $.getJSON("@Url.Action("WhatAreYouDoingCanILoad", "Home")", function (d) {
+                console.log(d);
+                console.log(d.load);
+                if (d.load == true) {
                     $('#panelWelcomePleaseLoad').fadeOut(500);
-                    //$('#panelFancyLoading').show(1000).delay(1000).hide(1000);
-                    //setTimeout(function () {
-                    //    $('#panelMain').show(1000);
-                    //}, 1000);
                     $('#panelMain').fadeIn(500);
-                }
-                else if (!bIsInCareerMode) {
-                    $('#panelWelcomePleaseLoad').show(1000);
+                    bIsInCareerMode = true
                 }
 
             }).catch(function (t, u, v) {
@@ -154,6 +144,34 @@
             });
 
         }, 2000);
+
+        //setInterval(() => {
+        //    $.getJSON("/IsCareerModeActive/", function (d) {
+        //        //alert(d);
+        //        //console.log(d);
+        //        $('#lblLoadedCareerSave').html(d);
+
+        //        if ((d.indexOf("ERR:") == -1 && !bIsInCareerMode) || (!bIsInCareerMode && debug)) {
+        //            bIsInCareerMode = true;
+        //            $('#panelWelcomePleaseLoad').fadeOut(500);
+        //            //$('#panelFancyLoading').show(1000).delay(1000).hide(1000);
+        //            //setTimeout(function () {
+        //            //    $('#panelMain').show(1000);
+        //            //}, 1000);
+        //            $('#panelMain').fadeIn(500);
+        //        }
+        //        else if (!bIsInCareerMode) {
+        //            $('#panelWelcomePleaseLoad').show(1000);
+        //        }
+
+        //    }).catch(function (t, u, v) {
+        //        console.log(t);
+        //        console.log(u);
+        //        console.log(v);
+
+        //    });
+
+        //}, 2000);
 
         // poll Save Name
         setInterval(() => {

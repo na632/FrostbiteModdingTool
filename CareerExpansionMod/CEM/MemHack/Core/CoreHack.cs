@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR;
 using CareerExpansionMod;
 using CareerExpansionMod.CEM.MemHack;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace v2k4FIFAModdingCL.MemHack.Core
 {
@@ -347,8 +348,78 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
             return null;
 
+
+        }
+
+        public static UIntPtr ResolveMultipointer(UIntPtr base_addr, List<int> offsets)
+        {
+            List<UIntPtr> lst = new List<UIntPtr>();
+            for(var i = 1; i < offsets.Count(); i++ )
+            {
+                if (base_addr.ToUInt32() == 0 || base_addr == null)
+                {
+                    for(var j = 1; j < offsets.Count(); j++)
+                    {
+                        Debug.WriteLine(ResolvePtr(base_addr, offsets[j]).ToString("X8"));
+                    }
+                }
+
+                base_addr = ResolvePtr(base_addr, offsets[i]).ToUIntPtr();
+                Debug.WriteLine(ResolvePtr(base_addr, offsets[i]).ToString("X8"));
+
+            }
+            return base_addr;
+        }
+
+        public static long ResolvePtr(string aobaddress, int offsetpos)
+        {
+            var addr = CoreHack.MemLib.AoBScan(aobaddress, true, true, true).Result.FirstOrDefault();
+            if (addr > 0)
+            {
+                UIntPtr finalPtr = CoreHack.ResolvePtr(addr, offsetpos).ToUIntPtr();
+                return (long)finalPtr.ToUInt64();
+            }
+
+            return 0;
+        }
+
+        public static long ResolvePtr(long address, int offsetpos)
+        {
+            var uintpr = new UIntPtr(Convert.ToUInt64(address));
+            return ResolvePtr(uintpr, offsetpos);
+        }
+
+        public static long ResolvePtr(UIntPtr address, int offsetpos)
+        {
+            var proc = CoreHack.GetProcess();
+            if (proc.HasValue)
+            {
+                long offset = Convert.ToInt64((address + offsetpos).ToUInt64());
+                Debug.WriteLine($"ResolvePtr:{offset.ToString("X8")}");
+                var readint = CoreHack.MemLib.readInt(offset.ToString("X8"));
+                Debug.WriteLine($"ResolvePtr:{readint.ToString("X8")}");
+
+                var addOffsetToAddress = new UIntPtr((ulong)readint + (ulong)offset + 4);
+                Debug.WriteLine($"ResolvePtr:{addOffsetToAddress.ToUInt64().ToString("X8")}");
+
+                return (long)addOffsetToAddress.ToUInt64();
+            }
+            return 0;
         }
 
 
+    }
+
+    public static class HelpfulExtensionForUIntPtr
+    {
+        public static UIntPtr ToUIntPtr(this long v)
+        {
+            return new UIntPtr(Convert.ToUInt64(v));
+        }
+
+        public static UIntPtr ToUIntPtr(this ulong v)
+        {
+            return new UIntPtr(v);
+        }
     }
 }

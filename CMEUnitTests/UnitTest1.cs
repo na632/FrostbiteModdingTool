@@ -12,6 +12,8 @@ using System.Linq;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Reflection.Metadata.Ecma335;
+using CareerExpansionMod.CEM.MemHack;
+using Newtonsoft.Json;
 
 namespace CMEUnitTests
 {
@@ -23,28 +25,7 @@ namespace CMEUnitTests
         //[DllImport("paulv2k4HackHelpers.dll", CallingConvention = CallingConvention.Cdecl)]
         //public static extern ulong ResolvePtr(UIntPtr address, int offsetpos);
 
-        long ResolvePtr(UIntPtr address, int offsetpos)
-        {
-            var proc = CoreHack.GetProcess();
-            if (proc.HasValue)
-            {
-                long offset = Convert.ToInt64((address + offsetpos).ToUInt64());
-                Debug.WriteLine($"ResolvePtr:{offset.ToString("X8")}");
-                var readint = CoreHack.MemLib.readInt(offset.ToString("X8"));
-                Debug.WriteLine($"ResolvePtr:{readint.ToString("X8")}");
-
-                var addOffsetToAddress = new UIntPtr((ulong)readint + (ulong)offset + 4);
-                Debug.WriteLine($"ResolvePtr:{addOffsetToAddress.ToUInt64().ToString("X8")}");
-
-                //long resolved = 0;
-                //resolved = Convert.ToInt64((addOffsetToAddress + offsetpos + 4).ToUInt64());
-                ////return resolved;
-                //Debug.WriteLine($"ResolvePtr:{resolved.ToString("X8")}");
-
-                return (long)addOffsetToAddress.ToUInt64();
-            }
-            return 0;
-        }
+        
 
         [TestMethod]
         public void LoadFIFAGameDBPointers()
@@ -57,27 +38,71 @@ namespace CMEUnitTests
                 var codeGameDB_addy = CoreHack.MemLib.AoBScan(long.Parse(CoreHack.MemLib.getMinAddress().ToString()), 0x00007ffffffeffff, "4C 0F 44 35 ?? ?? ?? ?? 41 8B 4E 08", true, true, true).Result.FirstOrDefault();
                 if (codeGameDB_addy > 0)
                 {
-                    var t2 = codeGameDB_addy.ToString("X8");
-                    if(!string.IsNullOrEmpty(t2))
-                    {
-                        Debug.WriteLine(t2);
-                        //ulong x = 0x1410FB844;
-                        var ul = ulong.Parse(codeGameDB_addy.ToString());
-                        var uintpr = new UIntPtr(ul);
-                        var newptr = ResolvePtr(uintpr, 4).ToString("X8");
-                        Debug.WriteLine(newptr);
-
-                    }
+                    
+                    var newptr = CoreHack.ResolvePtr(codeGameDB_addy, 4).ToString("X8");
+                    Debug.WriteLine(newptr);
                 }
-
-
             }
+        }
 
-    //        var codeGameDB = tonumber(get_validated_address('AOB_codeGameDB'), 16)
-    //local base_ptr = readPointer(byteTableToDword(readBytes(codeGameDB + 4, 4, true)) + codeGameDB + 8)
-    //if DEBUG_MODE then
-    //    do_log(string.format("codeGameDB base_ptr %X", base_ptr))
-    //end
+        [TestMethod]
+        public unsafe void LoadFIFALUAAndRunScript()
+        {
+            var proc = CoreHack.GetProcess();
+            if (proc.HasValue)
+            {
+
+                //var codeGameDB_addy = CoreHack.MemLib.AoBScan("44 8B 7A 34 44 8B 62 38", true, true).Result.FirstOrDefault();
+                var addrGlobal = CoreHack.MemLib.AoBScan(CareerExpansionMod.CEM.MemHack.AOBMap.g_AOBs["AOB_pGlobal"], true, true, true).Result.FirstOrDefault();
+                if (addrGlobal > 0)
+                {
+                    UIntPtr pScriptFunctions = CoreHack.ResolvePtr(CareerExpansionMod.CEM.MemHack.AOBMap.g_AOBs["AOB_pScriptFunctions"], 61).ToUIntPtr();
+                    Debug.WriteLine(pScriptFunctions.ToUInt64().ToString("X8"));
+
+                    var globalPtr = CoreHack.ResolvePtr(addrGlobal, 3);
+                    Debug.WriteLine(globalPtr.ToString("X8"));
+                    var ptrglobalPtr = new UIntPtr(Convert.ToUInt64(globalPtr));
+                    Globals G = new Globals();
+                    G.child = new GlobalsChild();
+                    G.child.fnUnk1 = ptrglobalPtr.ToPointer();
+                    G.child.fnGetPtr = (ptrglobalPtr+30).ToPointer();
+                    //var i2 = CoreHack.MemLib.readBytes((globalPtr+8).ToString("X8"), 8);
+                    //var i3 = CoreHack.MemLib.readBytes((globalPtr+10).ToString("X8"), 8);
+                    //Debug.WriteLine(JsonConvert.SerializeObject(G));
+                    //Globals G = (Globals)ptrglobalPtr;
+
+
+                    //var addrScri++++++++++++++++++++++++++++++++++++++++++++++++++ptService = CoreHack.MemLib.AoBScan(CareerExpansionMod.CEM.MemHack.AOBMap.g_AOBs["AOB_pScriptFunctions"], true, true, true).Result.FirstOrDefault();
+                    //if (addrScriptService > 0)
+                    //{
+                    //    var scriptServicePtr = CoreHack.ResolvePtr(addrScriptService, 3).ToString("X8");
+                    //    Debug.WriteLine(scriptServicePtr);
+                    //}
+
+
+
+                    //UIntPtr addr_max = CoreHack.ResolvePtr(AOBMap.g_AOBs["AOB_LUAEngineFuncReg"], 3).ToUIntPtr();
+                    //UIntPtr addr_item = CoreHack.ResolvePtr(AOBMap.g_AOBs["AOB_LUAEngineFuncReg"], 10).ToUIntPtr();
+                    //int n_of_funcs = CoreHack.MemLib.readInt(addr_max.ToUInt64().ToString("X8"));
+
+                    //int sizeOfStruct = 0x18;
+                    //for (var i = 0; i < n_of_funcs; i++)
+                    //{
+                    //    var offset = i * sizeOfStruct;
+                    //    UIntPtr addr = addr_item + offset;
+                    //    LuaCMEngineFuncReg currentF = new LuaCMEngineFuncReg();
+                    //    var tst = CoreHack.ResolveMultipointer(addr, new List<int>() { 0x0, 0x8, 0xc, 0x10 });
+                    //    currentF.fName = CoreHack.MemLib.readString(addr.ToUInt64().ToString("X8"));
+
+                    //    //logger.Write(LOG_DEBUG,
+                    //    //    "[LUA] Engine Reg CFuncs: Fname: %s (0x%08llX), nArgs: %d, Unk: %d",
+                    //    //    currentF->fName, currentF->pCFunc, currentF->nArgs, currentF->Unk
+                    //    //);
+                    //    //lua_register(LMain, currentF->fName, (lua_CFunction)currentF->pCFunc);
+                    //}
+
+                }
+            }
         }
 
 
