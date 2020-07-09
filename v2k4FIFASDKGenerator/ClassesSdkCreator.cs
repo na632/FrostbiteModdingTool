@@ -757,6 +757,9 @@ namespace v2k4FIFASDKGenerator
             memoryReader.Dispose();
             DbObject result = new DbObject(bObject: false);
             classInfos.Sort((ClassInfo a, ClassInfo b) => a.typeInfo.name.CompareTo(b.typeInfo.name));
+
+            var findSomeStuffTest = classInfos.Where(x => x.typeInfo.name.ToLower().Contains("lua")).ToList();
+
             foreach (ClassInfo classInfo2 in classInfos)
             {
                 if (classInfo2.typeInfo.Type == 2 || classInfo2.typeInfo.Type == 3 || classInfo2.typeInfo.Type == 8 || classInfo2.typeInfo.Type == 27)

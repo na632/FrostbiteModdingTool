@@ -12,14 +12,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\v2k4InteropHelper\x64\Debug\v2k4InteropHelper.dll" Link="v2k4InteropHelper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bleak" Version="3.1.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CareerExpansionMod\CareerExpansionMod.csproj" />
+    <ProjectReference Include="..\v2k4InteropHelper\v2k4InteropHelper.vcxproj" />
   </ItemGroup>
 
 </Project>

@@ -20,5 +20,20 @@ namespace v2k4FIFASDKGenerator.Madden20
 		{
 			fieldObj.SetValue("nameHash", nameHash);
 		}
-	}
+
+        public override string ToString()
+        {
+			return name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+    }
 }

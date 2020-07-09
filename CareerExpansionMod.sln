@@ -4,10 +4,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CareerExpansionMod", "CareerExpansionMod\CareerExpansionMod.csproj", "{766C601B-CE7C-42C0-BFCE-385773C6CE7F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D} = {E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CMEUnitTests", "CMEUnitTests\CMEUnitTests.csproj", "{F3AC732E-107E-4555-9712-9217FA3787FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModding", "v2k4FIFAModdingCL\v2k4FIFAModding.csproj", "{27F8BD59-72DF-44F8-A40F-A38041DC0834}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v2k4InteropHelper", "v2k4InteropHelper\v2k4InteropHelper.vcxproj", "{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +60,16 @@ Global
 		{27F8BD59-72DF-44F8-A40F-A38041DC0834}.Release|x64.Build.0 = Release|Any CPU
 		{27F8BD59-72DF-44F8-A40F-A38041DC0834}.Release|x86.ActiveCfg = Release|Any CPU
 		{27F8BD59-72DF-44F8-A40F-A38041DC0834}.Release|x86.Build.0 = Release|Any CPU
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Debug|x64.ActiveCfg = Debug|x64
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Debug|x64.Build.0 = Debug|x64
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Debug|x86.ActiveCfg = Debug|Win32
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Debug|x86.Build.0 = Debug|Win32
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Release|Any CPU.ActiveCfg = Release|Win32
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Release|x64.ActiveCfg = Release|x64
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Release|x64.Build.0 = Release|x64
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Release|x86.ActiveCfg = Release|Win32
+		{E3254FD1-BF5D-4FBF-8E44-BBC50C40EB5D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CMEUnitTests": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

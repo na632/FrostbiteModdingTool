@@ -422,4 +422,49 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             return new UIntPtr(v);
         }
     }
+
+
+    public static class Cast
+    {
+
+        private static class ThreadLocalType<T>
+        {
+
+            [ThreadStatic]
+            private static T[] buffer;
+
+            public static T[] Buffer
+            {
+                get
+                {
+                    if (buffer == null)
+                    {
+                        buffer = new T[1];
+                    }
+                    return buffer;
+                }
+            }
+        }
+
+        public static TTarget Reinterpret<TTarget, TSource>(TSource source)
+        {
+            TSource[] sourceBuffer = ThreadLocalType<TSource>.Buffer;
+            TTarget[] targetBuffer = ThreadLocalType<TTarget>.Buffer;
+
+            int sourceSize = Buffer.ByteLength(sourceBuffer);
+            int destSize = Buffer.ByteLength(targetBuffer);
+            if (sourceSize != destSize)
+            {
+                var errorText = "Cannot convert " + typeof(TSource).FullName + " to " + typeof(TTarget).FullName + ". Data types are of different sizes.";
+                Debug.WriteLine(errorText);
+                throw new ArgumentException(errorText);
+            }
+
+            sourceBuffer[0] = source;
+            Buffer.BlockCopy(sourceBuffer, 0, targetBuffer, 0, sourceSize);
+            return targetBuffer[0];
+        }
+    }
 }
+
+

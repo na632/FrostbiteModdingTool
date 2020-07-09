@@ -1396,6 +1396,9 @@ namespace Memory
         /// <param name="strDLLName">path and name of DLL file.</param>
         public void InjectDLL(String strDLLName)
         {
+            if (!File.Exists(strDLLName))
+                throw new Exception("File Doesnt Exist");
+
             IntPtr bytesout;
 
             foreach (ProcessModule pm in theProc.Modules)

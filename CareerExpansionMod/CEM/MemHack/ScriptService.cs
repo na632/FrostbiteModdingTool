@@ -50,6 +50,32 @@ namespace CareerExpansionMod.CEM.MemHack
         public void* pCFunc; //0x0010
     }; //Size: 0x0018
 
+    unsafe public struct ScriptFunctions
+    {
+        public ScriptFunctions0* pScriptFunctions0; //0x0000
+        public fixed char pad_0008[8]; //0x0008
+    }; //Size: 0x0010
+
+    unsafe public struct ScriptFunctions0
+    {
+        public fixed char pad_0000[4568]; //0x0000
+        public ScriptFunctionsUnk1* pScriptFunctionsUnk1; //0x11D8
+}; //Size: 0x11E0
+
+    unsafe public struct ScriptFunctionsUnk1
+    {
+    unsafe public ScriptFunctionsUnk2* pScriptFunctionsUnk2; //0x0000
+}; //Size: 0x0008
+
+    unsafe public struct ScriptFunctionsUnk2
+    {
+    unsafe public LuaScriptFunctions3* pLuaScriptFunctions; //0x0000
+}; //Size: 0x0008
+
+    unsafe public struct LuaScriptFunctions3
+    {
+    public void* pThis; //0x0000
+    }; //Size: 0x0008
 
 }
 

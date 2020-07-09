@@ -1,0 +1,77 @@
+#pragma once
+//#include "pch.h"
+#include "sdk.h"
+
+#include <fstream>
+
+class Engine
+{
+public:
+    struct headshot {
+        bool ready = false;
+        void* tex;
+        int w;
+        int h;
+    } headshot;
+
+    std::string ModsPath = "";
+    std::string ModsRootPath = "";
+    std::string ModsRootLegacyPath = "";
+
+    //lua_State* lua_State_ptr = 0;
+    FIFADBManager dbMgr;
+    FIFAPlayersManager playersMgr;
+
+    Engine();
+    ~Engine();
+
+    // Frostbite build info
+    void LogBuildInfo();
+
+    void Setup();
+    void SetupMods();
+
+    bool ParseDBMetaXML(const char* fPath);
+
+    char* GetCurrentSreen();
+
+    bool isInCM();
+    int GetUserTeamID();
+    char* GetTeamName(unsigned int teamid);
+    char* GetPlayerName(unsigned int playerid);
+    std::vector<std::string> GetDBTablesNames();
+    std::vector<FIFADBFieldDesc*> GetDBTableFields(std::string table_name);
+    std::vector<FIFADBRow*> GetDBTableRows(std::string table_name);
+    bool EditDBTableField(std::string table_name, std::string field_name, __int64 addr, unsigned __int32 offset, std::string new_value);
+
+    bool DumpFile(const char* fPath, const char* fPathOut);
+
+    void ReloadDB();
+    void LoadDB();
+
+    void SetupMainLua();
+
+    bool ValidateFieldChange(std::string new_value, FIFADBFieldDesc* fdesc);
+
+
+private:
+    bool ready = false;
+
+    // FIFA Virtual File System
+    uint64_t vfs = NULL;
+
+    CurrentSreen* scr;
+    uintptr_t pCurrentScreenID = NULL;
+
+    ScriptService* script_service;
+    ScriptFunctions* script_functions;
+    
+    g_Databases* gDB;
+    uintptr_t p_gDB = NULL;
+
+    // functions
+    typedef char*(__fastcall* fnGetTeamName)(__int64 pThis, unsigned int teamid);
+    uintptr_t addrfnGetTeamName = NULL;
+};
+
+extern Engine g_engine;
