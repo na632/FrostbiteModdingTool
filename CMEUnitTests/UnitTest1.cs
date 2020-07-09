@@ -70,10 +70,10 @@ namespace CMEUnitTests
                 while (true)
                 {
                     Thread.Sleep(2000);
-                    if (IsInCM() == 1)
-                    {
-                        Debug.WriteLine("Well fuck me sideways, that worked!!");
-                    }
+                    //if (IsInCM() == 1)
+                    //{
+                    //    Debug.WriteLine("Well fuck me sideways, that worked!!");
+                    //}
                 }
 
 

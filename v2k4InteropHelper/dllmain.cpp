@@ -13,10 +13,12 @@
 #include <filesystem>
 #include <TlHelp32.h>
 #include "engine.h"
+#include "PIPEInteraction.h"
 
 #pragma warning(disable: 4996)
 
 namespace fs = std::filesystem;
+PIPEInteraction* PIPEInteractionInstance;
 
 void SetupLogger() {
     const std::string logPath = g_ctx_dll.GetFolder() + "\\Logs";
@@ -111,6 +113,10 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
     // Live Editor Engine
     g_engine.Setup();
     //MessageBox(NULL, "This bitch has done something!", "This bitch has done something!", MB_OK);
+
+    //PIPE Connection Setup
+    PIPEInteractionInstance = new PIPEInteraction();
+    PIPEInteractionInstance->CreateServerPipe();
 
     logger.Write(LOG_DEBUG, "Start main loop");
     for (;;) {

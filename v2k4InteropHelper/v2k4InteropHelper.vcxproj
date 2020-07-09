@@ -171,6 +171,7 @@
     <ClInclude Include="misc.h" />
     <ClInclude Include="patscanner.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PIPEInteraction.h" />
     <ClInclude Include="sdk.h" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +188,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PIPEInteraction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="external\lib\Debug\capstone.lib" />
