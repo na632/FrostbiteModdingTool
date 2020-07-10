@@ -92,6 +92,21 @@ void LUARunner::remove_game_lua_state(lua_State* L) {
         game_lua_states.erase(position);
 }
 
+std::string LUARunner::RunCode(std::string lua_code, lua_State* L) {
+    logger.Write(LOG_INFO, "Executing lua script in provided LUA State");
+    auto ret = luaL_dostring(L, lua_code.c_str());
+    logger.Write(LOG_INFO, "Done");
+    if (ret != LUA_OK) {
+        logger.Write(LOG_ERROR, "[LUA API] Error: %s", lua_tostring(L, -1));
+        lua_pop(L, 1); // pop error message
+        exec_status = "Failed in all Lua states";
+    }
+    else {
+        exec_status = "Script executed";
+    }
+    return exec_status;
+}
+
 std::string LUARunner::RunCode(std::string lua_code, bool exec_all_states) {
 
     if (exec_all_states) {
@@ -105,7 +120,7 @@ std::string LUARunner::RunCode(std::string lua_code, bool exec_all_states) {
         out << lua_code << "\n";
         out.close();
 
-        //logger.Write(LOG_INFO, "[LUA API] Execute: %s", code_to_exec.c_str());
+        logger.Write(LOG_INFO, "[LUA API] Execute: %s on %i states", lua_code.c_str(), game_lua_states.capacity());
         std::vector<lua_State*> states(game_lua_states);
 
         for (auto i = states.begin(); i != states.end(); i++) {

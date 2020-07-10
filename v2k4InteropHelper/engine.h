@@ -4,8 +4,6 @@
 
 #include <fstream>
 
-static ScriptService* script_service_instance;
-
 class Engine
 {
 public:
@@ -50,6 +48,8 @@ public:
 
     ScriptService* script_service;
     ScriptFunctions* script_functions;
+
+    std::string RunFIFAScript(std::string code);
 
 private:
     bool ready = false;

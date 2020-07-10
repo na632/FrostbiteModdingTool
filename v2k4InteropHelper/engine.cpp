@@ -150,7 +150,6 @@ void Engine::Setup() {
     uintptr_t pScript = ((_getPtr)fnAddr)(pGlobal, 0x0D6DD491);
     logger.Write(LOG_DEBUG, "pScript:  0x%08llX", pScript);
 
-    script_service_instance = reinterpret_cast<ScriptService*>(pScript);
     script_service = reinterpret_cast<ScriptService*>(pScript);
     
     uintptr_t addrfnGetPlayerName = g_ctx_proc.getAddr("AOB_fnGetPlayerName");
@@ -254,7 +253,7 @@ char* Engine::GetCurrentSreen() {
 // Return on error: 
 bool Engine::isInCM() {
     // LUA state always 0 outside of CM?
-    __int64 L = reinterpret_cast<__int64>(script_service_instance->Lua_State);
+    __int64 L = reinterpret_cast<__int64>(script_service->Lua_State);
 
     return !(L == 0);
 }
@@ -567,6 +566,14 @@ void Engine::LoadDB() {
 void Engine::SetupMainLua() {
     g_LRunner.Reset();
     LUASetupComplete = true;
+}
+
+std::string Engine::RunFIFAScript(std::string code)
+{
+    g_LRunner.Reset();
+    auto lstate = reinterpret_cast<lua_State*>(script_service->Lua_State);
+    g_LRunner.add_game_lua_state(lstate);
+    return g_LRunner.RunCode(code, true);
 }
 
 //void Engine::LoadLegacyTexture(IMGUI_HELPER::ImTexture* tex, std::string path, std::string default_path) {

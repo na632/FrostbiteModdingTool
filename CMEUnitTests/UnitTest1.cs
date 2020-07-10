@@ -38,33 +38,42 @@ namespace CMEUnitTests
         //[DllImport("paulv2k4HackHelpers.dll", CallingConvention = CallingConvention.Cdecl)]
         //public static extern ulong ResolvePtr(UIntPtr address, int offsetpos);
 
-        [DllImport("v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ShowAMessageBox(string message);
+        //[DllImport("v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
+        //public static extern void ShowAMessageBox(string message);
 
-        [DllImport("v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void InjectTheDLL();
+        //[DllImport("v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
+        //public static extern void InjectTheDLL();
 
-        [DllImport("v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void EjectTheDLL();
+        //[DllImport("v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
+        //public static extern void EjectTheDLL();
 
-        [DllImport(@"v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int IsInCM();
+        //[DllImport(@"v2k4InteropHelper.dll", CallingConvention = CallingConvention.Cdecl)]
+        //public static extern int IsInCM();
 
 
 
         [TestMethod]
         public void AttachInteropHelper()
         {
-            var proc = CoreHack.GetProcess();
+            int? proc = CoreHack.GetProcess();
+            while (!proc.HasValue)
+            {
+                Debug.Write($"Waiting for FIFA to appear");
+                proc = CoreHack.GetProcess();
+                Thread.Sleep(4000);
+            }
             if (proc.HasValue)
             {
+                Thread.Sleep(1000);
+
                 //if (File.Exists("v2k4InteropHelper.dll"))
                 //    CoreHack.MemLib.InjectDLL("v2k4InteropHelper.dll");
                 //Assembly.Load()
                 var dllpath = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\v2k4InteropHelper.dll";
-                //var bl = new Bleak.Injector("FIFA20", @"G:\Work\FIFA Modding\FIFAModdingUI\v2k4InteropHelper\x64\Debug\v2k4InteropHelper.dll", Bleak.InjectionMethod.CreateThread, Bleak.InjectionFlags.None);
+                Debug.Write($"About to inject: {dllpath}");
                 var bl = new Bleak.Injector("FIFA20", dllpath, Bleak.InjectionMethod.CreateThread, Bleak.InjectionFlags.None);
                 bl.InjectDll();
+                Debug.Write($"Injected: {dllpath}");
                 //bl.EjectDll();
                 //Thread checkThread = new Thread(() => {
                 while (true)

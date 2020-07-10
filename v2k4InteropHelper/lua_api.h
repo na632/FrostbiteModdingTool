@@ -41,6 +41,7 @@ public:
     lua_State* L();
 
     void Reset();
+    std::string RunCode(std::string lua_code, lua_State* L);
     std::string RunCode(std::string lua_code, bool exec_all_states);
 
     void add_game_lua_state(lua_State* L);

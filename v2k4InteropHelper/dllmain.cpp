@@ -121,6 +121,24 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
     logger.Write(LOG_DEBUG, "Start main loop");
     for (;;) {
         Sleep(1000);
+
+        if (GetAsyncKeyState(VK_DELETE)) {
+            Sleep(1000);
+            logger.Write(LOG_DEBUG, "Attempting to run script");
+            if (g_engine.isInCM()) 
+            {
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
+                g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
+                g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
+                g_engine.RunFIFAScript("UpdateTeamBudget(11,11);");
+                g_engine.RunFIFAScript("SackManager(1);");
+                g_engine.RunFIFAScript("SackManager(2);");
+                g_engine.RunFIFAScript("SackManager(11);");
+                g_engine.RunFIFAScript("SackManager(0);");
+                g_engine.RunFIFAScript("GenerateTransferActivityForTeam(11);");
+            }
+        }
+
         if (GetAsyncKeyState(VK_END)) {
             Sleep(1000);
             logger.Write(LOG_DEBUG, "Stopping");
@@ -165,29 +183,6 @@ extern "C"
 {
     __declspec(dllexport) void ShowAMessageBox(char* message) {
         MessageBox(NULL, message, message, MB_OK);
-    }
-
-    __declspec(dllexport) int IsInCM() {
-
-        //logger.Write(LOG_DEBUG, "Checking IsInCM()");
-        if (script_service_instance == NULL) {
-            logger.Write(LOG_DEBUG, "script_service_instance::NULL");
-            return 0;
-        }
-        else {
-            logger.Write(LOG_DEBUG, "script_service_instance::Yay!");
-
-           /* logger.Write(LOG_DEBUG, reinterpret_cast<const char*>(g_engine.GetUserTeamID()));
-            logger.Write(LOG_DEBUG, g_engine.GetTeamName(1));*/
-            if (g_engine.LUASetupComplete) {
-                bool isincm = g_engine.isInCM();
-                if(isincm)
-                    logger.Write(LOG_DEBUG, "IsInCM::Yay!");
-                return 1;
-            }
-        }
-
-        return 0;
     }
 }
 //
