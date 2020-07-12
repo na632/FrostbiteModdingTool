@@ -173,6 +173,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PIPEInteraction.h" />
     <ClInclude Include="sdk.h" />
+    <ClInclude Include="StringBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />

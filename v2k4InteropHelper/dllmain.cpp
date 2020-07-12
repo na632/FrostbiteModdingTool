@@ -14,6 +14,7 @@
 #include <TlHelp32.h>
 #include "engine.h"
 #include "PIPEInteraction.h"
+#include "StringBuilder.h"
 
 #pragma warning(disable: 4996)
 
@@ -127,7 +128,32 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
             logger.Write(LOG_DEBUG, "Attempting to run script");
             if (g_engine.isInCM()) 
             {
+                //StringBuilder sb;// = new StringBuilder();
+                //for(auto i = 0; i < 200000; i++) {
+                //    sb.append("ForceCPUPlayerOntoTransferList(" + std::to_string(i) + ");");
+                //    sb.append("ForceUserPlayerOntoTransferList(" + std::to_string(i) + ");");
+                //}
+
+                //for (auto j = 0; j < 20; j++) {
+                //    sb.append("UpdateTeamBudget(" + std::to_string(j) + ", 1);");
+                //}
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190870);");
                 g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190872);");
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190879);");
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193079);");
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193080);");
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193081);");
+
+                //g_engine.RunFIFAScript("SackManager(0);");
+                //g_engine.RunFIFAScript("SackManager(1);");
+                //g_engine.RunFIFAScript("SackManager(2);");
+                //// Sack Manager (ID of Team)
+                //g_engine.RunFIFAScript("SackManager(10);"); 
+                //g_engine.RunFIFAScript("SackManager(11);");
+
+                //g_engine.RunFIFAScript(sb.str());
+                /*g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
                 g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
                 g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
                 g_engine.RunFIFAScript("UpdateTeamBudget(11,11);");
@@ -135,7 +161,7 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
                 g_engine.RunFIFAScript("SackManager(2);");
                 g_engine.RunFIFAScript("SackManager(11);");
                 g_engine.RunFIFAScript("SackManager(0);");
-                g_engine.RunFIFAScript("GenerateTransferActivityForTeam(11);");
+                g_engine.RunFIFAScript("GenerateTransferActivityForTeam(11);");*/
             }
         }
 

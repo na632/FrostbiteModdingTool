@@ -27,6 +27,7 @@ using System.Diagnostics;
 using System.Security.Principal;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.IO.Pipes;
 
 namespace CMEUnitTests
 {
@@ -58,7 +59,7 @@ namespace CMEUnitTests
             int? proc = CoreHack.GetProcess();
             while (!proc.HasValue)
             {
-                Debug.Write($"Waiting for FIFA to appear");
+                Debug.WriteLine($"Waiting for FIFA to appear");
                 proc = CoreHack.GetProcess();
                 Thread.Sleep(4000);
             }
@@ -70,19 +71,29 @@ namespace CMEUnitTests
                 //    CoreHack.MemLib.InjectDLL("v2k4InteropHelper.dll");
                 //Assembly.Load()
                 var dllpath = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\v2k4InteropHelper.dll";
-                Debug.Write($"About to inject: {dllpath}");
+                Debug.WriteLine($"About to inject: {dllpath}");
                 var bl = new Bleak.Injector("FIFA20", dllpath, Bleak.InjectionMethod.CreateThread, Bleak.InjectionFlags.None);
                 bl.InjectDll();
-                Debug.Write($"Injected: {dllpath}");
+                Debug.WriteLine($"Injected: {dllpath}");
                 //bl.EjectDll();
                 //Thread checkThread = new Thread(() => {
                 while (true)
                 {
                     Thread.Sleep(2000);
-                    //if (IsInCM() == 1)
-                    //{
-                    //    Debug.WriteLine("Well fuck me sideways, that worked!!");
-                    //}
+                    
+
+                    //var pipeClient =
+                    //new NamedPipeClientStream(".", "dllnamedpipe",
+                    //    PipeDirection.InOut, PipeOptions.None,
+                    //    TokenImpersonationLevel.Impersonation);
+
+                    //Debug.WriteLine("Connecting to server...\n");
+                    //pipeClient.Connect();
+
+                    //Thread.Sleep(500);
+                    //pipeClient.Close();
+                    //// Give the client process some time to display results before exiting.
+                    //Thread.Sleep(4000);
                 }
 
 

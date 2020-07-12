@@ -252,10 +252,26 @@ char* Engine::GetCurrentSreen() {
 // Return(1)(bool): True if inside career mode, otherwise return false
 // Return on error: 
 bool Engine::isInCM() {
-    // LUA state always 0 outside of CM?
-    __int64 L = reinterpret_cast<__int64>(script_service->Lua_State);
+    logger.Write(LOG_DEBUG, "IsInCM()");
 
-    return !(L == 0);
+   
+    // Do a check for the pointers. If they don't exist, re-run the Setup to create them
+    if (!script_service) {
+        Setup();
+        // If it still doesn't exist, then just block the call
+        if (!script_service)
+            return false;
+    }
+
+    if (!script_service->Lua_State)
+        return false;
+
+    auto lstate = reinterpret_cast<lua_State*>(script_service->Lua_State);
+    return lstate != NULL;
+    //// LUA state always 0 outside of CM?
+    //__int64 L = reinterpret_cast<__int64>(script_service->Lua_State);
+
+    //return !(L == 0);
 }
 
 // Constraints: Only in Career Mode.
@@ -570,10 +586,14 @@ void Engine::SetupMainLua() {
 
 std::string Engine::RunFIFAScript(std::string code)
 {
-    g_LRunner.Reset();
-    auto lstate = reinterpret_cast<lua_State*>(script_service->Lua_State);
-    g_LRunner.add_game_lua_state(lstate);
-    return g_LRunner.RunCode(code, true);
+    if (isInCM()) {
+        logger.Write(LOG_DEBUG, "Engine::RunFIFAScript::" + code);
+        g_LRunner.Reset();
+        auto lstate = reinterpret_cast<lua_State*>(script_service->Lua_State);
+        g_LRunner.add_game_lua_state(lstate);
+        return g_LRunner.RunCode(code, true);
+    }
+    return "ERROR";
 }
 
 //void Engine::LoadLegacyTexture(IMGUI_HELPER::ImTexture* tex, std::string path, std::string default_path) {
