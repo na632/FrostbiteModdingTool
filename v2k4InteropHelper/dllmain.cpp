@@ -15,6 +15,7 @@
 #include "engine.h"
 #include "PIPEInteraction.h"
 #include "StringBuilder.h"
+#include "v2k4helpers.h"
 
 #pragma warning(disable: 4996)
 
@@ -128,6 +129,45 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
             logger.Write(LOG_DEBUG, "Attempting to run script");
             if (g_engine.isInCM()) 
             {
+                try {
+                    g_engine.LoadDB();
+                    g_engine.ReloadDB();
+                    // This works but it is slow
+                    /*std::vector<FIFADBRow*> rows = g_engine.GetDBTableRows("teamplayerlinks");
+                    auto filtered = std::find(rows.begin(), rows.end(), [&](FIFADBRow * o) {
+                        return o->row.at("playerid")->value == "190871";
+                        });
+                    if (filtered != rows.end())
+                    {
+                        auto item = (*filtered)->row;
+                        logger.Write(LOG_DEBUG, "found:: " + item.at("playerid")->value);
+                    }*/
+                    std::string shortname = g_engine.dbMgr.tables_ordered.at("teamplayerlinks");
+                    auto t = reinterpret_cast<SDKHelper_FIFADBTable*>(g_engine.dbMgr.tables.at(shortname));
+                    auto row = t->GetSingleRowByField("playerid", "190871");
+                    if (row) {
+                        auto f = new FIFADBField();
+                        //t->AddEditedField(10, f, row->row.begin() )
+                    }
+                        //t->CreateHeaders();
+                    //t->CreateRows();
+                    //auto pkey = t->pkey;
+                    //auto fsn = t->field_name_shortname.at("teamid");
+                    //auto f = t->fields.at(fsn);
+                    ////auto row = t->rows..at(0);
+                    //auto row = std::find_if(t->rows.begin(), t->rows.end(), [&](FIFADBRow* o) { return o->row.at("playerid")->value == "190871"; });
+                    //if (row != t->rows.end())
+                    //{
+                    //   //(*row).
+                    //}
+                    //auto row = t->GetRowForPkey("playerid");
+                }
+                catch(const std::exception&) { /* */ 
+
+                }
+
+                //t->AddEditedField(10, f, f);
+
                 //StringBuilder sb;// = new StringBuilder();
                 //for(auto i = 0; i < 200000; i++) {
                 //    sb.append("ForceCPUPlayerOntoTransferList(" + std::to_string(i) + ");");
@@ -137,13 +177,13 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
                 //for (auto j = 0; j < 20; j++) {
                 //    sb.append("UpdateTeamBudget(" + std::to_string(j) + ", 1);");
                 //}
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190870);");
+                /*g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190870);");
                 g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
                 g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190872);");
                 g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190879);");
                 g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193079);");
                 g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193080);");
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193081);");
+                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193081);");*/
 
                 //g_engine.RunFIFAScript("SackManager(0);");
                 //g_engine.RunFIFAScript("SackManager(1);");

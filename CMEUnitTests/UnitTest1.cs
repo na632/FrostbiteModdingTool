@@ -77,8 +77,9 @@ namespace CMEUnitTests
                 Debug.WriteLine($"Injected: {dllpath}");
                 //bl.EjectDll();
                 //Thread checkThread = new Thread(() => {
-                while (true)
+                while (proc.HasValue)
                 {
+                    proc = CoreHack.GetProcess();
                     Thread.Sleep(2000);
                     
 
@@ -113,19 +114,17 @@ namespace CMEUnitTests
         [TestMethod]
         public void LoadFIFAGameDBPointers()
         {
-            //ShowAMessageBox("tits!");
-
             var proc = CoreHack.GetProcess();
             if(proc.HasValue)
             {
-
-                //var codeGameDB_addy = CoreHack.MemLib.AoBScan("44 8B 7A 34 44 8B 62 38", true, true).Result.FirstOrDefault();
                 var codeGameDB_addy = CoreHack.MemLib.AoBScan(long.Parse(CoreHack.MemLib.getMinAddress().ToString()), 0x00007ffffffeffff, "4C 0F 44 35 ?? ?? ?? ?? 41 8B 4E 08", true, true, true).Result.FirstOrDefault();
                 if (codeGameDB_addy > 0)
                 {
                     
                     var newptr = CoreHack.ResolvePtr(codeGameDB_addy, 4).ToString("X8");
                     Debug.WriteLine(newptr);
+
+
                 }
             }
         }

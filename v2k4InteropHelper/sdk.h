@@ -3,9 +3,7 @@
 #include <Windows.h>
 #include <map>
 #include <algorithm>
-#include <string>
-#include <algorithm> 
-#include <vector>
+#include "logger.h"
 
 #pragma region GameClasses
 class CurrentSreen
@@ -174,11 +172,20 @@ public:
     class DB_FIELD arrFields[999]; //0x0084
 }; //Size: 0x0964
 
+class clsToNames
+{
+public:
+    char pad_0000[680]; //0x0000
+    class DBTableCls* pBGwe; //0x02A8
+    char pad_02B0[1624]; //0x02B0
+}; //Size: 0x0908
+
 class DBTableCls
 {
 public:
     char pad_0008[32]; //0x0008
     class DB_TABLE* instDBTable; //0x0028
+    class clsToNames* toNames; //0x0030
     char pad_0030[56]; //0x0030
 
     virtual void Function0();
@@ -383,6 +390,7 @@ public:
 };
 
 struct FIFADBFieldDesc {
+    std::string parent_table_name = "";
     std::string name = "";
     std::string shortname ="";
     std::string type = "";
@@ -445,6 +453,9 @@ struct FIFADBTable {
     __int32 count_created_rows = 0;
     std::vector<FIFADBRow*> rows;
     std::vector<FIFADBRow*> invalid_rows;
+
+    // pkey - row map
+    std::map<std::string, FIFADBRow*> pkey_row_map;
 
     // (Address_bitstart_depth) - Edited Field
     std::map<std::string, FIFAEditedField*> edited_ints;
@@ -576,7 +587,15 @@ struct FIFADBTable {
         edited_ints.insert(std::pair<std::string, FIFAEditedField*>(key, pEdited));
     }
 
+    FIFADBRow* GetRowForPkey(std::string pkey_value) {
+        if (pkey_row_map.count(pkey_value) == 1)
+            return pkey_row_map.at(pkey_value);
+
+        return NULL;
+    }
+
     void CreateHeaders() {
+        logger.Write(LOG_DEBUG, "CreateHeaders for %s", name.c_str());
         std::vector<std::string> tmp_cols_to_sort;
         for (std::map<std::string, FIFADBFieldDesc*>::iterator it = fields.begin(); it != fields.end(); it++) {
             auto f = it->second;
@@ -608,7 +627,7 @@ struct FIFADBTable {
         count_created_rows = 0;
 
         CreateHeaders();
-        //logger.Write(LOG_DEBUG, "CreateRows for %s", name.c_str());
+        logger.Write(LOG_DEBUG, "CreateRows for %s", name.c_str());
         __int64 addr = first_record;
         
         std::map<std::string, float> tmp_width;
@@ -616,7 +635,7 @@ struct FIFADBTable {
         signed __int32 huf_tree_size = INT_MAX;
         signed __int32 huf_nNodes = 0;
         //__int64 compressed_strings_addr = first_record + (record_size * written_records) + 32;
-        __int64 compressed_strings_addr = first_record + *(__int32*)(first_record - 0x10);
+        __int64 compressed_strings_addr = 0;
 
         std::vector<FIFADBField*> huf_compressed;
         for (__int32 row = 0; row < written_records; row++) {
@@ -664,6 +683,10 @@ struct FIFADBTable {
                             huf_tree_size = compressedstr_offset;
                         };
 
+                        if (compressed_strings_addr == 0) {
+                            compressed_strings_addr = first_record + *(__int32*)(first_record - 0x10);
+                        }
+
                         signed char strlen = *(signed char*)(compressed_strings_addr + compressedstr_offset);
                         newf->value = std::to_string((__int32)strlen);
                     }
@@ -674,7 +697,7 @@ struct FIFADBTable {
                     //if (f->name.compare("assetid") == 0) {
                     //    int xxxxxx = 0;
                     //}
-                    //logger.Write(LOG_DEBUG, "Other Field Type: %s (%d)", f->name.c_str(), f->itype);
+                    logger.Write(LOG_DEBUG, "Other Field Type: %s (%d)", f->name.c_str(), f->itype);
                     //signed __int32 result = getInt(addr, f->offset, f->startbit, f->depth, f->rangelow);
                     newf->value = "TODO";
                 }
@@ -691,6 +714,17 @@ struct FIFADBTable {
                 //logger.Write(LOG_DEBUG, "ROW: %d, %s = %s(%d)", row, f->name.c_str(), r->row[f->name].c_str(), v);
             }
             if (r->is_valid) {
+                if (r->row.count(pkey) == 1) {
+                    std::string pkey_value = r->row[pkey]->value;
+
+                    if (pkey_row_map.count(pkey_value) == 1) {
+                        logger.Write(LOG_WARN, "Pkey duplicate found. Value: %s alredy in %s table", pkey_value.c_str(), name.c_str());
+                    }
+                    else {
+                        pkey_row_map[pkey_value] = r;
+                    }
+                }
+
                 rows.push_back(r);
             }
             else {
@@ -721,7 +755,6 @@ struct FIFADBTable {
 
             delete pHuffmannTree;
         }
-        //logger.Write(LOG_DEBUG, "addr: 0x%08llX", addr);
         rows_created = true;
     }
 
@@ -730,6 +763,7 @@ struct FIFADBTable {
         //shortname.clear();
         //fields.clear();
 
+        pkey_row_map.clear();
         pkey.clear();
         field_name_shortname.clear();
         record_size = 0;
@@ -773,21 +807,24 @@ public:
                 tbl->record_size = pGameTable->record_size;
 
                 if (pGameTable->total_records != pGameTable->total_records2) {
-                    /*logger.Write(LOG_WARN,
+                    logger.Write(LOG_WARN,
                         "total_records (%d) != total_records2 (%d)",
                         pGameTable->total_records,
                         pGameTable->total_records2
-                    );*/
+                    );
                 }
 
                 tbl->total_records = pGameTable->total_records;
                 tbl->written_records = pGameTable->written_records;
                 tbl->valid_records = pGameTable->written_records - pGameTable->canceled_records;
 
-                //logger.Write(LOG_DEBUG, "FirstRecord addr - 0x%08llX", pGameTable->firstRecord);
                 tbl->first_record = reinterpret_cast<__int64>(pGameTable->firstRecord);
                 tbl->n_of_fields = pGameTable->fieldcount;
-                //logger.Write(LOG_DEBUG, "n_of_fields - %d", tbl->n_of_fields);
+                logger.Write(
+                    LOG_DEBUG, 
+                    "Table: %s, FirstRecord addr - 0x%08llX, n_of_fields - %d",
+                    tbl->name.c_str(), pGameTable->firstRecord, tbl->n_of_fields
+                );
                 for (int k = 0; k < tbl->n_of_fields; k++) {
                     auto game_fld = pGameTable->arrFields[k];
                     char fshrtnm[5];
@@ -805,12 +842,12 @@ public:
 
                     }
                     else {
-                        //logger.Write(LOG_WARN, "DB_FIELD %d, %s not found", k, fshrtnm);
+                        logger.Write(LOG_WARN, "DB_FIELD %d, %s not found", k, fshrtnm);
                     }
                 }
             }
             else {
-                //logger.Write(LOG_DEBUG, "Already in");
+                logger.Write(LOG_DEBUG, "%s already in", tbl->name.c_str());
             }
         }
     }
@@ -818,16 +855,68 @@ public:
 
 class FIFAPlayer {
 public:
+    enum ATTRIB_LAYOUT_STYLE {
+        DEFAULT,
+    };
+
+    FIFADBTable* pPlayersTable = NULL;
     FIFADBRow* row = NULL;
+    std::string filterable = "";
+
+    std::string label = "";
+
     std::string playerid = "";
     std::string full_name = "";
+
+    ATTRIB_LAYOUT_STYLE current_style = ATTRIB_LAYOUT_STYLE::DEFAULT;
+
+    bool attribs_loaded = false;
+    bool need_ovr_recalc = false;
+
+    // Attributes
+    struct attrib_range {
+        int min;
+        int max;
+    } attrib_range;
+    int sprintspeed = 0;
+    int acceleration = 0;
+
+    // Load Attributes from DB row
+    void LoadAttribs() {
+        if (attribs_loaded) return;
+        auto r = row->row;
+
+        auto att_desc = GetFieldDesc("sprintspeed");
+
+        attrib_range.min = att_desc->rangelow;
+        attrib_range.max = att_desc->rangehigh;
+
+        sprintspeed = std::stoi(r["sprintspeed"]->value);
+        acceleration = std::stoi(r["acceleration"]->value);
+
+        attribs_loaded = true;
+    }
+
+    void SetAttribLayoutStyle(ATTRIB_LAYOUT_STYLE style) {
+        current_style = style;
+    }
+
+private:
+    FIFADBFieldDesc* GetFieldDesc(std::string fname) {
+        auto shortname = pPlayersTable->field_name_shortname.at(fname);
+        return pPlayersTable->fields.at(shortname);
+    }
+
 };
 
 class FIFAPlayersManager {
 public:
     FIFADBTable* pTable;
+    FIFADBTable* pNamesTable;
+    FIFADBTable* pDCNamesTable;
     bool initialized = false;
     bool thread_started = false;
+    bool is_in_cm = false;
 
     __int32 total_players = 0;
     __int32 loaded_players = 0;
@@ -836,7 +925,8 @@ public:
 
     std::vector<__int32> playerids;
 
-    void initAddrs(uintptr_t pScriptFunctions, uintptr_t GetPlayerNameAddr) {
+    void initAddrs(uintptr_t pScriptService, uintptr_t pScriptFunctions, uintptr_t GetPlayerNameAddr) {
+        script_service = reinterpret_cast<ScriptService*>(pScriptService);
         script_functions = reinterpret_cast<ScriptFunctions*>(pScriptFunctions);
         fnGetPlayerNameAddr = GetPlayerNameAddr;
     }
@@ -845,13 +935,27 @@ public:
         pTable = table;
     }
 
+    void SetNamesTable(FIFADBTable* names_table, FIFADBTable* dcnames_table) {
+        pNamesTable = names_table;
+        pDCNamesTable = dcnames_table;
+    }
+
     void Reload() {
         Clear();
         Load();
     }
 
+    bool isInCM() {
+        __int64 L = reinterpret_cast<__int64>(script_service->Lua_State);
+
+        return !(L == 0);
+    }
+
     void Load() {
         if (initialized) return;
+
+        pNamesTable->CreateRows();
+        pDCNamesTable->CreateRows();
         pTable->CreateRows();
 
         auto pRows = pTable->rows;
@@ -867,10 +971,17 @@ public:
             std::string pid = row["playerid"]->value;
             __int32 ipid = std::stoi(pid);
 
-
+            newplayer->pPlayersTable = pTable;
             newplayer->row = pRow;
             newplayer->playerid = pid;
             newplayer->full_name = GetPlayerName(ipid);
+
+            std::string lbl = newplayer->full_name;
+            lbl.erase(std::find(lbl.begin(), lbl.end(), '\0'), lbl.end());
+            lbl.append(" (PlayerID: " + newplayer->playerid + ")");
+            newplayer->label = lbl;
+
+            newplayer->filterable = lbl;
 
             players_map[pid] = newplayer;
             playerids.push_back(ipid);
@@ -889,17 +1000,100 @@ public:
 
         players_map.clear();
         playerids.clear();
+
+        pTable = NULL;
+        pNamesTable = NULL;
+        pDCNamesTable = NULL;
+
+        thread_started = false;
+        initialized = false;
     }
 
-    char* GetPlayerName(unsigned int playerid) {
-        __int64 pThis = (__int64)script_functions->pScriptFunctions0->pScriptFunctionsUnk1->pScriptFunctionsUnk2->pLuaScriptFunctions;
+    std::string GetPlayerName(unsigned int playerid) {
+        if (isInCM()) {
+            __int64 pThis = (__int64)script_functions->pScriptFunctions0->pScriptFunctionsUnk1->pScriptFunctionsUnk2->pLuaScriptFunctions;
 
-        PlayerName* playername = ((fnGetPlayerName)(fnGetPlayerNameAddr))(pThis, playerid);
+            PlayerName* playername = ((fnGetPlayerName)(fnGetPlayerNameAddr))(pThis, playerid);
+            std::string s(playername->Name);
+            return s;
+        }
+        else {
+            pNamesTable->CreateRows();
+            pDCNamesTable->CreateRows();
+            pTable->CreateRows();
 
-        return playername->Name;
+            auto player = pTable->GetRowForPkey(std::to_string(playerid));
+            if (!player) {
+                logger.Write(LOG_ERROR, "GetPlayerName pkey - %d not found in players table", playerid);
+                return "";
+            }
+
+            auto first_dcnameid = std::stoi(pDCNamesTable->rows[0]->row["nameid"]->value);
+
+            auto commonnameid = player->row["commonnameid"]->value;
+            if (commonnameid != "0") {
+                if (std::stoi(commonnameid) >= first_dcnameid) {
+                    auto dcname = pDCNamesTable->GetRowForPkey(commonnameid);
+                    if (!dcname) {
+                        return "";
+                    }
+                    return dcname->row["name"]->value;
+                }
+                else {
+                    auto pname = pNamesTable->GetRowForPkey(commonnameid);
+                    if (!pname) {
+                        return "";
+                    }
+                    return pname->row["name"]->value;
+                }
+            }
+            else {
+                std::string firstname = "";
+                std::string lastname = "";
+
+                auto firstnameid = player->row["firstnameid"]->value;
+                FIFADBRow* firstname_row;
+                if (std::stoi(firstnameid) >= first_dcnameid) {
+                    firstname_row = pDCNamesTable->GetRowForPkey(firstnameid);
+                }
+                else {
+                    firstname_row = pNamesTable->GetRowForPkey(firstnameid);
+                }
+                if (firstname_row)
+                    firstname = firstname_row->row["name"]->value;
+
+                auto lastnameid = player->row["lastnameid"]->value;
+                FIFADBRow* lastname_row;
+                if (std::stoi(lastnameid) >= first_dcnameid) {
+                    lastname_row = pDCNamesTable->GetRowForPkey(lastnameid);
+                }
+                else {
+                    lastname_row = pNamesTable->GetRowForPkey(lastnameid);
+                }
+
+                if (lastname_row)
+                    lastname = lastname_row->row["name"]->value;
+
+                std::string playername = "";
+
+                if (!firstname.empty()) {
+                    firstname.erase(firstname.size() - 1);
+                    playername.append(firstname);
+                    playername.append(" ");
+                }
+                playername.append(lastname);
+
+                return playername;
+            }
+
+        }
+        
     }
+
+
 
 private:
+    ScriptService* script_service = NULL;
     ScriptFunctions* script_functions = NULL;
     typedef PlayerName* (__fastcall* fnGetPlayerName)(__int64 pThis, unsigned int playerid);
     uintptr_t fnGetPlayerNameAddr = NULL;

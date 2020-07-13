@@ -3,7 +3,7 @@
 #include "patscanner.h"
 #include "game_hooks.h"
 #include "hook_manager.h"
-//#include "../external/tinyxml2.h"
+#include "external/tinyxml2.h"
 #include "lua_api.h"
 #include "engine.h"
 #include "misc.h"
@@ -155,7 +155,7 @@ void Engine::Setup() {
     uintptr_t addrfnGetPlayerName = g_ctx_proc.getAddr("AOB_fnGetPlayerName");
     logger.Write(LOG_DEBUG, "addrfnGetPlayerName:  0x%08llX", addrfnGetPlayerName);
 
-    playersMgr.initAddrs(pScriptFunctions, addrfnGetPlayerName);
+    playersMgr.initAddrs(pScript, pScriptFunctions, addrfnGetPlayerName);
 
     SetupMainLua();
 }
@@ -197,45 +197,45 @@ bool Engine::ParseDBMetaXML(const char* fPath) {
     dbMgr.tables.clear();
 
     // Parse XML
-    //logger.Write(LOG_DEBUG, "Start Parse XML");
-    //tinyxml2::XMLDocument xmlDoc;
-    //xmlDoc.Parse(buf, fs);
-    //try {
-    //    tinyxml2::XMLElement* pRoot = xmlDoc.FirstChildElement("database");
-    //    //logger.Write(LOG_DEBUG, "DB_NAME - %s", pRoot->Attribute("name"));
+    logger.Write(LOG_DEBUG, "Start Parse XML");
+    tinyxml2::XMLDocument xmlDoc;
+    xmlDoc.Parse(buf, fs);
+    try {
+        tinyxml2::XMLElement* pRoot = xmlDoc.FirstChildElement("database");
+        //logger.Write(LOG_DEBUG, "DB_NAME - %s", pRoot->Attribute("name"));
 
-    //    for (tinyxml2::XMLElement* pTable = pRoot->FirstChildElement("table"); pTable != NULL; pTable = pTable->NextSiblingElement()) {
-    //        FIFADBTable* tbl = new FIFADBTable;
-    //        tbl->name = std::string(pTable->Attribute("name"));
-    //        tbl->shortname = std::string(pTable->Attribute("shortname"));
-    //        //logger.Write(LOG_DEBUG, "TABLE_NAME - %s (%s)", tbl->name.c_str(), tbl->shortname.c_str());
+        for (tinyxml2::XMLElement* pTable = pRoot->FirstChildElement("table"); pTable != NULL; pTable = pTable->NextSiblingElement()) {
+            FIFADBTable* tbl = new FIFADBTable;
+            tbl->name = std::string(pTable->Attribute("name"));
+            tbl->shortname = std::string(pTable->Attribute("shortname"));
+            //logger.Write(LOG_DEBUG, "TABLE_NAME - %s (%s)", tbl->name.c_str(), tbl->shortname.c_str());
 
-    //        for (tinyxml2::XMLElement* pField = pTable->FirstChildElement("fields")->FirstChildElement("field"); pField != NULL; pField = pField->NextSiblingElement()) {
-    //            FIFADBFieldDesc* fld = new FIFADBFieldDesc;
-    //            fld->name = std::string(pField->Attribute("name"));
-    //            fld->shortname = std::string(pField->Attribute("shortname"));
-    //            fld->type = std::string(pField->Attribute("type"));
-    //            fld->depth = pField->IntAttribute("depth");
-    //            fld->rangehigh = pField->IntAttribute("rangehigh");
-    //            fld->rangelow = pField->IntAttribute("rangelow");
+            for (tinyxml2::XMLElement* pField = pTable->FirstChildElement("fields")->FirstChildElement("field"); pField != NULL; pField = pField->NextSiblingElement()) {
+                FIFADBFieldDesc* fld = new FIFADBFieldDesc;
+                fld->name = std::string(pField->Attribute("name"));
+                fld->shortname = std::string(pField->Attribute("shortname"));
+                fld->type = std::string(pField->Attribute("type"));
+                fld->depth = pField->IntAttribute("depth");
+                fld->rangehigh = pField->IntAttribute("rangehigh");
+                fld->rangelow = pField->IntAttribute("rangelow");
 
-    //            if (pField->Attribute("key")) {
-    //                if (strcmp(pField->Attribute("key"), "True") == 0) {
-    //                    fld->is_key = true;
-    //                }
-    //            }
-    //            tbl->fields.insert(std::pair<std::string, FIFADBFieldDesc*>(fld->shortname, fld));
-    //        }
+                if (pField->Attribute("key")) {
+                    if (strcmp(pField->Attribute("key"), "True") == 0) {
+                        fld->is_key = true;
+                    }
+                }
+                tbl->fields.insert(std::pair<std::string, FIFADBFieldDesc*>(fld->shortname, fld));
+            }
 
-    //        dbMgr.name_shortname.insert(std::pair<std::string, std::string>(tbl->name, tbl->shortname));
-    //        dbMgr.tables.insert(std::pair<std::string, FIFADBTable*>(tbl->shortname, tbl));
-    //        dbMgr.tables_ordered.insert(std::pair<std::string, std::string>(tbl->name, tbl->shortname));
-    //    }
-    //}
-    //catch (...) {
-    //    logger.Write(LOG_ERROR, "ParseDBMetaXML err");
-    //    return false;
-    //}
+            dbMgr.name_shortname.insert(std::pair<std::string, std::string>(tbl->name, tbl->shortname));
+            dbMgr.tables.insert(std::pair<std::string, FIFADBTable*>(tbl->shortname, tbl));
+            dbMgr.tables_ordered.insert(std::pair<std::string, std::string>(tbl->name, tbl->shortname));
+        }
+    }
+    catch (...) {
+        logger.Write(LOG_ERROR, "ParseDBMetaXML err");
+        return false;
+    }
     return true;
 
 }
@@ -312,7 +312,7 @@ int Engine::GetUserTeamID() {
     return result;
 }
 
-char* Engine::GetTeamName(unsigned int teamid) {
+std::string Engine::GetTeamName(unsigned int teamid) {
     if (!addrfnGetTeamName) {
         addrfnGetTeamName = g_ctx_proc.getAddr("AOB_fnGetTeamName");
         logger.Write(LOG_DEBUG, "addrfnGetTeamName:  0x%08llX", addrfnGetTeamName);
@@ -328,7 +328,7 @@ char* Engine::GetTeamName(unsigned int teamid) {
     return teamname;
 }
 
-char* Engine::GetPlayerName(unsigned int playerid) {
+std::string Engine::GetPlayerName(unsigned int playerid) {
     //if (!isInCM()) {
     //    logger.Write(LOG_ERROR, "GetPlayerName - Not in career mode");
     //    return "";
@@ -539,35 +539,46 @@ void Engine::ReloadDB() {
 
 void Engine::LoadDB() {
     if (dbMgr.initialized) return;
-
+    logger.Write(LOG_DEBUG, "Engine::LoadDB");
     try {
         int DBCount = gDB->pDBinDBContainer->pDBinDB->NumOfDBinDB;
         logger.Write(LOG_DEBUG, "DBCount - %d", DBCount);
 
-        std::vector<DB_TABLE*> arr_nested;
+        bool added_playernames = false;
         for (int i = 0; i < DBCount; i++) {
             DBObj* o = reinterpret_cast<DBObj*>(&gDB->pDBinDBContainer->pDBinDB->DBinDBArr[i]);
             //logger.Write(LOG_INFO, "DBObj %d, addr - 0x%08llX", i, gDB->pDBinDBContainer->pDBinDB->DBinDBArr[i]);
-            logger.Write(LOG_DEBUG, "DBObj %d, addr - 0x%08llX, Tables: %d", i, o, o->NumOfTablesInDB);
+            logger.Write(
+                LOG_DEBUG,
+                "DBObj %d, addr - 0x%08llX, Tables: %d",
+                i, o, o->NumOfTablesInDB
+            );
 
             for (int j = 0; j < o->NumOfTablesInDB; j++) {
                 DBTableClsWraper* w = reinterpret_cast<DBTableClsWraper*>(&o->pDBTables->instDBTableCls[j]);
                 auto game_dbtbl = w->pDBTableCLs->instDBTable;
-                arr_nested.push_back(game_dbtbl->nestedTable);
-                logger.Write(LOG_DEBUG, "DBTableClsWraper %d, addr - 0x%08llX", j, w);
+                logger.Write(
+                    LOG_DEBUG,
+                    "DBTableClsWraper %d, addr - 0x%08llX",
+                    j, w
+                );
                 dbMgr.AddTable(game_dbtbl);
             }
-        }
 
-        for (auto pTable : arr_nested) {
-            dbMgr.AddTable(pTable);
+            if (!added_playernames) {
+                DBTableClsWraper* wrpPlayerNames = reinterpret_cast<DBTableClsWraper*>(&o->pDBTables->instDBTableCls[41]);
+                auto pDbPNames = wrpPlayerNames->pDBTableCLs->toNames->pBGwe->instDBTable;
+                dbMgr.AddTable(pDbPNames);
+                added_playernames = true;
+            }
         }
-
     }
     catch (...) {
         logger.Write(LOG_ERROR, "LoadDB err");
     }
+
     dbMgr.initialized = true;
+    logger.Write(LOG_DEBUG, "Engine::LoadDB Done");
 }
 
 //void Engine::unique_lua_states() {

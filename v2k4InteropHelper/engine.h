@@ -29,8 +29,8 @@ public:
 
     bool isInCM();
     int GetUserTeamID();
-    char* GetTeamName(unsigned int teamid);
-    char* GetPlayerName(unsigned int playerid);
+   std::string GetTeamName(unsigned int teamid);
+   std::string GetPlayerName(unsigned int playerid);
     std::vector<std::string> GetDBTablesNames();
     std::vector<FIFADBFieldDesc*> GetDBTableFields(std::string table_name);
     std::vector<FIFADBRow*> GetDBTableRows(std::string table_name);

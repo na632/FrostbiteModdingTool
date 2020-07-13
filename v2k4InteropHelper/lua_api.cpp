@@ -192,16 +192,16 @@ int LUARunner::lua_GetUserTeamID(lua_State* L)
 int LUARunner::lua_GetTeamName(lua_State* L)
 {
     unsigned int teamid = lua_tointeger(L, 1);
-    char* teamname = g_engine.GetTeamName(teamid);
-    lua_pushstring(L, teamname);
+    std::string teamname = g_engine.GetTeamName(teamid);
+    lua_pushstring(L, teamname.c_str());
     return 1;
 }
 
 int LUARunner::lua_GetPlayerName(lua_State* L)
 {
     unsigned int playerid = lua_tointeger(L, 1);
-    char* playername = g_engine.GetPlayerName(playerid);
-    lua_pushstring(L, playername);
+    std::string playername = g_engine.GetPlayerName(playerid);
+    lua_pushstring(L, playername.c_str());
     return 1;
 }
 

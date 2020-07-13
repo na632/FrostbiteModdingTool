@@ -161,6 +161,7 @@
     <ClInclude Include="AOBs.h" />
     <ClInclude Include="context.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="external\tinyxml2.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="game_hooks.h" />
     <ClInclude Include="globals.h" />
@@ -174,10 +175,12 @@
     <ClInclude Include="PIPEInteraction.h" />
     <ClInclude Include="sdk.h" />
     <ClInclude Include="StringBuilder.h" />
+    <ClInclude Include="v2k4Helpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="external\tinyxml2.cpp" />
     <ClCompile Include="game_hooks.cpp" />
     <ClCompile Include="hook_manager.cpp" />
     <ClCompile Include="logger.cpp" />
