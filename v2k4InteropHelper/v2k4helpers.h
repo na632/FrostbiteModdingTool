@@ -20,6 +20,14 @@ public:
 
 };
 
+struct EngineHelper : Engine {
+public:
+    bool EditDBTableField(std::string table, std::string field, FIFADBRow* row, std::string newValue) {
+        return g_engine.EditDBTableField("teamplayerlinks", "teamid", row->row.at("teamid")->addr, row->row.at("teamid")->offset, newValue);
+    }
+
+};
+
 struct SDKHelper_FIFADBTable : FIFADBTable {
 private:
     FIFADBRow* GetSingleRowByFieldAlreadyGotAllRows(std::string field_name, std::string value) {

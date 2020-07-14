@@ -124,6 +124,19 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
     for (;;) {
         Sleep(1000);
 
+        if (GetAsyncKeyState(VK_F3)) {
+            Sleep(900);
+            if (g_engine.isInCM())
+            {
+                try {
+                    g_engine.RunFIFAScript("PickTeam(11);CleanupPickTeam(11);");
+                }
+                catch (const std::exception&) { /* */
+
+                }
+
+            }
+        }
         if (GetAsyncKeyState(VK_DELETE)) {
             Sleep(1000);
             logger.Write(LOG_DEBUG, "Attempting to run script");
@@ -146,8 +159,25 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
                     auto t = reinterpret_cast<SDKHelper_FIFADBTable*>(g_engine.dbMgr.tables.at(shortname));
                     auto row = t->GetSingleRowByField("playerid", "190871");
                     if (row) {
-                        auto f = new FIFADBField();
+                        //auto f = new FIFADBField();
                         //t->AddEditedField(10, f, row->row.begin() )
+                        auto current_team_id = row->row.at("teamid")->value;
+                        g_engine.EditDBTableField("teamplayerlinks", "teamid", row->row.at("teamid")->addr, row->row.at("teamid")->offset, "11");
+                        g_engine.RunFIFAScript("PickTeam(" + current_team_id + ");CleanupPickTeam(" + current_team_id + ");");
+                        g_engine.RunFIFAScript("PickTeam(11);CleanupPickTeam(11);");
+
+                        //auto t2 = reinterpret_cast<SDKHelper_FIFADBTable*>(g_engine.dbMgr.tables.at(g_engine.dbMgr.tables_ordered.at("career_playercontract")));
+                        //auto row2 = t2->GetRowForPkey("playerid");
+                        ////auto row2 = t2->GetSingleRowByField("playerid", "0");
+                        //if (row2) {
+                        //    //auto enginehelper = reinterpret_cast<EngineHelper*>(g_engine);
+                        //    g_engine.EditDBTableField("career_playercontract", "teamid", row2->row.at("teamid")->addr, row2->row.at("teamid")->offset, "10");
+                        //    /*g_engine.EditDBTableField("career_playercontract", "playerid", row2->row.at("playerid")->addr, row2->row.at("playerid")->offset, "190871");
+                        //    g_engine.EditDBTableField("career_playercontract", "wage", row2->row.at("wage")->addr, row2->row.at("wage")->offset, "200000");
+                        //    g_engine.EditDBTableField("career_playercontract", "contract_date", row2->row.at("contract_date")->addr, row2->row.at("contract_date")->offset, "20190630");
+                        //    g_engine.EditDBTableField("career_playercontract", "duration_months", row2->row.at("duration_months")->addr, row2->row.at("duration_months")->offset, "48");*/
+                        //}
+                        
                     }
                         //t->CreateHeaders();
                     //t->CreateRows();
