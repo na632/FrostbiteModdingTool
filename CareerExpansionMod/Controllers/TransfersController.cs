@@ -10,6 +10,16 @@ namespace CareerExpansionMod.Controllers
     {
         public IActionResult Index()
         {
+            return View("TransfersDashboard");
+        }
+
+        public IActionResult TransfersDashboard()
+        {
+            return View();
+        }
+
+        public IActionResult ManualTransfer()
+        {
             return View();
         }
     }

@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.0.0" />
+    <PackageReference Include="Bleak" Version="3.1.1" />
     <PackageReference Include="CsvHelper" Version="15.0.5" />
     <PackageReference Include="DynamicJavascriptRuntime.Blazor.Evaluator" Version="1.1.0" />
     <PackageReference Include="ElectronNET.API" Version="9.31.1" />
@@ -253,5 +254,10 @@
     <Content Include="CEM\Data\BaseData\Sponsors.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\v2k4InteropHelper\x64\Debug\v2k4InteropHelper.dll" Link="v2k4InteropHelper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

@@ -13,14 +13,15 @@
 #include <filesystem>
 #include <TlHelp32.h>
 #include "engine.h"
-#include "PIPEInteraction.h"
 #include "StringBuilder.h"
 #include "v2k4helpers.h"
+#include "AppInteraction.h"
 
 #pragma warning(disable: 4996)
 
 namespace fs = std::filesystem;
-PIPEInteraction* PIPEInteractionInstance;
+HMODULE hMods[1024];
+bool RUNMAINENTRY = true;
 
 void SetupLogger() {
     const std::string logPath = g_ctx_dll.GetFolder() + "\\Logs";
@@ -73,10 +74,48 @@ void EjectDLL(HMODULE hModule)
     FreeLibraryAndExitThread(hModule, EXIT_SUCCESS);
 };
 
-
-DWORD WINAPI mainFunc(LPVOID lpModule)
+HANDLE GetProcessByName(std::string name)
 {
-    Sleep(200);
+    DWORD pid = 0;
+
+    // Create toolhelp snapshot.
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 process;
+    ZeroMemory(&process, sizeof(process));
+    process.dwSize = sizeof(process);
+
+    // Walkthrough all processes.
+    if (Process32First(snapshot, &process))
+    {
+        do
+        {
+            // Compare process.szExeFile based on format of name, i.e., trim file path
+            // trim .exe if necessary, etc.
+            if (std::string(process.szExeFile) == name)
+            {
+                pid = process.th32ProcessID;
+                break;
+            }
+        } while (Process32Next(snapshot, &process));
+    }
+
+    CloseHandle(snapshot);
+
+    if (pid != 0)
+    {
+        return OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+    }
+
+    // Not found
+
+
+    return NULL;
+}
+//PIPE Connection Setup
+AppInteraction* appInteraction;
+
+void Init(HMODULE lpModule) {
+   
 
     // Attached to
     g_ctx_proc.Update(GetModuleHandle(NULL));
@@ -91,7 +130,9 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
     g_ctx_dll.Update(reinterpret_cast<HMODULE>(lpModule));
 
     //
-    g_ctx_ucrtbase_dll.Update(GetModuleHandle("ucrtbase.dll"));
+    auto ucrtbasedll = GetModuleHandle("ucrtbase.dll");
+    if(ucrtbasedll != NULL)
+        g_ctx_ucrtbase_dll.Update(ucrtbasedll);
 
     // Setup all kind of logs
     SetupLogger();
@@ -105,80 +146,91 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
         mod_size
     );
 
-#ifdef _DEBUG
     logger.SetMinLevel((LogLevel)0);
-#else
-    int minlvl = g_config.ReadInt("/Logger/log_level", 1);
-    logger.SetMinLevel((LogLevel)minlvl);
-#endif
 
     // Live Editor Engine
     g_engine.Setup();
-    //MessageBox(NULL, "This bitch has done something!", "This bitch has done something!", MB_OK);
 
     //PIPE Connection Setup
-    PIPEInteractionInstance = new PIPEInteraction();
-    PIPEInteractionInstance->CreateServerPipe();
+    if(RUNMAINENTRY)
+        appInteraction = new AppInteraction();
 
-    logger.Write(LOG_DEBUG, "Start main loop");
-    for (;;) {
-        Sleep(1000);
+}
 
-        if (GetAsyncKeyState(VK_F3)) {
-            Sleep(900);
-            if (g_engine.isInCM())
-            {
-                try {
-                    g_engine.RunFIFAScript("PickTeam(11);CleanupPickTeam(11);");
-                }
-                catch (const std::exception&) { /* */
 
-                }
+DWORD WINAPI mainFunc(LPVOID lpModule)
+{
+    Sleep(5000);
+    if (RUNMAINENTRY) {
+        //Init(reinterpret_cast<HMODULE>(lpModule));
+        Init(GetModuleHandle(NULL));
 
-            }
-        }
-        if (GetAsyncKeyState(VK_DELETE)) {
+        logger.Write(LOG_DEBUG, "Start main loop");
+
+        while (RUNMAINENTRY) {
             Sleep(1000);
-            logger.Write(LOG_DEBUG, "Attempting to run script");
-            if (g_engine.isInCM()) 
-            {
-                try {
-                    g_engine.LoadDB();
-                    g_engine.ReloadDB();
-                    // This works but it is slow
-                    /*std::vector<FIFADBRow*> rows = g_engine.GetDBTableRows("teamplayerlinks");
-                    auto filtered = std::find(rows.begin(), rows.end(), [&](FIFADBRow * o) {
-                        return o->row.at("playerid")->value == "190871";
-                        });
-                    if (filtered != rows.end())
-                    {
-                        auto item = (*filtered)->row;
-                        logger.Write(LOG_DEBUG, "found:: " + item.at("playerid")->value);
-                    }*/
-                    std::string shortname = g_engine.dbMgr.tables_ordered.at("teamplayerlinks");
-                    auto t = reinterpret_cast<SDKHelper_FIFADBTable*>(g_engine.dbMgr.tables.at(shortname));
-                    auto row = t->GetSingleRowByField("playerid", "190871");
-                    if (row) {
-                        //auto f = new FIFADBField();
-                        //t->AddEditedField(10, f, row->row.begin() )
-                        auto current_team_id = row->row.at("teamid")->value;
-                        g_engine.EditDBTableField("teamplayerlinks", "teamid", row->row.at("teamid")->addr, row->row.at("teamid")->offset, "11");
-                        g_engine.RunFIFAScript("PickTeam(" + current_team_id + ");CleanupPickTeam(" + current_team_id + ");");
-                        g_engine.RunFIFAScript("PickTeam(11);CleanupPickTeam(11);");
 
-                        //auto t2 = reinterpret_cast<SDKHelper_FIFADBTable*>(g_engine.dbMgr.tables.at(g_engine.dbMgr.tables_ordered.at("career_playercontract")));
-                        //auto row2 = t2->GetRowForPkey("playerid");
-                        ////auto row2 = t2->GetSingleRowByField("playerid", "0");
-                        //if (row2) {
-                        //    //auto enginehelper = reinterpret_cast<EngineHelper*>(g_engine);
-                        //    g_engine.EditDBTableField("career_playercontract", "teamid", row2->row.at("teamid")->addr, row2->row.at("teamid")->offset, "10");
-                        //    /*g_engine.EditDBTableField("career_playercontract", "playerid", row2->row.at("playerid")->addr, row2->row.at("playerid")->offset, "190871");
-                        //    g_engine.EditDBTableField("career_playercontract", "wage", row2->row.at("wage")->addr, row2->row.at("wage")->offset, "200000");
-                        //    g_engine.EditDBTableField("career_playercontract", "contract_date", row2->row.at("contract_date")->addr, row2->row.at("contract_date")->offset, "20190630");
-                        //    g_engine.EditDBTableField("career_playercontract", "duration_months", row2->row.at("duration_months")->addr, row2->row.at("duration_months")->offset, "48");*/
-                        //}
-                        
+           /* if (GetAsyncKeyState(VK_F4)) {
+                Sleep(1000);
+                fs::create_directory("sandbox");
+
+            }*/
+
+            if (GetAsyncKeyState(VK_F3)) {
+                Sleep(900);
+                if (g_engine.isInCM())
+                {
+                    try {
+                        g_engine.RunFIFAScript("PickTeam(11);CleanupPickTeam(11);");
                     }
+                    catch (const std::exception&) { /* */
+
+                    }
+
+                }
+            }
+            if (GetAsyncKeyState(VK_DELETE)) {
+                Sleep(1000);
+                logger.Write(LOG_DEBUG, "Attempting to run script");
+                if (g_engine.isInCM())
+                {
+                    try {
+                        g_engine.LoadDB();
+                        g_engine.ReloadDB();
+                        // This works but it is slow
+                        /*std::vector<FIFADBRow*> rows = g_engine.GetDBTableRows("teamplayerlinks");
+                        auto filtered = std::find(rows.begin(), rows.end(), [&](FIFADBRow * o) {
+                            return o->row.at("playerid")->value == "190871";
+                            });
+                        if (filtered != rows.end())
+                        {
+                            auto item = (*filtered)->row;
+                            logger.Write(LOG_DEBUG, "found:: " + item.at("playerid")->value);
+                        }*/
+                        std::string shortname = g_engine.dbMgr.tables_ordered.at("teamplayerlinks");
+                        auto t = reinterpret_cast<SDKHelper_FIFADBTable*>(g_engine.dbMgr.tables.at(shortname));
+                        auto row = t->GetSingleRowByField("playerid", "190871");
+                        if (row) {
+                            //auto f = new FIFADBField();
+                            //t->AddEditedField(10, f, row->row.begin() )
+                            auto current_team_id = row->row.at("teamid")->value;
+                            g_engine.EditDBTableField("teamplayerlinks", "teamid", row->row.at("teamid")->addr, row->row.at("teamid")->offset, "11");
+                            g_engine.RunFIFAScript("PickTeam(" + current_team_id + ");CleanupPickTeam(" + current_team_id + ");");
+                            g_engine.RunFIFAScript("PickTeam(11);CleanupPickTeam(11);");
+
+                            //auto t2 = reinterpret_cast<SDKHelper_FIFADBTable*>(g_engine.dbMgr.tables.at(g_engine.dbMgr.tables_ordered.at("career_playercontract")));
+                            //auto row2 = t2->GetRowForPkey("playerid");
+                            ////auto row2 = t2->GetSingleRowByField("playerid", "0");
+                            //if (row2) {
+                            //    //auto enginehelper = reinterpret_cast<EngineHelper*>(g_engine);
+                            //    g_engine.EditDBTableField("career_playercontract", "teamid", row2->row.at("teamid")->addr, row2->row.at("teamid")->offset, "10");
+                            //    /*g_engine.EditDBTableField("career_playercontract", "playerid", row2->row.at("playerid")->addr, row2->row.at("playerid")->offset, "190871");
+                            //    g_engine.EditDBTableField("career_playercontract", "wage", row2->row.at("wage")->addr, row2->row.at("wage")->offset, "200000");
+                            //    g_engine.EditDBTableField("career_playercontract", "contract_date", row2->row.at("contract_date")->addr, row2->row.at("contract_date")->offset, "20190630");
+                            //    g_engine.EditDBTableField("career_playercontract", "duration_months", row2->row.at("duration_months")->addr, row2->row.at("duration_months")->offset, "48");*/
+                            //}
+
+                        }
                         //t->CreateHeaders();
                     //t->CreateRows();
                     //auto pkey = t->pkey;
@@ -191,61 +243,69 @@ DWORD WINAPI mainFunc(LPVOID lpModule)
                     //   //(*row).
                     //}
                     //auto row = t->GetRowForPkey("playerid");
+                    }
+                    catch (const std::exception&) { /* */
+
+                    }
+
+                    //t->AddEditedField(10, f, f);
+
+                    //StringBuilder sb;// = new StringBuilder();
+                    //for(auto i = 0; i < 200000; i++) {
+                    //    sb.append("ForceCPUPlayerOntoTransferList(" + std::to_string(i) + ");");
+                    //    sb.append("ForceUserPlayerOntoTransferList(" + std::to_string(i) + ");");
+                    //}
+
+                    //for (auto j = 0; j < 20; j++) {
+                    //    sb.append("UpdateTeamBudget(" + std::to_string(j) + ", 1);");
+                    //}
+                    /*g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190870);");
+                    g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
+                    g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190872);");
+                    g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190879);");
+                    g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193079);");
+                    g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193080);");
+                    g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193081);");*/
+
+                    //g_engine.RunFIFAScript("SackManager(0);");
+                    //g_engine.RunFIFAScript("SackManager(1);");
+                    //g_engine.RunFIFAScript("SackManager(2);");
+                    //// Sack Manager (ID of Team)
+                    //g_engine.RunFIFAScript("SackManager(10);"); 
+                    //g_engine.RunFIFAScript("SackManager(11);");
+
+                    //g_engine.RunFIFAScript(sb.str());
+                    /*g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
+                    g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
+                    g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
+                    g_engine.RunFIFAScript("UpdateTeamBudget(11,11);");
+                    g_engine.RunFIFAScript("SackManager(1);");
+                    g_engine.RunFIFAScript("SackManager(2);");
+                    g_engine.RunFIFAScript("SackManager(11);");
+                    g_engine.RunFIFAScript("SackManager(0);");
+                    g_engine.RunFIFAScript("GenerateTransferActivityForTeam(11);");*/
                 }
-                catch(const std::exception&) { /* */ 
-
-                }
-
-                //t->AddEditedField(10, f, f);
-
-                //StringBuilder sb;// = new StringBuilder();
-                //for(auto i = 0; i < 200000; i++) {
-                //    sb.append("ForceCPUPlayerOntoTransferList(" + std::to_string(i) + ");");
-                //    sb.append("ForceUserPlayerOntoTransferList(" + std::to_string(i) + ");");
-                //}
-
-                //for (auto j = 0; j < 20; j++) {
-                //    sb.append("UpdateTeamBudget(" + std::to_string(j) + ", 1);");
-                //}
-                /*g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190870);");
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190872);");
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190879);");
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193079);");
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193080);");
-                g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(193081);");*/
-
-                //g_engine.RunFIFAScript("SackManager(0);");
-                //g_engine.RunFIFAScript("SackManager(1);");
-                //g_engine.RunFIFAScript("SackManager(2);");
-                //// Sack Manager (ID of Team)
-                //g_engine.RunFIFAScript("SackManager(10);"); 
-                //g_engine.RunFIFAScript("SackManager(11);");
-
-                //g_engine.RunFIFAScript(sb.str());
-                /*g_engine.RunFIFAScript("ForceCPUPlayerOntoTransferList(190871);");
-                g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
-                g_engine.RunFIFAScript("ForceUserPlayerOntoTransferList(193080);");
-                g_engine.RunFIFAScript("UpdateTeamBudget(11,11);");
-                g_engine.RunFIFAScript("SackManager(1);");
-                g_engine.RunFIFAScript("SackManager(2);");
-                g_engine.RunFIFAScript("SackManager(11);");
-                g_engine.RunFIFAScript("SackManager(0);");
-                g_engine.RunFIFAScript("GenerateTransferActivityForTeam(11);");*/
             }
-        }
 
-        if (GetAsyncKeyState(VK_END)) {
-            Sleep(1000);
-            logger.Write(LOG_DEBUG, "Stopping");
-            break;
+            if (GetAsyncKeyState(VK_END)) {
+                Sleep(1000);
+                logger.Write(LOG_DEBUG, "Stopping");
+                RUNMAINENTRY = false;
+                break;
+            }
+            //logger.Write(LOG_DEBUG, "Tick");
         }
-        //logger.Write(LOG_DEBUG, "Tick");
+        logger.Write(LOG_DEBUG, "End main loop");
+
+        // close it off
+        appInteraction->close();
+        delete appInteraction; //freed memory
+        appInteraction = NULL; //pointed dangling ptr to NULL
+
+
+        //MessageBox(NULL, "DLL Ejected...", "DLL Ejected...", MB_ICONINFORMATION);
+        EjectDLL(reinterpret_cast<HMODULE>(lpModule));
     }
-    logger.Write(LOG_DEBUG, "End main loop");
-
-    //MessageBox(NULL, "DLL Ejected...", "DLL Ejected...", MB_ICONINFORMATION);
-    EjectDLL(reinterpret_cast<HMODULE>(lpModule));
     return 0;
 }
 
@@ -263,7 +323,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
         // This will be the injection into FIFA if Needed
     case DLL_PROCESS_ATTACH:
         //DisableThreadLibraryCalls(hModule);
-        CreateThread(NULL, 0, mainFunc, hModule, NULL, NULL);
+        //if(RUNMAINENTRY)
+            
+            CreateThread(NULL, 0, mainFunc, hModule, NULL, NULL);
         break;
     case DLL_THREAD_ATTACH:
         //CreateThread(NULL, 0, mainFunc, hModule, NULL, NULL);
@@ -275,10 +337,94 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 
+
+
+
 extern "C"
 {
     __declspec(dllexport) void ShowAMessageBox(char* message) {
         MessageBox(NULL, message, message, MB_OK);
+    }
+
+    __declspec(dllexport) void * GetLUAState() {
+       
+        RUNMAINENTRY = false;
+
+        SetupLogger();
+
+        DWORD cbNeeded;
+
+        logger.Write(LOG_DEBUG, "Getting Process by Name");
+
+        auto handle = GetProcessByName("FIFA20.exe");
+        if (EnumProcessModules(handle, hMods, sizeof(hMods), &cbNeeded))
+        {
+            for (auto i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+            {
+                TCHAR szModName[MAX_PATH];
+                if(GetModuleBaseName(handle, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+                // Get the full path to the module's file.
+               /* if (GetModuleFileNameEx(handle, hMods[i], szModName,
+                    sizeof(szModName) / sizeof(TCHAR)))*/
+                {
+                    logger.Write(LOG_DEBUG, szModName);
+                    //if (std::string(szModName) == "FIFA20.exe") {
+                        Init(hMods[i]);
+                        if (g_engine.isInCM()) {
+                            return g_engine.script_service->Lua_State;
+                        }
+                        //break;
+                    //}
+                }
+            }
+        }
+       /* EnumProcessModules(handle, )
+        */
+
+        logger.Write(LOG_DEBUG, "Closing Handle");
+        CloseHandle(handle);
+        return 0;
+    }
+
+    __declspec(dllexport) void* RunLUAScript(std::string code) {
+
+        RUNMAINENTRY = false;
+
+        SetupLogger();
+
+        DWORD cbNeeded;
+        unsigned int i;
+
+        logger.Write(LOG_DEBUG, "Getting Process by Name");
+
+        auto handle = GetProcessByName("FIFA20.exe");
+        if (EnumProcessModules(handle, hMods, sizeof(hMods), &cbNeeded))
+        {
+            for (auto i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+            {
+                TCHAR szModName[MAX_PATH];
+                if (GetModuleBaseName(handle, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+                    // Get the full path to the module's file.
+                   /* if (GetModuleFileNameEx(handle, hMods[i], szModName,
+                        sizeof(szModName) / sizeof(TCHAR)))*/
+                {
+                    logger.Write(LOG_DEBUG, szModName);
+                    if (std::string(szModName) == "FIFA20.exe") {
+                        Init(hMods[i]);
+                        if (g_engine.isInCM()) {
+                            g_engine.RunFIFAScript(code);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        /* EnumProcessModules(handle, )
+         */
+
+        logger.Write(LOG_DEBUG, "Closing Handle");
+        CloseHandle(handle);
+        return 0;
     }
 }
 //

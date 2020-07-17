@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.AspNetCore.ResponseCompression;
 using CareerExpansionMod.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using System.Reflection;
 
 namespace CareerExpansionMod
 {
@@ -358,6 +359,13 @@ namespace CareerExpansionMod
 
         private void OnShutdown()
         {
+            if(BleakInjector!=null)
+            {
+                Debug.WriteLine("Ejecting DLL");
+                BleakInjector.EjectDll();
+                BleakInjector.Dispose();
+                BleakInjector = null;
+            }
             //thread.Abort();
             //thread = null;
             //GC.Collect();
@@ -369,7 +377,7 @@ namespace CareerExpansionMod
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Microsoft.Extensions.Hosting.IHostApplicationLifetime applicationLifetime)
         {
-            //applicationLifetime.ApplicationStopping.Register(OnShutdown);
+            applicationLifetime.ApplicationStopping.Register(OnShutdown);
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
             {
@@ -414,6 +422,7 @@ namespace CareerExpansionMod
             });
             CEMCore.InitialStartupOfCEM();
             SetupKeyPressAndFIFAIntegration();
+            SetupInjectOfDLL();
 
             var browserWindowOptions = new BrowserWindowOptions()
             {
@@ -449,7 +458,46 @@ namespace CareerExpansionMod
 
         }
 
-        bool DontUseElectronProcess = false;
+        Thread InjectDLLThread;
+        Bleak.Injector BleakInjector;
+        private void SetupInjectOfDLL()
+        {
+            InjectDLLThread = new Thread((object o) =>
+            {
+                int? proc = CoreHack.GetProcess();
+                while (!proc.HasValue)
+                {
+                    Debug.WriteLine($"Waiting for FIFA to appear");
+                    proc = CoreHack.GetProcess();
+                    Thread.Sleep(4000);
+                }
+                if (proc.HasValue)
+                {
+                    Thread.Sleep(1000);
+
+                    //if (File.Exists("v2k4InteropHelper.dll"))
+                    //    CoreHack.MemLib.InjectDLL("v2k4InteropHelper.dll");
+                    //Assembly.Load()
+                    var dllpath = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\v2k4InteropHelper.dll";
+                    Debug.WriteLine($"About to inject: {dllpath}");
+                    BleakInjector = new Bleak.Injector("FIFA20", dllpath, Bleak.InjectionMethod.CreateThread, Bleak.InjectionFlags.None);
+                    BleakInjector.InjectDll();
+                    Debug.WriteLine($"Injected: {dllpath}");
+                    //bl.EjectDll();
+                    //Thread checkThread = new Thread(() => {
+                    while (proc.HasValue)
+                    {
+                        proc = CoreHack.GetProcess();
+                        Thread.Sleep(2000);
+                    }
+                    BleakInjector.EjectDll();
+
+                }
+            });
+            InjectDLLThread.Start();
+        }
+
+            bool DontUseElectronProcess = false;
         bool DontUseCEMProcess = false;
         /// <summary>
         /// Setup (F2) Key Press And FIFA Integration

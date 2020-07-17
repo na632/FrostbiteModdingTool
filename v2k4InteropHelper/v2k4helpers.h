@@ -40,7 +40,7 @@ private:
         {
             return *row;
         }
-
+        return NULL;
     }
 public:
 

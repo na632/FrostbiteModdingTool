@@ -3,7 +3,6 @@
 #include "sdk.h"
 
 #include <fstream>
-
 class Engine
 {
 public:
@@ -42,12 +41,13 @@ public:
     void LoadDB();
 
     void SetupMainLua();
-    bool LUASetupComplete;
+    static ScriptService* GetScriptService();
+    bool LUASetupComplete = false;
 
     bool ValidateFieldChange(std::string new_value, FIFADBFieldDesc* fdesc);
 
-    ScriptService* script_service;
-    ScriptFunctions* script_functions;
+    ScriptService* script_service = NULL;
+    ScriptFunctions* script_functions = NULL;
 
     std::string RunFIFAScript(std::string code);
 

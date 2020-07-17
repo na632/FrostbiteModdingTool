@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace CareerExpansionMod.CEM.MemHack
 {
-    unsafe public class Globals
+    unsafe public struct Globals
     {
-        public GlobalsChild child; //0x0000
+        public GlobalsChild* child; //0x0000
     }
 
     unsafe public struct GlobalsChild

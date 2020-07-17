@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\AppInteraction">
+      <UniqueIdentifier>{74dc8a4f-6993-482b-a36d-dc1588d74b08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -57,9 +60,6 @@
     <ClInclude Include="logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PIPEInteraction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StringBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -67,6 +67,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="v2k4Helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AppInteraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AppInteractionTransfer.h">
+      <Filter>Header Files\AppInteraction</Filter>
+    </ClInclude>
+    <ClInclude Include="external\jsoncpp\include\json\json.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,10 +104,16 @@
     <ClCompile Include="lua_api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PIPEInteraction.cpp">
+    <ClCompile Include="external\tinyxml2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\tinyxml2.cpp">
+    <ClCompile Include="external\jsoncpp\src\lib_json\json_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\jsoncpp\src\lib_json\json_value.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\jsoncpp\src\lib_json\json_writer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

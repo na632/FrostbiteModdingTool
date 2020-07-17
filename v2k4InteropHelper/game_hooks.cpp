@@ -474,7 +474,7 @@ void HookIGO() {
 }
 
 void installCrucialHooks() {
-    logger.Write(LOG_INFO, "installCrucialHooks");
+    logger.Write(LOG_DEBUG, "installCrucialHooks");
 
     uintptr_t addr = 0;
 

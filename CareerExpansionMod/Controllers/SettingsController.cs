@@ -21,5 +21,12 @@ namespace CareerExpansionMod.Controllers
             settings.Save();
             return new RedirectToActionResult("Index", "Settings", null);
         }
+
+        [HttpPost]
+        public RedirectToActionResult RunLUAScript(string luascript)
+        {
+
+            return new RedirectToActionResult("Index", "Settings", null);
+        }
     }
 }
