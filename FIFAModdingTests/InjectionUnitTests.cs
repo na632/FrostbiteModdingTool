@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Memory;
-using v2k4FIFAModdingCL.MemHack.Core;
-using v2k4FIFAModdingCL.MemHack.Career;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Diagnostics;

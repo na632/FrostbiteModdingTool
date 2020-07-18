@@ -56,14 +56,14 @@
                         <Label Content="Launch FIFA (Editor Projects)" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <Button x:Name="btnBuildModsLive" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                <!--<Button x:Name="btnBuildModsLive" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnBuildModsLive_Click"
                     ToolTip="Build Mod Folder">
                     <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
                         <Label Content="Build Mod Folder" VerticalAlignment="Center" />
                     </StackPanel>
-                </Button>
+                </Button>-->
                 <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
                     <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />

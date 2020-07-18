@@ -145,7 +145,7 @@ namespace FIFAModdingUI
             var dialog = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
             dialog.Title = "Browse for your mod";
             dialog.Multiselect = false;
-            dialog.Filter = "fbmod files (*.fbmod)|*.fbmod";
+            dialog.Filter = "zip files (*.zip)|*.zip|fbmod files (*.fbmod)|*.fbmod";
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
@@ -209,12 +209,18 @@ namespace FIFAModdingUI
 
         public void LogWarning(string text, params object[] vars)
         {
-           
+            Dispatcher.Invoke(() =>
+            {
+                lblProgressText.Text = text;
+            });
         }
 
         public void LogError(string text, params object[] vars)
         {
-            
+            Dispatcher.Invoke(() =>
+            {
+                lblProgressText.Text = text;
+            });
         }
     }
 

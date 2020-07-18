@@ -15,6 +15,7 @@ using System.Windows;
 using System.Threading;
 using FrostySdk;
 using FrostySdk.Managers;
+using FIFAModdingUI;
 //using FifaLibrary;
 
 namespace FIFAModdingTests
@@ -127,8 +128,9 @@ namespace FIFAModdingTests
         [TestMethod]
         public void TestLaunchFIFAWithMods()
         {
+            var r = LaunchFIFA.LaunchAsync(@"E:\Origin Games\FIFA 20", "", new List<string>() { @"C:\Users\paula\Downloads\Other Faces.zip" }).Result;
 
-            FIFAModdingUI.LaunchFIFA.Launch(@"E:\Origin Games\FIFA 20", "Mods/", new FIFAModdingUI.Mods.ModList().ModListItems);
+            //FIFAModdingUI.LaunchFIFA.Launch(@"E:\Origin Games\FIFA 20", "Mods/", new FIFAModdingUI.Mods.ModList().ModListItems);
 
         }
 

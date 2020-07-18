@@ -16,6 +16,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Frosty.ModSupport;
+using System.IO.Compression;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -2730,6 +2731,9 @@ namespace paulv2k4ModdingExecuter
         }
         string modDirName = "ModData";
 
+      
+
+
         public async Task<bool> BuildModData(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
         {
             fs = inFs;
@@ -2759,96 +2763,67 @@ namespace paulv2k4ModdingExecuter
                     return false;
                 }
             }
-            //await Task.Run(delegate
-            //{
+            
             Logger.Log("Initializing resources");
-            //if (ProfilesLibrary.DataVersion == 20171117)
-            //{
-            //    foreach (string catalog3 in fs.Catalogs)
-            //    {
-            //        int catFileHash = 0;
-            //        Dictionary<int, Dictionary<uint, CatResourceEntry>> dictionary = LoadCatalog(fs, "native_data/" + catalog3 + "/cas.cat", out catFileHash);
-            //        if (dictionary != null)
-            //        {
-            //            resources.Add(catFileHash, dictionary);
-            //        }
-            //        dictionary = LoadCatalog(fs, "native_patch/" + catalog3 + "/cas.cat", out catFileHash);
-            //        if (dictionary != null)
-            //        {
-            //            resources.Add(catFileHash, dictionary);
-            //        }
-            //    }
-            //    rm = new ResourceManager(fs);
-            //    rm.Initialize();
-            //}
-            //else
-            //{
+            
             rm = new ResourceManager(fs);
             rm.Initialize();
-            //}
+
             Logger.Log("Loading mods");
             bool rebuildModDataFolder = true;
-            //if (!File.Exists(modPath + patchPath + "/mods.txt"))
-            //{
-            //	flag = true;
-            //}
-            //else
-            //{
-            //	List<string> list = new List<string>();
-            //	using (TextReader textReader = new StreamReader(modPath + patchPath + "/mods.txt"))
-            //	{
-            //		while (textReader.Peek() != -1)
-            //		{
-            //			list.Add(textReader.ReadLine());
-            //		}
-            //	}
-            //	if (IsSamePatch(modPath + patchPath))
-            //	{
-            //		if (list.Count != modPaths.Length)
-            //		{
-            //			flag = true;
-            //		}
-            //		else
-            //		{
-            //			for (int j = 0; j < list.Count; j++)
-            //			{
-            //				FileInfo fileInfo = new FileInfo(rootPath + modPaths[j]);
-            //				FrostyMod frostyMod = new FrostyMod(fileInfo.FullName);
-            //				string text = list[j].ToLower();
-            //				string text2 = "";
-            //				if (frostyMod.NewFormat)
-            //				{
-            //					text2 = modPaths[j].ToLower() + ":" + frostyMod.ModDetails.Version;
-            //				}
-            //				else
-            //				{
-            //					DbObject dbObject = null;
-            //					using (DbReader dbReader = new DbReader(new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read), null))
-            //					{
-            //						dbObject = dbReader.ReadDbObject();
-            //					}
-            //					text2 = modPaths[j].ToLower() + ":" + dbObject.GetValue<string>("version");
-            //				}
-            //				if (!text.Equals(text2, StringComparison.OrdinalIgnoreCase))
-            //				{
-            //					flag = true;
-            //					break;
-            //				}
-            //			}
-            //		}
-            //	}
-            //	else
-            //	{
-            //		flag = true;
-            //	}
-            //}
             if (rebuildModDataFolder)
             {
-                string[] array2 = modPaths;
-                foreach (string str in array2)
+                string[] allModPaths = modPaths;
+                var frostyMods = new Dictionary<MemoryStream, FrostyMod>();
+
+                // Sort out Zipped Files
+                //if (allModPaths.Contains(".zip"))
+                //{
+                foreach (var f in allModPaths)
                 {
-                    FileInfo fileInfo2 = new FileInfo(rootPath + str);
-                    FrostyMod frostyMod2 = new FrostyMod(fileInfo2.FullName);
+                    if (f.Contains(".zip"))
+                    {
+                        var z = f;
+
+                        Logger.Log("Loading mods from " + z);
+
+                        using (FileStream fsModZipped = new FileStream(z, FileMode.Open))
+                        //FileStream fsModZipped = new FileStream(z, FileMode.Open);
+                        {
+                            ZipArchive zipArchive = new ZipArchive(fsModZipped);
+                            foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
+                            {
+                                Logger.Log("Loading mod " + zaentr.Name);
+
+                                MemoryStream memoryStream = new MemoryStream();
+                                zaentr.Open().CopyTo(memoryStream);
+
+                                frostyMods.Add(new MemoryStream(memoryStream.ToArray()), new FrostyMod(new MemoryStream(memoryStream.ToArray())));
+                            }
+                        }
+                    }
+                    //    else 
+                    if (f.Contains(".fbmod"))
+                    {
+
+                        FileInfo fileInfo2 = new FileInfo(rootPath + f);
+                        Logger.Log("Loading mod " + fileInfo2.Name);
+
+                        var ms = new MemoryStream();
+                        using (var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read))
+                        {
+                            fs.CopyTo(ms);
+                            frostyMods.Add(new MemoryStream(ms.ToArray()), new FrostyMod(new MemoryStream(ms.ToArray())));
+                        }
+                    }
+                }
+
+                //foreach (string str in allModPaths)
+                foreach (KeyValuePair<MemoryStream, FrostyMod> kvpMods in frostyMods)
+                {
+                    Logger.Log("Compiling mod " + kvpMods.Value.Filename);
+
+                    var frostyMod2 = kvpMods.Value;
                     if (frostyMod2.NewFormat)
                     {
                         foreach (BaseModResource resource in frostyMod2.Resources)
@@ -2916,7 +2891,7 @@ namespace paulv2k4ModdingExecuter
                                     modifiedEbx.Remove(resource.Name);
                                     numArchiveEntries--;
                                 }
-                                byte[] resourceData = frostyMod2.GetResourceData(resource);
+                                byte[] resourceData = frostyMod2.GetResourceData(resource, kvpMods.Key);
                                 EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
                                 resource.FillAssetEntry(ebxAssetEntry2);
                                 ebxAssetEntry2.Size = resourceData.Length;
@@ -2941,7 +2916,7 @@ namespace paulv2k4ModdingExecuter
                                 {
                                     ResAssetEntry resAssetEntry = null;
                                     HandlerExtraData handlerExtraData = null;
-                                    byte[] resourceData2 = frostyMod2.GetResourceData(resource);
+                                    byte[] resourceData2 = frostyMod2.GetResourceData(resource, kvpMods.Key);
                                     if (modifiedRes.ContainsKey(resource.Name))
                                     {
                                         resAssetEntry = modifiedRes[resource.Name];
@@ -2982,7 +2957,7 @@ namespace paulv2k4ModdingExecuter
                                         modifiedRes.Remove(resource.Name);
                                         numArchiveEntries--;
                                     }
-                                    byte[] resourceData3 = frostyMod2.GetResourceData(resource);
+                                    byte[] resourceData3 = frostyMod2.GetResourceData(resource, kvpMods.Key);
                                     ResAssetEntry resAssetEntry3 = new ResAssetEntry();
                                     resource.FillAssetEntry(resAssetEntry3);
                                     resAssetEntry3.Size = resourceData3.Length;
@@ -3009,7 +2984,7 @@ namespace paulv2k4ModdingExecuter
                                 {
                                     ChunkAssetEntry chunkAssetEntry = null;
                                     HandlerExtraData handlerExtraData2 = null;
-                                    byte[] resourceData4 = frostyMod2.GetResourceData(resource);
+                                    byte[] resourceData4 = frostyMod2.GetResourceData(resource, kvpMods.Key);
                                     if (modifiedChunks.ContainsKey(guid))
                                     {
                                         chunkAssetEntry = modifiedChunks[guid];
@@ -3052,7 +3027,7 @@ namespace paulv2k4ModdingExecuter
                                         modifiedChunks.Remove(guid);
                                         numArchiveEntries--;
                                     }
-                                    byte[] resourceData5 = frostyMod2.GetResourceData(resource);
+                                    byte[] resourceData5 = frostyMod2.GetResourceData(resource, kvpMods.Key);
                                     ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
                                     resource.FillAssetEntry(chunkAssetEntry3);
                                     chunkAssetEntry3.Size = resourceData5.Length;
@@ -3074,10 +3049,14 @@ namespace paulv2k4ModdingExecuter
                             }
                         }
                     }
+
                     else
                     {
+                        Debug.WriteLine("Compiling: " + kvpMods.Value.Filename);
+
                         DbObject dbObject2 = null;
-                        using (DbReader dbReader2 = new DbReader(new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read), null))
+                        //using (DbReader dbReader2 = new DbReader(new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read), null))
+                        using (DbReader dbReader2 = new DbReader(kvpMods.Key, null))
                         {
                             dbObject2 = dbReader2.ReadDbObject();
                         }
@@ -3209,7 +3188,8 @@ namespace paulv2k4ModdingExecuter
                                 if (item2.HasValue("archiveIndex"))
                                 {
                                     ebxAssetEntry4.IsInline = item2.GetValue("shouldInline", defaultValue: false);
-                                    array3 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)ebxAssetEntry4.Size);
+                                    //array3 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)ebxAssetEntry4.Size);
+                                    array3 = GetResourceData(kvpMods.Key, item2.GetValue("archiveOffset", 0L), (int)ebxAssetEntry4.Size);
                                 }
                                 else
                                 {
@@ -3268,7 +3248,8 @@ namespace paulv2k4ModdingExecuter
                                 if (item2.HasValue("archiveIndex"))
                                 {
                                     resAssetEntry5.IsInline = item2.GetValue("shouldInline", defaultValue: false);
-                                    array4 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)resAssetEntry5.Size);
+                                    //array4 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)resAssetEntry5.Size);
+                                    array4 = GetResourceData(kvpMods.Key, item2.GetValue("archiveOffset", 0L), (int)resAssetEntry5.Size);
                                 }
                                 else
                                 {
@@ -3330,7 +3311,8 @@ namespace paulv2k4ModdingExecuter
                                 if (item2.HasValue("archiveIndex"))
                                 {
                                     chunkAssetEntry5.IsInline = item2.GetValue("shouldInline", defaultValue: false);
-                                    array5 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)chunkAssetEntry5.Size);
+                                    //array5 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)chunkAssetEntry5.Size);
+                                    array5 = GetResourceData(kvpMods.Key, item2.GetValue("archiveOffset", 0L), (int)chunkAssetEntry5.Size);
                                 }
                                 else
                                 {
@@ -3833,30 +3815,30 @@ namespace paulv2k4ModdingExecuter
                     CopyFileIfRequired(fs.BasePath + "Data/chunkmanifest", modPath + "Data/chunkmanifest");
                     CopyFileIfRequired(fs.BasePath + "Data/initfs_Win32", modPath + "Data/initfs_Win32");
                 }
-                using (TextWriter textWriter = new StreamWriter(modPath + patchPath + "/mods.txt"))
-                {
-                    array2 = modPaths;
-                    foreach (string text7 in array2)
-                    {
-                        FileInfo fileInfo9 = new FileInfo(rootPath + text7);
-                        FrostyMod frostyMod3 = new FrostyMod(fileInfo9.FullName);
-                        string text8 = "";
-                        if (frostyMod3.NewFormat)
-                        {
-                            text8 = frostyMod3.ModDetails.Version;
-                        }
-                        else
-                        {
-                            DbObject dbObject11 = null;
-                            using (DbReader dbReader6 = new DbReader(new FileStream(fileInfo9.FullName, FileMode.Open, FileAccess.Read), null))
-                            {
-                                dbObject11 = dbReader6.ReadDbObject();
-                            }
-                            text8 = dbObject11.GetValue<string>("version");
-                        }
-                        textWriter.WriteLine(text7 + ":" + text8);
-                    }
-                }
+                //using (TextWriter textWriter = new StreamWriter(modPath + patchPath + "/mods.txt"))
+                //{
+                //    allModPaths = modPaths;
+                //    foreach (string text7 in allModPaths.Where(x=>x.Contains(".fbmod")))
+                //    {
+                //        FileInfo fileInfo9 = new FileInfo(rootPath + text7);
+                //        FrostyMod frostyMod3 = new FrostyMod(fileInfo9.FullName);
+                //        string text8 = "";
+                //        if (frostyMod3.NewFormat)
+                //        {
+                //            text8 = frostyMod3.ModDetails.Version;
+                //        }
+                //        else
+                //        {
+                //            DbObject dbObject11 = null;
+                //            using (DbReader dbReader6 = new DbReader(new FileStream(fileInfo9.FullName, FileMode.Open, FileAccess.Read), null))
+                //            {
+                //                dbObject11 = dbReader6.ReadDbObject();
+                //            }
+                //            text8 = dbObject11.GetValue<string>("version");
+                //        }
+                //        textWriter.WriteLine(text7 + ":" + text8);
+                //    }
+                //}
             }
             if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
             {
@@ -4196,6 +4178,15 @@ namespace paulv2k4ModdingExecuter
                 return null;
             }
             using (NativeReader nativeReader = new NativeReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
+            {
+                nativeReader.Position = offset;
+                return nativeReader.ReadBytes(size);
+            }
+        }
+
+        private byte[] GetResourceData(Stream stream, long offset, int size)
+        {
+            using (NativeReader nativeReader = new NativeReader(stream))
             {
                 nativeReader.Position = offset;
                 return nativeReader.ReadBytes(size);
