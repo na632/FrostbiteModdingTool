@@ -119,6 +119,9 @@ app.config(function ($routeProvider) {
         .when("/Finances/Prices", {
             templateUrl: "/Finances/Prices"
         })
+        .when("/Transfers/ManualTransfer", {
+            templateUrl: "/Transfers/ManualTransfer"
+        })
         .otherwise({ redirectTo: "/Home" })
 });
 

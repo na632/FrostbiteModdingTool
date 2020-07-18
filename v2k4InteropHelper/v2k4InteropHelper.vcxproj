@@ -170,6 +170,7 @@
     <ClInclude Include="engine.h" />
     <ClInclude Include="external\jsoncpp\include\json\json.h" />
     <ClInclude Include="external\tinyxml2.h" />
+    <ClInclude Include="FileWatcher.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="game_hooks.h" />
     <ClInclude Include="globals.h" />

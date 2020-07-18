@@ -2,10 +2,22 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    <div class="container">
+    <div ng-controller="ctrlManualTransfer" class="container">
         <div class="row">
             <div class="card card-2x overflow-hidden">
+                <div class="row">
+                    <div class="col-6">
 
+                    </div>
+                    <div class="col-6">
+                        <h3>Transfer to</h3>
+                        <h4>{{ TransferToTeam.NationName }}</h4>
+                        <h4>{{ TransferToTeam.TeamName }}</h4>
+                        <hr />
+                        <button class="btn btn-danger"  ng-click="CancelManualTransfer()">Back</button>
+                        <button class="btn btn-success" ng-click="ConfirmManualTransfer()">Confirm</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
