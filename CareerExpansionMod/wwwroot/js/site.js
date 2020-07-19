@@ -157,4 +157,49 @@ var ctrlLoanAndDebts = app.controller('ctrlLoanAndDebts', ['$scope', function ($
 
 }]);
 
+const ctrlManualTransfer = app.controller('ctrlManualTransfer', ['$scope', function ($scope) {
+    $scope.playersearch_id = null;
+    $scope.playersearch_name = null;
+    $scope.IsSearching = false;
+    $scope.SearchSuccess = null;
+
+
+    $scope.Search = function () {
+        $scope.IsSearching = true;
+
+        if ($scope.playersearch_id != null && $scope.playersearch_id.length > 0) {
+            $.getJSON('Transfers/ManualSearchById/' + $scope.playersearch_id, function (d) {
+
+
+            }).fail(function () {
+                $scope.SearchSuccess = false;
+            });
+        }
+        else if ($scope.playersearch_id != null && $scope.playersearch_id.length > 0) {
+            $.getJSON('Transfers/ManualSearchByName/' + $scope.playersearch_name, function (d) {
+
+
+            }).fail(function () {
+                $scope.SearchSuccess = false;
+            });
+        }
+        else {
+            $scope.SearchSuccess = false;
+
+        }
+
+        setTimeout(function () {
+            $scope.IsSearching = false;
+            $scope.$apply();
+        }, 500);
+
+        setTimeout(function () {
+            $scope.SearchSuccess = null;
+
+            $scope.$apply();
+        }, 4000);
+
+    }
+}]);
+
 

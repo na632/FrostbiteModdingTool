@@ -4,21 +4,53 @@
 @{
     <div ng-controller="ctrlManualTransfer" class="container">
         <div class="row">
-            <div class="card card-2x overflow-hidden">
-                <div class="row">
-                    <div class="col-6">
-
-                    </div>
-                    <div class="col-6">
-                        <h3>Transfer to</h3>
-                        <h4>{{ TransferToTeam.NationName }}</h4>
-                        <h4>{{ TransferToTeam.TeamName }}</h4>
+            <div class="col-6">
+                <div class="card card-2x overflow-hidden">
+                    <form>
+                        <div class="form-group">
+                            <label class="h5" for="txtPlayerIDSearch">ID:</label>
+                            <input type="search" class="form-control" id="txtPlayerIDSearch" ng-model="playersearch_id" placeholder="ID?">
+                            <small class="form-text text-muted">If you enter an ID, name search will be ignored.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="h5" for="txtPlayerNameSearch">Player Name:</label>
+                            <input type="search" class="form-control" id="txtPlayerNameSearch" ng-model="playersearch_name" placeholder="Neymar">
+                        </div>
+                        <button type="submit" ng-click="Search()" class="btn btn-primary">Search</button>
                         <hr />
-                        <button class="btn btn-danger"  ng-click="CancelManualTransfer()">Back</button>
-                        <button class="btn btn-success" ng-click="ConfirmManualTransfer()">Confirm</button>
-                    </div>
+                        <div ng-show="FoundPlayer != null">
+
+                        </div>
+                        <div ng-if="IsSearching">
+                            <img src="https://media.giphy.com/media/88EvfARM1YaCQ/giphy.gif" style="width:100%; height:100%;" />
+                        </div>
+                        <div ng-show="SearchSuccess!=null">
+                            <div ng-if="SearchSuccess">
+                                <i class="fa fa-smile fa-5x"></i>
+                            </div>
+                            <div ng-if="!SearchSuccess">
+                                <i class="fa fa-sad-cry fa-5x"></i>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-6" ng-show="FoundPlayer != null">
+                <div class="card card-2x overflow-hidden">
+                    <h3>Transfer to</h3>
+                    <h4>{{ TransferToTeam.NationName }}</h4>
+                    <h4>{{ TransferToTeam.TeamName }}</h4>
+                    <hr />
+                    <button class="btn btn-danger" ng-click="CancelManualTransfer()">Back</button>
+                    <button class="btn btn-success" ng-click="ConfirmManualTransfer()">Confirm</button>
+                </div>
+            </div>
+            <div class="col-6" ng-show="FoundPlayer == null">
+                <div class="card card-2x overflow-hidden">
+                    <h3>Waiting for Player</h3>
                 </div>
             </div>
         </div>
+
     </div>
 }
