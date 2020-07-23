@@ -48,7 +48,7 @@ namespace FIFAModdingUI.Pages.Gameplay
                 GameplayProjectManagement = new ProjectManagement();
                 GameplayProjectManagement.Logger = App.MainEditorWindow;
                 
-                await GameplayProjectManagement.StartNewProject();
+                await GameplayProjectManagement.StartNewProjectAsync();
 
                 var ebxItems = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx();
                 if (ebxItems != null)

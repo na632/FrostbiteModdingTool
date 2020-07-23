@@ -37,9 +37,13 @@
             </div>
             <div class="col-6" ng-show="FoundPlayer != null">
                 <div class="card card-2x overflow-hidden">
-                    <h3>Transfer to</h3>
-                    <h4>{{ TransferToTeam.NationName }}</h4>
-                    <h4>{{ TransferToTeam.TeamName }}</h4>
+                    <h3>Transfer {{ FoundPlayer.name }} to</h3>
+                    <select id="ddlNations" ng-model="TransferToTeam.LeagueId">
+                        <option ng-repeat="option in Leagues" value="{{option.leagueid}}">{{option.leaguename}}</option>
+                    </select>
+                    <select id="ddlTeams" ng-model="TransferToTeam.TeamId" ng-if="TransferToTeam.LeagueId != null">
+                        <option ng-repeat="option in Teams" value="{{option.id}}">{{option.name}}</option>
+                    </select>
                     <hr />
                     <button class="btn btn-danger" ng-click="CancelManualTransfer()">Back</button>
                     <button class="btn btn-success" ng-click="ConfirmManualTransfer()">Confirm</button>

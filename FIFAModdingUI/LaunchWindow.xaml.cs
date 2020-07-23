@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI.Mods;
+using FrostySdk;
 using FrostySdk.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -102,6 +104,7 @@ namespace FIFAModdingUI
             //    f => new FileInfo(f).Name).ToList());
             ListOfMods = new ObservableCollection<string>(new ModList().ModListItems);
             listMods.ItemsSource = ListOfMods;
+            
         }
 
         Task<int> LaunchingTask = null;
@@ -192,7 +195,10 @@ namespace FIFAModdingUI
                 if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
                 {
                     FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
-
+                    if (!ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+                    {
+                        throw new Exception("Unable to Initialize Profile");
+                    }
                     txtFIFADirectory.Text = FIFADirectory;
                     btnLaunch.IsEnabled = true;
                 }
@@ -221,6 +227,41 @@ namespace FIFAModdingUI
             {
                 lblProgressText.Text = text;
             });
+        }
+
+        private void listMods_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.listMods != null && this.listMods.SelectedIndex != -1 && this.listMods.SelectedItem != null) {
+                var selectedIndex = this.listMods.SelectedIndex;
+                var selectedMod = this.listMods.SelectedItem as string;
+                if (selectedMod.Contains(".fbmod")) {
+                        var fm = new FrostyMod(selectedMod);
+                        if (fm.ModDetails != null)
+                        {
+                            txtModAuthor.Text = fm.ModDetails.Author;
+                            txtModDescription.Text = fm.ModDetails.Description;
+                            txtModTitle.Text = fm.ModDetails.Title;
+                            txtModVersion.Text = fm.ModDetails.Version;
+                        }
+                    }
+                    else if (selectedMod.Contains(".zip"))
+                    {
+                        txtModDescription.Text = "Includes the following mods: \n";
+                        using (FileStream fsModZipped = new FileStream(selectedMod, FileMode.Open))
+                        {
+                            ZipArchive zipArchive = new ZipArchive(fsModZipped);
+                            foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
+                            {
+                                txtModDescription.Text += zaentr.Name + "\n";
+                            }
+                        }
+
+                        txtModAuthor.Text = "Multiple";
+                        txtModTitle.Text = selectedMod;
+                        FileInfo fiZip = new FileInfo(selectedMod);
+                        txtModVersion.Text = fiZip.CreationTime.ToString();
+                    }
+            }
         }
     }
 

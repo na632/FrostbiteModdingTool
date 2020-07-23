@@ -39,45 +39,58 @@ namespace v2k4FIFAModding.Frosty
         /// Starts the process of Loading Cache etc and Creates a New Project
         /// </summary>
         /// <returns></returns>
-        public async Task<FrostyProject> StartNewProject()
+        public async Task<FrostyProject> StartNewProjectAsync()
         {
             return await new TaskFactory().StartNew(() =>
             {
 
-                if (ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
-                {
-                    if (KeyManager.Instance.ReadInKeys())
-                    {
-                        if (TypeLibrary.Initialize())
-                        {
-                            AssetManagerImportResult result = new AssetManagerImportResult();
-                            var FileSystem = new FrostySdk.FileSystem(FIFAInstanceSingleton.FIFARootPath);
-                            foreach (FileSystemSource source in ProfilesLibrary.Sources)
-                            {
-                                FileSystem.AddSource(source.Path, source.SubDirs);
-                            }
-                            FileSystem.Initialize(KeyManager.Instance.GetKey("Key1"));
-                            var ResourceManager = new ResourceManager(FileSystem);
-                            ResourceManager.SetLogger(Logger ?? this);
-                            ResourceManager.Initialize();
-                            AssetManager = new AssetManager(FileSystem, ResourceManager);
-                            LegacyFileManager.AssetManager = AssetManager;
-                            AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-                            AssetManager.SetLogger(Logger ?? this);
-                            AssetManager.Initialize(additionalStartup: true, result);
+                return StartNewProject();
+            });
+        }
 
-                            FrostyProject = new FrostyProject(AssetManager, FileSystem);
-                            return FrostyProject;
+        public FrostyProject StartNewProject()
+        {
+            if (ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+            {
+                if (KeyManager.Instance.ReadInKeys())
+                {
+                    if (TypeLibrary.Initialize())
+                    {
+                        AssetManagerImportResult result = new AssetManagerImportResult();
+                        var FileSystem = new FrostySdk.FileSystem(FIFAInstanceSingleton.FIFARootPath);
+                        foreach (FileSystemSource source in ProfilesLibrary.Sources)
+                        {
+                            FileSystem.AddSource(source.Path, source.SubDirs);
                         }
+                        FileSystem.Initialize(KeyManager.Instance.GetKey("Key1"));
+                        var ResourceManager = new ResourceManager(FileSystem);
+                        ResourceManager.SetLogger(Logger ?? this);
+                        ResourceManager.Initialize();
+                        AssetManager = new AssetManager(FileSystem, ResourceManager);
+                        LegacyFileManager.AssetManager = AssetManager;
+                        AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+                        AssetManager.SetLogger(Logger ?? this);
+                        AssetManager.Initialize(additionalStartup: true, result);
+
+                        FrostyProject = new FrostyProject(AssetManager, FileSystem);
+                        return FrostyProject;
                     }
                     else
                     {
-                        Debug.WriteLine("Could not read in keys");
+                        Debug.WriteLine("Could Init Type Library");
                     }
                 }
+                else
+                {
+                    Debug.WriteLine("Could not read in keys");
+                }
+            }
+            else
+            {
+                Debug.WriteLine("Couldn't find FIFA Version");
+            }
 
-                return null;
-            });
+            return null;
         }
 
     }

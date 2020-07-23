@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using v2k4FIFAModding.Career.CME.FIFA;
 
 namespace CareerExpansionMod.Controllers
 {
@@ -27,15 +28,31 @@ namespace CareerExpansionMod.Controllers
         [Route("~/Transfers/ManualSearchById/{id}")]
         public JsonResult ManualSearchById(string id)
         {
-            dynamic returnData = new { };
-            return Json(returnData);
+            return Json(FIFAPlayer.GetPlayersById(int.Parse(id)));
         }
 
         [Route("~/Transfers/ManualSearchByName/{id}")]
         public JsonResult ManualSearchByName(string name)
         {
-            dynamic returnData = new { };
-            return Json(returnData);
+            return Json(FIFAPlayer.GetPlayersByName(name));
+        }
+
+
+        [Route("~/Transfers/GetLeagues/")]
+        public JsonResult GetLeagues()
+        {
+            if (CareerDB2.Current != null)
+            {
+                var l = CareerDB2.Current.leagues.Select(x=> new { leagueid = x["leagueid"], leaguename = x["leaguename"] }).ToList();
+                return Json(l);
+            }
+            return Json(null);
+        }
+
+        [Route("~/Transfers/GetTeamsForLeague/{id}")]
+        public JsonResult GetTeamsForLeague(string id)
+        {
+            return Json("");
         }
     }
 }

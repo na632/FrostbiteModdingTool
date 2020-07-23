@@ -163,13 +163,37 @@ const ctrlManualTransfer = app.controller('ctrlManualTransfer', ['$scope', funct
     $scope.IsSearching = false;
     $scope.SearchSuccess = null;
 
+    $.getJSON('Transfers/GetLeagues/', function (d) {
+        if (d != null) {
+            console.log(d);
+            $scope.Leagues = d;
+        }
+    }).fail(function () {
+        $scope.SearchSuccess = false;
+    });
+
+    //$.getJSON('Transfers/GetTeamsForLeague/' + $scope.TransferToTeam.LeagueId, function (d) {
+    //    if (d != null) {
+    //        console.log(d);
+    //        $scope.Teams = d;
+    //    }
+    //}).fail(function () {
+    //    $scope.SearchSuccess = false;
+    //});
+
 
     $scope.Search = function () {
         $scope.IsSearching = true;
+        $scope.FoundPlayer = null;
 
         if ($scope.playersearch_id != null && $scope.playersearch_id.length > 0) {
             $.getJSON('Transfers/ManualSearchById/' + $scope.playersearch_id, function (d) {
+                if (d != null) {
+                    console.log(d);
+                    var player = d[0];
+                    $scope.FoundPlayer = player;
 
+                }
 
             }).fail(function () {
                 $scope.SearchSuccess = false;

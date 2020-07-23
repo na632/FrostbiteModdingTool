@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -309,6 +311,63 @@ Selfish = 1,
                 }
                 return 18;
             }
+        }
+
+        public static List<FIFAPlayer> GetPlayersById(int id)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            var players = new List<FIFAPlayer>();
+            var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == id.ToString());
+            if (pl != null)
+            {
+                players.Add(
+                CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl)
+                );
+            }
+
+            sw.Stop();
+            Debug.WriteLine($"GetPlayersById() took :: {sw.Elapsed.TotalSeconds}s");
+            Trace.WriteLine($"GetPlayersById() took :: {sw.Elapsed.TotalSeconds}s");
+
+            return players;
+        }
+
+        public static List<FIFAPlayer> CachedPlayers;
+        public static DateTime CachedPlayersDate;
+        public static List<FIFAPlayer> GetPlayersByName(string name)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            if (CachedPlayers == null || CachedPlayers.Count == 0 || CachedPlayersDate.AddMinutes(10) < DateTime.Now)
+            {
+                CachedPlayers = new List<FIFAPlayer>();
+
+                var count = CareerDB2.Current.players.Count();
+                for (var i = 0; i < count; i++) {
+                    var pl = CareerDB2.Current.players.ElementAt(i);
+                    if (pl != null)
+                    {
+                        CachedPlayers.Add(
+                        CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl)
+                        );
+                    }
+                }
+
+                CachedPlayersDate = DateTime.Now;
+            }
+
+            if (CachedPlayers != null)
+            {
+                sw.Stop();
+                Debug.WriteLine($"GetPlayersByName() took :: {sw.Elapsed.TotalSeconds}s");
+                Trace.WriteLine($"GetPlayersByName() took :: {sw.Elapsed.TotalSeconds}s");
+                return CachedPlayers.Where(x => FIFAPlayerName.GetNameFromFIFAPlayer(x).Contains(name)).ToList();
+            }
+
+            return null;
         }
 
 

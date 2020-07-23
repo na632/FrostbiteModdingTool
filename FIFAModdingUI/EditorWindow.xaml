@@ -48,7 +48,7 @@
                         <Label Content="Launch FIFA" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
                     Click="btnLaunchFIFAInEditor_Click"
                     ToolTip="Launch FIFA with Editor Only Mod">
                     <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
@@ -319,7 +319,7 @@
                                         </Controls:MetroTabControl>
                                     </TabItem>
                                 
-                                <TabItem Name="tabFrostyView" Header="Frostbite View" PreviewMouseLeftButtonUp="tabFrostyView_PreviewMouseLeftButtonUp">
+                                <TabItem Name="tabFrostyView" Header="Frostbite View" PreviewMouseLeftButtonUp="tabFrostyView_PreviewMouseLeftButtonUp" IsEnabled="False">
                                     <Frame x:Name="GPFrostyGameplayMainFrame">
                                         
                                     </Frame>
@@ -329,7 +329,7 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-                <TabItem x:Name="TabCareer" Header="Career" IsEnabled="True">
+                <TabItem x:Name="TabCareer" Header="Career" IsEnabled="False">
                     <StackPanel>
 
                         <TabControl x:Name="TabCareerInternal">
@@ -366,11 +366,11 @@
                                 <TabControl>
                                     <TabItem Header="Quick Options">
                                         <StackPanel>
-                                            <Button x:Name="CareerUpdateTeamStylesAndTraits">Update Career Team's Formations, Styles and Traits using the latest Squad File</Button>
-                                            <Button x:Name="CareerUpdateTeamStylesAndTraitsCustom">Update Career Team's Formations, Styles and Traits using a selected Squad File</Button>
+                                            <Button x:Name="CareerUpdateTeamStylesAndTraits" IsEnabled="False">Update Career Team's Formations, Styles and Traits using the latest Squad File</Button>
+                                            <Button x:Name="CareerUpdateTeamStylesAndTraitsCustom" IsEnabled="False">Update Career Team's Formations, Styles and Traits using a selected Squad File</Button>
                                         </StackPanel>
                                     </TabItem>
-                                    <TabItem x:Name="TabItemCareerDatabase" Header="Database">
+                                    <TabItem x:Name="TabItemCareerDatabase" Header="Database"  IsEnabled="False">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="175"></ColumnDefinition>

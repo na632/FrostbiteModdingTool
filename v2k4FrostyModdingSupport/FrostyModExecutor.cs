@@ -3505,7 +3505,7 @@ namespace paulv2k4ModdingExecuter
                     }
                     while (numTasks != 0)
                     {
-                        logger.Log("progress:" + (double)(num6 - numTasks) / (double)num6 * 100.0);
+                        logger.Log("Progress %:" + Math.Round(((double)(num6 - numTasks) / (double)num6 * 100.0), 2));
                         Thread.Sleep(400);
                     }
                     foreach (FifaBundleAction item6 in list3)
@@ -3532,170 +3532,18 @@ namespace paulv2k4ModdingExecuter
                             }
                         }
                     }
+                    logger.Log("Writing new Layout file to FIFA");
                     using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
                     {
                         dbWriter.Write(dbObject4);
-                    }
-                }
-                else if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-                {
-                    List<ManifestBundleAction> list4 = new List<ManifestBundleAction>();
-                    ManualResetEvent inDoneEvent2 = new ManualResetEvent(initialState: false);
-                    if (addedBundles.Count != 0)
-                    {
-                        foreach (string item8 in addedBundles["<none>"])
-                        {
-                            fs.AddManifestBundle(new ManifestBundleInfo
-                            {
-                                hash = Fnv1.HashString(item8)
-                            });
-                        }
-                    }
-                    Dictionary<string, List<ModBundleInfo>> dictionary2 = new Dictionary<string, List<ModBundleInfo>>();
-                    foreach (ModBundleInfo value14 in modifiedBundles.Values)
-                    {
-                        if (!value14.Name.Equals(chunksBundleHash))
-                        {
-                            ManifestBundleInfo manifestBundle = fs.GetManifestBundle(value14.Name);
-                            string catalog = fs.GetCatalog(manifestBundle.files[0].file);
-                            if (!dictionary2.ContainsKey(catalog))
-                            {
-                                dictionary2.Add(catalog, new List<ModBundleInfo>());
-                            }
-                            dictionary2[catalog].Add(value14);
-                        }
-                    }
-                    int num7 = 0;
-                    foreach (List<ModBundleInfo> value15 in dictionary2.Values)
-                    {
-                        ManifestBundleAction manifestBundleAction = new ManifestBundleAction(value15, inDoneEvent2, this);
-                        ThreadPool.QueueUserWorkItem(manifestBundleAction.ThreadPoolCallback, null);
-                        list4.Add(manifestBundleAction);
-                        numTasks++;
-                        num7++;
-                    }
-                    while (numTasks != 0)
-                    {
-                        logger.Log("progress:" + (double)(num7 - numTasks) / (double)num7 * 100.0);
-                        Thread.Sleep(1);
-                    }
-                    foreach (ManifestBundleAction item9 in list4)
-                    {
-                        if (item9.HasErrored)
-                        {
-                            throw item9.Exception;
-                        }
-                        if (item9.DataRefs.Count > 0)
-                        {
-                            for (int m = 0; m < item9.BundleRefs.Count; m++)
-                            {
-                                if (!archiveData.ContainsKey(item9.BundleRefs[m]))
-                                {
-                                    archiveData.Add(item9.BundleRefs[m], new ArchiveInfo
-                                    {
-                                        Data = item9.BundleBuffers[m]
-                                    });
-                                }
-                            }
-                            for (int n = 0; n < item9.DataRefs.Count; n++)
-                            {
-                                casData.Add(fs.GetCatalog(item9.FileInfos[n].FileInfo.file), item9.DataRefs[n], item9.FileInfos[n].Entry, item9.FileInfos[n].FileInfo);
-                            }
-                        }
-                    }
-                    if (modifiedBundles.ContainsKey(chunksBundleHash))
-                    {
-                        foreach (Guid chunk in modifiedBundles[chunksBundleHash].Modify.Chunks)
-                        {
-                            ChunkAssetEntry chunkAssetEntry6 = modifiedChunks[chunk];
-                            ManifestChunkInfo manifestChunk = fs.GetManifestChunk(chunkAssetEntry6.Id);
-                            if (manifestChunk != null)
-                            {
-                                casData.Add(fs.GetCatalog(manifestChunk.file.file), chunkAssetEntry6.Sha1, chunkAssetEntry6, manifestChunk.file);
-                            }
-                        }
-                        foreach (Guid chunk2 in modifiedBundles[chunksBundleHash].Add.Chunks)
-                        {
-                            ChunkAssetEntry chunkAssetEntry7 = modifiedChunks[chunk2];
-                            ManifestChunkInfo manifestChunkInfo = new ManifestChunkInfo();
-                            manifestChunkInfo.guid = chunkAssetEntry7.Id;
-                            manifestChunkInfo.file = new ManifestFileInfo();
-                            manifestChunkInfo.file.file = new ManifestFileRef(0, inPatch: false, inCasIndex: 0);
-                            manifestChunkInfo.file.isChunk = true;
-                            fs.AddManifestChunk(manifestChunkInfo);
-                            casData.Add(fs.GetCatalog(manifestChunkInfo.file.file), chunkAssetEntry7.Sha1, chunkAssetEntry7, manifestChunkInfo.file);
-                        }
-                    }
-                }
-                else
-                {
-                    List<SuperBundleAction> list5 = new List<SuperBundleAction>();
-                    ManualResetEvent inDoneEvent3 = new ManualResetEvent(initialState: false);
-                    int num8 = 0;
-                    foreach (string superBundle in fs.SuperBundles)
-                    {
-                        if (!(fs.ResolvePath(superBundle + ".toc") == ""))
-                        {
-                            SuperBundleAction superBundleAction = new SuperBundleAction(superBundle, inDoneEvent3, this, modDirName + "/" + patchPath);
-                            ThreadPool.QueueUserWorkItem(superBundleAction.ThreadPoolCallback, null);
-                            list5.Add(superBundleAction);
-                            numTasks++;
-                            num8++;
-                        }
-                    }
-                    foreach (string addedSuperBundle in addedSuperBundles)
-                    {
-                        SuperBundleAction superBundleAction2 = new SuperBundleAction(addedSuperBundle, inDoneEvent3, this, modDirName + "/" + patchPath);
-                        ThreadPool.QueueUserWorkItem(superBundleAction2.ThreadPoolCallback, null);
-                        list5.Add(superBundleAction2);
-                        numTasks++;
-                        num8++;
-                    }
-                    while (numTasks != 0)
-                    {
-                        logger.Log("progress:" + (double)(num8 - numTasks) / (double)num8 * 100.0);
-                        Thread.Sleep(1);
-                    }
-                    foreach (SuperBundleAction item10 in list5)
-                    {
-                        if (item10.HasErrored)
-                        {
-                            throw item10.Exception;
-                        }
-                        if (!item10.TocModified)
-                        {
-                            string inSrc = fs.ResolvePath(item10.SuperBundle + ".toc");
-                            FileInfo fileInfo6 = new FileInfo(modPath + "/" + patchPath + "/" + item10.SuperBundle + ".toc");
-                            if (!Directory.Exists(fileInfo6.DirectoryName))
-                            {
-                                Directory.CreateDirectory(fileInfo6.DirectoryName);
-                            }
-                            list2.Add(new SymLinkStruct(fileInfo6.FullName, inSrc, inFolder: false));
-                        }
-                        if (!item10.SbModified)
-                        {
-                            string inSrc2 = fs.ResolvePath(item10.SuperBundle + ".sb");
-                            FileInfo fileInfo7 = new FileInfo(modPath + "/" + patchPath + "/" + item10.SuperBundle + ".sb");
-                            if (!Directory.Exists(fileInfo7.DirectoryName))
-                            {
-                                Directory.CreateDirectory(fileInfo7.DirectoryName);
-                            }
-                            list2.Add(new SymLinkStruct(fileInfo7.FullName, inSrc2, inFolder: false));
-                        }
-                        if (item10.CasRefs.Count != 0)
-                        {
-                            string catalogFromSuperBundle = fs.GetCatalogFromSuperBundle(item10.SuperBundle);
-                            for (int num9 = 0; num9 < item10.CasRefs.Count; num9++)
-                            {
-                                casData.Add(catalogFromSuperBundle, item10.CasRefs[num9]);
-                            }
-                        }
                     }
                 }
                 if (list2.Count > 0)
                 {
                     RunSymbolicLinkProcess(list2);
                 }
+
+                logger.Log("Writing CAS files to FIFA");
                 ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
                 foreach (CasDataEntry item11 in casData.EnumerateEntries())
                 {
@@ -3840,14 +3688,14 @@ namespace paulv2k4ModdingExecuter
                 //    }
                 //}
             }
-            if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
-            {
+            //if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
+            //{
                 if (File.Exists(fs.BasePath + "bcrypt.dll"))
                 {
                     File.Delete(fs.BasePath + "bcrypt.dll");
                 }
                 CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
-            }
+            //}
             CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
             if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190911)
             {
@@ -3858,6 +3706,7 @@ namespace paulv2k4ModdingExecuter
                 }
                 CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
             }
+            logger.Log("Launching");
 
             return true;
         }
