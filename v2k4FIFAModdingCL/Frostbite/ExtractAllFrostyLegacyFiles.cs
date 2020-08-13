@@ -98,8 +98,9 @@ namespace v2k4FIFAModding.Frosty
             ResourceManager.SetLogger(logger);
             ResourceManager.Initialize();
             AssetManager = new AssetManager(FileSystem, ResourceManager);
-            LegacyFileManager.AssetManager = AssetManager;
-            AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+            //LegacyFileManager.AssetManager = AssetManager;
+            //AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+            AssetManager.RegisterLegacyAssetManager();
             AssetManager.SetLogger(logger);
             AssetManager.Initialize(additionalStartup: true, result);
             return 0;

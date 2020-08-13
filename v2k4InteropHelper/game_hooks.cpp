@@ -20,6 +20,9 @@ int __cdecl fn_stdio_common_vsprintf(unsigned __int64 _Options, char* _Buffer, s
 namespace hooks {
     namespace player_heads_manager_builder {
         inline unsigned int __fastcall detouredFunc(__int64 unk1, unsigned int playerid, __int64 unk2, __int64 unk3) {
+            logger.Write(LOG_DEBUG, "player_heads_manager_builder");
+            logger.Write(LOG_DEBUG, std::to_string(playerid));
+
             auto pHk = g_HookMgr.pHk_player_heads_manager_builder;
             if (pHk) {
                 if (!pHk->isEnabled) {
@@ -719,6 +722,9 @@ void installGameHooks() {
             dis
             );
         g_HookMgr.AddHook("player_heads_manager_builder", std::move(g_HookMgr.pHk_player_heads_manager_builder->detour));
+    }
+    else {
+        logger.Write(LOG_ERROR, "Couldnt find player_heads_manager_builder");
     }
 
     // In-game logging

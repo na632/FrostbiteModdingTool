@@ -51,6 +51,8 @@ public:
 
     std::string RunFIFAScript(std::string code);
 
+    //LoadLegacyTexture(IMGUI_HELPER::ImTexture* tex, std::string path, std::string default_path);
+
 private:
     bool ready = false;
 

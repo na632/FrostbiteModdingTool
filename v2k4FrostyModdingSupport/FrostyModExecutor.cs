@@ -174,6 +174,7 @@ namespace paulv2k4ModdingExecuter
         private class HandlerExtraData : AssetExtraData
         {
             public Frosty.ModSupport.Handlers.ICustomActionHandler Handler
+            //public FrostySdk.ICustomActionHandler Handler
             {
                 get;
                 set;
@@ -2731,7 +2732,1063 @@ namespace paulv2k4ModdingExecuter
         }
         string modDirName = "ModData";
 
-      
+        public bool UseLegacyLauncher = false;
+
+        public bool BuildModData_FrostyVersion(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
+        {
+            var modPathList = new List<string>();
+            modPathList.AddRange(modPaths.Where(x => x.Contains(".fbmod")));
+            foreach (var f in modPaths)
+            {
+                if (f.Contains(".zip"))
+                {
+                    var z = f;
+
+                    Logger.Log("Loading mods from " + z);
+
+                    using (FileStream fsModZipped = new FileStream(z, FileMode.Open))
+                    {
+                        ZipArchive zipArchive = new ZipArchive(fsModZipped);
+                        Logger.Log("Extracting archive " + f);
+
+                        foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
+                        {
+                            Logger.Log("Extracting mod " + zaentr.FullName);
+                            zaentr.ExtractToFile("temp_" + zaentr.Name);
+                            modPathList.Add("temp_" + zaentr.Name);
+                        }
+                    }
+                }
+            }
+
+            fs = inFs;
+            Logger = inLogger;
+            string modPath = fs.BasePath + modDirName + "\\";
+            string patchPath = "Patch";
+
+            string[] array2 = modPathList.ToArray();
+            foreach (string str in array2)
+            {
+                FileInfo fileInfo2 = new FileInfo(rootPath + str);
+                FrostyMod frostyMod2 = new FrostyMod(fileInfo2.FullName);
+                if (frostyMod2.NewFormat)
+                {
+                    foreach (BaseModResource resource in frostyMod2.Resources)
+                    {
+                        foreach (int modifiedBundle in resource.ModifiedBundles)
+                        {
+                            if (!modifiedBundles.ContainsKey(modifiedBundle))
+                            {
+                                modifiedBundles.Add(modifiedBundle, new ModBundleInfo
+                                {
+                                    Name = modifiedBundle
+                                });
+                            }
+                            ModBundleInfo modBundleInfo = modifiedBundles[modifiedBundle];
+                            switch (resource.Type)
+                            {
+                                case ModResourceType.Ebx:
+                                    modBundleInfo.Modify.AddEbx(resource.Name);
+                                    break;
+                                case ModResourceType.Res:
+                                    modBundleInfo.Modify.AddRes(resource.Name);
+                                    break;
+                                case ModResourceType.Chunk:
+                                    modBundleInfo.Modify.AddChunk(new Guid(resource.Name));
+                                    break;
+                            }
+                        }
+                        foreach (int addedBundle in resource.AddedBundles)
+                        {
+                            if (!modifiedBundles.ContainsKey(addedBundle))
+                            {
+                                modifiedBundles.Add(addedBundle, new ModBundleInfo
+                                {
+                                    Name = addedBundle
+                                });
+                            }
+                            ModBundleInfo modBundleInfo2 = modifiedBundles[addedBundle];
+                            switch (resource.Type)
+                            {
+                                case ModResourceType.Ebx:
+                                    modBundleInfo2.Add.AddEbx(resource.Name);
+                                    break;
+                                case ModResourceType.Res:
+                                    modBundleInfo2.Add.AddRes(resource.Name);
+                                    break;
+                                case ModResourceType.Chunk:
+                                    modBundleInfo2.Add.AddChunk(new Guid(resource.Name));
+                                    break;
+                            }
+                        }
+                        if (resource.Type == ModResourceType.Ebx)
+                        {
+                            if (modifiedEbx.ContainsKey(resource.Name))
+                            {
+                                EbxAssetEntry ebxAssetEntry = modifiedEbx[resource.Name];
+                                if (ebxAssetEntry.Sha1 == resource.Sha1)
+                                {
+                                    continue;
+                                }
+                                archiveData[ebxAssetEntry.Sha1].RefCount--;
+                                if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
+                                {
+                                    archiveData.Remove(ebxAssetEntry.Sha1);
+                                }
+                                modifiedEbx.Remove(resource.Name);
+                                numArchiveEntries--;
+                            }
+                            byte[] resourceData = frostyMod2.GetResourceData(resource);
+                            EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
+                            resource.FillAssetEntry(ebxAssetEntry2);
+                            ebxAssetEntry2.Size = resourceData.Length;
+                            modifiedEbx.Add(ebxAssetEntry2.Name, ebxAssetEntry2);
+                            if (!archiveData.ContainsKey(ebxAssetEntry2.Sha1))
+                            {
+                                archiveData.Add(ebxAssetEntry2.Sha1, new ArchiveInfo
+                                {
+                                    Data = resourceData,
+                                    RefCount = 1
+                                });
+                            }
+                            else
+                            {
+                                archiveData[ebxAssetEntry2.Sha1].RefCount++;
+                            }
+                            numArchiveEntries++;
+                        }
+                        else if (resource.Type == ModResourceType.Res)
+                        {
+                            if (resource.HasHandler)
+                            {
+                                ResAssetEntry resAssetEntry = null;
+                                HandlerExtraData handlerExtraData = null;
+                                byte[] resourceData2 = frostyMod2.GetResourceData(resource);
+                                if (modifiedRes.ContainsKey(resource.Name))
+                                {
+                                    resAssetEntry = modifiedRes[resource.Name];
+                                    handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
+                                }
+                                else
+                                {
+                                    resAssetEntry = new ResAssetEntry();
+                                    handlerExtraData = new HandlerExtraData();
+                                    resource.FillAssetEntry(resAssetEntry);
+                                    foreach (ResCustomHandlerAttribute customAttribute in Assembly.GetExecutingAssembly().GetCustomAttributes<ResCustomHandlerAttribute>())
+                                    {
+                                        if (customAttribute.ResType == (ResourceType)resAssetEntry.ResType)
+                                        {
+                                            handlerExtraData.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
+                                            break;
+                                        }
+                                    }
+                                    resAssetEntry.ExtraData = handlerExtraData;
+                                    modifiedRes.Add(resource.Name, resAssetEntry);
+                                }
+                                handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
+                            }
+                            else
+                            {
+                                if (modifiedRes.ContainsKey(resource.Name))
+                                {
+                                    ResAssetEntry resAssetEntry2 = modifiedRes[resource.Name];
+                                    if (resAssetEntry2.Sha1 == resource.Sha1)
+                                    {
+                                        continue;
+                                    }
+                                    archiveData[resAssetEntry2.Sha1].RefCount--;
+                                    if (archiveData[resAssetEntry2.Sha1].RefCount == 0)
+                                    {
+                                        archiveData.Remove(resAssetEntry2.Sha1);
+                                    }
+                                    modifiedRes.Remove(resource.Name);
+                                    numArchiveEntries--;
+                                }
+                                byte[] resourceData3 = frostyMod2.GetResourceData(resource);
+                                ResAssetEntry resAssetEntry3 = new ResAssetEntry();
+                                resource.FillAssetEntry(resAssetEntry3);
+                                resAssetEntry3.Size = resourceData3.Length;
+                                modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
+                                if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
+                                {
+                                    archiveData.Add(resAssetEntry3.Sha1, new ArchiveInfo
+                                    {
+                                        Data = resourceData3,
+                                        RefCount = 1
+                                    });
+                                }
+                                else
+                                {
+                                    archiveData[resAssetEntry3.Sha1].RefCount++;
+                                }
+                                numArchiveEntries++;
+                            }
+                        }
+                        else if (resource.Type == ModResourceType.Chunk)
+                        {
+                            Guid guid = new Guid(resource.Name);
+                            if (resource.HasHandler)
+                            {
+                                ChunkAssetEntry chunkAssetEntry = null;
+                                HandlerExtraData handlerExtraData2 = null;
+                                byte[] resourceData4 = frostyMod2.GetResourceData(resource);
+                                if (modifiedChunks.ContainsKey(guid))
+                                {
+                                    chunkAssetEntry = modifiedChunks[guid];
+                                    handlerExtraData2 = (HandlerExtraData)chunkAssetEntry.ExtraData;
+                                }
+                                else
+                                {
+                                    chunkAssetEntry = new ChunkAssetEntry();
+                                    handlerExtraData2 = new HandlerExtraData();
+                                    chunkAssetEntry.Id = guid;
+                                    chunkAssetEntry.IsTocChunk = resource.IsTocChunk;
+                                    Type[] types = Assembly.GetExecutingAssembly().GetTypes();
+                                    foreach (Type type in types)
+                                    {
+                                        if (type.GetInterface(typeof(Frosty.ModSupport.Handlers.ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
+                                        {
+                                            handlerExtraData2.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(type);
+                                            break;
+                                        }
+                                    }
+                                    chunkAssetEntry.ExtraData = handlerExtraData2;
+                                    modifiedChunks.Add(guid, chunkAssetEntry);
+                                }
+                                handlerExtraData2.Data = handlerExtraData2.Handler.Load(handlerExtraData2.Data, resourceData4);
+                            }
+                            else
+                            {
+                                if (modifiedChunks.ContainsKey(guid))
+                                {
+                                    ChunkAssetEntry chunkAssetEntry2 = modifiedChunks[guid];
+                                    if (chunkAssetEntry2.Sha1 == resource.Sha1)
+                                    {
+                                        continue;
+                                    }
+                                    archiveData[chunkAssetEntry2.Sha1].RefCount--;
+                                    if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
+                                    {
+                                        archiveData.Remove(chunkAssetEntry2.Sha1);
+                                    }
+                                    modifiedChunks.Remove(guid);
+                                    numArchiveEntries--;
+                                }
+                                byte[] resourceData5 = frostyMod2.GetResourceData(resource);
+                                ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
+                                resource.FillAssetEntry(chunkAssetEntry3);
+                                chunkAssetEntry3.Size = resourceData5.Length;
+                                modifiedChunks.Add(guid, chunkAssetEntry3);
+                                if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
+                                {
+                                    archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo
+                                    {
+                                        Data = resourceData5,
+                                        RefCount = 1
+                                    });
+                                }
+                                else
+                                {
+                                    archiveData[chunkAssetEntry3.Sha1].RefCount++;
+                                }
+                                numArchiveEntries++;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    DbObject dbObject2 = null;
+                    using (DbReader dbReader2 = new DbReader(new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read), null))
+                    {
+                        dbObject2 = dbReader2.ReadDbObject();
+                    }
+                    int num = int.Parse(dbObject2.GetValue<string>("magic").Replace("FBMODV", ""));
+                    DbObject value = dbObject2.GetValue<DbObject>("resources");
+                    foreach (DbObject item in dbObject2.GetValue<DbObject>("actions"))
+                    {
+                        int num2 = Fnv1.HashString(item.GetValue<string>("bundle").ToLower());
+                        string value2 = item.GetValue<string>("type");
+                        int value3 = item.GetValue("resourceId", 0);
+                        if (!modifiedBundles.ContainsKey(num2))
+                        {
+                            modifiedBundles.Add(num2, new ModBundleInfo
+                            {
+                                Name = num2
+                            });
+                        }
+                        ModBundleInfo modBundleInfo3 = modifiedBundles[num2];
+                        DbObject obj2 = value[value3] as DbObject;
+                        string value4 = obj2.GetValue<string>("name");
+                        string value5 = obj2.GetValue<string>("type");
+                        switch (value2)
+                        {
+                            case "modify":
+                                switch (value5)
+                                {
+                                    case "ebx":
+                                        modBundleInfo3.Modify.Ebx.Add(value4);
+                                        break;
+                                    case "res":
+                                        modBundleInfo3.Modify.Res.Add(value4);
+                                        break;
+                                    case "chunk":
+                                        modBundleInfo3.Modify.Chunks.Add(new Guid(value4));
+                                        break;
+                                }
+                                break;
+                            case "add":
+                                switch (value5)
+                                {
+                                    case "ebx":
+                                        modBundleInfo3.Add.Ebx.Add(value4);
+                                        break;
+                                    case "res":
+                                        modBundleInfo3.Add.Res.Add(value4);
+                                        break;
+                                    case "chunk":
+                                        modBundleInfo3.Add.Chunks.Add(new Guid(value4));
+                                        break;
+                                }
+                                break;
+                            case "remove":
+                                switch (value5)
+                                {
+                                    case "ebx":
+                                        modBundleInfo3.Remove.Ebx.Add(value4);
+                                        break;
+                                    case "res":
+                                        modBundleInfo3.Remove.Res.Add(value4);
+                                        break;
+                                    case "chunk":
+                                        modBundleInfo3.Remove.Chunks.Add(new Guid(value4));
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                    foreach (DbObject item2 in value)
+                    {
+                        switch (item2.GetValue<string>("type"))
+                        {
+                            case "superbundle":
+                                {
+                                    string value8 = item2.GetValue<string>("name");
+                                    addedSuperBundles.Add(value8);
+                                    break;
+                                }
+                            case "bundle":
+                                {
+                                    string value6 = item2.GetValue<string>("name");
+                                    string value7 = item2.GetValue<string>("sb");
+                                    if (!addedBundles.ContainsKey(value7))
+                                    {
+                                        addedBundles.Add(value7, new List<string>());
+                                    }
+                                    addedBundles[value7].Add(value6);
+                                    break;
+                                }
+                            case "ebx":
+                                {
+                                    string value9 = item2.GetValue<string>("name");
+                                    if (modifiedEbx.ContainsKey(value9))
+                                    {
+                                        EbxAssetEntry ebxAssetEntry3 = modifiedEbx[value9];
+                                        if (ebxAssetEntry3.Sha1 == item2.GetValue<Sha1>("sha1"))
+                                        {
+                                            break;
+                                        }
+                                        archiveData[ebxAssetEntry3.Sha1].RefCount--;
+                                        if (archiveData[ebxAssetEntry3.Sha1].RefCount == 0)
+                                        {
+                                            archiveData.Remove(ebxAssetEntry3.Sha1);
+                                        }
+                                        modifiedEbx.Remove(value9);
+                                        numArchiveEntries--;
+                                    }
+                                    EbxAssetEntry ebxAssetEntry4 = new EbxAssetEntry
+                                    {
+                                        Name = value9,
+                                        OriginalSize = item2.GetValue("uncompressedSize", 0L),
+                                        Size = item2.GetValue("compressedSize", 0L)
+                                    };
+                                    byte[] array4 = null;
+                                    if (item2.HasValue("archiveIndex"))
+                                    {
+                                        ebxAssetEntry4.IsInline = item2.GetValue("shouldInline", defaultValue: false);
+                                        array4 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)ebxAssetEntry4.Size);
+                                    }
+                                    else
+                                    {
+                                        ManifestFileRef fileRef2 = item2.GetValue("file", 0);
+                                        long position2 = item2.GetValue("offset", 0);
+                                        using (NativeReader nativeReader3 = new NativeReader(new FileStream(fs.ResolvePath(fileRef2), FileMode.Open, FileAccess.Read)))
+                                        {
+                                            nativeReader3.Position = position2;
+                                            array4 = nativeReader3.ReadBytes((int)ebxAssetEntry4.Size);
+                                        }
+                                    }
+                                    ebxAssetEntry4.Sha1 = Utils.GenerateSha1(array4);
+                                    modifiedEbx.Add(ebxAssetEntry4.Name, ebxAssetEntry4);
+                                    if (!archiveData.ContainsKey(ebxAssetEntry4.Sha1))
+                                    {
+                                        archiveData.Add(ebxAssetEntry4.Sha1, new ArchiveInfo
+                                        {
+                                            Data = array4,
+                                            RefCount = 1
+                                        });
+                                    }
+                                    else
+                                    {
+                                        archiveData[ebxAssetEntry4.Sha1].RefCount++;
+                                    }
+                                    numArchiveEntries++;
+                                    break;
+                                }
+                            case "res":
+                                {
+                                    string value10 = item2.GetValue<string>("name");
+                                    if (modifiedRes.ContainsKey(value10))
+                                    {
+                                        ResAssetEntry resAssetEntry4 = modifiedRes[value10];
+                                        if (resAssetEntry4.Sha1 == item2.GetValue<Sha1>("sha1"))
+                                        {
+                                            break;
+                                        }
+                                        archiveData[resAssetEntry4.Sha1].RefCount--;
+                                        if (archiveData[resAssetEntry4.Sha1].RefCount == 0)
+                                        {
+                                            archiveData.Remove(resAssetEntry4.Sha1);
+                                        }
+                                        modifiedRes.Remove(value10);
+                                        numArchiveEntries--;
+                                    }
+                                    ResAssetEntry resAssetEntry5 = new ResAssetEntry
+                                    {
+                                        Name = value10,
+                                        OriginalSize = item2.GetValue("uncompressedSize", 0L),
+                                        Size = item2.GetValue("compressedSize", 0L),
+                                        ResRid = (ulong)item2.GetValue("resRid", 0L),
+                                        ResType = (uint)item2.GetValue("resType", 0),
+                                        ResMeta = item2.GetValue<byte[]>("resMeta")
+                                    };
+                                    byte[] array5 = null;
+                                    if (item2.HasValue("archiveIndex"))
+                                    {
+                                        resAssetEntry5.IsInline = item2.GetValue("shouldInline", defaultValue: false);
+                                        array5 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)resAssetEntry5.Size);
+                                    }
+                                    else
+                                    {
+                                        ManifestFileRef fileRef3 = item2.GetValue("file", 0);
+                                        long position3 = item2.GetValue("offset", 0);
+                                        using (NativeReader nativeReader4 = new NativeReader(new FileStream(fs.ResolvePath(fileRef3), FileMode.Open, FileAccess.Read)))
+                                        {
+                                            nativeReader4.Position = position3;
+                                            array5 = nativeReader4.ReadBytes((int)resAssetEntry5.Size);
+                                        }
+                                    }
+                                    resAssetEntry5.Sha1 = Utils.GenerateSha1(array5);
+                                    modifiedRes.Add(resAssetEntry5.Name, resAssetEntry5);
+                                    if (!archiveData.ContainsKey(resAssetEntry5.Sha1))
+                                    {
+                                        archiveData.Add(resAssetEntry5.Sha1, new ArchiveInfo
+                                        {
+                                            Data = array5,
+                                            RefCount = 1
+                                        });
+                                    }
+                                    else
+                                    {
+                                        archiveData[resAssetEntry5.Sha1].RefCount++;
+                                    }
+                                    numArchiveEntries++;
+                                    break;
+                                }
+                            case "chunk":
+                                {
+                                    Guid guid2 = new Guid(item2.GetValue<string>("name"));
+                                    if (modifiedChunks.ContainsKey(guid2))
+                                    {
+                                        ChunkAssetEntry chunkAssetEntry4 = modifiedChunks[guid2];
+                                        if (chunkAssetEntry4.Sha1 == item2.GetValue<Sha1>("sha1"))
+                                        {
+                                            break;
+                                        }
+                                        archiveData[chunkAssetEntry4.Sha1].RefCount--;
+                                        if (archiveData[chunkAssetEntry4.Sha1].RefCount == 0)
+                                        {
+                                            archiveData.Remove(chunkAssetEntry4.Sha1);
+                                        }
+                                        modifiedChunks.Remove(guid2);
+                                        numArchiveEntries--;
+                                    }
+                                    ChunkAssetEntry chunkAssetEntry5 = new ChunkAssetEntry
+                                    {
+                                        Id = guid2,
+                                        Size = item2.GetValue("compressedSize", 0L),
+                                        LogicalOffset = item2.GetValue("logicalOffset", 0u),
+                                        LogicalSize = item2.GetValue("logicalSize", 0u),
+                                        RangeStart = item2.GetValue("rangeStart", 0u),
+                                        RangeEnd = item2.GetValue("rangeEnd", 0u),
+                                        FirstMip = item2.GetValue("firstMip", -1),
+                                        H32 = item2.GetValue("h32", 0),
+                                        IsTocChunk = item2.GetValue("tocChunk", defaultValue: false)
+                                    };
+                                    byte[] array3 = null;
+                                    if (item2.HasValue("archiveIndex"))
+                                    {
+                                        chunkAssetEntry5.IsInline = item2.GetValue("shouldInline", defaultValue: false);
+                                        array3 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)chunkAssetEntry5.Size);
+                                    }
+                                    else
+                                    {
+                                        ManifestFileRef fileRef = item2.GetValue("file", 0);
+                                        long position = item2.GetValue("offset", 0);
+                                        using (NativeReader nativeReader = new NativeReader(new FileStream(fs.ResolvePath(fileRef), FileMode.Open, FileAccess.Read)))
+                                        {
+                                            nativeReader.Position = position;
+                                            array3 = nativeReader.ReadBytes((int)chunkAssetEntry5.Size);
+                                        }
+                                        if ((ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628) && chunkAssetEntry5.LogicalOffset != 0)
+                                        {
+                                            using (NativeReader nativeReader2 = new NativeReader(new MemoryStream(array3)))
+                                            {
+                                                int num3 = 0;
+                                                while (num3 != chunkAssetEntry5.LogicalOffset)
+                                                {
+                                                    int num4 = nativeReader2.ReadInt(Endian.Big);
+                                                    nativeReader2.ReadUShort(Endian.Big);
+                                                    ushort num5 = nativeReader2.ReadUShort(Endian.Big);
+                                                    num3 += num4;
+                                                    if (num3 > chunkAssetEntry5.LogicalOffset)
+                                                    {
+                                                        nativeReader2.Position -= 8L;
+                                                        break;
+                                                    }
+                                                    nativeReader2.Position += num5;
+                                                }
+                                                chunkAssetEntry5.RangeStart = (uint)nativeReader2.Position;
+                                                chunkAssetEntry5.RangeEnd = (uint)array3.Length;
+                                            }
+                                        }
+                                    }
+                                    chunkAssetEntry5.Sha1 = Utils.GenerateSha1(array3);
+                                    modifiedChunks.Add(chunkAssetEntry5.Id, chunkAssetEntry5);
+                                    if (!archiveData.ContainsKey(chunkAssetEntry5.Sha1))
+                                    {
+                                        archiveData.Add(chunkAssetEntry5.Sha1, new ArchiveInfo
+                                        {
+                                            Data = array3,
+                                            RefCount = 1
+                                        });
+                                    }
+                                    else
+                                    {
+                                        archiveData[chunkAssetEntry5.Sha1].RefCount++;
+                                    }
+                                    numArchiveEntries++;
+                                    if (num < 2)
+                                    {
+                                        if (!modifiedBundles.ContainsKey(chunksBundleHash))
+                                        {
+                                            modifiedBundles.Add(chunksBundleHash, new ModBundleInfo
+                                            {
+                                                Name = chunksBundleHash
+                                            });
+                                        }
+                                        modifiedBundles[chunksBundleHash].Modify.Chunks.Add(chunkAssetEntry5.Id);
+                                        chunkAssetEntry5.FirstMip = 0;
+                                    }
+                                    if (chunkAssetEntry5.FirstMip == -1 && chunkAssetEntry5.RangeEnd != 0)
+                                    {
+                                        chunkAssetEntry5.FirstMip = 0;
+                                    }
+                                    break;
+                                }
+                        }
+                    }
+                }
+            }
+            Logger.Log("Cleaning up mod data directory");
+            List<SymLinkStruct> list2 = new List<SymLinkStruct>();
+            bool flag2 = false;
+            fs.ResetManifest();
+            if (!DeleteSelectFiles(modPath + patchPath) && !Directory.Exists(modPath))
+            {
+                flag2 = true;
+                Logger.Log("Creating mod data directory");
+                Directory.CreateDirectory(modPath);
+                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+                {
+                    if (!Directory.Exists(modPath + "Data"))
+                    {
+                        Directory.CreateDirectory(modPath + "Data");
+                    }
+                    list2.Add(new SymLinkStruct(modPath + "Data/Win32", fs.BasePath + "Data/Win32", inFolder: true));
+                }
+                else
+                {
+                    list2.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
+                }
+                if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
+                {
+                    if (!Directory.Exists(modPath + "Update"))
+                    {
+                        Directory.CreateDirectory(modPath + "Update");
+                    }
+                    foreach (string item3 in Directory.EnumerateDirectories(fs.BasePath + "Update"))
+                    {
+                        DirectoryInfo directoryInfo2 = new DirectoryInfo(item3);
+                        if (directoryInfo2.Name.ToLower() != "patch")
+                        {
+                            list2.Add(new SymLinkStruct(modPath + "Update/" + directoryInfo2.Name, directoryInfo2.FullName, inFolder: true));
+                        }
+                    }
+                }
+                else if (ProfilesLibrary.DataVersion != 20160927)
+                {
+                    list2.Add(new SymLinkStruct(modPath + "Update", fs.BasePath + "Update", inFolder: true));
+                }
+                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911)
+                {
+                    foreach (string item4 in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
+                    {
+                        FileInfo fileInfo3 = new FileInfo(item4);
+                        string text3 = fileInfo3.Directory.FullName.ToLower().Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
+                        string inDst = Path.Combine(text3, fileInfo3.Name);
+                        if (!Directory.Exists(text3))
+                        {
+                            Directory.CreateDirectory(text3);
+                        }
+                        list2.Add(new SymLinkStruct(inDst, fileInfo3.FullName, inFolder: false));
+                    }
+                }
+            }
+            foreach (string catalog4 in fs.Catalogs)
+            {
+                string text4 = fs.ResolvePath("native_patch/" + catalog4 + "/cas.cat");
+                if (File.Exists(text4))
+                {
+                    FileInfo fileInfo4 = new FileInfo(text4);
+                    string text5 = fileInfo4.Directory.FullName.Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
+                    if (!Directory.Exists(text5))
+                    {
+                        Directory.CreateDirectory(text5);
+                    }
+                    FileInfo[] files = fileInfo4.Directory.GetFiles();
+                    foreach (FileInfo fileInfo5 in files)
+                    {
+                        string text6 = Path.Combine(text5, fileInfo5.Name);
+                        if (fileInfo5.Extension == ".cas")
+                        {
+                            if (!File.Exists(text6))
+                            {
+                                list2.Add(new SymLinkStruct(text6, fileInfo5.FullName, inFolder: false));
+                            }
+                        }
+                        else if (fileInfo5.Extension == ".cat")
+                        {
+                            fileInfo5.CopyTo(text6, overwrite: false);
+                        }
+                    }
+                }
+            }
+            if (list2.Count > 0)
+            {
+                string str2 = "New patch detected.";
+                if (flag2)
+                {
+                    str2 = "New installation detected.";
+                }
+                if (!RunSymbolicLinkProcess(list2))
+                {
+                    Directory.Delete(modPath, recursive: true);
+                    throw new FrostySymLinkException();
+                }
+            }
+            int workerThreads = 0;
+            int completionPortThreads = 0;
+            ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+            ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
+            Logger.Log("Applying mods");
+            list2.Clear();
+            if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911)
+            {
+                DbObject dbObject4 = null;
+                using (DbReader dbReader3 = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                {
+                    dbObject4 = dbReader3.ReadDbObject();
+                }
+                FifaBundleAction.CasFileCount = fs.CasFileCount;
+                List<FifaBundleAction> list3 = new List<FifaBundleAction>();
+                ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
+                int num6 = 0;
+                foreach (CatalogInfo item5 in fs.EnumerateCatalogInfos())
+                {
+                    FifaBundleAction fifaBundleAction = new FifaBundleAction(item5, inDoneEvent, this);
+                    ThreadPool.QueueUserWorkItem(fifaBundleAction.ThreadPoolCallback, null);
+                    list3.Add(fifaBundleAction);
+                    numTasks++;
+                    num6++;
+                }
+                while (numTasks != 0)
+                {
+                    logger.Log("progress:" + (double)(num6 - numTasks) / (double)num6 * 100.0);
+                    Thread.Sleep(1);
+                }
+                foreach (FifaBundleAction item6 in list3)
+                {
+                    if (item6.HasErrored)
+                    {
+                        throw item6.Exception;
+                    }
+                    if (item6.CasFiles.Count > 0)
+                    {
+                        foreach (DbObject item7 in dbObject4.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
+                        {
+                            if (item6.CatalogInfo.Name.Equals("win32/" + item7.GetValue<string>("name")))
+                            {
+                                foreach (int key in item6.CasFiles.Keys)
+                                {
+                                    DbObject dbObject6 = DbObject.CreateObject();
+                                    dbObject6.SetValue("id", key);
+                                    dbObject6.SetValue("path", item6.CasFiles[key]);
+                                    item7.GetValue<DbObject>("files").Add(dbObject6);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                {
+                    dbWriter.Write(dbObject4);
+                }
+            }
+            else if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+            {
+                List<ManifestBundleAction> list4 = new List<ManifestBundleAction>();
+                ManualResetEvent inDoneEvent2 = new ManualResetEvent(initialState: false);
+                if (addedBundles.Count != 0)
+                {
+                    foreach (string item8 in addedBundles["<none>"])
+                    {
+                        fs.AddManifestBundle(new ManifestBundleInfo
+                        {
+                            hash = Fnv1.HashString(item8)
+                        });
+                    }
+                }
+                Dictionary<string, List<ModBundleInfo>> dictionary2 = new Dictionary<string, List<ModBundleInfo>>();
+                foreach (ModBundleInfo value13 in modifiedBundles.Values)
+                {
+                    if (!value13.Name.Equals(chunksBundleHash))
+                    {
+                        ManifestBundleInfo manifestBundle = fs.GetManifestBundle(value13.Name);
+                        string catalog = fs.GetCatalog(manifestBundle.files[0].file);
+                        if (!dictionary2.ContainsKey(catalog))
+                        {
+                            dictionary2.Add(catalog, new List<ModBundleInfo>());
+                        }
+                        dictionary2[catalog].Add(value13);
+                    }
+                }
+                int num7 = 0;
+                foreach (List<ModBundleInfo> value14 in dictionary2.Values)
+                {
+                    ManifestBundleAction manifestBundleAction = new ManifestBundleAction(value14, inDoneEvent2, this);
+                    ThreadPool.QueueUserWorkItem(manifestBundleAction.ThreadPoolCallback, null);
+                    list4.Add(manifestBundleAction);
+                    numTasks++;
+                    num7++;
+                }
+                while (numTasks != 0)
+                {
+                    logger.Log("progress:" + (double)(num7 - numTasks) / (double)num7 * 100.0);
+                    Thread.Sleep(1);
+                }
+                foreach (ManifestBundleAction item9 in list4)
+                {
+                    if (item9.HasErrored)
+                    {
+                        throw item9.Exception;
+                    }
+                    if (item9.DataRefs.Count > 0)
+                    {
+                        for (int m = 0; m < item9.BundleRefs.Count; m++)
+                        {
+                            if (!archiveData.ContainsKey(item9.BundleRefs[m]))
+                            {
+                                archiveData.Add(item9.BundleRefs[m], new ArchiveInfo
+                                {
+                                    Data = item9.BundleBuffers[m]
+                                });
+                            }
+                        }
+                        for (int n = 0; n < item9.DataRefs.Count; n++)
+                        {
+                            casData.Add(fs.GetCatalog(item9.FileInfos[n].FileInfo.file), item9.DataRefs[n], item9.FileInfos[n].Entry, item9.FileInfos[n].FileInfo);
+                        }
+                    }
+                }
+                if (modifiedBundles.ContainsKey(chunksBundleHash))
+                {
+                    foreach (Guid chunk in modifiedBundles[chunksBundleHash].Modify.Chunks)
+                    {
+                        ChunkAssetEntry chunkAssetEntry6 = modifiedChunks[chunk];
+                        ManifestChunkInfo manifestChunk = fs.GetManifestChunk(chunkAssetEntry6.Id);
+                        if (manifestChunk != null)
+                        {
+                            casData.Add(fs.GetCatalog(manifestChunk.file.file), chunkAssetEntry6.Sha1, chunkAssetEntry6, manifestChunk.file);
+                        }
+                    }
+                    foreach (Guid chunk2 in modifiedBundles[chunksBundleHash].Add.Chunks)
+                    {
+                        ChunkAssetEntry chunkAssetEntry7 = modifiedChunks[chunk2];
+                        ManifestChunkInfo manifestChunkInfo = new ManifestChunkInfo();
+                        manifestChunkInfo.guid = chunkAssetEntry7.Id;
+                        manifestChunkInfo.file = new ManifestFileInfo();
+                        manifestChunkInfo.file.file = new ManifestFileRef(0, inPatch: false, 0);
+                        manifestChunkInfo.file.isChunk = true;
+                        fs.AddManifestChunk(manifestChunkInfo);
+                        casData.Add(fs.GetCatalog(manifestChunkInfo.file.file), chunkAssetEntry7.Sha1, chunkAssetEntry7, manifestChunkInfo.file);
+                    }
+                }
+            }
+            else
+            {
+                List<SuperBundleAction> list5 = new List<SuperBundleAction>();
+                ManualResetEvent inDoneEvent3 = new ManualResetEvent(initialState: false);
+                int num8 = 0;
+                foreach (string superBundle in fs.SuperBundles)
+                {
+                    if (!(fs.ResolvePath(superBundle + ".toc") == ""))
+                    {
+                        SuperBundleAction superBundleAction = new SuperBundleAction(superBundle, inDoneEvent3, this, modDirName + "/" + patchPath);
+                        ThreadPool.QueueUserWorkItem(superBundleAction.ThreadPoolCallback, null);
+                        list5.Add(superBundleAction);
+                        numTasks++;
+                        num8++;
+                    }
+                }
+                foreach (string addedSuperBundle in addedSuperBundles)
+                {
+                    SuperBundleAction superBundleAction2 = new SuperBundleAction(addedSuperBundle, inDoneEvent3, this, modDirName + "/" + patchPath);
+                    ThreadPool.QueueUserWorkItem(superBundleAction2.ThreadPoolCallback, null);
+                    list5.Add(superBundleAction2);
+                    numTasks++;
+                    num8++;
+                }
+                while (numTasks != 0)
+                {
+                    logger.Log("progress:" + (double)(num8 - numTasks) / (double)num8 * 100.0);
+                    Thread.Sleep(1);
+                }
+                foreach (SuperBundleAction item10 in list5)
+                {
+                    if (item10.HasErrored)
+                    {
+                        throw item10.Exception;
+                    }
+                    if (!item10.TocModified)
+                    {
+                        string inSrc = fs.ResolvePath(item10.SuperBundle + ".toc");
+                        FileInfo fileInfo6 = new FileInfo(modPath + "/" + patchPath + "/" + item10.SuperBundle + ".toc");
+                        if (!Directory.Exists(fileInfo6.DirectoryName))
+                        {
+                            Directory.CreateDirectory(fileInfo6.DirectoryName);
+                        }
+                        list2.Add(new SymLinkStruct(fileInfo6.FullName, inSrc, inFolder: false));
+                    }
+                    if (!item10.SbModified)
+                    {
+                        string inSrc2 = fs.ResolvePath(item10.SuperBundle + ".sb");
+                        FileInfo fileInfo7 = new FileInfo(modPath + "/" + patchPath + "/" + item10.SuperBundle + ".sb");
+                        if (!Directory.Exists(fileInfo7.DirectoryName))
+                        {
+                            Directory.CreateDirectory(fileInfo7.DirectoryName);
+                        }
+                        list2.Add(new SymLinkStruct(fileInfo7.FullName, inSrc2, inFolder: false));
+                    }
+                    if (item10.CasRefs.Count != 0)
+                    {
+                        string catalogFromSuperBundle = fs.GetCatalogFromSuperBundle(item10.SuperBundle);
+                        for (int num9 = 0; num9 < item10.CasRefs.Count; num9++)
+                        {
+                            casData.Add(catalogFromSuperBundle, item10.CasRefs[num9]);
+                        }
+                    }
+                }
+            }
+            if (list2.Count > 0)
+            {
+                RunSymbolicLinkProcess(list2);
+            }
+            ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
+            foreach (CasDataEntry item11 in casData.EnumerateEntries())
+            {
+                if (item11.HasEntries)
+                {
+                    if (!File.Exists(modPath + patchPath + "\\" + item11.Catalog + "\\cas.cat"))
+                    {
+                        if (!File.Exists(fs.BasePath + "\\data\\" + item11.Catalog + "\\cas.cat"))
+                        {
+                            continue;
+                        }
+                        using (NativeReader nativeReader5 = new NativeReader(new FileStream(fs.BasePath + "\\data\\" + item11.Catalog + "\\cas.cat", FileMode.Open, FileAccess.Read)))
+                        {
+                            FileInfo fileInfo8 = new FileInfo(modPath + patchPath + "\\" + item11.Catalog + "\\cas.cat");
+                            if (!fileInfo8.Directory.Exists)
+                            {
+                                Directory.CreateDirectory(fileInfo8.Directory.FullName);
+                            }
+                            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(modPath + patchPath + "\\" + item11.Catalog + "\\cas.cat", FileMode.Create)))
+                            {
+                                nativeWriter.Write(nativeReader5.ReadBytes(572));
+                                nativeWriter.Write(0);
+                                nativeWriter.Write(0);
+                                if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180628)
+                                {
+                                    nativeWriter.Write(0);
+                                    nativeWriter.Write(0);
+                                    nativeWriter.Write(-1);
+                                    nativeWriter.Write(-1);
+                                }
+                            }
+                        }
+                    }
+                    WriteArchiveData(modPath + patchPath + "\\" + item11.Catalog, item11);
+                }
+            }
+            CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+            if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
+            {
+                DbObject dbObject7 = null;
+                using (DbReader dbReader4 = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                {
+                    dbObject7 = dbReader4.ReadDbObject();
+                }
+                foreach (string item12 in Directory.EnumerateFiles(modPath + patchPath, "*.sb", SearchOption.AllDirectories))
+                {
+                    string value11 = item12.Replace(modPath + patchPath + "\\", "").Replace("\\", "/").Replace(".sb", "");
+                    foreach (DbObject item13 in dbObject7.GetValue<DbObject>("superBundles"))
+                    {
+                        if (item13.GetValue<string>("name").Equals(value11, StringComparison.OrdinalIgnoreCase))
+                        {
+                            item13.RemoveValue("same");
+                            item13.SetValue("delta", true);
+                        }
+                    }
+                }
+                using (DbWriter dbWriter2 = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                {
+                    dbWriter2.Write(dbObject7);
+                }
+            }
+            else if (ProfilesLibrary.DataVersion != 20180914 && ProfilesLibrary.DataVersion != 20190729 && ProfilesLibrary.DataVersion != 20190911)
+            {
+                DbObject dbObject9 = null;
+                using (DbReader dbReader5 = new DbReader(new FileStream(fs.ResolvePath("layout.toc"), FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                {
+                    dbObject9 = dbReader5.ReadDbObject();
+                }
+                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+                {
+                    DbObject value12 = dbObject9.GetValue<DbObject>("manifest");
+                    ManifestFileRef fileRef4 = value12.GetValue("file", 0);
+                    byte[] array6 = fs.WriteManifest();
+                    string catalog2 = fs.GetCatalog(fileRef4);
+                    int num10 = 1;
+                    while (File.Exists(modPath + patchPath + "/" + string.Format("{0}\\cas_{1}.cas", catalog2, num10.ToString("D2"))))
+                    {
+                        num10++;
+                    }
+                    Sha1 sha = Utils.GenerateSha1(array6);
+                    archiveData.Add(sha, new ArchiveInfo
+                    {
+                        Data = array6
+                    });
+                    WriteArchiveData(modPath + patchPath + "/" + catalog2, new CasDataEntry("", sha));
+                    value12.SetValue("size", array6.Length);
+                    value12.SetValue("offset", 0);
+                    value12.SetValue("sha1", sha);
+                    value12.SetValue("file", (int)new ManifestFileRef(fileRef4.CatalogIndex, inPatch: true, num10));
+                }
+                if (addedSuperBundles.Count > 0)
+                {
+                    foreach (string addedSuperBundle2 in addedSuperBundles)
+                    {
+                        DbObject dbObject10 = new DbObject();
+                        dbObject10.SetValue("name", addedSuperBundle2);
+                        dbObject9.GetValue<DbObject>("superBundles").Add(dbObject10);
+                        ((DbObject)dbObject9.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks")[1]).GetValue<DbObject>("superbundles").Add(addedSuperBundle2);
+                    }
+                }
+                string path2 = modPath + patchPath + "/layout.toc";
+                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+                {
+                    path2 = modPath + "Data/layout.toc";
+                }
+                using (DbWriter dbWriter3 = new DbWriter(new FileStream(path2, FileMode.Create), inWriteHeader: true))
+                {
+                    dbWriter3.Write(dbObject9);
+                }
+            }
+            if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
+            {
+                CopyFileIfRequired(fs.BasePath + patchPath + "/../package.mft", modPath + patchPath + "/../package.mft");
+            }
+            if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+            {
+                CopyFileIfRequired(fs.BasePath + "Data/chunkmanifest", modPath + "Data/chunkmanifest");
+                CopyFileIfRequired(fs.BasePath + "Data/initfs_Win32", modPath + "Data/initfs_Win32");
+            }
+            using (TextWriter textWriter = new StreamWriter(modPath + patchPath + "/mods.txt"))
+            {
+                array2 = modPaths;
+                foreach (string text7 in array2)
+                {
+                    FileInfo fileInfo9 = new FileInfo(rootPath + text7);
+                    FrostyMod frostyMod3 = new FrostyMod(fileInfo9.FullName);
+                    string text8 = "";
+                    if (frostyMod3.NewFormat)
+                    {
+                        text8 = frostyMod3.ModDetails.Version;
+                    }
+                    else
+                    {
+                        DbObject dbObject11 = null;
+                        using (DbReader dbReader6 = new DbReader(new FileStream(fileInfo9.FullName, FileMode.Open, FileAccess.Read), null))
+                        {
+                            dbObject11 = dbReader6.ReadDbObject();
+                        }
+                        text8 = dbObject11.GetValue<string>("version");
+                    }
+                    textWriter.WriteLine(text7 + ":" + text8);
+                }
+            }
+			if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
+			{
+				if (File.Exists(fs.BasePath + "bcrypt.dll"))
+				{
+					File.Delete(fs.BasePath + "bcrypt.dll");
+				}
+    CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+}
+CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
+			if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190911)
+			{
+				if (!new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe").Exists)
+				{
+					FileInfo fileInfo10 = new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
+fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
+				}
+				CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
+			}
+
+            return true;
+        }
 
 
         public async Task<bool> BuildModData(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
@@ -2774,7 +3831,7 @@ namespace paulv2k4ModdingExecuter
             if (rebuildModDataFolder)
             {
                 string[] allModPaths = modPaths;
-                var frostyMods = new Dictionary<MemoryStream, FrostyMod>();
+                var frostyMods = new Dictionary<Stream, FrostyMod>();
 
                 // Sort out Zipped Files
                 //if (allModPaths.Contains(".zip"))
@@ -2819,13 +3876,11 @@ namespace paulv2k4ModdingExecuter
                 }
 
                 //foreach (string str in allModPaths)
-                foreach (KeyValuePair<MemoryStream, FrostyMod> kvpMods in frostyMods)
+                foreach (KeyValuePair<Stream, FrostyMod> kvpMods in frostyMods)
                 {
                     Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
                     var frostyMod2 = kvpMods.Value;
-                    if (frostyMod2.NewFormat)
-                    {
                         foreach (BaseModResource resource in frostyMod2.Resources)
                         {
                             foreach (int modifiedBundle in resource.ModifiedBundles)
@@ -3048,338 +4103,7 @@ namespace paulv2k4ModdingExecuter
                                 }
                             }
                         }
-                    }
 
-                    else
-                    {
-                        Debug.WriteLine("Compiling: " + kvpMods.Value.Filename);
-
-                        DbObject dbObject2 = null;
-                        //using (DbReader dbReader2 = new DbReader(new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read), null))
-                        using (DbReader dbReader2 = new DbReader(kvpMods.Key, null))
-                        {
-                            dbObject2 = dbReader2.ReadDbObject();
-                        }
-                        int num = int.Parse(dbObject2.GetValue<string>("magic").Replace("FBMODV", ""));
-                        DbObject value = dbObject2.GetValue<DbObject>("resources");
-                        foreach (DbObject item in dbObject2.GetValue<DbObject>("actions"))
-                        {
-                            int num2 = Fnv1.HashString(item.GetValue<string>("bundle").ToLower());
-                            string value2 = item.GetValue<string>("type");
-                            int value3 = item.GetValue("resourceId", 0);
-                            if (!modifiedBundles.ContainsKey(num2))
-                            {
-                                modifiedBundles.Add(num2, new ModBundleInfo
-                                {
-                                    Name = num2
-                                });
-                            }
-                            ModBundleInfo modBundleInfo3 = modifiedBundles[num2];
-                            DbObject obj2 = value[value3] as DbObject;
-                            string value4 = obj2.GetValue<string>("name");
-                            string value5 = obj2.GetValue<string>("type");
-                            if (value2 == "modify")
-                            {
-                                if (!(value5 == "ebx"))
-                                {
-                                    if (!(value5 == "res"))
-                                    {
-                                        if (value5 == "chunk")
-                                        {
-                                            modBundleInfo3.Modify.Chunks.Add(new Guid(value4));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        modBundleInfo3.Modify.Res.Add(value4);
-                                    }
-                                }
-                                else
-                                {
-                                    modBundleInfo3.Modify.Ebx.Add(value4);
-                                }
-                            }
-                            else if (value2 == "add")
-                            {
-                                if (!(value5 == "ebx"))
-                                {
-                                    if (!(value5 == "res"))
-                                    {
-                                        if (value5 == "chunk")
-                                        {
-                                            modBundleInfo3.Add.Chunks.Add(new Guid(value4));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        modBundleInfo3.Add.Res.Add(value4);
-                                    }
-                                }
-                                else
-                                {
-                                    modBundleInfo3.Add.Ebx.Add(value4);
-                                }
-                            }
-                            else if (value2 == "remove")
-                            {
-                                if (!(value5 == "ebx"))
-                                {
-                                    if (!(value5 == "res"))
-                                    {
-                                        if (value5 == "chunk")
-                                        {
-                                            modBundleInfo3.Remove.Chunks.Add(new Guid(value4));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        modBundleInfo3.Remove.Res.Add(value4);
-                                    }
-                                }
-                                else
-                                {
-                                    modBundleInfo3.Remove.Ebx.Add(value4);
-                                }
-                            }
-                        }
-                        foreach (DbObject item2 in value)
-                        {
-                            string value6 = item2.GetValue<string>("type");
-                            if (value6 == "superbundle")
-                            {
-                                string value7 = item2.GetValue<string>("name");
-                                addedSuperBundles.Add(value7);
-                            }
-                            else if (value6 == "bundle")
-                            {
-                                string value8 = item2.GetValue<string>("name");
-                                string value9 = item2.GetValue<string>("sb");
-                                if (!addedBundles.ContainsKey(value9))
-                                {
-                                    addedBundles.Add(value9, new List<string>());
-                                }
-                                addedBundles[value9].Add(value8);
-                            }
-                            else if (value6 == "ebx")
-                            {
-                                string value10 = item2.GetValue<string>("name");
-                                if (modifiedEbx.ContainsKey(value10))
-                                {
-                                    EbxAssetEntry ebxAssetEntry3 = modifiedEbx[value10];
-                                    if (ebxAssetEntry3.Sha1 == item2.GetValue<Sha1>("sha1"))
-                                    {
-                                        continue;
-                                    }
-                                    archiveData[ebxAssetEntry3.Sha1].RefCount--;
-                                    if (archiveData[ebxAssetEntry3.Sha1].RefCount == 0)
-                                    {
-                                        archiveData.Remove(ebxAssetEntry3.Sha1);
-                                    }
-                                    modifiedEbx.Remove(value10);
-                                    numArchiveEntries--;
-                                }
-                                EbxAssetEntry ebxAssetEntry4 = new EbxAssetEntry
-                                {
-                                    Name = value10,
-                                    OriginalSize = item2.GetValue("uncompressedSize", 0L),
-                                    Size = item2.GetValue("compressedSize", 0L)
-                                };
-                                byte[] array3 = null;
-                                if (item2.HasValue("archiveIndex"))
-                                {
-                                    ebxAssetEntry4.IsInline = item2.GetValue("shouldInline", defaultValue: false);
-                                    //array3 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)ebxAssetEntry4.Size);
-                                    array3 = GetResourceData(kvpMods.Key, item2.GetValue("archiveOffset", 0L), (int)ebxAssetEntry4.Size);
-                                }
-                                else
-                                {
-                                    ManifestFileRef fileRef = item2.GetValue("file", 0);
-                                    long position = item2.GetValue("offset", 0);
-                                    using (NativeReader nativeReader = new NativeReader(new FileStream(fs.ResolvePath(fileRef), FileMode.Open, FileAccess.Read)))
-                                    {
-                                        nativeReader.Position = position;
-                                        array3 = nativeReader.ReadBytes((int)ebxAssetEntry4.Size);
-                                    }
-                                }
-                                ebxAssetEntry4.Sha1 = Utils.GenerateSha1(array3);
-                                modifiedEbx.Add(ebxAssetEntry4.Name, ebxAssetEntry4);
-                                if (!archiveData.ContainsKey(ebxAssetEntry4.Sha1))
-                                {
-                                    archiveData.Add(ebxAssetEntry4.Sha1, new ArchiveInfo
-                                    {
-                                        Data = array3,
-                                        RefCount = 1
-                                    });
-                                }
-                                else
-                                {
-                                    archiveData[ebxAssetEntry4.Sha1].RefCount++;
-                                }
-                                numArchiveEntries++;
-                            }
-                            else if (value6 == "res")
-                            {
-                                string value11 = item2.GetValue<string>("name");
-                                if (modifiedRes.ContainsKey(value11))
-                                {
-                                    ResAssetEntry resAssetEntry4 = modifiedRes[value11];
-                                    if (resAssetEntry4.Sha1 == item2.GetValue<Sha1>("sha1"))
-                                    {
-                                        continue;
-                                    }
-                                    archiveData[resAssetEntry4.Sha1].RefCount--;
-                                    if (archiveData[resAssetEntry4.Sha1].RefCount == 0)
-                                    {
-                                        archiveData.Remove(resAssetEntry4.Sha1);
-                                    }
-                                    modifiedRes.Remove(value11);
-                                    numArchiveEntries--;
-                                }
-                                ResAssetEntry resAssetEntry5 = new ResAssetEntry
-                                {
-                                    Name = value11,
-                                    OriginalSize = item2.GetValue("uncompressedSize", 0L),
-                                    Size = item2.GetValue("compressedSize", 0L),
-                                    ResRid = (ulong)item2.GetValue("resRid", 0L),
-                                    ResType = (uint)item2.GetValue("resType", 0),
-                                    ResMeta = item2.GetValue<byte[]>("resMeta")
-                                };
-                                byte[] array4 = null;
-                                if (item2.HasValue("archiveIndex"))
-                                {
-                                    resAssetEntry5.IsInline = item2.GetValue("shouldInline", defaultValue: false);
-                                    //array4 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)resAssetEntry5.Size);
-                                    array4 = GetResourceData(kvpMods.Key, item2.GetValue("archiveOffset", 0L), (int)resAssetEntry5.Size);
-                                }
-                                else
-                                {
-                                    ManifestFileRef fileRef2 = item2.GetValue("file", 0);
-                                    long position2 = item2.GetValue("offset", 0);
-                                    using (NativeReader nativeReader2 = new NativeReader(new FileStream(fs.ResolvePath(fileRef2), FileMode.Open, FileAccess.Read)))
-                                    {
-                                        nativeReader2.Position = position2;
-                                        array4 = nativeReader2.ReadBytes((int)resAssetEntry5.Size);
-                                    }
-                                }
-                                resAssetEntry5.Sha1 = Utils.GenerateSha1(array4);
-                                modifiedRes.Add(resAssetEntry5.Name, resAssetEntry5);
-                                if (!archiveData.ContainsKey(resAssetEntry5.Sha1))
-                                {
-                                    archiveData.Add(resAssetEntry5.Sha1, new ArchiveInfo
-                                    {
-                                        Data = array4,
-                                        RefCount = 1
-                                    });
-                                }
-                                else
-                                {
-                                    archiveData[resAssetEntry5.Sha1].RefCount++;
-                                }
-                                numArchiveEntries++;
-                            }
-                            else if (value6 == "chunk")
-                            {
-                                Guid guid2 = new Guid(item2.GetValue<string>("name"));
-                                if (modifiedChunks.ContainsKey(guid2))
-                                {
-                                    ChunkAssetEntry chunkAssetEntry4 = modifiedChunks[guid2];
-                                    if (chunkAssetEntry4.Sha1 == item2.GetValue<Sha1>("sha1"))
-                                    {
-                                        continue;
-                                    }
-                                    archiveData[chunkAssetEntry4.Sha1].RefCount--;
-                                    if (archiveData[chunkAssetEntry4.Sha1].RefCount == 0)
-                                    {
-                                        archiveData.Remove(chunkAssetEntry4.Sha1);
-                                    }
-                                    modifiedChunks.Remove(guid2);
-                                    numArchiveEntries--;
-                                }
-                                ChunkAssetEntry chunkAssetEntry5 = new ChunkAssetEntry
-                                {
-                                    Id = guid2,
-                                    Size = item2.GetValue("compressedSize", 0L),
-                                    LogicalOffset = item2.GetValue("logicalOffset", 0u),
-                                    LogicalSize = item2.GetValue("logicalSize", 0u),
-                                    RangeStart = item2.GetValue("rangeStart", 0u),
-                                    RangeEnd = item2.GetValue("rangeEnd", 0u),
-                                    FirstMip = item2.GetValue("firstMip", -1),
-                                    H32 = item2.GetValue("h32", 0),
-                                    IsTocChunk = item2.GetValue("tocChunk", defaultValue: false)
-                                };
-                                byte[] array5 = null;
-                                if (item2.HasValue("archiveIndex"))
-                                {
-                                    chunkAssetEntry5.IsInline = item2.GetValue("shouldInline", defaultValue: false);
-                                    //array5 = GetResourceData(fileInfo2.FullName, item2.GetValue("archiveIndex", 0), item2.GetValue("archiveOffset", 0L), (int)chunkAssetEntry5.Size);
-                                    array5 = GetResourceData(kvpMods.Key, item2.GetValue("archiveOffset", 0L), (int)chunkAssetEntry5.Size);
-                                }
-                                else
-                                {
-                                    ManifestFileRef fileRef3 = item2.GetValue("file", 0);
-                                    long position3 = item2.GetValue("offset", 0);
-                                    using (NativeReader nativeReader3 = new NativeReader(new FileStream(fs.ResolvePath(fileRef3), FileMode.Open, FileAccess.Read)))
-                                    {
-                                        nativeReader3.Position = position3;
-                                        array5 = nativeReader3.ReadBytes((int)chunkAssetEntry5.Size);
-                                    }
-                                    if ((ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628) && chunkAssetEntry5.LogicalOffset != 0)
-                                    {
-                                        using (NativeReader nativeReader4 = new NativeReader(new MemoryStream(array5)))
-                                        {
-                                            int num3 = 0;
-                                            while (num3 != chunkAssetEntry5.LogicalOffset)
-                                            {
-                                                int num4 = nativeReader4.ReadInt(Endian.Big);
-                                                nativeReader4.ReadUShort(Endian.Big);
-                                                ushort num5 = nativeReader4.ReadUShort(Endian.Big);
-                                                num3 += num4;
-                                                if (num3 > chunkAssetEntry5.LogicalOffset)
-                                                {
-                                                    nativeReader4.Position -= 8L;
-                                                    break;
-                                                }
-                                                nativeReader4.Position += num5;
-                                            }
-                                            chunkAssetEntry5.RangeStart = (uint)nativeReader4.Position;
-                                            chunkAssetEntry5.RangeEnd = (uint)array5.Length;
-                                        }
-                                    }
-                                }
-                                chunkAssetEntry5.Sha1 = Utils.GenerateSha1(array5);
-                                modifiedChunks.Add(chunkAssetEntry5.Id, chunkAssetEntry5);
-                                if (!archiveData.ContainsKey(chunkAssetEntry5.Sha1))
-                                {
-                                    archiveData.Add(chunkAssetEntry5.Sha1, new ArchiveInfo
-                                    {
-                                        Data = array5,
-                                        RefCount = 1
-                                    });
-                                }
-                                else
-                                {
-                                    archiveData[chunkAssetEntry5.Sha1].RefCount++;
-                                }
-                                numArchiveEntries++;
-                                if (num < 2)
-                                {
-                                    if (!modifiedBundles.ContainsKey(chunksBundleHash))
-                                    {
-                                        modifiedBundles.Add(chunksBundleHash, new ModBundleInfo
-                                        {
-                                            Name = chunksBundleHash
-                                        });
-                                    }
-                                    modifiedBundles[chunksBundleHash].Modify.Chunks.Add(chunkAssetEntry5.Id);
-                                    chunkAssetEntry5.FirstMip = 0;
-                                }
-                                if (chunkAssetEntry5.FirstMip == -1 && chunkAssetEntry5.RangeEnd != 0)
-                                {
-                                    chunkAssetEntry5.FirstMip = 0;
-                                }
-                            }
-                        }
-                    }
                 }
                 Logger.Log("Cleaning up mod data directory");
                 List<SymLinkStruct> list2 = new List<SymLinkStruct>();
@@ -3436,7 +4160,7 @@ namespace paulv2k4ModdingExecuter
                         }
                     }
                 }
-                foreach (string catalog4 in fs.Catalogs)
+                foreach (string catalog4 in fs.Catalogs.Where(x => x != ""))
                 {
                     string text4 = fs.ResolvePath("native_patch/" + catalog4 + "/cas.cat");
                     if (File.Exists(text4))
@@ -3490,6 +4214,7 @@ namespace paulv2k4ModdingExecuter
                     using (DbReader dbReader3 = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
                     {
                         dbObject4 = dbReader3.ReadDbObject();
+
                     }
                     FifaBundleAction.CasFileCount = fs.CasFileCount;
                     List<FifaBundleAction> list3 = new List<FifaBundleAction>();
@@ -3508,7 +4233,7 @@ namespace paulv2k4ModdingExecuter
                         logger.Log("Progress %:" + Math.Round(((double)(num6 - numTasks) / (double)num6 * 100.0), 2));
                         Thread.Sleep(400);
                     }
-                    foreach (FifaBundleAction item6 in list3)
+                    foreach (FifaBundleAction item6 in list3.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
                     {
                         if (item6.HasErrored)
                         {
@@ -3526,6 +4251,8 @@ namespace paulv2k4ModdingExecuter
                                         dbObject6.SetValue("id", key);
                                         dbObject6.SetValue("path", item6.CasFiles[key]);
                                         item7.GetValue<DbObject>("files").Add(dbObject6);
+
+
                                     }
                                     break;
                                 }
@@ -3545,24 +4272,24 @@ namespace paulv2k4ModdingExecuter
 
                 logger.Log("Writing CAS files to FIFA");
                 ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
-                foreach (CasDataEntry item11 in casData.EnumerateEntries())
+                foreach (CasDataEntry casEntry in casData.EnumerateEntries())
                 {
-                    if (item11.HasEntries)
+                    if (casEntry.HasEntries)
                     {
-                        if (!File.Exists(modPath + patchPath + "\\" + item11.Catalog + "\\cas.cat"))
+                        if (!File.Exists(modPath + patchPath + "\\" + casEntry.Catalog + "\\cas.cat"))
                         {
-                            if (!File.Exists(fs.BasePath + "\\data\\" + item11.Catalog + "\\cas.cat"))
+                            if (!File.Exists(fs.BasePath + "\\data\\" + casEntry.Catalog + "\\cas.cat"))
                             {
                                 continue;
                             }
-                            using (NativeReader nativeReader5 = new NativeReader(new FileStream(fs.BasePath + "\\data\\" + item11.Catalog + "\\cas.cat", FileMode.Open, FileAccess.Read)))
+                            using (NativeReader nativeReader5 = new NativeReader(new FileStream(fs.BasePath + "\\data\\" + casEntry.Catalog + "\\cas.cat", FileMode.Open, FileAccess.Read)))
                             {
-                                FileInfo fileInfo8 = new FileInfo(modPath + patchPath + "\\" + item11.Catalog + "\\cas.cat");
+                                FileInfo fileInfo8 = new FileInfo(modPath + patchPath + "\\" + casEntry.Catalog + "\\cas.cat");
                                 if (!fileInfo8.Directory.Exists)
                                 {
                                     Directory.CreateDirectory(fileInfo8.Directory.FullName);
                                 }
-                                using (NativeWriter nativeWriter = new NativeWriter(new FileStream(modPath + patchPath + "\\" + item11.Catalog + "\\cas.cat", FileMode.Create)))
+                                using (NativeWriter nativeWriter = new NativeWriter(new FileStream(modPath + patchPath + "\\" + casEntry.Catalog + "\\cas.cat", FileMode.Create)))
                                 {
                                     nativeWriter.Write(nativeReader5.ReadBytes(572));
                                     nativeWriter.Write(0);
@@ -3577,7 +4304,7 @@ namespace paulv2k4ModdingExecuter
                                 }
                             }
                         }
-                        WriteArchiveData(modPath + patchPath + "\\" + item11.Catalog, item11);
+                        WriteArchiveData(modPath + patchPath + "\\" + casEntry.Catalog, casEntry);
                     }
                 }
                 CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
@@ -3715,7 +4442,12 @@ namespace paulv2k4ModdingExecuter
         {
             fs = inFs;
             string modPath = fs.BasePath + modDirName + "\\";
-            await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
+
+            if(UseLegacyLauncher)
+                BuildModData_FrostyVersion(inFs, inLogger, rootPath, additionalArgs, modPaths);
+            else
+                await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
+
             Logger.Log("Launching game");
             ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + additionalArgs);
             //});

@@ -3,8 +3,8 @@
 #include <Windows.h>
 #include <map>
 #include <algorithm>
+#include <sstream>
 #include "logger.h"
-
 #pragma region GameClasses
 class CurrentSreen
 {
@@ -57,9 +57,49 @@ public:
 class ScriptFunctions0
 {
 public:
-    char pad_0000[4568]; //0x0000
+    char pad_0000[4408]; //0x0000
+    class ScriptFunctionsCalendarr* pScriptFunctionsCalendar; //0x1138
+    char pad_1140[152]; //0x1140
     class ScriptFunctionsUnk1* pScriptFunctionsUnk1; //0x11D8
 }; //Size: 0x11E0
+
+class ScriptFunctionsCalendarr
+{
+public:
+    class ScriptFunctionsCalendar* pScriptFunctionsCalendar0; //0x0000
+}; //Size: 0x0008
+
+class ScriptFunctionsCalendar
+{
+public:
+    class CalendarCurrentDates0* pScriptFunctionsCalendar1; //0x0000
+    char pad_0008[8]; //0x0008
+    int32_t ret_current_day; //0x0010
+    int32_t ret_current_month; //0x0014
+    int32_t ret_current_year; //0x0018
+}; //Size: 0x001C
+class CalendarCurrentDates0
+{
+public:
+    char pad_0000[824]; //0x0000
+    class CalendarCurrentDates1* pCalendarCurrentDates1; //0x0338
+    char pad_0340[8]; //0x0340
+}; //Size: 0x0348
+class CalendarCurrentDates1
+{
+public:
+    class CalendarCurrentDatesFinal* pCalendarCurrentDatesFinal; //0x0000
+}; //Size: 0x0008
+
+class CalendarCurrentDatesFinal
+{
+public:
+    char pad_0000[52]; //0x0000
+    int32_t current_day; //0x0034
+    int32_t current_month; //0x0038
+    int32_t current_year; //0x003C
+    char pad_0040[32]; //0x0040
+}; //Size: 0x0060
 
 class ScriptFunctionsUnk1
 {
@@ -392,7 +432,7 @@ public:
 struct FIFADBFieldDesc {
     std::string parent_table_name = "";
     std::string name = "";
-    std::string shortname ="";
+    std::string shortname = "";
     std::string type = "";
     __int32 itype = -1;
     __int32 depth = 0;
@@ -408,7 +448,7 @@ struct FIFADBFieldDesc {
 
 struct FIFADBField {
     std::string name = "";
-    char uid[32] = { "\0" };
+    char uid[14] = { "\0" };
     __int64 addr;
     unsigned __int32 offset;
     std::string value;
@@ -629,7 +669,7 @@ struct FIFADBTable {
         CreateHeaders();
         logger.Write(LOG_DEBUG, "CreateRows for %s", name.c_str());
         __int64 addr = first_record;
-        
+
         std::map<std::string, float> tmp_width;
 
         signed __int32 huf_tree_size = INT_MAX;
@@ -652,7 +692,7 @@ struct FIFADBTable {
                 newf->addr = addr;
                 if (f->itype == DBOFIELDTYPE_STRING) {
                     const __int64 len = (f->depth / 8);
-                    const char* buf = new char[len+1];
+                    const char* buf = new char[len + 1];
                     memcpy((void*)buf, (void*)(addr + f->offset), len);
                     newf->value = std::string(buf);
 
@@ -710,7 +750,7 @@ struct FIFADBTable {
                 }
 
                 r->row[f->name] = newf;
-                
+
                 //logger.Write(LOG_DEBUG, "ROW: %d, %s = %s(%d)", row, f->name.c_str(), r->row[f->name].c_str(), v);
             }
             if (r->is_valid) {
@@ -733,6 +773,14 @@ struct FIFADBTable {
             count_created_rows += 1;
             // Next Record
             addr = addr + record_size;
+
+#ifdef _DEBUG
+            // For quick testing, get only 1000 rows from players table
+            if (name == "players" && count_created_rows >= 1000) {
+                logger.Write(LOG_DEBUG, "DEBUG QUICK - only 1000 rows for players table");
+                break;
+            }
+#endif
         }
 
         if (huf_compressed.size() > 0) {
@@ -741,7 +789,7 @@ struct FIFADBTable {
 
             pHuffmannTree->Create(huf_nNodes, compressed_strings_addr);
             for (auto f : huf_compressed) {
-                
+
                 if (f->value.empty()) continue;
                 signed __int32 compressedstr_offset = *(signed __int32*)(f->addr + f->offset);
                 auto strlen = *(unsigned char*)(compressed_strings_addr + compressedstr_offset);
@@ -768,15 +816,50 @@ struct FIFADBTable {
         field_name_shortname.clear();
         record_size = 0;
 
+        for (std::map<std::string, FIFAEditedField*>::iterator itr = edited_floats.begin(); itr != edited_floats.end(); itr++)
+        {
+            delete (itr->second);
+        }
         edited_floats.clear();
+
+        for (std::map<std::string, FIFAEditedField*>::iterator itr = edited_ints.begin(); itr != edited_ints.end(); itr++)
+        {
+            delete (itr->second);
+        }
         edited_ints.clear();
+
+        for (std::map<std::string, FIFAEditedField*>::iterator itr = edited_strings.begin(); itr != edited_strings.end(); itr++)
+        {
+            delete (itr->second);
+        }
         edited_strings.clear();
         longest_values.clear();
-        rows.clear();
-        invalid_rows.clear();
+
         cwidths.clear();
         col_order.clear();
         count_created_rows = 0;
+
+        for (int i = 0; i < invalid_rows.size(); i++) {
+            auto row = invalid_rows[i];
+            for (std::map<std::string, FIFADBField*>::iterator itr = row->row.begin(); itr != row->row.end(); itr++)
+            {
+                delete (itr->second);
+            }
+            row->row.clear();
+            delete row;
+        }
+        invalid_rows.clear();
+
+        for (int i = 0; i < rows.size(); i++) {
+            auto row = rows[i];
+            for (std::map<std::string, FIFADBField*>::iterator itr = row->row.begin(); itr != row->row.end(); itr++)
+            {
+                delete (itr->second);
+            }
+            row->row.clear();
+            delete row;
+        }
+        rows.clear();
         rows_created = false;
     }
 
@@ -790,7 +873,7 @@ public:
     std::map<std::string, std::string> name_shortname;
     // shortname - table
     std::map<std::string, FIFADBTable*> tables;
-    
+
     // name - shortname
     std::map<std::string, std::string> tables_ordered;  // Ordered by table name
 
@@ -821,7 +904,7 @@ public:
                 tbl->first_record = reinterpret_cast<__int64>(pGameTable->firstRecord);
                 tbl->n_of_fields = pGameTable->fieldcount;
                 logger.Write(
-                    LOG_DEBUG, 
+                    LOG_DEBUG,
                     "Table: %s, FirstRecord addr - 0x%08llX, n_of_fields - %d",
                     tbl->name.c_str(), pGameTable->firstRecord, tbl->n_of_fields
                 );
@@ -853,14 +936,388 @@ public:
     }
 };
 
-class FIFAPlayer {
+struct FIFADate {
+    __int32 day;
+    __int32 month;
+    __int32 year;
+};
+
+inline class FIFAUtils {
 public:
+    //https://stackoverflow.com/questions/58595965/c-int-to-any-date-without-external-library
+    // birthdate from players table to date
+    // FIFA Count days since year=1582, month=10, day=14
+    FIFADate BirthdateToDate(int birthdate) {
+        FIFADate result;
+
+        int a, b, c, d, e, m;
+        a = birthdate + 2331204;
+
+        b = (4 * a + 3) / 146097;
+        c = -b * 146097 / 4 + a;
+        d = (4 * c + 3) / 1461;
+        e = -1461 * d / 4 + c;
+        m = (5 * e + 2) / 153;
+        result.day = -(153 * m + 2) / 5 + e + 1;
+        result.month = -m / 10 * 12 + m + 3;
+        result.year = b * 100 + d - 4800 + m / 10;
+
+        return result;
+    }
+
+    int DateToBirthdate(FIFADate date) {
+        int a = (14 - date.month) / 12;
+        int m = date.month + 12 * a - 3;
+        int y = date.year + 4800 - a;
+        return date.day + (153 * m + 2) / 5 + y * 365 + y / 4 - y / 100 + y / 400 - 2331205;
+
+    }
+} FIFAUtils;
+
+inline struct PlayerConsts {
+    std::vector<std::string> int_fields = {
+        "overallrating",
+        "potential",
+        "modifier",
+        "skillmoves",
+        "weakfootabilitytypecode",
+        "birthdate"
+    };
+
+    std::vector<std::string> position_fields = {
+        "preferredposition1",
+        "preferredposition2",
+        "preferredposition3",
+        "preferredposition4"
+    };
+
+    std::vector<std::string> positions = {
+        "GK", "SW", "RWB", "RB", "RCB", "CB", "LCB", "LB", "LWB", "RDM", "CDM", "LDM",
+        "RM", "RCM", "CM", "LCM", "LM", "RAM", "CAM", "LAM", "RF", "CF", "LF", "RW", "RS",
+        "ST", "LS", "LW", "NONE"
+    };
+
+    __int32 attribute_min = 1;
+    __int32 attribute_max = 99;
+
     enum ATTRIB_LAYOUT_STYLE {
         DEFAULT,
     };
 
-    FIFADBTable* pPlayersTable = NULL;
-    FIFADBRow* row = NULL;
+    // Same indexes as in the game
+    std::vector<std::string> all_attribs{
+        "acceleration",
+        "sprintspeed",
+        "agility",
+        "balance",
+        "jumping",
+        "stamina",
+        "strength",
+        "reactions",
+        "aggression",
+        "composure",
+        "interceptions",
+        "positioning",
+        "vision",
+        "ballcontrol",
+        "crossing",
+        "dribbling",
+        "finishing",
+        "freekickaccuracy",
+        "headingaccuracy",
+        "longpassing",
+        "shortpassing",
+        "marking",
+        "shotpower",
+        "longshots",
+        "standingtackle",
+        "slidingtackle",
+        "volleys",
+        "curve",
+        "penalties",
+        "gkdiving",
+        "gkhandling",
+        "gkkicking",
+        "gkreflexes",
+        "gkpositioning"
+    };
+    std::map<int, std::map<std::string, float>> ovr_formula;
+
+    // Attribute name - Perc of ovr
+
+    // position id - position ids in the group
+    std::vector<std::vector<int>> main_positions = {
+        { 0 },
+        { 2, 8 },
+        { 3, 7 },
+        { 4, 5, 6 },
+        { 9, 10, 11 },
+        { 12, 16},
+        { 13, 14, 15},
+        { 17, 18, 19},
+        { 20, 21, 22},
+        { 23, 27},
+        { 24, 25, 26}
+    };
+
+    // GK (0)
+    std::map<std::string, float> gk_formula = {
+        {"reactions", 0.11f},
+        {"gkdiving", 0.21f},
+        {"gkhandling", 0.21f},
+        {"gkkicking", 0.05f},
+        {"gkreflexes", 0.21f},
+        {"gkpositioning", 0.21f}
+    };
+
+    // RWB(2) or LWB(8)
+    std::map<std::string, float> wing_back_formula = {
+        {"acceleration", 0.04f},
+        {"sprintspeed", 0.06f},
+        {"stamina", 0.10f},
+        {"reactions", 0.08f},
+        {"interceptions", 0.12f},
+        {"ballcontrol", 0.08f},
+        {"crossing", 0.12f},
+        {"dribbling", 0.04f},
+        {"shortpassing", 0.10f},
+        {"marking", 0.07f},
+        {"standingtackle", 0.08f},
+        {"slidingtackle", 0.11f}
+    };
+
+    // RB(3) or LB(7)
+    std::map<std::string, float> full_back_formula = {
+        {"acceleration", 0.05f},
+        { "sprintspeed", 0.07f },
+        { "stamina", 0.08f },
+        { "reactions", 0.08f },
+        { "interceptions", 0.12f },
+        { "ballcontrol", 0.07f },
+        { "crossing", 0.09f },
+        { "headingaccuracy", 0.04f },
+        { "shortpassing", 0.07f },
+        { "marking", 0.08f },
+        { "standingtackle", 0.11f },
+        { "slidingtackle", 0.14f }
+    };
+
+    // RCB (4) or CB (5) or LCB (6)
+    std::map<std::string, float> centre_back_formula = {
+        {"sprintspeed", 0.02f},
+        {"jumping", 0.03f},
+        {"strength", 0.10f},
+        {"reactions", 0.05f},
+        {"aggression", 0.07f},
+        {"interceptions", 0.13f},
+        {"ballcontrol", 0.04f},
+        {"headingaccuracy", 0.10f},
+        {"shortpassing", 0.05f},
+        {"marking", 0.14f},
+        {"standingtackle", 0.17f},
+        {"slidingtackle", 0.10f}
+    };
+
+    // RDM (9) or CDM(10) or LDM(11)
+    std::map<std::string, float> def_mid_formula = {
+        {"stamina", 0.06f},
+        { "strength", 0.04f },
+        { "reactions", 0.07f },
+        { "aggression", 0.05f },
+        { "interceptions", 0.14f },
+        { "vision", 0.04f },
+        { "ballcontrol", 0.10f },
+        { "longpassing", 0.10f },
+        { "shortpassing", 0.14f },
+        { "marking", 0.09f },
+        { "standingtackle", 0.12f },
+        { "slidingtackle", 0.05f }
+    };
+
+    // RM (12) or LM (16)
+    std::map<std::string, float> wing_mid_formula = {
+        {"acceleration", 0.07f},
+        {"sprintspeed", 0.06f},
+        {"stamina", 0.05f},
+        {"reactions", 0.07f},
+        {"positioning", 0.08f},
+        {"vision", 0.07f},
+        {"ballcontrol", 0.13f},
+        {"crossing", 0.10f},
+        {"dribbling", 0.15f},
+        {"finishing", 0.06f},
+        {"longpassing", 0.05f},
+        {"shortpassing", 0.11f}
+    };
+
+    // RCM (13) or CM (14) or LCM (15)
+    std::map<std::string, float> centre_mid_formula = {
+        {"stamina", 0.06f},
+        {"reactions", 0.08f},
+        {"interceptions", 0.05f},
+        {"positioning", 0.06f},
+        {"vision", 0.13f},
+        {"ballcontrol", 0.14f},
+        {"dribbling", 0.07f},
+        {"finishing", 0.02f},
+        {"longpassing", 0.13f},
+        {"shortpassing", 0.17f},
+        {"longshots", 0.04f},
+        {"standingtackle", 0.05f}
+    };
+
+    // RAM (17) or CAM (18) or LAM (19)
+    std::map<std::string, float> attacking_mid_formula = {
+        {"acceleration", 0.04f},
+        {"sprintspeed", 0.03f},
+        {"agility", 0.03f},
+        {"reactions", 0.07f},
+        {"positioning", 0.09f},
+        {"vision", 0.14f},
+        {"ballcontrol", 0.15f},
+        {"dribbling", 0.13f},
+        {"finishing", 0.07f},
+        {"longpassing", 0.04f},
+        {"shortpassing", 0.16f},
+        {"longshots", 0.05f}
+    };
+
+    // RF (20) or CF (21) or LF (22)
+    std::map<std::string, float> forwards_formula = {
+        {"acceleration", 0.05f},
+        {"sprintspeed", 0.05f},
+        {"reactions", 0.09f},
+        {"positioning", 0.13f},
+        {"vision", 0.08f},
+        {"ballcontrol", 0.15f},
+        {"dribbling", 0.14f},
+        {"finishing", 0.11f},
+        {"headingaccuracy", 0.02f},
+        {"shortpassing", 0.09f},
+        {"shotpower", 0.05f},
+        {"longshots", 0.04f}
+    };
+
+    // RW (23) or LW (27)
+    std::map<std::string, float> wingers_formula = {
+        {"acceleration", 0.07f},
+        {"sprintspeed", 0.06f},
+        {"agility", 0.03f},
+        {"reactions", 0.07f},
+        {"positioning", 0.09f},
+        {"vision", 0.06f},
+        {"ballcontrol", 0.14f},
+        {"crossing", 0.09f},
+        {"dribbling", 0.16f},
+        {"finishing", 0.10f},
+        {"shortpassing", 0.09f},
+        {"longshots", 0.04f}
+    };
+
+    // RS (24) or ST (25) or LS (26)
+    std::map<std::string, float> strikers_formula = {
+        {"acceleration", 0.04f},
+        {"sprintspeed", 0.05f},
+        {"strength", 0.05f},
+        {"reactions", 0.08f},
+        {"positioning", 0.13f},
+        {"ballcontrol", 0.10f},
+        {"dribbling", 0.07f},
+        {"finishing", 0.18f},
+        {"headingaccuracy", 0.10f},
+        {"shortpassing", 0.05f},
+        {"shotpower", 0.10f},
+        {"longshots", 0.03f},
+        {"volleys", 0.02f}
+    };
+
+    int GetAttribID(std::string attr) {
+        std::vector<std::string>::iterator it = std::find(all_attribs.begin(), all_attribs.end(), attr);
+
+        if (it != all_attribs.end())
+            return (int)std::distance(all_attribs.begin(), it);
+        else
+            return -1;
+    }
+
+    std::vector<std::string> GetAttribGroupNames(ATTRIB_LAYOUT_STYLE style) {
+        std::vector<std::string> grp_names;
+
+        switch (style)
+        {
+        case PlayerConsts::DEFAULT:
+            grp_names = {
+                "attack",
+                "defending",
+                "skill",
+                "power",
+                "movement",
+                "mentality",
+                "goalkeeper"
+            };
+            break;
+        default:
+            break;
+        }
+
+        return grp_names;
+    }
+
+    std::vector<std::vector<std::string>> GetGroupAttributes(ATTRIB_LAYOUT_STYLE style) {
+        std::vector<std::vector<std::string>> grp_attrs;
+
+        switch (style)
+        {
+        case PlayerConsts::DEFAULT:
+            grp_attrs = {
+                { "crossing", "finishing", "headingaccuracy", "shortpassing", "volleys" },
+                { "marking", "standingtackle", "slidingtackle"},
+                { "dribbling", "curve", "freekickaccuracy", "longpassing", "ballcontrol"},
+                { "shotpower", "jumping", "stamina", "strength", "longshots"},
+                { "acceleration", "sprintspeed", "agility", "reactions", "balance"},
+                { "aggression", "composure", "interceptions", "positioning", "vision", "penalties"},
+                { "gkdiving", "gkhandling", "gkkicking", "gkpositioning", "gkreflexes"}
+            };
+            break;
+        default:
+            break;
+        }
+
+        return grp_attrs;
+    }
+
+    PlayerConsts() {
+        // Fill ovr_formula
+
+        std::vector< std::map<std::string, float>> grouped = {
+            gk_formula,
+            wing_back_formula,
+            full_back_formula,
+            centre_back_formula,
+            def_mid_formula,
+            wing_mid_formula,
+            centre_mid_formula,
+            attacking_mid_formula,
+            forwards_formula,
+            wingers_formula,
+            strikers_formula
+        };
+
+        int idx = 0;
+        for (auto pos_ids : main_positions) {
+            for (auto pos_id : pos_ids) {
+                ovr_formula[pos_id] = grouped[idx];
+            }
+            idx += 1;
+        }
+    };
+
+} PlayerConsts;
+
+class FIFAPlayer {
+public:
+    FIFADBTable* pPlayersTable = nullptr;
+    FIFADBRow* row = nullptr;
     std::string filterable = "";
 
     std::string label = "";
@@ -868,37 +1325,339 @@ public:
     std::string playerid = "";
     std::string full_name = "";
 
-    ATTRIB_LAYOUT_STYLE current_style = ATTRIB_LAYOUT_STYLE::DEFAULT;
-
+    //std::map<std::string, 
+    bool quick_loaded = false;
+    bool positions_loaded = false;
     bool attribs_loaded = false;
     bool need_ovr_recalc = false;
 
     // Attributes
-    struct attrib_range {
-        int min;
-        int max;
-    } attrib_range;
-    int sprintspeed = 0;
-    int acceleration = 0;
+    int ovr = 0;
+    int pot = 0;
+    int modifier = 0;
+
+    bool need_avg_recalc = true;
+    std::map<int, int> avg_per_group;
+
+    struct INT_FIELD {
+        bool is_edited = false;
+        __int32 org_val;   // Value before editing
+        __int32 new_val;   // Value after editing
+        __int32 min;
+        __int32 max;
+    };
+
+    struct BIRTHDATE {
+        FIFADate bdate;
+        INT_FIELD* age;
+        INT_FIELD* day;
+        INT_FIELD* month;
+        INT_FIELD* year;
+    } birthdate;
+
+
+    // field name - pINT_FIELD struct
+    std::map<std::string, INT_FIELD*> int_field_val_map;
+
+    struct CHANGES_TRACKER {
+        // key - changed description
+        // ex.
+        // [penalties] = "Penalties, 50->90"
+        std::map<std::string, std::string> map_of_changes;
+
+        // long string of all changes
+        std::string full_str;
+        bool is_full_str_built = false;
+    } changes_tracker;
+
+    // BEST AT
+    bool best_at_loaded = false;
+    // ovr -  positions
+    std::map<int, std::string> best_at_map;
+
+    void SetAge(FIFADate current_date) {
+        auto bdate = birthdate.bdate;
+        int age = current_date.year - bdate.year;
+
+        if (bdate.month > current_date.month) {
+            age -= 1;
+        };
+
+        INT_FIELD* pAge = new INT_FIELD;
+        INT_FIELD* pDay = new INT_FIELD;
+        INT_FIELD* pMonth = new INT_FIELD;
+        INT_FIELD* pYear = new INT_FIELD;
+
+        pAge->is_edited = false;
+        pAge->max = 299;
+        pAge->min = 1;
+        pAge->org_val = age;
+        pAge->new_val = age;
+        birthdate.age = pAge;
+
+        pDay->is_edited = false;
+        pDay->max = 31;
+        pDay->min = 1;
+        pDay->org_val = bdate.day;
+        pDay->new_val = bdate.day;
+        birthdate.day = pDay;
+
+        pMonth->is_edited = false;
+        pMonth->max = 12;
+        pMonth->min = 1;
+        pMonth->org_val = bdate.month;
+        pMonth->new_val = bdate.month;
+        birthdate.month = pMonth;
+
+        pYear->is_edited = false;
+        pYear->max = 2100;
+        pYear->min = 1600;
+        pYear->org_val = bdate.year;
+        pYear->new_val = bdate.year;
+        birthdate.year = pYear;
+    }
+
+    // Preffered positions
+    void LoadPositions() {
+        if (positions_loaded) return;
+        auto r = row->row;
+        for (auto fname : PlayerConsts.position_fields) {
+            INT_FIELD* pPosition = new INT_FIELD;
+            pPosition->org_val = pPosition->new_val = std::stoi(r[fname]->value);
+            int_field_val_map[fname] = pPosition;
+        }
+
+        positions_loaded = true;
+    }
 
     // Load Attributes from DB row
     void LoadAttribs() {
         if (attribs_loaded) return;
         auto r = row->row;
-
-        auto att_desc = GetFieldDesc("sprintspeed");
-
-        attrib_range.min = att_desc->rangelow;
-        attrib_range.max = att_desc->rangehigh;
-
-        sprintspeed = std::stoi(r["sprintspeed"]->value);
-        acceleration = std::stoi(r["acceleration"]->value);
-
+        for (auto attrib : PlayerConsts.all_attribs) {
+            if (r.count(attrib) != 1) {
+                logger.Write(LOG_ERROR, "Player LoadAttribs, attrib %s not found", attrib.c_str());
+                continue;
+            }
+            INT_FIELD* pAttrib = new INT_FIELD;
+            pAttrib->org_val = pAttrib->new_val = std::stoi(r.at(attrib)->value);
+            int_field_val_map[attrib] = pAttrib;
+        }
         attribs_loaded = true;
     }
 
-    void SetAttribLayoutStyle(ATTRIB_LAYOUT_STYLE style) {
-        current_style = style;
+    int CalcOvr(int posid) {
+        LoadAttribs();
+        if (PlayerConsts.ovr_formula.count(posid) != 1)
+            return 0;
+        logger.Write(LOG_DEBUG, "CalcOvr for %d", posid);
+
+        auto formula = PlayerConsts.ovr_formula.at(posid);
+        float sum = 0;
+        for (auto const& [attr_name, perc] : formula) {
+            auto attr_val = (float)int_field_val_map.at(attr_name)->new_val;
+            sum = sum + (attr_val * perc);
+        };
+
+        int result = (int)round(sum);
+        return result;
+    }
+
+    void LoadBestAt() {
+        if (best_at_loaded) return;
+        best_at_map.clear();
+
+        LoadAttribs();
+
+        auto modifier = int_field_val_map.at("modifier")->new_val;
+        std::string smod = "";
+
+        if (modifier > 0) {
+            smod = "+" + std::to_string(modifier);
+        }
+        else if (modifier < 0) {
+            smod = std::to_string(modifier);
+        };
+
+        for (auto pos_ids : PlayerConsts.main_positions) {
+            int ovr = CalcOvr(pos_ids[0]);
+
+            std::string pos_names = "";
+
+            for (auto pos_id : pos_ids) {
+                pos_names = pos_names + PlayerConsts.positions.at(pos_id) + "/";
+            };
+            // Remove last '/'
+            if (!pos_names.empty())
+                pos_names.pop_back();
+
+            std::string best_at_record = std::to_string(ovr) + smod + "    ";
+            if (best_at_map.count(ovr) == 1) {
+                best_at_record = best_at_map[ovr] + "/" + pos_names;
+                best_at_map[ovr] = best_at_record;
+            }
+            else {
+                best_at_record = best_at_record + pos_names;
+                best_at_map[ovr] = best_at_record;
+            }
+        }
+
+        best_at_loaded = true;
+    }
+
+    void SetGroupsAvgs(int group_idx, std::vector<std::string> attributes_for_group) {
+        if (!need_avg_recalc) return;
+        LoadAttribs();
+        unsigned __int32 sum = 0;
+        unsigned __int32 num_of_attribs = 0;
+        for (auto attr : attributes_for_group) {
+            auto pAttr = int_field_val_map.at(attr);
+            sum += pAttr->new_val;
+            num_of_attribs += 1;
+        }
+        avg_per_group[group_idx] = (sum / num_of_attribs);
+    }
+
+    void RegisterChange(std::string key, std::string changed) {
+        changes_tracker.is_full_str_built = false;
+        if (changes_tracker.map_of_changes.count(key) == 1) {
+            changes_tracker.map_of_changes.at(key) = changed;
+        }
+        else {
+            changes_tracker.map_of_changes.insert({ key, changed });
+        }
+    }
+
+    void RemoveChange(std::string key) {
+        if (changes_tracker.map_of_changes.count(key) == 1) {
+            changes_tracker.map_of_changes.erase(key);
+            changes_tracker.is_full_str_built = false;
+        }
+    }
+
+    void FieldChange(std::string key, INT_FIELD* fld, std::string what) {
+        std::vector<std::string> vec;
+        FieldChange(key, fld, what, vec);
+    }
+
+    void FieldChange(std::string key, INT_FIELD* fld, std::string what, std::vector<std::string>& id_name) {
+        if (fld->org_val == fld->new_val) {
+            fld->is_edited = false;
+            RemoveChange(key);
+        }
+        else {
+            fld->is_edited = true;
+            std::ostringstream change_description_stream;
+
+            if (id_name.size() > 0) {
+                int v_org = fld->org_val;
+                int v_new = fld->new_val;
+
+                if (v_org < 0)
+                    v_org = (int)id_name.size() - 1;
+
+                if (v_new < 0)
+                    v_new = (int)id_name.size() - 1;
+
+                change_description_stream
+                    << what
+                    << ", "
+                    << id_name.at(v_org)
+                    << "->"
+                    << id_name.at(v_new);
+            }
+            else {
+                change_description_stream
+                    << what
+                    << ", "
+                    << fld->org_val
+                    << "->"
+                    << fld->new_val;
+            }
+
+            std::string change_description = change_description_stream.str();
+            RegisterChange(key, change_description);
+        }
+    }
+
+    std::string GetChanges() {
+        if (changes_tracker.is_full_str_built) {
+            return changes_tracker.full_str;
+        }
+
+        std::string result = "";
+        for (auto const& [key, val] : changes_tracker.map_of_changes) {
+            std::ostringstream strstream;
+            strstream << val << "\n";
+            std::string str_to_app = strstream.str();
+            result.append(str_to_app);
+        }
+        changes_tracker.full_str = result;
+        changes_tracker.is_full_str_built = true;
+        return changes_tracker.full_str;
+    }
+
+    bool HasUnappliedChanges() {
+        return changes_tracker.map_of_changes.size() > 0;
+    }
+
+    void QuickLoad() {
+        if (quick_loaded) return;
+        LoadPositions();
+
+        // Modifier, ovr, potential
+        auto r = row->row;
+        for (auto fname : PlayerConsts.int_fields) {
+            auto desc = GetFieldDesc(fname);
+            INT_FIELD* pFld = new INT_FIELD;
+            pFld->org_val = pFld->new_val = std::stoi(r[fname]->value);
+            pFld->min = desc->rangelow;
+            pFld->max = desc->rangehigh;
+
+            int_field_val_map[fname] = pFld;
+        }
+
+        quick_loaded = true;
+    }
+
+    void FullLoad() {
+        QuickLoad();
+        LoadAttribs();
+        LoadPositions();
+        LoadBestAt();
+    }
+
+
+    void Clear() {
+
+        avg_per_group.clear();
+
+        for (auto const& [key, val] : int_field_val_map) {
+            delete val;
+        }
+        int_field_val_map.clear();
+
+        changes_tracker.map_of_changes.clear();
+        changes_tracker.full_str = "";
+        changes_tracker.is_full_str_built = false;
+
+        quick_loaded = false;
+        positions_loaded = false;
+        attribs_loaded = false;
+        need_ovr_recalc = false;
+        need_avg_recalc = true;
+
+        birthdate.age->new_val = birthdate.age->org_val;
+        birthdate.age->is_edited = false;
+
+        birthdate.day->new_val = birthdate.day->org_val;
+        birthdate.day->is_edited = false;
+
+        birthdate.month->new_val = birthdate.month->org_val;
+        birthdate.month->is_edited = false;
+
+        birthdate.year->new_val = birthdate.year->org_val;
+        birthdate.year->is_edited = false;
     }
 
 private:
@@ -917,6 +1676,8 @@ public:
     bool initialized = false;
     bool thread_started = false;
     bool is_in_cm = false;
+
+    FIFADate current_date;
 
     __int32 total_players = 0;
     __int32 loaded_players = 0;
@@ -983,6 +1744,10 @@ public:
 
             newplayer->filterable = lbl;
 
+            newplayer->birthdate.bdate = FIFAUtils.BirthdateToDate(std::stoi(row["birthdate"]->value));
+            newplayer->SetAge(current_date);
+            newplayer->QuickLoad();
+
             players_map[pid] = newplayer;
             playerids.push_back(ipid);
 
@@ -993,22 +1758,35 @@ public:
         initialized = true;
     }
 
+
+    void PrepClear() {
+        total_players = 0;
+        loaded_players = 0;
+        pTable = nullptr;
+        pNamesTable = nullptr;
+        pDCNamesTable = nullptr;
+        thread_started = false;
+        initialized = false;
+    }
+
     void Clear() {
         for (std::map<std::string, FIFAPlayer*>::iterator p = players_map.begin(); p != players_map.end(); p++) {
+            p->second->Clear();
             delete p->second;
         };
 
         players_map.clear();
         playerids.clear();
 
-        pTable = NULL;
-        pNamesTable = NULL;
-        pDCNamesTable = NULL;
+        pTable = nullptr;
+        pNamesTable = nullptr;
+        pDCNamesTable = nullptr;
 
         thread_started = false;
         initialized = false;
     }
 
+    // FULL NAME
     std::string GetPlayerName(unsigned int playerid) {
         if (isInCM()) {
             __int64 pThis = (__int64)script_functions->pScriptFunctions0->pScriptFunctionsUnk1->pScriptFunctionsUnk2->pLuaScriptFunctions;
@@ -1087,7 +1865,7 @@ public:
             }
 
         }
-        
+
     }
 
 
@@ -1098,4 +1876,7 @@ private:
     typedef PlayerName* (__fastcall* fnGetPlayerName)(__int64 pThis, unsigned int playerid);
     uintptr_t fnGetPlayerNameAddr = NULL;
 };
+
+
+
 #pragma endregion MyClasses

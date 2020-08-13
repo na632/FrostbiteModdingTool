@@ -8,7 +8,7 @@ class v2k4helpers
 {
 public:
     std::string RunFIFAScript(std::string code) {
-        if (g_engine.isInCM()) {
+        if (IsInCM()) {
             logger.Write(LOG_DEBUG, "Engine::RunFIFAScript::" + code);
             g_LRunner.Reset();
             auto lstate = reinterpret_cast<lua_State*>(g_engine.script_service->Lua_State);
@@ -18,15 +18,40 @@ public:
         return "ERROR";
     }
 
-};
+    bool IsInCM() {
+        // Do a check for the pointers. If they don't exist, re-run the Setup to create them
+        if (!g_engine.script_service) {
+            g_engine.Setup();
+            // If it still doesn't exist, then just block the call
+            if (!g_engine.script_service) {
+                OutputDebugStringA("Unable to Obtain ScriptService");
 
-struct EngineHelper : Engine {
-public:
+                return false;
+            }
+        }
+
+        if (!g_engine.script_service->Lua_State)
+            return false;
+
+        auto lstate = reinterpret_cast<lua_State*>(g_engine.script_service->Lua_State);
+        return lstate != NULL;
+    }
+
     bool EditDBTableField(std::string table, std::string field, FIFADBRow* row, std::string newValue) {
         return g_engine.EditDBTableField("teamplayerlinks", "teamid", row->row.at("teamid")->addr, row->row.at("teamid")->offset, newValue);
     }
 
+
 };
+v2k4helpers v2k4Helpers;
+//
+//struct EngineHelper : Engine {
+//public:
+//    bool EditDBTableField(std::string table, std::string field, FIFADBRow* row, std::string newValue) {
+//        return g_engine.EditDBTableField("teamplayerlinks", "teamid", row->row.at("teamid")->addr, row->row.at("teamid")->offset, newValue);
+//    }
+//
+//};
 
 struct SDKHelper_FIFADBTable : FIFADBTable {
 private:

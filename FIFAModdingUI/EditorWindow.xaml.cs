@@ -1693,6 +1693,8 @@ namespace FIFAModdingUI
             }
         }
 
+        public string ModListProfile { get; set; }
+
         #region FIFA
         public string FIFAInstallEXEPath { get; set; }
         public string FIFAFrostyModsDirectory { get; set; }

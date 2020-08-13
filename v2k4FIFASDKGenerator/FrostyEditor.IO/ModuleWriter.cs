@@ -132,7 +132,9 @@ namespace FrostyEditor
 				{
 					stringBuilder.AppendLine("namespace Reflection\r\n{");
 					stringBuilder.AppendLine("[" + typeof(DisplayNameAttribute).Name + "(\"" + @class.GetValue<string>("name") + "\")]");
-					stringBuilder.AppendLine("[" + typeof(GuidAttribute).Name + "(\"" + @class.GetValue<Guid>("guid") + "\")]");
+					//stringBuilder.AppendLine("[" + typeof(GuidAttribute).Name + "(\"" + @class.GetValue<Guid>("guid") + "\")]");
+					stringBuilder.AppendLine("[GuidAttribute(\"" + @class.GetValue<Guid>("guid") + "\")]");
+
 					stringBuilder.AppendLine("public class Delegate_" + @class.GetValue<Guid>("guid").ToString().Replace('-', '_') + " { }\r\n}");
 				}
 			}
@@ -154,6 +156,10 @@ namespace FrostyEditor
 			//	stringBuilder.Append(WriteEnum(dbObject2));
 			//}
 			stringBuilder.AppendLine("}");
+
+			if (File.Exists("temp.cs"))
+				File.Delete("temp.cs");
+
 			using (NativeWriter nativeWriter = new NativeWriter(new FileStream("temp.cs", FileMode.Create)))
 			{
 				nativeWriter.WriteLine(stringBuilder.ToString());
@@ -181,7 +187,7 @@ namespace FrostyEditor
 				Debug.WriteLine(i);
 			}
 
-            File.Delete("temp.cs");
+            //File.Delete("temp.cs");
 		}
 		public string GetAlphabets(int i)
 
@@ -428,7 +434,8 @@ namespace FrostyEditor
 			stringBuilder.AppendLine("[" + typeof(EbxClassMetaAttribute).Name + "(" + classObj.GetValue("flags", 0) + ", " + value2 + ", " + classObj.GetValue("size", 0) + ", \"" + classObj.GetValue<string>("namespace") + "\")]");
 			if (classObj.HasValue("guid"))
 			{
-				stringBuilder.AppendLine("[" + typeof(GuidAttribute).Name + "(\"" + classObj.GetValue<Guid>("guid") + "\")]");
+				//stringBuilder.AppendLine("[" + typeof(GuidAttribute).Name + "(\"" + classObj.GetValue<Guid>("guid") + "\")]");
+				stringBuilder.AppendLine("[GuidAttribute(\"" + classObj.GetValue<Guid>("guid") + "\")]");
 			}
 			if (classObj.HasValue("typeInfoGuid"))
 			{
@@ -481,7 +488,8 @@ namespace FrostyEditor
 			int num2 = fieldObj.GetValue("flags", 0);
 			if (ebxFieldType == EbxFieldType.Array && fieldObj.HasValue("guid"))
 			{
-				stringBuilder.AppendLine("[" + typeof(GuidAttribute) + "(\"" + fieldObj.GetValue<Guid>("guid").ToString() + "\")]");
+				//stringBuilder.AppendLine("[" + typeof(GuidAttribute) + "(\"" + fieldObj.GetValue<Guid>("guid").ToString() + "\")]");
+				stringBuilder.AppendLine("[GuidAttribute(\"" + fieldObj.GetValue<Guid>("guid") + "\")]");
 			}
 			if (value != null)
 			{

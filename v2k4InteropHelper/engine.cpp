@@ -47,7 +47,7 @@
         OutputDebugStringA("Engine::LogBuildInfo()");
         OutputDebugStringA(std::string(pBuildDate).c_str());
 
-     /*   logger.Write(LOG_INFO, "----------------------[Frostbite BuildInfo]----------------------");
+        logger.Write(LOG_INFO, "----------------------[Frostbite BuildInfo]----------------------");
         logger.Write(LOG_INFO, "pBranchName:                    %s", pBranchName);
         logger.Write(LOG_INFO, "pLicenseeId:                    %s", pLicenseeId);
         logger.Write(LOG_INFO, "pEngine:                        %s", pEngine);
@@ -58,13 +58,13 @@
         logger.Write(LOG_INFO, "pUsergroup:                     %s", pUsergroup);
         logger.Write(LOG_INFO, "pBuildTime:                     %s", pBuildTime);
         logger.Write(LOG_INFO, "pBuildDate:                     %s", pBuildDate);
-        logger.Write(LOG_INFO, "-----------------------------------------------------------------");*/
+        logger.Write(LOG_INFO, "-----------------------------------------------------------------");
     }
 
     void Engine::SetupMods() {
-        logger.Write(LOG_INFO, "Engine::SetupMods");
+        logger.Write(LOG_INFO, "v2k4 Engine::SetupMods");
 
-        ModsPath = "LiveEditorMods";
+        ModsPath = "LegacyMods";
         createDir(ModsPath);
 
         ModsRootPath = ModsPath + "\\" + "root";
@@ -79,9 +79,8 @@
 
         OutputDebugString("Engine::Setup");
 
-        //SetupMods();
+        SetupMods();
         installCrucialHooks();
-        //logger.Write(LOG_INFO, "Engine::installCrucialHooks::Complete");
 
         OutputDebugString("Engine::installCrucialHooks::Complete");
 
@@ -118,7 +117,7 @@
         // Hook DirectX11 or DirectX12
         //CreateDXHook();
 
-        //installGameHooks();
+        installGameHooks();
 
         // Get ptr for vfs
         uintptr_t vfsaddr = g_ctx_proc.getAddr("AOB_fnVFSGetClass", true, 6);
@@ -168,6 +167,9 @@
         playersMgr.initAddrs(pScript, pScriptFunctions, addrfnGetPlayerName);
 
         SetupMainLua();
+
+
+        DumpFile("data\\ui\\themes\\FIFA.xml", "FIFA.xml");
     }
 
     ScriptService* Engine::GetScriptService() {
@@ -288,7 +290,7 @@
     // Return(1)(bool): True if inside career mode, otherwise return false
     // Return on error: 
     bool Engine::isInCM() {
-        logger.Write(LOG_DEBUG, "IsInCM()");
+        //logger.Write(LOG_DEBUG, "IsInCM()");
 
 
         // Do a check for the pointers. If they don't exist, re-run the Setup to create them
@@ -650,27 +652,27 @@
         return "ERROR";
     }
 
-    //void Engine::LoadLegacyTexture(IMGUI_HELPER::ImTexture* tex, std::string path, std::string default_path) {
-    //    FileInfo fileInfo;
-    //
-    //    bool fInf = hooks::get_file_info::addr_orgFunc(vfs, (char*)path.c_str(), &fileInfo, 0);
-    //
-    //    if (!fInf)
-    //        fInf = hooks::get_file_info::addr_orgFunc(vfs, (char*)default_path.c_str(), &fileInfo, 0);
-    //
-    //    if (!fInf) return;
-    //
-    //    __int64 fs = fileInfo.fileSize;
-    //    char* buf = new char[fs];
-    //
-    //    bool lf = hooks::load_legacy_file::addr_orgFunc(&fileInfo, 0, fs, buf);
-    //
-    //    if (lf) {
-    //        if (d3d11hook::CreateTexture(tex, (unsigned char*)buf, (size_t)fs)) {
-    //            tex->loaded = true;
-    //        }
-    //    }
-    //    delete[] buf;
-    //}
+    /*void Engine::LoadLegacyTexture(IMGUI_HELPER::ImTexture* tex, std::string path, std::string default_path) {
+        FileInfo fileInfo;
+    
+        bool fInf = hooks::get_file_info::addr_orgFunc(vfs, (char*)path.c_str(), &fileInfo, 0);
+    
+        if (!fInf)
+            fInf = hooks::get_file_info::addr_orgFunc(vfs, (char*)default_path.c_str(), &fileInfo, 0);
+    
+        if (!fInf) return;
+    
+        __int64 fs = fileInfo.fileSize;
+        char* buf = new char[fs];
+    
+        bool lf = hooks::load_legacy_file::addr_orgFunc(&fileInfo, 0, fs, buf);
+    
+        if (lf) {
+            if (d3d11hook::CreateTexture(tex, (unsigned char*)buf, (size_t)fs)) {
+                tex->loaded = true;
+            }
+        }
+        delete[] buf;
+    }*/
 
     Engine g_engine;

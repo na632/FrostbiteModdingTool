@@ -42,6 +42,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bleak, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bleak.2.6.3\lib\netstandard2.0\Bleak.dll</HintPath>
+    </Reference>
     <Reference Include="FifaLibrary19">
       <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
     </Reference>
@@ -59,13 +62,20 @@
     <Compile Include="FrostbiteDuplicationTests.cs" />
     <Compile Include="GeneralTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="FrostbiteProjectTests.cs" />
+    <Compile Include="LegacyModUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="FIFA18Profile.json">
+    <None Include="..\..\Career Mod\FIFA-20-Career-Mod\Source\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\scout.INI">
+      <Link>TestData\CareerFiles\scout.INI</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="fifa20.cache">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="..\..\Career Mod\FIFA-20-Career-Mod\Source\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\youth_scout.INI">
+      <Link>TestData\CareerFiles\youth_scout.INI</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="FIFA18Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -82,10 +92,25 @@
     <None Include="FrostyModManager FIFA20.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="..\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll">
+      <Link>v2k4Encryption.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\v2k4InteropHelper\x64\Debug\v2k4LegacyFileModSupport.dll">
+      <Link>v2k4LegacyFileModSupport.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="E:\Origin Games\FIFA 20\v20.0.1.3a\FIFALiveEditor.DLL">
+      <Link>FIFALiveEditor.DLL</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="FrostySdk.Profiles.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
+    <None Include="TestData\CareerFiles\playervalues.INI">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FrostySdk\FrostySdk.csproj">
@@ -109,9 +134,9 @@
     <Content Include="FrostyHash.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDK\FIFA20SDK.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SDK\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

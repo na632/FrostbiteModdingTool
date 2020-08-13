@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI.Mods;
+using FIFAModdingUI.Windows.Profile;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using System;
@@ -20,6 +21,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using v2k4FIFAModding;
 using v2k4FIFAModdingCL;
 
 namespace FIFAModdingUI
@@ -29,6 +31,7 @@ namespace FIFAModdingUI
     /// </summary>
     public partial class LaunchWindow : Window, ILogger
     {
+        ModListProfile Profile = new ModListProfile(null);
         public LaunchWindow()
         {
             InitializeComponent();
@@ -98,34 +101,87 @@ namespace FIFAModdingUI
 
         private void GetListOfModsAndOrderThem()
         {
-            //ListOfMods = new ObservableCollection<string>(Directory.EnumerateFiles(
-            //    Directory.GetParent(Assembly.GetExecutingAssembly().Location)
-            //    + "\\Mods\\").Where(x => x.ToLower().Contains(".fbmod")).Select(
-            //    f => new FileInfo(f).Name).ToList());
-            ListOfMods = new ObservableCollection<string>(new ModList().ModListItems);
+            // Load last profile
+
+
+            // get profile list
+            var items = ModListProfile.LoadAll().Select(x => x.ProfileName).ToList();
+            foreach(var i in items)
+            {
+                var profButton = new Button() { Content = i };
+                profButton.Click += (object sender, RoutedEventArgs e) => { };
+                cbProfiles.Items.Add(profButton);
+
+            }
+            var addnewprofilebutton = new Button() { Content = "Add new profile" };
+            addnewprofilebutton.Click += Addnewprofilebutton_Click;
+            cbProfiles.Items.Add(addnewprofilebutton);
+
+            // load list of mods
+            ListOfMods = new ObservableCollection<string>(new ModList(Profile).ModListItems);
             listMods.ItemsSource = ListOfMods;
             
         }
 
-        Task<int> LaunchingTask = null;
+        private void Addnewprofilebutton_Click(object sender, RoutedEventArgs e)
+        {
+            var newmodlistprofilewindow = new AddNewModListProfile();
+            newmodlistprofilewindow.Show();
+            newmodlistprofilewindow.Closed += Newmodlistprofilewindow_Closed;
+        }
+
+        private void Newmodlistprofilewindow_Closed(object sender, EventArgs e)
+        {
+            AddNewModListProfile newmodlistprofilewindow = sender as AddNewModListProfile;
+
+        }
+
 
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
-            await new TaskFactory().StartNew(async() =>
+            if (FIFAInstanceSingleton.FIFAVERSION != null)
             {
-                Dispatcher.Invoke(() =>
+                // Copy the Locale.ini if checked
+                if (chkInstallLocale.IsChecked.Value)
                 {
-                    btnLaunch.IsEnabled = false;
-                });
-                LaunchingTask = LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems, this, FIFAInstanceSingleton.FIFAVERSION);
-                await LaunchingTask;
-                await Task.Delay(10 * 1000);
-                Dispatcher.Invoke(() =>
+                    foreach (var z in ListOfMods.Where(x => x.Contains(".zip")))
+                    {
+                        using (FileStream fs = new FileStream(z, FileMode.Open))
+                        {
+                            ZipArchive zipA = new ZipArchive(fs);
+                            foreach (var ent in zipA.Entries)
+                            {
+                                if (ent.Name.Contains("locale.ini"))
+                                {
+                                    ent.ExtractToFile(FIFAInstanceSingleton.FIFALocaleINIPath);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var k = chkUseFileSystem.IsChecked.Value;
+                // Start the game with mods
+                await new TaskFactory().StartNew(async () =>
                 {
-                    btnLaunch.IsEnabled = true;
-                    LaunchingTask = null;
+                    
+                    Dispatcher.Invoke(() =>
+                    {
+                        btnLaunch.IsEnabled = false;
+                    });
+                    await Task.Delay(1000);
+                    //Dispatcher.Invoke(() =>
+                    //{
+                        await LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems, this, FIFAInstanceSingleton.FIFAVERSION, true);
+                    //});
+                    await Task.Delay(1000);
+                    Dispatcher.Invoke(() =>
+                    {
+                        btnLaunch.IsEnabled = true;
+                    });
+
                 });
-            });
+            }
         }
 
         private void btnRemove_Click(object sender, RoutedEventArgs e)
@@ -262,6 +318,11 @@ namespace FIFAModdingUI
                         txtModVersion.Text = fiZip.CreationTime.ToString();
                     }
             }
+        }
+
+        private void cbProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 

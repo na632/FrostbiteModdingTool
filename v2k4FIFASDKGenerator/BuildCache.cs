@@ -4,6 +4,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ namespace v2k4FIFASDKGenerator
 
 		public async Task<bool> LoadDataAsync(string FIFAVersion, string FIFALocation, ILogger logger = null, bool forceDeleteOfOld = false)
 		{
+			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({FIFAVersion},{FIFALocation})");
 			if (ProfilesLibrary.Initialize(FIFAVersion))
 			{
 				if (File.Exists(ProfilesLibrary.CacheName + ".cache") && forceDeleteOfOld)
@@ -35,6 +37,9 @@ namespace v2k4FIFASDKGenerator
 							//array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
 							// change this so it reads the easy version of the key
 							// 0B0E04030409080C010708010E0B0B02﻿
+			Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
+
+
 							array = NativeReader.ReadInStream(new FileStream("fifa20.key", FileMode.Open, FileAccess.Read));
 							byte[] array2 = new byte[16];
 							Array.Copy(array, array2, 16);
@@ -49,7 +54,9 @@ namespace v2k4FIFASDKGenerator
 								KeyManager.Instance.AddKey("Key3", array2);
 							}
 
-							if (TypeLibrary.Initialize(false))
+						Debug.WriteLine($"[DEBUG] LoadDataAsync::Initialising Type Library");
+
+						if (TypeLibrary.Initialize(false))
 							{
 								if(logger == null)
 									logger = new NullLogger();
@@ -67,8 +74,9 @@ namespace v2k4FIFASDKGenerator
 								ClassesSdkCreator.ResourceManager.SetLogger(logger);
 								ClassesSdkCreator.ResourceManager.Initialize();
 								ClassesSdkCreator.AssetManager = new AssetManager(ClassesSdkCreator.FileSystem, ClassesSdkCreator.ResourceManager);
-								LegacyFileManager.AssetManager = ClassesSdkCreator.AssetManager;
-								ClassesSdkCreator.AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+							//LegacyFileManager.AssetManager = ClassesSdkCreator.AssetManager;
+							//ClassesSdkCreator.AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+							ClassesSdkCreator.AssetManager.RegisterLegacyAssetManager();
 								ClassesSdkCreator.AssetManager.SetLogger(logger);
 								ClassesSdkCreator.AssetManager.Initialize(additionalStartup: true, result);
 								return true;

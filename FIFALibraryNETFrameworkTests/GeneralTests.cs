@@ -62,8 +62,8 @@ namespace FIFALibraryNETFrameworkTests
         {
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
-            //buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
-            buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
+            buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
+            //buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
 
             var buildSDK = new BuildSDK();
             var b = buildSDK.Build().Result;
@@ -77,13 +77,13 @@ namespace FIFALibraryNETFrameworkTests
             buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
         }
 
-        [TestMethod]
-        public void TestBuildSDK()
-        {
-            var buildSDK = new BuildSDK();
-            var b = buildSDK.Build().Result;
-            Assert.IsTrue(b);
-        }
+        //[TestMethod]
+        //public void TestBuildSDK()
+        //{
+        //    var buildSDK = new BuildSDK();
+        //    var b = buildSDK.Build().Result;
+        //    Assert.IsTrue(b);
+        //}
 
         [TestMethod]
         public void TestUnpackAndRepackInitfs()

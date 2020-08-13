@@ -12,6 +12,10 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" VerticalAlignment="Top">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Height="30">Profiles: </Label>
+                <ComboBox Width="150" x:Name="cbProfiles" SelectionChanged="cbProfiles_SelectionChanged" Margin="0,10,10,10">
+                    
+                </ComboBox>
                 <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
                 <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
                     <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -39,6 +43,9 @@
                     <Button x:Name="btnDown" Click="down_click">Down</Button>
                     <Button x:Name="btnRemove" Click="btnRemove_Click">Remove mod</Button>
                     <Button x:Name="btnAdd" Click="btnAdd_Click">Import mod</Button>
+                    <CheckBox x:Name="chkInstallLocale">Install locale.ini from gameplay mods</CheckBox>
+                    <CheckBox x:Name="chkUseFileSystem">Use on-disk Launcher (use less memory)</CheckBox>
+                    <CheckBox x:Name="chkUseLiveEditor">Inject Aranaktu Live Editor (if present)</CheckBox>
                 </StackPanel>
             </Grid>
             <Grid Margin="5">

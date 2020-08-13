@@ -41,9 +41,6 @@
     <None Update="FrostyHash.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Profiles\FIFA20SDK.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="ThirdParty\CryptBase.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -74,6 +71,10 @@
     <None Update="ThirdParty\zlibwapi.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Profiles\" />
   </ItemGroup>
 
 </Project>

@@ -1688,11 +1688,21 @@ namespace v2k4FIFAModdingCL.CGFE
 
     public static byte[] Easfdecyption(byte[] filebytes)
     {
-        var initfskey = "xa37dd45ffe100bfffcc9753aabac325f07cb3fa231144fe2e33ae4783feead2b8a73ff021fac326df0ef9753ab9cdf6573ddff0312fab0b0ff39779eaff312a4f5de65892ffee33a44569bebf21f66d22e54a22347efd375981188743afd99baacc342d88a99321235798725fedcbf43252669dade32415fee89da543bf23d4ex";
-         
+        //var initfskey = "xa37dd45ffe100bfffcc9753aabac325f07cb3fa231144fe2e33ae4783feead2b8a73ff021fac326df0ef9753ab9cdf6573ddff0312fab0b0ff39779eaff312a4f5de65892ffee33a44569bebf21f66d22e54a22347efd375981188743afd99baacc342d88a99321235798725fedcbf43252669dade32415fee89da543bf23d4ex";
+
+        byte[] array = Encoding.ASCII.GetBytes("0B0E04030409080C010708010E0B0B02﻿");
+
+        //array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
+        // change this so it reads the easy version of the key
+        // 0B0E04030409080C010708010E0B0B02﻿
+
+        byte[] array2 = new byte[16];
+        Array.Copy(array, array2, 16);
+
+
         Aes aes = (Aes) new AesManaged();
-        aes.Key = Encoding.ASCII.GetBytes(initfskey);
-        //aes.IV = numArray;
+        aes.Key = array;// Encoding.ASCII.GetBytes(initfskey);
+        aes.IV = array;
         aes.Mode = CipherMode.CBC;
         aes.Padding = PaddingMode.PKCS7;
         return aes.CreateDecryptor().TransformFinalBlock(filebytes, 0, filebytes.Length);
