@@ -15,5 +15,12 @@ namespace v2k4FIFAModding
         [DllImport("v2k4Encryption.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern void encryptFile(string filepath, string to_path) ; //  string encryptString([MarshalAs(UnmanagedType.LPWStr)]string byteArray);
 
+        [DllImport("v2k4Encryption.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void decryptFile(string filepath, string to_path); //  string encryptString([MarshalAs(UnmanagedType.LPWStr)]string byteArray);
+
+
+        [DllImport("v2k4Encryption.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void test_load_mod_file(string filepath);
+
     }
 }

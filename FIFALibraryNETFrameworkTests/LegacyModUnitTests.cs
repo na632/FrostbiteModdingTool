@@ -100,9 +100,16 @@ namespace FIFALibraryNETFrameworkTests
             //        File.Delete(@"G:\Work\FIFA Modding\Career Mod\FIFA-20-Career-Mod\Source\dlc.mod");
 
             v2k4Encryption.encryptFile(@"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\playervalues.ini", @"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\test.mod");
-            v2k4Encryption.encryptFile(@"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\test.mod", @"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\playervalues_dec.ini");
+            v2k4Encryption.decryptFile(@"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\test.mod", @"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\playervalues_dec.ini");
+
+            // Test encrypted file
+            v2k4Encryption.test_load_mod_file(@"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\test.mod");
+
+            // Test normal file
+            v2k4Encryption.test_load_mod_file(@"E:\Origin Games\FIFA 20\LegacyMods\root\Legacy\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\playervalues_dec.ini");
+
             //v2k4Encryption.encryptFile(@"G:\Work\FIFA Modding\Career Mod\FIFA-20-Career-Mod\Source\dlc.mod", @"G:\Work\FIFA Modding\Career Mod\FIFA-20-Career-Mod\Source\dlc.zip.bk.zip");
-          
+
             //File.WriteAllText(@"G:\Work\FIFA Modding\Career Mod\FIFA-20-Career-Mod\Source\dlc.mod", e);
 
             //using (FileStream fsOrig = new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-20-Career-Mod\Source\dlc.zip", FileMode.OpenOrCreate))
