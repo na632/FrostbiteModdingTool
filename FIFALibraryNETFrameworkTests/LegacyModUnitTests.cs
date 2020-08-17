@@ -84,7 +84,10 @@ namespace FIFALibraryNETFrameworkTests
 
 
                 //var dllpath = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\v2k4LegacyFileModSupport.dll";
-                var dllpath = @"E:\Origin Games\FIFA 20\FIFA.dll";
+                if (File.Exists(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll"))
+                    File.Copy(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll", @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll", true);
+
+                var dllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
                 var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, dllpath, false);
                 bl.InjectDll();
                 Debug.WriteLine($"Injected: {dllpath}");

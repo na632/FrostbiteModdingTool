@@ -92,12 +92,12 @@
     <None Include="FrostyModManager FIFA20.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="..\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll">
-      <Link>v2k4Encryption.dll</Link>
+    <Content Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll">
+      <Link>FIFA.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\v2k4InteropHelper\x64\Debug\v2k4LegacyFileModSupport.dll">
-      <Link>v2k4LegacyFileModSupport.dll</Link>
+    <Content Include="..\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll">
+      <Link>v2k4Encryption.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="E:\Origin Games\FIFA 20\v20.0.1.3a\FIFALiveEditor.DLL">
