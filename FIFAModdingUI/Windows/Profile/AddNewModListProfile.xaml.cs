@@ -23,5 +23,10 @@ namespace FIFAModdingUI.Windows.Profile
         {
             InitializeComponent();
         }
+
+        private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

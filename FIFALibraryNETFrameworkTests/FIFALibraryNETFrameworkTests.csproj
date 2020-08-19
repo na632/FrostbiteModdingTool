@@ -107,6 +107,12 @@
     <Content Include="FrostySdk.Profiles.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Madden20Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Madden21Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="TestData\CareerFiles\playervalues.INI">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

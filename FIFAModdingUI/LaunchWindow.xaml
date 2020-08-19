@@ -16,6 +16,12 @@
                 <ComboBox Width="150" x:Name="cbProfiles" SelectionChanged="cbProfiles_SelectionChanged" Margin="0,10,10,10">
                     
                 </ComboBox>
+                <Button Name="btnLegacyModSupportSettings"  Height="30" Click="btnLegacyModSupportSettings_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" />
+                        <Label Content="Legacy Mod Settings" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
                 <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
                 <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
                     <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -32,20 +38,41 @@
                     <ColumnDefinition Width="700"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <Label FontSize="14" FontWeight="Bold">The mods that will be added to your FIFA when you click "Launch"</Label>
+                <StackPanel Grid.Column="0" Margin="5">
+                    <Label FontSize="14" FontWeight="Bold">Your mod list</Label>
                     <ListBox x:Name="listMods" BorderThickness="1" Height="200" SelectionChanged="listMods_SelectionChanged">
                     </ListBox>
                     <Button x:Name="btnLaunch" Click="btnLaunch_Click" IsEnabled="False">Launch</Button>
                 </StackPanel>
-                <StackPanel Grid.Column="1">
-                    <Button x:Name="btnUp" Click="up_click">Up</Button>
-                    <Button x:Name="btnDown" Click="down_click">Down</Button>
-                    <Button x:Name="btnRemove" Click="btnRemove_Click">Remove mod</Button>
-                    <Button x:Name="btnAdd" Click="btnAdd_Click">Import mod</Button>
+                <StackPanel Grid.Column="1" Margin="5">
+                    <Button x:Name="btnUp" Click="up_click">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ArrowUpCircleOutline" VerticalAlignment="Center" />
+                            <Label Content="Up" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnDown" Click="down_click">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ArrowDownCircleOutline" VerticalAlignment="Center" />
+                            <Label Content="Down" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnRemove" Click="btnRemove_Click">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="RemoveCircleOutline" VerticalAlignment="Center" />
+                            <Label Content="Remove" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnAdd" Click="btnAdd_Click">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
+                            <Label Content="Import" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                     <CheckBox x:Name="chkInstallLocale">Install locale.ini from gameplay mods</CheckBox>
                     <CheckBox x:Name="chkUseFileSystem">Use on-disk Launcher (use less memory)</CheckBox>
                     <CheckBox x:Name="chkUseLiveEditor">Inject Aranaktu Live Editor (if present)</CheckBox>
+                    <CheckBox x:Name="chkUseLegacyModSupport">Inject Legacy Mod Support (ALPHA)</CheckBox>
                 </StackPanel>
             </Grid>
             <Grid Margin="5">

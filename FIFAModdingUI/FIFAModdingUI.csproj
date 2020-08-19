@@ -93,6 +93,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dirkster.FolderBrowser" Version="3.1.1" />
+    <PackageReference Include="EO.WebBrowser" Version="20.2.34" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
     <PackageReference Include="MahApps.Metro" Version="1.6.5" />
     <PackageReference Include="MaterialDesignThemes" Version="3.0.1" />
@@ -153,6 +155,9 @@
     <None Update="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Madden21Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="FIFA20Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -175,6 +180,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controls\" />
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
 

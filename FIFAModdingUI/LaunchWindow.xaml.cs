@@ -136,7 +136,6 @@ namespace FIFAModdingUI
 
         }
 
-
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
             if (FIFAInstanceSingleton.FIFAVERSION != null)
@@ -161,6 +160,8 @@ namespace FIFAModdingUI
                 }
 
                 var k = chkUseFileSystem.IsChecked.Value;
+                var useLegacyMods = chkUseLegacyModSupport.IsChecked.Value;
+                var useLiveEditor = chkUseLiveEditor.IsChecked.Value;
                 // Start the game with mods
                 await new TaskFactory().StartNew(async () =>
                 {
@@ -173,6 +174,17 @@ namespace FIFAModdingUI
                     //Dispatcher.Invoke(() =>
                     //{
                         await LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems, this, FIFAInstanceSingleton.FIFAVERSION, true);
+
+                    if (useLegacyMods)
+                    {
+                        FIFAInstanceSingleton.InjectDLLAsync(FIFADirectory + "\\v2k4LegacyModSupport.DLL");
+                    }
+
+                    if (useLiveEditor)
+                    {
+                        FIFAInstanceSingleton.InjectDLLAsync(FIFADirectory + "\\FIFALiveEditor.DLL");
+                    }
+                       
                     //});
                     await Task.Delay(1000);
                     Dispatcher.Invoke(() =>
@@ -321,6 +333,11 @@ namespace FIFAModdingUI
         }
 
         private void cbProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void btnLegacyModSupportSettings_Click(object sender, RoutedEventArgs e)
         {
 
         }

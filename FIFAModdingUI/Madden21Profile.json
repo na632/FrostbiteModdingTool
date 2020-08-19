@@ -1,0 +1,30 @@
+{
+  "Name": "MADDEN21",
+  "DisplayName": "MADDEN 21",
+  "DataVersion": 20190911,
+  "CacheName": "madden21",
+  "Deobfuscator": "NullDeobfuscator",
+  "AssetLoader": "FifaAssetLoader",
+  "Sources": [
+    {
+      "Path": "Patch",
+      "SubDirs": true
+    },
+    {
+      "Path": "Data",
+      "SubDirs": true
+    }
+  ],
+  "SDKFilename": "MADDEN21SDK",
+  "Banner": "",
+  "EbxVersion": 4,
+  "RequiresKey": true,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
+  "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
+  "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
+  "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
+  "SharedBundles": {},
+  "IgnoredResTypes": []
+}

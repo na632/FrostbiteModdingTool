@@ -1,0 +1,34 @@
+{
+  "Name": "Madden20",
+  "DisplayName": "Madden NFL 20™",
+  "DataVersion": 20190729,
+  "CacheName": "madden20",
+  "Deobfuscator": "NullDeobfuscator",
+  "AssetLoader": "FifaAssetLoader",
+  "Sources": [
+    {
+      "Path": "Patch",
+      "SubDirs": false
+    },
+    {
+      "Path": "Update",
+      "SubDirs": true
+    },
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+  "SDKFilename": "MADDEN20SDK",
+  "Banner": "",
+  "EbxVersion": 4,
+  "RequiresKey": false,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "DefaultDiffuse": "Longshot/Common/Debug_Grey",
+  "DefaultNormals": "content/common/textures/debug/debug_texture_norm",
+  "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
+  "DefaultTint": "Longshot/Common/Debug_Grey",
+  "SharedBundles": {},
+  "IgnoredResTypes": []
+}

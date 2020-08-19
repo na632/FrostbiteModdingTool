@@ -8,6 +8,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+	xmlns:fbviews="clr-namespace:FolderBrowser.Views;assembly=FolderBrowser"
         mc:Ignorable="d"
         Title="paulv2k4 FIFA Modding UI" Height="720" Width="1200" WindowStartupLocation="CenterScreen"
                       WindowState="Maximized" WindowStyle="ThreeDBorderWindow"
@@ -335,12 +336,27 @@
                         <TabControl x:Name="TabCareerInternal">
 
                             <TabItem Header="Modding Integration">
-                                <StackPanel>
-                                    <Button x:Name="btnModdingIntegrationExtractLegacy" Click="btnModdingIntegrationExtractLegacy_Click">Extract Legacy Files</Button>
-                                    <TabControl x:Name="TabCareerModdingItems" TabStripPlacement="Left" >
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <fbviews:BrowseDirectoriesView
+			                            Margin="3"
+			                            DataContext="{Binding Path=TreeBrowser, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    
+                                    <StackPanel Grid.Column="1">
+                                        <Button x:Name="btnModdingIntegrationExtractLegacy" Click="btnModdingIntegrationExtractLegacy_Click">Extract Legacy Files</Button>
+                                        <TabControl x:Name="TabCareerModdingItems" TabStripPlacement="Left" >
 
-                                    </TabControl>
-                                </StackPanel>
+                                        </TabControl>
+                                    </StackPanel>
+                                    
+                                </Grid>
+                                
+                                
                             </TabItem>
                             <TabItem Header="Saves">
                                 <Grid>

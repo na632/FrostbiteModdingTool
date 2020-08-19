@@ -58,11 +58,26 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
-        public void TestBuildCacheAndSDK()
+        public void TestBuildCacheAndSDK_FIFA20()
         {
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
             buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
+            //buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21");
+            //buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
+
+            var buildSDK = new BuildSDK();
+            var b = buildSDK.Build().Result;
+            Assert.IsTrue(b);
+        }
+
+        [TestMethod]
+        public void TestBuildCacheAndSDK_MADDEN21()
+        {
+            var buildCache = new BuildCache();
+            //buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
+            //buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
+            buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21");
             //buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
 
             var buildSDK = new BuildSDK();
@@ -136,6 +151,13 @@ namespace FIFALibraryNETFrameworkTests
 		{
             ProfilesLibrary.DumpFrostyProfile("FIFA19");
 		}
+
+        [TestMethod]
+        public void DumpMadden20FrostyProfile()
+        {
+            ProfilesLibrary.DumpFrostyProfile("MADDEN20");
+
+        }
 
         public void Log(string text, params object[] vars)
         {
