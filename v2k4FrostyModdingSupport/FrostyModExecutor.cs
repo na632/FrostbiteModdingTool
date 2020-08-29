@@ -254,9 +254,9 @@ namespace paulv2k4ModdingExecuter
             {
                 try
                 {
-                    NativeWriter nativeWriter = null;
+                    NativeWriter writer_new_cas_file = null;
                     int casFileIndex = 0;
-                    byte[] key = KeyManager.Instance.GetKey("Key2");
+                    byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
                     foreach (string key3 in catalogInfo.SuperBundles.Keys)
                     {
                         string arg = key3;
@@ -264,103 +264,103 @@ namespace paulv2k4ModdingExecuter
                         {
                             arg = key3.Replace("win32", catalogInfo.Name);
                         }
-                        string text = parent.fs.ResolvePath($"{arg}.toc").ToLower();
-                        if (text != "")
+                        string location_toc_file = parent.fs.ResolvePath($"{arg}.toc").ToLower();
+                        if (location_toc_file != "")
                         {
-                            uint num = 0u;
+                            uint orig_toc_file_num1 = 0u;
                             uint num2 = 0u;
-                            byte[] array = null;
-                            using (NativeReader nativeReader = new NativeReader(new FileStream(text, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
+                            byte[] byte_array_of_original_toc_file = null;
+                            using (NativeReader reader_original_toc_file = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
                             {
-                                uint num3 = nativeReader.ReadUInt();
-                                num = nativeReader.ReadUInt();
-                                num2 = nativeReader.ReadUInt();
-                                array = nativeReader.ReadToEnd();
-                                if (num3 == 3286619587u)
+                                uint orig_toc_file_num = reader_original_toc_file.ReadUInt();
+                                orig_toc_file_num1 = reader_original_toc_file.ReadUInt();
+                                num2 = reader_original_toc_file.ReadUInt();
+                                byte_array_of_original_toc_file = reader_original_toc_file.ReadToEnd();
+                                if (orig_toc_file_num == 3286619587u)
                                 {
                                     using (Aes aes = Aes.Create())
                                     {
-                                        aes.Key = key;
-                                        aes.IV = key;
+                                        aes.Key = key_2_from_key_manager;
+                                        aes.IV = key_2_from_key_manager;
                                         aes.Padding = PaddingMode.None;
                                         ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
-                                        using (MemoryStream stream = new MemoryStream(array))
+                                        using (MemoryStream stream = new MemoryStream(byte_array_of_original_toc_file))
                                         {
                                             using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
                                             {
-                                                cryptoStream.Read(array, 0, array.Length);
+                                                cryptoStream.Read(byte_array_of_original_toc_file, 0, byte_array_of_original_toc_file.Length);
                                             }
                                         }
                                     }
                                 }
                             }
-                            string text2 = text.Replace("patch\\win32", "moddata\\patch\\win32");
-                            FileInfo fileInfo = new FileInfo(text2);
-                            if (!Directory.Exists(fileInfo.DirectoryName))
+                            string location_toc_file_mod_data = location_toc_file.Replace("patch\\win32", "moddata\\patch\\win32");
+                            FileInfo fi_toc_file_mod_data = new FileInfo(location_toc_file_mod_data);
+                            if (!Directory.Exists(fi_toc_file_mod_data.DirectoryName))
                             {
-                                Directory.CreateDirectory(fileInfo.DirectoryName);
+                                Directory.CreateDirectory(fi_toc_file_mod_data.DirectoryName);
                             }
-                            using (NativeWriter nativeWriter2 = new NativeWriter(new FileStream(text2, FileMode.Create)))
+                            using (NativeWriter writer_new_toc_file_mod_data = new NativeWriter(new FileStream(location_toc_file_mod_data, FileMode.Create)))
                             {
-                                nativeWriter2.Write(30331136);
-                                nativeWriter2.Write(new byte[552]);
-                                long position = nativeWriter2.BaseStream.Position;
-                                nativeWriter2.Write(3280507699u);
+                                writer_new_toc_file_mod_data.Write(30331136);
+                                writer_new_toc_file_mod_data.Write(new byte[552]);
+                                long position = writer_new_toc_file_mod_data.BaseStream.Position;
+                                writer_new_toc_file_mod_data.Write(3280507699u);
                                 long num4 = 4294967295L;
                                 long num5 = 4294967295L;
-                                if (array.Length != 0)
+                                if (byte_array_of_original_toc_file.Length != 0)
                                 {
-                                    nativeWriter2.Write(3735928559u);
-                                    nativeWriter2.Write(3735928559u);
-                                    using (NativeReader nativeReader2 = new NativeReader(new MemoryStream(array)))
+                                    writer_new_toc_file_mod_data.Write(3735928559u);
+                                    writer_new_toc_file_mod_data.Write(3735928559u);
+                                    using (NativeReader reader_of_original_toc_file_array = new NativeReader(new MemoryStream(byte_array_of_original_toc_file)))
                                     {
-                                        if (num != uint.MaxValue)
+                                        if (orig_toc_file_num1 != uint.MaxValue)
                                         {
-                                            nativeReader2.Position = num - 12;
-                                            int num6 = nativeReader2.ReadInt();
+                                            reader_of_original_toc_file_array.Position = orig_toc_file_num1 - 12;
+                                            int original_toc_file_item_count = reader_of_original_toc_file_array.ReadInt();
                                             List<int> list = new List<int>();
-                                            for (int i = 0; i < num6; i++)
+                                            for (int i = 0; i < original_toc_file_item_count; i++)
                                             {
-                                                list.Add(nativeReader2.ReadInt());
+                                                list.Add(reader_of_original_toc_file_array.ReadInt());
                                             }
                                             List<int> list2 = new List<int>();
-                                            for (int j = 0; j < num6; j++)
+                                            for (int j = 0; j < original_toc_file_item_count; j++)
                                             {
-                                                int num7 = nativeReader2.ReadInt() - 12;
-                                                long position2 = nativeReader2.Position;
-                                                nativeReader2.Position = num7;
-                                                int num8 = nativeReader2.ReadInt() - 1;
-                                                List<BundleFileEntry> list3 = new List<BundleFileEntry>();
+                                                int num7 = reader_of_original_toc_file_array.ReadInt() - 12;
+                                                long position2 = reader_of_original_toc_file_array.Position;
+                                                reader_of_original_toc_file_array.Position = num7;
+                                                int num8 = reader_of_original_toc_file_array.ReadInt() - 1;
+                                                List<BundleFileEntry> lstBundleFiles3 = new List<BundleFileEntry>();
                                                 int num9;
                                                 do
                                                 {
-                                                    num9 = nativeReader2.ReadInt();
-                                                    int inOffset = nativeReader2.ReadInt();
-                                                    int inSize = nativeReader2.ReadInt();
-                                                    list3.Add(new BundleFileEntry(num9 & int.MaxValue, inOffset, inSize));
+                                                    num9 = reader_of_original_toc_file_array.ReadInt();
+                                                    int inOffset = reader_of_original_toc_file_array.ReadInt();
+                                                    int inSize = reader_of_original_toc_file_array.ReadInt();
+                                                    lstBundleFiles3.Add(new BundleFileEntry(num9 & int.MaxValue, inOffset, inSize));
                                                 }
                                                 while ((num9 & 2147483648u) != 0L);
-                                                nativeReader2.Position = num8 - 12;
+                                                reader_of_original_toc_file_array.Position = num8 - 12;
                                                 int num10 = 0;
                                                 string text3 = "";
                                                 do
                                                 {
-                                                    string str = nativeReader2.ReadNullTerminatedString();
-                                                    num10 = nativeReader2.ReadInt() - 1;
+                                                    string str = reader_of_original_toc_file_array.ReadNullTerminatedString();
+                                                    num10 = reader_of_original_toc_file_array.ReadInt() - 1;
                                                     text3 = Utils.ReverseString(str) + text3;
                                                     if (num10 != -1)
                                                     {
-                                                        nativeReader2.Position = num10 - 12;
+                                                        reader_of_original_toc_file_array.Position = num10 - 12;
                                                     }
                                                 }
                                                 while (num10 != -1);
-                                                nativeReader2.Position = position2;
+                                                reader_of_original_toc_file_array.Position = position2;
                                                 int key2 = Fnv1.HashString(text3.ToLower());
                                                 if (parent.modifiedBundles.ContainsKey(key2))
                                                 {
                                                     ModBundleInfo modBundleInfo = parent.modifiedBundles[key2];
                                                     MemoryStream memoryStream = new MemoryStream();
-                                                    foreach (BundleFileEntry item in list3)
+                                                    foreach (BundleFileEntry item in lstBundleFiles3)
                                                     {
                                                         using (NativeReader nativeReader3 = new NativeReader(new FileStream(parent.fs.ResolvePath(parent.fs.GetFilePath(item.CasIndex)), FileMode.Open, FileAccess.Read)))
                                                         {
@@ -372,19 +372,19 @@ namespace paulv2k4ModdingExecuter
                                                     using (BinarySbReader binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator()))
                                                     {
                                                         dbObject = binarySbReader.ReadDbObject();
-                                                        foreach (DbObject item2 in dbObject.GetValue<DbObject>("ebx"))
+                                                        foreach (DbObject ebxItem in dbObject.GetValue<DbObject>("ebx"))
                                                         {
-                                                            item2.GetValue("size", 0);
-                                                            long value = item2.GetValue("offset", 0L);
+                                                            ebxItem.GetValue("size", 0);
+                                                            long value = ebxItem.GetValue("offset", 0L);
                                                             long num11 = 0L;
-                                                            foreach (BundleFileEntry item3 in list3)
+                                                            foreach (BundleFileEntry item3 in lstBundleFiles3)
                                                             {
                                                                 if (value < num11 + item3.Size)
                                                                 {
                                                                     value -= num11;
                                                                     value += item3.Offset;
-                                                                    item2.SetValue("offset", value);
-                                                                    item2.SetValue("cas", item3.CasIndex);
+                                                                    ebxItem.SetValue("offset", value);
+                                                                    ebxItem.SetValue("cas", item3.CasIndex);
                                                                     break;
                                                                 }
                                                                 num11 += item3.Size;
@@ -395,7 +395,7 @@ namespace paulv2k4ModdingExecuter
                                                             item4.GetValue("size", 0);
                                                             long value2 = item4.GetValue("offset", 0L);
                                                             long num12 = 0L;
-                                                            foreach (BundleFileEntry item5 in list3)
+                                                            foreach (BundleFileEntry item5 in lstBundleFiles3)
                                                             {
                                                                 if (value2 < num12 + item5.Size)
                                                                 {
@@ -413,7 +413,7 @@ namespace paulv2k4ModdingExecuter
                                                             item6.GetValue("size", 0);
                                                             long value3 = item6.GetValue("offset", 0L);
                                                             long num13 = 0L;
-                                                            foreach (BundleFileEntry item7 in list3)
+                                                            foreach (BundleFileEntry item7 in lstBundleFiles3)
                                                             {
                                                                 if (value3 < num13 + item7.Size)
                                                                 {
@@ -433,34 +433,40 @@ namespace paulv2k4ModdingExecuter
                                                         if (num14 != -1)
                                                         {
                                                             EbxAssetEntry ebxAssetEntry = parent.modifiedEbx[modBundleInfo.Modify.Ebx[num14]];
-                                                            if (nativeWriter == null || nativeWriter.BaseStream.Length + parent.archiveData[ebxAssetEntry.Sha1].Data.Length > 1073741824)
+                                                            if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[ebxAssetEntry.Sha1].Data.Length > 1073741824)
                                                             {
-                                                                nativeWriter?.Close();
-                                                                nativeWriter = GetNextCas(out casFileIndex);
+                                                                writer_new_cas_file?.Close();
+                                                                writer_new_cas_file = GetNextCas(out casFileIndex);
                                                             }
                                                             ebx.SetValue("originalSize", ebxAssetEntry.OriginalSize);
                                                             ebx.SetValue("size", ebxAssetEntry.Size);
                                                             ebx.SetValue("cas", casFileIndex);
-                                                            ebx.SetValue("offset", (int)nativeWriter.BaseStream.Position);
-                                                            nativeWriter.Write(parent.archiveData[ebxAssetEntry.Sha1].Data);
+                                                            ebx.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
+                                                            var ebxData = parent.archiveData[ebxAssetEntry.Sha1].Data;
+                                                            //using (FileStream fileStream = new FileStream("test.xmx", FileMode.OpenOrCreate))
+                                                            //{
+                                                            //    fileStream.Write(ebxData, 0, ebxData.Length);
+                                                            //}
+
+                                                            writer_new_cas_file.Write(ebxData);
                                                         }
                                                     }
                                                     foreach (string item8 in modBundleInfo.Add.Ebx)
                                                     {
                                                         EbxAssetEntry ebxAssetEntry2 = parent.modifiedEbx[item8];
-                                                        if (nativeWriter == null || nativeWriter.BaseStream.Length + parent.archiveData[ebxAssetEntry2.Sha1].Data.Length > 1073741824)
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[ebxAssetEntry2.Sha1].Data.Length > 1073741824)
                                                         {
-                                                            nativeWriter?.Close();
-                                                            nativeWriter = GetNextCas(out casFileIndex);
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
                                                         }
                                                         DbObject dbObject5 = DbObject.CreateObject();
                                                         dbObject5.SetValue("name", ebxAssetEntry2.Name);
                                                         dbObject5.SetValue("originalSize", ebxAssetEntry2.OriginalSize);
                                                         dbObject5.SetValue("size", ebxAssetEntry2.Size);
                                                         dbObject5.SetValue("cas", casFileIndex);
-                                                        dbObject5.SetValue("offset", (int)nativeWriter.BaseStream.Position);
+                                                        dbObject5.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
                                                         dbObject.GetValue<DbObject>("ebx").Add(dbObject5);
-                                                        nativeWriter.Write(parent.archiveData[ebxAssetEntry2.Sha1].Data);
+                                                        writer_new_cas_file.Write(parent.archiveData[ebxAssetEntry2.Sha1].Data);
                                                     }
                                                     foreach (DbObject res in dbObject.GetValue<DbObject>("res"))
                                                     {
@@ -468,40 +474,40 @@ namespace paulv2k4ModdingExecuter
                                                         if (num15 != -1)
                                                         {
                                                             ResAssetEntry resAssetEntry = parent.modifiedRes[modBundleInfo.Modify.Res[num15]];
-                                                            if (nativeWriter == null || nativeWriter.BaseStream.Length + parent.archiveData[resAssetEntry.Sha1].Data.Length > 1073741824)
+                                                            if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[resAssetEntry.Sha1].Data.Length > 1073741824)
                                                             {
-                                                                nativeWriter?.Close();
-                                                                nativeWriter = GetNextCas(out casFileIndex);
+                                                                writer_new_cas_file?.Close();
+                                                                writer_new_cas_file = GetNextCas(out casFileIndex);
                                                             }
                                                             res.SetValue("originalSize", resAssetEntry.OriginalSize);
                                                             res.SetValue("size", resAssetEntry.Size);
                                                             res.SetValue("cas", casFileIndex);
-                                                            res.SetValue("offset", (int)nativeWriter.BaseStream.Position);
+                                                            res.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
                                                             res.SetValue("resRid", (long)resAssetEntry.ResRid);
                                                             res.SetValue("resMeta", resAssetEntry.ResMeta);
                                                             res.SetValue("resType", resAssetEntry.ResType);
-                                                            nativeWriter.Write(parent.archiveData[resAssetEntry.Sha1].Data);
+                                                            writer_new_cas_file.Write(parent.archiveData[resAssetEntry.Sha1].Data);
                                                         }
                                                     }
                                                     foreach (string re in modBundleInfo.Add.Res)
                                                     {
                                                         ResAssetEntry resAssetEntry2 = parent.modifiedRes[re];
-                                                        if (nativeWriter == null || nativeWriter.BaseStream.Length + parent.archiveData[resAssetEntry2.Sha1].Data.Length > 1073741824)
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[resAssetEntry2.Sha1].Data.Length > 1073741824)
                                                         {
-                                                            nativeWriter?.Close();
-                                                            nativeWriter = GetNextCas(out casFileIndex);
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
                                                         }
                                                         DbObject dbObject6 = DbObject.CreateObject();
                                                         dbObject6.SetValue("name", resAssetEntry2.Name);
                                                         dbObject6.SetValue("originalSize", resAssetEntry2.OriginalSize);
                                                         dbObject6.SetValue("size", resAssetEntry2.Size);
                                                         dbObject6.SetValue("cas", casFileIndex);
-                                                        dbObject6.SetValue("offset", (int)nativeWriter.BaseStream.Position);
+                                                        dbObject6.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
                                                         dbObject6.SetValue("resRid", (long)resAssetEntry2.ResRid);
                                                         dbObject6.SetValue("resMeta", resAssetEntry2.ResMeta);
                                                         dbObject6.SetValue("resType", resAssetEntry2.ResType);
                                                         dbObject.GetValue<DbObject>("res").Add(dbObject6);
-                                                        nativeWriter.Write(parent.archiveData[resAssetEntry2.Sha1].Data);
+                                                        writer_new_cas_file.Write(parent.archiveData[resAssetEntry2.Sha1].Data);
                                                     }
                                                     foreach (DbObject chunk in dbObject.GetValue<DbObject>("chunks"))
                                                     {
@@ -509,34 +515,34 @@ namespace paulv2k4ModdingExecuter
                                                         if (num16 != -1)
                                                         {
                                                             ChunkAssetEntry chunkAssetEntry = parent.modifiedChunks[modBundleInfo.Modify.Chunks[num16]];
-                                                            if (nativeWriter == null || nativeWriter.BaseStream.Length + parent.archiveData[chunkAssetEntry.Sha1].Data.Length > 1073741824)
+                                                            if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry.Sha1].Data.Length > 1073741824)
                                                             {
-                                                                nativeWriter?.Close();
-                                                                nativeWriter = GetNextCas(out casFileIndex);
+                                                                writer_new_cas_file?.Close();
+                                                                writer_new_cas_file = GetNextCas(out casFileIndex);
                                                             }
                                                             chunk.SetValue("originalSize", chunkAssetEntry.OriginalSize);
                                                             chunk.SetValue("size", chunkAssetEntry.Size);
                                                             chunk.SetValue("cas", casFileIndex);
-                                                            chunk.SetValue("offset", (int)nativeWriter.BaseStream.Position);
+                                                            chunk.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
                                                             chunk.SetValue("logicalOffset", chunkAssetEntry.LogicalOffset);
                                                             chunk.SetValue("logicalSize", chunkAssetEntry.LogicalSize);
-                                                            nativeWriter.Write(parent.archiveData[chunkAssetEntry.Sha1].Data);
+                                                            writer_new_cas_file.Write(parent.archiveData[chunkAssetEntry.Sha1].Data);
                                                         }
                                                     }
                                                     foreach (Guid chunk2 in modBundleInfo.Add.Chunks)
                                                     {
                                                         ChunkAssetEntry chunkAssetEntry2 = parent.modifiedChunks[chunk2];
-                                                        if (nativeWriter == null || nativeWriter.BaseStream.Length + parent.archiveData[chunkAssetEntry2.Sha1].Data.Length > 1073741824)
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry2.Sha1].Data.Length > 1073741824)
                                                         {
-                                                            nativeWriter?.Close();
-                                                            nativeWriter = GetNextCas(out casFileIndex);
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
                                                         }
                                                         DbObject dbObject7 = DbObject.CreateObject();
                                                         dbObject7.SetValue("id", chunkAssetEntry2.Id);
                                                         dbObject7.SetValue("originalSize", chunkAssetEntry2.OriginalSize);
                                                         dbObject7.SetValue("size", chunkAssetEntry2.Size);
                                                         dbObject7.SetValue("cas", casFileIndex);
-                                                        dbObject7.SetValue("offset", (int)nativeWriter.BaseStream.Position);
+                                                        dbObject7.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
                                                         dbObject7.SetValue("logicalOffset", chunkAssetEntry2.LogicalOffset);
                                                         dbObject7.SetValue("logicalSize", chunkAssetEntry2.LogicalSize);
                                                         dbObject.GetValue<DbObject>("chunks").Add(dbObject7);
@@ -548,22 +554,22 @@ namespace paulv2k4ModdingExecuter
                                                             dbObject9.SetValue("firstMip", chunkAssetEntry2.FirstMip);
                                                         }
                                                         dbObject.GetValue<DbObject>("chunkMeta").Add(dbObject8);
-                                                        nativeWriter.Write(parent.archiveData[chunkAssetEntry2.Sha1].Data);
+                                                        writer_new_cas_file.Write(parent.archiveData[chunkAssetEntry2.Sha1].Data);
                                                     }
-                                                    BundleFileEntry bundleFileEntry = list3[0];
-                                                    list3.Clear();
-                                                    list3.Add(bundleFileEntry);
+                                                    BundleFileEntry bundleFileEntry = lstBundleFiles3[0];
+                                                    lstBundleFiles3.Clear();
+                                                    lstBundleFiles3.Add(bundleFileEntry);
                                                     foreach (DbObject item9 in dbObject.GetValue<DbObject>("ebx"))
                                                     {
-                                                        list3.Add(new BundleFileEntry(item9.GetValue("cas", 0), item9.GetValue("offset", 0), item9.GetValue("size", 0)));
+                                                        lstBundleFiles3.Add(new BundleFileEntry(item9.GetValue("cas", 0), item9.GetValue("offset", 0), item9.GetValue("size", 0)));
                                                     }
                                                     foreach (DbObject item10 in dbObject.GetValue<DbObject>("res"))
                                                     {
-                                                        list3.Add(new BundleFileEntry(item10.GetValue("cas", 0), item10.GetValue("offset", 0), item10.GetValue("size", 0)));
+                                                        lstBundleFiles3.Add(new BundleFileEntry(item10.GetValue("cas", 0), item10.GetValue("offset", 0), item10.GetValue("size", 0)));
                                                     }
                                                     foreach (DbObject item11 in dbObject.GetValue<DbObject>("chunks"))
                                                     {
-                                                        list3.Add(new BundleFileEntry(item11.GetValue("cas", 0), item11.GetValue("offset", 0), item11.GetValue("size", 0)));
+                                                        lstBundleFiles3.Add(new BundleFileEntry(item11.GetValue("cas", 0), item11.GetValue("offset", 0), item11.GetValue("size", 0)));
                                                     }
                                                     int count = dbObject.GetValue<DbObject>("ebx").Count;
                                                     int count2 = dbObject.GetValue<DbObject>("res").Count;
@@ -640,47 +646,47 @@ namespace paulv2k4ModdingExecuter
                                                         nativeWriter3.Write((uint)num19, Endian.Big);
                                                         nativeWriter3.BaseStream.Position = 0L;
                                                         nativeWriter3.Write((uint)num20, Endian.Big);
-                                                        if (nativeWriter == null || nativeWriter.BaseStream.Length + nativeWriter3.BaseStream.Length > 1073741824)
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + nativeWriter3.BaseStream.Length > 1073741824)
                                                         {
-                                                            nativeWriter?.Close();
-                                                            nativeWriter = GetNextCas(out casFileIndex);
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
                                                         }
                                                         bundleFileEntry.CasIndex = casFileIndex;
-                                                        bundleFileEntry.Offset = (int)nativeWriter.BaseStream.Position;
+                                                        bundleFileEntry.Offset = (int)writer_new_cas_file.BaseStream.Position;
                                                         bundleFileEntry.Size = (int)(num20 + 4);
-                                                        nativeWriter.Write(((MemoryStream)nativeWriter3.BaseStream).ToArray());
+                                                        writer_new_cas_file.Write(((MemoryStream)nativeWriter3.BaseStream).ToArray());
                                                     }
                                                 }
-                                                list2.Add((int)(nativeWriter2.BaseStream.Position - position));
-                                                nativeWriter2.Write((int)(nativeWriter2.BaseStream.Position - position + list3.Count * 3 * 4 + 5));
-                                                for (int k = 0; k < list3.Count; k++)
+                                                list2.Add((int)(writer_new_toc_file_mod_data.BaseStream.Position - position));
+                                                writer_new_toc_file_mod_data.Write((int)(writer_new_toc_file_mod_data.BaseStream.Position - position + lstBundleFiles3.Count * 3 * 4 + 5));
+                                                for (int k = 0; k < lstBundleFiles3.Count; k++)
                                                 {
-                                                    uint num21 = (uint)list3[k].CasIndex;
-                                                    if (k != list3.Count - 1)
+                                                    uint num21 = (uint)lstBundleFiles3[k].CasIndex;
+                                                    if (k != lstBundleFiles3.Count - 1)
                                                     {
                                                         num21 = (uint)((int)num21 | int.MinValue);
                                                     }
-                                                    nativeWriter2.Write(num21);
-                                                    nativeWriter2.Write(list3[k].Offset);
-                                                    nativeWriter2.Write(list3[k].Size);
+                                                    writer_new_toc_file_mod_data.Write(num21);
+                                                    writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Offset);
+                                                    writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Size);
                                                 }
-                                                nativeWriter2.WriteNullTerminatedString(new string(text3.Reverse().ToArray()));
-                                                nativeWriter2.Write(0);
+                                                writer_new_toc_file_mod_data.WriteNullTerminatedString(new string(text3.Reverse().ToArray()));
+                                                writer_new_toc_file_mod_data.Write(0);
                                                 int num22 = text3.Length + 5;
                                                 for (int l = 0; l < 16 - num22 % 16; l++)
                                                 {
-                                                    nativeWriter2.Write((byte)0);
+                                                    writer_new_toc_file_mod_data.Write((byte)0);
                                                 }
                                             }
-                                            num4 = nativeWriter2.BaseStream.Position - position;
-                                            nativeWriter2.Write(num6);
+                                            num4 = writer_new_toc_file_mod_data.BaseStream.Position - position;
+                                            writer_new_toc_file_mod_data.Write(original_toc_file_item_count);
                                             foreach (int item19 in list)
                                             {
-                                                nativeWriter2.Write(item19);
+                                                writer_new_toc_file_mod_data.Write(item19);
                                             }
                                             foreach (int item20 in list2)
                                             {
-                                                nativeWriter2.Write(item20);
+                                                writer_new_toc_file_mod_data.Write(item20);
                                             }
                                         }
                                         List<int> list5 = new List<int>();
@@ -690,26 +696,26 @@ namespace paulv2k4ModdingExecuter
                                         int num23 = 0;
                                         if (num2 != uint.MaxValue)
                                         {
-                                            _ = nativeWriter2.BaseStream.Position;
-                                            _ = nativeReader2.Position;
-                                            nativeReader2.Position = num2 - 12;
-                                            num23 = nativeReader2.ReadInt();
+                                            _ = writer_new_toc_file_mod_data.BaseStream.Position;
+                                            _ = reader_of_original_toc_file_array.Position;
+                                            reader_of_original_toc_file_array.Position = num2 - 12;
+                                            num23 = reader_of_original_toc_file_array.ReadInt();
                                             for (int m = 0; m < num23; m++)
                                             {
-                                                list5.Add(nativeReader2.ReadInt());
+                                                list5.Add(reader_of_original_toc_file_array.ReadInt());
                                                 list8.Add(new List<Tuple<Guid, int>>());
                                             }
                                             for (int n = 0; n < num23; n++)
                                             {
-                                                uint num24 = nativeReader2.ReadUInt();
-                                                long position4 = nativeReader2.Position;
-                                                nativeReader2.Position = num24 - 12;
-                                                Guid guid = nativeReader2.ReadGuid();
-                                                int num25 = nativeReader2.ReadInt();
-                                                int num26 = nativeReader2.ReadInt();
-                                                int num27 = nativeReader2.ReadInt();
-                                                nativeReader2.Position = position4;
-                                                list6.Add((uint)(nativeWriter2.BaseStream.Position - position));
+                                                uint num24 = reader_of_original_toc_file_array.ReadUInt();
+                                                long position4 = reader_of_original_toc_file_array.Position;
+                                                reader_of_original_toc_file_array.Position = num24 - 12;
+                                                Guid guid = reader_of_original_toc_file_array.ReadGuid();
+                                                int num25 = reader_of_original_toc_file_array.ReadInt();
+                                                int num26 = reader_of_original_toc_file_array.ReadInt();
+                                                int num27 = reader_of_original_toc_file_array.ReadInt();
+                                                reader_of_original_toc_file_array.Position = position4;
+                                                list6.Add((uint)(writer_new_toc_file_mod_data.BaseStream.Position - position));
                                                 if (parent.modifiedBundles.ContainsKey(chunksBundleHash))
                                                 {
                                                     ModBundleInfo modBundleInfo2 = parent.modifiedBundles[chunksBundleHash];
@@ -728,52 +734,52 @@ namespace paulv2k4ModdingExecuter
                                                         {
                                                             outData = parent.archiveData[chunkAssetEntry3.Sha1].Data;
                                                         }
-                                                        if (nativeWriter == null || nativeWriter.BaseStream.Length + outData.Length > 1073741824)
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + outData.Length > 1073741824)
                                                         {
-                                                            nativeWriter?.Close();
-                                                            nativeWriter = GetNextCas(out casFileIndex);
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
                                                         }
                                                         num25 = casFileIndex;
-                                                        num26 = (int)nativeWriter.BaseStream.Position;
+                                                        num26 = (int)writer_new_cas_file.BaseStream.Position;
                                                         num27 = (int)chunkAssetEntry3.Size;
-                                                        nativeWriter.Write(outData);
+                                                        writer_new_cas_file.Write(outData);
                                                     }
                                                 }
-                                                nativeWriter2.Write(guid);
-                                                nativeWriter2.Write(num25);
-                                                nativeWriter2.Write(num26);
-                                                nativeWriter2.Write(num27);
+                                                writer_new_toc_file_mod_data.Write(guid);
+                                                writer_new_toc_file_mod_data.Write(num25);
+                                                writer_new_toc_file_mod_data.Write(num26);
+                                                writer_new_toc_file_mod_data.Write(num27);
                                                 list7.Add(guid);
                                             }
                                         }
-                                        if (parent.modifiedBundles.ContainsKey(chunksBundleHash) && text.ToLower().Contains("globals.toc"))
+                                        if (parent.modifiedBundles.ContainsKey(chunksBundleHash) && location_toc_file.ToLower().Contains("globals.toc"))
                                         {
                                             foreach (Guid chunk3 in parent.modifiedBundles[chunksBundleHash].Add.Chunks)
                                             {
                                                 ChunkAssetEntry chunkAssetEntry4 = parent.modifiedChunks[chunk3];
-                                                if (nativeWriter == null || nativeWriter.BaseStream.Length + parent.archiveData[chunkAssetEntry4.Sha1].Data.Length > 1073741824)
+                                                if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry4.Sha1].Data.Length > 1073741824)
                                                 {
-                                                    nativeWriter?.Close();
-                                                    nativeWriter = GetNextCas(out casFileIndex);
+                                                    writer_new_cas_file?.Close();
+                                                    writer_new_cas_file = GetNextCas(out casFileIndex);
                                                 }
                                                 int value5 = casFileIndex;
-                                                int value6 = (int)nativeWriter.BaseStream.Position;
+                                                int value6 = (int)writer_new_cas_file.BaseStream.Position;
                                                 int value7 = (int)chunkAssetEntry4.Size;
-                                                list6.Add((uint)(nativeWriter2.BaseStream.Position - position));
+                                                list6.Add((uint)(writer_new_toc_file_mod_data.BaseStream.Position - position));
                                                 list8.Add(new List<Tuple<Guid, int>>());
                                                 list5.Add(-1);
                                                 num23++;
                                                 list7.Add(chunk3);
-                                                nativeWriter.Write(parent.archiveData[chunkAssetEntry4.Sha1].Data);
-                                                nativeWriter2.Write(chunk3);
-                                                nativeWriter2.Write(value5);
-                                                nativeWriter2.Write(value6);
-                                                nativeWriter2.Write(value7);
+                                                writer_new_cas_file.Write(parent.archiveData[chunkAssetEntry4.Sha1].Data);
+                                                writer_new_toc_file_mod_data.Write(chunk3);
+                                                writer_new_toc_file_mod_data.Write(value5);
+                                                writer_new_toc_file_mod_data.Write(value6);
+                                                writer_new_toc_file_mod_data.Write(value7);
                                             }
                                         }
                                         if (num23 > 0)
                                         {
-                                            num5 = nativeWriter2.BaseStream.Position - position;
+                                            num5 = writer_new_toc_file_mod_data.BaseStream.Position - position;
                                             int num29 = 0;
                                             List<int> list9 = new List<int>();
                                             for (int num30 = 0; num30 < num23; num30++)
@@ -828,30 +834,33 @@ namespace paulv2k4ModdingExecuter
                                                     list9[num29] = list8[num36][0].Item2;
                                                 }
                                             }
-                                            nativeWriter2.Write(num23);
+                                            writer_new_toc_file_mod_data.Write(num23);
                                             for (int num37 = 0; num37 < num23; num37++)
                                             {
-                                                nativeWriter2.Write(list5[num37]);
+                                                writer_new_toc_file_mod_data.Write(list5[num37]);
                                             }
                                             for (int num38 = 0; num38 < num23; num38++)
                                             {
-                                                nativeWriter2.Write(list9[num38]);
+                                                writer_new_toc_file_mod_data.Write(list9[num38]);
                                             }
                                         }
-                                        nativeWriter2.BaseStream.Position = position + 4;
-                                        nativeWriter2.Write((int)num4);
-                                        nativeWriter2.Write((int)num5);
+                                        writer_new_toc_file_mod_data.BaseStream.Position = position + 4;
+                                        writer_new_toc_file_mod_data.Write((int)num4);
+                                        writer_new_toc_file_mod_data.Write((int)num5);
                                     }
                                 }
                                 else
                                 {
-                                    nativeWriter2.Write(uint.MaxValue);
-                                    nativeWriter2.Write(uint.MaxValue);
+                                    writer_new_toc_file_mod_data.Write(uint.MaxValue);
+                                    writer_new_toc_file_mod_data.Write(uint.MaxValue);
                                 }
                             }
                         }
                     }
-                    nativeWriter?.Close();
+                    if(writer_new_cas_file!=null)
+                    {
+                        writer_new_cas_file?.Close();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -4223,10 +4232,11 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     foreach (CatalogInfo item5 in fs.EnumerateCatalogInfos())
                     {
                         FifaBundleAction fifaBundleAction = new FifaBundleAction(item5, inDoneEvent, this);
-                        ThreadPool.QueueUserWorkItem(fifaBundleAction.ThreadPoolCallback, null);
-                        list3.Add(fifaBundleAction);
-                        numTasks++;
-                        num6++;
+                        fifaBundleAction.Run();
+                        //ThreadPool.QueueUserWorkItem(fifaBundleAction.ThreadPoolCallback, null);
+                        //list3.Add(fifaBundleAction);
+                        //numTasks++;
+                        //num6++;
                     }
                     while (numTasks != 0)
                     {

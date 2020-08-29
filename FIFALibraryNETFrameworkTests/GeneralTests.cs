@@ -9,6 +9,7 @@ using FrostySdk.IO;
 using v2k4FIFASDKGenerator;
 using FrostySdk.Interfaces;
 using System.Diagnostics;
+using System.Threading;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -159,6 +160,83 @@ namespace FIFALibraryNETFrameworkTests
 
         }
 
+        public int? getProcIDFromName(string name) //new 1.0.2 function
+        {
+            Process[] processlist = Process.GetProcesses();
+
+            if (name.Contains(".exe"))
+                name = name.Replace(".exe", "");
+
+            foreach (Process theprocess in processlist)
+            {
+                if (theprocess.ProcessName.Equals(name, StringComparison.CurrentCultureIgnoreCase)) //find (name).exe in the process list (use task manager to find the name)
+                    return theprocess.Id;
+            }
+
+            return null; //if we fail to find it
+        }
+
+
+        [TestMethod]
+        public void TestSDKGeneratorInjection()
+        {
+            int? proc = getProcIDFromName("MADDEN21");
+            //if (!proc.HasValue || proc == 0)
+            //{
+            //    var r = LaunchFIFA.LaunchAsync(
+            //        FIFAInstanceSingleton.FIFARootPath
+            //        , ""
+            //        , new System.Collections.Generic.List<string>() { }
+            //        , this
+            //        , FIFAInstanceSingleton.FIFAVERSION
+            //        , true).Result;
+            //    Thread.Sleep(4000);
+            //}
+
+
+            proc = getProcIDFromName("MADDEN21");
+            while (!proc.HasValue || proc == 0)
+            {
+                Debug.WriteLine($"Waiting for FIFA to appear");
+                proc = getProcIDFromName("MADDEN21");
+                Thread.Sleep(1000);
+            }
+            if (proc.HasValue)
+            {
+                var dllpath = @"G:\Work\FIFA Modding\Bin\Generator.dll";
+                if (File.Exists(dllpath))
+                {
+                    Debug.WriteLine($"Injecting: {dllpath}");
+                    var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, dllpath, false);
+                    bl.InjectDll();
+                    Debug.WriteLine($"Injected: {dllpath}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void FixGeneratedSDKFile()
+        {
+            var all_text = File.ReadAllText(@"E:\Origin Games\Madden NFL 21\testexporttocs.cs");
+
+            all_text = all_text.Replace("unsigned __int64", "ulong");
+            all_text = all_text.Replace("unsigned __int32", "uint");
+            all_text = all_text.Replace("unsigned __int16", "ushort");
+            all_text = all_text.Replace("unsigned __int8", "byte");
+            all_text = all_text.Replace("__int64", "long");
+            all_text = all_text.Replace("__int32", "int");
+            all_text = all_text.Replace("__int16", "short");
+            all_text = all_text.Replace("__int8", "byte");
+            all_text = all_text.Replace("Array<float>", "float[]");
+            all_text = all_text.Replace("Array<bool>", "bool[]");
+            all_text = all_text.Replace("Array<", "");
+            all_text = all_text.Replace(">", "[]");
+            all_text = all_text.Replace("*", "");
+
+            File.WriteAllText(@"E:\Origin Games\Madden NFL 21\testexporttocs.cs", all_text);
+        }
+
+
         public void Log(string text, params object[] vars)
         {
             Debug.WriteLine(text);
@@ -173,5 +251,7 @@ namespace FIFALibraryNETFrameworkTests
         {
             Debug.WriteLine("ERROR:" + text);
         }
+
+
     }
 }

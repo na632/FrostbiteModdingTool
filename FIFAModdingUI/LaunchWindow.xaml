@@ -13,10 +13,10 @@
         <StackPanel DockPanel.Dock="Top" VerticalAlignment="Top">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Label Height="30">Profiles: </Label>
-                <ComboBox Width="150" x:Name="cbProfiles" SelectionChanged="cbProfiles_SelectionChanged" Margin="0,10,10,10">
+                <ComboBox Width="150" x:Name="cbProfiles" SelectionChanged="cbProfiles_SelectionChanged" Margin="0,10,10,10" IsEnabled="False">
                     
                 </ComboBox>
-                <Button Name="btnLegacyModSupportSettings"  Height="30" Click="btnLegacyModSupportSettings_Click" Background="Transparent" BorderBrush="{x:Null}">
+                <Button Name="btnLegacyModSupportSettings" IsEnabled="False"  Height="30" Click="btnLegacyModSupportSettings_Click" Background="Transparent" BorderBrush="{x:Null}">
                     <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" />
                         <Label Content="Legacy Mod Settings" VerticalAlignment="Center" />

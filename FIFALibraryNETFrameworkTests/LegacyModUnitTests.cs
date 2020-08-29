@@ -95,6 +95,29 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void TestLegacyModSupportInjection_Madden21()
+        {
+            int? proc = getProcIDFromName("MADDEN21");
+            proc = getProcIDFromName("MADDEN21");
+            while (!proc.HasValue || proc == 0)
+            {
+                Debug.WriteLine($"Waiting for Madden 21 to appear");
+                proc = getProcIDFromName("MADDEN21");
+                Thread.Sleep(1000);
+            }
+            if (proc.HasValue)
+            {
+                if (File.Exists(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll"))
+                    File.Copy(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll", @"E:\Origin Games\Madden NFL 21\v2k4LegacyModSupport.dll", true);
+
+                var dllpath = @"E:\Origin Games\Madden NFL 21\v2k4LegacyModSupport.dll";
+                var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, dllpath, false);
+                bl.InjectDll();
+                Debug.WriteLine($"Injected: {dllpath}");
+            }
+        }
+
+        [TestMethod]
         [HandleProcessCorruptedStateExceptionsAttribute]
         public void TestEncryptModFile()
         {

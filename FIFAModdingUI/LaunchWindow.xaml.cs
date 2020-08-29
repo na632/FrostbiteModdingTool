@@ -177,12 +177,21 @@ namespace FIFAModdingUI
 
                     if (useLegacyMods)
                     {
-                        FIFAInstanceSingleton.InjectDLLAsync(FIFADirectory + "\\v2k4LegacyModSupport.DLL");
+                        if (File.Exists(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll"))
+                            File.Copy(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll", @FIFADirectory + "v2k4LegacyModSupport.dll", true);
+
+                        var legmodsupportdllpath = @FIFADirectory + @"v2k4LegacyModSupport.dll";
+                        var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
+                        Debug.WriteLine(legmodsupportdllpath);
+                        Debug.WriteLine(actualsupportdllpath);
+                        FIFAInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                        //FIFAInstanceSingleton.InjectDLLAsync(@"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll");
                     }
 
                     if (useLiveEditor)
                     {
-                        FIFAInstanceSingleton.InjectDLLAsync(FIFADirectory + "\\FIFALiveEditor.DLL");
+                        if(File.Exists(@FIFADirectory + @"FIFALiveEditor.DLL"))
+                            FIFAInstanceSingleton.InjectDLLAsync(@FIFADirectory + @"FIFALiveEditor.DLL");
                     }
                        
                     //});

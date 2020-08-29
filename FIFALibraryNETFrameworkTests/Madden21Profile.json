@@ -4,7 +4,7 @@
   "DataVersion": 20190729,
   "CacheName": "madden21",
   "Deobfuscator": "NullDeobfuscator",
-  "AssetLoader": "FifaAssetLoader",
+  "AssetLoader": "FifaAssetLoader2",
   "Sources": [
     {
       "Path": "Patch",

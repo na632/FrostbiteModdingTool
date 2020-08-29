@@ -691,7 +691,7 @@ namespace v2k4FIFASDKGenerator
         {
             MemoryReader memoryReader = null;
             //string typeStr = "v2k4FIFASDKGenerator.ClassesSdkCreator+ClassInfo";
-            string typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
+            string typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
 
             //if (ProfilesLibrary.DataVersion == 20181207)
             //{
@@ -747,6 +747,7 @@ namespace v2k4FIFASDKGenerator
                 var t = Type.GetType(typeStr);
                 ClassInfo classInfo = (ClassInfo)Activator.CreateInstance(t);
                 classInfo.Read(memoryReader);
+                //Debug.WriteLine(classInfo.typeInfo.name);
                 classInfos.Add(classInfo);
                 offsetClassInfoMapping.Add(typeInfoOffset, classInfo);
                 if (offset != 0L)
@@ -754,6 +755,7 @@ namespace v2k4FIFASDKGenerator
                     typeInfoOffset = offset;
                 }
             }
+            Debug.WriteLine(task.StatusMessage);
             memoryReader.Dispose();
             DbObject result = new DbObject(bObject: false);
             classInfos.Sort((ClassInfo a, ClassInfo b) => a.typeInfo.name.CompareTo(b.typeInfo.name));

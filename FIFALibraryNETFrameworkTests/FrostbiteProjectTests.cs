@@ -86,7 +86,7 @@ namespace FIFALibraryNETFrameworkTests
             }
             foreach (var i in player_values)
             {
-                projectManagement.FrostyProject.AssetManager.ModifyCustomAsset("legacy", i.Name, data);
+                projectManagement.FrostyProject.AssetManager.ModifyCustomAsset("legacy", @"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/playervalues.ini", data);
                 projectManagement.FrostyProject.AssetManager.SendManagerCommand("legacy", "FlushCache");
             }
 
@@ -118,6 +118,15 @@ namespace FIFALibraryNETFrameworkTests
                 , FIFAInstanceSingleton.FIFAVERSION
                 , true).Result;
 
+        }
+
+        [TestMethod]
+        public void CreateProjectAndEditGameplayTest()
+        {
+            InitializeOfSelectedFIFA(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
+
+            ProjectManagement projectManagement = new ProjectManagement();
+            projectManagement.StartNewProject();
         }
 
         public void Log(string text, params object[] vars)

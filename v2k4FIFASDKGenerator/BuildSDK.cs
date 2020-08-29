@@ -13,16 +13,64 @@ namespace v2k4FIFASDKGenerator
 {
     public class BuildSDK
     {
+		Process process = null;
 		bool ResultState = false;
-        public async Task<bool> Build()
+		public async Task<bool> Build()
         {
+			int attemptToFindProcess = 0;
+			do
+			{
+				var allProcesses = Process.GetProcesses();
+				process = allProcesses.FirstOrDefault(x =>
+						x.ProcessName.Contains("FIFA18")
+						|| x.ProcessName.Contains("FIFA19")
+						|| x.ProcessName.Contains("FIFA20")
+						|| x.ProcessName.Contains("FIFA21")
+						|| x.ProcessName.ToUpper().Contains("MADDEN21")
+						|| x.ProcessName.Contains("bf4")
+						);
+                //if (process.ProcessName.ToUpper() == "MADDEN21")
+                //{
+                //    var result = await new BuildSDK2().Build();
+                //    return result;
+                //}
+                string text = process.MainModule?.ModuleName;
+
+				attemptToFindProcess++;
+				Thread.Sleep(100);
+				if (attemptToFindProcess > 5)
+				{
+					break;
+				}
+			}
+			while (process == null);
+
+			if (process != null)
+			{
+				ProfilesLibrary.Initialize(process.ProcessName);
+
+				Debug.WriteLine($"Process Found {process.ProcessName}");
+				Trace.WriteLine($"Process Found {process.ProcessName}");
+				Console.WriteLine($"Process Found {process.ProcessName}");
+			}
+			else
+			{
+
+				Debug.WriteLine("Process Not Found");
+				Trace.WriteLine("Process Not Found");
+				Console.WriteLine("Process Not Found");
+
+				ResultState = false;
+				return false;
+			}
+
 			List<SdkUpdateTask> list = new List<SdkUpdateTask>
 			{
-				new SdkUpdateTask
-				{
-					DisplayName = "Waiting for process to become active",
-					Task = OnDetectRunningProcess
-				},
+				//new SdkUpdateTask
+				//{
+				//	DisplayName = "Waiting for process to become active",
+				//	Task = OnDetectRunningProcess
+				//},
 				new SdkUpdateTask
 				{
 					DisplayName = "Scanning for type info offset",
@@ -65,111 +113,74 @@ namespace v2k4FIFASDKGenerator
 			return ResultState;
 		}
 
-
-		private bool OnDetectRunningProcess(SdkUpdateTask task, object state)
-		{
-			Process process = null;
-			SdkUpdateState sdkUpdateState = state as SdkUpdateState;
-			int attemptToFindProcess = 0;
-			do
-			{
-				var allProcesses = Process.GetProcesses();
-				Process[] processes = allProcesses.Where(x =>
-						x.ProcessName.Contains("FIFA18")
-						|| x.ProcessName.Contains("FIFA19")
-						|| x.ProcessName.Contains("FIFA20")
-						|| x.ProcessName.Contains("FIFA21")
-						|| x.ProcessName.Contains("bf4")
-						).ToArray();
-				foreach (Process process2 in processes)
-				{
-
-					string text = process2.MainModule?.ModuleName;
-					process = process2;
-
-				}
-				attemptToFindProcess++;
-				Thread.Sleep(100);
-				if (attemptToFindProcess > 5)
-				{
-					break;
-				}
-			}
-			while (process == null);
-
-			if (process != null)
-			{
-				//if (process.TotalProcessorTime < TimeSpan.FromSeconds(5.0))
-				//{
-				//	Thread.Sleep(TimeSpan.FromSeconds(5.0) - process.TotalProcessorTime);
-				//}
-				sdkUpdateState.Process = process;
-				task.StatusMessage = process.ProcessName;
-				task.State = SdkUpdateTaskState.CompletedSuccessful;
-
-				ProfilesLibrary.Initialize(process.ProcessName);
-
-				Debug.WriteLine($"FIFA Process Found {process.ProcessName}");
-				Trace.WriteLine($"FIFA Process Found {process.ProcessName}");
-				Console.WriteLine($"FIFA Process Found {process.ProcessName}");
-
-				ResultState = true;
-				return true;
-
-			}
-
-			Debug.WriteLine("FIFA Process Not Found");
-			Trace.WriteLine("FIFA Process Not Found");
-			Console.WriteLine("FIFA Process Not Found");
-
-			task.State = SdkUpdateTaskState.CompletedFail;
-			ResultState = false;
-			return false;
-		}
-
 		private bool OnFindTypeInfoOffset(SdkUpdateTask task, object state)
 		{
 			SdkUpdateState sdkUpdateState = state as SdkUpdateState;
-			if (sdkUpdateState.Process != null)
+			if (process != null)
 			{
-				long num = sdkUpdateState.Process.MainModule.BaseAddress.ToInt64();
-				MemoryReader memoryReader = new MemoryReader(sdkUpdateState.Process, num);
+				long baseAddress = process.MainModule.BaseAddress.ToInt64();
+				MemoryReader memoryReader = new MemoryReader(process, baseAddress);
+				sdkUpdateState.Process = process;
 				if (memoryReader == null)
 				{
 					task.State = SdkUpdateTaskState.CompletedFail;
 					return false;
 				}
-				string[] obj = new string[3]
+				if (process.ProcessName.ToUpper() != "MADDEN21")
 				{
+
+
+					// TODO: You need this for FIFA 20 and older
+
+					string[] obj = new string[4]
+					{
 				"488b05???????? 48894108 48890d???????? 48???? C3",
 				"488b05???????? 48894108 48890d????????",
-				"488b05???????? 488905???????? 488d05???????? 488905???????? E9"
-				};
-				IList<long> list = null;
-				string[] array = obj;
-				foreach (string pattern in array)
-				{
-					memoryReader.Position = num;
-					list = memoryReader.scan(pattern);
-					if (list.Count != 0)
+				"488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+				"48 39 35 ? ? ? ? 0f 85 57 01 00 00 48 8b 46 10 48 89 05 ? ? ? ? 48 85 c0",
+					};
+					IList<long> list = null;
+					string[] array = obj;
+					foreach (string pattern in array)
 					{
-						break;
+						memoryReader.Position = baseAddress;
+						list = memoryReader.scan(pattern);
+						if (list.Count != 0)
+						{
+							break;
+						}
 					}
+					if (list.Count == 0)
+					{
+						task.State = SdkUpdateTaskState.CompletedFail;
+						task.FailMessage = "Unable to find the first type info offset";
+						Debug.WriteLine(task.FailMessage);
+						Trace.WriteLine(task.FailMessage);
+						Console.WriteLine(task.FailMessage);
+						return false;
+					}
+
+					memoryReader.Position = list[0] + 3;
+					int num2 = memoryReader.ReadInt();
+					memoryReader.Position = list[0] + 3 + num2 + 4;
+					Debug.WriteLine(memoryReader.Position.ToString("X2"));
+
+					long neOffset = memoryReader.ReadLong();
+
+
+					sdkUpdateState.TypeInfoOffset = neOffset;
 				}
-				if (list.Count == 0)
-				{
-					task.State = SdkUpdateTaskState.CompletedFail;
-					task.FailMessage = "Unable to find the first type info offset";
-					Debug.WriteLine(task.FailMessage);
-					Trace.WriteLine(task.FailMessage);
-					Console.WriteLine(task.FailMessage);
-					return false;
+				else
+                {
+					sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
+
 				}
-				memoryReader.Position = list[0] + 3;
-				int num2 = memoryReader.ReadInt();
-				memoryReader.Position = list[0] + 3 + num2 + 4;
-				sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
+
+				Debug.WriteLine(sdkUpdateState.TypeInfoOffset.ToString("X"));
+
+				//sdkUpdateState.TypeInfoOffset = Convert.ToInt64("145371E58");
 				task.State = SdkUpdateTaskState.CompletedSuccessful;
+
 				task.StatusMessage = string.Format("0x{0}", sdkUpdateState.TypeInfoOffset.ToString("X8"));
 				Debug.WriteLine(task.StatusMessage);
 				Trace.WriteLine(task.StatusMessage);

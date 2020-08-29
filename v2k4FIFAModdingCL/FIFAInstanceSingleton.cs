@@ -43,6 +43,8 @@ namespace v2k4FIFAModdingCL
 
         public static void InjectDLL(string dllpath)
         {
+            dllpath = dllpath.Replace(@"\\\\", @"\");
+            dllpath = dllpath.Replace(@"\\", @"\");
             if (File.Exists(dllpath))
             {
                 int? proc = GetProcIDFromName(FIFAVERSION);
@@ -55,7 +57,7 @@ namespace v2k4FIFAModdingCL
                 if (proc.HasValue)
                 {
                     Debug.WriteLine($"About to inject: {dllpath}");
-                    var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, dllpath, false);
+                    var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
                     bl.InjectDll();
                     Debug.WriteLine($"Injected: {dllpath}");
                 }
