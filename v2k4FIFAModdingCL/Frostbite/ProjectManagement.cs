@@ -20,8 +20,9 @@ namespace v2k4FIFAModding.Frosty
         {
             var buildCache = new BuildCache();
             buildCache.LoadData(FIFAInstanceSingleton.FIFAVERSION, FIFAInstanceSingleton.FIFARootPath);
-            var buildSDK = new BuildSDK();
-            var b = buildSDK.Build().Result;
+            //if(!File.Exists(FIFAInstanceSingleton.V))
+            //var buildSDK = new BuildSDK();
+            //var b = buildSDK.Build().Result;
         }
 
         public FrostyProject FrostyProject = null;

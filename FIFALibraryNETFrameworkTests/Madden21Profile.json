@@ -1,7 +1,7 @@
 {
   "Name": "MADDEN21",
   "DisplayName": "MADDEN 21",
-  "DataVersion": 20190729,
+  "DataVersion": 20200831,
   "CacheName": "madden21",
   "Deobfuscator": "NullDeobfuscator",
   "AssetLoader": "FifaAssetLoader2",

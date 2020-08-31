@@ -90,6 +90,11 @@ namespace FrostyEditor
 
 		public void Write(uint version)
 		{
+			if (File.Exists("temp.cs")) { 
+				WriteFromTempCS(version);
+				return;
+			}
+
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.AppendLine("using System;");
 			stringBuilder.AppendLine("using System.Collections.Generic;");
@@ -164,11 +169,19 @@ namespace FrostyEditor
 			{
 				nativeWriter.WriteLine(stringBuilder.ToString());
 			}
+
+			WriteFromTempCS(version);
+
+			//File.Delete("temp.cs");
+		}
+
+		public void WriteFromTempCS(uint version)
+        {
 			var results = new Microsoft.CSharp.CSharpCodeProvider().CompileAssemblyFromFile(new CompilerParameters
 			{
 				GenerateExecutable = false,
 				OutputAssembly = filename,
-				ReferencedAssemblies = 
+				ReferencedAssemblies =
 				{
 					"mscorlib.dll",
 					"FrostySdk.dll"
@@ -177,17 +190,15 @@ namespace FrostyEditor
 			}, "temp.cs");
 
 			Debug.WriteLine("All errors");
-			foreach(var i in results.Errors)
+			foreach (var i in results.Errors)
 			{
 				Debug.WriteLine(i);
-            }
+			}
 			Debug.WriteLine("All output");
 			foreach (var i in results.Output)
 			{
 				Debug.WriteLine(i);
 			}
-
-            //File.Delete("temp.cs");
 		}
 		public string GetAlphabets(int i)
 

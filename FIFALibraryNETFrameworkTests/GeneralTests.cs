@@ -10,6 +10,7 @@ using v2k4FIFASDKGenerator;
 using FrostySdk.Interfaces;
 using System.Diagnostics;
 using System.Threading;
+using System.CodeDom.Compiler;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -63,13 +64,13 @@ namespace FIFALibraryNETFrameworkTests
         {
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
-            buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
+            buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20", this, false);
             //buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21");
             //buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
 
-            var buildSDK = new BuildSDK();
-            var b = buildSDK.Build().Result;
-            Assert.IsTrue(b);
+            //var buildSDK = new BuildSDK();
+            //var b = buildSDK.Build().Result;
+            //Assert.IsTrue(b);
         }
 
         [TestMethod]
@@ -78,12 +79,12 @@ namespace FIFALibraryNETFrameworkTests
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
             //buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
-            buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21");
+            buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21", this, false);
             //buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
 
-            var buildSDK = new BuildSDK();
-            var b = buildSDK.Build().Result;
-            Assert.IsTrue(b);
+            //var buildSDK = new BuildSDK();
+            //var b = buildSDK.Build().Result;
+            //Assert.IsTrue(b);
         }
 
         [TestMethod]
@@ -176,6 +177,32 @@ namespace FIFALibraryNETFrameworkTests
             return null; //if we fail to find it
         }
 
+        [TestMethod]
+        public void TestBuildOfSDKDLLFromTempCS()
+        {
+            var results = new Microsoft.CSharp.CSharpCodeProvider().CompileAssemblyFromFile(new CompilerParameters
+            {
+                GenerateExecutable = false,
+                OutputAssembly = "EBXClasses.dll",
+                ReferencedAssemblies =
+                {
+                    "mscorlib.dll",
+                    "FrostySdk.dll"
+                },
+                CompilerOptions = "-define:DV_" + ProfilesLibrary.DataVersion
+            }, "temp.cs");
+
+            Debug.WriteLine("All errors");
+            foreach (var i in results.Errors)
+            {
+                Debug.WriteLine(i);
+            }
+            Debug.WriteLine("All output");
+            foreach (var i in results.Output)
+            {
+                Debug.WriteLine(i);
+            }
+        }
 
         [TestMethod]
         public void TestSDKGeneratorInjection()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -6,7 +7,9 @@ using FIFAModdingUI;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
+using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
@@ -16,7 +19,7 @@ namespace FIFALibraryNETFrameworkTests
     public class FrostbiteProjectTests : ILogger
     {
 
-        private void InitializeOfSelectedFIFA(string filePath)
+        private void InitializeOfSelectedGame(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath))
             {
@@ -34,7 +37,7 @@ namespace FIFALibraryNETFrameworkTests
         [TestMethod]
         public void LoadProjectAndRun()
         {
-            InitializeOfSelectedFIFA(@"E:\Origin Games\FIFA 20\FIFA20.exe");
+            InitializeOfSelectedGame(@"E:\Origin Games\FIFA 20\FIFA20.exe");
             ProjectManagement projectManagement = new ProjectManagement();
             projectManagement.StartNewProject();
             projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-20-Career-Mod\v2k4CareerMod.fbproject");
@@ -49,10 +52,53 @@ namespace FIFALibraryNETFrameworkTests
                , true).Result;
         }
 
+        public List<Tuple<string, string, object>> GetRootObjectProperties(object RootObject)
+        {
+            List<Tuple<string, string, object>> items = new List<Tuple<string, string, object>>();
+            foreach (var p in RootObject.GetType().GetProperties())
+            {
+                items.Add(new Tuple<string, string, object>(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null)));
+            }
+            return items;
+        }
+
+        [TestMethod]
+        public void LoadProjectAndRun_Madden21()
+        {
+            InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
+            ProjectManagement projectManagement = new ProjectManagement();
+            projectManagement.StartNewProject();
+            var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().ToList();
+            var character_interaction = allEBX.Where(x => x.DisplayName.ToLower().Contains("character_interaction")).ToList();
+            foreach (var eb in character_interaction)
+            {
+                var ebx = projectManagement.FrostyProject.AssetManager.GetEbx(eb as EbxAssetEntry);
+                if (ebx != null)
+                {
+                    foreach(var o in ebx.Objects)
+                    {
+                        
+                    }
+                    var robjProps = GetRootObjectProperties(ebx.RootObject);
+                    File.WriteAllText($"Debugging/EBX/{eb.DisplayName}", JsonConvert.SerializeObject(robjProps));
+                    Assert.IsNotNull(robjProps);
+                }
+            }
+            projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
+
+            var r = LaunchFIFA.LaunchAsync(
+               FIFAInstanceSingleton.FIFARootPath
+               , ""
+               , new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }
+               , this
+               , FIFAInstanceSingleton.FIFAVERSION
+               , true).Result;
+        }
+
         [TestMethod]
         public void CreateProjectAndInsertLegacyFilesTest()
         {
-            InitializeOfSelectedFIFA(@"E:\Origin Games\FIFA 20\FIFA20.exe");
+            InitializeOfSelectedGame(@"E:\Origin Games\FIFA 20\FIFA20.exe");
 
             ProjectManagement projectManagement = new ProjectManagement();
             projectManagement.StartNewProject();
@@ -123,7 +169,7 @@ namespace FIFALibraryNETFrameworkTests
         [TestMethod]
         public void CreateProjectAndEditGameplayTest()
         {
-            InitializeOfSelectedFIFA(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
+            InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
 
             ProjectManagement projectManagement = new ProjectManagement();
             projectManagement.StartNewProject();
