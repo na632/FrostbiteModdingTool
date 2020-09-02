@@ -79,7 +79,7 @@ namespace FIFALibraryNETFrameworkTests
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA18", @"H:\Origin Games\FIFA 18");
             //buildCache.LoadData("FIFA20", @"E:\Origin Games\FIFA 20");
-            buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21", this, false);
+            buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21", null, false);
             //buildCache.LoadData("FIFA20_demo", @"H:\Origin Games\FIFA 20 DEMO", this);
 
             //var buildSDK = new BuildSDK();

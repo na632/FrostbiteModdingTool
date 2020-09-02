@@ -4123,39 +4123,41 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     flag2 = true;
                     Logger.Log("Creating mod data directory");
                     Directory.CreateDirectory(modPath);
-                    if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-                    {
-                        if (!Directory.Exists(modPath + "Data"))
-                        {
-                            Directory.CreateDirectory(modPath + "Data");
-                        }
-                        list2.Add(new SymLinkStruct(modPath + "Data/Win32", fs.BasePath + "Data/Win32", inFolder: true));
-                    }
-                    else
-                    {
+                    //if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+                    //{
+                    //    if (!Directory.Exists(modPath + "Data"))
+                    //    {
+                    //        Directory.CreateDirectory(modPath + "Data");
+                    //    }
+                    //    list2.Add(new SymLinkStruct(modPath + "Data/Win32", fs.BasePath + "Data/Win32", inFolder: true));
+                    //}
+                    //else
+                    //{
                         list2.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
-                    }
-                    if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
-                    {
-                        if (!Directory.Exists(modPath + "Update"))
-                        {
-                            Directory.CreateDirectory(modPath + "Update");
-                        }
-                        foreach (string item3 in Directory.EnumerateDirectories(fs.BasePath + "Update"))
-                        {
-                            DirectoryInfo directoryInfo2 = new DirectoryInfo(item3);
-                            if (directoryInfo2.Name.ToLower() != "patch")
-                            {
-                                list2.Add(new SymLinkStruct(modPath + "Update/" + directoryInfo2.Name, directoryInfo2.FullName, inFolder: true));
-                            }
-                        }
-                    }
-                    else if (ProfilesLibrary.DataVersion != 20160927)
-                    {
-                        list2.Add(new SymLinkStruct(modPath + "Update", fs.BasePath + "Update", inFolder: true));
-                    }
-                    if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911)
-                    {
+                    //}
+                    //if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
+                    //{
+                    //    if (!Directory.Exists(modPath + "Update"))
+                    //    {
+                    //        Directory.CreateDirectory(modPath + "Update");
+                    //    }
+                    //    foreach (string item3 in Directory.EnumerateDirectories(fs.BasePath + "Update"))
+                    //    {
+                    //        DirectoryInfo directoryInfo2 = new DirectoryInfo(item3);
+                    //        if (directoryInfo2.Name.ToLower() != "patch")
+                    //        {
+                    //            list2.Add(new SymLinkStruct(modPath + "Update/" + directoryInfo2.Name, directoryInfo2.FullName, inFolder: true));
+                    //        }
+                    //    }
+                    //}
+                    //else if (ProfilesLibrary.DataVersion != 20160927)
+                    //{
+                    //    list2.Add(new SymLinkStruct(modPath + "Update", fs.BasePath + "Update", inFolder: true));
+                    //}
+                    //if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911
+                    //    || ProfilesLibrary.ProfileName == "MADDEN21"
+                    //    )
+                    //{
                         foreach (string item4 in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
                         {
                             FileInfo fileInfo3 = new FileInfo(item4);
@@ -4167,37 +4169,37 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             }
                             list2.Add(new SymLinkStruct(inDst, fileInfo3.FullName, inFolder: false));
                         }
-                    }
+                    //}
                 }
-                foreach (string catalog4 in fs.Catalogs.Where(x => x != ""))
-                {
-                    string text4 = fs.ResolvePath("native_patch/" + catalog4 + "/cas.cat");
-                    if (File.Exists(text4))
-                    {
-                        FileInfo fileInfo4 = new FileInfo(text4);
-                        string text5 = fileInfo4.Directory.FullName.Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
-                        if (!Directory.Exists(text5))
-                        {
-                            Directory.CreateDirectory(text5);
-                        }
-                        FileInfo[] files = fileInfo4.Directory.GetFiles();
-                        foreach (FileInfo fileInfo5 in files)
-                        {
-                            string text6 = Path.Combine(text5, fileInfo5.Name);
-                            if (fileInfo5.Extension == ".cas")
-                            {
-                                if (!File.Exists(text6))
-                                {
-                                    list2.Add(new SymLinkStruct(text6, fileInfo5.FullName, inFolder: false));
-                                }
-                            }
-                            else if (fileInfo5.Extension == ".cat")
-                            {
-                                fileInfo5.CopyTo(text6, overwrite: false);
-                            }
-                        }
-                    }
-                }
+                //foreach (string catalog4 in fs.Catalogs.Where(x => x != ""))
+                //{
+                //    string text4 = fs.ResolvePath("native_patch/" + catalog4 + "/cas.cat");
+                //    if (File.Exists(text4))
+                //    {
+                //        FileInfo fileInfo4 = new FileInfo(text4);
+                //        string text5 = fileInfo4.Directory.FullName.Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
+                //        if (!Directory.Exists(text5))
+                //        {
+                //            Directory.CreateDirectory(text5);
+                //        }
+                //        FileInfo[] files = fileInfo4.Directory.GetFiles();
+                //        foreach (FileInfo fileInfo5 in files)
+                //        {
+                //            string text6 = Path.Combine(text5, fileInfo5.Name);
+                //            if (fileInfo5.Extension == ".cas")
+                //            {
+                //                if (!File.Exists(text6))
+                //                {
+                //                    list2.Add(new SymLinkStruct(text6, fileInfo5.FullName, inFolder: false));
+                //                }
+                //            }
+                //            else if (fileInfo5.Extension == ".cat")
+                //            {
+                //                fileInfo5.CopyTo(text6, overwrite: false);
+                //            }
+                //        }
+                //    }
+                //}
                 if (list2.Count > 0)
                 {
                     string str2 = "New patch detected.";
@@ -4217,7 +4219,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
                 Logger.Log("Applying mods");
                 list2.Clear();
-                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911)
+                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.ProfileName == "MADDEN21")
                 {
                     DbObject dbObject4 = null;
                     using (DbReader dbReader3 = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
@@ -4280,7 +4282,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     RunSymbolicLinkProcess(list2);
                 }
 
-                logger.Log("Writing CAS files to FIFA");
+                logger.Log("Writing CAS files");
                 ThreadPool.SetMaxThreads(workerThreads, completionPortThreads);
                 foreach (CasDataEntry casEntry in casData.EnumerateEntries())
                 {
@@ -4318,31 +4320,32 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     }
                 }
                 CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
-                if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
-                {
-                    DbObject dbObject7 = null;
-                    using (DbReader dbReader4 = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                    {
-                        dbObject7 = dbReader4.ReadDbObject();
-                    }
-                    foreach (string item12 in Directory.EnumerateFiles(modPath + patchPath, "*.sb", SearchOption.AllDirectories))
-                    {
-                        string value12 = item12.Replace(modPath + patchPath + "\\", "").Replace("\\", "/").Replace(".sb", "");
-                        foreach (DbObject item13 in dbObject7.GetValue<DbObject>("superBundles"))
-                        {
-                            if (item13.GetValue<string>("name").Equals(value12, StringComparison.OrdinalIgnoreCase))
-                            {
-                                item13.RemoveValue("same");
-                                item13.SetValue("delta", true);
-                            }
-                        }
-                    }
-                    using (DbWriter dbWriter2 = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                    {
-                        dbWriter2.Write(dbObject7);
-                    }
-                }
-                else if (ProfilesLibrary.DataVersion != 20180914 && ProfilesLibrary.DataVersion != 20190729 && ProfilesLibrary.DataVersion != 20190911)
+                //if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
+                //{
+                //    DbObject dbObject7 = null;
+                //    using (DbReader dbReader4 = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                //    {
+                //        dbObject7 = dbReader4.ReadDbObject();
+                //    }
+                //    foreach (string item12 in Directory.EnumerateFiles(modPath + patchPath, "*.sb", SearchOption.AllDirectories))
+                //    {
+                //        string value12 = item12.Replace(modPath + patchPath + "\\", "").Replace("\\", "/").Replace(".sb", "");
+                //        foreach (DbObject item13 in dbObject7.GetValue<DbObject>("superBundles"))
+                //        {
+                //            if (item13.GetValue<string>("name").Equals(value12, StringComparison.OrdinalIgnoreCase))
+                //            {
+                //                item13.RemoveValue("same");
+                //                item13.SetValue("delta", true);
+                //            }
+                //        }
+                //    }
+                //    using (DbWriter dbWriter2 = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                //    {
+                //        dbWriter2.Write(dbObject7);
+                //    }
+                //}
+                //else 
+                if (ProfilesLibrary.DataVersion != 20180914 && ProfilesLibrary.DataVersion != 20190729 && ProfilesLibrary.DataVersion != 20190911 && ProfilesLibrary.ProfileName == "MADDEN21")
                 {
                     DbObject dbObject9 = null;
                     using (DbReader dbReader5 = new DbReader(new FileStream(fs.ResolvePath("layout.toc"), FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
@@ -4458,7 +4461,9 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             else
                 await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
 
+            
             Logger.Log("Launching game");
+            Logger.Log(fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
             ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + additionalArgs);
             //});
             return 0;

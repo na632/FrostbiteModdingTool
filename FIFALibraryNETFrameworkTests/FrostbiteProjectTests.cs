@@ -4,10 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using FIFAModdingUI;
+using FrostyEditor.Controls;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using v2k4FIFAModding.Frosty;
@@ -83,6 +85,17 @@ namespace FIFALibraryNETFrameworkTests
                     File.WriteAllText($"Debugging/EBX/{eb.DisplayName}", JsonConvert.SerializeObject(robjProps));
                     Assert.IsNotNull(robjProps);
                 }
+            }
+
+            var allRes = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
+            var ebxofres = allEBX.Where(x => x.DisplayName.ToLower().Contains("splashscreen")).ToList();
+
+            foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x=>x.Name.ToLower().Contains("splash")))
+            {
+                File.WriteAllText($"Debugging/RES/{res.DisplayName}", JsonConvert.SerializeObject(res));
+               var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
+                Texture textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
+                new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.PNG", "*.png");
             }
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
 
