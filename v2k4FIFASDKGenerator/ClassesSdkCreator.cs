@@ -190,6 +190,7 @@ namespace v2k4FIFASDKGenerator
                         EbxField ebxField = default(EbxField);
                         ebxField.Name = item5.GetValue<string>("name");
                         ebxField.Type = (ushort)item5.GetValue("flags", 0);
+                        ebxField.NameHash = (uint)item5.GetValue("nameHash",0);
                         EbxField item4 = ebxField;
                         list2.Add(item4);
                     }
@@ -260,18 +261,18 @@ namespace v2k4FIFASDKGenerator
                     nativeReader.ReadUInt();
                     ushort num = nativeReader.ReadUShort();
                     ushort num2 = nativeReader.ReadUShort();
-                    List<EbxField> list = new List<EbxField>();
+                    List<EbxField> lstFields = new List<EbxField>();
                     for (int i = 0; i < num2; i++)
                     {
                         uint num3 = nativeReader.ReadUInt();
-                        EbxField item = default(EbxField);
-                        item.Name = (dictionary2.ContainsKey(num3) ? dictionary2[num3] : "");
-                        item.NameHash = num3;
-                        item.Type = (ushort)(nativeReader.ReadUShort() >> 1);
-                        item.ClassRef = nativeReader.ReadUShort();
-                        item.DataOffset = nativeReader.ReadUInt();
-                        item.SecondOffset = nativeReader.ReadUInt();
-                        list.Add(item);
+                        EbxField field = default(EbxField);
+                        field.Name = (dictionary2.ContainsKey(num3) ? dictionary2[num3] : "");
+                        field.NameHash = num3;
+                        field.Type = (ushort)(nativeReader.ReadUShort() >> 1);
+                        field.ClassRef = nativeReader.ReadUShort();
+                        field.DataOffset = nativeReader.ReadUInt();
+                        field.SecondOffset = nativeReader.ReadUInt();
+                        lstFields.Add(field);
                     }
                     int num4 = 0;
                     List<EbxClass?> list2 = new List<EbxClass?>();
@@ -344,26 +345,28 @@ namespace v2k4FIFASDKGenerator
                                 item2.SecondSize = (ushort)dbObject3.GetValue("size", 0);
                                 mapping.Add(item2.Name, new Tuple<EbxClass, DbObject>(item2, dbObject3));
                                 fieldMapping.Add(item2.Name, new List<EbxField>());
-                                DbObject value3 = dbObject3.GetValue<DbObject>("fields");
+                                DbObject dbObjectFields = dbObject3.GetValue<DbObject>("fields");
                                 DbObject dbObject4 = DbObject.CreateList();
                                 dbObject3.RemoveValue("fields");
                                 for (int l = 0; l < value2.FieldCount; l++)
                                 {
-                                    EbxField item3 = list[value2.FieldIndex + l];
+                                    EbxField field = lstFields[value2.FieldIndex + l];
                                     bool flag = false;
-                                    foreach (DbObject item5 in value3)
+                                    foreach (DbObject dbObjField in dbObjectFields)
                                     {
-                                        if (item5.GetValue("nameHash", 0) == (int)item3.NameHash)
+                                        var dbObjNameHash = dbObjField.GetValue("nameHash", 0);
+                                        if (dbObjNameHash == (int)field.NameHash)
                                         {
-                                            item5.SetValue("type", item3.Type);
-                                            item5.SetValue("offset", item3.DataOffset);
-                                            item5.SetValue("value", (int)item3.DataOffset);
-                                            if (item3.DebugType == EbxFieldType.Array)
+                                            dbObjField.SetValue("type", field.Type);
+                                            dbObjField.SetValue("offset", field.DataOffset);
+                                            dbObjField.SetValue("value", (int)field.DataOffset);
+                                            if (field.DebugType == EbxFieldType.Array)
                                             {
-                                                Guid guid3 = list3[value2.Index + (short)item3.ClassRef];
-                                                item5.SetValue("guid", guid3);
+                                                Guid guid3 = list3[value2.Index + (short)field.ClassRef];
+                                                dbObjField.SetValue("guid", guid3);
                                             }
-                                            dbObject4.Add(item5);
+
+                                            dbObject4.Add(dbObjField);
                                             flag = true;
                                             break;
                                         }
@@ -371,20 +374,20 @@ namespace v2k4FIFASDKGenerator
                                     if (!flag)
                                     {
                                         uint num8 = (ProfilesLibrary.DataVersion == 20190905) ? 3301947476u : 3109710567u;
-                                        if (item3.NameHash != num8)
+                                        if (field.NameHash != num8)
                                         {
-                                            item3.Name = ((item3.Name != "") ? item3.Name : ("Unknown_" + item3.NameHash.ToString("x8")));
+                                            field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
                                             DbObject dbObject6 = DbObject.CreateObject();
-                                            dbObject6.SetValue("name", item3.Name);
-                                            dbObject6.SetValue("nameHash", (int)item3.NameHash);
-                                            dbObject6.SetValue("type", item3.Type);
+                                            dbObject6.SetValue("name", field.Name);
+                                            dbObject6.SetValue("nameHash", (int)field.NameHash);
+                                            dbObject6.SetValue("type", field.Type);
                                             dbObject6.SetValue("flags", (ushort)0);
-                                            dbObject6.SetValue("offset", item3.DataOffset);
-                                            dbObject6.SetValue("value", (int)item3.DataOffset);
+                                            dbObject6.SetValue("offset", field.DataOffset);
+                                            dbObject6.SetValue("value", (int)field.DataOffset);
                                             dbObject4.Add(dbObject6);
                                         }
                                     }
-                                    fieldMapping[item2.Name].Add(item3);
+                                    fieldMapping[item2.Name].Add(field);
                                     num4++;
                                 }
                                 dbObject3.SetValue("fields", dbObject4);
@@ -491,7 +494,16 @@ namespace v2k4FIFASDKGenerator
                             fieldObj.AddValue("name", field.Name);
                             fieldObj.AddValue("type", (int)field.DebugType);
                             fieldObj.AddValue("flags", (int)field.Type);
-                            if (ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190905 || ProfilesLibrary.DataVersion == 20190911)
+                            // -----------------------------------------------------------------------------------------------------
+                            // -----------------------------------------------------------------------------------------------------
+                            // -----------------------------------------------------------------------------------------------------
+                            // -----------------------------------------------------------------------------------------------------
+                            // IMPORTANT!!
+                            // 
+                            // -----------------------------------------------------------------------------------------------------
+                            // -----------------------------------------------------------------------------------------------------
+
+                            if (ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190905 || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.ProfileName == "MADDEN21")
                             {
                                 fieldObj.AddValue("offset", (int)field.DataOffset);
                                 fieldObj.AddValue("nameHash", field.NameHash);

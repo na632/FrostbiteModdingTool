@@ -137,7 +137,7 @@ namespace FrostyEditor
 				{
 					stringBuilder.AppendLine("namespace Reflection\r\n{");
 					stringBuilder.AppendLine("[" + typeof(DisplayNameAttribute).Name + "(\"" + @class.GetValue<string>("name") + "\")]");
-					//stringBuilder.AppendLine("[" + typeof(GuidAttribute).Name + "(\"" + @class.GetValue<Guid>("guid") + "\")]");
+					//stringBuilder.AppendLine("[GuidAttribute"(\"" + @class.GetValue<Guid>("guid") + "\")]");
 					stringBuilder.AppendLine("[GuidAttribute(\"" + @class.GetValue<Guid>("guid") + "\")]");
 
 					stringBuilder.AppendLine("public class Delegate_" + @class.GetValue<Guid>("guid").ToString().Replace('-', '_') + " { }\r\n}");
@@ -162,8 +162,8 @@ namespace FrostyEditor
 			//}
 			stringBuilder.AppendLine("}");
 
-			if (File.Exists("temp.cs"))
-				File.Delete("temp.cs");
+			//if (File.Exists("temp.cs"))
+			//	File.Delete("temp.cs");
 
 			using (NativeWriter nativeWriter = new NativeWriter(new FileStream("temp.cs", FileMode.Create)))
 			{
@@ -497,7 +497,8 @@ namespace FrostyEditor
 			int num = fieldObj.GetValue("arrayFlags", 0);
 			string text = (ebxFieldType == EbxFieldType.Pointer || ebxFieldType == EbxFieldType.Array) ? fieldObj.GetValue("baseType", "null") : "null";
 			int num2 = fieldObj.GetValue("flags", 0);
-			if (ebxFieldType == EbxFieldType.Array && fieldObj.HasValue("guid"))
+			//if (ebxFieldType == EbxFieldType.Array && fieldObj.HasValue("guid"))
+			if (fieldObj.HasValue("guid"))
 			{
 				//stringBuilder.AppendLine("[" + typeof(GuidAttribute) + "(\"" + fieldObj.GetValue<Guid>("guid").ToString() + "\")]");
 				stringBuilder.AppendLine("[GuidAttribute(\"" + fieldObj.GetValue<Guid>("guid") + "\")]");

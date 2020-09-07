@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using FIFAModdingUI;
+using Frostbite.Textures;
 using FrostyEditor.Controls;
 using FrostySdk;
 using FrostySdk.Interfaces;
@@ -12,6 +13,7 @@ using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using paulv2k4ModdingExecuter;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
@@ -65,16 +67,44 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void LoadProjectAndExtractGameplay_Madden21()
+        {
+            if (!Directory.Exists("Debugging\\EBX\\Gameplay"))
+                Directory.CreateDirectory("Debugging\\EBX\\Gameplay");
+
+            InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
+            ProjectManagement projectManagement = new ProjectManagement();
+            projectManagement.StartNewProject();
+            var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().ToList();
+            var character_interaction = allEBX.Where(x => x.Path.ToLower().Contains("attribsys")).ToList();
+            foreach (var eb in character_interaction)
+            {
+                var ebx = projectManagement.FrostyProject.AssetManager.GetEbx(eb as EbxAssetEntry);
+                if (ebx != null)
+                {
+                    //foreach (var o in ebx.Objects)
+                    //{
+
+                    //}
+                    var robjProps = GetRootObjectProperties(ebx.RootObject);
+                    File.WriteAllText($"Debugging/EBX/Gameplay/{eb.DisplayName}.dat", JsonConvert.SerializeObject(robjProps));
+                    Assert.IsNotNull(robjProps);
+                }
+            }
+        }
+    
+
+        [TestMethod]
         public void LoadProjectAndRun_Madden21()
         {
             InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             ProjectManagement projectManagement = new ProjectManagement();
             projectManagement.StartNewProject();
-            var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().ToList();
+            var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx(includeLinked: true).ToList();
             var character_interaction = allEBX.Where(x => x.DisplayName.ToLower().Contains("character_interaction")).ToList();
             foreach (var eb in character_interaction)
             {
-                var ebx = projectManagement.FrostyProject.AssetManager.GetEbx(eb as EbxAssetEntry);
+                var ebx = projectManagement.FrostyProject.AssetManager.GetEbx(eb);
                 if (ebx != null)
                 {
                     foreach(var o in ebx.Objects)
@@ -82,7 +112,7 @@ namespace FIFALibraryNETFrameworkTests
                         
                     }
                     var robjProps = GetRootObjectProperties(ebx.RootObject);
-                    File.WriteAllText($"Debugging/EBX/{eb.DisplayName}", JsonConvert.SerializeObject(robjProps));
+                    File.WriteAllText($"Debugging/EBX/{eb.DisplayName}.dat", JsonConvert.SerializeObject(robjProps));
                     Assert.IsNotNull(robjProps);
                 }
             }
@@ -90,22 +120,60 @@ namespace FIFALibraryNETFrameworkTests
             var allRes = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
             var ebxofres = allEBX.Where(x => x.DisplayName.ToLower().Contains("splashscreen")).ToList();
 
-            foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x=>x.Name.ToLower().Contains("splash")))
+            foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x=>x.Name.ToLower().Contains("splashscreen")))
             {
                 File.WriteAllText($"Debugging/RES/{res.DisplayName}", JsonConvert.SerializeObject(res));
                var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
                 Texture textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
                 new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.PNG", "*.png");
+                new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.DDS", "*.dds");
+                if (res.Filename == "splashscreen")
+                {
+                    var linked = res.LinkedAssets;
+                    new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
+                    if (errorMessage != string.Empty)
+                    {
+
+                    }
+                }
+
+                //if (res.Filename == "mainmenusplashscreen")
+                //{
+                //    var linked = res.LinkedAssets;
+                //    new TextureImporter().ImportTextureFromFile("G:\\mainmenusplashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
+                //    if (errorMessage != string.Empty)
+                //    {
+
+                //    }
+                //}
             }
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
 
-            var r = LaunchFIFA.LaunchAsync(
-               FIFAInstanceSingleton.FIFARootPath
-               , ""
-               , new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }
-               , this
-               , FIFAInstanceSingleton.FIFAVERSION
-               , true).Result;
+            //var r = LaunchFIFA.LaunchAsync(
+            //   FIFAInstanceSingleton.FIFARootPath
+            //   , ""
+            //   , new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }
+            //   , this
+            //   , FIFAInstanceSingleton.FIFAVERSION
+            //   , true).Result;
+
+
+            if (!ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+            {
+                throw new Exception("Unable to Initialize Profile");
+            }
+            FileSystem fileSystem = new FileSystem(FIFAInstanceSingleton.FIFARootPath);
+            foreach (FileSystemSource source in ProfilesLibrary.Sources)
+            {
+                fileSystem.AddSource(source.Path, source.SubDirs);
+            }
+            fileSystem.Initialize();
+            var fme = new FrostyModExecutor();
+           // var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+            var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+
+
+
         }
 
         [TestMethod]
@@ -188,9 +256,14 @@ namespace FIFALibraryNETFrameworkTests
             projectManagement.StartNewProject();
         }
 
+        private string lastMessage = null;
+
         public void Log(string text, params object[] vars)
         {
-            Debug.WriteLine(text);
+            if(lastMessage != text)
+                Debug.WriteLine(text);
+
+            lastMessage = text;
         }
 
         public void LogWarning(string text, params object[] vars)

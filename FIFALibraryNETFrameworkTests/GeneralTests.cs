@@ -88,6 +88,18 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void TestBuildSDK_MADDEN21()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21", null, false);
+
+            var buildSDK = new BuildSDK();
+            var b = buildSDK.Build().Result;
+            Assert.IsTrue(b);
+        }
+
+
+        [TestMethod]
         public void TestBuildCache()
         {
             var buildCache = new BuildCache();
