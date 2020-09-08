@@ -931,6 +931,7 @@ namespace paulv2k4ModdingExecuter
         }
 
 
+
         private class Madden21BundleAction
         {
             private class BundleFileEntry
@@ -995,13 +996,12 @@ namespace paulv2k4ModdingExecuter
                         string location_toc_file = parent.fs.ResolvePath($"{arg}.toc").ToLower();
                         if (location_toc_file != "")
                         {
-                            uint orig_toc_file_num = 0u;
                             uint orig_toc_file_num1 = 0u;
                             uint num2 = 0u;
                             byte[] byte_array_of_original_toc_file = null;
                             using (NativeReader reader_original_toc_file = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
                             {
-                                orig_toc_file_num = reader_original_toc_file.ReadUInt();
+                                uint orig_toc_file_num = reader_original_toc_file.ReadUInt();
                                 orig_toc_file_num1 = reader_original_toc_file.ReadUInt();
                                 num2 = reader_original_toc_file.ReadUInt();
                                 byte_array_of_original_toc_file = reader_original_toc_file.ReadToEnd();
@@ -1032,7 +1032,6 @@ namespace paulv2k4ModdingExecuter
                             using (NativeWriter writer_new_toc_file_mod_data = new NativeWriter(new FileStream(location_toc_file_mod_data, FileMode.Create)))
                             {
                                 writer_new_toc_file_mod_data.Write(30331136);
-                                //writer_new_toc_file_mod_data.Write(orig_toc_file_num);
                                 writer_new_toc_file_mod_data.Write(new byte[552]);
                                 long position = writer_new_toc_file_mod_data.BaseStream.Position;
                                 writer_new_toc_file_mod_data.Write(3280507699u);
@@ -1072,12 +1071,12 @@ namespace paulv2k4ModdingExecuter
                                                 while ((num9 & 2147483648u) != 0L);
                                                 reader_of_original_toc_file_array.Position = num8 - 12;
                                                 int num10 = 0;
-                                                string reversed_string_location = "";
+                                                string text3 = "";
                                                 do
                                                 {
                                                     string str = reader_of_original_toc_file_array.ReadNullTerminatedString();
                                                     num10 = reader_of_original_toc_file_array.ReadInt() - 1;
-                                                    reversed_string_location = Utils.ReverseString(str) + reversed_string_location;
+                                                    text3 = Utils.ReverseString(str) + text3;
                                                     if (num10 != -1)
                                                     {
                                                         reader_of_original_toc_file_array.Position = num10 - 12;
@@ -1085,7 +1084,7 @@ namespace paulv2k4ModdingExecuter
                                                 }
                                                 while (num10 != -1);
                                                 reader_of_original_toc_file_array.Position = position2;
-                                                int key2 = Fnv1.HashString(reversed_string_location.ToLower());
+                                                int key2 = Fnv1.HashString(text3.ToLower());
                                                 if (parent.modifiedBundles.ContainsKey(key2))
                                                 {
                                                     ModBundleInfo modBundleInfo = parent.modifiedBundles[key2];
@@ -1098,11 +1097,11 @@ namespace paulv2k4ModdingExecuter
                                                             memoryStream.Write(nativeReader3.ReadBytes(item.Size), 0, item.Size);
                                                         }
                                                     }
-                                                    DbObject dbObject = null;
+                                                    DbObject entireSuperBundle = null;
                                                     using (BinarySbReader2 binarySbReader = new BinarySbReader2(memoryStream, 0L, parent.fs.CreateDeobfuscator()))
                                                     {
-                                                        dbObject = binarySbReader.ReadDbObject();
-                                                        foreach (DbObject ebxItem in dbObject.GetValue<DbObject>("ebx"))
+                                                        entireSuperBundle = binarySbReader.ReadDbObject();
+                                                        foreach (DbObject ebxItem in entireSuperBundle.GetValue<DbObject>("ebx"))
                                                         {
                                                             ebxItem.GetValue("size", 0);
                                                             long value = ebxItem.GetValue("offset", 0L);
@@ -1120,7 +1119,7 @@ namespace paulv2k4ModdingExecuter
                                                                 num11 += item3.Size;
                                                             }
                                                         }
-                                                        foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
+                                                        foreach (DbObject item4 in entireSuperBundle.GetValue<DbObject>("res"))
                                                         {
                                                             item4.GetValue("size", 0);
                                                             long value2 = item4.GetValue("offset", 0L);
@@ -1138,7 +1137,7 @@ namespace paulv2k4ModdingExecuter
                                                                 num12 += item5.Size;
                                                             }
                                                         }
-                                                        foreach (DbObject item6 in dbObject.GetValue<DbObject>("chunks"))
+                                                        foreach (DbObject item6 in entireSuperBundle.GetValue<DbObject>("chunks"))
                                                         {
                                                             item6.GetValue("size", 0);
                                                             long value3 = item6.GetValue("offset", 0L);
@@ -1157,7 +1156,7 @@ namespace paulv2k4ModdingExecuter
                                                             }
                                                         }
                                                     }
-                                                    foreach (DbObject ebx in dbObject.GetValue<DbObject>("ebx"))
+                                                    foreach (DbObject ebx in entireSuperBundle.GetValue<DbObject>("ebx"))
                                                     {
                                                         int num14 = modBundleInfo.Modify.Ebx.FindIndex((string a) => a.Equals(ebx.GetValue<string>("name")));
                                                         if (num14 != -1)
@@ -1195,10 +1194,10 @@ namespace paulv2k4ModdingExecuter
                                                         dbObject5.SetValue("size", ebxAssetEntry2.Size);
                                                         dbObject5.SetValue("cas", casFileIndex);
                                                         dbObject5.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
-                                                        dbObject.GetValue<DbObject>("ebx").Add(dbObject5);
+                                                        entireSuperBundle.GetValue<DbObject>("ebx").Add(dbObject5);
                                                         writer_new_cas_file.Write(parent.archiveData[ebxAssetEntry2.Sha1].Data);
                                                     }
-                                                    foreach (DbObject res in dbObject.GetValue<DbObject>("res"))
+                                                    foreach (DbObject res in entireSuperBundle.GetValue<DbObject>("res"))
                                                     {
                                                         int num15 = modBundleInfo.Modify.Res.FindIndex((string a) => a.Equals(res.GetValue<string>("name")));
                                                         if (num15 != -1)
@@ -1236,10 +1235,10 @@ namespace paulv2k4ModdingExecuter
                                                         dbObject6.SetValue("resRid", (long)resAssetEntry2.ResRid);
                                                         dbObject6.SetValue("resMeta", resAssetEntry2.ResMeta);
                                                         dbObject6.SetValue("resType", resAssetEntry2.ResType);
-                                                        dbObject.GetValue<DbObject>("res").Add(dbObject6);
+                                                        entireSuperBundle.GetValue<DbObject>("res").Add(dbObject6);
                                                         writer_new_cas_file.Write(parent.archiveData[resAssetEntry2.Sha1].Data);
                                                     }
-                                                    foreach (DbObject chunk in dbObject.GetValue<DbObject>("chunks"))
+                                                    foreach (DbObject chunk in entireSuperBundle.GetValue<DbObject>("chunks"))
                                                     {
                                                         int num16 = modBundleInfo.Modify.Chunks.FindIndex((Guid a) => a == chunk.GetValue<Guid>("id"));
                                                         if (num16 != -1)
@@ -1275,7 +1274,7 @@ namespace paulv2k4ModdingExecuter
                                                         dbObject7.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
                                                         dbObject7.SetValue("logicalOffset", chunkAssetEntry2.LogicalOffset);
                                                         dbObject7.SetValue("logicalSize", chunkAssetEntry2.LogicalSize);
-                                                        dbObject.GetValue<DbObject>("chunks").Add(dbObject7);
+                                                        entireSuperBundle.GetValue<DbObject>("chunks").Add(dbObject7);
                                                         DbObject dbObject8 = DbObject.CreateObject();
                                                         dbObject8.SetValue("h32", chunkAssetEntry2.H32);
                                                         DbObject dbObject9 = DbObject.CreateObject();
@@ -1283,103 +1282,100 @@ namespace paulv2k4ModdingExecuter
                                                         {
                                                             dbObject9.SetValue("firstMip", chunkAssetEntry2.FirstMip);
                                                         }
-                                                        dbObject.GetValue<DbObject>("chunkMeta").Add(dbObject8);
+                                                        entireSuperBundle.GetValue<DbObject>("chunkMeta").Add(dbObject8);
                                                         writer_new_cas_file.Write(parent.archiveData[chunkAssetEntry2.Sha1].Data);
                                                     }
                                                     BundleFileEntry bundleFileEntry = lstBundleFiles3[0];
                                                     lstBundleFiles3.Clear();
                                                     lstBundleFiles3.Add(bundleFileEntry);
-                                                    foreach (DbObject item9 in dbObject.GetValue<DbObject>("ebx"))
+                                                    foreach (DbObject item9 in entireSuperBundle.GetValue<DbObject>("ebx"))
                                                     {
                                                         lstBundleFiles3.Add(new BundleFileEntry(item9.GetValue("cas", 0), item9.GetValue("offset", 0), item9.GetValue("size", 0)));
                                                     }
-                                                    foreach (DbObject item10 in dbObject.GetValue<DbObject>("res"))
+                                                    foreach (DbObject item10 in entireSuperBundle.GetValue<DbObject>("res"))
                                                     {
                                                         lstBundleFiles3.Add(new BundleFileEntry(item10.GetValue("cas", 0), item10.GetValue("offset", 0), item10.GetValue("size", 0)));
                                                     }
-                                                    foreach (DbObject item11 in dbObject.GetValue<DbObject>("chunks"))
+                                                    foreach (DbObject item11 in entireSuperBundle.GetValue<DbObject>("chunks"))
                                                     {
                                                         lstBundleFiles3.Add(new BundleFileEntry(item11.GetValue("cas", 0), item11.GetValue("offset", 0), item11.GetValue("size", 0)));
                                                     }
-                                                    int ebxCount = dbObject.GetValue<DbObject>("ebx").Count;
-                                                    int resCount = dbObject.GetValue<DbObject>("res").Count;
-                                                    int chunkCount = dbObject.GetValue<DbObject>("chunks").Count;
-                                                    using (NativeWriter nw_CAS_SB_Writer = new NativeWriter(new MemoryStream()))
+                                                    int ebxCount = entireSuperBundle.GetValue<DbObject>("ebx").Count;
+                                                    int resCount = entireSuperBundle.GetValue<DbObject>("res").Count;
+                                                    int chunkCount = entireSuperBundle.GetValue<DbObject>("chunks").Count;
+                                                    using (NativeWriter nativeWriter3 = new NativeWriter(new MemoryStream()))
                                                     {
-                                                        nw_CAS_SB_Writer.Write(3735927486u, Endian.Big);
-                                                        nw_CAS_SB_Writer.Write(3018715229u, Endian.Little);
-                                                        nw_CAS_SB_Writer.Write(ebxCount + resCount + chunkCount, Endian.Little);
-                                                        nw_CAS_SB_Writer.Write(ebxCount, Endian.Little);
-                                                        nw_CAS_SB_Writer.Write(resCount, Endian.Little);
-                                                        nw_CAS_SB_Writer.Write(chunkCount, Endian.Little);
-                                                        nw_CAS_SB_Writer.Write(3735927486u, Endian.Big);
-                                                        nw_CAS_SB_Writer.Write(3735927486u, Endian.Big);
-                                                        nw_CAS_SB_Writer.Write(3735927486u, Endian.Big);
+                                                        nativeWriter3.Write(3735927486u, Endian.Big);
+                                                        nativeWriter3.Write(3018715229u, Endian.Little);
+                                                        nativeWriter3.Write(ebxCount + resCount + chunkCount, Endian.Little);
+                                                        nativeWriter3.Write(ebxCount, Endian.Little);
+                                                        nativeWriter3.Write(resCount, Endian.Little);
+                                                        nativeWriter3.Write(chunkCount, Endian.Little);
+                                                        nativeWriter3.Write(3735927486u, Endian.Little);
+                                                        nativeWriter3.Write(3735927486u, Endian.Little);
+                                                        nativeWriter3.Write(3735927486u, Endian.Little);
                                                         long num17 = 0L;
                                                         new Dictionary<uint, long>();
                                                         List<string> list4 = new List<string>();
-                                                        foreach (DbObject item12 in dbObject.GetValue<DbObject>("ebx"))
+                                                        foreach (DbObject item12 in entireSuperBundle.GetValue<DbObject>("ebx"))
                                                         {
                                                             Fnv1.HashString(item12.GetValue<string>("name"));
-                                                            nw_CAS_SB_Writer.Write((uint)num17, Endian.Little);
+                                                            nativeWriter3.Write((uint)num17, Endian.Little);
                                                             list4.Add(item12.GetValue<string>("name"));
                                                             num17 += item12.GetValue<string>("name").Length + 1;
-                                                            nw_CAS_SB_Writer.Write(item12.GetValue("originalSize", 0), Endian.Little);
+                                                            nativeWriter3.Write(item12.GetValue("originalSize", 0), Endian.Little);
                                                         }
-                                                        foreach (DbObject res_item in dbObject.GetValue<DbObject>("res"))
+                                                        foreach (DbObject item13 in entireSuperBundle.GetValue<DbObject>("res"))
                                                         {
-                                                            Fnv1.HashString(res_item.GetValue<string>("name"));
-                                                            nw_CAS_SB_Writer.Write((uint)num17, Endian.Little);
-                                                            list4.Add(res_item.GetValue<string>("name"));
-                                                            num17 += res_item.GetValue<string>("name").Length + 1;
-                                                            nw_CAS_SB_Writer.Write(res_item.GetValue("originalSize", 0), Endian.Little);
+                                                            Fnv1.HashString(item13.GetValue<string>("name"));
+                                                            nativeWriter3.Write((uint)num17, Endian.Little);
+                                                            list4.Add(item13.GetValue<string>("name"));
+                                                            num17 += item13.GetValue<string>("name").Length + 1;
+                                                            nativeWriter3.Write(item13.GetValue("originalSize", 0), Endian.Little);
                                                         }
-                                                        foreach (DbObject res_item_type in dbObject.GetValue<DbObject>("res"))
+                                                        foreach (DbObject item14 in entireSuperBundle.GetValue<DbObject>("res"))
                                                         {
-                                                            nw_CAS_SB_Writer.Write((uint)res_item_type.GetValue("resType", 0L), Endian.Little);
+                                                            nativeWriter3.Write((uint)item14.GetValue("resType", 0L), Endian.Little);
                                                         }
-                                                        foreach (DbObject res_item_meta in dbObject.GetValue<DbObject>("res"))
+                                                        foreach (DbObject item15 in entireSuperBundle.GetValue<DbObject>("res"))
                                                         {
-                                                            nw_CAS_SB_Writer.Write(res_item_meta.GetValue<byte[]>("resMeta"));
+                                                            nativeWriter3.Write(item15.GetValue<byte[]>("resMeta"));
                                                         }
-                                                        foreach (DbObject res_item_Rid in dbObject.GetValue<DbObject>("res"))
+                                                        foreach (DbObject item16 in entireSuperBundle.GetValue<DbObject>("res"))
                                                         {
-                                                            nw_CAS_SB_Writer.Write(res_item_Rid.GetValue("resRid", 0L), Endian.Little);
+                                                            nativeWriter3.Write(item16.GetValue("resRid", 0L), Endian.Little);
                                                         }
-                                                        foreach (DbObject res_item_chunks in dbObject.GetValue<DbObject>("chunks"))
+                                                        foreach (DbObject item17 in entireSuperBundle.GetValue<DbObject>("chunks"))
                                                         {
-                                                            nw_CAS_SB_Writer.Write(res_item_chunks.GetValue<Guid>("id"), Endian.Little);
-                                                            nw_CAS_SB_Writer.Write(res_item_chunks.GetValue("logicalOffset", 0), Endian.Little);
-                                                            nw_CAS_SB_Writer.Write(res_item_chunks.GetValue("logicalSize", 0), Endian.Little);
+                                                            nativeWriter3.Write(item17.GetValue<Guid>("id"), Endian.Little);
+                                                            nativeWriter3.Write(item17.GetValue("logicalOffset", 0), Endian.Little);
+                                                            nativeWriter3.Write(item17.GetValue("logicalSize", 0), Endian.Little);
                                                         }
-                                                        long position3 = nw_CAS_SB_Writer.BaseStream.Position;
+                                                        long position3 = nativeWriter3.BaseStream.Position;
                                                         foreach (string item18 in list4)
                                                         {
-                                                            nw_CAS_SB_Writer.WriteNullTerminatedString(item18);
+                                                            nativeWriter3.WriteNullTerminatedString(item18);
                                                         }
                                                         long num18 = 0L;
                                                         long num19 = 0L;
-                                                        if (dbObject.GetValue<DbObject>("chunks").Count > 0)
+                                                        if (entireSuperBundle.GetValue<DbObject>("chunks").Count > 0)
                                                         {
-                                                            DbObject dbObjChunkMeta = dbObject.GetValue<DbObject>("chunkMeta");
-                                                            if (dbObjChunkMeta != null)
+                                                            DbObject value4 = entireSuperBundle.GetValue<DbObject>("chunkMeta");
+                                                            num18 = nativeWriter3.BaseStream.Position;
+                                                            using (DbWriter dbWriter = new DbWriter(new MemoryStream()))
                                                             {
-                                                                num18 = nw_CAS_SB_Writer.BaseStream.Position;
-                                                                using (DbWriter dbWriter = new DbWriter(new MemoryStream()))
-                                                                {
-                                                                    nw_CAS_SB_Writer.Write(dbWriter.WriteDbObject("chunkMeta", dbObjChunkMeta));
-                                                                }
-                                                                num19 = nw_CAS_SB_Writer.BaseStream.Position - num18;
+                                                                nativeWriter3.Write(dbWriter.WriteDbObject("chunkMeta", value4));
                                                             }
+                                                            num19 = nativeWriter3.BaseStream.Position - num18;
                                                         }
-                                                        long num20 = nw_CAS_SB_Writer.BaseStream.Position - 4;
-                                                        nw_CAS_SB_Writer.BaseStream.Position = 24L;
-                                                        nw_CAS_SB_Writer.Write((uint)(position3 - 4), Endian.Little);
-                                                        nw_CAS_SB_Writer.Write((uint)(num18 - 4), Endian.Little);
-                                                        nw_CAS_SB_Writer.Write((uint)num19, Endian.Little);
-                                                        nw_CAS_SB_Writer.BaseStream.Position = 0L;
-                                                        nw_CAS_SB_Writer.Write((uint)num20, Endian.Little);
-                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + nw_CAS_SB_Writer.BaseStream.Length > 1073741824)
+                                                        long num20 = nativeWriter3.BaseStream.Position - 4;
+                                                        nativeWriter3.BaseStream.Position = 24L;
+                                                        nativeWriter3.Write((uint)(position3 - 4), Endian.Little);
+                                                        nativeWriter3.Write((uint)(num18 - 4), Endian.Little);
+                                                        nativeWriter3.Write((uint)num19, Endian.Little);
+                                                        nativeWriter3.BaseStream.Position = 0L;
+                                                        nativeWriter3.Write((uint)num20, Endian.Little);
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + nativeWriter3.BaseStream.Length > 1073741824)
                                                         {
                                                             writer_new_cas_file?.Close();
                                                             writer_new_cas_file = GetNextCas(out casFileIndex);
@@ -1387,32 +1383,10 @@ namespace paulv2k4ModdingExecuter
                                                         bundleFileEntry.CasIndex = casFileIndex;
                                                         bundleFileEntry.Offset = (int)writer_new_cas_file.BaseStream.Position;
                                                         bundleFileEntry.Size = (int)(num20 + 4);
-                                                        writer_new_cas_file.Write(((MemoryStream)nw_CAS_SB_Writer.BaseStream).ToArray());
+                                                        writer_new_cas_file.Write(((MemoryStream)nativeWriter3.BaseStream).ToArray());
                                                     }
                                                 }
-                                                if(location_toc_file.ToLower().Contains("splash"))
-                                                {
-
-                                                }
                                                 list2.Add((int)(writer_new_toc_file_mod_data.BaseStream.Position - position));
-                                                ////writer_new_toc_file_mod_data.Write((int)(writer_new_toc_file_mod_data.BaseStream.Position - position + lstBundleFiles3.Count * 3 * 4 + 5));
-                                                //for (int k = 0; k < lstBundleFiles3.Count; k++)
-                                                ////for (int k = 0; k < 1; k++)
-                                                //{
-                                                //    uint num21 = (uint)lstBundleFiles3[k].CasIndex;
-                                                //    if (k != lstBundleFiles3.Count - 1)
-                                                //    {
-                                                //        num21 = (uint)((int)num21 | int.MinValue);
-                                                //    }
-                                                //    writer_new_toc_file_mod_data.Write((int)num21);
-                                                //    writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Offset);
-                                                //    writer_new_toc_file_mod_data.Write(new byte[2]);
-
-                                                //    writer_new_toc_file_mod_data.Write((uint)lstBundleFiles3[k].CasIndex);
-
-
-                                                //    writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Size);
-                                                //}
                                                 writer_new_toc_file_mod_data.Write((int)(writer_new_toc_file_mod_data.BaseStream.Position - position + lstBundleFiles3.Count * 3 * 4 + 5));
                                                 for (int k = 0; k < lstBundleFiles3.Count; k++)
                                                 {
@@ -1425,9 +1399,9 @@ namespace paulv2k4ModdingExecuter
                                                     writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Offset);
                                                     writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Size);
                                                 }
-                                                writer_new_toc_file_mod_data.WriteNullTerminatedString(new string(reversed_string_location.Reverse().ToArray()));
+                                                writer_new_toc_file_mod_data.WriteNullTerminatedString(new string(text3.Reverse().ToArray()));
                                                 writer_new_toc_file_mod_data.Write(0);
-                                                int num22 = reversed_string_location.Length + 5;
+                                                int num22 = text3.Length + 5;
                                                 for (int l = 0; l < 16 - num22 % 16; l++)
                                                 {
                                                     writer_new_toc_file_mod_data.Write((byte)0);
@@ -1642,6 +1616,8 @@ namespace paulv2k4ModdingExecuter
                 {
                     Directory.CreateDirectory(fileInfo.DirectoryName);
                 }
+                parent.logger.Log($"Writing new CAS file - {text}");
+
                 return new NativeWriter(new FileStream(text, FileMode.Create));
             }
 
@@ -1684,6 +1660,7 @@ namespace paulv2k4ModdingExecuter
                 }
             }
         }
+
 
         private class ManifestBundleAction
         {

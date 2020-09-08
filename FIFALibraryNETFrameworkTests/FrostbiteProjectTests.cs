@@ -7,6 +7,7 @@ using FIFAModdingUI;
 using Frostbite.Textures;
 using FrostyEditor.Controls;
 using FrostySdk;
+using FrostySdk.FrostySdk.Ebx;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -100,6 +101,10 @@ namespace FIFALibraryNETFrameworkTests
             InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             ProjectManagement projectManagement = new ProjectManagement();
             projectManagement.StartNewProject();
+
+            var alllegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
+
+
             var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx(includeLinked: true).ToList();
             var character_interaction = allEBX.Where(x => x.DisplayName.ToLower().Contains("character_interaction")).ToList();
             foreach (var eb in character_interaction)
@@ -112,7 +117,39 @@ namespace FIFALibraryNETFrameworkTests
                         
                     }
                     var robjProps = GetRootObjectProperties(ebx.RootObject);
-                    File.WriteAllText($"Debugging/EBX/{eb.DisplayName}.dat", JsonConvert.SerializeObject(robjProps));
+                    var r = robjProps.Where(x => x.Item1.Contains("run_indication_"));
+                    foreach(var it in r)
+                    {
+                        var nIt3 = new {
+                            x = 0.0,
+                            y = 0.0,
+                            z = 1.0,
+                            w = 1.0
+                        };
+                    }
+
+                    var root = ebx.RootObject as dynamic;
+                    root.run_indication_indicator_color.x = 0.0f;
+                    root.run_indication_indicator_color.y = 0.0f;
+                    root.run_indication_indicator_color.z = 1.0f;
+
+                    root.run_indication_indicator_color_non_loco.x = 0.0f;
+                    root.run_indication_indicator_color_non_loco.y = 0.0f;
+                    root.run_indication_indicator_color_non_loco.z = 1.0f;
+
+                    root.run_indication_indicator_color_intersection.x = 0.0f;
+                    root.run_indication_indicator_color_intersection.y = 0.0f;
+                    root.run_indication_indicator_color_intersection.z = 1.0f;
+
+                    root.run_indication_debug_show_line = true;
+                    //getEbx_movement.Objects.Count(x=>x.)
+                    //getEbx_movement.AddRootObject(root);
+                    //getEbx_movement.RemoveObject(root);
+                    ebx.AddObject(root);
+                    //getEbx_movement.AddRootObject(root);
+                    projectManagement.FrostyProject.AssetManager.ModifyEbx(eb.Name, ebx);
+
+                    File.WriteAllText($"Debugging/EBX/{eb.Filename}.dat", JsonConvert.SerializeObject(robjProps));
                     Assert.IsNotNull(robjProps);
                 }
             }
@@ -130,11 +167,11 @@ namespace FIFALibraryNETFrameworkTests
                 if (res.Filename == "splashscreen")
                 {
                     var linked = res.LinkedAssets;
-                    new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
-                    if (errorMessage != string.Empty)
-                    {
+                   // new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
+                    //if (errorMessage != string.Empty)
+                    //{
 
-                    }
+                    //}
                 }
 
                 //if (res.Filename == "mainmenusplashscreen")
@@ -169,7 +206,7 @@ namespace FIFALibraryNETFrameworkTests
             }
             fileSystem.Initialize();
             var fme = new FrostyModExecutor();
-           // var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+            //var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
             var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
 
 
