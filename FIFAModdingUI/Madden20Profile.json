@@ -1,10 +1,10 @@
 {
-  "Name": "MADDEN21",
-  "DisplayName": "MADDEN 21",
-  "DataVersion": 20200831,
-  "CacheName": "madden21",
+  "Name": "Madden20",
+  "DisplayName": "Madden NFL 20™",
+  "DataVersion": 20190729,
+  "CacheName": "madden20",
   "Deobfuscator": "NullDeobfuscator",
-  "AssetLoader": "Madden21AssetLoader",
+  "AssetLoader": "FifaAssetLoader",
   "Sources": [
     {
       "Path": "Patch",
@@ -19,16 +19,16 @@
       "SubDirs": false
     }
   ],
-  "SDKFilename": "MADDEN21SDK",
+  "SDKFilename": "MADDEN20SDK",
   "Banner": "",
   "EbxVersion": 4,
-  "RequiresKey": true,
+  "RequiresKey": false,
   "MustAddChunks": false,
   "EnableExecution": true,
-  "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
-  "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
+  "DefaultDiffuse": "Longshot/Common/Debug_Grey",
+  "DefaultNormals": "content/common/textures/debug/debug_texture_norm",
   "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
-  "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
+  "DefaultTint": "Longshot/Common/Debug_Grey",
   "SharedBundles": {},
   "IgnoredResTypes": []
 }

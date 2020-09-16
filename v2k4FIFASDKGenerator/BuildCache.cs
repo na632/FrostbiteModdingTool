@@ -15,12 +15,21 @@ namespace v2k4FIFASDKGenerator
 {
     public class BuildCache : ILogger
     {
-		public bool LoadData(string FIFAVersion, string FIFALocation, ILogger logger = null, bool forceDeleteOfOld = false)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="FIFAVersion"></param>
+		/// <param name="FIFALocation"></param>
+		/// <param name="logger">ILogger</param>
+		/// <param name="forceDeleteOfOld">Force the deletion of old Cache to rebuild it again</param>
+		/// <param name="loadSDK">If you have already built the SDK, then just use the one you have</param>
+		/// <returns></returns>
+		public bool LoadData(string FIFAVersion, string FIFALocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
-			return LoadDataAsync(FIFAVersion, FIFALocation, logger).Result;
+			return LoadDataAsync(FIFAVersion, FIFALocation, logger, forceDeleteOfOld, loadSDK).Result;
 		}
 
-		public async Task<bool> LoadDataAsync(string FIFAVersion, string FIFALocation, ILogger logger = null, bool forceDeleteOfOld = false)
+		public async Task<bool> LoadDataAsync(string FIFAVersion, string FIFALocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
 			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({FIFAVersion},{FIFALocation})");
 			if (ProfilesLibrary.Initialize(FIFAVersion))
@@ -56,7 +65,7 @@ namespace v2k4FIFASDKGenerator
 
 						Debug.WriteLine($"[DEBUG] LoadDataAsync::Initialising Type Library");
 
-						if (TypeLibrary.Initialize(false))
+						if (TypeLibrary.Initialize(loadSDK))
 							{
 								if(logger == null)
 									logger = new NullLogger();

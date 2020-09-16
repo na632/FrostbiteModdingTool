@@ -21,10 +21,10 @@ namespace FIFALibraryNETFrameworkTests
             if (!string.IsNullOrEmpty(filePath))
             {
                 var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                FIFAInstanceSingleton.FIFARootPath = FIFADirectory;
+                GameInstanceSingleton.GAMERootPath = FIFADirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
-                if (!ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+                GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
+                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
                 {
                     throw new Exception("Unable to Initialize Profile");
                 }
@@ -41,11 +41,11 @@ namespace FIFALibraryNETFrameworkTests
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
 
             var r = LaunchFIFA.LaunchAsync(
-               FIFAInstanceSingleton.FIFARootPath
+               GameInstanceSingleton.GAMERootPath
                , ""
                , new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }
                , this
-               , FIFAInstanceSingleton.FIFAVERSION
+               , GameInstanceSingleton.GAMEVERSION
                , true).Result;
         }
 
@@ -111,11 +111,11 @@ namespace FIFALibraryNETFrameworkTests
             projectManagement.FrostyProject.WriteToMod("TestMod.fbmod", new ModSettings() { Title = "v2k4 Test Mod", Author = "paulv2k4", Version = "1.00" });
 
             var r = LaunchFIFA.LaunchAsync(
-                FIFAInstanceSingleton.FIFARootPath
+                GameInstanceSingleton.GAMERootPath
                 , ""
                 , new System.Collections.Generic.List<string>() { @"G:\Work\FIFA Modding\FIFAModdingUI\FIFALibraryNETFrameworkTests\bin\Debug\TestMod.fbmod" }
                 , this
-                , FIFAInstanceSingleton.FIFAVERSION
+                , GameInstanceSingleton.GAMEVERSION
                 , true).Result;
 
         }

@@ -231,7 +231,7 @@ namespace FIFAModdingUI
 
         private void InitializeIniSettings()
         {
-            if (FIFAInstanceSingleton.INITIALIZED)
+            if (GameInstanceSingleton.INITIALIZED)
             {
                 InitializeLanguageSystem();
                 InitializeAIObjectiveSystem();
@@ -241,7 +241,7 @@ namespace FIFAModdingUI
                 InitializeOtherSettings();
                 InitializeCustomSettings();
                 if (!File.Exists(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
-                    File.Copy(FIFAInstanceSingleton.FIFALocaleINIPath, CURRENT_MOD_PROFILE_LOCALEINI_PATH);
+                    File.Copy(GameInstanceSingleton.FIFALocaleINIPath, CURRENT_MOD_PROFILE_LOCALEINI_PATH);
             }
         }
 
@@ -259,7 +259,7 @@ namespace FIFAModdingUI
             if(!string.IsNullOrEmpty(FIFALocaleIni))
             {
 
-                if (FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
+                if (GameInstanceSingleton.GAMEVERSION.Contains("demo"))
                     chkSkipBootFlow.IsEnabled = false;
 
                 var localeini = new IniReader(FIFALocaleIni);
@@ -372,7 +372,7 @@ namespace FIFAModdingUI
 
         private void InitializeAttributeWeightSystem()
         {
-            if(FIFAInstanceSingleton.FIFAVERSION == "FIFA20")
+            if(GameInstanceSingleton.GAMEVERSION == "FIFA20")
             {
                 scrollV_GP_AttributeWeightSystem.Visibility = Visibility.Hidden;
                 return;
@@ -412,7 +412,7 @@ namespace FIFAModdingUI
 
                         var c = new Slider();
                         c.Name = k.Trim();
-                        if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
+                        if (GameInstanceSingleton.GAMEVERSION.Contains("20"))
                         {
                             c.Minimum = 0;
                             c.Maximum = 1;
@@ -514,7 +514,7 @@ namespace FIFAModdingUI
             // Initialise 
 
             //var aiobjsystem = new IniReader("ini/ContextEffect.ini");
-            var aiobjsystem = new IniReader("ContextEffect_" + FIFAInstanceSingleton.FIFAVERSION.Replace("_demo","") + ".ini", true);
+            var aiobjsystem = new IniReader("ContextEffect_" + GameInstanceSingleton.GAMEVERSION.Replace("_demo","") + ".ini", true);
             var commentBuildUp = new StringBuilder();
 
             var g = new Grid();
@@ -548,7 +548,7 @@ namespace FIFAModdingUI
                     var c = new Slider();
                     c.Name = k.Trim();
 
-                    if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
+                    if (GameInstanceSingleton.GAMEVERSION.Contains("20"))
                     {
                         c.Minimum = 0;
                         c.Maximum = 1;
@@ -806,7 +806,7 @@ namespace FIFAModdingUI
 
             //var aiobjsystem = new IniReader("ini/AIObjectiveSystem.ini");
             //var aiobjsystem = new IniReader("AIObjectiveSystem.ini", true);
-            var aiobjsystem = new IniReader("AIObjectiveSystem_" + FIFAInstanceSingleton.FIFAVERSION_NODEMO + ".ini", true);
+            var aiobjsystem = new IniReader("AIObjectiveSystem_" + GameInstanceSingleton.FIFAVERSION_NODEMO + ".ini", true);
             foreach (var k in aiobjsystem.GetKeys("").OrderBy(x=>x))
             {
                 if (!k.StartsWith("//"))
@@ -869,11 +869,11 @@ namespace FIFAModdingUI
                 AppSettings.Settings.Save();
 
                 FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                FIFAInstanceSingleton.FIFARootPath = FIFADirectory;
+                GameInstanceSingleton.GAMERootPath = FIFADirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
                 if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
                 {
-                    FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
+                    GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
 
                     txtFIFADirectory.Text = FIFADirectory;
                     MainViewer.IsEnabled = true;
@@ -896,7 +896,7 @@ namespace FIFAModdingUI
         private void InitializeCareerSaves()
         {
             var myDocs = SpecialDirectories.MyDocuments + "\\"
-                                            + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
+                                            + GameInstanceSingleton.GAMEVERSION.Substring(0, 4) + " " + GameInstanceSingleton.GAMEVERSION.Substring(4, 2)
                                             + "\\settings\\";
             Dictionary<string, string> results = CareerUtil.GetCareerSaves(myDocs);
 
@@ -1096,7 +1096,7 @@ namespace FIFAModdingUI
 
         public string GetResultingLocaleINIString()
         {
-            if (!FIFAInstanceSingleton.INITIALIZED)
+            if (!GameInstanceSingleton.INITIALIZED)
                 return "";
 
             StringBuilder sb = new StringBuilder();
@@ -1108,7 +1108,7 @@ namespace FIFAModdingUI
 
 
             sb.AppendLine("// Languages");
-            var file = new IniReader("_" + FIFAInstanceSingleton.FIFAVERSION_NODEMO + "_base.ini", true);
+            var file = new IniReader("_" + GameInstanceSingleton.FIFAVERSION_NODEMO + "_base.ini", true);
             foreach (var s in file.GetSections())
             {
                 sb.AppendLine("[" + s + "]");
@@ -1240,7 +1240,7 @@ namespace FIFAModdingUI
             sb.AppendLine("");
 
             // Not Available in FIFA 20+
-            if (FIFAInstanceSingleton.FIFAVERSION == "FIFA19")
+            if (GameInstanceSingleton.GAMEVERSION == "FIFA19")
             {
                 sb.AppendLine("");
                 sb.AppendLine("// ATTRIBUTES");
@@ -1335,14 +1335,14 @@ namespace FIFAModdingUI
             }
 
 
-            if (chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value && !FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
+            if (chkSkipBootFlow.IsChecked.HasValue && chkSkipBootFlow.IsChecked.Value && !GameInstanceSingleton.GAMEVERSION.Contains("demo"))
             {
                 sb.AppendLine("");
                 sb.AppendLine("[]");
                 sb.AppendLine("SKIP_BOOTFLOW=1");
             }
 
-            if (FIFAInstanceSingleton.FIFAVERSION.Contains("20"))
+            if (GameInstanceSingleton.GAMEVERSION.Contains("20"))
             {
                 //sb.AppendLine("");
                 //sb.AppendLine("[]");
@@ -1426,7 +1426,7 @@ namespace FIFAModdingUI
                 sb.AppendLine("KILL_EVERYONE=" + (KILL_EVERYONE.IsChecked.Value ? "1" : "0"));
             }
 
-            if (FIFAInstanceSingleton.FIFAVERSION.Contains("demo"))
+            if (GameInstanceSingleton.GAMEVERSION.Contains("demo"))
             {
                 sb.AppendLine("");
                 sb.AppendLine("[]");
@@ -1580,7 +1580,7 @@ namespace FIFAModdingUI
                 });
                 var editormodlocation = AppDomain.CurrentDomain.BaseDirectory + editorModName;
 
-                await LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new List<string>() { editormodlocation }, this, FIFAInstanceSingleton.FIFAVERSION);
+                await LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new List<string>() { editormodlocation }, this, GameInstanceSingleton.GAMEVERSION);
                 await Task.Delay(10 * 1000);
                 Dispatcher.Invoke(() =>
                 {
@@ -1629,11 +1629,11 @@ namespace FIFAModdingUI
                 });
                 var editormodlocation = AppDomain.CurrentDomain.BaseDirectory + editorModName;
 
-                if (!ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
                 {
                     throw new Exception("Unable to Initialize Profile");
                 }
-                FrostySdk.FileSystem fileSystem = new FrostySdk.FileSystem(FIFAInstanceSingleton.FIFARootPath);
+                FrostySdk.FileSystem fileSystem = new FrostySdk.FileSystem(GameInstanceSingleton.GAMERootPath);
                 foreach (FileSystemSource source in ProfilesLibrary.Sources)
                 {
                     fileSystem.AddSource(source.Path, source.SubDirs);

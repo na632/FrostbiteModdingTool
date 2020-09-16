@@ -9,21 +9,31 @@ using System.Threading.Tasks;
 
 namespace v2k4FIFAModdingCL
 {
-    public static class FIFAInstanceSingleton
+    public static class GameInstanceSingleton
     {
         public static bool INITIALIZED = false;
 
         private static string fifaVersion;
-        public static string FIFAVERSION { set { fifaVersion = value; INITIALIZED = !string.IsNullOrEmpty(value); } get { return fifaVersion; } }
-        public static string FIFAVERSION_NODEMO { get { return !string.IsNullOrEmpty(FIFAVERSION) ? FIFAVERSION.Replace("_demo", "") : null; } }
+        public static string GAMEVERSION { set { fifaVersion = value; INITIALIZED = !string.IsNullOrEmpty(value); } get { return fifaVersion; } }
+        public static string FIFAVERSION_NODEMO { get { return !string.IsNullOrEmpty(GAMEVERSION) ? GAMEVERSION.Replace("_demo", "") : null; } }
 
-        public static string FIFARootPath = "";
+        public static string GAMERootPath = "";
 
-        public static string FIFADataPath { get { return FIFARootPath + "\\Data\\"; } }
+        public static string FIFADataPath { get { return GAMERootPath + "\\Data\\"; } }
 
-        public static string FIFALocaleINIPath { get { return FIFARootPath + "\\Data\\locale.ini"; } }
-        public static string FIFAPatchPath { get { return FIFARootPath + "\\Patch\\"; } }
+        public static string FIFALocaleINIPath { get { return GAMERootPath + "\\Data\\locale.ini"; } }
+        public static string FIFAPatchPath { get { return GAMERootPath + "\\Patch\\"; } }
         public static string FIFA_INITFS_Win32 { get { return FIFAPatchPath + "\\initfs_Win32"; } }
+
+        public static List<string> CompatibleGameVersions = new List<string>()
+        {
+            "FIFA19.exe",
+            "FIFA20_demo.exe",
+            "FIFA20.exe",
+            "FIFA21_demo.exe",
+            "MADDEN20.exe",
+            "MADDEN21.exe",
+        };
 
         public static int? GetProcIDFromName(string name) //new 1.0.2 function
         {
@@ -47,11 +57,11 @@ namespace v2k4FIFAModdingCL
             dllpath = dllpath.Replace(@"\\", @"\");
             if (File.Exists(dllpath))
             {
-                int? proc = GetProcIDFromName(FIFAVERSION);
+                int? proc = GetProcIDFromName(GAMEVERSION);
                 while (!proc.HasValue || proc == 0)
                 {
-                    Debug.WriteLine($"Waiting for {FIFAVERSION} to appear");
-                    proc = GetProcIDFromName(FIFAVERSION);
+                    Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
+                    proc = GetProcIDFromName(GAMEVERSION);
                     Thread.Sleep(4000);
                 }
                 if (proc.HasValue)

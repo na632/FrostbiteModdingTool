@@ -19,7 +19,7 @@ namespace v2k4FIFAModding.Frosty
         public ProjectManagement()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData(FIFAInstanceSingleton.FIFAVERSION, FIFAInstanceSingleton.FIFARootPath);
+            buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, loadSDK: true);
             //if(!File.Exists(FIFAInstanceSingleton.V))
             //var buildSDK = new BuildSDK();
             //var b = buildSDK.Build().Result;
@@ -83,14 +83,13 @@ namespace v2k4FIFAModding.Frosty
 
         public FrostyProject StartNewProject()
         {
-            if (ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+            if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
             {
                 if (KeyManager.Instance.ReadInKeys())
                 {
                     if (TypeLibrary.Initialize())
                     {
-                        AssetManagerImportResult result = new AssetManagerImportResult();
-                        var FileSystem = new FrostySdk.FileSystem(FIFAInstanceSingleton.FIFARootPath);
+                        var FileSystem = new FrostySdk.FileSystem(GameInstanceSingleton.GAMERootPath);
                         foreach (FileSystemSource source in ProfilesLibrary.Sources)
                         {
                             FileSystem.AddSource(source.Path, source.SubDirs);
@@ -104,7 +103,7 @@ namespace v2k4FIFAModding.Frosty
                         //AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
                         AssetManager.RegisterLegacyAssetManager();
                         AssetManager.SetLogger(Logger ?? this);
-                        AssetManager.Initialize(additionalStartup: true, result);
+                        AssetManager.Initialize(additionalStartup: true);
 
                         FrostyProject = new FrostyProject(AssetManager, FileSystem);
                         return FrostyProject;

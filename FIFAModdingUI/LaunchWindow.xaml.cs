@@ -56,13 +56,7 @@ namespace FIFAModdingUI
         public bool EditorModIncluded { get; internal set; }
         public string FIFADirectory { get; private set; }
 
-        List<string> CompatibleFIFAVersions = new List<string>()
-        {
-            "FIFA19.exe",
-            "FIFA20_demo.exe",
-            "FIFA20.exe",
-            "FIFA21_demo.exe"
-        };
+        
 
         private void up_click(object sender, RoutedEventArgs e)
         {
@@ -138,7 +132,7 @@ namespace FIFAModdingUI
 
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
-            if (FIFAInstanceSingleton.FIFAVERSION != null)
+            if (GameInstanceSingleton.GAMEVERSION != null)
             {
                 // Copy the Locale.ini if checked
                 if (chkInstallLocale.IsChecked.Value)
@@ -152,7 +146,7 @@ namespace FIFAModdingUI
                             {
                                 if (ent.Name.Contains("locale.ini"))
                                 {
-                                    ent.ExtractToFile(FIFAInstanceSingleton.FIFALocaleINIPath);
+                                    ent.ExtractToFile(GameInstanceSingleton.FIFALocaleINIPath);
                                 }
                             }
                         }
@@ -173,7 +167,7 @@ namespace FIFAModdingUI
                     await Task.Delay(1000);
                     //Dispatcher.Invoke(() =>
                     //{
-                        await LaunchFIFA.LaunchAsync(FIFAInstanceSingleton.FIFARootPath, "", new Mods.ModList().ModListItems, this, FIFAInstanceSingleton.FIFAVERSION, true);
+                        await LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems, this, GameInstanceSingleton.GAMEVERSION, true);
 
                     if (useLegacyMods)
                     {
@@ -184,14 +178,14 @@ namespace FIFAModdingUI
                         var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
                         Debug.WriteLine(legmodsupportdllpath);
                         Debug.WriteLine(actualsupportdllpath);
-                        FIFAInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                        GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
                         //FIFAInstanceSingleton.InjectDLLAsync(@"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll");
                     }
 
                     if (useLiveEditor)
                     {
                         if(File.Exists(@FIFADirectory + @"FIFALiveEditor.DLL"))
-                            FIFAInstanceSingleton.InjectDLLAsync(@FIFADirectory + @"FIFALiveEditor.DLL");
+                            GameInstanceSingleton.InjectDLLAsync(@FIFADirectory + @"FIFALiveEditor.DLL");
                     }
                        
                     //});
@@ -257,6 +251,7 @@ namespace FIFAModdingUI
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
             InitializeOfSelectedFIFA(filePath);
+
         }
 
         private void InitializeOfSelectedFIFA(string filePath)
@@ -267,12 +262,12 @@ namespace FIFAModdingUI
                 AppSettings.Settings.Save();
 
                 FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                FIFAInstanceSingleton.FIFARootPath = FIFADirectory;
+                GameInstanceSingleton.GAMERootPath = FIFADirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
+                if (!string.IsNullOrEmpty(fileName) && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
                 {
-                    FIFAInstanceSingleton.FIFAVERSION = fileName.Replace(".exe", "");
-                    if (!ProfilesLibrary.Initialize(FIFAInstanceSingleton.FIFAVERSION))
+                    GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
+                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
                     {
                         throw new Exception("Unable to Initialize Profile");
                     }

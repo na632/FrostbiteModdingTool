@@ -62,6 +62,7 @@ namespace FIFAModdingUI.Mods
             if (System.IO.File.Exists(ModListLocation))
             {
                 ModListItems = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(System.IO.File.ReadAllText(ModListLocation));
+                var oldCount = ModListItems.Count;
                 foreach (var i in ModListItems)
                 {
                     if (!File.Exists(i))
@@ -69,6 +70,10 @@ namespace FIFAModdingUI.Mods
                         ModListItemErrors.Add($"Mod file {i} no longer exists");
                     }
                 }
+
+                ModListItems = ModListItems.Where(x => File.Exists(x)).ToList();
+                if (oldCount != ModListItems.Count)
+                    Save();
             }
         }
 

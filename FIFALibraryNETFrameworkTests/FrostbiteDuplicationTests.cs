@@ -32,8 +32,8 @@ namespace FIFAModdingTests
         public void TestDuplicationOfHead()
         {
             ProjectManagement projectManagement = new ProjectManagement();
-            FIFAInstanceSingleton.FIFARootPath = @"E:\Origin Games\FIFA 20";
-            FIFAInstanceSingleton.FIFAVERSION = "FIFA20";
+            GameInstanceSingleton.GAMERootPath = @"E:\Origin Games\FIFA 20";
+            GameInstanceSingleton.GAMEVERSION = "FIFA20";
             var FrostyProject = projectManagement.StartNewProject();
             var ebxItems = FrostyProject.AssetManager.EnumerateEbx();
 			//FrostyProject.FileSystem.AddManifestChunk(new ManifestChunkInfo() {  })

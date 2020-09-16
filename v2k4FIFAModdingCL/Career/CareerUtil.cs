@@ -13,7 +13,7 @@ namespace v2k4FIFAModding.Career
         public static Dictionary<string,string> GetCareerSaves()
         {
             var myDocs = SpecialDirectories.MyDocuments + "\\"
-                                            + FIFAInstanceSingleton.FIFAVERSION.Substring(0, 4) + " " + FIFAInstanceSingleton.FIFAVERSION.Substring(4, 2)
+                                            + GameInstanceSingleton.GAMEVERSION.Substring(0, 4) + " " + GameInstanceSingleton.GAMEVERSION.Substring(4, 2)
                                             + "\\settings\\";
             return GetCareerSaves(myDocs);
         }

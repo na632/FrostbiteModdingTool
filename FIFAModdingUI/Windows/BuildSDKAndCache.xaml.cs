@@ -67,7 +67,7 @@ namespace FIFAModdingUI.Windows
             try
             {
                 var buildCache = new BuildCache();
-                await buildCache.LoadDataAsync(FIFAInstanceSingleton.FIFAVERSION, FIFAInstanceSingleton.FIFARootPath, this, true);
+                await buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, true);
             }
             catch(Exception ex)
             {

@@ -158,6 +158,9 @@
     <None Update="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Madden20Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Madden21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
