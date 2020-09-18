@@ -14,9 +14,11 @@ using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions;
 using paulv2k4ModdingExecuter;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
+using static paulv2k4ModdingExecuter.FrostyModExecutor;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -67,8 +69,8 @@ namespace FIFALibraryNETFrameworkTests
             }
             fileSystem.Initialize();
             var fme = new FrostyModExecutor();
-            //var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
-            var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+            var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+            //var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
         }
 
         public List<Tuple<string, string, object>> GetRootObjectProperties(object RootObject)
@@ -184,7 +186,7 @@ namespace FIFALibraryNETFrameworkTests
                 if (res.Filename == "splashscreen")
                 {
                     var linked = res.LinkedAssets;
-                    //new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
+                    new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
                     //new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.png", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
                     //if (errorMessage != string.Empty)
                     //{
@@ -220,6 +222,78 @@ namespace FIFALibraryNETFrameworkTests
             //var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { }.ToArray()).Result;
 
 
+        }
+
+        [TestMethod]
+        public void LoadProjectAndTest_Madden21()
+        {
+            InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
+            ProjectManagement projectManagement = new ProjectManagement();
+            projectManagement.StartNewProject();
+
+            var alllegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
+            var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx(includeLinked: true).ToList();
+            var allRes = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
+            var ebxofres = allEBX.Where(x => x.DisplayName.ToLower().Contains("splashscreen")).ToList();
+            foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x => x.Name.ToLower().Contains("splashscreen")).ToList())
+            {
+                File.WriteAllText($"Debugging/RES/{res.DisplayName}", JsonConvert.SerializeObject(res));
+                var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
+                Texture textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
+                new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.DDS", "*.dds");
+                if (res.Filename == "splashscreen")
+                {
+                    var linked = res.LinkedAssets;
+                    new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
+                }
+            }
+            projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
+
+            if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+            {
+                throw new Exception("Unable to Initialize Profile");
+            }
+            FileSystem fileSystem = new FileSystem(GameInstanceSingleton.GAMERootPath);
+            foreach (FileSystemSource source in ProfilesLibrary.Sources)
+            {
+                fileSystem.AddSource(source.Path, source.SubDirs);
+            }
+            fileSystem.Initialize();
+            var fme = new FrostyModExecutor();
+            var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+
+            foreach (CatalogInfo catalogItem in fileSystem.EnumerateCatalogInfos())
+            {
+                Madden21BundleAction maddenBundleAction = new Madden21BundleAction(catalogItem, null, fme);
+                foreach (string sb_toc_file in catalogItem.SuperBundles.Keys)
+                {
+                    string sb_toc_file_path_cleaned = sb_toc_file;
+                    if (catalogItem.SuperBundles[sb_toc_file])
+                    {
+                        sb_toc_file_path_cleaned = sb_toc_file.Replace("win32", catalogItem.Name);
+                    }
+                    string location_toc_file = fme.fs.ResolvePath($"{sb_toc_file_path_cleaned}.toc").ToLower();
+                    location_toc_file = location_toc_file.Replace("\\patch", "\\ModData\\Patch");
+
+                    if (location_toc_file != "" && File.Exists(location_toc_file))
+                    {
+                        // -----------------------------------------------------------------------------------------
+                        // Read Original Toc File
+                        var toc_array = maddenBundleAction.ReadTocIntoByteArray(location_toc_file, out int toc_starting_position, out int other_starting_position, out byte[] tocSbHeader);
+                        if (toc_array.Length != 0)
+                        {
+                            maddenBundleAction.GetModifiedBundles(toc_array
+                                , out List<Madden21BundleAction.BundleFileEntry> list_bundle_entries
+                                , out Dictionary<ModBundleInfo, List<Madden21BundleAction.BundleFileEntry>> list_modified_bundles
+                                , out List<int> IsEBXList);
+
+                            Assert.IsTrue(list_bundle_entries.Count > 0);
+
+
+                        }
+                    }
+                }
+            }
         }
 
 

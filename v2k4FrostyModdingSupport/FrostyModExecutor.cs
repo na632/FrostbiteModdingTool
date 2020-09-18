@@ -17,20 +17,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using Frosty.ModSupport;
 using System.IO.Compression;
+using FrostySdk.FrostySdk.Deobfuscators;
+using paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions;
 
 namespace paulv2k4ModdingExecuter
 {
     public class FrostyModExecutor
     {
-        private class ArchiveInfo
+        public class ArchiveInfo
         {
             public byte[] Data;
 
             public int RefCount;
         }
 
-        private class ModBundleInfo
+        public class ModBundleInfo
         {
+
+
             public class ModBundleAction
             {
                 public List<string> Ebx = new List<string>();
@@ -73,14 +77,14 @@ namespace paulv2k4ModdingExecuter
             public ModBundleAction Modify = new ModBundleAction();
         }
 
-        private class CasFileEntry
+        public class CasFileEntry
         {
             public ManifestFileInfo FileInfo;
 
             public ChunkAssetEntry Entry;
         }
 
-        private class CasDataEntry
+        public class CasDataEntry
         {
             private string catalog;
 
@@ -144,7 +148,7 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
-        private class CasDataInfo
+        public class CasDataInfo
         {
             private Dictionary<string, CasDataEntry> entries = new Dictionary<string, CasDataEntry>();
 
@@ -166,12 +170,12 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
-        private class FrostySymLinkException : Exception
+        public class FrostySymLinkException : Exception
         {
             public override string Message => "One ore more symbolic links could not be created, please restart tool as Administrator.";
         }
 
-        private class HandlerExtraData : AssetExtraData
+        public class HandlerExtraData : AssetExtraData
         {
             public Frosty.ModSupport.Handlers.ICustomActionHandler Handler
             //public FrostySdk.ICustomActionHandler Handler
@@ -187,7 +191,7 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
-        private struct SymLinkStruct
+        public struct SymLinkStruct
         {
             public string dest;
 
@@ -203,7 +207,7 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
-        private class FifaBundleAction
+        public class FifaBundleAction
         {
             private class BundleFileEntry
             {
@@ -930,9 +934,8 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
-
-
-        private class Madden21BundleAction_2
+        /*
+        private class Madden21BundleAction
         {
             private class BundleFileEntry
             {
@@ -972,184 +975,11 @@ namespace paulv2k4ModdingExecuter
 
             public Exception Exception => errorException;
 
-            public Madden21BundleAction_2(CatalogInfo inCatalogInfo, ManualResetEvent inDoneEvent, FrostyModExecutor inParent)
+            public Madden21BundleAction(CatalogInfo inCatalogInfo, ManualResetEvent inDoneEvent, FrostyModExecutor inParent)
             {
                 catalogInfo = inCatalogInfo;
                 parent = inParent;
                 doneEvent = inDoneEvent;
-            }
-
-            private byte[] ReadTocIntoByteArray(string location_toc_file
-                , out int toc_reader_starting_position
-                , out int sbToc_reader_other_starting_position
-                , out byte[] garbage_section_array)
-            {
-                byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
-                byte[] toc_array = null;
-                uint initialHash = 0;
-                using (NativeReader nativeReader = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read)))
-                {
-                    garbage_section_array = nativeReader.ReadBytes(556);
-                    // At position 22C / 556
-                    nativeReader.Position = 556;
-                    toc_array = nativeReader.ReadToEnd();
-                    nativeReader.Position = 556;
-                    initialHash = nativeReader.ReadUInt();
-                    toc_reader_starting_position = nativeReader.ReadInt();
-                    sbToc_reader_other_starting_position = nativeReader.ReadInt();
-                }
-
-                using (NativeWriter nativeWriter = new NativeWriter(new FileStream("test_sb_toc.dat", FileMode.OpenOrCreate)))
-                {
-                    //nativeWriter.Write(garbage_section_array);
-                    //nativeWriter.Write(initialHash);
-                    //nativeWriter.Write(toc_reader_starting_position + 12);
-                    //nativeWriter.Write(sbToc_reader_other_starting_position + 12);
-                    nativeWriter.Write(toc_array);
-                }
-
-                return toc_array;
-            }
-
-            private void WriteNewTocFile(
-                string location_toc_file_mod_data
-                , byte[] tocSbHeaderBytes
-                , byte[] original_toc_file_byte_array
-                )
-            {
-                using (NativeWriter writer_new_toc_file_mod_data = new NativeWriter(new FileStream(location_toc_file_mod_data, FileMode.Create)))
-                {
-                    // write header
-                    writer_new_toc_file_mod_data.Write(tocSbHeaderBytes);
-                    long startOfActualSbFile = writer_new_toc_file_mod_data.BaseStream.Position;
-                    writer_new_toc_file_mod_data.Write(3280507699u);
-
-                    // write something for now (TODO: Find what this is)
-                    writer_new_toc_file_mod_data.Write(0xFFFFFFFF);
-                    writer_new_toc_file_mod_data.Write(0xFFFFFFFF);
-
-                    using (NativeReader reader_of_original_toc_file_array = new NativeReader(new MemoryStream(original_toc_file_byte_array)))
-                    {
-                        const int repositioning_value = 4;
-                        const int header_length = 556;
-                        // Position 4 is where the position for the ebx item count is
-                        reader_of_original_toc_file_array.Position = repositioning_value;
-                        // read the item count and reposition
-                        reader_of_original_toc_file_array.Position = reader_of_original_toc_file_array.ReadInt();
-
-                        // read out the count and add the items to the list
-                        int original_toc_file_item_count = reader_of_original_toc_file_array.ReadInt();
-                        List<int> IsEBXList = new List<int>();
-                        for (int i = 0; i < original_toc_file_item_count; i++)
-                        {
-                            IsEBXList.Add(reader_of_original_toc_file_array.ReadInt());
-                            if (location_toc_file_mod_data.Contains("attrib"))
-                            {
-
-                            }
-                        }
-
-                        //
-                        List<int> list2 = new List<int>();
-                        for (int j = 0; j < original_toc_file_item_count; j++)
-                        {
-                            // -------------------------------------------------
-                            // Find the Bundle Entries
-
-                            int num7 = reader_of_original_toc_file_array.ReadInt();
-                            long position2 = reader_of_original_toc_file_array.Position;
-                            reader_of_original_toc_file_array.Position = num7;
-                            int name_position = reader_of_original_toc_file_array.ReadInt() - 1;
-                            List<BundleFileEntry> lstBundleFiles3 = new List<BundleFileEntry>();
-                            int casIndex;
-                            do
-                            {
-                                casIndex = reader_of_original_toc_file_array.ReadInt();
-                                int inOffset = reader_of_original_toc_file_array.ReadInt();
-                                int inSize = reader_of_original_toc_file_array.ReadInt();
-                                lstBundleFiles3.Add(new BundleFileEntry(casIndex & int.MaxValue, inOffset, inSize));
-                            }
-                            while ((casIndex & 2147483648u) != 0L);
-
-                            //
-                            // --------------------------------------------------
-
-
-                            // --------------------------------------------------
-                            // Get out the objects that have been changed
-                            int num10 = 0;
-                            string text3 = Utils.ReverseString(reader_of_original_toc_file_array.ReadNullTerminatedString());
-                            //do
-                            //{
-                            //    string str = reader_of_original_toc_file_array.ReadNullTerminatedString();
-                            //    num10 = reader_of_original_toc_file_array.ReadInt() - 1;
-                            //    text3 = Utils.ReverseString(str) + text3;
-                            //    if (num10 != -1)
-                            //    {
-                            //        reader_of_original_toc_file_array.Position = num10;
-                            //    }
-                            //}
-                            //while (num10 != -1);
-                            reader_of_original_toc_file_array.Position = position2;
-
-                            // --------------------------------------------------
-                            // discover the object in the modified bundles
-                            int key2 = Fnv1.HashString(text3.ToLower());
-                            if (parent.modifiedBundles.ContainsKey(key2))
-                            {
-                                ModBundleInfo modBundleInfo = parent.modifiedBundles[key2];
-
-                            }
-
-                            list2.Add((int)(writer_new_toc_file_mod_data.BaseStream.Position));
-                            writer_new_toc_file_mod_data.Write((int)(writer_new_toc_file_mod_data.BaseStream.Position + lstBundleFiles3.Count * 3 * 4 + 5));
-                            for (int k = 0; k < lstBundleFiles3.Count; k++)
-                            {
-                                uint bundleCasIndex = (uint)lstBundleFiles3[k].CasIndex;
-                                if (k != lstBundleFiles3.Count - 1)
-                                {
-                                    bundleCasIndex = (uint)((int)bundleCasIndex | int.MinValue);
-                                }
-                                writer_new_toc_file_mod_data.Write(bundleCasIndex);
-                                writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Offset);
-                                writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Size);
-                            }
-                            writer_new_toc_file_mod_data.WriteNullTerminatedString(new string(text3.Reverse().ToArray()));
-                            writer_new_toc_file_mod_data.Write(0);
-                            int num22 = text3.Length + 5;
-                            for (int l = 0; l < 16 - num22 % 16; l++)
-                            {
-                                writer_new_toc_file_mod_data.Write((byte)0);
-                            }
-
-                        }
-
-
-                        var finishingoffstuffposition = writer_new_toc_file_mod_data.BaseStream.Position - header_length;
-                        // After we have finished processing the new files, Write back the IsEBX List
-                        foreach (int item in IsEBXList)
-                        {
-                            writer_new_toc_file_mod_data.Write(item);
-                        }
-
-                        foreach (int item in list2)
-                        {
-                            writer_new_toc_file_mod_data.Write(item);
-                        }
-
-                        writer_new_toc_file_mod_data.BaseStream.Position = header_length + repositioning_value;
-                        writer_new_toc_file_mod_data.Write(finishingoffstuffposition);
-                        //writer_new_toc_file_mod_data.Write((int)num5);
-
-
-
-
-                        //
-
-                    }
-
-
-                }
             }
 
             public void Run()
@@ -1159,42 +989,616 @@ namespace paulv2k4ModdingExecuter
                     NativeWriter writer_new_cas_file = null;
                     int casFileIndex = 0;
                     byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
-                    foreach (string sb_toc_file in catalogInfo.SuperBundles.Keys)
+                    foreach (string key3 in catalogInfo.SuperBundles.Keys)
                     {
-                        string sb_toc_file_path_cleaned = sb_toc_file;
-                        if (catalogInfo.SuperBundles[sb_toc_file])
+                        string arg = key3;
+                        if (catalogInfo.SuperBundles[key3])
                         {
-                            sb_toc_file_path_cleaned = sb_toc_file.Replace("win32", catalogInfo.Name);
+                            arg = key3.Replace("win32", catalogInfo.Name);
                         }
-                        string location_toc_file = parent.fs.ResolvePath($"{sb_toc_file_path_cleaned}.toc").ToLower();
+                        string location_toc_file = parent.fs.ResolvePath($"{arg}.toc").ToLower();
                         if (location_toc_file != "")
                         {
-                            // -----------------------------------------------------------------------------------------
-                            // Read Original Toc File
-                            var toc_array =  ReadTocIntoByteArray(location_toc_file, out int toc_starting_position, out int other_starting_position, out byte[] tocSbHeader);
-                            if (toc_array.Length != 0)
+                            uint orig_toc_file_num1 = 0u;
+                            uint num2 = 0u;
+                            byte[] byte_array_of_original_toc_file = null;
+                            using (NativeReader reader_original_toc_file = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
                             {
-                                // -----------------------------------------------------------------------------------------
-                                //
-                                // Create Mod Data Directories
-                                string location_toc_file_mod_data = location_toc_file.Replace("patch\\win32", "moddata\\patch\\win32");
-                                FileInfo fi_toc_file_mod_data = new FileInfo(location_toc_file_mod_data);
-                                if (!Directory.Exists(fi_toc_file_mod_data.DirectoryName))
+                                uint orig_toc_file_num = reader_original_toc_file.ReadUInt();
+                                orig_toc_file_num1 = reader_original_toc_file.ReadUInt();
+                                num2 = reader_original_toc_file.ReadUInt();
+                                byte_array_of_original_toc_file = reader_original_toc_file.ReadToEnd();
+                                if (orig_toc_file_num == 3286619587u)
                                 {
-                                    Directory.CreateDirectory(fi_toc_file_mod_data.DirectoryName);
+                                    using (Aes aes = Aes.Create())
+                                    {
+                                        aes.Key = key_2_from_key_manager;
+                                        aes.IV = key_2_from_key_manager;
+                                        aes.Padding = PaddingMode.None;
+                                        ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
+                                        using (MemoryStream stream = new MemoryStream(byte_array_of_original_toc_file))
+                                        {
+                                            using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
+                                            {
+                                                cryptoStream.Read(byte_array_of_original_toc_file, 0, byte_array_of_original_toc_file.Length);
+                                            }
+                                        }
+                                    }
                                 }
-                                //
-                                // -----------------------------------------------------------------------------------------
+                            }
+                            string location_toc_file_mod_data = location_toc_file.Replace("patch\\win32", "moddata\\patch\\win32");
+                            FileInfo fi_toc_file_mod_data = new FileInfo(location_toc_file_mod_data);
+                            if (!Directory.Exists(fi_toc_file_mod_data.DirectoryName))
+                            {
+                                Directory.CreateDirectory(fi_toc_file_mod_data.DirectoryName);
+                            }
+                            using (NativeWriter writer_new_toc_file_mod_data = new NativeWriter(new FileStream(location_toc_file_mod_data, FileMode.Create)))
+                            {
+                                writer_new_toc_file_mod_data.Write(30331136);
+                                writer_new_toc_file_mod_data.Write(new byte[552]);
+                                long position = writer_new_toc_file_mod_data.BaseStream.Position;
+                                writer_new_toc_file_mod_data.Write(3280507699u);
+                                long num4 = 4294967295L;
+                                long num5 = 4294967295L;
+                                if (byte_array_of_original_toc_file.Length != 0)
+                                {
+                                    writer_new_toc_file_mod_data.Write(3735928559u);
+                                    writer_new_toc_file_mod_data.Write(3735928559u);
+                                    using (NativeReader reader_of_original_toc_file_array = new NativeReader(new MemoryStream(byte_array_of_original_toc_file)))
+                                    {
+                                        if (orig_toc_file_num1 != uint.MaxValue)
+                                        {
+                                            reader_of_original_toc_file_array.Position = orig_toc_file_num1 - 12;
+                                            int original_toc_file_item_count = reader_of_original_toc_file_array.ReadInt();
+                                            List<int> list = new List<int>();
+                                            for (int i = 0; i < original_toc_file_item_count; i++)
+                                            {
+                                                list.Add(reader_of_original_toc_file_array.ReadInt());
+                                            }
+                                            List<int> list2 = new List<int>();
+                                            for (int j = 0; j < original_toc_file_item_count; j++)
+                                            {
+                                                int num7 = reader_of_original_toc_file_array.ReadInt() - 12;
+                                                long position2 = reader_of_original_toc_file_array.Position;
+                                                reader_of_original_toc_file_array.Position = num7;
+                                                int num8 = reader_of_original_toc_file_array.ReadInt() - 1;
+                                                List<BundleFileEntry> lstBundleFiles3 = new List<BundleFileEntry>();
+                                                int num9;
+                                                do
+                                                {
+                                                    num9 = reader_of_original_toc_file_array.ReadInt();
+                                                    int inOffset = reader_of_original_toc_file_array.ReadInt();
+                                                    int inSize = reader_of_original_toc_file_array.ReadInt();
+                                                    lstBundleFiles3.Add(new BundleFileEntry(num9 & int.MaxValue, inOffset, inSize));
+                                                }
+                                                while ((num9 & 2147483648u) != 0L);
+                                                reader_of_original_toc_file_array.Position = num8 - 12;
+                                                int num10 = 0;
+                                                string text3 = Utils.ReverseString(reader_of_original_toc_file_array.ReadNullTerminatedString());
+                                                //string text3 = "";
+                                                //do
+                                                //{
+                                                //    string str = reader_of_original_toc_file_array.ReadNullTerminatedString();
+                                                //    num10 = reader_of_original_toc_file_array.ReadInt() - 1;
+                                                //    text3 = Utils.ReverseString(str) + text3;
+                                                //    if (num10 != -1)
+                                                //    {
+                                                //        reader_of_original_toc_file_array.Position = num10 - 12;
+                                                //    }
+                                                //}
+                                                //while (num10 != -1);
+                                                reader_of_original_toc_file_array.Position = position2;
+                                                int key2 = Fnv1.HashString(text3.ToLower());
+                                                if (parent.modifiedBundles.ContainsKey(key2))
+                                                {
+                                                    ModBundleInfo modBundleInfo = parent.modifiedBundles[key2];
+                                                    MemoryStream memoryStream = new MemoryStream();
+                                                    foreach (BundleFileEntry item in lstBundleFiles3)
+                                                    {
+                                                        using (NativeReader nativeReader3 = new NativeReader(new FileStream(parent.fs.ResolvePath(parent.fs.GetFilePath(item.CasIndex)), FileMode.Open, FileAccess.Read)))
+                                                        {
+                                                            nativeReader3.Position = item.Offset;
+                                                            memoryStream.Write(nativeReader3.ReadBytes(item.Size), 0, item.Size);
+                                                        }
+                                                    }
+                                                    DbObject dbObject = null;
+                                                    using (BinarySbReader_M21 binarySbReader = new BinarySbReader_M21(memoryStream, 0L, parent.fs.CreateDeobfuscator()))
+                                                    {
+                                                        dbObject = binarySbReader.ReadDbObject();
+                                                        foreach (DbObject ebxItem in dbObject.GetValue<DbObject>("ebx"))
+                                                        {
+                                                            ebxItem.GetValue("size", 0);
+                                                            long value = ebxItem.GetValue("offset", 0L);
+                                                            long num11 = 0L;
+                                                            foreach (BundleFileEntry item3 in lstBundleFiles3)
+                                                            {
+                                                                if (value < num11 + item3.Size)
+                                                                {
+                                                                    value -= num11;
+                                                                    value += item3.Offset;
+                                                                    ebxItem.SetValue("offset", value);
+                                                                    ebxItem.SetValue("cas", item3.CasIndex);
+                                                                    break;
+                                                                }
+                                                                num11 += item3.Size;
+                                                            }
+                                                        }
+                                                        foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
+                                                        {
+                                                            item4.GetValue("size", 0);
+                                                            long value2 = item4.GetValue("offset", 0L);
+                                                            long num12 = 0L;
+                                                            foreach (BundleFileEntry item5 in lstBundleFiles3)
+                                                            {
+                                                                if (value2 < num12 + item5.Size)
+                                                                {
+                                                                    value2 -= num12;
+                                                                    value2 += item5.Offset;
+                                                                    item4.SetValue("offset", value2);
+                                                                    item4.SetValue("cas", item5.CasIndex);
+                                                                    break;
+                                                                }
+                                                                num12 += item5.Size;
+                                                            }
+                                                        }
+                                                        foreach (DbObject item6 in dbObject.GetValue<DbObject>("chunks"))
+                                                        {
+                                                            item6.GetValue("size", 0);
+                                                            long value3 = item6.GetValue("offset", 0L);
+                                                            long num13 = 0L;
+                                                            foreach (BundleFileEntry item7 in lstBundleFiles3)
+                                                            {
+                                                                if (value3 < num13 + item7.Size)
+                                                                {
+                                                                    value3 -= num13;
+                                                                    value3 += item7.Offset;
+                                                                    item6.SetValue("offset", value3);
+                                                                    item6.SetValue("cas", item7.CasIndex);
+                                                                    break;
+                                                                }
+                                                                num13 += item7.Size;
+                                                            }
+                                                        }
+                                                    }
+                                                    foreach (DbObject ebx in dbObject.GetValue<DbObject>("ebx"))
+                                                    {
+                                                        int num14 = modBundleInfo.Modify.Ebx.FindIndex((string a) => a.Equals(ebx.GetValue<string>("name")));
+                                                        if (num14 != -1)
+                                                        {
+                                                            EbxAssetEntry ebxAssetEntry = parent.modifiedEbx[modBundleInfo.Modify.Ebx[num14]];
+                                                            if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[ebxAssetEntry.Sha1].Data.Length > 1073741824)
+                                                            {
+                                                                writer_new_cas_file?.Close();
+                                                                writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                            }
+                                                            ebx.SetValue("originalSize", ebxAssetEntry.OriginalSize);
+                                                            ebx.SetValue("size", ebxAssetEntry.Size);
+                                                            ebx.SetValue("cas", casFileIndex);
+                                                            ebx.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
+                                                            var ebxData = parent.archiveData[ebxAssetEntry.Sha1].Data;
 
-                                WriteNewTocFile(location_toc_file_mod_data, tocSbHeader, toc_array);
+                                                            writer_new_cas_file.Write(ebxData);
+                                                        }
+                                                    }
+                                                    foreach (string item8 in modBundleInfo.Add.Ebx)
+                                                    {
+                                                        EbxAssetEntry ebxAssetEntry2 = parent.modifiedEbx[item8];
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[ebxAssetEntry2.Sha1].Data.Length > 1073741824)
+                                                        {
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                        }
+                                                        DbObject dbObject5 = DbObject.CreateObject();
+                                                        dbObject5.SetValue("name", ebxAssetEntry2.Name);
+                                                        dbObject5.SetValue("originalSize", ebxAssetEntry2.OriginalSize);
+                                                        dbObject5.SetValue("size", ebxAssetEntry2.Size);
+                                                        dbObject5.SetValue("cas", casFileIndex);
+                                                        dbObject5.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
+                                                        dbObject.GetValue<DbObject>("ebx").Add(dbObject5);
+                                                        writer_new_cas_file.Write(parent.archiveData[ebxAssetEntry2.Sha1].Data);
+                                                    }
+                                                    foreach (DbObject res in dbObject.GetValue<DbObject>("res"))
+                                                    {
+                                                        int num15 = modBundleInfo.Modify.Res.FindIndex((string a) => a.Equals(res.GetValue<string>("name")));
+                                                        if (num15 != -1)
+                                                        {
+                                                            ResAssetEntry resAssetEntry = parent.modifiedRes[modBundleInfo.Modify.Res[num15]];
+                                                            if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[resAssetEntry.Sha1].Data.Length > 1073741824)
+                                                            {
+                                                                writer_new_cas_file?.Close();
+                                                                writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                            }
+                                                            res.SetValue("originalSize", resAssetEntry.OriginalSize);
+                                                            res.SetValue("size", resAssetEntry.Size);
+                                                            res.SetValue("cas", casFileIndex);
+                                                            res.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
+                                                            res.SetValue("resRid", (long)resAssetEntry.ResRid);
+                                                            res.SetValue("resMeta", resAssetEntry.ResMeta);
+                                                            res.SetValue("resType", resAssetEntry.ResType);
+                                                            writer_new_cas_file.Write(parent.archiveData[resAssetEntry.Sha1].Data);
+                                                        }
+                                                    }
+                                                    foreach (string re in modBundleInfo.Add.Res)
+                                                    {
+                                                        ResAssetEntry resAssetEntry2 = parent.modifiedRes[re];
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[resAssetEntry2.Sha1].Data.Length > 1073741824)
+                                                        {
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                        }
+                                                        DbObject dbObject6 = DbObject.CreateObject();
+                                                        dbObject6.SetValue("name", resAssetEntry2.Name);
+                                                        dbObject6.SetValue("originalSize", resAssetEntry2.OriginalSize);
+                                                        dbObject6.SetValue("size", resAssetEntry2.Size);
+                                                        dbObject6.SetValue("cas", casFileIndex);
+                                                        dbObject6.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
+                                                        dbObject6.SetValue("resRid", (long)resAssetEntry2.ResRid);
+                                                        dbObject6.SetValue("resMeta", resAssetEntry2.ResMeta);
+                                                        dbObject6.SetValue("resType", resAssetEntry2.ResType);
+                                                        dbObject.GetValue<DbObject>("res").Add(dbObject6);
+                                                        writer_new_cas_file.Write(parent.archiveData[resAssetEntry2.Sha1].Data);
+                                                    }
+                                                    foreach (DbObject chunk in dbObject.GetValue<DbObject>("chunks"))
+                                                    {
+                                                        int num16 = modBundleInfo.Modify.Chunks.FindIndex((Guid a) => a == chunk.GetValue<Guid>("id"));
+                                                        if (num16 != -1)
+                                                        {
+                                                            ChunkAssetEntry chunkAssetEntry = parent.modifiedChunks[modBundleInfo.Modify.Chunks[num16]];
+                                                            if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry.Sha1].Data.Length > 1073741824)
+                                                            {
+                                                                writer_new_cas_file?.Close();
+                                                                writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                            }
+                                                            chunk.SetValue("originalSize", chunkAssetEntry.OriginalSize);
+                                                            chunk.SetValue("size", chunkAssetEntry.Size);
+                                                            chunk.SetValue("cas", casFileIndex);
+                                                            chunk.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
+                                                            chunk.SetValue("logicalOffset", chunkAssetEntry.LogicalOffset);
+                                                            chunk.SetValue("logicalSize", chunkAssetEntry.LogicalSize);
+                                                            writer_new_cas_file.Write(parent.archiveData[chunkAssetEntry.Sha1].Data);
+                                                        }
+                                                    }
+                                                    foreach (Guid chunk2 in modBundleInfo.Add.Chunks)
+                                                    {
+                                                        ChunkAssetEntry chunkAssetEntry2 = parent.modifiedChunks[chunk2];
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry2.Sha1].Data.Length > 1073741824)
+                                                        {
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                        }
+                                                        DbObject dbObject7 = DbObject.CreateObject();
+                                                        dbObject7.SetValue("id", chunkAssetEntry2.Id);
+                                                        dbObject7.SetValue("originalSize", chunkAssetEntry2.OriginalSize);
+                                                        dbObject7.SetValue("size", chunkAssetEntry2.Size);
+                                                        dbObject7.SetValue("cas", casFileIndex);
+                                                        dbObject7.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
+                                                        dbObject7.SetValue("logicalOffset", chunkAssetEntry2.LogicalOffset);
+                                                        dbObject7.SetValue("logicalSize", chunkAssetEntry2.LogicalSize);
+                                                        dbObject.GetValue<DbObject>("chunks").Add(dbObject7);
+                                                        DbObject dbObject8 = DbObject.CreateObject();
+                                                        dbObject8.SetValue("h32", chunkAssetEntry2.H32);
+                                                        DbObject dbObject9 = DbObject.CreateObject();
+                                                        if (chunkAssetEntry2.FirstMip != -1)
+                                                        {
+                                                            dbObject9.SetValue("firstMip", chunkAssetEntry2.FirstMip);
+                                                        }
+                                                        dbObject.GetValue<DbObject>("chunkMeta").Add(dbObject8);
+                                                        writer_new_cas_file.Write(parent.archiveData[chunkAssetEntry2.Sha1].Data);
+                                                    }
+                                                    BundleFileEntry bundleFileEntry = lstBundleFiles3[0];
+                                                    lstBundleFiles3.Clear();
+                                                    lstBundleFiles3.Add(bundleFileEntry);
+                                                    foreach (DbObject item9 in dbObject.GetValue<DbObject>("ebx"))
+                                                    {
+                                                        lstBundleFiles3.Add(new BundleFileEntry(item9.GetValue("cas", 0), item9.GetValue("offset", 0), item9.GetValue("size", 0)));
+                                                    }
+                                                    foreach (DbObject item10 in dbObject.GetValue<DbObject>("res"))
+                                                    {
+                                                        lstBundleFiles3.Add(new BundleFileEntry(item10.GetValue("cas", 0), item10.GetValue("offset", 0), item10.GetValue("size", 0)));
+                                                    }
+                                                    foreach (DbObject item11 in dbObject.GetValue<DbObject>("chunks"))
+                                                    {
+                                                        lstBundleFiles3.Add(new BundleFileEntry(item11.GetValue("cas", 0), item11.GetValue("offset", 0), item11.GetValue("size", 0)));
+                                                    }
+                                                    int ebxCount = dbObject.GetValue<DbObject>("ebx").Count;
+                                                    int resCount = dbObject.GetValue<DbObject>("res").Count;
+                                                    int chunksCount = dbObject.GetValue<DbObject>("chunks").Count;
+                                                    using (NativeWriter nativeWriter3 = new NativeWriter(new MemoryStream()))
+                                                    {
+                                                        nativeWriter3.Write(3735927486u, Endian.Big);
+                                                        nativeWriter3.Write(3018715229u, Endian.Little);
+                                                        nativeWriter3.Write(ebxCount + resCount + chunksCount, Endian.Little);
+                                                        nativeWriter3.Write(ebxCount, Endian.Little);
+                                                        nativeWriter3.Write(resCount, Endian.Little);
+                                                        nativeWriter3.Write(chunksCount, Endian.Little);
+                                                        nativeWriter3.Write(0xFFFFFFFF, Endian.Little);
+                                                        nativeWriter3.Write(0xFFFFFFFF, Endian.Little);
+                                                        nativeWriter3.Write(0xFFFFFFFF, Endian.Little);
+                                                        long num17 = 0L;
+                                                        new Dictionary<uint, long>();
+                                                        List<string> list4 = new List<string>();
+                                                        foreach (DbObject item12 in dbObject.GetValue<DbObject>("ebx"))
+                                                        {
+                                                            Fnv1.HashString(item12.GetValue<string>("name"));
+                                                            nativeWriter3.Write((uint)num17, Endian.Little);
+                                                            list4.Add(item12.GetValue<string>("name"));
+                                                            num17 += item12.GetValue<string>("name").Length + 1;
+                                                            nativeWriter3.Write(item12.GetValue("originalSize", 0), Endian.Little);
+                                                        }
+                                                        foreach (DbObject item13 in dbObject.GetValue<DbObject>("res"))
+                                                        {
+                                                            Fnv1.HashString(item13.GetValue<string>("name"));
+                                                            nativeWriter3.Write((uint)num17, Endian.Little);
+                                                            list4.Add(item13.GetValue<string>("name"));
+                                                            num17 += item13.GetValue<string>("name").Length + 1;
+                                                            nativeWriter3.Write(item13.GetValue("originalSize", 0), Endian.Little);
+                                                        }
+                                                        foreach (DbObject item14 in dbObject.GetValue<DbObject>("res"))
+                                                        {
+                                                            nativeWriter3.Write((uint)item14.GetValue("resType", 0L), Endian.Little);
+                                                        }
+                                                        foreach (DbObject item15 in dbObject.GetValue<DbObject>("res"))
+                                                        {
+                                                            nativeWriter3.Write(item15.GetValue<byte[]>("resMeta"));
+                                                        }
+                                                        foreach (DbObject item16 in dbObject.GetValue<DbObject>("res"))
+                                                        {
+                                                            nativeWriter3.Write(item16.GetValue("resRid", 0L), Endian.Little);
+                                                        }
+                                                        foreach (DbObject item17 in dbObject.GetValue<DbObject>("chunks"))
+                                                        {
+                                                            nativeWriter3.Write(item17.GetValue<Guid>("id"), Endian.Little);
+                                                            nativeWriter3.Write(item17.GetValue("logicalOffset", 0), Endian.Little);
+                                                            nativeWriter3.Write(item17.GetValue("logicalSize", 0), Endian.Little);
+                                                        }
+                                                        long position3 = nativeWriter3.BaseStream.Position;
+                                                        foreach (string item18 in list4)
+                                                        {
+                                                            nativeWriter3.WriteNullTerminatedString(item18);
+                                                        }
+                                                        long num18 = 0L;
+                                                        long num19 = 0L;
+                                                        if (dbObject.GetValue<DbObject>("chunks").Count > 0)
+                                                        {
+                                                            DbObject cnkMeta = dbObject.GetValue<DbObject>("chunkMeta");
+                                                            num18 = nativeWriter3.BaseStream.Position;
+                                                            using (DbWriter dbWriter = new DbWriter(new MemoryStream()))
+                                                            {
+                                                                nativeWriter3.Write(dbWriter.WriteDbObject("chunkMeta", cnkMeta));
+                                                            }
+                                                            num19 = nativeWriter3.BaseStream.Position - num18;
+                                                        }
+                                                        long fileSize = nativeWriter3.BaseStream.Position - 4;
+                                                        nativeWriter3.BaseStream.Position = 24L;
+                                                        //nativeWriter3.Write((uint)(position3 - 4), Endian.Little);
+                                                        //nativeWriter3.Write((uint)(num18 - 4), Endian.Little);
+                                                        nativeWriter3.Write((uint)(position3), Endian.Little);
+                                                        nativeWriter3.Write((uint)(num18), Endian.Little);
+                                                        nativeWriter3.Write((uint)num19, Endian.Little);
+                                                        nativeWriter3.BaseStream.Position = 0L;
+                                                        nativeWriter3.Write((uint)fileSize, Endian.Little);
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + nativeWriter3.BaseStream.Length > 1073741824)
+                                                        {
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                        }
+                                                        bundleFileEntry.CasIndex = casFileIndex;
+                                                        bundleFileEntry.Offset = (int)writer_new_cas_file.BaseStream.Position;
+                                                        bundleFileEntry.Size = (int)(fileSize + 4);
 
+
+
+                                                        writer_new_cas_file.Write(((MemoryStream)nativeWriter3.BaseStream).ToArray());
+                                                    }
+                                                }
+                                                list2.Add((int)(writer_new_toc_file_mod_data.BaseStream.Position - position));
+                                                writer_new_toc_file_mod_data.Write((int)(writer_new_toc_file_mod_data.BaseStream.Position - position + lstBundleFiles3.Count * 3 * 4 + 5));
+                                                for (int k = 0; k < lstBundleFiles3.Count; k++)
+                                                {
+                                                    uint num21 = (uint)lstBundleFiles3[k].CasIndex;
+                                                    if (k != lstBundleFiles3.Count - 1)
+                                                    {
+                                                        num21 = (uint)((int)num21 | int.MinValue);
+                                                    }
+                                                    writer_new_toc_file_mod_data.Write(num21);
+                                                    writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Offset);
+                                                    writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Size);
+                                                }
+                                                writer_new_toc_file_mod_data.WriteNullTerminatedString(new string(text3.Reverse().ToArray()));
+                                                writer_new_toc_file_mod_data.Write(0);
+                                                int num22 = text3.Length + 5;
+                                                for (int l = 0; l < 16 - num22 % 16; l++)
+                                                {
+                                                    writer_new_toc_file_mod_data.Write((byte)0);
+                                                }
+                                            }
+                                            num4 = writer_new_toc_file_mod_data.BaseStream.Position - position;
+                                            writer_new_toc_file_mod_data.Write(original_toc_file_item_count);
+                                            foreach (int item19 in list)
+                                            {
+                                                writer_new_toc_file_mod_data.Write(item19);
+                                            }
+                                            foreach (int item20 in list2)
+                                            {
+                                                writer_new_toc_file_mod_data.Write(item20);
+                                            }
+                                        }
+                                        List<int> list5 = new List<int>();
+                                        List<uint> list6 = new List<uint>();
+                                        List<Guid> list7 = new List<Guid>();
+                                        List<List<Tuple<Guid, int>>> list8 = new List<List<Tuple<Guid, int>>>();
+                                        int num23 = 0;
+                                        if (num2 != uint.MaxValue)
+                                        {
+                                            _ = writer_new_toc_file_mod_data.BaseStream.Position;
+                                            _ = reader_of_original_toc_file_array.Position;
+                                            reader_of_original_toc_file_array.Position = num2 - 12;
+                                            num23 = reader_of_original_toc_file_array.ReadInt();
+                                            for (int m = 0; m < num23; m++)
+                                            {
+                                                list5.Add(reader_of_original_toc_file_array.ReadInt());
+                                                list8.Add(new List<Tuple<Guid, int>>());
+                                            }
+                                            for (int n = 0; n < num23; n++)
+                                            {
+                                                uint num24 = reader_of_original_toc_file_array.ReadUInt();
+                                                long position4 = reader_of_original_toc_file_array.Position;
+                                                reader_of_original_toc_file_array.Position = num24 - 12;
+                                                Guid guid = reader_of_original_toc_file_array.ReadGuid();
+                                                int num25 = reader_of_original_toc_file_array.ReadInt();
+                                                int num26 = reader_of_original_toc_file_array.ReadInt();
+                                                int num27 = reader_of_original_toc_file_array.ReadInt();
+                                                reader_of_original_toc_file_array.Position = position4;
+                                                list6.Add((uint)(writer_new_toc_file_mod_data.BaseStream.Position - position));
+                                                if (parent.modifiedBundles.ContainsKey(chunksBundleHash))
+                                                {
+                                                    ModBundleInfo modBundleInfo2 = parent.modifiedBundles[chunksBundleHash];
+                                                    int num28 = modBundleInfo2.Modify.Chunks.FindIndex((Guid g) => g == guid);
+                                                    if (num28 != -1)
+                                                    {
+                                                        ChunkAssetEntry chunkAssetEntry3 = parent.modifiedChunks[modBundleInfo2.Modify.Chunks[num28]];
+                                                        byte[] outData = null;
+                                                        if (chunkAssetEntry3.ExtraData != null)
+                                                        {
+                                                            HandlerExtraData handlerExtraData = (HandlerExtraData)chunkAssetEntry3.ExtraData;
+                                                            Stream resourceData = parent.rm.GetResourceData(parent.fs.GetFilePath(num25), num26, num27);
+                                                            chunkAssetEntry3 = (ChunkAssetEntry)handlerExtraData.Handler.Modify(chunkAssetEntry3, resourceData, handlerExtraData.Data, out outData);
+                                                        }
+                                                        else
+                                                        {
+                                                            outData = parent.archiveData[chunkAssetEntry3.Sha1].Data;
+                                                        }
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + outData.Length > 1073741824)
+                                                        {
+                                                            writer_new_cas_file?.Close();
+                                                            writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                        }
+                                                        num25 = casFileIndex;
+                                                        num26 = (int)writer_new_cas_file.BaseStream.Position;
+                                                        num27 = (int)chunkAssetEntry3.Size;
+                                                        writer_new_cas_file.Write(outData);
+                                                    }
+                                                }
+                                                writer_new_toc_file_mod_data.Write(guid);
+                                                writer_new_toc_file_mod_data.Write(num25);
+                                                writer_new_toc_file_mod_data.Write(num26);
+                                                writer_new_toc_file_mod_data.Write(num27);
+                                                list7.Add(guid);
+                                            }
+                                        }
+                                        if (parent.modifiedBundles.ContainsKey(chunksBundleHash) && location_toc_file.ToLower().Contains("globals.toc"))
+                                        {
+                                            foreach (Guid chunk3 in parent.modifiedBundles[chunksBundleHash].Add.Chunks)
+                                            {
+                                                ChunkAssetEntry chunkAssetEntry4 = parent.modifiedChunks[chunk3];
+                                                if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry4.Sha1].Data.Length > 1073741824)
+                                                {
+                                                    writer_new_cas_file?.Close();
+                                                    writer_new_cas_file = GetNextCas(out casFileIndex);
+                                                }
+                                                int value5 = casFileIndex;
+                                                int value6 = (int)writer_new_cas_file.BaseStream.Position;
+                                                int value7 = (int)chunkAssetEntry4.Size;
+                                                list6.Add((uint)(writer_new_toc_file_mod_data.BaseStream.Position - position));
+                                                list8.Add(new List<Tuple<Guid, int>>());
+                                                list5.Add(-1);
+                                                num23++;
+                                                list7.Add(chunk3);
+                                                writer_new_cas_file.Write(parent.archiveData[chunkAssetEntry4.Sha1].Data);
+                                                writer_new_toc_file_mod_data.Write(chunk3);
+                                                writer_new_toc_file_mod_data.Write(value5);
+                                                writer_new_toc_file_mod_data.Write(value6);
+                                                writer_new_toc_file_mod_data.Write(value7);
+                                            }
+                                        }
+                                        if (num23 > 0)
+                                        {
+                                            num5 = writer_new_toc_file_mod_data.BaseStream.Position - position;
+                                            int num29 = 0;
+                                            List<int> list9 = new List<int>();
+                                            for (int num30 = 0; num30 < num23; num30++)
+                                            {
+                                                list9.Add(-1);
+                                                list5[num30] = -1;
+                                                int index = (int)((long)(uint)((int)HashData(list7[num30].ToByteArray()) % 16777619) % (long)num23);
+                                                list8[index].Add(new Tuple<Guid, int>(list7[num30], (int)list6[num30]));
+                                            }
+                                            for (int num31 = 0; num31 < list8.Count; num31++)
+                                            {
+                                                List<Tuple<Guid, int>> list10 = list8[num31];
+                                                if (list10.Count > 1)
+                                                {
+                                                    uint num32 = 1u;
+                                                    List<int> list11 = new List<int>();
+                                                    while (true)
+                                                    {
+                                                        bool flag = true;
+                                                        for (int num33 = 0; num33 < list10.Count; num33++)
+                                                        {
+                                                            int num34 = (int)((long)(uint)((int)HashData(list10[num33].Item1.ToByteArray(), num32) % 16777619) % (long)num23);
+                                                            if (list9[num34] != -1 || list11.Contains(num34))
+                                                            {
+                                                                flag = false;
+                                                                break;
+                                                            }
+                                                            list11.Add(num34);
+                                                        }
+                                                        if (flag)
+                                                        {
+                                                            break;
+                                                        }
+                                                        num32++;
+                                                        list11.Clear();
+                                                    }
+                                                    for (int num35 = 0; num35 < list10.Count; num35++)
+                                                    {
+                                                        list9[list11[num35]] = list10[num35].Item2;
+                                                    }
+                                                    list5[num31] = (int)num32;
+                                                }
+                                            }
+                                            for (int num36 = 0; num36 < list8.Count; num36++)
+                                            {
+                                                if (list8[num36].Count == 1)
+                                                {
+                                                    for (; list9[num29] != -1; num29++)
+                                                    {
+                                                    }
+                                                    list5[num36] = -1 - num29;
+                                                    list9[num29] = list8[num36][0].Item2;
+                                                }
+                                            }
+                                            writer_new_toc_file_mod_data.Write(num23);
+                                            for (int num37 = 0; num37 < num23; num37++)
+                                            {
+                                                writer_new_toc_file_mod_data.Write(list5[num37]);
+                                            }
+                                            for (int num38 = 0; num38 < num23; num38++)
+                                            {
+                                                writer_new_toc_file_mod_data.Write(list9[num38]);
+                                            }
+                                        }
+                                        writer_new_toc_file_mod_data.BaseStream.Position = position + 4;
+                                        writer_new_toc_file_mod_data.Write((int)num4);
+                                        writer_new_toc_file_mod_data.Write((int)num5);
+                                    }
+                                }
+                                else
+                                {
+                                    writer_new_toc_file_mod_data.Write(uint.MaxValue);
+                                    writer_new_toc_file_mod_data.Write(uint.MaxValue);
+                                }
                             }
                         }
                     }
+                    if (writer_new_cas_file != null)
+                    {
+                        writer_new_cas_file?.Close();
+                    }
                 }
-                catch(Exception e)
+                catch (Exception ex)
                 {
-                    throw e;
+                    Exception ex2 = errorException = ex;
                 }
             }
 
@@ -1259,9 +1663,12 @@ namespace paulv2k4ModdingExecuter
                 }
             }
         }
+        */
 
 
-        
+
+
+        /*
         private class Madden21BundleAction
         {
 
@@ -2079,7 +2486,7 @@ namespace paulv2k4ModdingExecuter
                 }
             }
         }
-
+        */
         private class ManifestBundleAction
         {
             private static readonly object resourceLock = new object();
@@ -3819,35 +4226,35 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
-        private FileSystem fs;
+        public FileSystem fs;
 
-        private ResourceManager rm;
+        public ResourceManager rm;
 
         private ILogger logger;
 
-        private List<string> addedSuperBundles = new List<string>();
+        public List<string> addedSuperBundles = new List<string>();
 
-        private Dictionary<int, ModBundleInfo> modifiedBundles = new Dictionary<int, ModBundleInfo>();
+        public Dictionary<int, ModBundleInfo> modifiedBundles = new Dictionary<int, ModBundleInfo>();
 
-        private Dictionary<string, List<string>> addedBundles = new Dictionary<string, List<string>>();
+        public Dictionary<string, List<string>> addedBundles = new Dictionary<string, List<string>>();
 
-        private Dictionary<string, EbxAssetEntry> modifiedEbx = new Dictionary<string, EbxAssetEntry>();
+        public Dictionary<string, EbxAssetEntry> modifiedEbx = new Dictionary<string, EbxAssetEntry>();
 
-        private Dictionary<string, ResAssetEntry> modifiedRes = new Dictionary<string, ResAssetEntry>();
+        public Dictionary<string, ResAssetEntry> modifiedRes = new Dictionary<string, ResAssetEntry>();
 
-        private Dictionary<Guid, ChunkAssetEntry> modifiedChunks = new Dictionary<Guid, ChunkAssetEntry>();
+        public Dictionary<Guid, ChunkAssetEntry> modifiedChunks = new Dictionary<Guid, ChunkAssetEntry>();
 
-        private Dictionary<Sha1, ArchiveInfo> archiveData = new Dictionary<Sha1, ArchiveInfo>();
+        public Dictionary<Sha1, ArchiveInfo> archiveData = new Dictionary<Sha1, ArchiveInfo>();
 
-        private int numArchiveEntries;
+        public int numArchiveEntries;
 
-        private int numTasks;
+        public int numTasks;
 
-        private CasDataInfo casData = new CasDataInfo();
+        public CasDataInfo casData = new CasDataInfo();
 
-        private static int chunksBundleHash = Fnv1.HashString("chunks");
+        public static int chunksBundleHash = Fnv1.HashString("chunks");
 
-        private Dictionary<int, Dictionary<int, Dictionary<uint, CatResourceEntry>>> resources = new Dictionary<int, Dictionary<int, Dictionary<uint, CatResourceEntry>>>();
+        public Dictionary<int, Dictionary<int, Dictionary<uint, CatResourceEntry>>> resources = new Dictionary<int, Dictionary<int, Dictionary<uint, CatResourceEntry>>>();
 
         public ILogger Logger
         {
@@ -3862,9 +4269,9 @@ namespace paulv2k4ModdingExecuter
         }
 
         [DllImport("kernel32.dll")]
-        private static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
+        protected static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
 
-        private Dictionary<int, Dictionary<uint, CatResourceEntry>> LoadCatalog(FileSystem fs, string filename, out int catFileHash)
+        public Dictionary<int, Dictionary<uint, CatResourceEntry>> LoadCatalog(FileSystem fs, string filename, out int catFileHash)
         {
 
             catFileHash = 0;
@@ -5348,17 +5755,18 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 if (ProfilesLibrary.IsMaddenDataVersion() || ProfilesLibrary.IsFIFADataVersion())
                 {
                     DbObject layoutToc = null;
-                    using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                    {
-                        layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
 
-                    }
+                 
+                        using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                        {
+                            layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
+                        }
 
                     
                     FifaBundleAction.CasFileCount = fs.CasFileCount;
-                    Madden21BundleAction_2.CasFileCount = fs.CasFileCount;
+                    Madden21BundleAction.CasFileCount = fs.CasFileCount;
                     List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
-                    List<Madden21BundleAction_2> madden21BundleActions = new List<Madden21BundleAction_2>();
+                    List<Madden21BundleAction> madden21BundleActions = new List<Madden21BundleAction>();
                     ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
 
                     var numberOfCatalogs = fs.Catalogs.Count();
@@ -5368,10 +5776,10 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     {
                         foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
                         {
-                            Madden21BundleAction_2 maddenBundleAction = new Madden21BundleAction_2(catalogItem, inDoneEvent, this);
+                            Madden21BundleAction maddenBundleAction = new Madden21BundleAction(catalogItem, inDoneEvent, this);
                             maddenBundleAction.Run();
                             numberOfCatalogsCompleted++;
-                            logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs,2)*100} %");
+                            logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
 
                             madden21BundleActions.Add(maddenBundleAction);
                         }
@@ -5388,8 +5796,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             fifaBundleActions.Add(fifaBundleAction);
                         }
                     }
-                   
-                    foreach (Madden21BundleAction_2 bundleAction in madden21BundleActions)
+
+                    foreach (Madden21BundleAction bundleAction in madden21BundleActions)
                     {
                         if (bundleAction.HasErrored)
                         {
@@ -5397,7 +5805,9 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         }
                         if (bundleAction.CasFiles.Count > 0)
                         {
-                            foreach (DbObject installChunk in layoutToc.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
+                            var installManifest = layoutToc.GetValue<DbObject>("installManifest");
+                            var installChunks = installManifest.GetValue<DbObject>("installChunks");
+                            foreach (DbObject installChunk in installChunks)
                             {
                                 if (bundleAction.CatalogInfo.Name.Equals("win32/" + installChunk.GetValue<string>("name")))
                                 {
@@ -5406,7 +5816,6 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                         DbObject newFile = DbObject.CreateObject();
                                         newFile.SetValue("id", key);
                                         newFile.SetValue("path", bundleAction.CasFiles[key]);
-                                        //newFile.SetValue("path", bundleAction.CasFiles[key]);
 
                                         var installChunkFiles = installChunk.GetValue<DbObject>("files");
                                         installChunkFiles.Add(newFile);
@@ -5444,22 +5853,31 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             }
                         }
                     }
-                    if (ProfilesLibrary.IsMaddenDataVersion())
-                    {
-                        logger.Log("Writing new Layout file to Game Mod Folder");
-                        using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                        {
-                            dbWriter.Write(layoutToc);
-                        }
-                    }
-                    else if (ProfilesLibrary.IsFIFADataVersion())
-                    {
+                    //if (ProfilesLibrary.IsMaddenDataVersion())
+                    //{
+                    //    logger.Log("Writing new Layout file to Game Mod Folder");
+                    //    using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                    //    {
+                    //        dbWriter.Write(layoutToc);
+                    //        dbWriter.Seek(0, SeekOrigin.Begin);
+                    //        using (NativeReader reader = new NativeReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read))) {
+                    //           var initbytes = reader.ReadBytes(552);
+                    //            dbWriter.Write(initbytes);
+                    //        }
+                    //    }
+
+                    //    //File.Copy(fs.BasePath + patchPath + "/layout.toc", modPath + patchPath + "/layout.toc", true);
+
+                    //}
+                    //else
+                    //if (ProfilesLibrary.IsFIFADataVersion())
+                    //{
                         logger.Log("Writing new Layout file to FIFA");
                         using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
                         {
                             dbWriter.Write(layoutToc);
                         }
-                    }
+                    //}
                 }
                 if (SymbolicLinkList.Count > 0)
                 {
