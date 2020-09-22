@@ -16,13 +16,33 @@ namespace v2k4FIFAModding.Frosty
 {
     public class ProjectManagement : ILogger
     {
+        private static void InitializeOfSelectedGame(string filePath)
+        {
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
+                GameInstanceSingleton.GAMERootPath = FIFADirectory;
+                var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
+                GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
+                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+                {
+                    throw new Exception("Unable to Initialize Profile");
+                }
+            }
+        }
+
         public ProjectManagement()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, loadSDK: true);
+            buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, logger: this, loadSDK: true);
             //if(!File.Exists(FIFAInstanceSingleton.V))
             //var buildSDK = new BuildSDK();
             //var b = buildSDK.Build().Result;
+        }
+
+        public ProjectManagement(string gamePath) : base()
+        {
+            InitializeOfSelectedGame(gamePath);
         }
 
         public FrostyProject FrostyProject = null;
@@ -30,10 +50,28 @@ namespace v2k4FIFAModding.Frosty
 
         public ILogger Logger = null;
 
+        string lastMessage = null;
+
+        public static void ClearCurrentConsoleLine()
+        {
+            int currentLineCursor = Console.CursorTop;
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, currentLineCursor);
+        }
+
         public void Log(string text, params object[] vars)
         {
+            if(text != lastMessage)
+            {
+                Debug.WriteLine(text);
 
+                ClearCurrentConsoleLine();
+                Console.WriteLine(text);
+                lastMessage = text;
+            }
         }
+
 
         public void LogError(string text, params object[] vars)
         {

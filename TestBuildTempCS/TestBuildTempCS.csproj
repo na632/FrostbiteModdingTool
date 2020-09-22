@@ -45,11 +45,5 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="temp.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FrostbiteSdk\FrostbiteSdkCore.csproj">
-      <Project>{1efa8bac-6928-4949-ba4a-ec114813045e}</Project>
-      <Name>FrostbiteSdkCore</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

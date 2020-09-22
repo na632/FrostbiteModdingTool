@@ -109,7 +109,43 @@ namespace FIFALibraryNETFrameworkTests
                 }
             }
         }
-    
+
+
+
+        [TestMethod]
+        public void LoadProjectAndExtractARES_FIFA20()
+        {
+            if (!Directory.Exists("Debugging\\RES\\"))
+                Directory.CreateDirectory("Debugging\\RES\\");
+
+            InitializeOfSelectedGame(@"E:\Origin Games\FIFA 20\FIFA20.exe");
+            ProjectManagement projectManagement = new ProjectManagement();
+            projectManagement.StartNewProject();
+            var allRES = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
+            var search = allRES.Where(x => x.Filename.Contains("211110")).ToList();
+            if(search != null && search.Count() > 0)
+            {
+                foreach (var r in search) 
+                {
+                    var path = projectManagement.FrostyProject.FileSystem.ResolvePath(r.ExtraData.CasPath);
+
+                    using (NativeReader reader = new NativeReader(new FileStream(path, FileMode.OpenOrCreate)))
+                    {
+                        reader.BaseStream.Seek(r.ExtraData.DataOffset, SeekOrigin.Begin);
+
+                        using (NativeReader viewStreamReader = new NativeReader(reader.CreateViewStream(r.ExtraData.DataOffset, r.Size)))
+                        {
+                            using (NativeWriter writer = new NativeWriter(new FileStream("Debugging\\RES\\" + r.Filename, FileMode.OpenOrCreate)))
+                            {
+                                writer.Write(viewStreamReader.ReadToEnd());
+                            }
+                        }
+                    }
+
+                    
+                }
+            }
+        }
 
         [TestMethod]
         public void LoadProjectAndRun_Madden21()

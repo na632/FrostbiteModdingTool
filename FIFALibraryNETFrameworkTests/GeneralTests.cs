@@ -148,8 +148,17 @@ namespace FIFALibraryNETFrameworkTests
                         ClassesSdkCreator.FileSystem.AddSource(source.Path, source.SubDirs);
                     }
                     byte[] key = KeyManager.Instance.GetKey("Key1");
-                    ClassesSdkCreator.FileSystem.LoadInitfs(key);
+                    var dbo = ClassesSdkCreator.FileSystem.LoadInitfs(key);
+                    ClassesSdkCreator.FileSystem.RepackInitfs(dbo);
                     //ClassesSdkCreator.FileSystem.Initialize(key);
+
+
+
+
+
+
+
+
                 }
             }
         }

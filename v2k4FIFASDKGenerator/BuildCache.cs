@@ -99,7 +99,7 @@ namespace v2k4FIFASDKGenerator
 
 		public void Log(string text, params object[] vars)
         {
-
+			
         }
 
         public void LogError(string text, params object[] vars)

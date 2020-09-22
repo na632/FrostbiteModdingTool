@@ -154,15 +154,13 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                 // Position 4 is where the position for the ebx item count is
                 reader_of_original_toc_file_array.Position = repositioning_value;
                 // read the item count and reposition
-                reader_of_original_toc_file_array.Position = reader_of_original_toc_file_array.ReadInt();
-
-                long position_of_something_1 = 4294967295L;
-                long position_of_something_2 = 4294967295L;
+                var itemCountPosition = reader_of_original_toc_file_array.ReadInt();
+                reader_of_original_toc_file_array.Position = itemCountPosition;
 
                 // read out the count and add the items to the list
-                int original_toc_file_item_count = reader_of_original_toc_file_array.ReadInt();
+                int parentBundlesCount = reader_of_original_toc_file_array.ReadInt();
                 IsEBXList = new List<int>();
-                for (int i = 0; i < original_toc_file_item_count; i++)
+                for (int i = 0; i < parentBundlesCount; i++)
                 {
                     IsEBXList.Add(reader_of_original_toc_file_array.ReadInt());
 
@@ -171,15 +169,15 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                 //
                 List<int> list2 = new List<int>();
                 var indexesToNameStartPoint = 0;
-                for (int j = 0; j < original_toc_file_item_count; j++)
+                for (int j = 0; j < parentBundlesCount; j++)
                 {
                     // -------------------------------------------------
                     // Find the Bundle Entries
 
-                    int num7 = reader_of_original_toc_file_array.ReadInt();
-                    long position2 = reader_of_original_toc_file_array.Position;
-                    reader_of_original_toc_file_array.Position = num7;
-                    int num8 = reader_of_original_toc_file_array.ReadInt() - 1;
+                    int positionofcasfiles = reader_of_original_toc_file_array.ReadInt();
+                    long readablepositionofcasfiles = reader_of_original_toc_file_array.Position;
+                    reader_of_original_toc_file_array.Position = positionofcasfiles;
+                    int positionofstring = reader_of_original_toc_file_array.ReadInt() - 1;
 
 
                     int casIndex;
@@ -198,7 +196,7 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
                     // --------------------------------------------------
                     // Get out the objects that have been changed
-                    reader_of_original_toc_file_array.Position = num8;
+                    reader_of_original_toc_file_array.Position = positionofstring;
                     int num10 = 0;
                     string name = "";
                     do
@@ -213,7 +211,7 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
                     }
                     while (num10 != -1) ;
-                    reader_of_original_toc_file_array.Position = position2;
+                    reader_of_original_toc_file_array.Position = readablepositionofcasfiles;
 
                     for(var i = indexesToNameStartPoint; i < list_bundle_entries.Count; i++)
                     {
@@ -532,48 +530,127 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                 foreach (var kvp in list_of_modified_bundles) { new_list_of_modified_bundles.Add(kvp.Key, new List<BundleFileEntry>(kvp.Value)); }
                 WriteBundleToCASFile(ref new_list_of_modified_bundles);
 
-                if (new_list_of_modified_bundles.SelectMany(x=>x.Value).Count() > 1)
+                var dictParentBundleToChild = new Dictionary<string, List<BundleFileEntry>>();
+                foreach(var kvp in new_list_of_modified_bundles.OrderBy(x=>x.Value.OrderBy(y=>y.Name)))
+                {
+                    var lastName = "";
+                    foreach(var i in kvp.Value)
+                    {
+                        if (!string.IsNullOrEmpty(i.Name) && i.Name != lastName)
+                        {
+                            lastName = i.Name;
+                        }
+
+                        if(!dictParentBundleToChild.ContainsKey(lastName))
+                            dictParentBundleToChild.Add(lastName, kvp.Value);
+
+                    }
+                }
+
+                if (dictParentBundleToChild.Values.Count() > 0)
                 {
                     using (NativeWriter writer_new_toc_file_mod_data = new NativeWriter(new FileStream(location_toc_file_mod_data, FileMode.Create)))
                     {
                         writer_new_toc_file_mod_data.Write(tocSbHeaderBytes);
                         writer_new_toc_file_mod_data.Write(3280507699u);
                         writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 4
+                        writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 8
+                        writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 12
 
-                        foreach (var kvp in new_list_of_modified_bundles)
+                        var bundlePositions = new List<long>();
+                        foreach (var kvp in dictParentBundleToChild.OrderBy(x=>x.Value.OrderByDescending(y=>y.CasIndex)))
                         {
+                            long positionofstring = 0;
                             var modulebundleinfo = kvp.Key;
-                            var positionofstring_position = writer_new_toc_file_mod_data.BaseStream.Position;
-                            foreach (var bundle in kvp.Value)
+                            var positionofstring_position = writer_new_toc_file_mod_data.BaseStream.Position + 12;
+
+
+                            // Write Position Of CAS File Bundles
+                            int positionofcasfiles = 16;
+                            writer_new_toc_file_mod_data.Write(16);
+                            // Write Position Of String at next position (20 initially)
+
+                            var starterOfBundlePosition = writer_new_toc_file_mod_data.BaseStream.Position;
+                            bundlePositions.Add(starterOfBundlePosition);
+                            for (var indexBundle = 0; indexBundle < kvp.Value.Count; indexBundle++)
                             {
-                                writer_new_toc_file_mod_data.Write(bundle.CasIndex);
+                                var bundle = kvp.Value[indexBundle];
+                                var newCasIndex = int.MinValue + bundle.CasIndex;
+                                if (indexBundle == kvp.Value.Count - 1)
+                                    newCasIndex = 0;
+                                    //if (bundle.CasIndex == 0 && indexBundle != kvp.Value.Count - 1)
+                                    //    writer_new_toc_file_mod_data.Write(0x00000080);
+                                    //else
+                                writer_new_toc_file_mod_data.Write(newCasIndex);
+
                                 writer_new_toc_file_mod_data.Write(bundle.Offset);
                                 writer_new_toc_file_mod_data.Write(bundle.Size);
-                                if (!string.IsNullOrEmpty(bundle.Name))
+                                writer_new_toc_file_mod_data.Flush();
+                                if(indexBundle == kvp.Value.Count-1)
                                 {
-                                    var positionofstring = writer_new_toc_file_mod_data.BaseStream.Position;
-
-                                    writer_new_toc_file_mod_data.Write(bundle.Name);
-                                    writer_new_toc_file_mod_data.BaseStream.Position = positionofstring_position;
-                                    writer_new_toc_file_mod_data.Write(positionofstring - bundle.Name.Length - 1);
-                                    writer_new_toc_file_mod_data.BaseStream.Position = positionofstring + bundle.Name.Length + 2;
-
+                                    positionofstring = writer_new_toc_file_mod_data.BaseStream.Position;
+                                    writer_new_toc_file_mod_data.WriteNullTerminatedString(Utils.ReverseString(kvp.Key));
+                                    writer_new_toc_file_mod_data.Write(0);
+                                    writer_new_toc_file_mod_data.Flush();
+                                    //writer_new_toc_file_mod_data.BaseStream.Position = 20;
+                                    //writer_new_toc_file_mod_data.Write((int)positionofstring);
                                 }
                             }
+                            //foreach (var bundle in kvp.Value)
+                            //{
+                            //    var starterOfBundlePosition = writer_new_toc_file_mod_data.BaseStream.Position;
+                            //    bundlePositions.Add(starterOfBundlePosition);
+                            //    writer_new_toc_file_mod_data.Write(bundle.CasIndex & int.MinValue);
+                            //    writer_new_toc_file_mod_data.Write(bundle.Offset);
+                            //    writer_new_toc_file_mod_data.Write(bundle.Size);
+                            //    writer_new_toc_file_mod_data.Flush();
+                            //    if (!string.IsNullOrEmpty(bundle.Name))
+                            //    {
+                            //        positionofstring = writer_new_toc_file_mod_data.BaseStream.Position;
 
-                            var positionofadditionalukndata = writer_new_toc_file_mod_data.BaseStream.Position - 556;
-                            writer_new_toc_file_mod_data.Write(kvp.Value.Count);
-                            foreach (var bundle in kvp.Value)
-                            {
-                                writer_new_toc_file_mod_data.Write(-1);
-                            }
+                            //        writer_new_toc_file_mod_data.WriteNullTerminatedString(Utils.ReverseString(bundle.Name));
+                            //        //writer_new_toc_file_mod_data.BaseStream.Position = positionofstring_position;
+                            //        //writer_new_toc_file_mod_data.Write(positionofstring - bundle.Name.Length - 1);
+                            //        //writer_new_toc_file_mod_data.BaseStream.Position = positionofstring + bundle.Name.Length + 1;
+                            //        writer_new_toc_file_mod_data.Write(0);
+                            //        writer_new_toc_file_mod_data.Flush();
 
-                            writer_new_toc_file_mod_data.Write(564 - 556);
-
-                            writer_new_toc_file_mod_data.BaseStream.Position = 560;
-                            writer_new_toc_file_mod_data.Write(positionofadditionalukndata);
+                            //    }
+                            //    else
+                            //    {
+                            //        var endOfBundlePosition = writer_new_toc_file_mod_data.BaseStream.Position;
+                            //        writer_new_toc_file_mod_data.BaseStream.Position = starterOfBundlePosition;
+                            //        writer_new_toc_file_mod_data.Write(int.MinValue);
+                            //        writer_new_toc_file_mod_data.BaseStream.Position = endOfBundlePosition;
+                            //    }
 
                         }
+
+
+
+                        var positionofadditionalukndata = writer_new_toc_file_mod_data.BaseStream.Position - 556;
+                        writer_new_toc_file_mod_data.Write(dictParentBundleToChild.Count);
+                        foreach (var kvp in dictParentBundleToChild)
+                        {
+                            writer_new_toc_file_mod_data.Write(1);
+                        }
+
+                        //writer_new_toc_file_mod_data.Write(12);
+
+                        foreach (var pos in bundlePositions)
+                        {
+                            writer_new_toc_file_mod_data.Write((int)(pos - 556 - 4));
+                        }
+
+                        writer_new_toc_file_mod_data.BaseStream.Position = 560;
+                        writer_new_toc_file_mod_data.Write(positionofadditionalukndata);
+
+                        //writer_new_toc_file_mod_data.BaseStream.Position = 556 + 12;
+                        //writer_new_toc_file_mod_data.Write((positionofstring + 1) - 556);
+
+
+
+                    //}
                     }
                 }
                 
