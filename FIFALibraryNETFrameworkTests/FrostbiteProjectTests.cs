@@ -269,6 +269,7 @@ namespace FIFALibraryNETFrameworkTests
 
             var alllegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
             var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx(includeLinked: true).ToList();
+            var ebxofsplash = allEBX.Where(x => x.Path.ToLower().EndsWith("splashscreen")).ToList()[1];
             var allRes = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
             var ebxofres = allEBX.Where(x => x.DisplayName.ToLower().Contains("splashscreen")).ToList();
             foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x => x.Name.ToLower().Contains("splashscreen")).ToList())
@@ -280,7 +281,14 @@ namespace FIFALibraryNETFrameworkTests
                 if (res.Filename == "splashscreen")
                 {
                     var linked = res.LinkedAssets;
-                    new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
+                    //new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
+                    new TextureImporter().ImportTextureFromFileToTextureAsset_Original(
+                         @"G:\splashscreen_v2k4.DDS"
+                         , ebxofsplash
+                         , projectManagement.FrostyProject.AssetManager
+                         , ref textureAsset
+                         , out string message);
+
                 }
             }
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
@@ -324,6 +332,7 @@ namespace FIFALibraryNETFrameworkTests
                                 , out List<int> IsEBXList);
 
                             Assert.IsTrue(list_bundle_entries.Count > 0);
+
 
 
                         }

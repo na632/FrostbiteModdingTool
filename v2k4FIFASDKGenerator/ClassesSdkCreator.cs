@@ -102,6 +102,7 @@ namespace v2k4FIFASDKGenerator
                 List<Guid> existingClasses = new List<Guid>();
                 LoadSharedTypeDescriptors("SharedTypeDescriptors.ebx", mapping, existingClasses);
                 LoadSharedTypeDescriptors("SharedTypeDescriptors_patch.ebx", mapping, existingClasses);
+                LoadSharedTypeDescriptors("SharedTypeDescriptors_Patch.ebx", mapping, existingClasses);
             }
             else
             {

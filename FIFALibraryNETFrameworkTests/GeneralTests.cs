@@ -251,7 +251,7 @@ namespace FIFALibraryNETFrameworkTests
             }
             if (proc.HasValue)
             {
-                var dllpath = @"G:\Work\FIFA Modding\Bin\Generator.dll";
+                var dllpath = @"G:\Work\FIFA Modding\SDKGenerator\x64\Debug\Publish\Generator.dll";
                 if (File.Exists(dllpath))
                 {
                     Debug.WriteLine($"Injecting: {dllpath}");

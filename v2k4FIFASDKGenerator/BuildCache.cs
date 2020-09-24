@@ -67,8 +67,8 @@ namespace v2k4FIFASDKGenerator
 
 						if (TypeLibrary.Initialize(loadSDK))
 							{
-								if(logger == null)
-									logger = new NullLogger();
+								if (logger == null)
+									logger = this;
 
 								AssetManagerImportResult result = new AssetManagerImportResult();
 
@@ -97,9 +97,15 @@ namespace v2k4FIFASDKGenerator
 			return false;
 		}
 
+		private string LastMessage = null;
+
 		public void Log(string text, params object[] vars)
         {
-			
+			if(!string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(LastMessage))
+			{
+				Debug.WriteLine(text);
+            }
+			LastMessage = text;
         }
 
         public void LogError(string text, params object[] vars)

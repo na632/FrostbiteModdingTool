@@ -556,13 +556,22 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                         writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 4
                         writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 8
                         writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 12
+                        //writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 16
+
+                        // string position stuff
+                        //for(var i = 0; i < dictParentBundleToChild.Keys.Count; i++)
+                        //{
+                        //    writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 12
+                        //}
 
                         var bundlePositions = new List<long>();
                         foreach (var kvp in dictParentBundleToChild.OrderBy(x=>x.Value.OrderByDescending(y=>y.CasIndex)))
                         {
+                            var bundleEntries = kvp.Value.OrderByDescending(y => y.CasIndex).ToList();
+
                             long positionofstring = 0;
                             var modulebundleinfo = kvp.Key;
-                            var positionofstring_position = writer_new_toc_file_mod_data.BaseStream.Position + 12;
+                            var positionofstring_position = writer_new_toc_file_mod_data.BaseStream.Position;
 
 
                             // Write Position Of CAS File Bundles
@@ -572,85 +581,54 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
                             var starterOfBundlePosition = writer_new_toc_file_mod_data.BaseStream.Position;
                             bundlePositions.Add(starterOfBundlePosition);
-                            for (var indexBundle = 0; indexBundle < kvp.Value.Count; indexBundle++)
+                            for (var indexBundle = 0; indexBundle < bundleEntries.Count; indexBundle++)
                             {
-                                var bundle = kvp.Value[indexBundle];
-                                var newCasIndex = int.MinValue + bundle.CasIndex;
-                                if (indexBundle == kvp.Value.Count - 1)
-                                    newCasIndex = 0;
-                                    //if (bundle.CasIndex == 0 && indexBundle != kvp.Value.Count - 1)
-                                    //    writer_new_toc_file_mod_data.Write(0x00000080);
-                                    //else
+                                var bundle = bundleEntries[indexBundle];
+                                uint newCasIndex = (uint)bundle.CasIndex;
+                                if (indexBundle != bundleEntries.Count - 1)
+                                {
+                                    newCasIndex = (uint)((int)newCasIndex | int.MinValue);
+                                }
                                 writer_new_toc_file_mod_data.Write(newCasIndex);
-
                                 writer_new_toc_file_mod_data.Write(bundle.Offset);
                                 writer_new_toc_file_mod_data.Write(bundle.Size);
                                 writer_new_toc_file_mod_data.Flush();
-                                if(indexBundle == kvp.Value.Count-1)
+                                if(indexBundle == bundleEntries.Count-1)
                                 {
                                     positionofstring = writer_new_toc_file_mod_data.BaseStream.Position;
                                     writer_new_toc_file_mod_data.WriteNullTerminatedString(Utils.ReverseString(kvp.Key));
                                     writer_new_toc_file_mod_data.Write(0);
                                     writer_new_toc_file_mod_data.Flush();
-                                    //writer_new_toc_file_mod_data.BaseStream.Position = 20;
-                                    //writer_new_toc_file_mod_data.Write((int)positionofstring);
                                 }
                             }
-                            //foreach (var bundle in kvp.Value)
-                            //{
-                            //    var starterOfBundlePosition = writer_new_toc_file_mod_data.BaseStream.Position;
-                            //    bundlePositions.Add(starterOfBundlePosition);
-                            //    writer_new_toc_file_mod_data.Write(bundle.CasIndex & int.MinValue);
-                            //    writer_new_toc_file_mod_data.Write(bundle.Offset);
-                            //    writer_new_toc_file_mod_data.Write(bundle.Size);
-                            //    writer_new_toc_file_mod_data.Flush();
-                            //    if (!string.IsNullOrEmpty(bundle.Name))
-                            //    {
-                            //        positionofstring = writer_new_toc_file_mod_data.BaseStream.Position;
 
-                            //        writer_new_toc_file_mod_data.WriteNullTerminatedString(Utils.ReverseString(bundle.Name));
-                            //        //writer_new_toc_file_mod_data.BaseStream.Position = positionofstring_position;
-                            //        //writer_new_toc_file_mod_data.Write(positionofstring - bundle.Name.Length - 1);
-                            //        //writer_new_toc_file_mod_data.BaseStream.Position = positionofstring + bundle.Name.Length + 1;
-                            //        writer_new_toc_file_mod_data.Write(0);
-                            //        writer_new_toc_file_mod_data.Flush();
-
-                            //    }
-                            //    else
-                            //    {
-                            //        var endOfBundlePosition = writer_new_toc_file_mod_data.BaseStream.Position;
-                            //        writer_new_toc_file_mod_data.BaseStream.Position = starterOfBundlePosition;
-                            //        writer_new_toc_file_mod_data.Write(int.MinValue);
-                            //        writer_new_toc_file_mod_data.BaseStream.Position = endOfBundlePosition;
-                            //    }
+                            writer_new_toc_file_mod_data.BaseStream.Position = positionofstring_position;
+                            writer_new_toc_file_mod_data.Write((positionofstring + 1) - 556);
 
                         }
 
+                        writer_new_toc_file_mod_data.Flush();
+                        writer_new_toc_file_mod_data.BaseStream.Position = writer_new_toc_file_mod_data.BaseStream.Length;
+                        var positionofadditionalukndata = writer_new_toc_file_mod_data.BaseStream.Position;
 
-
-                        var positionofadditionalukndata = writer_new_toc_file_mod_data.BaseStream.Position - 556;
                         writer_new_toc_file_mod_data.Write(dictParentBundleToChild.Count);
                         foreach (var kvp in dictParentBundleToChild)
                         {
-                            writer_new_toc_file_mod_data.Write(1);
+                            writer_new_toc_file_mod_data.Write(-1);
                         }
-
-                        //writer_new_toc_file_mod_data.Write(12);
-
                         foreach (var pos in bundlePositions)
                         {
                             writer_new_toc_file_mod_data.Write((int)(pos - 556 - 4));
                         }
 
                         writer_new_toc_file_mod_data.BaseStream.Position = 560;
-                        writer_new_toc_file_mod_data.Write(positionofadditionalukndata);
+                        writer_new_toc_file_mod_data.Write(positionofadditionalukndata - 556);
 
-                        //writer_new_toc_file_mod_data.BaseStream.Position = 556 + 12;
-                        //writer_new_toc_file_mod_data.Write((positionofstring + 1) - 556);
-
+                        
 
 
-                    //}
+
+                        //}
                     }
                 }
                 

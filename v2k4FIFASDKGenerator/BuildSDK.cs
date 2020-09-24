@@ -172,7 +172,8 @@ namespace v2k4FIFASDKGenerator
 				}
 				else
                 {
-					sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
+					//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
+					sdkUpdateState.TypeInfoOffset = 0x1483A82D0;
 
 				}
 

@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using Frostbite.Textures;
 using FrostyEditor.Controls;
 using FrostySdk;
 using FrostySdk.IO;
@@ -139,6 +140,12 @@ namespace paulv2k4FrostbiteTool
 
             //}
 
+            if(obj.listEBX)
+            {
+                var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().ToList().Select(x => new { x.Path, x.Name, x.Type, CasPath = x.ExtraData != null ? x.ExtraData.CasPath : "" });
+                File.WriteAllText("Export/EBX/__ListOfEbx.json", JsonConvert.SerializeObject(allEBX));
+            }
+
             if (obj.Export.HasValue)
             {
                 if (obj.ExportFiles.Count() == 0)
@@ -157,7 +164,7 @@ namespace paulv2k4FrostbiteTool
 
             if (obj.Import.HasValue)
             {
-
+                Import(obj);
             }
 
 
@@ -267,6 +274,72 @@ namespace paulv2k4FrostbiteTool
             }
 
             return false;
+        }
+
+
+        private static void Import(Options options)
+        {
+            //using (FileStream fileStream = new FileStream(@"G:\splashscreen_v2k4.DDS", FileMode.Open))
+            //{
+            var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().Where(x=>x.Filename.ToLower() == "splashscreen").ToList();
+            var allRes = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
+            var ebxofres = allRes.Where(x => x.DisplayName.ToLower().Contains("splashscreen")).ToList();
+
+            Texture textureAsset = null;
+            foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x => x.Name.ToLower() == "content/ui/splashscreen/splashscreen").ToList())
+            {
+                //File.WriteAllText($"Debugging/RES/{res.DisplayName}", JsonConvert.SerializeObject(res));
+                //var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
+                if (res.Type == "Texture")
+                {
+                    using (var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res))
+                    {
+                        textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
+                    }
+                }
+            }
+
+            var dataOffset = 0;
+            byte[] c2 = null;
+            var path = "";
+            TextureImporter importer = new TextureImporter();
+            importer.ImportTextureFromFileToTextureAsset_Original(
+                 @"G:\splashscreen_v2k4.DDS"
+                 , allEBX.FirstOrDefault()
+                 , projectManagement.FrostyProject.AssetManager
+                 , ref textureAsset
+                 , out string message);
+            //{
+            //    //reader.Position = 0;
+            //    //var c0 = Utils.CompressTexture(reader.ReadBytes((int)reader.Length), textureAsset);
+            //    //reader.Position = 0;
+            //    //var c1 = Utils.CompressTexture(reader.ReadBytes((int)reader.Length), textureAsset, CompressionType.Default);
+            //    reader.Position = 0;
+            //    c2 = Utils.CompressTexture(reader.ReadBytes((int)reader.Length), textureAsset, CompressionType.Oodle);
+
+            //    dataOffset = (int)textureAsset.ChunkEntry.ExtraData.DataOffset;
+            //    path = projectManagement.FrostyProject.FileSystem.ResolvePath(textureAsset.ChunkEntry.ExtraData.CasPath);
+            //    textureAsset.Dispose();
+            //    textureAsset = null;
+            //    GC.Collect();
+            //    GC.WaitForPendingFinalizers();
+
+            //}
+
+            //using (var fs = TryOpen(path, FileMode.Open, FileAccess.ReadWrite, maximumAttempts: 5, attemptWaitMS: 500))
+            //{
+            //    using (NativeWriter writer = new NativeWriter(fs))
+            //    {
+            //        //writer.Seek(dataOffset, SeekOrigin.Begin);
+            //        //writer.Write(c2);
+            //    }
+            //}
+                //}
+        }
+
+        private static void ImportTexture()
+        {
+
         }
 
 
