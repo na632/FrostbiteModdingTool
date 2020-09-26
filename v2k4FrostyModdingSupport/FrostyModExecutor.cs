@@ -5380,7 +5380,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 if (Directory.Exists(path))
                 {
                     DirectoryInfo directoryInfo = new DirectoryInfo(path);
-                    return false;
+                    // delete or throw???
+                    directoryInfo.Delete(true);
                 }
             }
             Process[] processes = Process.GetProcesses();

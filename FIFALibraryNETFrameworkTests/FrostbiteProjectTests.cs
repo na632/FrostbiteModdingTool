@@ -7,6 +7,7 @@ using FIFAModdingUI;
 using Frostbite.Textures;
 using FrostyEditor.Controls;
 using FrostySdk;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.FrostySdk.Ebx;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -333,7 +334,10 @@ namespace FIFALibraryNETFrameworkTests
 
                             Assert.IsTrue(list_bundle_entries.Count > 0);
 
-
+                            TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
+                            tocCasReader_M21.AssetManager = projectManagement.FrostyProject.AssetManager;
+                            tocCasReader_M21.Read(location_toc_file, 0, new AssetManager.BinarySbDataHelper(projectManagement.FrostyProject.AssetManager));
+                            
 
                         }
                     }
