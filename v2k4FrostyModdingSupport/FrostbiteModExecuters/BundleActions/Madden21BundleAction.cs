@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using static paulv2k4ModdingExecuter.FrostyModExecutor;
@@ -497,13 +498,13 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
                     writer_new_cas_file?.Close();
 
-
-                    bundle_file_list = bundle_file_list.Where(x => x.CasIndex > CasFileCount).ToList();
+                    // return list of new CAS files
+                    bundle_file_list = bundle_file_list.Where(x => x.CasIndex > CasFileCount-1).ToList();
                 }
             }
         }
 
-        private void WriteNewTocFile(
+        private bool WriteNewTocFile(
             string location_toc_file_mod_data
             , byte[] tocSbHeaderBytes
             , byte[] original_toc_file_byte_array
@@ -626,272 +627,115 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                         writer_new_toc_file_mod_data.Flush();
 
 
-
-
-
-
-                        //}
                     }
                 }
                 
             }
-            //
+            return list_of_modified_bundles.Count > 0;
+        }
 
-
-
-
-            /*
-            using (NativeWriter writer_new_toc_file_mod_data = new NativeWriter(new FileStream(location_toc_file_mod_data, FileMode.Create)))
+        private bool CheckTocCasReadCorrectly(string tocPath)
+        {
+            byte[] key = KeyManager.Instance.GetKey("Key2");
+            if (tocPath != "")
             {
-                // write header
-                writer_new_toc_file_mod_data.Write(tocSbHeaderBytes);
-                long startOfActualSbFile = writer_new_toc_file_mod_data.BaseStream.Position;
-                writer_new_toc_file_mod_data.Write(3280507699u);
-
-                // write something for now (TODO: Find what this is)
-                writer_new_toc_file_mod_data.Write(0xFFFFFFFF);
-                writer_new_toc_file_mod_data.Write(0xFFFFFFFF);
-
-                using (NativeReader reader_of_original_toc_file_array = new NativeReader(new MemoryStream(original_toc_file_byte_array)))
+                int num2 = 0;
+                int num3 = 0;
+                byte[] toc_array = null;
+                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
                 {
-                    const int repositioning_value = 4;
-                    const int header_length = 556;
-                    // Position 4 is where the position for the ebx item count is
-                    reader_of_original_toc_file_array.Position = repositioning_value;
-                    // read the item count and reposition
-                    reader_of_original_toc_file_array.Position = reader_of_original_toc_file_array.ReadInt();
-
-                    long position_of_something_1 = 4294967295L;
-                    long position_of_something_2 = 4294967295L;
-
-                    // read out the count and add the items to the list
-                    int original_toc_file_item_count = reader_of_original_toc_file_array.ReadInt();
-                    List<int> IsEBXList = new List<int>();
-                    for (int i = 0; i < original_toc_file_item_count; i++)
+                    uint num4 = nativeReader.ReadUInt();
+                    num2 = nativeReader.ReadInt() - 12;
+                    num3 = nativeReader.ReadInt() - 12;
+                    toc_array = nativeReader.ReadToEnd();
+                    if (num4 == 3286619587u)
                     {
-                        IsEBXList.Add(reader_of_original_toc_file_array.ReadInt());
-
-                    }
-
-                    //
-                    List<int> list2 = new List<int>();
-                    for (int j = 0; j < original_toc_file_item_count; j++)
-                    {
-                        // -------------------------------------------------
-                        // Find the Bundle Entries
-
-                        int num7 = reader_of_original_toc_file_array.ReadInt();
-                        long position2 = reader_of_original_toc_file_array.Position;
-                        reader_of_original_toc_file_array.Position = num7;
-                        int name_position = reader_of_original_toc_file_array.ReadInt() - 1;
-                        List<BundleFileEntry> lstBundleFiles3 = new List<BundleFileEntry>();
-                        int casIndex;
-                        do
+                        using (Aes aes = Aes.Create())
                         {
-                            casIndex = reader_of_original_toc_file_array.ReadInt();
-                            int inOffset = reader_of_original_toc_file_array.ReadInt();
-                            int inSize = reader_of_original_toc_file_array.ReadInt();
-                            lstBundleFiles3.Add(new BundleFileEntry(casIndex & int.MaxValue, inOffset, inSize));
-                        }
-                        while ((casIndex & 2147483648u) != 0L);
-
-                        //
-                        // --------------------------------------------------
-
-
-                        // --------------------------------------------------
-                        // Get out the objects that have been changed
-                        int num10 = 0;
-                        string name = Utils.ReverseString(reader_of_original_toc_file_array.ReadNullTerminatedString());
-                        //do
-                        //{
-                        //    string str = reader_of_original_toc_file_array.ReadNullTerminatedString();
-                        //    num10 = reader_of_original_toc_file_array.ReadInt() - 1;
-                        //    text3 = Utils.ReverseString(str) + text3;
-                        //    if (num10 != -1)
-                        //    {
-                        //        reader_of_original_toc_file_array.Position = num10;
-                        //    }
-                        //}
-                        //while (num10 != -1);
-                        reader_of_original_toc_file_array.Position = position2;
-
-                        // --------------------------------------------------
-                        // discover the object in the modified bundles
-                        int key2 = Fnv1.HashString(name.ToLower());
-                        if (parent.modifiedBundles.ContainsKey(key2))
-                        {
-                            ModBundleInfo modBundleInfo = parent.modifiedBundles[key2];
-
-                        }
-
-                        list2.Add((int)(writer_new_toc_file_mod_data.BaseStream.Position));
-                        writer_new_toc_file_mod_data.Write((int)(writer_new_toc_file_mod_data.BaseStream.Position + lstBundleFiles3.Count * 3 * 4 + 5));
-                        for (int k = 0; k < lstBundleFiles3.Count; k++)
-                        {
-                            uint bundleCasIndex = (uint)lstBundleFiles3[k].CasIndex;
-                            if (k != lstBundleFiles3.Count - 1)
+                            aes.Key = key;
+                            aes.IV = key;
+                            aes.Padding = PaddingMode.None;
+                            ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
+                            using (MemoryStream stream = new MemoryStream(toc_array))
                             {
-                                bundleCasIndex = (uint)((int)bundleCasIndex | int.MinValue);
-                            }
-                            writer_new_toc_file_mod_data.Write(bundleCasIndex);
-                            writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Offset);
-                            writer_new_toc_file_mod_data.Write(lstBundleFiles3[k].Size);
-                        }
-                        writer_new_toc_file_mod_data.WriteNullTerminatedString(new string(name.Reverse().ToArray()));
-                        writer_new_toc_file_mod_data.Write(0);
-                        //int num22 = text3.Length + 5;
-                        //for (int l = 0; l < 16 - num22 % 16; l++)
-                        //{
-                        //    writer_new_toc_file_mod_data.Write((byte)0);
-                        //}
-
-                    }
-
-                    var listPos = writer_new_toc_file_mod_data.BaseStream.Position - header_length;
-
-                    writer_new_toc_file_mod_data.BaseStream.Position = 560;
-                    writer_new_toc_file_mod_data.Write(listPos);
-                    writer_new_toc_file_mod_data.BaseStream.Position = listPos + header_length;
-                    var finishingoffstuffposition = writer_new_toc_file_mod_data.BaseStream.Position - header_length;
-                    // write the count
-                    writer_new_toc_file_mod_data.Write(IsEBXList.Count);
-                    // After we have finished processing the new files, Write back the IsEBX List
-                    foreach (int item in IsEBXList)
-                    {
-                        writer_new_toc_file_mod_data.Write(item);
-                    }
-
-                    foreach (int item in list2)
-                    {
-                        writer_new_toc_file_mod_data.Write(item);
-                    }
-
-                    List<int> list5 = new List<int>();
-                    List<uint> list6 = new List<uint>();
-                    List<Guid> list7 = new List<Guid>();
-                    List<List<Tuple<Guid, int>>> list8 = new List<List<Tuple<Guid, int>>>();
-                    int num23 = 0;
-
-
-                    reader_of_original_toc_file_array.Position = 8;
-                    var original_location_of_guids = reader_of_original_toc_file_array.ReadUInt();
-                    if (original_location_of_guids != uint.MaxValue)
-                    {
-                        reader_of_original_toc_file_array.Position = original_location_of_guids;
-                        num23 = reader_of_original_toc_file_array.ReadInt();
-                        for (int m = 0; m < num23; m++)
-                        {
-                            list5.Add(reader_of_original_toc_file_array.ReadInt());
-                            list8.Add(new List<Tuple<Guid, int>>());
-                        }
-                        for (int n = 0; n < num23; n++)
-                        {
-                            uint offset = reader_of_original_toc_file_array.ReadUInt();
-                            long position4 = reader_of_original_toc_file_array.Position;
-                            reader_of_original_toc_file_array.Position = offset;
-                            Guid guid = reader_of_original_toc_file_array.ReadGuid();
-                            int num25 = reader_of_original_toc_file_array.ReadInt();
-                            int num26 = reader_of_original_toc_file_array.ReadInt();
-                            int num27 = reader_of_original_toc_file_array.ReadInt();
-                            reader_of_original_toc_file_array.Position = position4;
-                            list6.Add((uint)(writer_new_toc_file_mod_data.BaseStream.Position - 0));
-                            if (parent.modifiedBundles.ContainsKey(chunksBundleHash))
-                            {
-
-                            }
-                            writer_new_toc_file_mod_data.Write(guid);
-                            writer_new_toc_file_mod_data.Write(num25);
-                            writer_new_toc_file_mod_data.Write(num26);
-                            writer_new_toc_file_mod_data.Write(num27);
-                            list7.Add(guid);
-                        }
-
-
-
-                        if (num23 > 0)
-                        {
-                            position_of_something_2 = writer_new_toc_file_mod_data.BaseStream.Position - header_length;
-                            int num29 = 0;
-                            List<int> list9 = new List<int>();
-                            for (int num30 = 0; num30 < num23; num30++)
-                            {
-                                list9.Add(-1);
-                                list5[num30] = -1;
-                                int index = (int)((long)(uint)((int)HashData(list7[num30].ToByteArray()) % 16777619) % (long)num23);
-                                list8[index].Add(new Tuple<Guid, int>(list7[num30], (int)list6[num30]));
-                            }
-                            for (int num31 = 0; num31 < list8.Count; num31++)
-                            {
-                                List<Tuple<Guid, int>> list10 = list8[num31];
-                                if (list10.Count > 1)
+                                using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
                                 {
-                                    uint num32 = 1u;
-                                    List<int> list11 = new List<int>();
-                                    while (true)
-                                    {
-                                        bool flag = true;
-                                        for (int num33 = 0; num33 < list10.Count; num33++)
-                                        {
-                                            int num34 = (int)((long)(uint)((int)HashData(list10[num33].Item1.ToByteArray(), num32) % 16777619) % (long)num23);
-                                            if (list9[num34] != -1 || list11.Contains(num34))
-                                            {
-                                                flag = false;
-                                                break;
-                                            }
-                                            list11.Add(num34);
-                                        }
-                                        if (flag)
-                                        {
-                                            break;
-                                        }
-                                        num32++;
-                                        list11.Clear();
-                                    }
-                                    for (int num35 = 0; num35 < list10.Count; num35++)
-                                    {
-                                        list9[list11[num35]] = list10[num35].Item2;
-                                    }
-                                    list5[num31] = (int)num32;
+                                    cryptoStream.Read(toc_array, 0, toc_array.Length);
                                 }
                             }
-                            for (int num36 = 0; num36 < list8.Count; num36++)
-                            {
-                                if (list8[num36].Count == 1)
-                                {
-                                    for (; list9[num29] != -1; num29++)
-                                    {
-                                    }
-                                    list5[num36] = -1 - num29;
-                                    list9[num29] = list8[num36][0].Item2;
-                                }
-                            }
-                            writer_new_toc_file_mod_data.Write(num23);
-                            for (int num37 = 0; num37 < num23; num37++)
-                            {
-                                writer_new_toc_file_mod_data.Write(list5[num37]);
-                            }
-                            for (int num38 = 0; num38 < num23; num38++)
-                            {
-                                writer_new_toc_file_mod_data.Write(list9[num38]);
-                            }
                         }
-                        writer_new_toc_file_mod_data.BaseStream.Position = header_length + 4;
-                        writer_new_toc_file_mod_data.Write((int)listPos);
-                        writer_new_toc_file_mod_data.Write((int)position_of_something_2);
                     }
-
-
-
-
-                    //
-
                 }
-
-
-            }
-            */
+                if (toc_array.Length != 0)
+                {
+                    using (NativeReader toc_reader = new NativeReader(new MemoryStream(toc_array)))
+                    {
+                        List<int> list = new List<int>();
+                        if (num2 > 0)
+                        {
+                            toc_reader.Position = num2;
+                            int num5 = toc_reader.ReadInt();
+                            for (int i = 0; i < num5; i++)
+                            {
+                                list.Add(toc_reader.ReadInt());
+                            }
+                            for (int j = 0; j < num5; j++)
+                            {
+                                //AssetManager.logger.Log($"progress:{Math.Round((double)j / (double)num5 * 100.0, 2)}");
+                                int num6 = toc_reader.ReadInt() - 12;
+                                long position = toc_reader.Position;
+                                toc_reader.Position = num6;
+                                int num7 = toc_reader.ReadInt() - 1;
+                                List<BundleFileEntry> list2 = new List<BundleFileEntry>();
+                                MemoryStream memoryStream = new MemoryStream();
+                                int casIndex;
+                                do
+                                {
+                                    casIndex = toc_reader.ReadInt();
+                                    var casIndexProper = casIndex & int.MaxValue;
+                                    int offset = toc_reader.ReadInt();
+                                    int size = toc_reader.ReadInt();
+                                    if (casFiles.ContainsKey(casIndexProper))
+                                    {
+                                        var fileCasLocation = casFiles[casIndexProper];
+                                        fileCasLocation = parent.fs.ResolvePath(fileCasLocation, true);
+                                        using (NativeReader nativeReader3 = new NativeReader(new FileStream(fileCasLocation, FileMode.Open, FileAccess.Read)))
+                                        {
+                                            nativeReader3.Position = offset;
+                                            memoryStream.Write(nativeReader3.ReadBytes(size), 0, size);
+                                        }
+                                        list2.Add(new BundleFileEntry(casIndex & int.MaxValue, offset, size));
+                                    }
+                                }
+                                while ((casIndex & 2147483648u) != 0L);
+                                toc_reader.Position = num7 - 12;
+                                int num11 = 0;
+                                string text2 = "";
+                                do
+                                {
+                                    string str = toc_reader.ReadNullTerminatedString();
+                                    num11 = toc_reader.ReadInt() - 1;
+                                    text2 += str;
+                                    if (num11 != -1)
+                                    {
+                                        toc_reader.Position = num11 - 12;
+                                    }
+                                }
+                                while (num11 != -1);
+                                text2 = Utils.ReverseString(text2);
+                                toc_reader.Position = position;
+                               
+                                using (BinarySbReader_M21 binarySbReader = new BinarySbReader_M21(memoryStream, 0L, parent.fs.CreateDeobfuscator()))
+                                {
+                                    DbObject dbObject = binarySbReader.ReadDbObject();
+                                }
+                            }
+                        }
                     }
+                }
+            }
+            return false;
+        }
 
         public void Run()
         {
@@ -927,8 +771,11 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                             //
                             // -----------------------------------------------------------------------------------------
 
-                            WriteNewTocFile(location_toc_file_mod_data, tocSbHeader, toc_array);
-
+                            if (WriteNewTocFile(location_toc_file_mod_data, tocSbHeader, toc_array))
+                            {
+                                if (!CheckTocCasReadCorrectly(location_toc_file_mod_data))
+                                    throw new Exception(".toc link to .cas is not setup correctly");
+                            }
                         }
                     }
                 }
@@ -937,6 +784,7 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
             {
                 throw e;
             }
+
         }
 
         private NativeWriter GetNextCas(out int casFileIndex)

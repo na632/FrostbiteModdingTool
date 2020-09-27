@@ -52,15 +52,15 @@ namespace paulv2k4FrostbiteTool
         {
 
             Console.WriteLine("Welcome to paulv2k4's Frostbite Import and Export Tool");
-            Console.WriteLine("This tool is in early alpha, please aware you might break your game using this tool.");
+            Console.WriteLine("This tool is in early alpha, please be aware you might break your game using this tool.");
 
             Console.WriteLine("");
             if (args.Length == 0)
             {
                 Console.WriteLine("Please supply some arguments for the tool to work!");
+                Console.ReadLine();
                 return;
             }
-
 
 
             Parser.Default.ParseArguments<Options>(args)
@@ -184,7 +184,7 @@ namespace paulv2k4FrostbiteTool
                 {
                     ExportRawData(r, "EBX");
                     var ebx = projectManagement.FrostyProject.AssetManager.GetEbx(r);
-                    var json = JsonConvert.SerializeObject(ebx.RootObject);
+                    var json = JsonConvert.SerializeObject(ebx.RootObject, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     File.WriteAllText("Export\\EBX\\Readable\\" + r.Filename + ".json", json);
 
                 });
@@ -206,28 +206,19 @@ namespace paulv2k4FrostbiteTool
                });
             }
 
-            //var allChunks = projectManagement.FrostyProject.AssetManager.EnumerateChunks().ToList();
-            //var searchChunks = allChunks.Where(x =>
-            //{
-            //    return SearchMatchExportFilesToAssetEntry(options, x);
-            //}
-            //).ToList();
-            //if (searchChunks != null && searchChunks.Count() > 0)
-            //{
-            //    searchChunks.ForEach(r => ExportRawData(r, "Chunk"));
-            //}
-
-            //var allLegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
-            //var searchLegacy = allLegacy.Where(x =>
-            //{
-            //    return SearchMatchExportFilesToAssetEntry(options, x);
-            //}
-            //).ToList();
-            //if (allLegacy != null && allLegacy.Count() > 0)
-            //{
-            //    allLegacy.ForEach(r => ExportRawData(r, "Legacy"));
-            //}
-
+            var allLegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
+            var searchLegacy = allLegacy.Where(x =>
+            {
+                return SearchMatchExportFilesToAssetEntry(options, x);
+            }
+            ).ToList();
+            if (searchLegacy != null && searchLegacy.Count() > 0)
+            {
+                searchLegacy.ForEach(r => { 
+                    ExportRawData(r, "Legacy"); 
+                });
+            }
+            
             Console.WriteLine("Export Complete");
             Console.ReadLine();
         }
@@ -264,13 +255,21 @@ namespace paulv2k4FrostbiteTool
                     }
                 }
             }
+            else
+            {
+                using (NativeWriter nativeWriter = new NativeWriter(new FileStream($"Export\\{type}\\{r.Filename}.{r.Type}", FileMode.Create)))
+                {
+                    nativeWriter.Write(new NativeReader(projectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", r)).ReadToEnd());
+                }
+            }
+
         }
 
         private static bool SearchMatchExportFilesToAssetEntry(Options options, AssetEntry x)
         {
             foreach (var i in options.ExportFiles)
             {
-                return x.Path.ToLower().Contains(i.ToLower());// x.Filename.Contains(i);
+                return x.Path.ToLower().Contains(i.ToLower());
             }
 
             return false;
