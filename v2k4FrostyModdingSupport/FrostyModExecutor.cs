@@ -5758,10 +5758,10 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     DbObject layoutToc = null;
 
                  
-                        using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                        {
-                            layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
-                        }
+                    using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                    {
+                        layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
+                    }
 
                     
                     FifaBundleAction.CasFileCount = fs.CasFileCount;
@@ -5873,7 +5873,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     //else
                     //if (ProfilesLibrary.IsFIFADataVersion())
                     //{
-                        logger.Log("Writing new Layout file to FIFA");
+                        logger.Log("Writing new Layout file to Game");
                         using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
                         {
                             dbWriter.Write(layoutToc);

@@ -74,6 +74,13 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void TestBuildCacheAndSDK_FIFA21()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+        }
+
+        [TestMethod]
         public void TestBuildCacheAndSDK_MADDEN21()
         {
             var buildCache = new BuildCache();

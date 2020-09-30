@@ -1,5 +1,6 @@
 ﻿using Frosty.Hash;
 using FrostySdk;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using paulv2k4ModdingExecuter;
@@ -106,6 +107,12 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
             using (NativeReader nativeReader = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read)))
             {
                 garbage_section_array = nativeReader.ReadBytes(556);
+                for (var i = 4; i < 556; i++)
+                {
+                    garbage_section_array[i] = 0;
+                }
+
+
                 // At position 22C / 556
                 nativeReader.Position = 556;
                 toc_array = nativeReader.ReadToEnd();
@@ -182,16 +189,17 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
 
                     int casIndex = 0;
-                    var whileCheck = casIndex & 2147483648u;
+                    var casIndexChecker = casIndex & 2147483648u;
                     do
                     {
                         casIndex = reader_of_original_toc_file_array.ReadInt();
+                        casIndexChecker = casIndex & 2147483648u;
+
                         int inOffset = reader_of_original_toc_file_array.ReadInt();
                         int inSize = reader_of_original_toc_file_array.ReadInt();
-                        list_bundle_entries.Add(new BundleFileEntry(casIndex & int.MaxValue, inOffset, inSize));
-                        whileCheck = casIndex & 2147483648u;
+                        list_bundle_entries.Add(new BundleFileEntry((int)casIndex & int.MaxValue, inOffset, inSize));
                     }
-                    while (whileCheck != 0L);
+                    while (casIndexChecker != 0L);
 
                     //
                     // --------------------------------------------------
@@ -255,6 +263,9 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                         memoryStream.Write(nativeReader3.ReadBytes(item.Size), 0, item.Size);
                     }
                 }
+
+                if (memoryStream.Length == 0)
+                    throw new Exception("Memory is empty, must have read from the wrong CAS file");
 
                 DbObject dbObject = null;
 
@@ -385,23 +396,23 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                             WriterCASFileBody_ToMemory.Write(parent.archiveData[chunkAssetEntry.Sha1].Data);
                         }
                     }
-                    var originalBundle = bundle_file_list[0];
-                    bundle_file_list.Clear();
-                    bundle_file_list.Add(originalBundle);
-                    // grab out objects
-                    foreach (DbObject ebxObject in dbObject.GetValue<DbObject>("ebx"))
-                    {
-                        bundle_file_list.Add(new BundleFileEntry(ebxObject.GetValue("cas", 0), ebxObject.GetValue("offset", 0), ebxObject.GetValue("size", 0)));
-                    }
-                    foreach (DbObject resObject in dbObject.GetValue<DbObject>("res"))
-                    {
-                        bundle_file_list.Add(new BundleFileEntry(resObject.GetValue("cas", 0), resObject.GetValue("offset", 0), resObject.GetValue("size", 0)));
-                    }
-                    foreach (DbObject chunkObject in dbObject.GetValue<DbObject>("chunks"))
-                    {
-                        bundle_file_list.Add(new BundleFileEntry(chunkObject.GetValue("cas", 0), chunkObject.GetValue("offset", 0), chunkObject.GetValue("size", 0)));
-                    }
-                    
+                    var originalBundle = bundle_file_list.OrderBy(x=>x.CasIndex).ToList()[0];
+                bundle_file_list.Clear();
+                bundle_file_list.Add(originalBundle);
+                // grab out objects
+                foreach (DbObject ebxObject in dbObject.GetValue<DbObject>("ebx"))
+                {
+                    bundle_file_list.Add(new BundleFileEntry(ebxObject.GetValue("cas", 0), ebxObject.GetValue("offset", 0), ebxObject.GetValue("size", 0)));
+                }
+                foreach (DbObject resObject in dbObject.GetValue<DbObject>("res"))
+                {
+                    bundle_file_list.Add(new BundleFileEntry(resObject.GetValue("cas", 0), resObject.GetValue("offset", 0), resObject.GetValue("size", 0)));
+                }
+                foreach (DbObject chunkObject in dbObject.GetValue<DbObject>("chunks"))
+                {
+                    bundle_file_list.Add(new BundleFileEntry(chunkObject.GetValue("cas", 0), chunkObject.GetValue("offset", 0), chunkObject.GetValue("size", 0)));
+                }
+
 
                 int ebxCount = dbObject.GetValue<DbObject>("ebx").Count;
                 int resCount = dbObject.GetValue<DbObject>("res").Count;
@@ -418,6 +429,7 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                     WriterCASFileHeader_ToMemory.Write(chunkCount, Endian.Little); // chunk count
                     WriterCASFileHeader_ToMemory.Write(0xFFFFFFFF, Endian.Little); // string offset
                     WriterCASFileHeader_ToMemory.Write(0xFFFFFFFF, Endian.Little); // meta offset
+                    WriterCASFileHeader_ToMemory.Write((int)0); // meta size
                     long stringOffset = 0L;
                     new Dictionary<uint, long>();
                     List<string> listOfStringValues = new List<string>();
@@ -475,11 +487,22 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
                     long headersize = WriterCASFileHeader_ToMemory.BaseStream.Position - 4;
                     WriterCASFileHeader_ToMemory.BaseStream.Position = 24L;
-                    WriterCASFileHeader_ToMemory.Write((uint)(stringOffsetStart - 4), Endian.Little);
-                    WriterCASFileHeader_ToMemory.Write((uint)(metaOffsetStart - 4), Endian.Little);
-                    //WriterCASFile_ToMemory.Write((uint)num19, Endian.Big);
+
+                    if(stringOffsetStart > 4)
+                        WriterCASFileHeader_ToMemory.Write((uint)(stringOffsetStart - 4), Endian.Little); // String Offset
+                    else
+                        WriterCASFileHeader_ToMemory.Write((int)0, Endian.Little); // String Offset
+
+                    if (metaOffsetStart > 4)
+                        WriterCASFileHeader_ToMemory.Write((uint)(metaOffsetStart - 4), Endian.Little); // Meta Offset
+                    else
+                        WriterCASFileHeader_ToMemory.Write((uint)(0), Endian.Little); // Meta Offset
+
+                    WriterCASFileHeader_ToMemory.Write((uint)(0), Endian.Little); // Meta Size 
+                    WriterCASFileHeader_ToMemory.Flush();
+
                     WriterCASFileHeader_ToMemory.BaseStream.Position = 0L;
-                    WriterCASFileHeader_ToMemory.Write((uint)headersize, Endian.Big);
+                    WriterCASFileHeader_ToMemory.Write((uint)headersize, Endian.Big); // Header Size at the top
                     //if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + WriterCASFileHeader_ToMemory.BaseStream.Length > 1073741824)
                     //{
                     //    writer_new_cas_file?.Close();
@@ -488,18 +511,24 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                     // TODO: Get this done so we can tell the toc/sb where stuff is
                     //bundle_file_list.Add(new BundleFileEntry(casFileIndex, (int)writer_new_cas_file.BaseStream.Position, (int)(headersize + 4)));
 
-                    writer_new_cas_file.Write(((MemoryStream)WriterCASFileHeader_ToMemory.BaseStream).ToArray());
-                    writer_new_cas_file.Write(((MemoryStream)WriterCASFileBody_ToMemory.BaseStream).ToArray());
-
+                    WriterCASFileHeader_ToMemory.Flush();
+                    WriterCASFileBody_ToMemory.Flush();
+                    var headerBytes = ((MemoryStream)WriterCASFileHeader_ToMemory.BaseStream).ToArray();
+                    var casBodyBytes = ((MemoryStream)WriterCASFileBody_ToMemory.BaseStream).ToArray();
                     // Dispose of this now. Free memory
                     WriterCASFileBody_ToMemory.Close();
                     WriterCASFileBody_ToMemory.Dispose();
+
+                    writer_new_cas_file.Write(headerBytes);
+                    writer_new_cas_file.Write(casBodyBytes);
+
+                   
 
 
                     writer_new_cas_file?.Close();
 
                     // return list of new CAS files
-                    bundle_file_list = bundle_file_list.Where(x => x.CasIndex > CasFileCount-1).ToList();
+                    //bundle_file_list = bundle_file_list.Where(x => x.CasIndex > CasFileCount-1).ToList();
                 }
             }
         }
@@ -562,9 +591,9 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
                         //writer_new_toc_file_mod_data.Write(0xFFFFFFFF); // Position of reader - 556 + 16
 
                         var bundlePositions = new List<long>();
-                        foreach (var kvp in dictParentBundleToChild.OrderBy(x=>x.Value.OrderByDescending(y=>y.CasIndex)))
+                        foreach (var kvp in dictParentBundleToChild)
                         {
-                            var bundleEntries = kvp.Value.OrderByDescending(y => y.CasIndex).ToList();
+                            var bundleEntries = kvp.Value.OrderByDescending(x=>x.CasIndex).ToList();
 
                             long positionofstring = 0;
                             var modulebundleinfo = kvp.Key;
@@ -611,7 +640,7 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
                         foreach (var kvp in dictParentBundleToChild)
                         {
-                            writer_new_toc_file_mod_data.Write(-1);
+                            writer_new_toc_file_mod_data.Write(dictParentBundleToChild.Values.FirstOrDefault()[0].CasIndex * -1);
                         }
                         writer_new_toc_file_mod_data.Flush();
 
@@ -636,105 +665,9 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
 
         private bool CheckTocCasReadCorrectly(string tocPath)
         {
-            byte[] key = KeyManager.Instance.GetKey("Key2");
-            if (tocPath != "")
-            {
-                int num2 = 0;
-                int num3 = 0;
-                byte[] toc_array = null;
-                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
-                {
-                    uint num4 = nativeReader.ReadUInt();
-                    num2 = nativeReader.ReadInt() - 12;
-                    num3 = nativeReader.ReadInt() - 12;
-                    toc_array = nativeReader.ReadToEnd();
-                    if (num4 == 3286619587u)
-                    {
-                        using (Aes aes = Aes.Create())
-                        {
-                            aes.Key = key;
-                            aes.IV = key;
-                            aes.Padding = PaddingMode.None;
-                            ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
-                            using (MemoryStream stream = new MemoryStream(toc_array))
-                            {
-                                using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
-                                {
-                                    cryptoStream.Read(toc_array, 0, toc_array.Length);
-                                }
-                            }
-                        }
-                    }
-                }
-                if (toc_array.Length != 0)
-                {
-                    using (NativeReader toc_reader = new NativeReader(new MemoryStream(toc_array)))
-                    {
-                        List<int> list = new List<int>();
-                        if (num2 > 0)
-                        {
-                            toc_reader.Position = num2;
-                            int num5 = toc_reader.ReadInt();
-                            for (int i = 0; i < num5; i++)
-                            {
-                                list.Add(toc_reader.ReadInt());
-                            }
-                            for (int j = 0; j < num5; j++)
-                            {
-                                //AssetManager.logger.Log($"progress:{Math.Round((double)j / (double)num5 * 100.0, 2)}");
-                                int num6 = toc_reader.ReadInt() - 12;
-                                long position = toc_reader.Position;
-                                toc_reader.Position = num6;
-                                int num7 = toc_reader.ReadInt() - 1;
-                                List<BundleFileEntry> list2 = new List<BundleFileEntry>();
-                                MemoryStream memoryStream = new MemoryStream();
-                                int casIndex;
-                                do
-                                {
-                                    casIndex = toc_reader.ReadInt();
-                                    var casIndexProper = casIndex & int.MaxValue;
-                                    int offset = toc_reader.ReadInt();
-                                    int size = toc_reader.ReadInt();
-                                    if (casFiles.ContainsKey(casIndexProper))
-                                    {
-                                        var fileCasLocation = casFiles[casIndexProper];
-                                        fileCasLocation = parent.fs.ResolvePath(fileCasLocation, true);
-                                        using (NativeReader nativeReader3 = new NativeReader(new FileStream(fileCasLocation, FileMode.Open, FileAccess.Read)))
-                                        {
-                                            nativeReader3.Position = offset;
-                                            memoryStream.Write(nativeReader3.ReadBytes(size), 0, size);
-                                        }
-                                        list2.Add(new BundleFileEntry(casIndex & int.MaxValue, offset, size));
-                                    }
-                                }
-                                while ((casIndex & 2147483648u) != 0L);
-                                toc_reader.Position = num7 - 12;
-                                int num11 = 0;
-                                string text2 = "";
-                                do
-                                {
-                                    string str = toc_reader.ReadNullTerminatedString();
-                                    num11 = toc_reader.ReadInt() - 1;
-                                    text2 += str;
-                                    if (num11 != -1)
-                                    {
-                                        toc_reader.Position = num11 - 12;
-                                    }
-                                }
-                                while (num11 != -1);
-                                text2 = Utils.ReverseString(text2);
-                                toc_reader.Position = position;
-                               
-                                using (BinarySbReader_M21 binarySbReader = new BinarySbReader_M21(memoryStream, 0L, parent.fs.CreateDeobfuscator()))
-                                {
-                                    DbObject dbObject = binarySbReader.ReadDbObject();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
+            TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
+            tocCasReader_M21.Read(tocPath, 0, new BinarySbDataHelper(AssetManager.Instance));
+            return true;
         }
 
         public void Run()
@@ -799,6 +732,7 @@ namespace paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions
             lock (locker)
             {
                 casFiles.Add(++CasFileCount, "/native_data/Patch/" + catalogInfo.Name + "/cas_" + num.ToString("D2") + ".cas");
+                AssetManager.Instance.ModCASFiles.Add(CasFileCount, "/native_data/Patch/" + catalogInfo.Name + "/cas_" + num.ToString("D2") + ".cas");
                 casFileIndex = CasFileCount;
             }
             FileInfo fileInfo = new FileInfo(text);

@@ -74,6 +74,29 @@ namespace FIFALibraryNETFrameworkTests
             //var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
         }
 
+        [TestMethod]
+        public void LoadProjectAndRun_FIFA21()
+        {
+            InitializeOfSelectedGame(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            ProjectManagement projectManagement = new ProjectManagement();
+            projectManagement.StartNewProject();
+            projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
+
+            if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+            {
+                throw new Exception("Unable to Initialize Profile");
+            }
+            FileSystem fileSystem = new FileSystem(GameInstanceSingleton.GAMERootPath);
+            foreach (FileSystemSource source in ProfilesLibrary.Sources)
+            {
+                fileSystem.AddSource(source.Path, source.SubDirs);
+            }
+            fileSystem.Initialize();
+            var fme = new FrostyModExecutor();
+            var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+            //var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+        }
+
         public List<Tuple<string, string, object>> GetRootObjectProperties(object RootObject)
         {
             List<Tuple<string, string, object>> items = new List<Tuple<string, string, object>>();
@@ -182,10 +205,10 @@ namespace FIFALibraryNETFrameworkTests
                         };
                     }
 
-                    //var root = ((dynamic)ebx.RootObject) as dynamic;
-                    //root.run_indication_indicator_color.x = 0.0f;
-                    //root.run_indication_indicator_color.y = 0.0f;
-                    //root.run_indication_indicator_color.z = 1.0f;
+                    var root = ((dynamic)ebx.RootObject) as dynamic;
+                    root.run_indication_indicator_color.x = 0.0f;
+                    root.run_indication_indicator_color.y = 0.0f;
+                    root.run_indication_indicator_color.z = 1.0f;
 
                     //        //root.run_indication_indicator_color_non_loco.x = 0.0f;
                     //        //root.run_indication_indicator_color_non_loco.y = 0.0f;
@@ -203,38 +226,33 @@ namespace FIFALibraryNETFrameworkTests
                     //        //ebx.AddRootObject(root);
                     //        //getEbx_movement.AddRootObject(root);
                     //        //projectManagement.FrostyProject.AssetManager.AddEbx(eb.Name, ebx, 0);
-                    projectManagement.FrostyProject.AssetManager.ModifyEbx(eb.Name, ebx);
+                    //projectManagement.FrostyProject.AssetManager.ModifyEbx(eb.Name, ebx);
 
                     //        File.WriteAllText($"Debugging/EBX/{eb.Filename}.dat", JsonConvert.SerializeObject(robjProps));
                     //        Assert.IsNotNull(robjProps);
                     }
                   }
 
+            var ebxofsplash = allEBX.Where(x => x.Path.ToLower().EndsWith("splashscreen")).ToList()[1];
             var allRes = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
-            var ebxPaths = allEBX.Where(x => x.DisplayName.ToLower().Contains("splashscreen")).Select(x=> new { x.Path, x.Name, x.DisplayName }).ToList();
-            var ebxofres = allEBX.FirstOrDefault(x => x.Name == "content/UI/SplashScreen/SplashScreen");
-
-            var resPaths = allRes.Where(x => x.Name == "content/ui/splashscreen/splashscreen").ToList();
-            var res = allRes.FirstOrDefault(x => x.Name == "content/ui/splashscreen/splashscreen");
-
-            //foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x => x.Name.ToLower().Contains("splashscreen")).ToList())
+            var ebxofres = allEBX.Where(x => x.DisplayName.ToLower().Contains("splashscreen")).ToList();
+            foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x => x.Name.ToLower().Contains("splashscreen")).ToList())
             {
                 File.WriteAllText($"Debugging/RES/{res.DisplayName}", JsonConvert.SerializeObject(res));
                 var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
                 Texture textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
-                //new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.PNG", "*.png");
                 new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.DDS", "*.dds");
                 if (res.Filename == "splashscreen")
                 {
                     var linked = res.LinkedAssets;
                     //new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.DDS", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
-                    //new TextureImporter().ImportTextureFromFileToTextureAsset_Original
-                    //    ("G:\\splashscreen_v2k4.DDS", ebxofres, projectManagement.FrostyProject.AssetManager, ref textureAsset, out string errorMessage);
-                    //new TextureImporter().ImportTextureFromFile("G:\\splashscreen_v2k4.png", textureAsset, res, projectManagement.FrostyProject.AssetManager, out string errorMessage);
-                    //if (errorMessage != string.Empty)
-                    //{
+                    new TextureImporter().ImportTextureFromFileToTextureAsset_Original(
+                         @"G:\splashscreen_v2k4.DDS"
+                         , ebxofsplash
+                         , projectManagement.FrostyProject.AssetManager
+                         , ref textureAsset
+                         , out string message);
 
-                    //}
                 }
             }
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
@@ -259,8 +277,8 @@ namespace FIFALibraryNETFrameworkTests
             }
             fileSystem.Initialize();
             var fme = new FrostyModExecutor();
-            var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
-            //var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+            //var result = fme.BuildModData(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
+            var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
 
             //var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { }.ToArray()).Result;
 
@@ -339,13 +357,6 @@ namespace FIFALibraryNETFrameworkTests
                                 , out List<int> IsEBXList);
 
                             Assert.IsTrue(list_bundle_entries.Count > 0);
-
-                            if (list_modified_bundles.Count > 0)
-                            {
-                                TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
-                                tocCasReader_M21.AssetManager = projectManagement.FrostyProject.AssetManager;
-                                //tocCasReader_M21.Read(location_toc_file, 0, new AssetManager.BinarySbDataHelper(projectManagement.FrostyProject.AssetManager));
-                            }
 
                         }
                     }

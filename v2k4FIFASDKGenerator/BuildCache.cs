@@ -66,34 +66,40 @@ namespace v2k4FIFASDKGenerator
 						Debug.WriteLine($"[DEBUG] LoadDataAsync::Initialising Type Library");
 
 						if (TypeLibrary.Initialize(loadSDK))
+						{
+							if (logger == null)
+								logger = this;
+
+							AssetManagerImportResult result = new AssetManagerImportResult();
+
+							ClassesSdkCreator.FileSystem = new FileSystem(FIFALocation);
+
+							bool patched = false;
+
+							foreach (FileSystemSource source in ProfilesLibrary.Sources)
 							{
-								if (logger == null)
-									logger = this;
-
-								AssetManagerImportResult result = new AssetManagerImportResult();
-
-								ClassesSdkCreator.FileSystem = new FileSystem(FIFALocation);
-								foreach (FileSystemSource source in ProfilesLibrary.Sources)
-								{
-									ClassesSdkCreator.FileSystem.AddSource(source.Path, source.SubDirs);
-								}
-								byte[] key = KeyManager.Instance.GetKey("Key1");
-								ClassesSdkCreator.FileSystem.Initialize(key);
-								ClassesSdkCreator.ResourceManager = new ResourceManager(ClassesSdkCreator.FileSystem);
-								ClassesSdkCreator.ResourceManager.SetLogger(logger);
-								ClassesSdkCreator.ResourceManager.Initialize();
-								ClassesSdkCreator.AssetManager = new AssetManager(ClassesSdkCreator.FileSystem, ClassesSdkCreator.ResourceManager);
-							//LegacyFileManager.AssetManager = ClassesSdkCreator.AssetManager;
-							//ClassesSdkCreator.AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-							ClassesSdkCreator.AssetManager.RegisterLegacyAssetManager();
-								ClassesSdkCreator.AssetManager.SetLogger(logger);
-								ClassesSdkCreator.AssetManager.Initialize(additionalStartup: true, result);
-								return true;
+								ClassesSdkCreator.FileSystem.AddSource(source.Path, source.SubDirs);
+								if (source.Path.ToLower().Contains("patch"))
+									patched = true;
 							}
+							byte[] key = KeyManager.Instance.GetKey("Key1");
+							ClassesSdkCreator.FileSystem.Initialize(key, patched);
+							ClassesSdkCreator.ResourceManager = new ResourceManager(ClassesSdkCreator.FileSystem);
+							ClassesSdkCreator.ResourceManager.SetLogger(logger);
+							ClassesSdkCreator.ResourceManager.Initialize();
+							ClassesSdkCreator.AssetManager = new AssetManager(ClassesSdkCreator.FileSystem, ClassesSdkCreator.ResourceManager);
+						//LegacyFileManager.AssetManager = ClassesSdkCreator.AssetManager;
+						//ClassesSdkCreator.AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+						ClassesSdkCreator.AssetManager.RegisterLegacyAssetManager();
+							ClassesSdkCreator.AssetManager.SetLogger(logger);
+							ClassesSdkCreator.AssetManager.Initialize(additionalStartup: true, result);
+							return true;
 						}
+					}
 					return false;
 				});
 			}
+			Debug.WriteLine($"[ERROR] Failed to initialise");
 			return false;
 		}
 

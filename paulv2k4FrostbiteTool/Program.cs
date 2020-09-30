@@ -46,6 +46,9 @@ namespace paulv2k4FrostbiteTool
             [Option(longName: "listRES", Required = false, HelpText = "Exports a list of RES in the Game")]
             public bool listRES { get; set; }
 
+            [Option(longName: "listLegacy", Required = false, HelpText = "Exports a list of Legacy files in the Game")]
+            public bool listLegacy { get; set; }
+
         }
 
         static void Main(string[] args)
@@ -144,6 +147,12 @@ namespace paulv2k4FrostbiteTool
             {
                 var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().ToList().Select(x => new { x.Path, x.Name, x.Type, CasPath = x.ExtraData != null ? x.ExtraData.CasPath : "" });
                 File.WriteAllText("Export/EBX/__ListOfEbx.json", JsonConvert.SerializeObject(allEBX));
+            }
+
+            if (obj.listLegacy)
+            {
+                var allLegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList().Select(x => new { x.Path, x.Name, x.Type });
+                File.WriteAllText("Export/Legacy/__ListOfLegacy.json", JsonConvert.SerializeObject(allLegacy));
             }
 
             if (obj.Export.HasValue)

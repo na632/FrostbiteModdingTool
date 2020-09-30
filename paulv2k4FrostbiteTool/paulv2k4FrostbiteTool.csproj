@@ -142,5 +142,10 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll">
+      <Link>Plugins\Madden21Plugin.dll</Link>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
