@@ -18,21 +18,21 @@ namespace v2k4FIFASDKGenerator
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="FIFAVersion"></param>
-		/// <param name="FIFALocation"></param>
+		/// <param name="GameVersion"></param>
+		/// <param name="GameLocation"></param>
 		/// <param name="logger">ILogger</param>
 		/// <param name="forceDeleteOfOld">Force the deletion of old Cache to rebuild it again</param>
 		/// <param name="loadSDK">If you have already built the SDK, then just use the one you have</param>
 		/// <returns></returns>
-		public bool LoadData(string FIFAVersion, string FIFALocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
+		public bool LoadData(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
-			return LoadDataAsync(FIFAVersion, FIFALocation, logger, forceDeleteOfOld, loadSDK).Result;
+			return LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
 		}
 
-		public async Task<bool> LoadDataAsync(string FIFAVersion, string FIFALocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
+		public async Task<bool> LoadDataAsync(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
-			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({FIFAVersion},{FIFALocation})");
-			if (ProfilesLibrary.Initialize(FIFAVersion))
+			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({GameVersion},{GameLocation})");
+			if (ProfilesLibrary.Initialize(GameVersion))
 			{
 				if (File.Exists(ProfilesLibrary.CacheName + ".cache") && forceDeleteOfOld)
 					File.Delete(ProfilesLibrary.CacheName + ".cache");
@@ -72,7 +72,7 @@ namespace v2k4FIFASDKGenerator
 
 							AssetManagerImportResult result = new AssetManagerImportResult();
 
-							ClassesSdkCreator.FileSystem = new FileSystem(FIFALocation);
+							ClassesSdkCreator.FileSystem = new FileSystem(GameLocation);
 
 							bool patched = false;
 

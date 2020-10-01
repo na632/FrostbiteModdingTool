@@ -23,7 +23,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>4</ApplicationRevision>
     <ApplicationVersion>2020.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -78,6 +78,9 @@
       <Link>madden21.cache</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\FrostySdk\Madden21Profile.json">
+      <Link>Madden21Profile.json</Link>
+    </None>
     <None Include="App.config" />
     <None Include="ExportExample_FIFA20.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -95,9 +98,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="madden21.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Madden21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -121,9 +121,9 @@
       <Project>{808b462b-078a-4d7d-8da1-92fced89f32a}</Project>
       <Name>v2k4FIFAModding</Name>
     </ProjectReference>
-    <ProjectReference Include="..\v2k4FIFASDKGenerator\v2k4FIFASDKGenerator.csproj">
+    <ProjectReference Include="..\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj">
       <Project>{1dbc8811-e837-4701-8fae-6a8b03f5c876}</Project>
-      <Name>v2k4FIFASDKGenerator</Name>
+      <Name>paulv2k4FIFASDKGenerator</Name>
     </ProjectReference>
     <ProjectReference Include="..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj">
       <Project>{8d172f0e-658a-4507-870f-c5b7ae1bca6e}</Project>
@@ -145,6 +145,11 @@
   <ItemGroup>
     <Content Include="..\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll">
       <Link>Plugins\Madden21Plugin.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.0\FIFA21Plugin.dll">
+      <Link>Plugins\FIFA21Plugin.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

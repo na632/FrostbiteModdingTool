@@ -45,8 +45,8 @@ namespace FIFALibraryNETFrameworkTests
         [TestMethod]
         public void LoadProjectAndRun_FIFA20()
         {
-            InitializeOfSelectedGame(@"E:\Origin Games\FIFA 20\FIFA20.exe");
-            ProjectManagement projectManagement = new ProjectManagement();
+            //InitializeOfSelectedGame(@"E:\Origin Games\FIFA 20\FIFA20.exe");
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 20\FIFA20.exe");
             projectManagement.StartNewProject();
             projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-20-Career-Mod\v2k4CareerMod.fbproject");
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
@@ -175,7 +175,7 @@ namespace FIFALibraryNETFrameworkTests
         public void LoadProjectAndRun_Madden21()
         {
             InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
-            ProjectManagement projectManagement = new ProjectManagement();
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             projectManagement.StartNewProject();
 
             var alllegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
@@ -289,7 +289,7 @@ namespace FIFALibraryNETFrameworkTests
         public void LoadProjectAndTest_Madden21()
         {
             InitializeOfSelectedGame(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
-            ProjectManagement projectManagement = new ProjectManagement();
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             projectManagement.StartNewProject();
 
             var alllegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();

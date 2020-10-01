@@ -5356,9 +5356,27 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             return true;
         }
 
+        List<Assembly> PluginAssemblies = new List<Assembly>();
+
+        public void InitializePlugins()
+        {
+            if (Directory.Exists("Plugins"))
+            {
+                foreach (var p in Directory.EnumerateFiles("Plugins"))
+                {
+                    if (p.ToLower().EndsWith(".dll"))
+                    {
+                        PluginAssemblies.Add(Assembly.LoadFrom(p));
+                    }
+                }
+            }
+        }
 
         public async Task<bool> BuildModData(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
         {
+            InitializePlugins();
+
+
             fs = inFs;
             Logger = inLogger;
             string modPath = fs.BasePath + modDirName + "\\";
@@ -5753,7 +5771,32 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
                 Logger.Log("Applying mods");
                 SymbolicLinkList.Clear();
-                if (ProfilesLibrary.IsMaddenDataVersion() || ProfilesLibrary.IsFIFADataVersion())
+
+                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    foreach (Type t in a.GetTypes())
+                    {
+                        if (t.GetInterface("IAssetCompiler") != null)
+                        {
+                            try
+                            {
+                                if (t.Name == ProfilesLibrary.AssetCompilerName)
+                                {
+                                    ((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this);
+                                }
+                            }
+                            catch
+                            {
+                            }
+                        }
+                    }
+                }
+
+
+
+
+                //if (ProfilesLibrary.IsMaddenDataVersion() || ProfilesLibrary.IsFIFADataVersion())
+                if(ProfilesLibrary.IsFIFADataVersion())
                 {
                     DbObject layoutToc = null;
 
@@ -5773,20 +5816,20 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     var numberOfCatalogs = fs.Catalogs.Count();
                     var numberOfCatalogsCompleted = 0;
 
-                    if (ProfilesLibrary.IsMaddenDataVersion())
-                    {
-                        foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
-                        {
-                            Madden21BundleAction maddenBundleAction = new Madden21BundleAction(catalogItem, inDoneEvent, this);
-                            maddenBundleAction.Run();
-                            numberOfCatalogsCompleted++;
-                            logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+                    //if (ProfilesLibrary.IsMaddenDataVersion())
+                    //{
+                    //    foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
+                    //    {
+                    //        Madden21BundleAction maddenBundleAction = new Madden21BundleAction(catalogItem, inDoneEvent, this);
+                    //        maddenBundleAction.Run();
+                    //        numberOfCatalogsCompleted++;
+                    //        logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
 
-                            madden21BundleActions.Add(maddenBundleAction);
-                        }
-                    }
-                    else
-                    {
+                    //        madden21BundleActions.Add(maddenBundleAction);
+                    //    }
+                    //}
+                    //else
+                    //{
                         foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
                         {
                             FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
@@ -5796,38 +5839,38 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
                             fifaBundleActions.Add(fifaBundleAction);
                         }
-                    }
+                    //}
 
-                    foreach (Madden21BundleAction bundleAction in madden21BundleActions)
-                    {
-                        if (bundleAction.HasErrored)
-                        {
-                            throw bundleAction.Exception;
-                        }
-                        if (bundleAction.CasFiles.Count > 0)
-                        {
-                            var installManifest = layoutToc.GetValue<DbObject>("installManifest");
-                            var installChunks = installManifest.GetValue<DbObject>("installChunks");
-                            foreach (DbObject installChunk in installChunks)
-                            {
-                                if (bundleAction.CatalogInfo.Name.Equals("win32/" + installChunk.GetValue<string>("name")))
-                                {
-                                    foreach (int key in bundleAction.CasFiles.Keys)
-                                    {
-                                        DbObject newFile = DbObject.CreateObject();
-                                        newFile.SetValue("id", key);
-                                        newFile.SetValue("path", bundleAction.CasFiles[key]);
+                    //foreach (Madden21BundleAction bundleAction in madden21BundleActions)
+                    //{
+                    //    if (bundleAction.HasErrored)
+                    //    {
+                    //        throw bundleAction.Exception;
+                    //    }
+                    //    if (bundleAction.CasFiles.Count > 0)
+                    //    {
+                    //        var installManifest = layoutToc.GetValue<DbObject>("installManifest");
+                    //        var installChunks = installManifest.GetValue<DbObject>("installChunks");
+                    //        foreach (DbObject installChunk in installChunks)
+                    //        {
+                    //            if (bundleAction.CatalogInfo.Name.Equals("win32/" + installChunk.GetValue<string>("name")))
+                    //            {
+                    //                foreach (int key in bundleAction.CasFiles.Keys)
+                    //                {
+                    //                    DbObject newFile = DbObject.CreateObject();
+                    //                    newFile.SetValue("id", key);
+                    //                    newFile.SetValue("path", bundleAction.CasFiles[key]);
 
-                                        var installChunkFiles = installChunk.GetValue<DbObject>("files");
-                                        installChunkFiles.Add(newFile);
+                    //                    var installChunkFiles = installChunk.GetValue<DbObject>("files");
+                    //                    installChunkFiles.Add(newFile);
 
 
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    //                }
+                    //                break;
+                    //            }
+                    //        }
+                    //    }
+                    //}
                     foreach (FifaBundleAction bundleAction in fifaBundleActions.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
                     {
                         if (bundleAction.HasErrored)

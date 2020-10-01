@@ -149,9 +149,9 @@
       <Project>{808b462b-078a-4d7d-8da1-92fced89f32a}</Project>
       <Name>v2k4FIFAModding</Name>
     </ProjectReference>
-    <ProjectReference Include="..\v2k4FIFASDKGenerator\v2k4FIFASDKGenerator.csproj">
+    <ProjectReference Include="..\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj">
       <Project>{1dbc8811-e837-4701-8fae-6a8b03f5c876}</Project>
-      <Name>v2k4FIFASDKGenerator</Name>
+      <Name>paulv2k4FIFASDKGenerator</Name>
     </ProjectReference>
     <ProjectReference Include="..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj">
       <Project>{8d172f0e-658a-4507-870f-c5b7ae1bca6e}</Project>

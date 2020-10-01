@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FrostyHash">
+      <HintPath>..\..\v2k4FrostyModdingSupport\FrostyHash.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

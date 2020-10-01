@@ -2,10 +2,12 @@
 using Frostbite.Textures;
 using FrostyEditor.Controls;
 using FrostySdk;
+using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Newtonsoft.Json;
+using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,11 +20,11 @@ using v2k4FIFAModdingCL;
 
 namespace paulv2k4FrostbiteTool
 {
-    class Program
+    internal class Program : ILogger
     {
         public class Options
         {
-            [Option('i', "import", Required = false, HelpText = "Import")]
+            [Option('i', "import", Required = false, HelpText = "Import (DOESNT WORK)")]
             public bool? Import { get; set; }
 
             [Option('e', "export", Required = false, HelpText = "Export")]
@@ -48,6 +50,12 @@ namespace paulv2k4FrostbiteTool
 
             [Option(longName: "listLegacy", Required = false, HelpText = "Exports a list of Legacy files in the Game")]
             public bool listLegacy { get; set; }
+
+            [Option(longName: "project", Required = false, HelpText = "Path to the project file you'd like to use. If this doesn't exist, it will start a new project.")]
+            public string project { get; set; }
+
+            [Option(longName: "startProject", Required = false, HelpText = "Start a new Project - Allows lots of search and export functions.")]
+            public bool? startProject { get; set; }
 
         }
 
@@ -127,15 +135,22 @@ namespace paulv2k4FrostbiteTool
             if (!Directory.Exists("Import"))
                 Directory.CreateDirectory("Import");
 
-            if(!obj.Export.HasValue && !obj.Import.HasValue)
+            //if(!obj.Export.HasValue && !obj.Import.HasValue)
+            //{
+            //    Console.WriteLine("Please use --Import or --Export for the tool to know what to do!");
+            //    Console.ReadLine();
+            //    return;
+            //}
+
+            if(string.IsNullOrEmpty(obj.GamePath) || !File.Exists(obj.GamePath))
             {
-                Console.WriteLine("Please use --Import or --Export for the tool to know what to do!");
+                Console.WriteLine("Invalid or no Game Path provided");
                 Console.ReadLine();
                 return;
             }
 
             InitializeOfSelectedGame(obj.GamePath);
-            projectManagement = new ProjectManagement();
+            projectManagement = new ProjectManagement(obj.GamePath);
             var project = projectManagement.StartNewProject();
 
             //if (obj.ExtractGameplayOnly)
@@ -165,7 +180,7 @@ namespace paulv2k4FrostbiteTool
                 }
                 else
                 {
-                    Export(obj);
+                    Export(obj.ExportFiles, "all");
 
                     return;
                 }
@@ -176,56 +191,288 @@ namespace paulv2k4FrostbiteTool
                 Import(obj);
             }
 
+            if (!string.IsNullOrEmpty(obj.project) || obj.startProject.HasValue)
+            {
+                StartProjectManagementSteps(obj);
+            }
 
         }
 
-        private static void Export(Options options)
+        private static FrostyProject FrostyProject;
+        private static string FrostyProjectFileLocation;
+
+        private static void StartProjectManagementSteps(Options options)
         {
+            ProjectManagement projectManagement = new ProjectManagement(options.GamePath);
+            if (!string.IsNullOrEmpty(options.project) && File.Exists(options.project))
+            {
+                FrostyProject = projectManagement.StartNewProject();
+                FrostyProject.Load(options.project);
+                Console.WriteLine("Project loaded");
+            }
+            else
+            {
+                FrostyProject = projectManagement.StartNewProject();
+                if (string.IsNullOrEmpty(options.project))
+                {
+                    provide_filename_step:
+                    Console.WriteLine("Please provide a filename to save your project.");
+                    options.project = Console.ReadLine();
+                    if (string.IsNullOrEmpty(options.project))
+                    {
+                        goto provide_filename_step;
+                    }
+                }
+                FrostyProject.Save(options.project);
+                Console.WriteLine("Project created and saved");
+            }
+
+            FrostyProjectFileLocation = options.project;
+
+            new Program().ImportExportSearchStep();
+            
+
+        }
+
+        private void ImportExportSearchStep()
+        {
+            import_export_step:
+            Console.WriteLine("");
+            Console.WriteLine("What would you like to do? Import, Export, Search or Launch?");
+            switch (Console.ReadLine().ToLower())
+            {
+                case "import":
+                    ImportStep();
+                    break;
+                case "export":
+                    ExportStep();
+                    break;
+                case "search":
+                    SearchStep();
+                    break;
+                case "launch":
+                    Launch();
+                    break;
+                default:
+                    goto import_export_step;
+            }
+
+
+            goto import_export_step;
+        }
+
+        private void Launch()
+        {
+            FrostyProject.Save(FrostyProjectFileLocation);
+            FrostyProject.WriteToMod("projectTest.fbmod", new ModSettings() { Title = "Test" });
+
+            if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+            {
+                throw new Exception("Unable to Initialize Profile");
+            }
+            FileSystem fileSystem = new FileSystem(GameInstanceSingleton.GAMERootPath);
+            foreach (FileSystemSource source in ProfilesLibrary.Sources)
+            {
+                fileSystem.AddSource(source.Path, source.SubDirs);
+            }
+            fileSystem.Initialize();
+            var fme = new FrostyModExecutor();
+            var result = fme.Run(fileSystem, this, "", "", new System.Collections.Generic.List<string>() { @"projectTest.fbmod" }.ToArray()).Result;
+        }
+
+        private void ImportStep()
+        {
+            import_step_1:
+            Console.WriteLine("Please provide the path to the file to import from your PC.");
+            var pathToFile_to_import = Console.ReadLine();
+            if(!File.Exists(pathToFile_to_import))
+            {
+                Console.WriteLine("Unable to find file.");
+                goto import_step_1;
+            }
+
+            Console.WriteLine("Please provide the path to the file to import to in Frostbite.");
+            var pathToFileToImportInFrostbite = Console.ReadLine();
+            Console.WriteLine("Is this file a texture? (ONLY TEXTURES ARE SUPPORTED!)");
+            switch (Console.ReadLine())
+            {
+                case "yes":
+                case "y":
+                    ImportTexture(pathToFile_to_import, pathToFileToImportInFrostbite);
+                    break;
+                case "no":
+                case "n":
+                    goto import_step_1;
+            }
+
+
+            projectManagement.FrostyProject.Save(FrostyProjectFileLocation);
+            ImportExportSearchStep();
+        }
+
+        private void ExportStep()
+        {
+            Console.WriteLine("This is currently unavailable!");
+            ImportExportSearchStep();
+        }
+
+        private void SearchStep()
+        {
+            string searchPattern = "";
+            SearchStep:
+            Console.WriteLine("Which section would you like to search? EBX, RES or Legacy? Or back?");
+            switch (Console.ReadLine().ToLower())
+            {
+                case "ebx":
+                    Console.WriteLine("Please enter your search pattern.");
+                    searchPattern = Console.ReadLine();
+                    goto ebx;
+                case "res":
+                    Console.WriteLine("Please enter your search pattern.");
+                    searchPattern = Console.ReadLine();
+                    goto res;
+                case "legacy":
+                    Console.WriteLine("Please enter your search pattern.");
+                    searchPattern = Console.ReadLine();
+                    goto legacy;
+                case "back":
+                    ImportExportSearchStep();
+                    break;
+                default:
+                    goto SearchStep;
+            }
+
+            ebx:
             var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().ToList();
             var searchEBX = allEBX.Where(x =>
             {
-                return SearchMatchExportFilesToAssetEntry(options, x);
+                return SearchMatchExportFilesToAssetEntry(new List<string>() { searchPattern }, x);
             }
             ).ToList();
-            if (searchEBX != null && searchEBX.Count() > 0)
+            foreach (var i in searchEBX)
             {
-                searchEBX.ForEach(r =>
-                {
-                    ExportRawData(r, "EBX");
-                    var ebx = projectManagement.FrostyProject.AssetManager.GetEbx(r);
-                    var json = JsonConvert.SerializeObject(ebx.RootObject, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    File.WriteAllText("Export\\EBX\\Readable\\" + r.Filename + ".json", json);
-
-                });
+                Console.WriteLine(i.Name);
+            }
+            Console.WriteLine("Would you like to Export this list?");
+            switch (Console.ReadLine().ToLower())
+            {
+                case "yes":
+                case "y":
+                    Export(new List<string>() { searchPattern }, "ebx");
+                    break;
+                case "no":
+                case "n":
+                    goto SearchStep;
             }
 
+            res:
             var allRES = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
             var searchRES = allRES.Where(x =>
             {
-                return SearchMatchExportFilesToAssetEntry(options, x);
+                return SearchMatchExportFilesToAssetEntry(new List<string>() { searchPattern }, x);
             }
             ).ToList();
-            if (searchRES != null && searchRES.Count() > 0)
+            foreach (var i in searchRES)
             {
-               searchRES.ForEach(r =>
-               {
-                   ExportRawData(r, "RES");
-                   ExportTexture(r);
-
-               });
+                Console.WriteLine(i.Name);
+            }
+            Console.WriteLine("Would you like to Export this list?");
+            switch (Console.ReadLine().ToLower())
+            {
+                case "yes":
+                case "y":
+                    Export(new List<string>() { searchPattern }, "res");
+                    break;
+                case "no":
+                case "n":
+                    goto SearchStep;
             }
 
+        legacy:
             var allLegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
             var searchLegacy = allLegacy.Where(x =>
             {
-                return SearchMatchExportFilesToAssetEntry(options, x);
+                return SearchMatchExportFilesToAssetEntry(new List<string>() { searchPattern }, x);
             }
             ).ToList();
-            if (searchLegacy != null && searchLegacy.Count() > 0)
+            foreach(var i in searchLegacy)
             {
-                searchLegacy.ForEach(r => { 
-                    ExportRawData(r, "Legacy"); 
-                });
+                Console.WriteLine(i.Name);
+            }
+            Console.WriteLine("Would you like to Export this list?");
+            switch (Console.ReadLine().ToLower())
+            {
+                case "yes":
+                case "y":
+                    Export(new List<string>() { searchPattern }, "legacy");
+                    break;
+                case "no":
+                case "n":
+                    goto SearchStep;
+            }
+
+            goto SearchStep;
+
+        }
+
+        private static void Export(IEnumerable<string> pattern, string type)
+        {
+            if (type == "all" || type == "ebx")
+            {
+                var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().ToList();
+                var searchEBX = allEBX.Where(x =>
+                {
+                    return SearchMatchExportFilesToAssetEntry(pattern, x);
+                }
+                ).ToList();
+                if (searchEBX != null && searchEBX.Count() > 0)
+                {
+                    searchEBX.ForEach(r =>
+                    {
+                        ExportRawData(r, "EBX");
+                        var ebx = projectManagement.FrostyProject.AssetManager.GetEbx(r);
+                        var json = JsonConvert.SerializeObject(ebx.RootObject, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                        File.WriteAllText("Export\\EBX\\Readable\\" + r.Filename + ".json", json);
+
+                    });
+                }
+            }
+
+            if (type == "all" || type == "res")
+            {
+
+                var allRES = projectManagement.FrostyProject.AssetManager.EnumerateRes().ToList();
+                var searchRES = allRES.Where(x =>
+                {
+                    return SearchMatchExportFilesToAssetEntry(pattern, x);
+                }
+                ).ToList();
+                if (searchRES != null && searchRES.Count() > 0)
+                {
+                    searchRES.ForEach(r =>
+                    {
+                        ExportRawData(r, "RES");
+                        ExportTexture(r);
+
+                    });
+                }
+            }
+
+            if (type == "all" || type == "legacy")
+            {
+                var allLegacy = projectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").ToList();
+                var searchLegacy = allLegacy.Where(x =>
+                {
+                    return SearchMatchExportFilesToAssetEntry(pattern, x);
+                }
+                ).ToList();
+                if (searchLegacy != null && searchLegacy.Count() > 0)
+                {
+                    searchLegacy.ForEach(r =>
+                    {
+                        ExportRawData(r, "Legacy");
+                    });
+                }
             }
             
             Console.WriteLine("Export Complete");
@@ -274,15 +521,17 @@ namespace paulv2k4FrostbiteTool
 
         }
 
-        private static bool SearchMatchExportFilesToAssetEntry(Options options, AssetEntry x)
+        private static bool SearchMatchExportFilesToAssetEntry(IEnumerable<string> patterns, AssetEntry x)
         {
-            foreach (var i in options.ExportFiles)
+            foreach (var i in patterns)
             {
                 return x.Path.ToLower().Contains(i.ToLower());
             }
 
             return false;
         }
+
+
 
 
         private static void Import(Options options)
@@ -345,9 +594,32 @@ namespace paulv2k4FrostbiteTool
                 //}
         }
 
-        private static void ImportTexture()
+        private static void ImportTexture(string pathOnDisk, string ResPath)
         {
+            var allEBX = projectManagement.FrostyProject.AssetManager.EnumerateEbx().Where(x => x.Name.ToLower() == ResPath).ToList();
 
+            Texture textureAsset = null;
+            foreach (var res in projectManagement.FrostyProject.AssetManager.EnumerateRes().Where(x => x.Name.ToLower() == ResPath).ToList())
+            {
+                if (res.Type == "Texture")
+                {
+                    using (var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res))
+                    {
+                        textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
+                    }
+                }
+            }
+
+            if (textureAsset != null)
+            {
+                TextureImporter importer = new TextureImporter();
+                importer.ImportTextureFromFileToTextureAsset_Original(
+                     @"G:\splashscreen_v2k4.DDS"
+                     , allEBX.FirstOrDefault()
+                     , projectManagement.FrostyProject.AssetManager
+                     , ref textureAsset
+                     , out string message);
+            }
         }
 
 
@@ -400,6 +672,19 @@ namespace paulv2k4FrostbiteTool
             }
             // Reutn the filestream, may be valid or null
             return fs;
+        }
+
+        public void Log(string text, params object[] vars)
+        {
+            Console.WriteLine(text);
+        }
+
+        public void LogWarning(string text, params object[] vars)
+        {
+        }
+
+        public void LogError(string text, params object[] vars)
+        {
         }
     }
 }

@@ -31,22 +31,32 @@ namespace v2k4FIFAModding.Frosty
             }
         }
 
+        private static string PreviousGameVersion;
+
         public ProjectManagement()
         {
-            var buildCache = new BuildCache();
-            buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, logger: this, loadSDK: true);
-            //if(!File.Exists(FIFAInstanceSingleton.V))
-            //var buildSDK = new BuildSDK();
-            //var b = buildSDK.Build().Result;
+            Initialise();
         }
 
-        public ProjectManagement(string gamePath) : base()
+        private void Initialise()
+        {
+            if (PreviousGameVersion != GameInstanceSingleton.GAMEVERSION && AssetManager.Instance == null)
+            {
+                var buildCache = new BuildCache();
+                buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, logger: this, loadSDK: true);
+                //if(!File.Exists(FIFAInstanceSingleton.V))
+                //var buildSDK = new BuildSDK();
+                //var b = buildSDK.Build().Result;
+            }
+        }
+
+        public ProjectManagement(string gamePath)
         {
             InitializeOfSelectedGame(gamePath);
+            Initialise();
         }
 
         public FrostyProject FrostyProject = null;
-        AssetManager AssetManager = null;
 
         public ILogger Logger = null;
 
@@ -54,10 +64,10 @@ namespace v2k4FIFAModding.Frosty
 
         public static void ClearCurrentConsoleLine()
         {
-            int currentLineCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, currentLineCursor);
+            //int currentLineCursor = Console.CursorTop;
+            //Console.SetCursorPosition(0, Console.CursorTop);
+            //Console.Write(new string(' ', Console.WindowWidth));
+            //Console.SetCursorPosition(0, currentLineCursor);
         }
 
         public void Log(string text, params object[] vars)
@@ -119,47 +129,52 @@ namespace v2k4FIFAModding.Frosty
          * 
          */
 
+
         public FrostyProject StartNewProject()
         {
-            if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
-            {
-                if (KeyManager.Instance.ReadInKeys())
-                {
-                    if (TypeLibrary.Initialize())
-                    {
-                        var FileSystem = new FrostySdk.FileSystem(GameInstanceSingleton.GAMERootPath);
-                        foreach (FileSystemSource source in ProfilesLibrary.Sources)
-                        {
-                            FileSystem.AddSource(source.Path, source.SubDirs);
-                        }
-                        FileSystem.Initialize(KeyManager.Instance.GetKey("Key1"));
-                        var ResourceManager = new ResourceManager(FileSystem);
-                        ResourceManager.SetLogger(Logger ?? this);
-                        ResourceManager.Initialize();
-                        AssetManager = new AssetManager(FileSystem, ResourceManager);
-                        //LegacyFileManager.AssetManager = AssetManager;
-                        //AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-                        AssetManager.RegisterLegacyAssetManager();
-                        AssetManager.SetLogger(Logger ?? this);
-                        AssetManager.Initialize(additionalStartup: true);
+            FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+            return FrostyProject;
+            //if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+            //{
+            //    PreviousGameVersion = GameInstanceSingleton.GAMEVERSION;
 
-                        FrostyProject = new FrostyProject(AssetManager, FileSystem);
-                        return FrostyProject;
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Could Init Type Library");
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine("Could not read in keys");
-                }
-            }
-            else
-            {
-                Debug.WriteLine("Couldn't find FIFA Version");
-            }
+            //    if (KeyManager.Instance.ReadInKeys())
+            //    {
+            //        if (TypeLibrary.Initialize())
+            //        {
+            //            var FileSystem = new FrostySdk.FileSystem(GameInstanceSingleton.GAMERootPath);
+            //            foreach (FileSystemSource source in ProfilesLibrary.Sources)
+            //            {
+            //                FileSystem.AddSource(source.Path, source.SubDirs);
+            //            }
+            //            FileSystem.Initialize(KeyManager.Instance.GetKey("Key1"));
+            //            var ResourceManager = new ResourceManager(FileSystem);
+            //            ResourceManager.SetLogger(Logger ?? this);
+            //            ResourceManager.Initialize();
+            //            AssetManager = new AssetManager(FileSystem, ResourceManager);
+            //            //LegacyFileManager.AssetManager = AssetManager;
+            //            //AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
+            //            AssetManager.RegisterLegacyAssetManager();
+            //            AssetManager.SetLogger(Logger ?? this);
+            //            AssetManager.Initialize(additionalStartup: true);
+
+            //            FrostyProject = new FrostyProject(AssetManager, FileSystem);
+            //            return FrostyProject;
+            //        }
+            //        else
+            //        {
+            //            Debug.WriteLine("Could Init Type Library");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        Debug.WriteLine("Could not read in keys");
+            //    }
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("Couldn't find FIFA Version");
+            //}
 
             return null;
         }
