@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Madden21Plugin
+namespace FIFA21Plugin
 {
 
     /// <summary>

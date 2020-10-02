@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading;
 using static paulv2k4ModdingExecuter.FrostyModExecutor;
 
-namespace Madden21Plugin
+namespace FIFA21Plugin
 {
 
     public class FIFA21BundleAction

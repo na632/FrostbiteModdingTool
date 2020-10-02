@@ -143,12 +143,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll">
-      <Link>Plugins\Madden21Plugin.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.0\FIFA21Plugin.dll">
       <Link>Plugins\FIFA21Plugin.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll">
+      <Link>Plugins\Madden21Plugin.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

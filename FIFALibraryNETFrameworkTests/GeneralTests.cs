@@ -73,6 +73,8 @@ namespace FIFALibraryNETFrameworkTests
             //Assert.IsTrue(b);
         }
 
+        
+
         [TestMethod]
         public void TestBuildCacheAndSDK_FIFA21()
         {
@@ -308,5 +310,28 @@ namespace FIFALibraryNETFrameworkTests
         }
 
 
+    }
+
+    [TestClass]
+    public class FIFA21 : ILogger
+    {
+        public void Log(string text, params object[] vars)
+        {
+        }
+
+        public void LogError(string text, params object[] vars)
+        {
+        }
+
+        public void LogWarning(string text, params object[] vars)
+        {
+        }
+
+        [TestMethod]
+        public void TestBuildCacheAndSDK_FIFA21()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+        }
     }
 }

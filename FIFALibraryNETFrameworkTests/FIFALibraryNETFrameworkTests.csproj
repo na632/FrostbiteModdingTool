@@ -116,7 +116,11 @@
       <Link>FIFA.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll">
+    <Content Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.0\FIFA21Plugin.dll">
+      <Link>Plugins\FIFA21Plugin.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll">
       <Link>Plugins\Madden21Plugin.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -141,7 +145,7 @@
       <Project>{3d489d9a-0def-4e80-8ec8-15e265c29a36}</Project>
       <Name>FrostySdk</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Madden21Plugin\Madden21Plugin.csproj">
+    <ProjectReference Include="..\Plugins\Madden21Plugin\Madden21Plugin.csproj">
       <Project>{35b6fbd2-3a7a-4436-9cf9-d5cc36f637e1}</Project>
       <Name>Madden21Plugin</Name>
     </ProjectReference>
