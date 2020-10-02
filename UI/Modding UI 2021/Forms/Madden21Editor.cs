@@ -1,5 +1,7 @@
-﻿using FrostySdk.Interfaces;
+﻿using FrostyEditor.Controls;
+using FrostySdk.Interfaces;
 using FrostySdk.Managers;
+using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -113,6 +115,8 @@ namespace Modding_UI_2021.Forms
 
         }
 
+        EbxAssetEntry SelectedAssetEntry;
+
         private void TreeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             TreeView treeView = sender as TreeView;
@@ -121,25 +125,37 @@ namespace Modding_UI_2021.Forms
                 var selectedNode = treeView.SelectedNode;
                 if (selectedNode.Tag != null)
                 {
-                    var ebxEntry = ProjectManagement.FrostyProject.AssetManager.GetEbxEntry(Guid.Parse(selectedNode.Tag.ToString()));
-                    if (ebxEntry != null)
+                    SelectedAssetEntry = ProjectManagement.FrostyProject.AssetManager.GetEbxEntry(Guid.Parse(selectedNode.Tag.ToString()));
+                    if (SelectedAssetEntry != null)
                     {
-                        var ebx = ProjectManagement.FrostyProject.AssetManager.GetEbx(ebxEntry);
+                        var ebx = ProjectManagement.FrostyProject.AssetManager.GetEbx(SelectedAssetEntry);
                         if (ebx != null)
                         {
-                            AssetNameHeader.Text = ebxEntry.Name;
-                            AssetGuid.Text = ebxEntry.Guid.ToString();
-                            AssetType.Text = ebxEntry.Type;
+                            AssetNameHeader.Text = SelectedAssetEntry.Name;
+                            AssetGuid.Text = SelectedAssetEntry.Guid.ToString();
+                            AssetType.Text = SelectedAssetEntry.Type;
 
-                            if(ebxEntry.Type == "TextureAsset")
+                            if(SelectedAssetEntry.Type == "TextureAsset")
                             {
+                                btnImport.Enabled = true;
+                                btnExport.Enabled = true;
 
+                                var resAssetEntry = ProjectManagement.FrostyProject.AssetManager.GetResEntry(SelectedAssetEntry.Name);
+                                var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(resAssetEntry);
+                                FrostySdk.Resources.Texture textureAsset = new FrostySdk.Resources.Texture(resStream, ProjectManagement.FrostyProject.AssetManager);
+                                new TextureExporter().Export(textureAsset, $"temp.png", "*.png");
+                                ImageViewer.ImageLocation = Application.StartupPath + "//temp.png";
                             }
                         }
 
                     }
                 }
             }
+        }
+
+        public void SaveProject()
+        {
+            ProjectManagement.FrostyProject.Save();
         }
 
         public void Log(string text, params object[] vars)
@@ -163,6 +179,27 @@ namespace Modding_UI_2021.Forms
         private void btnExport_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void modToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnLaunchGame_Click(object sender, EventArgs e)
+        {
+            SaveProject();
+            ProjectManagement.FrostyProject.WriteToMod("TestMod.fbmod"
+                , new FrostySdk.ModSettings() { Author = "Madden 21 Editor", Category = "Test", Description = "Test", Title = "Madden 21 Editor Test Mod", Version = "1" });
+
+            var fme = new FrostyModExecutor();
+            var result = fme.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"TestMod.fbmod" }.ToArray()).Result;
+
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
