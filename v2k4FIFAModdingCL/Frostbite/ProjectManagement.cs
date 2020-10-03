@@ -57,6 +57,7 @@ namespace v2k4FIFAModding.Frosty
         }
 
         public FrostyProject FrostyProject = null;
+        public string FilePath = null;
 
         public ILogger Logger = null;
 

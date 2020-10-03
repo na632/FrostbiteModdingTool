@@ -1,6 +1,5 @@
 ﻿using CommandLine;
 using Frostbite.Textures;
-using FrostyEditor.Controls;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;

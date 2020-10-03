@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using FIFAModdingUI;
 using Frostbite.Textures;
-using FrostyEditor.Controls;
 using FrostySdk;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.FrostySdk.Ebx;
