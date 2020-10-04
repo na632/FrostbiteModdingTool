@@ -57,7 +57,14 @@ namespace FIFA21Plugin
 					}
 					List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
 					List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
-					string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
+					//string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
+
+					//TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
+					//tocSbReader_FIFA21.Read(tocFileLocation, 0, new BinarySbDataHelper(parent));
+
+					//string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
+
+					string tocFileLocation = parent.fs.ResolvePath($"native_patch/{tocFile}.toc");
 
 					TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
 					tocSbReader_FIFA21.Read(tocFileLocation, 0, new BinarySbDataHelper(parent));

@@ -46,7 +46,7 @@ namespace Modding_UI_2021
             }
         }
 
-        Form CurrentEditor;
+        public static Form CurrentEditor;
 
         private void Button_Click(object sender, EventArgs e)
         {
@@ -57,16 +57,21 @@ namespace Modding_UI_2021
                 {
                     case "MADDEN21":
                         CurrentEditor = new Madden21Editor();
-                        //this.Close();
                         break;
                     case "FIFA21":
-
+                        CurrentEditor = new FIFA21Editor();
                         break;
                 }
 
+                CurrentEditor.FormClosed += CurrentEditor_FormClosed;
                 CurrentEditor.Show();
-
+                this.Hide();
             }
+        }
+
+        private void CurrentEditor_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.Show();
         }
     }
 }

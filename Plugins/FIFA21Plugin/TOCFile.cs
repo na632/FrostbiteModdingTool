@@ -2,6 +2,8 @@
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -10,29 +12,110 @@ namespace FIFA21Plugin
 
 	public class BundleInfo
     {
+		public Guid GuidId { get; set; }
 		public string Name { get; set; }
 		public long Offset { get; set; }
 		public long Size { get; set; }
+		public int Flag { get; set; }
+		public long StringOffset { get; set; }
+		public int Index { get; set; }
+        public int CasIndex { get; internal set; }
+        public int Offset2 { get; internal set; }
     }
 
     public class TOCFile
     {
         public SBFile AssociatedSBFile { get; set; }
 
-		public int[] ArrayOfInitialHeaderData = new int[12];
+		//public int[] ArrayOfInitialHeaderData = new int[12];
 
+		public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BundleInfo> Bundles = new List<BundleInfo>();
 
+		public class ContainerMetaData
+        {
 
+			public int MetaDataLength { get; set; }
+			public int ItemCount { get; set; }
+			public int Offset1 { get; set; }
+			public int Offset2 { get; set; }
+			public int ResCount { get; set; }
+			public int Offset4 { get; set; }
+			public int Offset5 { get; set; }
+			public int Offset6 { get; set; }
+			public int Offset7 { get; set; }
+			public int Sec4Size { get; set; }
+
+			public void Read(NativeReader nativeReader)
+			{
+				MetaDataLength = nativeReader.ReadInt(Endian.Big);
+				ItemCount = nativeReader.ReadInt(Endian.Big);
+				Offset1 = nativeReader.ReadInt(Endian.Big);
+				Offset2 = nativeReader.ReadInt(Endian.Big);
+				ResCount = nativeReader.ReadInt(Endian.Big);
+				Offset4 = nativeReader.ReadInt(Endian.Big);
+				Offset5 = nativeReader.ReadInt(Endian.Big);
+				Offset6 = nativeReader.ReadInt(Endian.Big);
+				Offset7 = nativeReader.ReadInt(Endian.Big);
+				Sec4Size = nativeReader.ReadInt(Endian.Big);
+
+			}
+
+        }
 		public void Read(NativeReader nativeReader)
         {
+			var startPosition = nativeReader.Position;
+			using (NativeWriter writer = new NativeWriter(new FileStream("debugToc.dat", FileMode.OpenOrCreate)))
+            {
+				writer.Write(nativeReader.ReadToEnd());
+            }
+			nativeReader.Position = startPosition;
+
+
 			var magic = nativeReader.ReadInt(Endian.Big);
 			if (magic != 0x3c)
 				throw new Exception("Magic is not the expected value of 0x3c");
 
-			nativeReader.Position = 556;
+            //nativeReader.Position = 556;
+            MetaData = new ContainerMetaData();
+            MetaData.Read(nativeReader);
+            if (MetaData.ItemCount == 0)
+                return;
 
+			nativeReader.Position = 560 + MetaData.MetaDataLength;
+            for (var iBundle = 0; iBundle < MetaData.ItemCount; iBundle++)
+            {
+				var bi = new BundleInfo()
+				{
+					Index = iBundle
+				};
+				nativeReader.ReadInt(Endian.Big);
+				bi.Offset = nativeReader.ReadInt(Endian.Big);
+				//nativeReader.ReadInt(Endian.Big);
+				bi.StringOffset = nativeReader.ReadInt(Endian.Big);
+				bi.Offset2 = nativeReader.ReadInt(Endian.Big);
+				Bundles.Add(bi);
+			}
 
+			if(Bundles.Count > 0)
+            {
+
+            }
+
+			//// Alignment
+			////nativeReader.ReadInt();
+			////while (nativeReader.ReadByte() % 8 != 0) ;
+
+			//foreach(var bundleEntry in Bundles)
+			//         {
+			//	bundleEntry.StringOffset = nativeReader.ReadInt(Endian.Big);
+			//	bundleEntry.Size = nativeReader.ReadInt(Endian.Big);
+			//	nativeReader.ReadInt();
+			//	bundleEntry.Offset = nativeReader.ReadInt(Endian.Big);
+			//	bundleEntry.Name = string.Empty;
+			//}
+
+			/*
 			int[] array = new int[12];
 				for (int i = 0; i < 12; i++)
 				{
@@ -127,6 +210,7 @@ namespace FIFA21Plugin
 
 				}
 			}
+			*/
 		}
-    }
+	}
 }

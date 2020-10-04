@@ -19,74 +19,56 @@ using v2k4FIFASDKGenerator;
 
 namespace Modding_UI_2021.Forms
 {
-    public partial class Madden21Editor : Form, ILogger
+    public partial class Madden21Editor : BaseForm, ILogger
     {
         ProjectManagement ProjectManagement;
 
         public Madden21Editor()
         {
             InitializeComponent();
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "EXE files (*.exe)|*.exe";
-           if(DialogResult.OK == openFileDialog.ShowDialog())
-            {
-                var filePath = openFileDialog.FileName;
-                var FIFADirectory = openFileDialog.FileName.Substring(0, openFileDialog.FileName.LastIndexOf("\\") + 1);
-                GameInstanceSingleton.GAMERootPath = FIFADirectory;
-                var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                //if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
-                //{
-                    GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
-                //}
-               
-                    Task.Delay(500);
-                    
-                    this.Enabled = false;
-                    new TaskFactory().StartNew(() =>
-                    {
-                        var result = Start().Result;
-                        if (this.InvokeRequired)
-                        {
-                            this.Invoke(new MethodInvoker(delegate { this.Enabled = true; }));
-                            toolStripStatusLabel1.Text = string.Empty;
-                        }
-                        //    }
-                        //    this.Enabled = true;
-                        //else
-                        //{
-                        //    this.Close();
-                        //}
-                    });
-
-
-
-
-            }
+            OpenTheGame();
 
         }
 
-        private async Task<bool> Start()
+        public override Task<bool> Start()
         {
-            BuildCache buildCache = new BuildCache();
-            await buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true);
-
-            ProjectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
-            ProjectManagement.FrostyProject = new FrostySdk.FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
-            List<Task> tasks = new List<Task>();
-            var taskFact = new TaskFactory();
-            tasks.Add(taskFact.StartNew(() =>
+            return Task.Run<bool>(() =>
             {
-                BuildStandardTreeView();
-            }));
-            tasks.Add(taskFact.StartNew(() =>
-            {
-                BuildLegacyTreeView();
-            }));
+                BuildCache buildCache = new BuildCache();
+                buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true).Wait();
 
-            Task.WaitAll(tasks.ToArray());
+                ProjectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
+                ProjectManagement.FrostyProject = new FrostySdk.FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+                List<Task> tasks = new List<Task>();
+                var taskFact = new TaskFactory();
+                tasks.Add(taskFact.StartNew(() =>
+                {
+                    BuildStandardTreeView();
+                }));
+                tasks.Add(taskFact.StartNew(() =>
+                {
+                    BuildLegacyTreeView();
+                }));
 
-            return true;
+                Task.WaitAll(tasks.ToArray());
+                return true;
+            });
+           
 
+        }
+        public override Task<bool> PostStart()
+        {
+            return Task.Run<bool>(() => {
+            
+                if(this.InvokeRequired)
+                {
+                    //this.toolStripStatusLabel1.Text = "Complete";
+                    this.Enabled = true;
+                }
+
+                return true;
+            
+            });
         }
 
         private void BuildStandardTreeView()

@@ -3,6 +3,7 @@ using FrostySdk.Managers;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -30,6 +31,8 @@ namespace FIFA21Plugin
                 var sbPath = tocPath.Replace(".toc", ".sb");
 
                 List<BaseBundleInfo> listOfBundles = new List<BaseBundleInfo>();
+
+                Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
                 {
                     TOCFile = new TOCFile();
@@ -44,19 +47,14 @@ namespace FIFA21Plugin
 
         public void ReadSB(string sbPath, BinarySbDataHelper helper, int offset = 0)
         {
+            Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
+
             using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
             {
                 nativeReader.Position = offset;
                 SBFile = new SBFile();
-
-                // Initial Header data
-                for (var i = 0; i < 8; i++)
-                {
-                    SBFile.ArrayOfInitialHeaderData[i] = nativeReader.ReadInt(Endian.Big);
-                }
-
-                // Header Information (Counts offsets etc)
-                SBFile.SBHeaderInformation = new SBHeaderInformation(nativeReader);
+                SBFile.Read(nativeReader);
+                
 
 
 
