@@ -19,7 +19,7 @@ using v2k4FIFASDKGenerator;
 
 namespace Modding_UI_2021.Forms
 {
-    public partial class Madden21Editor : BaseForm, ILogger
+    public partial class Madden21Editor : Form, IEditorForm, ILogger
     {
         ProjectManagement ProjectManagement;
 
@@ -30,9 +30,50 @@ namespace Modding_UI_2021.Forms
 
         }
 
-        public override Task<bool> Start()
+        public async Task<bool> PreStart()
         {
-            return Task.Run<bool>(() =>
+            return await Task.Run<bool>(() =>
+            {
+                return false;
+            });
+        }
+
+        public void OpenTheGame()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "EXE files (*.exe)|*.exe";
+            if (DialogResult.OK == openFileDialog.ShowDialog())
+            {
+                var filePath = openFileDialog.FileName;
+                var FIFADirectory = openFileDialog.FileName.Substring(0, openFileDialog.FileName.LastIndexOf("\\") + 1);
+                GameInstanceSingleton.GAMERootPath = FIFADirectory;
+                var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
+                //if (!string.IsNullOrEmpty(fileName) && CompatibleFIFAVersions.Contains(fileName))
+                //{
+                GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
+                //}
+
+                Task.Delay(500);
+
+                this.Enabled = false;
+                new TaskFactory().StartNew(() =>
+                {
+                    var result = Start().Result;
+                    result = PostStart().Result;
+
+                    //    }
+                    //    this.Enabled = true;
+                    //else
+                    //{
+                    //    this.Close();
+                    //}
+                });
+            }
+        }
+
+        public async Task<bool> Start()
+        {
+            return await Task.Run<bool>(() =>
             {
                 BuildCache buildCache = new BuildCache();
                 buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true).Wait();
@@ -56,14 +97,17 @@ namespace Modding_UI_2021.Forms
            
 
         }
-        public override Task<bool> PostStart()
+        public Task<bool> PostStart()
         {
             return Task.Run<bool>(() => {
             
                 if(this.InvokeRequired)
                 {
                     //this.toolStripStatusLabel1.Text = "Complete";
-                    this.Enabled = true;
+                    this.Invoke(new MethodInvoker(delegate
+                    {
+                        this.Enabled = true;
+                    }));
                 }
 
                 return true;
@@ -267,7 +311,7 @@ namespace Modding_UI_2021.Forms
             if(treeView != null)
             {
                 var selectedNode = treeView.SelectedNode;
-                if (selectedNode.Tag != null)
+                if (selectedNode != null && selectedNode.Tag != null)
                 {
                     SelectedAssetEntry = ProjectManagement.FrostyProject.AssetManager.GetEbxEntry(Guid.Parse(selectedNode.Tag.ToString()));
                     if (SelectedAssetEntry != null)
@@ -415,5 +459,7 @@ namespace Modding_UI_2021.Forms
         {
             SaveProject(true);
         }
+
+        
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,15 +26,52 @@ namespace v2k4FIFAModdingCL
         public static string FIFAPatchPath { get { return GAMERootPath + "\\Patch\\"; } }
         public static string FIFA_INITFS_Win32 { get { return FIFAPatchPath + "\\initfs_Win32"; } }
 
+        public static bool InitialiseSingleton(string filePath)
+        {
+            if(!string.IsNullOrEmpty(filePath))
+            {
+                var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
+                GAMERootPath = FIFADirectory;
+                var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
+                if (!string.IsNullOrEmpty(fileName) && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
+                {
+                    GAMEVERSION = fileName.Replace(".exe", "");
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static List<string> CompatibleGameVersions = new List<string>()
         {
             "FIFA19.exe",
             "FIFA20_demo.exe",
             "FIFA20.exe",
-            "FIFA21_demo.exe",
+            "FIFA21.exe",
             "MADDEN20.exe",
             "MADDEN21.exe",
         };
+
+        public static List<string> CompatibleGameFBModVersions = new List<string>()
+        {
+            "FIFA20.exe"
+        };
+
+        public static bool IsCompatibleWithFbMod()
+        {
+            return CompatibleGameFBModVersions.Any(x => x.Contains(GAMEVERSION));
+        }
+
+        public static List<string> CompatibleGameLegacyModVersions = new List<string>()
+        {
+            "FIFA20.exe"
+        };
+
+        public static bool IsCompatibleWithLegacyMod()
+        {
+            return CompatibleGameLegacyModVersions.Any(x => x.Contains(GAMEVERSION));
+        }
 
         public static int? GetProcIDFromName(string name) //new 1.0.2 function
         {

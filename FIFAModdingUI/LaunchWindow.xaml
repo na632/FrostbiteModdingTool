@@ -70,7 +70,7 @@
                         </StackPanel>
                     </Button>
                     <CheckBox x:Name="chkInstallLocale">Install locale.ini from gameplay mods</CheckBox>
-                    <CheckBox x:Name="chkUseFileSystem" IsEnabled="False">Use Original Frosty Launcher</CheckBox>
+                    <CheckBox x:Name="chkUseFileSystem" IsEnabled="False" Visibility="Hidden">Use Original Frosty Launcher</CheckBox>
                     <CheckBox x:Name="chkUseLiveEditor">Inject Aranaktu Live Editor (if present)</CheckBox>
                     <CheckBox x:Name="chkUseLegacyModSupport">Inject Legacy Mod Support (ALPHA)</CheckBox>
                 </StackPanel>

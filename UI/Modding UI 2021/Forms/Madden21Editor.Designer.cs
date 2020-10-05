@@ -87,7 +87,7 @@
             this.btnLaunchGame});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1620, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(1620, 31);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -101,20 +101,20 @@
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 24);
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 28);
             this.toolStripDropDownButton1.Text = "File";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 26);
             this.openToolStripMenuItem.Text = "Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -124,7 +124,7 @@
             this.modToolStripMenuItem,
             this.newProjectFileToolStripMenuItem});
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 26);
             this.saveAsToolStripMenuItem.Text = "Save As...";
             // 
             // modToolStripMenuItem
@@ -160,9 +160,9 @@
             this.PanelEditTextures.Controls.Add(this.ImageViewer);
             this.PanelEditTextures.Dock = System.Windows.Forms.DockStyle.Right;
             this.PanelEditTextures.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.PanelEditTextures.Location = new System.Drawing.Point(548, 27);
+            this.PanelEditTextures.Location = new System.Drawing.Point(548, 31);
             this.PanelEditTextures.Name = "PanelEditTextures";
-            this.PanelEditTextures.Size = new System.Drawing.Size(1072, 555);
+            this.PanelEditTextures.Size = new System.Drawing.Size(1072, 551);
             this.PanelEditTextures.TabIndex = 3;
             // 
             // PanelTexturesImpExp
@@ -241,11 +241,11 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.tabControl1.Location = new System.Drawing.Point(0, 27);
+            this.tabControl1.Location = new System.Drawing.Point(0, 31);
             this.tabControl1.MinimumSize = new System.Drawing.Size(400, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(400, 555);
+            this.tabControl1.Size = new System.Drawing.Size(400, 551);
             this.tabControl1.TabIndex = 4;
             // 
             // tabPage1
@@ -254,7 +254,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(392, 526);
+            this.tabPage1.Size = new System.Drawing.Size(392, 522);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Standard";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -266,7 +266,7 @@
             this.treeView1.Location = new System.Drawing.Point(3, 3);
             this.treeView1.Name = "treeView1";
             this.treeView1.PathSeparator = "/";
-            this.treeView1.Size = new System.Drawing.Size(386, 520);
+            this.treeView1.Size = new System.Drawing.Size(386, 516);
             this.treeView1.TabIndex = 2;
             // 
             // tabPage2
@@ -300,7 +300,6 @@
             this.Controls.Add(this.statusStrip1);
             this.Name = "Madden21Editor";
             this.Text = "Madden 21 Editor";
-            this.TopMost = true;
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);

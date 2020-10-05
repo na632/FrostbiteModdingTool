@@ -1,7 +1,10 @@
-﻿using FrostySdk.IO;
+﻿using Frosty.Hash;
+using FrostySdk;
+using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace FIFA21Plugin
@@ -20,7 +23,7 @@ namespace FIFA21Plugin
 
         public SBHeaderInformation SBHeaderInformation { get; set; }
 
-        List<BundleInfo> Bundles = new List<BundleInfo>();
+        List<BundleEntryInfo> Bundles = new List<BundleEntryInfo>();
 
         public struct EBX
         {
@@ -37,8 +40,10 @@ namespace FIFA21Plugin
 
         }
 
-        public void Read(NativeReader nativeReader)
+        public DbObject Read(NativeReader nativeReader)
         {
+            DbObject dbObject = new DbObject(new Dictionary<string, object>());
+
             var startOffset = nativeReader.Position;
             using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
             {
@@ -61,32 +66,99 @@ namespace FIFA21Plugin
             //    ShaGuids.Add(nativeReader.ReadGuid());
             //}
 
+            var currentPostion = nativeReader.Position;
+            nativeReader.Position = SBHeaderInformation.stringOffset;
             for(var i = 0; i < SBHeaderInformation.ebxCount; i++)
             {
-                BundleInfo bundleInfo = new BundleInfo();
-                bundleInfo.GuidId = nativeReader.ReadGuid();
+                BundleEntryInfo bundleInfo = new BundleEntryInfo() { Type = "EBX" };
+                bundleInfo.Name = nativeReader.ReadNullTerminatedString();
                 Bundles.Add(bundleInfo);
             }
             for (var i = 0; i < SBHeaderInformation.resCount; i++)
             {
-                BundleInfo bundleInfo = new BundleInfo();
-                bundleInfo.GuidId = nativeReader.ReadGuid();
+                BundleEntryInfo bundleInfo = new BundleEntryInfo() { Type = "RES" };
+                bundleInfo.Name = nativeReader.ReadNullTerminatedString();
                 Bundles.Add(bundleInfo);
             }
+            nativeReader.Position = currentPostion;
+            for (var i = 0; i < SBHeaderInformation.ebxCount; i++)
+            {
+                Bundles[i].Sha = nativeReader.ReadGuid();
+            }
+            for (var i = SBHeaderInformation.ebxCount-1; i < SBHeaderInformation.ebxCount+SBHeaderInformation.resCount; i++)
+            {
+                Bundles[i].Sha = nativeReader.ReadGuid();
+            }
+
             for (var i = 0; i < SBHeaderInformation.chunkCount; i++)
             {
-                BundleInfo bundleInfo = new BundleInfo();
-                bundleInfo.GuidId = nativeReader.ReadGuid();
+                BundleEntryInfo bundleInfo = new BundleEntryInfo() { Type = "CHUNK" };
+                bundleInfo.Sha = nativeReader.ReadGuid();
                 Bundles.Add(bundleInfo);
             }
+
+            while (nativeReader.ReadInt(Endian.Little) != 0) ;
+            nativeReader.Position -= 4;
 
             for (var i = 0; i < SBHeaderInformation.ebxCount; i++)
             {
                 Bundles[i].StringOffset = nativeReader.ReadInt();
-                Bundles[i].Offset = nativeReader.ReadInt();
+                Bundles[i].OriginalSize = nativeReader.ReadInt();
             }
+            for (var i = 0; i < SBHeaderInformation.resCount; i++)
+            {
+                var index = (i + SBHeaderInformation.ebxCount);
+                Bundles[index].StringOffset = nativeReader.ReadInt();
+                Bundles[index].OriginalSize = nativeReader.ReadInt();
+            }
+
+            dbObject.AddValue("ebx", new DbObject(BundlesToDBObject(Bundles.Where(x=> x.Type == "EBX").ToList(), nativeReader)));
+            dbObject.AddValue("res", new DbObject(BundlesToDBObject(Bundles.Where(x => x.Type == "RES").ToList(), nativeReader)));
+            dbObject.AddValue("chunks", new DbObject(BundlesToDBObject(Bundles.Where(x => x.Type == "CHUNK").ToList(), nativeReader)));
+            dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
+            dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
+            dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
+            dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
+            return dbObject;
+        }
+
+        List<object> BundlesToDBObject(List<BundleEntryInfo> bundleEntries, NativeReader reader)
+        {
+            var currentPosition = reader.Position;
+
+            List<object> list = new List<object>();
+            var index = 0;
+            foreach (BundleEntryInfo bundleEntryInfo in bundleEntries)
+            {
+                DbObject dbObject = new DbObject(new Dictionary<string, object>());
+                dbObject.AddValue("sha1", bundleEntryInfo.Sha);
+                if (!string.IsNullOrEmpty(bundleEntryInfo.Name))
+                {
+                    dbObject.AddValue("name", bundleEntryInfo.Name);
+                    dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
+                }
+                dbObject.AddValue("originalSize", bundleEntryInfo.OriginalSize);
+
+                reader.Position = SBHeaderInformation.stringOffset - (SBHeaderInformation.chunkCount * 24) + (index * 24);
+                if(bundleEntryInfo.Type == "CHUNK")
+                {
+                    Guid guid = reader.ReadGuid(Endian.Little);
+                    uint num2 = reader.ReadUInt(Endian.Little);
+                    uint num3 = reader.ReadUInt(Endian.Little);
+                    long num4 = (num2 & 0xFFFF) | num3;
+                    dbObject.AddValue("id", guid);
+                    dbObject.AddValue("logicalOffset", num2);
+                    dbObject.AddValue("logicalSize", num3);
+                    dbObject.AddValue("originalSize", num4);
+                }
+                index++;
+                list.Add(dbObject);
+            }
+            return list;
         }
     }
+
+   
 
     public class SBHeaderInformation
     {

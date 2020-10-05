@@ -60,7 +60,7 @@
             this.btnLaunchGame});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1279, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(1279, 31);
             this.toolStrip1.TabIndex = 3;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -75,7 +75,7 @@
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 24);
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 28);
             this.toolStripDropDownButton1.Text = "File";
             // 
             // openToolStripMenuItem
@@ -148,11 +148,11 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.tabControl1.Location = new System.Drawing.Point(0, 27);
+            this.tabControl1.Location = new System.Drawing.Point(0, 31);
             this.tabControl1.MinimumSize = new System.Drawing.Size(400, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(400, 445);
+            this.tabControl1.Size = new System.Drawing.Size(400, 441);
             this.tabControl1.TabIndex = 5;
             // 
             // tabPage1
@@ -161,7 +161,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(392, 416);
+            this.tabPage1.Size = new System.Drawing.Size(392, 412);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Standard";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -173,7 +173,7 @@
             this.treeView1.Location = new System.Drawing.Point(3, 3);
             this.treeView1.Name = "treeView1";
             this.treeView1.PathSeparator = "/";
-            this.treeView1.Size = new System.Drawing.Size(386, 410);
+            this.treeView1.Size = new System.Drawing.Size(386, 406);
             this.treeView1.TabIndex = 2;
             // 
             // tabPage2
@@ -182,7 +182,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(392, 526);
+            this.tabPage2.Size = new System.Drawing.Size(392, 416);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Legacy";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -192,7 +192,7 @@
             this.TreeViewLegacy.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TreeViewLegacy.Location = new System.Drawing.Point(3, 3);
             this.TreeViewLegacy.Name = "TreeViewLegacy";
-            this.TreeViewLegacy.Size = new System.Drawing.Size(386, 520);
+            this.TreeViewLegacy.Size = new System.Drawing.Size(386, 410);
             this.TreeViewLegacy.TabIndex = 0;
             // 
             // FIFA21Editor
@@ -205,7 +205,6 @@
             this.Controls.Add(this.toolStrip1);
             this.Name = "FIFA21Editor";
             this.Text = "FIFA 21 Editor";
-            this.TopMost = true;
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);

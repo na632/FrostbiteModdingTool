@@ -41,7 +41,7 @@ namespace FIFAModdingUI
                 if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
                 {
                     txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
-                    InitializeOfSelectedFIFA(AppSettings.Settings.FIFAInstallEXEPath);
+                    InitializeOfSelectedGame(AppSettings.Settings.FIFAInstallEXEPath);
                 }
             }
             catch (Exception e)
@@ -54,9 +54,6 @@ namespace FIFAModdingUI
         private ObservableCollection<string> ListOfMods = new ObservableCollection<string>();
 
         public bool EditorModIncluded { get; internal set; }
-        public string FIFADirectory { get; private set; }
-
-        
 
         private void up_click(object sender, RoutedEventArgs e)
         {
@@ -159,33 +156,45 @@ namespace FIFAModdingUI
                 // Start the game with mods
                 await new TaskFactory().StartNew(async () =>
                 {
-                    
-                    Dispatcher.Invoke(() =>
-                    {
-                        btnLaunch.IsEnabled = false;
-                    });
-                    await Task.Delay(1000);
-                    //Dispatcher.Invoke(() =>
-                    //{
-                        await LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems, this, GameInstanceSingleton.GAMEVERSION, true);
+
+                Dispatcher.Invoke(() =>
+                {
+                    btnLaunch.IsEnabled = false;
+                });
+                await Task.Delay(1000);
+                //Dispatcher.Invoke(() =>
+                //{
+                await LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems, this, GameInstanceSingleton.GAMEVERSION, true);
 
                     if (useLegacyMods)
                     {
-                        if (File.Exists(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll"))
-                            File.Copy(Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll", @FIFADirectory + "v2k4LegacyModSupport.dll", true);
+                        string legacyModSupportFile = null;
+                        if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
+                        {
+                            legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                        }
+                        else if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
+                        {
+                            legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
+                        }
 
-                        var legmodsupportdllpath = @FIFADirectory + @"v2k4LegacyModSupport.dll";
-                        var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
-                        Debug.WriteLine(legmodsupportdllpath);
-                        Debug.WriteLine(actualsupportdllpath);
-                        GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
-                        //FIFAInstanceSingleton.InjectDLLAsync(@"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll");
+                        if (!string.IsNullOrEmpty(legacyModSupportFile)) {
+
+                            if (File.Exists(legacyModSupportFile))
+                                File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
+
+                            var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                            var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
+                            Debug.WriteLine(legmodsupportdllpath);
+                            Debug.WriteLine(actualsupportdllpath);
+                            GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                        }
                     }
 
                     if (useLiveEditor)
                     {
-                        if(File.Exists(@FIFADirectory + @"FIFALiveEditor.DLL"))
-                            GameInstanceSingleton.InjectDLLAsync(@FIFADirectory + @"FIFALiveEditor.DLL");
+                        if(File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
+                            GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                     }
                        
                     //});
@@ -250,30 +259,50 @@ namespace FIFAModdingUI
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
-            InitializeOfSelectedFIFA(filePath);
+            InitializeOfSelectedGame(filePath);
 
         }
 
-        private void InitializeOfSelectedFIFA(string filePath)
+        private void InitializeOfSelectedGame(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath))
             {
                 AppSettings.Settings.FIFAInstallEXEPath = filePath;
                 AppSettings.Settings.Save();
 
-                FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                GameInstanceSingleton.GAMERootPath = FIFADirectory;
-                var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                if (!string.IsNullOrEmpty(fileName) && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
+                if(GameInstanceSingleton.InitialiseSingleton(filePath))
                 {
-                    GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
                     if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
                     {
                         throw new Exception("Unable to Initialize Profile");
                     }
-                    txtFIFADirectory.Text = FIFADirectory;
+                    txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
                     btnLaunch.IsEnabled = true;
                 }
+
+                if(GameInstanceSingleton.IsCompatibleWithFbMod())
+                {
+                    listMods.IsEnabled = true;
+                }
+                else
+                {
+                    btnAdd.IsEnabled = false;
+                    btnRemove.IsEnabled = false;
+                    btnUp.IsEnabled = false;
+                    btnDown.IsEnabled = false;
+                    listMods.IsEnabled = false;
+                    //listMods.Items.Clear();
+                    new Mods.ModList();
+                }
+
+                //FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
+                //GameInstanceSingleton.GAMERootPath = FIFADirectory;
+                //var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
+                //if (!string.IsNullOrEmpty(fileName) && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
+                //{
+                //    GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
+
+                //}
             }
         }
 

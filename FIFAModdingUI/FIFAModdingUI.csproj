@@ -57,9 +57,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="etc\Simple-Injection.dll" />
   </ItemGroup>
 
@@ -157,6 +154,9 @@
   <ItemGroup>
     <None Update="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="FIFA20Legacy.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Madden20Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -56,15 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\BaseForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Forms\FIFA21Editor.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FIFA21Editor.Designer.cs">
       <DependentUpon>FIFA21Editor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\IEditorForm.cs" />
     <Compile Include="StartForm.cs">
       <SubType>Form</SubType>
     </Compile>

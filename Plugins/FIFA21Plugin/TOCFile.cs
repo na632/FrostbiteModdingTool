@@ -10,9 +10,14 @@ using System.Text;
 namespace FIFA21Plugin
 {
 
-	public class BundleInfo
+	public class BundleEntryInfo
     {
-		public Guid GuidId { get; set; }
+		/// <summary>
+		/// Is it a EBX, RES or Chunk
+		/// </summary>
+		public string Type { get; set; }
+		public Guid? ChunkGuid { get; set; }
+		public Guid? Sha { get; set; }
 		public string Name { get; set; }
 		public long Offset { get; set; }
 		public long Size { get; set; }
@@ -21,6 +26,37 @@ namespace FIFA21Plugin
 		public int Index { get; set; }
         public int CasIndex { get; internal set; }
         public int Offset2 { get; internal set; }
+        public int OriginalSize { get; internal set; }
+
+        public override string ToString()
+        {
+			var builtString = string.Empty;
+
+			if (!string.IsNullOrEmpty(Type))
+			{
+				builtString += Type;
+			}
+
+			if (!string.IsNullOrEmpty(Name))
+            {
+				builtString += " " + Name;
+            }
+			
+			if (Sha.HasValue)
+			{
+				builtString += " " + Sha.Value.ToString();
+			}
+
+
+			if (!string.IsNullOrEmpty(builtString))
+			{
+				builtString = base.ToString();
+			}
+
+			return builtString;
+
+
+		}
     }
 
     public class TOCFile
@@ -30,7 +66,7 @@ namespace FIFA21Plugin
 		//public int[] ArrayOfInitialHeaderData = new int[12];
 
 		public ContainerMetaData MetaData = new ContainerMetaData();
-		public List<BundleInfo> Bundles = new List<BundleInfo>();
+		public List<BundleEntryInfo> Bundles = new List<BundleEntryInfo>();
 
 		public class ContainerMetaData
         {
@@ -85,7 +121,7 @@ namespace FIFA21Plugin
 			nativeReader.Position = 560 + MetaData.MetaDataLength;
             for (var iBundle = 0; iBundle < MetaData.ItemCount; iBundle++)
             {
-				var bi = new BundleInfo()
+				var bi = new BundleEntryInfo()
 				{
 					Index = iBundle
 				};
