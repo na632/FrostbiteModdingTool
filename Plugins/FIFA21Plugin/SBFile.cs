@@ -1,11 +1,13 @@
 ﻿using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.IO;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static FIFA21Plugin.FIFA21AssetLoader;
 
 namespace FIFA21Plugin
 {
@@ -24,6 +26,16 @@ namespace FIFA21Plugin
         public SBHeaderInformation SBHeaderInformation { get; set; }
 
         List<BundleEntryInfo> Bundles = new List<BundleEntryInfo>();
+
+        private int SuperBundleIndex = 0;
+
+        private TocSbReader_FIFA21 ParentReader;
+        public SBFile(TocSbReader_FIFA21 parent, TOCFile parentTOC, int sbIndex)
+        {
+            ParentReader = parent;
+            AssociatedTOCFile = parentTOC;
+            SuperBundleIndex = sbIndex;
+        }
 
         public struct EBX
         {
@@ -45,22 +57,46 @@ namespace FIFA21Plugin
             DbObject dbObject = new DbObject(new Dictionary<string, object>());
 
             var startOffset = nativeReader.Position;
+            if (File.Exists("debugSB.dat"))
+                File.Delete("debugSB.dat");
             using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
             {
                 writer.Write(nativeReader.ReadToEnd());
             }
             nativeReader.Position = startOffset;
+            foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)
+            {
+                BundleEntry item4 = new BundleEntry
+                {
+                    Name = BaseBundleItem.Name,
+                    SuperBundleId = SuperBundleIndex
+                };
+                AssetManager.Instance.bundles.Add(item4);
+                using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, BaseBundleItem.Size)))
+                {
+                    uint num35 = binarySbReader2.ReadUInt(Endian.Big);
+                    uint num36 = binarySbReader2.ReadUInt(Endian.Big) + num35;
+                    uint num37 = binarySbReader2.ReadUInt(Endian.Big);
 
+                    binarySbReader2.Position += 20;
+                    var SBHeaderInformation = new SBHeaderInformation(binarySbReader2);
+                }
+
+            }
+
+            /*
             // Initial Header data
             for (var i = 0; i < 8; i++)
             {
                 ArrayOfInitialHeaderData[i] = nativeReader.ReadInt(Endian.Big);
             }
+           
+            ArrayOfInitialHeaderData[1] = ArrayOfInitialHeaderData[1] + ArrayOfInitialHeaderData[0];
 
             // Header Information (Counts offsets etc)
             SBHeaderInformation = new SBHeaderInformation(nativeReader);
 
-            List<Guid> ShaGuids = new List<Guid>();
+            //List<Guid> ShaGuids = new List<Guid>();
             //for(var i = 0; i < SBHeaderInformation.shaCount; i++)
             //{
             //    ShaGuids.Add(nativeReader.ReadGuid());
@@ -83,17 +119,20 @@ namespace FIFA21Plugin
             nativeReader.Position = currentPostion;
             for (var i = 0; i < SBHeaderInformation.ebxCount; i++)
             {
-                Bundles[i].Sha = nativeReader.ReadGuid();
+                //Bundles[i].Sha = nativeReader.ReadGuid();
+                Bundles[i].Sha = nativeReader.ReadSha1();
             }
             for (var i = SBHeaderInformation.ebxCount-1; i < SBHeaderInformation.ebxCount+SBHeaderInformation.resCount; i++)
             {
-                Bundles[i].Sha = nativeReader.ReadGuid();
+                //Bundles[i].Sha = nativeReader.ReadGuid();
+                Bundles[i].Sha = nativeReader.ReadSha1();
             }
 
-            for (var i = 0; i < SBHeaderInformation.chunkCount; i++)
+            for (var i = 0; i < SBHeaderInformation.chunkCount-1; i++)
             {
                 BundleEntryInfo bundleInfo = new BundleEntryInfo() { Type = "CHUNK" };
-                bundleInfo.Sha = nativeReader.ReadGuid();
+                //bundleInfo.Sha = nativeReader.ReadGuid();
+                bundleInfo.Sha = nativeReader.ReadSha1();
                 Bundles.Add(bundleInfo);
             }
 
@@ -112,17 +151,97 @@ namespace FIFA21Plugin
                 Bundles[index].OriginalSize = nativeReader.ReadInt();
             }
 
-            dbObject.AddValue("ebx", new DbObject(BundlesToDBObject(Bundles.Where(x=> x.Type == "EBX").ToList(), nativeReader)));
-            dbObject.AddValue("res", new DbObject(BundlesToDBObject(Bundles.Where(x => x.Type == "RES").ToList(), nativeReader)));
-            dbObject.AddValue("chunks", new DbObject(BundlesToDBObject(Bundles.Where(x => x.Type == "CHUNK").ToList(), nativeReader)));
+            dbObject.AddValue("ebx", new DbObject(ReadToDBObject(Bundles.Where(x=> x.Type == "EBX").ToList(), nativeReader)));
+            dbObject.AddValue("res", new DbObject(ReadToDBObject(Bundles.Where(x => x.Type == "RES").ToList(), nativeReader)));
+            dbObject.AddValue("chunks", new DbObject(ReadToDBObject(Bundles.Where(x => x.Type == "CHUNK").ToList(), nativeReader)));
             dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
             dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
             dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
             dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
+
+            // Fill out the Boolean Array for all Objects
+            nativeReader.Position = ArrayOfInitialHeaderData[2];
+            bool[] boolArray = new bool[SBHeaderInformation.totalCount];
+            for (uint index = 0u; index < SBHeaderInformation.totalCount; index++)
+            {
+                boolArray[index] = nativeReader.ReadBoolean();
+            }
+
+            // Get Catalog and CAS data
+            nativeReader.Position = ArrayOfInitialHeaderData[1];
+            bool flag = false;
+            int catalog = 0;
+            int cas = 0;
+            int arrayIndex = 0;
+            for (int ebxIndex = 0; ebxIndex < dbObject.GetValue<DbObject>("ebx").Count; ebxIndex++)
+            {
+                if (boolArray[arrayIndex++])
+                {
+                    nativeReader.ReadByte();
+                    flag = nativeReader.ReadBoolean();
+                    catalog = nativeReader.ReadByte();
+                    cas = nativeReader.ReadByte();
+                }
+                DbObject dbObjRef = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
+                int offset = nativeReader.ReadInt(Endian.Big);
+                int size = nativeReader.ReadInt(Endian.Big);
+                dbObjRef.SetValue("catalog", catalog);
+                dbObjRef.SetValue("cas", cas);
+                dbObjRef.SetValue("offset", offset);
+                dbObjRef.SetValue("size", size);
+                if (flag)
+                {
+                    dbObjRef.SetValue("patch", true);
+                }
+            }
+            for (int resIndex = 0; resIndex < dbObject.GetValue<DbObject>("res").Count; resIndex++)
+            {
+                if (boolArray[arrayIndex++])
+                {
+                    nativeReader.ReadByte();
+                    flag = nativeReader.ReadBoolean();
+                    catalog = nativeReader.ReadByte();
+                    cas = nativeReader.ReadByte();
+                }
+                DbObject dbObjRef = dbObject.GetValue<DbObject>("res")[resIndex] as DbObject;
+                int offset = nativeReader.ReadInt(Endian.Big);
+                int size = nativeReader.ReadInt(Endian.Big);
+                dbObjRef.SetValue("catalog", catalog);
+                dbObjRef.SetValue("cas", cas);
+                dbObjRef.SetValue("offset", offset);
+                dbObjRef.SetValue("size", size);
+                if (flag)
+                {
+                    dbObjRef.SetValue("patch", true);
+                }
+            }
+            for (int chunkIndex = 0; chunkIndex < dbObject.GetValue<DbObject>("chunks").Count; chunkIndex++)
+            {
+                if (boolArray[arrayIndex++])
+                {
+                    nativeReader.ReadByte();
+                    flag = nativeReader.ReadBoolean();
+                    catalog = nativeReader.ReadByte();
+                    cas = nativeReader.ReadByte();
+                }
+                DbObject dbObjRef = dbObject.GetValue<DbObject>("chunks")[chunkIndex] as DbObject;
+                int offset = nativeReader.ReadInt(Endian.Big);
+                int size = nativeReader.ReadInt(Endian.Big);
+                dbObjRef.SetValue("catalog", catalog);
+                dbObjRef.SetValue("cas", cas);
+                dbObjRef.SetValue("offset", offset);
+                dbObjRef.SetValue("size", size);
+                if (flag)
+                {
+                    dbObjRef.SetValue("patch", true);
+                }
+            }
+            */
+
             return dbObject;
         }
 
-        List<object> BundlesToDBObject(List<BundleEntryInfo> bundleEntries, NativeReader reader)
+        List<object> ReadToDBObject(List<BundleEntryInfo> bundleEntries, NativeReader reader)
         {
             var currentPosition = reader.Position;
 
@@ -138,6 +257,19 @@ namespace FIFA21Plugin
                     dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
                 }
                 dbObject.AddValue("originalSize", bundleEntryInfo.OriginalSize);
+
+                reader.Position = SBHeaderInformation.stringOffset - (SBHeaderInformation.chunkCount * 24) - (SBHeaderInformation.resCount * 28) + (index * 28);
+                if (bundleEntryInfo.Type == "RES")
+                {
+                    //var type = reader.ReadUInt(Endian.Big);
+                    var type = reader.ReadUInt();
+                    var resType = (ResourceType)type;
+                    dbObject.AddValue("resType", type);
+                    var resMeta = reader.ReadBytes(16);
+                    dbObject.AddValue("resMeta", resMeta);
+                    var resRid = reader.ReadLong(Endian.Little);
+                    dbObject.AddValue("resRid", resRid);
+                }
 
                 reader.Position = SBHeaderInformation.stringOffset - (SBHeaderInformation.chunkCount * 24) + (index * 24);
                 if(bundleEntryInfo.Type == "CHUNK")
@@ -176,6 +308,8 @@ namespace FIFA21Plugin
 
         public SBHeaderInformation(NativeReader nr)
         {
+            var pos = nr.Position;
+
             size = nr.ReadInt(Endian.Big) + SBFile.SBInformationHeaderLength;
             magicStuff = nr.ReadUInt(Endian.Big);
             if (magicStuff != 3599661469)

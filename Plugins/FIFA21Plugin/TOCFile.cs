@@ -1,4 +1,5 @@
-﻿using FrostySdk.IO;
+﻿using FrostySdk;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Data;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static FIFA21Plugin.FIFA21AssetLoader;
 
 namespace FIFA21Plugin
 {
@@ -17,7 +19,7 @@ namespace FIFA21Plugin
 		/// </summary>
 		public string Type { get; set; }
 		public Guid? ChunkGuid { get; set; }
-		public Guid? Sha { get; set; }
+		public Sha1? Sha { get; set; }
 		public string Name { get; set; }
 		public long Offset { get; set; }
 		public long Size { get; set; }
@@ -66,7 +68,13 @@ namespace FIFA21Plugin
 		//public int[] ArrayOfInitialHeaderData = new int[12];
 
 		public ContainerMetaData MetaData = new ContainerMetaData();
-		public List<BundleEntryInfo> Bundles = new List<BundleEntryInfo>();
+		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
+
+		private TocSbReader_FIFA21 ParentReader;
+		public TOCFile(TocSbReader_FIFA21 parent)
+        {
+			ParentReader = parent;
+        }
 
 		public class ContainerMetaData
         {
@@ -99,12 +107,16 @@ namespace FIFA21Plugin
 
         }
 		public void Read(NativeReader nativeReader)
-        {
+		{
 			var startPosition = nativeReader.Position;
+			if (File.Exists("debugToc.dat"))
+				File.Delete("debugToc.dat");
+
+			nativeReader.Position = 0;
 			using (NativeWriter writer = new NativeWriter(new FileStream("debugToc.dat", FileMode.OpenOrCreate)))
-            {
+			{
 				writer.Write(nativeReader.ReadToEnd());
-            }
+			}
 			nativeReader.Position = startPosition;
 
 
@@ -112,141 +124,101 @@ namespace FIFA21Plugin
 			if (magic != 0x3c)
 				throw new Exception("Magic is not the expected value of 0x3c");
 
-            //nativeReader.Position = 556;
-            MetaData = new ContainerMetaData();
-            MetaData.Read(nativeReader);
-            if (MetaData.ItemCount == 0)
-                return;
+			nativeReader.Position -= 4;
 
-			nativeReader.Position = 560 + MetaData.MetaDataLength;
-            for (var iBundle = 0; iBundle < MetaData.ItemCount; iBundle++)
-            {
-				var bi = new BundleEntryInfo()
-				{
-					Index = iBundle
-				};
-				nativeReader.ReadInt(Endian.Big);
-				bi.Offset = nativeReader.ReadInt(Endian.Big);
-				//nativeReader.ReadInt(Endian.Big);
-				bi.StringOffset = nativeReader.ReadInt(Endian.Big);
-				bi.Offset2 = nativeReader.ReadInt(Endian.Big);
-				Bundles.Add(bi);
+			int[] tocMetaData = new int[12];
+
+			
+			for (int num7 = 0; num7 < 12; num7++)
+			{
+				tocMetaData[num7] = nativeReader.ReadInt(Endian.Big);
 			}
 
-			if(Bundles.Count > 0)
-            {
-
-            }
-
-			//// Alignment
-			////nativeReader.ReadInt();
-			////while (nativeReader.ReadByte() % 8 != 0) ;
-
-			//foreach(var bundleEntry in Bundles)
-			//         {
-			//	bundleEntry.StringOffset = nativeReader.ReadInt(Endian.Big);
-			//	bundleEntry.Size = nativeReader.ReadInt(Endian.Big);
-			//	nativeReader.ReadInt();
-			//	bundleEntry.Offset = nativeReader.ReadInt(Endian.Big);
-			//	bundleEntry.Name = string.Empty;
-			//}
-
-			/*
-			int[] array = new int[12];
-				for (int i = 0; i < 12; i++)
+			List<int> list6 = new List<int>();
+			if (tocMetaData[0] != 0)
+			{
+				for (int num8 = 0; num8 < tocMetaData[2]; num8++)
 				{
-					array[i] = nativeReader.ReadInt(Endian.Big);
+					list6.Add(nativeReader.ReadInt(Endian.Big));
 				}
-				List<int> list3 = new List<int>();
-				if (array[0] != 0)
+				nativeReader.Position = 556 + tocMetaData[1];
+				for (int num9 = 0; num9 < tocMetaData[2]; num9++)
 				{
-					for (int j = 0; j < array[2]; j++)
+					int offset = nativeReader.ReadInt(Endian.Big);
+					uint size = nativeReader.ReadUInt(Endian.Big);
+					BaseBundleInfo newBundleInfo = new BaseBundleInfo
 					{
-						list3.Add(nativeReader.ReadInt(Endian.Big));
-					}
-				nativeReader.Position = array[1] - 48;
-					for (int k = 0; k < array[2]; k++)
-					{
-						int num2 = nativeReader.ReadInt(Endian.Big);
-						uint num3 = nativeReader.ReadUInt(Endian.Big);
-						long offset = nativeReader.ReadLong(Endian.Big);
-						long position = nativeReader.Position;
-					nativeReader.Position = array[8] - 48 + num2;
-						string name2 = nativeReader.ReadNullTerminatedString();
-					nativeReader.Position = position;
-						BundleInfo item = new BundleInfo
-						{
-							Name = name2,
-							Offset = offset,
-							Size = num3
-						};
-					Bundles.Add(item);
-					}
+						//Name = name,
+						Offset = offset,
+						Size = size
+					};
+					Bundles.Add(newBundleInfo);
 				}
-				if (array[3] != 0)
+			}
+			if (tocMetaData[3] != 0)
+			{
+				nativeReader.Position = 556 + tocMetaData[3];
+				List<int> list7 = new List<int>();
+				for (int num13 = 0; num13 < tocMetaData[5]; num13++)
 				{
-					nativeReader.Position = array[3] - 48;
-					List<int> list4 = new List<int>();
-					for (int l = 0; l < array[5]; l++)
+					list7.Add(nativeReader.ReadInt(Endian.Big));
+				}
+				nativeReader.Position = 556 + tocMetaData[4];
+				List<Guid> list8 = new List<Guid>();
+				for (int num14 = 0; num14 < tocMetaData[5]; num14++)
+				{
+					byte[] array6 = nativeReader.ReadBytes(16);
+					Guid value2 = new Guid(new byte[16]
 					{
-						list4.Add(nativeReader.ReadInt(Endian.Big));
-					}
-					nativeReader.Position = array[4] - 48;
-					List<Guid> list5 = new List<Guid>();
-					for (int m = 0; m < array[5]; m++)
+										array6[15],
+										array6[14],
+										array6[13],
+										array6[12],
+										array6[11],
+										array6[10],
+										array6[9],
+										array6[8],
+										array6[7],
+										array6[6],
+										array6[5],
+										array6[4],
+										array6[3],
+										array6[2],
+										array6[1],
+										array6[0]
+					});
+					int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
+					while (list8.Count <= num15)
 					{
-						byte[] array3 = nativeReader.ReadBytes(16);
-						Guid value = new Guid(new byte[16]
-						{
-										array3[15],
-										array3[14],
-										array3[13],
-										array3[12],
-										array3[11],
-										array3[10],
-										array3[9],
-										array3[8],
-										array3[7],
-										array3[6],
-										array3[5],
-										array3[4],
-										array3[3],
-										array3[2],
-										array3[1],
-										array3[0]
-						});
-						int num4 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
-						while (list5.Count <= num4)
-						{
-							list5.Add(Guid.Empty);
-						}
-						list5[num4 / 3] = value;
+						list8.Add(Guid.Empty);
 					}
-					nativeReader.Position = array[6] - 48;
-				for (int n = 0; n < array[5]; n++)
+					list8[num15 / 3] = value2;
+				}
+				nativeReader.Position = 556 + tocMetaData[6];
+				for (int num16 = 0; num16 < tocMetaData[5]; num16++)
 				{
 					nativeReader.ReadByte();
-					bool patch = nativeReader.ReadBoolean();
-					byte catalog = nativeReader.ReadByte();
-					byte cas = nativeReader.ReadByte();
-					uint num5 = nativeReader.ReadUInt(Endian.Big);
-					uint num6 = nativeReader.ReadUInt(Endian.Big);
-					ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-					chunkAssetEntry.Id = list5[n];
-					chunkAssetEntry.Size = num6;
-					chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-					chunkAssetEntry.ExtraData = new AssetExtraData();
-					chunkAssetEntry.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog, cas, patch);
-					chunkAssetEntry.ExtraData.DataOffset = num5;
-					if (AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry.Id))
+					bool patch2 = nativeReader.ReadBoolean();
+					byte catalog2 = nativeReader.ReadByte();
+					byte cas2 = nativeReader.ReadByte();
+					uint num17 = nativeReader.ReadUInt(Endian.Big);
+					uint num18 = nativeReader.ReadUInt(Endian.Big);
+					ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
+					chunkAssetEntry2.Id = list8[num16];
+					chunkAssetEntry2.Size = num18;
+					chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
+					chunkAssetEntry2.ExtraData = new AssetExtraData();
+					chunkAssetEntry2.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog2, cas2, patch2);
+					chunkAssetEntry2.ExtraData.DataOffset = num17;
+					if (AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
 					{
-						AssetManager.Instance.chunkList.Remove(chunkAssetEntry.Id);
+						AssetManager.Instance.chunkList.Remove(chunkAssetEntry2.Id);
 					}
-					AssetManager.Instance.chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-
+					AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
 				}
 			}
-			*/
+
+
 		}
 	}
 }

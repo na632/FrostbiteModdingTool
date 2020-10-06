@@ -1,4 +1,5 @@
-﻿using FrostySdk.IO;
+﻿using FrostySdk;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -19,9 +20,13 @@ namespace FIFA21Plugin
 
         public TOCFile TOCFile { get; set; }
         public SBFile SBFile { get; set; }
+
+        public int SBIndex { get; set; }
         
-        public void Read(string tocPath, int sbIndex, BinarySbDataHelper helper)
+        public DbObject Read(string tocPath, int sbIndex, BinarySbDataHelper helper)
         {
+            SBIndex = sbIndex;
+
             if (AssetManager == null)
                 AssetManager = AssetManager.Instance;
 
@@ -35,30 +40,41 @@ namespace FIFA21Plugin
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
                 {
-                    TOCFile = new TOCFile();
+                    TOCFile = new TOCFile(this);
                     TOCFile.Read(nativeReader);
-
-                    ReadSB(sbPath, helper);
+                    return ReadSB(sbPath, helper);
                 }
             }
+            return null;
         }
 
         
 
-        public void ReadSB(string sbPath, BinarySbDataHelper helper, int offset = 0)
+        public DbObject ReadSB(string sbPath, BinarySbDataHelper helper, int offset = 0)
         {
             Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
 
             using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
             {
                 nativeReader.Position = offset;
-                SBFile = new SBFile();
-                SBFile.Read(nativeReader);
-                
+                if (nativeReader.Length > 0 && nativeReader.Length > offset)
+                {
+                    // The Super Bundle will have multiple bundles. At this point in time, I am only taking the first bundle
+                    BundleEntry bEntry = new BundleEntry
+                    {
+                        SuperBundleId = SBIndex
+                         ,
+                        Type = BundleType.None
+                         , 
+                        Name = AssetManager.superBundles[SBIndex].Name // This is wrong!
+                    };
+                    AssetManager.bundles.Add(bEntry);
 
-
-
+                    SBFile = new SBFile(this, TOCFile, SBIndex);
+                    return SBFile.Read(nativeReader);
+                }
             }
+            return null;
         }
     }
 }

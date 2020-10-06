@@ -147,7 +147,7 @@
             this.btnLaunchGame.Image = ((System.Drawing.Image)(resources.GetObject("btnLaunchGame.Image")));
             this.btnLaunchGame.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnLaunchGame.Name = "btnLaunchGame";
-            this.btnLaunchGame.Size = new System.Drawing.Size(102, 24);
+            this.btnLaunchGame.Size = new System.Drawing.Size(102, 28);
             this.btnLaunchGame.Text = "Launch Game";
             this.btnLaunchGame.Click += new System.EventHandler(this.btnLaunchGame_Click);
             // 
@@ -275,7 +275,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(392, 526);
+            this.tabPage2.Size = new System.Drawing.Size(392, 522);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Legacy";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -285,7 +285,7 @@
             this.TreeViewLegacy.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TreeViewLegacy.Location = new System.Drawing.Point(3, 3);
             this.TreeViewLegacy.Name = "TreeViewLegacy";
-            this.TreeViewLegacy.Size = new System.Drawing.Size(386, 520);
+            this.TreeViewLegacy.Size = new System.Drawing.Size(386, 516);
             this.TreeViewLegacy.TabIndex = 0;
             // 
             // Madden21Editor

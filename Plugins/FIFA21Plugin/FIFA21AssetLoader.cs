@@ -29,6 +29,15 @@ namespace FIFA21Plugin
 			}
 		}
 
+		public class BaseBundleInfo
+		{
+			public string Name;
+
+			public long Offset;
+
+			public long Size;
+		}
+
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
 			foreach (CatalogInfo item5 in parent.fs.EnumerateCatalogInfos())
@@ -36,10 +45,10 @@ namespace FIFA21Plugin
 				foreach (string sbName in item5.SuperBundles.Keys)
 				{
 					SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-					int num = -1;
+					int sbIndex = -1;
 					if (superBundleEntry != null)
 					{
-						num = parent.superBundles.IndexOf(superBundleEntry);
+						sbIndex = parent.superBundles.IndexOf(superBundleEntry);
 					}
 					else
 					{
@@ -47,7 +56,7 @@ namespace FIFA21Plugin
 						{
 							Name = sbName
 						});
-						num = parent.superBundles.Count - 1;
+						sbIndex = parent.superBundles.Count - 1;
 					}
 					parent.logger.Log($"Loading data ({sbName})");
 					string tocFile = sbName.Replace("win32", item5.Name).Replace("cs/", "");
@@ -57,17 +66,23 @@ namespace FIFA21Plugin
 					}
 					List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
 					List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
-					//string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
-
-					//TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-					//tocSbReader_FIFA21.Read(tocFileLocation, 0, new BinarySbDataHelper(parent));
-
-					//string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
 
 					string tocFileLocation = parent.fs.ResolvePath($"native_patch/{tocFile}.toc");
 
+					// TODO: this needs to be a bundle within a super bundle but for now its loading the first one
+					
 					TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-					tocSbReader_FIFA21.Read(tocFileLocation, 0, new BinarySbDataHelper(parent));
+					var dbObject = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent));
+					if(dbObject != null)
+                    {
+						
+
+						parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
+						parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
+						parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
+
+						
+					}
 				}
 			}
 		}
