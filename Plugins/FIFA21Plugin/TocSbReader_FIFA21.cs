@@ -23,7 +23,7 @@ namespace FIFA21Plugin
 
         public int SBIndex { get; set; }
         
-        public DbObject Read(string tocPath, int sbIndex, BinarySbDataHelper helper)
+        public IEnumerable<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper)
         {
             SBIndex = sbIndex;
 
@@ -38,23 +38,29 @@ namespace FIFA21Plugin
                 List<BaseBundleInfo> listOfBundles = new List<BaseBundleInfo>();
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
-                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
+                if (!tocPath.Contains("globals.toc"))
                 {
-                    TOCFile = new TOCFile(this);
-                    TOCFile.Read(nativeReader);
-                    return ReadSB(sbPath, helper);
+                    using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
+                    {
+                        TOCFile = new TOCFile(this);
+                        TOCFile.Read(nativeReader);
+                        //foreach(var b in TOCFile.Bundles)
+                        //{
+                            yield return ReadSB(sbPath, helper, 0);
+                        //}
+                    }
                 }
             }
-            return null;
+            yield return null;
         }
 
         
 
         public DbObject ReadSB(string sbPath, BinarySbDataHelper helper, int offset = 0)
         {
-            Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
+            Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath} at offset {offset}");
 
-            using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
+            using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read))) //, AssetManager.fs.CreateDeobfuscator()))
             {
                 nativeReader.Position = offset;
                 if (nativeReader.Length > 0 && nativeReader.Length > offset)
@@ -65,7 +71,7 @@ namespace FIFA21Plugin
                         SuperBundleId = SBIndex
                          ,
                         Type = BundleType.None
-                         , 
+                         ,
                         Name = AssetManager.superBundles[SBIndex].Name // This is wrong!
                     };
                     AssetManager.bundles.Add(bEntry);
