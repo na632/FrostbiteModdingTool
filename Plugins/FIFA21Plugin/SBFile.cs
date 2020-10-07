@@ -72,14 +72,31 @@ namespace FIFA21Plugin
                     SuperBundleId = SuperBundleIndex
                 };
                 AssetManager.Instance.bundles.Add(item4);
-                using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, BaseBundleItem.Size)))
+                //using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(0, BaseBundleItem.Size)))
+                using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
                 {
                     uint num35 = binarySbReader2.ReadUInt(Endian.Big);
                     uint num36 = binarySbReader2.ReadUInt(Endian.Big) + num35;
                     uint num37 = binarySbReader2.ReadUInt(Endian.Big);
 
                     binarySbReader2.Position += 20;
+                    // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
+
+                    // Read out the Header Info
                     var SBHeaderInformation = new SBHeaderInformation(binarySbReader2);
+                    //
+                    List<Sha1> sha1 = new List<Sha1>();
+                    for (int i = 0; i < SBHeaderInformation.totalCount; i++)
+                    {
+                        sha1.Add(binarySbReader2.ReadSha1());
+                    }
+                    //dbObject.AddValue("ebx", new DbObject(ReadEbx(dbReader)));
+                    //dbObject.AddValue("res", new DbObject(ReadRes(dbReader)));
+                    //dbObject.AddValue("chunks", new DbObject(ReadChunks(dbReader)));
+                    dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
+                    dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
+                    dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
+                    dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
                 }
 
             }

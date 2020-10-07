@@ -4,6 +4,7 @@ using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using static FrostySdk.Managers.AssetManager;
@@ -72,15 +73,16 @@ namespace FIFA21Plugin
 					// TODO: this needs to be a bundle within a super bundle but for now its loading the first one
 					
 					TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-					var dbObject = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent));
-					if(dbObject != null)
+					var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent));
+					if(dbObjects != null)
                     {
-						
 
-						parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
-						parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
-						parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
-
+						foreach (DbObject @object in dbObjects.Where(x=>x!=null))
+						{
+							parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
+							parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
+							parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+						}
 						
 					}
 				}
