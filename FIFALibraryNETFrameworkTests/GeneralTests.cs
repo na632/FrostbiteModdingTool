@@ -11,6 +11,9 @@ using FrostySdk.Interfaces;
 using System.Diagnostics;
 using System.Threading;
 using System.CodeDom.Compiler;
+using v2k4FIFAModding.Frosty;
+using System.Linq;
+using v2k4FIFAModdingCL;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -317,6 +320,7 @@ namespace FIFALibraryNETFrameworkTests
     {
         public void Log(string text, params object[] vars)
         {
+            Debug.WriteLine("[LOGGER] [DEBUG] " + text);
         }
 
         public void LogError(string text, params object[] vars)
@@ -328,10 +332,66 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
-        public void TestBuildCacheAndSDK_FIFA21()
+        public void TestBuildCache()
         {
             var buildCache = new BuildCache();
             buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+           
+
+        }
+
+        [TestMethod]
+        public void TestBuildSDK()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+
+            var buildSDK = new BuildSDK();
+            buildSDK.Build().Wait();
+        }
+
+        [TestMethod]
+        public void TestOpenOfProject()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            var allEBX = project.AssetManager.EnumerateEbx().ToList();
+            if (allEBX.Count() > 0)
+            {
+                foreach (var ebx in allEBX)
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void InjectSDKGeneratorIntoFIFA()
+        {
+            
+            int? proc = GameInstanceSingleton.GetProcIDFromName("FIFA21");
+            proc = GameInstanceSingleton.GetProcIDFromName("FIFA21");
+            while (!proc.HasValue || proc == 0)
+            {
+                Debug.WriteLine($"Waiting for FIFA to appear");
+                proc = GameInstanceSingleton.GetProcIDFromName("FIFA21");
+                Thread.Sleep(1000);
+            }
+            if (proc.HasValue)
+            {
+                var dllpath = @"G:\Work\FIFA Modding\SDKGenerator\x64\Debug\Publish\Generator.dll";
+                if (File.Exists(dllpath))
+                {
+                    Debug.WriteLine($"Injecting: {dllpath}");
+                    var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, dllpath, false);
+                    bl.InjectDll();
+                    Debug.WriteLine($"Injected: {dllpath}");
+                }
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ namespace FIFA21Plugin
 
         public int SBIndex { get; set; }
         
-        public IEnumerable<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper)
+        public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName)
         {
             SBIndex = sbIndex;
 
@@ -35,47 +35,31 @@ namespace FIFA21Plugin
             {
                 var sbPath = tocPath.Replace(".toc", ".sb");
 
-                List<BaseBundleInfo> listOfBundles = new List<BaseBundleInfo>();
-
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 if (!tocPath.Contains("globals.toc"))
                 {
                     using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
                     {
                         TOCFile = new TOCFile(this);
+                        TOCFile.SuperBundleName = tocPath;
                         TOCFile.Read(nativeReader);
-                        //foreach(var b in TOCFile.Bundles)
-                        //{
-                            yield return ReadSB(sbPath, helper, 0);
-                        //}
+                        return ReadSB(sbPath, helper);
                     }
                 }
             }
-            yield return null;
+            return null;
         }
 
         
 
-        public DbObject ReadSB(string sbPath, BinarySbDataHelper helper, int offset = 0)
+        public List<DbObject> ReadSB(string sbPath, BinarySbDataHelper helper)
         {
-            Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath} at offset {offset}");
+            Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
 
             using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read))) //, AssetManager.fs.CreateDeobfuscator()))
             {
-                nativeReader.Position = offset;
-                if (nativeReader.Length > 0 && nativeReader.Length > offset)
+                if (nativeReader.Length > 0)
                 {
-                    // The Super Bundle will have multiple bundles. At this point in time, I am only taking the first bundle
-                    BundleEntry bEntry = new BundleEntry
-                    {
-                        SuperBundleId = SBIndex
-                         ,
-                        Type = BundleType.None
-                         ,
-                        Name = AssetManager.superBundles[SBIndex].Name // This is wrong!
-                    };
-                    AssetManager.bundles.Add(bEntry);
-
                     SBFile = new SBFile(this, TOCFile, SBIndex);
                     return SBFile.Read(nativeReader);
                 }

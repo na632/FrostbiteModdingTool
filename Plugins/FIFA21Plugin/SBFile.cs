@@ -1,11 +1,14 @@
 ﻿using Frosty.Hash;
 using FrostySdk;
+using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using static FIFA21Plugin.FIFA21AssetLoader;
 
@@ -52,9 +55,9 @@ namespace FIFA21Plugin
 
         }
 
-        public DbObject Read(NativeReader nativeReader)
+        public List<DbObject> Read(NativeReader nativeReader)
         {
-            DbObject dbObject = new DbObject(new Dictionary<string, object>());
+            List<DbObject> dbObjects = new List<DbObject>();
 
             var startOffset = nativeReader.Position;
             if (File.Exists("debugSB.dat"))
@@ -64,22 +67,34 @@ namespace FIFA21Plugin
                 writer.Write(nativeReader.ReadToEnd());
             }
             nativeReader.Position = startOffset;
+            var index = 0;
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)
             {
-                BundleEntry item4 = new BundleEntry
+                DbObject dbObject = new DbObject(new Dictionary<string, object>());
+
+                BundleEntry bundleEntry = new BundleEntry
                 {
-                    Name = BaseBundleItem.Name,
+                    Name = AssociatedTOCFile.SuperBundleName + "_" + index.ToString(), 
                     SuperBundleId = SuperBundleIndex
                 };
-                AssetManager.Instance.bundles.Add(item4);
-                //using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(0, BaseBundleItem.Size)))
                 using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
                 {
+                    if (File.Exists("debugSBViewStream.dat"))
+                        File.Delete("debugSBViewStream.dat");
+                    using (NativeWriter writer = new NativeWriter(new FileStream("debugSBViewStream.dat", FileMode.OpenOrCreate)))
+                    {
+                        writer.Write(binarySbReader2.ReadToEnd());
+                    }
+                    binarySbReader2.Position = 0;
+
+
                     uint num35 = binarySbReader2.ReadUInt(Endian.Big);
                     uint num36 = binarySbReader2.ReadUInt(Endian.Big) + num35;
                     uint num37 = binarySbReader2.ReadUInt(Endian.Big);
 
                     binarySbReader2.Position += 20;
+
+                    // ---------------------------------------------------------------------------------------------------------------------
                     // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
 
                     // Read out the Header Info
@@ -90,172 +105,276 @@ namespace FIFA21Plugin
                     {
                         sha1.Add(binarySbReader2.ReadSha1());
                     }
-                    //dbObject.AddValue("ebx", new DbObject(ReadEbx(dbReader)));
-                    //dbObject.AddValue("res", new DbObject(ReadRes(dbReader)));
-                    //dbObject.AddValue("chunks", new DbObject(ReadChunks(dbReader)));
+                    dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, sha1, binarySbReader2)));
+                    dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, sha1, binarySbReader2)));
+                    dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, sha1, binarySbReader2)));
                     dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
                     dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
                     dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
                     dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
+
+                    if (SBHeaderInformation.chunkCount != 0)
+                    {
+                        using (DbReader dbReader = new DbReader(nativeReader.CreateViewStream(SBHeaderInformation.metaOffset + BaseBundleItem.Offset, nativeReader.Length - binarySbReader2.Position), new NullDeobfuscator()))
+                        {
+                            var o = dbReader.ReadDbObject();
+                            dbObject.AddValue("chunkMeta", o);
+                        }
+                    }
+
+                    binarySbReader2.Position = SBHeaderInformation.size;
+                    if (binarySbReader2.Position != binarySbReader2.Length)
+                    {
+                        //ReadDataBlock(dbObject.GetValue<DbObject>("ebx"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
+                        //ReadDataBlock(dbObject.GetValue<DbObject>("res"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
+                        //ReadDataBlock(dbObject.GetValue<DbObject>("chunks"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
+                    }
+
+                    // END OF BINARY READER
+                    // ---------------------------------------------------------------------------------------------------------------------
+
+
+                    binarySbReader2.Position = num37;
+                    bool[] booleanChangeOfCas = new bool[SBHeaderInformation.totalCount];
+                    for (uint booleanIndex = 0u; booleanIndex < SBHeaderInformation.totalCount; booleanIndex++)
+                    {
+                        booleanChangeOfCas[booleanIndex] = binarySbReader2.ReadBoolean();
+                    }
+                    binarySbReader2.Position = num36;
+                    while (binarySbReader2.ReadByte() == 0) ;
+                    binarySbReader2.Position -= 2;
+
+                    bool patchFlag = false;
+                    int unk1 = 0;
+                    int catalog = 0;
+                    int cas = 0;
+                    int flagIndex = 0;
+                    for (int ebxIndex = 0; ebxIndex < dbObject.GetValue<DbObject>("ebx").Count; ebxIndex++)
+                    {
+                        if (booleanChangeOfCas[flagIndex])
+                        {
+                            unk1 = binarySbReader2.ReadByte();
+                            patchFlag = binarySbReader2.ReadBoolean();
+                            catalog = binarySbReader2.ReadByte();
+                            cas = binarySbReader2.ReadByte();
+
+                            flagIndex++;
+                        }
+                        DbObject dbObject6 = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
+                        int offset = binarySbReader2.ReadInt(Endian.Big);
+                        int size = binarySbReader2.ReadInt(Endian.Big);
+                        if(catalog > AssetManager.Instance.fs.Catalogs.Count() - 1) 
+                        {
+                            //Debug.WriteLine("[ERROR] Unable to find the correct Catalog");
+                            //throw new ArgumentOutOfRangeException("Incorrect Catalog given for object");
+                        }
+                        else 
+                            dbObject6.SetValue("catalog", catalog);
+
+                        //if(cas < 1)
+                        //    throw new ArgumentOutOfRangeException("Incorrect CAS given for object");
+
+                        if(cas > 0)
+                            dbObject6.SetValue("cas", cas);
+                        dbObject6.SetValue("offset", offset);
+                        dbObject6.SetValue("size", size);
+                        if (patchFlag)
+                        {
+                            dbObject6.SetValue("patch", true);
+                        }
+                    }
+                    for (int num45 = 0; num45 < dbObject.GetValue<DbObject>("res").Count; num45++)
+                    {
+                        if (booleanChangeOfCas[flagIndex++])
+                        {
+                            binarySbReader2.ReadByte();
+                            patchFlag = binarySbReader2.ReadBoolean();
+                            catalog = binarySbReader2.ReadByte();
+                            cas = binarySbReader2.ReadByte();
+                        }
+                        DbObject dbObject7 = dbObject.GetValue<DbObject>("res")[num45] as DbObject;
+                        int num46 = binarySbReader2.ReadInt(Endian.Big);
+                        int num47 = binarySbReader2.ReadInt(Endian.Big);
+                        if(catalog <= AssetManager.Instance.fs.Catalogs.Count() - 1)
+                            dbObject7.SetValue("catalog", catalog);
+
+                        //if (cas < 1)
+                        //    throw new ArgumentOutOfRangeException("Incorrect CAS given for object");
+                        if(cas > 0)
+                            dbObject7.SetValue("cas", cas);
+                        dbObject7.SetValue("offset", num46);
+                        dbObject7.SetValue("size", num47);
+                        if (patchFlag)
+                        {
+                            dbObject7.SetValue("patch", true);
+                        }
+                    }
+                    for (int num48 = 0; num48 < dbObject.GetValue<DbObject>("chunks").Count; num48++)
+                    {
+                        if (booleanChangeOfCas[flagIndex++])
+                        {
+                            binarySbReader2.ReadByte();
+                            patchFlag = binarySbReader2.ReadBoolean();
+                            catalog = binarySbReader2.ReadByte();
+                            cas = binarySbReader2.ReadByte();
+                        }
+                        DbObject dbObject8 = dbObject.GetValue<DbObject>("chunks")[num48] as DbObject;
+                        int num49 = binarySbReader2.ReadInt(Endian.Big);
+                        int num50 = binarySbReader2.ReadInt(Endian.Big);
+                        if(catalog <= AssetManager.Instance.fs.Catalogs.Count() - 1)
+                            dbObject8.SetValue("catalog", catalog);
+
+                        //if (cas < 1)
+                        //    throw new ArgumentOutOfRangeException("Incorrect CAS given for object");
+                        if(cas > 0)
+                            dbObject8.SetValue("cas", cas);
+                        dbObject8.SetValue("offset", num49);
+                        dbObject8.SetValue("size", num50);
+                        if (patchFlag)
+                        {
+                            dbObject8.SetValue("patch", true);
+                        }
+                    }
+
+
+
+
                 }
 
+                AssetManager.Instance.bundles.Add(bundleEntry);
+                dbObjects.Add(dbObject);
+                index++;
             }
 
-            /*
-            // Initial Header data
-            for (var i = 0; i < 8; i++)
-            {
-                ArrayOfInitialHeaderData[i] = nativeReader.ReadInt(Endian.Big);
-            }
-           
-            ArrayOfInitialHeaderData[1] = ArrayOfInitialHeaderData[1] + ArrayOfInitialHeaderData[0];
+            return dbObjects;
+        }
 
-            // Header Information (Counts offsets etc)
-            SBHeaderInformation = new SBHeaderInformation(nativeReader);
-
-            //List<Guid> ShaGuids = new List<Guid>();
-            //for(var i = 0; i < SBHeaderInformation.shaCount; i++)
-            //{
-            //    ShaGuids.Add(nativeReader.ReadGuid());
-            //}
-
-            var currentPostion = nativeReader.Position;
-            nativeReader.Position = SBHeaderInformation.stringOffset;
-            for(var i = 0; i < SBHeaderInformation.ebxCount; i++)
+        private List<object> ReadEbx(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader)
+        {
+            List<object> list = new List<object>();
+            for (int i = 0; i < information.ebxCount; i++)
             {
-                BundleEntryInfo bundleInfo = new BundleEntryInfo() { Type = "EBX" };
-                bundleInfo.Name = nativeReader.ReadNullTerminatedString();
-                Bundles.Add(bundleInfo);
+                DbObject dbObject = new DbObject(new Dictionary<string, object>());
+                uint num = reader.ReadUInt(Endian.Little);
+                uint num2 = reader.ReadUInt(Endian.Little);
+                long position = reader.Position;
+                reader.Position = information.stringOffset + num;
+                //System.Diagnostics.Debug.WriteLine($"EBX::Position::{reader.Position}");
+                dbObject.AddValue("sha1", sha1[i]);
+                var name = reader.ReadNullTerminatedString();
+                //System.Diagnostics.Debug.WriteLine("EBX:: " + name);
+                dbObject.AddValue("name", name);
+                dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
+                dbObject.AddValue("originalSize", num2);
+                list.Add(dbObject);
+                reader.Position = position;
             }
-            for (var i = 0; i < SBHeaderInformation.resCount; i++)
+            return list;
+        }
+        private List<object> ReadRes(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader)
+        {
+            List<object> list = new List<object>();
+            int num = (int)information.ebxCount;
+            for (int i = 0; i < information.resCount; i++)
             {
-                BundleEntryInfo bundleInfo = new BundleEntryInfo() { Type = "RES" };
-                bundleInfo.Name = nativeReader.ReadNullTerminatedString();
-                Bundles.Add(bundleInfo);
+                DbObject dbObject = new DbObject(new Dictionary<string, object>());
+                uint num2 = reader.ReadUInt(Endian.Little);
+                uint num3 = reader.ReadUInt(Endian.Little);
+                long position = reader.Position;
+                reader.Position = information.stringOffset + num2;
+                dbObject.AddValue("sha1", sha1[num++]);
+                var name = reader.ReadNullTerminatedString();
+                //System.Diagnostics.Debug.WriteLine("RES:: " + name);
+                dbObject.AddValue("name", name);
+                dbObject.AddValue("nameHash", Fnv1.HashString(name));
+                dbObject.AddValue("originalSize", num3);
+                list.Add(dbObject);
+                reader.Position = position;
             }
-            nativeReader.Position = currentPostion;
-            for (var i = 0; i < SBHeaderInformation.ebxCount; i++)
+            foreach (DbObject item in list)
             {
-                //Bundles[i].Sha = nativeReader.ReadGuid();
-                Bundles[i].Sha = nativeReader.ReadSha1();
+                //var type = reader.ReadUInt(Endian.Big);
+                var type = reader.ReadUInt(Endian.Little);
+                var resType = (ResourceType)type;
+                item.AddValue("resType", type);
             }
-            for (var i = SBHeaderInformation.ebxCount-1; i < SBHeaderInformation.ebxCount+SBHeaderInformation.resCount; i++)
+            foreach (DbObject item2 in list)
             {
-                //Bundles[i].Sha = nativeReader.ReadGuid();
-                Bundles[i].Sha = nativeReader.ReadSha1();
+                var resMeta = reader.ReadBytes(16);
+                item2.AddValue("resMeta", resMeta);
             }
+            foreach (DbObject item3 in list)
+            {
+                var resRid = reader.ReadLong(Endian.Little);
+                item3.AddValue("resRid", resRid);
+            }
+            return list;
+        }
 
-            for (var i = 0; i < SBHeaderInformation.chunkCount-1; i++)
+        private List<object> ReadChunks(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader)
+        {
+            var currentPostion = reader.Position;
+
+            List<object> list = new List<object>();
+            int num = (int)(information.ebxCount + information.resCount);
+            for (int i = 0; i < information.chunkCount; i++)
             {
-                BundleEntryInfo bundleInfo = new BundleEntryInfo() { Type = "CHUNK" };
-                //bundleInfo.Sha = nativeReader.ReadGuid();
-                bundleInfo.Sha = nativeReader.ReadSha1();
-                Bundles.Add(bundleInfo);
+                DbObject dbObject = new DbObject(new Dictionary<string, object>());
+                Guid guid = reader.ReadGuid(Endian.Little);
+                uint num2 = reader.ReadUInt(Endian.Little);
+                uint num3 = reader.ReadUInt(Endian.Little);
+                long num4 = (num2 & 0xFFFF) | num3;
+                dbObject.AddValue("id", guid);
+                dbObject.AddValue("sha1", sha1[num + i]);
+                dbObject.AddValue("logicalOffset", num2);
+                dbObject.AddValue("logicalSize", num3);
+                dbObject.AddValue("originalSize", num4);
+                list.Add(dbObject);
             }
+            return list;
+        }
 
-            while (nativeReader.ReadInt(Endian.Little) != 0) ;
-            nativeReader.Position -= 4;
-
-            for (var i = 0; i < SBHeaderInformation.ebxCount; i++)
+        private void ReadDataBlock( DbObject list, int bundleOffset, int Position, NativeReader reader)
+        {
+            if (list == null)
             {
-                Bundles[i].StringOffset = nativeReader.ReadInt();
-                Bundles[i].OriginalSize = nativeReader.ReadInt();
+                return;
             }
-            for (var i = 0; i < SBHeaderInformation.resCount; i++)
-            {
-                var index = (i + SBHeaderInformation.ebxCount);
-                Bundles[index].StringOffset = nativeReader.ReadInt();
-                Bundles[index].OriginalSize = nativeReader.ReadInt();
-            }
+            var currentPostion = reader.Position;
 
-            dbObject.AddValue("ebx", new DbObject(ReadToDBObject(Bundles.Where(x=> x.Type == "EBX").ToList(), nativeReader)));
-            dbObject.AddValue("res", new DbObject(ReadToDBObject(Bundles.Where(x => x.Type == "RES").ToList(), nativeReader)));
-            dbObject.AddValue("chunks", new DbObject(ReadToDBObject(Bundles.Where(x => x.Type == "CHUNK").ToList(), nativeReader)));
-            dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
-            dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
-            dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
-            dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
 
-            // Fill out the Boolean Array for all Objects
-            nativeReader.Position = ArrayOfInitialHeaderData[2];
-            bool[] boolArray = new bool[SBHeaderInformation.totalCount];
-            for (uint index = 0u; index < SBHeaderInformation.totalCount; index++)
+            foreach (DbObject item in list)
             {
-                boolArray[index] = nativeReader.ReadBoolean();
-            }
-
-            // Get Catalog and CAS data
-            nativeReader.Position = ArrayOfInitialHeaderData[1];
-            bool flag = false;
-            int catalog = 0;
-            int cas = 0;
-            int arrayIndex = 0;
-            for (int ebxIndex = 0; ebxIndex < dbObject.GetValue<DbObject>("ebx").Count; ebxIndex++)
-            {
-                if (boolArray[arrayIndex++])
+                item.AddValue("offset", bundleOffset + Position);
+                long num = item.GetValue("originalSize", 0L);
+                //item.AddValue("size", num);
+                long num2 = 0L;
+                while (num > 0)
                 {
-                    nativeReader.ReadByte();
-                    flag = nativeReader.ReadBoolean();
-                    catalog = nativeReader.ReadByte();
-                    cas = nativeReader.ReadByte();
+                    int num3 = reader.ReadInt(Endian.Little);
+                    ushort bitShift = reader.ReadUShort(Endian.Little);
+                    int num5 = reader.ReadUShort(Endian.Little);
+                    int num6 = (bitShift & 0xFF00) >> 8;
+                    if ((num6 & 0xF) != 0)
+                    {
+                        num5 = ((num6 & 0xF) << 16) + num5;
+                    }
+                    if ((num3 & 4278190080u) != 0L)
+                    {
+                        num3 &= 0xFFFFFF;
+                    }
+                    num -= num3;
+                    if ((ushort)(bitShift & 0x7F) == 0)
+                    {
+                        num5 = num3;
+                    }
+                    num2 += num5 + 8;
+                    Position += num5;
                 }
-                DbObject dbObjRef = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
-                int offset = nativeReader.ReadInt(Endian.Big);
-                int size = nativeReader.ReadInt(Endian.Big);
-                dbObjRef.SetValue("catalog", catalog);
-                dbObjRef.SetValue("cas", cas);
-                dbObjRef.SetValue("offset", offset);
-                dbObjRef.SetValue("size", size);
-                if (flag)
-                {
-                    dbObjRef.SetValue("patch", true);
-                }
+                var origSize = item.GetValue("originalSize", 0L);
+                item.AddValue("size", num2);
+                item.AddValue("sb", true);
             }
-            for (int resIndex = 0; resIndex < dbObject.GetValue<DbObject>("res").Count; resIndex++)
-            {
-                if (boolArray[arrayIndex++])
-                {
-                    nativeReader.ReadByte();
-                    flag = nativeReader.ReadBoolean();
-                    catalog = nativeReader.ReadByte();
-                    cas = nativeReader.ReadByte();
-                }
-                DbObject dbObjRef = dbObject.GetValue<DbObject>("res")[resIndex] as DbObject;
-                int offset = nativeReader.ReadInt(Endian.Big);
-                int size = nativeReader.ReadInt(Endian.Big);
-                dbObjRef.SetValue("catalog", catalog);
-                dbObjRef.SetValue("cas", cas);
-                dbObjRef.SetValue("offset", offset);
-                dbObjRef.SetValue("size", size);
-                if (flag)
-                {
-                    dbObjRef.SetValue("patch", true);
-                }
-            }
-            for (int chunkIndex = 0; chunkIndex < dbObject.GetValue<DbObject>("chunks").Count; chunkIndex++)
-            {
-                if (boolArray[arrayIndex++])
-                {
-                    nativeReader.ReadByte();
-                    flag = nativeReader.ReadBoolean();
-                    catalog = nativeReader.ReadByte();
-                    cas = nativeReader.ReadByte();
-                }
-                DbObject dbObjRef = dbObject.GetValue<DbObject>("chunks")[chunkIndex] as DbObject;
-                int offset = nativeReader.ReadInt(Endian.Big);
-                int size = nativeReader.ReadInt(Endian.Big);
-                dbObjRef.SetValue("catalog", catalog);
-                dbObjRef.SetValue("cas", cas);
-                dbObjRef.SetValue("offset", offset);
-                dbObjRef.SetValue("size", size);
-                if (flag)
-                {
-                    dbObjRef.SetValue("patch", true);
-                }
-            }
-            */
-
-            return dbObject;
         }
 
         List<object> ReadToDBObject(List<BundleEntryInfo> bundleEntries, NativeReader reader)

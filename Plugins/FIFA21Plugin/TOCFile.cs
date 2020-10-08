@@ -70,6 +70,8 @@ namespace FIFA21Plugin
 		public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
 
+		public string SuperBundleName;
+
 		private TocSbReader_FIFA21 ParentReader;
 		public TOCFile(TocSbReader_FIFA21 parent)
         {

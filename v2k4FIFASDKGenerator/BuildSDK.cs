@@ -135,7 +135,7 @@ namespace v2k4FIFASDKGenerator
 				else if (process.ProcessName.ToUpper() == "FIFA21")
 				{
 					//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
-					sdkUpdateState.TypeInfoOffset = 0x1481f16f0;
+					sdkUpdateState.TypeInfoOffset = 0x1498D7290;
 					// AOB 48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08
 
 				}
