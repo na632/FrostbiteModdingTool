@@ -45,11 +45,14 @@
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.TreeViewLegacy = new System.Windows.Forms.TreeView();
+            this.txtTextViewer = new System.Windows.Forms.TextBox();
+            this.ImageViewer = new System.Windows.Forms.PictureBox();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ImageViewer)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -60,7 +63,7 @@
             this.btnLaunchGame});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1279, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(1279, 27);
             this.toolStrip1.TabIndex = 3;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -75,7 +78,7 @@
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 28);
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 24);
             this.toolStripDropDownButton1.Text = "File";
             // 
             // openToolStripMenuItem
@@ -123,7 +126,7 @@
             this.btnLaunchGame.Image = ((System.Drawing.Image)(resources.GetObject("btnLaunchGame.Image")));
             this.btnLaunchGame.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnLaunchGame.Name = "btnLaunchGame";
-            this.btnLaunchGame.Size = new System.Drawing.Size(102, 28);
+            this.btnLaunchGame.Size = new System.Drawing.Size(102, 24);
             this.btnLaunchGame.Text = "Launch Game";
             this.btnLaunchGame.Click += new System.EventHandler(this.btnLaunchGame_Click);
             // 
@@ -148,11 +151,11 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.tabControl1.Location = new System.Drawing.Point(0, 31);
+            this.tabControl1.Location = new System.Drawing.Point(0, 27);
             this.tabControl1.MinimumSize = new System.Drawing.Size(400, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(400, 441);
+            this.tabControl1.Size = new System.Drawing.Size(466, 445);
             this.tabControl1.TabIndex = 5;
             // 
             // tabPage1
@@ -161,7 +164,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(392, 412);
+            this.tabPage1.Size = new System.Drawing.Size(458, 416);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Standard";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -173,7 +176,7 @@
             this.treeView1.Location = new System.Drawing.Point(3, 3);
             this.treeView1.Name = "treeView1";
             this.treeView1.PathSeparator = "/";
-            this.treeView1.Size = new System.Drawing.Size(386, 406);
+            this.treeView1.Size = new System.Drawing.Size(452, 410);
             this.treeView1.TabIndex = 2;
             // 
             // tabPage2
@@ -195,11 +198,30 @@
             this.TreeViewLegacy.Size = new System.Drawing.Size(386, 406);
             this.TreeViewLegacy.TabIndex = 0;
             // 
+            // txtTextViewer
+            // 
+            this.txtTextViewer.Location = new System.Drawing.Point(472, 52);
+            this.txtTextViewer.Multiline = true;
+            this.txtTextViewer.Name = "txtTextViewer";
+            this.txtTextViewer.Size = new System.Drawing.Size(795, 413);
+            this.txtTextViewer.TabIndex = 6;
+            this.txtTextViewer.Visible = false;
+            // 
+            // ImageViewer
+            // 
+            this.ImageViewer.Location = new System.Drawing.Point(472, 52);
+            this.ImageViewer.Name = "ImageViewer";
+            this.ImageViewer.Size = new System.Drawing.Size(795, 413);
+            this.ImageViewer.TabIndex = 7;
+            this.ImageViewer.TabStop = false;
+            // 
             // FIFA21Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1279, 494);
+            this.Controls.Add(this.ImageViewer);
+            this.Controls.Add(this.txtTextViewer);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
@@ -212,6 +234,7 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.ImageViewer)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -235,5 +258,7 @@
         private System.Windows.Forms.TreeView treeView1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TreeView TreeViewLegacy;
+        private System.Windows.Forms.TextBox txtTextViewer;
+        private System.Windows.Forms.PictureBox ImageViewer;
     }
 }

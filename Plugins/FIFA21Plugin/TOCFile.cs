@@ -154,9 +154,10 @@ namespace FIFA21Plugin
 					//uint size = nativeReader.ReadUInt(Endian.Big);
 					BaseBundleInfo newBundleInfo = new BaseBundleInfo
 					{
-						//Name = name,
-						Offset = offset,
-						Size = unk2
+                        //Name = name,
+                        Offset = offset,
+                        //Offset = unk3,
+                        Size = unk2
 					};
 					Bundles.Add(newBundleInfo);
 				}

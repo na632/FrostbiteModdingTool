@@ -14,6 +14,7 @@ using System.CodeDom.Compiler;
 using v2k4FIFAModding.Frosty;
 using System.Linq;
 using v2k4FIFAModdingCL;
+using Newtonsoft.Json;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -358,14 +359,29 @@ namespace FIFALibraryNETFrameworkTests
             var allEBX = project.AssetManager.EnumerateEbx().ToList();
             if (allEBX.Count() > 0)
             {
-                foreach (var ebx in allEBX)
+                foreach (var ebx in allEBX.Where(x=>x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
                     if (eb != null)
                     {
 
+                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.Objects));
+
                     }
                 }
+            }
+        }
+
+        [TestMethod]
+        public void TestOpenLegacyFiles()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            var legacyFiles = project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+            if(legacyFiles.Count >0 )
+            {
+
             }
         }
 

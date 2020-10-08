@@ -89,7 +89,7 @@ namespace FIFA21Plugin
 
 
                     uint num35 = binarySbReader2.ReadUInt(Endian.Big);
-                    uint num36 = binarySbReader2.ReadUInt(Endian.Big) + num35;
+                    uint CatalogAndCASOffset = binarySbReader2.ReadUInt(Endian.Big) + num35;
                     uint num37 = binarySbReader2.ReadUInt(Endian.Big);
 
                     binarySbReader2.Position += 20;
@@ -123,7 +123,8 @@ namespace FIFA21Plugin
                     }
 
                     binarySbReader2.Position = SBHeaderInformation.size;
-                    if (binarySbReader2.Position != binarySbReader2.Length)
+                    //if (binarySbReader2.Position != binarySbReader2.Length)
+                    if (SBHeaderInformation.size > binarySbReader2.Position)
                     {
                         //ReadDataBlock(dbObject.GetValue<DbObject>("ebx"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
                         //ReadDataBlock(dbObject.GetValue<DbObject>("res"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
@@ -140,99 +141,101 @@ namespace FIFA21Plugin
                     {
                         booleanChangeOfCas[booleanIndex] = binarySbReader2.ReadBoolean();
                     }
-                    binarySbReader2.Position = num36;
-                    while (binarySbReader2.ReadByte() == 0) ;
+                    binarySbReader2.Position = CatalogAndCASOffset;
+
+                    int movedPositionByteCount = 0;
+                    while (binarySbReader2.ReadByte() == 0) { movedPositionByteCount++; }
                     binarySbReader2.Position -= 2;
+                    movedPositionByteCount--;
+
 
                     bool patchFlag = false;
                     int unk1 = 0;
                     int catalog = 0;
                     int cas = 0;
                     int flagIndex = 0;
-                    for (int ebxIndex = 0; ebxIndex < dbObject.GetValue<DbObject>("ebx").Count; ebxIndex++)
+
+                    var ebxCount = dbObject.GetValue<DbObject>("ebx").Count;
+                    for (int ebxIndex = 0; ebxIndex < ebxCount; ebxIndex++)
                     {
-                        if (booleanChangeOfCas[flagIndex])
+                        if (booleanChangeOfCas[flagIndex++])
                         {
                             unk1 = binarySbReader2.ReadByte();
                             patchFlag = binarySbReader2.ReadBoolean();
                             catalog = binarySbReader2.ReadByte();
                             cas = binarySbReader2.ReadByte();
-
-                            flagIndex++;
                         }
-                        DbObject dbObject6 = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
+                        DbObject ebxObject = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
                         int offset = binarySbReader2.ReadInt(Endian.Big);
                         int size = binarySbReader2.ReadInt(Endian.Big);
-                        if(catalog > AssetManager.Instance.fs.Catalogs.Count() - 1) 
-                        {
-                            //Debug.WriteLine("[ERROR] Unable to find the correct Catalog");
-                            //throw new ArgumentOutOfRangeException("Incorrect Catalog given for object");
-                        }
-                        else 
-                            dbObject6.SetValue("catalog", catalog);
 
-                        //if(cas < 1)
-                        //    throw new ArgumentOutOfRangeException("Incorrect CAS given for object");
-
+                        if(catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
+                            ebxObject.SetValue("catalog", catalog);
                         if(cas > 0)
-                            dbObject6.SetValue("cas", cas);
-                        dbObject6.SetValue("offset", offset);
-                        dbObject6.SetValue("size", size);
+                            ebxObject.SetValue("cas", cas);
+                        ebxObject.SetValue("offset", offset);
+                        ebxObject.SetValue("size", size);
                         if (patchFlag)
                         {
-                            dbObject6.SetValue("patch", true);
+                            ebxObject.SetValue("patch", true);
                         }
                     }
-                    for (int num45 = 0; num45 < dbObject.GetValue<DbObject>("res").Count; num45++)
+
+                    binarySbReader2.Position += movedPositionByteCount;
+                    var positionBeforeRes = binarySbReader2.Position;
+                  
+                    for (int indexRes = 0; indexRes < dbObject.GetValue<DbObject>("res").Count; indexRes++)
                     {
                         if (booleanChangeOfCas[flagIndex++])
                         {
-                            binarySbReader2.ReadByte();
+                            var b = binarySbReader2.ReadByte();
                             patchFlag = binarySbReader2.ReadBoolean();
                             catalog = binarySbReader2.ReadByte();
                             cas = binarySbReader2.ReadByte();
                         }
-                        DbObject dbObject7 = dbObject.GetValue<DbObject>("res")[num45] as DbObject;
-                        int num46 = binarySbReader2.ReadInt(Endian.Big);
-                        int num47 = binarySbReader2.ReadInt(Endian.Big);
-                        if(catalog <= AssetManager.Instance.fs.Catalogs.Count() - 1)
-                            dbObject7.SetValue("catalog", catalog);
+                        DbObject resObject = dbObject.GetValue<DbObject>("res")[indexRes] as DbObject;
+                        int offset = binarySbReader2.ReadInt(Endian.Big);
+                        int size = binarySbReader2.ReadInt(Endian.Big);
+                        if (catalog < 0 || catalog > AssetManager.Instance.fs.CatalogCount - 1)
+                        {
 
-                        //if (cas < 1)
-                        //    throw new ArgumentOutOfRangeException("Incorrect CAS given for object");
+                        }
+                        if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
+                            resObject.SetValue("catalog", catalog);
                         if(cas > 0)
-                            dbObject7.SetValue("cas", cas);
-                        dbObject7.SetValue("offset", num46);
-                        dbObject7.SetValue("size", num47);
+                            resObject.SetValue("cas", cas);
+                        resObject.SetValue("offset", offset);
+                        resObject.SetValue("size", size);
                         if (patchFlag)
                         {
-                            dbObject7.SetValue("patch", true);
+                            resObject.SetValue("patch", true);
                         }
                     }
-                    for (int num48 = 0; num48 < dbObject.GetValue<DbObject>("chunks").Count; num48++)
+                    for (int indexChunk = 0; indexChunk < dbObject.GetValue<DbObject>("chunks").Count; indexChunk++)
                     {
                         if (booleanChangeOfCas[flagIndex++])
                         {
-                            binarySbReader2.ReadByte();
+                            var b = binarySbReader2.ReadByte();
                             patchFlag = binarySbReader2.ReadBoolean();
                             catalog = binarySbReader2.ReadByte();
                             cas = binarySbReader2.ReadByte();
                         }
-                        DbObject dbObject8 = dbObject.GetValue<DbObject>("chunks")[num48] as DbObject;
-                        int num49 = binarySbReader2.ReadInt(Endian.Big);
-                        int num50 = binarySbReader2.ReadInt(Endian.Big);
-                        if(catalog <= AssetManager.Instance.fs.Catalogs.Count() - 1)
-                            dbObject8.SetValue("catalog", catalog);
+                        DbObject chnkObj = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
+                        int offset = binarySbReader2.ReadInt(Endian.Big);
+                        int size = binarySbReader2.ReadInt(Endian.Big);
+                        if (catalog < 0 || catalog > AssetManager.Instance.fs.CatalogCount - 1)
+                        {
 
-                        //if (cas < 1)
-                        //    throw new ArgumentOutOfRangeException("Incorrect CAS given for object");
+                        }
+                        if(catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
+                            chnkObj.SetValue("catalog", catalog);
                         if(cas > 0)
-                            dbObject8.SetValue("cas", cas);
-                        dbObject8.SetValue("offset", num49);
-                        dbObject8.SetValue("size", num50);
+                            chnkObj.SetValue("cas", cas);
+                        chnkObj.SetValue("offset", offset);
+                        chnkObj.SetValue("size", size);
                         if (patchFlag)
                         {
-                            dbObject8.SetValue("patch", true);
+                            chnkObj.SetValue("patch", true);
                         }
                     }
 
@@ -439,6 +442,23 @@ namespace FIFA21Plugin
         public int stringOffset;
         public int metaOffset;
         public int metaSize;
+
+
+        public bool HasStrings
+        {
+            get
+            {
+                return stringOffset > SBFile.SBInformationHeaderLength;
+            }
+        }
+
+        public bool HasMeta
+        { 
+            get
+            {
+                return metaSize > SBFile.SBInformationHeaderLength && metaOffset > SBFile.SBInformationHeaderLength;
+            } 
+        }
 
         //public int shaCount;
 

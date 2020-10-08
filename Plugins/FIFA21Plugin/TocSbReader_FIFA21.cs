@@ -36,8 +36,8 @@ namespace FIFA21Plugin
                 var sbPath = tocPath.Replace(".toc", ".sb");
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
-                if (!tocPath.Contains("globals.toc"))
-                {
+                //if (!tocPath.Contains("globals.toc"))
+                //{
                     using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
                     {
                         TOCFile = new TOCFile(this);
@@ -45,7 +45,7 @@ namespace FIFA21Plugin
                         TOCFile.Read(nativeReader);
                         return ReadSB(sbPath, helper);
                     }
-                }
+                //}
             }
             return null;
         }
