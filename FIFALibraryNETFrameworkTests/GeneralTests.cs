@@ -336,7 +336,8 @@ namespace FIFALibraryNETFrameworkTests
         public void TestBuildCache()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+            //buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, true);
            
 
         }
@@ -359,7 +360,7 @@ namespace FIFALibraryNETFrameworkTests
             var allEBX = project.AssetManager.EnumerateEbx().ToList();
             if (allEBX.Count() > 0)
             {
-                foreach (var ebx in allEBX.Where(x=>x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime")))
+                foreach (EbxAssetEntry ebx in allEBX.Where(x=>x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
                     if (eb != null)
@@ -371,6 +372,7 @@ namespace FIFALibraryNETFrameworkTests
                     }
                 }
             }
+
         }
 
         [TestMethod]

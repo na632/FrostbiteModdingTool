@@ -216,21 +216,21 @@ namespace Modding_UI_2021.Forms
                         ImageViewer.Visible = false;
                         txtTextViewer.Visible = false;
 
-                        //if (assetEntry.Type == "TextureAsset")
-                        //{
-                        //var resAssetEntry = ProjectManagement.FrostyProject.AssetManager.GetResEntry(assetEntry.Name);
-                        //var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(resAssetEntry);
-                        //FrostySdk.Resources.Texture textureAsset = new FrostySdk.Resources.Texture(resStream, ProjectManagement.FrostyProject.AssetManager);
-                        //new TextureExporter().Export(textureAsset, $"temp.png", "*.png");
-                        //ImageViewer.ImageLocation = Application.StartupPath + "//temp.png";
-                        //ImageViewer.SizeMode = PictureBoxSizeMode.StretchImage;
-                        //ImageViewer.Visible = true;
-                        //}
-                        //else
-                        //{
-                        txtTextViewer.Text = JsonConvert.SerializeObject(eb.RootObject);
-                        txtTextViewer.Visible = true;
-                        //}
+                        if (assetEntry.Type == "TextureAsset")
+                        {
+                            var resAssetEntry = ProjectManagement.FrostyProject.AssetManager.GetResEntry(assetEntry.Name);
+                            var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(resAssetEntry);
+                            FrostySdk.Resources.Texture textureAsset = new FrostySdk.Resources.Texture(resStream, ProjectManagement.FrostyProject.AssetManager);
+                            new TextureExporter().Export(textureAsset, $"temp.png", "*.png");
+                            ImageViewer.ImageLocation = Application.StartupPath + "//temp.png";
+                            ImageViewer.SizeMode = PictureBoxSizeMode.StretchImage;
+                            ImageViewer.Visible = true;
+                        }
+                        else
+                        {
+                            txtTextViewer.Text = JsonConvert.SerializeObject(eb.RootObject);
+                            txtTextViewer.Visible = true;
+                        }
                     }
                 }
             }

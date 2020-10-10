@@ -173,7 +173,20 @@ namespace v2k4FIFASDKGenerator
             List<DbObject> list = new List<DbObject>();
             foreach (DbObject @class in classList)
             {
-                if (!fieldMapping.ContainsKey(@class.GetValue<string>("name")))
+                var className = @class.GetValue<string>("name");
+                if (className.Contains("positioning"))
+                {
+
+                }
+                if(className.Contains("schema"))
+                {
+
+                }
+                if (className.Contains("attrib"))
+                {
+
+                }
+                if (!fieldMapping.ContainsKey(className))
                 {
                     if ((byte)((@class.GetValue("flags", 0) >> 4) & 0x1F) == 3 && @class.GetValue("alignment", 0) == 0)
                     {
@@ -184,19 +197,22 @@ namespace v2k4FIFASDKGenerator
                     ebxClass.Type = (ushort)@class.GetValue("flags", 0);
                     ebxClass.Alignment = (byte)@class.GetValue("alignment", 0);
                     ebxClass.FieldCount = (byte)@class.GetValue<DbObject>("fields").Count;
-                    EbxClass item3 = ebxClass;
-                    List<EbxField> list2 = new List<EbxField>();
-                    foreach (DbObject item5 in @class.GetValue<DbObject>("fields"))
+                    EbxClass classItem = ebxClass;
+                    List<EbxField> fieldList = new List<EbxField>();
+                    foreach (DbObject fieldInList in @class.GetValue<DbObject>("fields"))
                     {
                         EbxField ebxField = default(EbxField);
-                        ebxField.Name = item5.GetValue<string>("name");
-                        ebxField.Type = (ushort)item5.GetValue("flags", 0);
-                        ebxField.NameHash = (uint)item5.GetValue("nameHash",0);
-                        EbxField item4 = ebxField;
-                        list2.Add(item4);
+                        ebxField.Name = fieldInList.GetValue<string>("name");
+                        ebxField.Type = (ushort)fieldInList.GetValue("flags", 0);
+                        ebxField.NameHash = (uint)fieldInList.GetValue("nameHash",0);
+                        fieldList.Add(ebxField);
                     }
-                    values.Add(new Tuple<EbxClass, DbObject>(item3, @class));
-                    fieldMapping.Add(item3.Name, list2);
+                    if(ebxClass.Name.ToLower().Contains("attribschema"))
+                    {
+
+                    }
+                    values.Add(new Tuple<EbxClass, DbObject>(classItem, @class));
+                    fieldMapping.Add(classItem.Name, fieldList);
                     list.Add(@class);
                 }
             }
@@ -504,7 +520,11 @@ namespace v2k4FIFASDKGenerator
                             // -----------------------------------------------------------------------------------------------------
                             // -----------------------------------------------------------------------------------------------------
 
-                            if (ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190905 || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.ProfileName == "MADDEN21")
+                            if (ProfilesLibrary.IsFIFADataVersion()
+                                || ProfilesLibrary.IsMaddenDataVersion()
+                                || ProfilesLibrary.IsFIFA21DataVersion()
+
+                                )
                             {
                                 fieldObj.AddValue("offset", (int)field.DataOffset);
                                 fieldObj.AddValue("nameHash", field.NameHash);

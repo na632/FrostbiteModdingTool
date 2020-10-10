@@ -36,11 +36,12 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bleak, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -144,10 +145,6 @@
     <ProjectReference Include="..\FrostySdk\FrostySdk.csproj">
       <Project>{3d489d9a-0def-4e80-8ec8-15e265c29a36}</Project>
       <Name>FrostySdk</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Plugins\Madden21Plugin\Madden21Plugin.csproj">
-      <Project>{35b6fbd2-3a7a-4436-9cf9-d5cc36f637e1}</Project>
-      <Name>Madden21Plugin</Name>
     </ProjectReference>
     <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj">
       <Project>{808b462b-078a-4d7d-8da1-92fced89f32a}</Project>
