@@ -71,14 +71,14 @@
                             <Label Content="Import" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <CheckBox x:Name="chkInstallLocale">Install locale.ini from gameplay mods</CheckBox>
+                    <CheckBox x:Name="chkInstallLocale" IsChecked="False">Install locale.ini from gameplay mods</CheckBox>
                     <CheckBox x:Name="chkUseFileSystem" IsEnabled="False" Visibility="Hidden">Use Original Frosty Launcher</CheckBox>
-                    <CheckBox x:Name="chkUseLiveEditor">Inject Aranaktu Live Editor (if present)</CheckBox>
-                    <CheckBox x:Name="chkUseLegacyModSupport">Inject Legacy Mod Support (ALPHA)</CheckBox>
+                    <CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu Live Editor (if present)</CheckBox>
+                    <CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support (ALPHA)</CheckBox>
                 </StackPanel>
             </Grid>
             </StackPanel>
-            <Grid Margin="5">
+            <Grid Margin="5" x:Name="pnlModDescription" Visibility="Hidden">
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
