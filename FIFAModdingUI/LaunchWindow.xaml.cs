@@ -150,6 +150,26 @@ namespace FIFAModdingUI
                     }
                 }
 
+                if(chkUseLegacyModSupport.IsChecked.HasValue && chkUseLegacyModSupport.IsChecked.Value)
+                {
+                    foreach(var lmod in ListOfMods.Where(x=> x.Contains(".lmod")))
+                    {
+                        using (FileStream fs = new FileStream(lmod, FileMode.Open))
+                        {
+                            ZipArchive zipA = new ZipArchive(fs);
+                            foreach (var ent in zipA.Entries)
+                            {
+                                if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName))
+                                {
+                                    File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName);
+                                }
+
+                            }
+                            zipA.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
+                        }
+                    }
+                }
+
                 var k = chkUseFileSystem.IsChecked.Value;
                 var useLegacyMods = chkUseLegacyModSupport.IsChecked.Value;
                 var useLiveEditor = chkUseLiveEditor.IsChecked.Value;
@@ -181,12 +201,14 @@ namespace FIFAModdingUI
                         if (!string.IsNullOrEmpty(legacyModSupportFile)) {
 
                             if (File.Exists(legacyModSupportFile))
+                            {
                                 File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
+                            }
 
                             var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
-                            var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
-                            Debug.WriteLine(legmodsupportdllpath);
-                            Debug.WriteLine(actualsupportdllpath);
+                            //var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
+                            //Debug.WriteLine(legmodsupportdllpath);
+                            //Debug.WriteLine(actualsupportdllpath);
                             GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
                         }
                     }
@@ -228,7 +250,7 @@ namespace FIFAModdingUI
             var dialog = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
             dialog.Title = "Browse for your mod";
             dialog.Multiselect = false;
-            dialog.Filter = "zip files (*.zip)|*.zip|fbmod files (*.fbmod)|*.fbmod";
+            dialog.Filter = "zip files (*.zip)|*.zip|fbmod files (*.fbmod)|*.fbmod|Legacy Mod files (*.lmod)|*.lmod";
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
@@ -280,7 +302,12 @@ namespace FIFAModdingUI
                     btnLaunch.IsEnabled = true;
                 }
 
-                if(GameInstanceSingleton.IsCompatibleWithFbMod())
+                if(GameInstanceSingleton.GAMEVERSION == "FIFA21")
+                {
+                    txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
+                }
+
+                if(GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
                 {
                     listMods.IsEnabled = true;
                 }
@@ -294,15 +321,6 @@ namespace FIFAModdingUI
                     //listMods.Items.Clear();
                     new Mods.ModList();
                 }
-
-                //FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                //GameInstanceSingleton.GAMERootPath = FIFADirectory;
-                //var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                //if (!string.IsNullOrEmpty(fileName) && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
-                //{
-                //    GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
-
-                //}
             }
         }
 

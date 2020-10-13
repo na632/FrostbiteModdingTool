@@ -23,6 +23,14 @@
                 <Label Content="Editor" VerticalAlignment="Center" />
             </StackPanel>
         </Button>
+        <Button x:Name="btnLegacyEditor" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                    Click="btnLegacyEditor_Click"
+                    ToolTip="Launcher">
+            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" FontSize="20" />
+                <Label Content="Editor" VerticalAlignment="Center" />
+            </StackPanel>
+        </Button>
         <Button x:Name="btnLauncher" Grid.Column="2" Background="Transparent" VerticalContentAlignment="Stretch" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnLauncher_Click"
                     ToolTip="Launcher">

@@ -64,14 +64,14 @@ namespace Modding_UI_2021
                 }
 
                 CurrentEditor.FormClosed += CurrentEditor_FormClosed;
-                CurrentEditor.Show();
                 this.Hide();
+                CurrentEditor.Show();
             }
         }
 
         private void CurrentEditor_FormClosed(object sender, FormClosedEventArgs e)
         {
-            this.Show();
+            this.Close();
         }
     }
 }

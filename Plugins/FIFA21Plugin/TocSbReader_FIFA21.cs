@@ -23,7 +23,7 @@ namespace FIFA21Plugin
 
         public int SBIndex { get; set; }
         
-        public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName)
+        public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false)
         {
             SBIndex = sbIndex;
 
@@ -38,14 +38,35 @@ namespace FIFA21Plugin
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 //if (!tocPath.Contains("globals.toc"))
                 //{
-                    using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
+                List<DbObject> objs = new List<DbObject>();
+                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
+                {
+                    TOCFile = new TOCFile(this);
+                    TOCFile.FileLocation = tocPath;
+
+                    TOCFile.SuperBundleName = tocPath;
+                    TOCFile.Read(nativeReader);
+                    var rObjs = ReadSB(sbPath, helper);
+                    if (rObjs != null)
+                        objs.AddRange(rObjs);
+
+                    // Attempt to read itself
+                    if (File.ReadAllBytes(sbPath).Length <= 64)
                     {
-                        TOCFile = new TOCFile(this);
-                        TOCFile.SuperBundleName = tocPath;
-                        TOCFile.Read(nativeReader);
-                        return ReadSB(sbPath, helper);
+
+                        //    using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
+                        //    {
+                        //        TOCFile = new TOCFile(this);
+                        //        TOCFile.FileLocation = tocPath;
+
+                        //        TOCFile.SuperBundleName = tocPath;
+                        //        TOCFile.Read(nativeReader);
+                        //        objs.AddRange(ReadSB(tocPath, helper));
+                        //    }
                     }
-                //}
+                    return objs;
+                    //}
+                }
             }
             return null;
         }
@@ -56,11 +77,12 @@ namespace FIFA21Plugin
         {
             Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
 
-            using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read))) //, AssetManager.fs.CreateDeobfuscator()))
+            using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read)))
             {
                 if (nativeReader.Length > 0)
                 {
                     SBFile = new SBFile(this, TOCFile, SBIndex);
+                    SBFile.FileLocation = sbPath;
                     return SBFile.Read(nativeReader);
                 }
             }

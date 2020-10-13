@@ -1,0 +1,34 @@
+﻿<Window x:Class="FIFAModdingUI.Windows.LegacyModEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FIFAModdingUI.Windows"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+        mc:Ignorable="d"
+        Title="LegacyModEditor" Height="450" Width="800" Closed="Window_Closed">
+    <Grid>
+        <StackPanel VerticalAlignment="Top" Margin="10">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBox x:Name="txtLegacyDirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Legacy Directory" VerticalAlignment="Center" />
+                <Button Name="btnBrowseLegacyDirectory"  Height="30" Click="btnBrowseLegacyDirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                        <Label Content="Browse Directory" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <ListBox x:Name="lstFilesToInclude" MinHeight="200" MaxHeight="200">
+
+            </ListBox>
+            <CheckBox x:Name="chkEncryptFiles" Content="Encrypt Files?" IsChecked="True"></CheckBox>
+            <CheckBox x:Name="chkEncryptZip" Content="Encrypt Zip?" IsEnabled="False"></CheckBox>
+            <Button x:Name="SaveToCompressedFile" Click="SaveToCompressedFile_Click">Save Mod</Button>
+            <TextBlock x:Name="txtSaveFileStatus" ></TextBlock>
+        </StackPanel>
+        
+
+    </Grid>
+</Window>

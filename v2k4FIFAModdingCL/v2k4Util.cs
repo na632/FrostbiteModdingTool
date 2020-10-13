@@ -21,6 +21,12 @@ namespace v2k4FIFAModding
             return obj.GetProperty(propName) != null;
         }
 
+        public static PropertyInfo[] GetProperties(this object obj)
+        {
+            Type t = obj.GetType();
+            return t.GetProperties();
+        }
+
         public static PropertyInfo GetProperty(this object obj, string propName)
         {
             Type t = obj.GetType();

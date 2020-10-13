@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FIFAModdingUI.Windows;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,7 @@ namespace FIFAModdingUI
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -32,6 +34,12 @@ namespace FIFAModdingUI
         private void btnEditor_Click(object sender, RoutedEventArgs e)
         {
             new EditorLoginWindow().Show();
+            this.Close();
+        }
+
+        private void btnLegacyEditor_Click(object sender, RoutedEventArgs e)
+        {
+            new LegacyModEditor().Show();
             this.Close();
         }
 

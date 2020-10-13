@@ -443,13 +443,13 @@ namespace FIFAModdingUI
                             new Binding("Value") { Source = c });
 
 
-                        if (FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()+"_DESC") != null)
-                        {
-                            var labelDesc = new Label();
-                            labelDesc.Content = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim() + "_DESC");
-                            //labelDesc.Width = 275;
-                            sp.Children.Add(labelDesc);
-                        }
+                        //if (FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()+"_DESC") != null)
+                        //{
+                        //    var labelDesc = new Label();
+                        //    labelDesc.Content = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim() + "_DESC");
+                        //    //labelDesc.Width = 275;
+                        //    sp.Children.Add(labelDesc);
+                        //}
 
                        
                     }
@@ -606,10 +606,10 @@ namespace FIFAModdingUI
                     tb.MinHeight = 100;
                     tb.TextWrapping = TextWrapping.WrapWithOverflow;
 
-                    if(FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()) != null) {
-                        var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
-                        tb.Text = resourceDescription;
-                    }
+                    //if(FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()) != null) {
+                    //    var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
+                    //    tb.Text = resourceDescription;
+                    //}
                     Grid.SetColumn(tb, 3);
                     Grid.SetRow(tb, i);
                     g.Children.Add(tb);
@@ -692,11 +692,11 @@ namespace FIFAModdingUI
                     var sp = new StackPanel() { Orientation = Orientation.Vertical };
                     var label = new Label();
                     label.Content = k.Trim();
-                    if (FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()) != null)
-                    {
-                        var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
-                        label.Content = resourceDescription;
-                    }
+                    //if (FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim()) != null)
+                    //{
+                    //    var resourceDescription = FIFAModdingUI.Resources.ResourceManager.GetString(k.Trim());
+                    //    label.Content = resourceDescription;
+                    //}
                     sp.Children.Add(label);
 
                     var sp2 = new StackPanel() { Orientation = Orientation.Horizontal };
@@ -1051,37 +1051,37 @@ namespace FIFAModdingUI
 
         private void Btn_GP_SaveINI_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(FIFAModdingUI.Resources.ResourceManager.GetString("SaveOverOldLocaleINIText"), "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
-            if (messageBoxResult == MessageBoxResult.Yes)
-            {
-                if (File.Exists(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
-                {
-                    File.Delete(CURRENT_MOD_PROFILE_LOCALEINI_PATH);
-                }
+            //MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(FIFAModdingUI.Resources.ResourceManager.GetString("SaveOverOldLocaleINIText"), "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            //if (messageBoxResult == MessageBoxResult.Yes)
+            //{
+            //    if (File.Exists(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
+            //    {
+            //        File.Delete(CURRENT_MOD_PROFILE_LOCALEINI_PATH);
+            //    }
 
-                using (StreamWriter stream = new StreamWriter(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
-                {
-                    stream.Write(GetResultingLocaleINIString());
-                }
-            }
+            //    using (StreamWriter stream = new StreamWriter(CURRENT_MOD_PROFILE_LOCALEINI_PATH))
+            //    {
+            //        stream.Write(GetResultingLocaleINIString());
+            //    }
+            //}
         }
 
         private void btn_GP_SaveINIToGame_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(FIFAModdingUI.Resources.ResourceManager.GetString("SaveOverOldLocaleINIText"), "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
-            if (messageBoxResult == MessageBoxResult.Yes)
-            {
-                if (File.Exists(FIFALocaleIni))
-                {
-                    File.Copy(FIFALocaleIni, FIFADirectory + "\\Data\\locale.ini." + DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss") + ".backup");
-                    File.Delete(FIFALocaleIni);
-                }
+            //MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show(FIFAModdingUI.Resources.ResourceManager.GetString("SaveOverOldLocaleINIText"), "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            //if (messageBoxResult == MessageBoxResult.Yes)
+            //{
+            //    if (File.Exists(FIFALocaleIni))
+            //    {
+            //        File.Copy(FIFALocaleIni, FIFADirectory + "\\Data\\locale.ini." + DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss") + ".backup");
+            //        File.Delete(FIFALocaleIni);
+            //    }
 
-                using (StreamWriter stream = new StreamWriter(FIFALocaleIni))
-                {
-                    stream.Write(GetResultingLocaleINIString());
-                }
-            }
+            //    using (StreamWriter stream = new StreamWriter(FIFALocaleIni))
+            //    {
+            //        stream.Write(GetResultingLocaleINIString());
+            //    }
+            //}
         }
 
         protected void tabRawFileView_MouseDown(object sender, MouseButtonEventArgs e)

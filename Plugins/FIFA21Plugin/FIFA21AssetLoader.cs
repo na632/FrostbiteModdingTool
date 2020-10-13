@@ -14,6 +14,7 @@ namespace FIFA21Plugin
 
 	public class FIFA21AssetLoader : IAssetLoader
 	{
+		public List<DbObject> AllDbObjects = new List<DbObject>();
 		internal struct BundleFileInfo
 		{
 			public int Index;
@@ -37,7 +38,11 @@ namespace FIFA21Plugin
 			public long Offset;
 
 			public long Size;
-		}
+
+			public long UnkOffset;
+
+            public int CasIndex { get; internal set; }
+        }
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
@@ -74,7 +79,7 @@ namespace FIFA21Plugin
 						// TODO: this needs to be a bundle within a super bundle but for now its loading the first one
 
 						TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-						var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName);
+						var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true);
 						if (dbObjects != null)
 						{
 
@@ -84,6 +89,7 @@ namespace FIFA21Plugin
 								parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
 								parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
 							}
+
 
 						}
 					}
@@ -96,7 +102,7 @@ namespace FIFA21Plugin
 						// TODO: this needs to be a bundle within a super bundle but for now its loading the first one
 
 						TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-						var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName);
+						var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, false);
 						if (dbObjects != null)
 						{
 
@@ -107,6 +113,7 @@ namespace FIFA21Plugin
 								parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
 							}
 
+							AllDbObjects.AddRange(dbObjects);
 						}
 					}
 				}

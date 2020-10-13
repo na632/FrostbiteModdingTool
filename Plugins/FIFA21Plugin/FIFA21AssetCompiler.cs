@@ -20,6 +20,34 @@ namespace FIFA21Plugin
         public const string ModDirectory = "ModData";
         public const string PatchDirectory = "Patch";
 
+        private static void DirectoryCopy(string sourceBasePath, string destinationBasePath, bool recursive = true)
+        {
+            if (!Directory.Exists(sourceBasePath))
+                throw new DirectoryNotFoundException($"Directory '{sourceBasePath}' not found");
+
+            var directoriesToProcess = new Queue<(string sourcePath, string destinationPath)>();
+            directoriesToProcess.Enqueue((sourcePath: sourceBasePath, destinationPath: destinationBasePath));
+            while (directoriesToProcess.Any())
+            {
+                (string sourcePath, string destinationPath) = directoriesToProcess.Dequeue();
+
+                if (!Directory.Exists(destinationPath))
+                    Directory.CreateDirectory(destinationPath);
+
+                var sourceDirectoryInfo = new DirectoryInfo(sourcePath);
+                foreach (FileInfo sourceFileInfo in sourceDirectoryInfo.EnumerateFiles())
+                    sourceFileInfo.CopyTo(Path.Combine(destinationPath, sourceFileInfo.Name), true);
+
+                if (!recursive)
+                    continue;
+
+                foreach (DirectoryInfo sourceSubDirectoryInfo in sourceDirectoryInfo.EnumerateDirectories())
+                    directoriesToProcess.Enqueue((
+                        sourcePath: sourceSubDirectoryInfo.FullName,
+                        destinationPath: Path.Combine(destinationPath, sourceSubDirectoryInfo.Name)));
+            }
+        }
+
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken
         /// </summary>
@@ -32,15 +60,15 @@ namespace FIFA21Plugin
 
             // ------------------------------------------------------------------------------------------
             // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
-            if (ProfilesLibrary.IsMaddenDataVersion())
+            if (ProfilesLibrary.IsFIFA21DataVersion())
             {
                 DbObject layoutToc = null;
 
                 // Read the original Layout TOC into a DB Object
-                using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + PatchDirectory + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                {
-                    layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
-                }
+                //using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + PatchDirectory + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                //{
+                //    layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
+                //}
 
                 // Notify the Bundle Action of the Cas File Count
                 FIFA21BundleAction.CasFileCount = fs.CasFileCount;
@@ -51,60 +79,70 @@ namespace FIFA21Plugin
 
                 // --------------------------------------------------------------------------------------
                 // Run a check against all changes and build your new TOC/SB/CAS files
-                foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
-                {
-                    FIFA21BundleAction maddenBundleAction = new FIFA21BundleAction(catalogItem, (FrostyModExecutor)frostyModExecuter);
-                    maddenBundleAction.Run();
-                    numberOfCatalogsCompleted++;
-                    logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+                //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
+                //{
+                //    FIFA21BundleAction maddenBundleAction = new FIFA21BundleAction(catalogItem, (FrostyModExecutor)frostyModExecuter);
+                //    maddenBundleAction.Run();
+                //    numberOfCatalogsCompleted++;
+                //    logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
 
-                    madden21BundleActions.Add(maddenBundleAction);
-                }
+                //    madden21BundleActions.Add(maddenBundleAction);
+                //}
                 //
+                logger.Log("Copying files from Patch to ModData");
+                // Copied Patch CAS files from Patch to Mod Data Patch
+                DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);
+                //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
+                //{
+                    FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
+                    fifaBundleAction.Run();
+                    //numberOfCatalogsCompleted++;
+                    //logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+                //}
                 // --------------------------------------------------------------------------------------
 
 
                 // --------------------------------------------------------------------------------------
                 // From the new bundles that have been created that has generated new CAS files, add these new CAS files to the Layout TOC
-                foreach (FIFA21BundleAction bundleAction in madden21BundleActions)
-                {
-                    if (bundleAction.HasErrored)
-                    {
-                        throw bundleAction.Exception;
-                    }
-                    if (bundleAction.CasFiles.Count > 0)
-                    {
-                        var installManifest = layoutToc.GetValue<DbObject>("installManifest");
-                        var installChunks = installManifest.GetValue<DbObject>("installChunks");
-                        foreach (DbObject installChunk in installChunks)
-                        {
-                            if (bundleAction.CatalogInfo.Name.Equals("win32/" + installChunk.GetValue<string>("name")))
-                            {
-                                foreach (int key in bundleAction.CasFiles.Keys)
-                                {
-                                    DbObject newFile = DbObject.CreateObject();
-                                    newFile.SetValue("id", key);
-                                    newFile.SetValue("path", bundleAction.CasFiles[key]);
+                //foreach (FIFA21BundleAction bundleAction in madden21BundleActions)
+                //{
+                //    if (bundleAction.HasErrored)
+                //    {
+                //        throw bundleAction.Exception;
+                //    }
+                //    if (bundleAction.CasFiles.Count > 0)
+                //    {
+                //        var installManifest = layoutToc.GetValue<DbObject>("installManifest");
+                //        var installChunks = installManifest.GetValue<DbObject>("installChunks");
+                //        foreach (DbObject installChunk in installChunks)
+                //        {
+                //            if (bundleAction.CatalogInfo.Name.Equals("win32/" + installChunk.GetValue<string>("name")))
+                //            {
+                //                foreach (int key in bundleAction.CasFiles.Keys)
+                //                {
+                //                    DbObject newFile = DbObject.CreateObject();
+                //                    newFile.SetValue("id", key);
+                //                    newFile.SetValue("path", bundleAction.CasFiles[key]);
 
-                                    var installChunkFiles = installChunk.GetValue<DbObject>("files");
-                                    installChunkFiles.Add(newFile);
+                //                    var installChunkFiles = installChunk.GetValue<DbObject>("files");
+                //                    installChunkFiles.Add(newFile);
 
 
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
+                //                }
+                //                break;
+                //            }
+                //        }
+                //    }
+                //}
 
 
                 // --------------------------------------------------------------------------------------
                 // Write a new Layout file
-                logger.Log("Writing new Layout file to Game");
-                using (DbWriter dbWriter = new DbWriter(new FileStream(ModDirectory + PatchDirectory + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                {
-                    dbWriter.Write(layoutToc);
-                }
+                //logger.Log("Writing new Layout file to Game");
+                //using (DbWriter dbWriter = new DbWriter(new FileStream(ModDirectory + PatchDirectory + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                //{
+                //    dbWriter.Write(layoutToc);
+                //}
                 // --------------------------------------------------------------------------------------
 
                 return true;

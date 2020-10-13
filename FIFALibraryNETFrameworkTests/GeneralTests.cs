@@ -368,10 +368,74 @@ namespace FIFALibraryNETFrameworkTests
 
                         File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
                         File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.Objects));
-
+                        ((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0.0001f;
+                        ((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0.0001f;
+                        ((dynamic)eb.RootObject).ATTR_JogSpeed = 0.0001f;
+                        eb.AddObject(eb.RootObject);
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
                     }
                 }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_pushpull_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+
+                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.Objects));
+                        ((dynamic)eb.RootObject).pushpull_minHeldTicksForShirtPulledFoul = 15;
+                        ((dynamic)eb.RootObject).pushpull_maxDistance = 4f;
+                        ((dynamic)eb.RootObject).pushpull_minDistance = 0.01f;
+                        ((dynamic)eb.RootObject).pushpull_SituationModifier = 4.0f;
+                        //((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0.01f;
+                        //((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0.01f;
+                        //((dynamic)eb.RootObject).ATTR_JogSpeed = 0.01f;
+                        eb.AddObject(eb.RootObject);
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_foul_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+
+                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.Objects));
+
+                        ((dynamic)eb.RootObject).FOUL_CollisionMinForceDefault[0] = 1;
+                        ((dynamic)eb.RootObject).FOUL_CollisionMinForceDefault[1] = 1;
+                        ((dynamic)eb.RootObject).FOUL_CollisionMinForceDefault[2] = 1;
+
+                        ((dynamic)eb.RootObject).FOUL_CollisionMinForceBallTouchCancelled[0] = 1;
+                        ((dynamic)eb.RootObject).FOUL_CollisionMinForceBallTouchCancelled[1] = 1;
+                        ((dynamic)eb.RootObject).FOUL_CollisionMinForceBallTouchCancelled[2] = 1;
+
+                        ((dynamic)eb.RootObject).Foul_BargeTackle_DurationAfterPotentialTackleFound = 120;
+                        eb.AddObject(eb.RootObject);
+
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.ToLower().Contains("splashscreen")))
+                {
+                    
+                }
+
+
+                projectManagement.FrostyProject.Save("test_gp_speed_change.fbproject");
+                projectManagement.FrostyProject.WriteToMod("test_gp_speed_change.fbmod"
+                    , new ModSettings() { Author = "paulv2k4", Category = "Gameplay", Description = "Gameplay Test", Title = "Gameplay Test", Version = "1.00" });
+
+                paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test_gp_speed_change.fbmod" }.ToArray()).Wait();
+
             }
+
+            
 
         }
 

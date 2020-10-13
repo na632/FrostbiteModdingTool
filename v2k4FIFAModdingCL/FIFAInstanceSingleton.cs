@@ -65,7 +65,8 @@ namespace v2k4FIFAModdingCL
 
         public static List<string> CompatibleGameLegacyModVersions = new List<string>()
         {
-            "FIFA20.exe"
+            "FIFA20.exe",
+            "FIFA21.exe"
         };
 
         public static bool IsCompatibleWithLegacyMod()
@@ -91,6 +92,8 @@ namespace v2k4FIFAModdingCL
 
         public static void InjectDLL(string dllpath)
         {
+            Thread.Sleep(4000);
+
             dllpath = dllpath.Replace(@"\\\\", @"\");
             dllpath = dllpath.Replace(@"\\", @"\");
             if (File.Exists(dllpath))

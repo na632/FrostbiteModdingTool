@@ -2,6 +2,7 @@
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Newtonsoft.Json;
+using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 using v2k4FIFASDKGenerator;
@@ -68,12 +70,21 @@ namespace Modding_UI_2021.Forms
                     this.Invoke(new MethodInvoker(delegate
                     {
                         this.Enabled = true;
+                        txtStandardSearchBox.KeyUp += TxtStandardSearchBox_KeyUp;
                     }));
                 }
 
                 return true;
 
             });
+        }
+
+        private void TxtStandardSearchBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                Task.Run(() => { BuildStandardTreeView(txtStandardSearchBox.Text); });
+            }
         }
 
         public async Task<bool> PreStart()
@@ -109,18 +120,28 @@ namespace Modding_UI_2021.Forms
             });
         }
 
-        private void BuildStandardTreeView()
+        private void BuildStandardTreeView(string filter = null)
         {
             if (this.InvokeRequired)
             {
                 this.Invoke(new MethodInvoker(delegate
                 {
                     toolStripStatusLabel1.Text = "Loading Standard Tree View";
+                    treeView1.Nodes.Clear();
 
                     string lastPath = string.Empty;
                     TreeNode lastNode = null;
                     List<TreeNode> treeNodes = new List<TreeNode>();
-                    foreach (var item in ProjectManagement.FrostyProject.AssetManager.EnumerateEbx().OrderBy(x => x.Path))
+                    var allEBX = ProjectManagement.FrostyProject.AssetManager.EnumerateEbx();
+                    if (!string.IsNullOrEmpty(filter)) 
+                    {
+                        allEBX = allEBX.Where(x => 
+                            x.Path.ToLower().Contains(filter)
+                            || x.Name.ToLower().Contains(filter)
+                            ).ToList();
+                    }
+                    allEBX = allEBX.OrderBy(x => x.Path);
+                    foreach (var item in allEBX)
                     {
                         var ebxA = item;
                         var type = ebxA.Type;
@@ -137,7 +158,7 @@ namespace Modding_UI_2021.Forms
                         if (lastNode == null)
                             lastNode = new TreeNode();
 
-                        var innerTreeNode = new TreeNode(item.Name);
+                        var innerTreeNode = new TreeNode(item.DisplayName);
                         innerTreeNode.Tag = item;
                         lastNode.Nodes.Add(innerTreeNode);
                     }
@@ -181,7 +202,7 @@ namespace Modding_UI_2021.Forms
                         if (lastNode == null)
                             lastNode = new TreeNode();
 
-                        var innerTreeNode = new TreeNode(item.Name);
+                        var innerTreeNode = new TreeNode(item.DisplayName);
                         innerTreeNode.Tag = item;
                         lastNode.Nodes.Add(innerTreeNode);
                     }
@@ -226,6 +247,24 @@ namespace Modding_UI_2021.Forms
                             ImageViewer.SizeMode = PictureBoxSizeMode.StretchImage;
                             ImageViewer.Visible = true;
                         }
+                        else if(assetEntry.Type.Contains("AttribSchema"))
+                        {
+                            foreach(var prop in eb.RootObject.GetProperties())
+                            {
+                                var leftrightLayout = new FlowLayoutPanel();
+                                leftrightLayout.FlowDirection = FlowDirection.LeftToRight;
+                                var leftLabel = new Label();
+                                leftLabel.Text = prop.Name;
+
+                                var rightText = new TextBox();
+                                rightText.Text = prop.GetValue(eb.RootObject).ToString();
+
+                                leftrightLayout.Controls.Add(leftLabel);
+                                leftrightLayout.Controls.Add(rightText);
+
+                                rightLayoutPanel.Controls.Add(leftrightLayout);
+                            }
+                        }
                         else
                         {
                             txtTextViewer.Text = JsonConvert.SerializeObject(eb.RootObject);
@@ -238,7 +277,28 @@ namespace Modding_UI_2021.Forms
 
         private void btnLaunchGame_Click(object sender, EventArgs e)
         {
+            SaveProject();
+            ProjectManagement.FrostyProject.WriteToMod("TestMod.fbmod"
+                , new FrostySdk.ModSettings() { Author = "Madden 21 Editor", Category = "Test", Description = "Test", Title = "Madden 21 Editor Test Mod", Version = "1" });
 
+            var fme = new FrostyModExecutor();
+            var result = fme.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"TestMod.fbmod" }.ToArray()).Result;
+
+        }
+
+        public void SaveProject(bool forceNewSave = false)
+        {
+            if (!string.IsNullOrEmpty(ProjectManagement.FrostyProject.Filename) && !forceNewSave)
+                ProjectManagement.FrostyProject.Save();
+            else
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Project files|*.fbproject|P2 files|*.fbproject2";
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    ProjectManagement.FrostyProject.Save(saveFileDialog.FileName);
+                }
+            }
         }
 
         public void Log(string text, params object[] vars)
@@ -252,6 +312,32 @@ namespace Modding_UI_2021.Forms
 
         public void LogError(string text, params object[] vars)
         {
+        }
+
+        private void newProjectFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveProject(true);
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveProject();
+
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Project files|*.fbproject|P2 files|*.fbproject2";
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                ProjectManagement.FrostyProject.Load(fileDialog.FileName);
+            }
+        }
+
+        private void txtStandardSearchBox_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

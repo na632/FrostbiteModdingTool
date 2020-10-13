@@ -87,6 +87,11 @@ namespace FIFA21Plugin
             parent = inParent;
         }
 
+        public FIFA21BundleAction(FrostyModExecutor inParent)
+        {
+            parent = inParent;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -673,42 +678,80 @@ namespace FIFA21Plugin
         {
             try
             {
-                NativeWriter writer_new_cas_file = null;
-                int casFileIndex = 0;
-                byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
-                foreach (string sb_toc_file in catalogInfo.SuperBundles.Keys)
-                {
-                    string sb_toc_file_path_cleaned = sb_toc_file;
-                    if (catalogInfo.SuperBundles[sb_toc_file])
-                    {
-                        sb_toc_file_path_cleaned = sb_toc_file.Replace("win32", catalogInfo.Name);
-                    }
-                    string location_toc_file = parent.fs.ResolvePath($"{sb_toc_file_path_cleaned}.toc").ToLower();
-                    if (location_toc_file != "")
-                    {
-                        // -----------------------------------------------------------------------------------------
-                        // Read Original Toc File
-                        var toc_array = ReadTocIntoByteArray(location_toc_file, out int toc_starting_position, out int other_starting_position, out byte[] tocSbHeader);
-                        if (toc_array.Length != 0)
-                        {
-                            // -----------------------------------------------------------------------------------------
-                            //
-                            // Create Mod Data Directories
-                            string location_toc_file_mod_data = location_toc_file.Replace("patch\\win32", "moddata\\patch\\win32");
-                            FileInfo fi_toc_file_mod_data = new FileInfo(location_toc_file_mod_data);
-                            if (!Directory.Exists(fi_toc_file_mod_data.DirectoryName))
-                            {
-                                Directory.CreateDirectory(fi_toc_file_mod_data.DirectoryName);
-                            }
-                            //
-                            // -----------------------------------------------------------------------------------------
+                //foreach (var bundles in parent.modifiedBundles)
+                //{
 
-                            if (WriteNewTocFile(location_toc_file_mod_data, tocSbHeader, toc_array))
+                //}
+
+
+                FIFA21AssetLoader assetLoader = new FIFA21AssetLoader();
+                assetLoader.Load(AssetManager.Instance, new BinarySbDataHelper(AssetManager.Instance));
+                foreach (var modEBX in parent.modifiedEbx)
+                {
+                    var inEbx = AssetManager.Instance.GetEbx(modEBX.Value);
+
+                    var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
+                    if(originalEntry != null)
+                    {
+                        var ebxData = parent.archiveData[modEBX.Value.Sha1].Data;
+                        var casPath = originalEntry.ExtraData.CasPath.Replace("native_data"
+                            , AssetManager.Instance.fs.BasePath + "Data");
+                        casPath = casPath.Replace("native_patch"
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
+
+                        byte[] originalArray = null;
+                        using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
+                        {
+                            originalArray = readerOfCas.ReadToEnd();
+                        }
+
+                        var positionOfNewData = 0;
+                        using (NativeWriter nativeWriter = new NativeWriter(new FileStream(casPath, FileMode.Open)))
+                        {
+                            nativeWriter.Write(originalArray);
+                            // write the new data to end of the file (this should be fine)
+                            positionOfNewData = (int)nativeWriter.BaseStream.Position;
+                            nativeWriter.Write(ebxData);
+                        }
+
+                        
+                        foreach(var @object in assetLoader.AllDbObjects)
+                        {
+                            foreach(DbObject ebxObject in @object.GetValue<DbObject>("ebx"))
                             {
-                                if (!CheckTocCasReadCorrectly(location_toc_file_mod_data))
-                                    throw new Exception(".toc link to .cas is not setup correctly");
+                                if(ebxObject.GetValue<string>("name") == modEBX.Value.Name)
+                                {
+                                    var sb_cas_offset_position = ebxObject.GetValue<int>("SB_CAS_Offset_Position");
+
+                                    var sbpath = ebxObject.GetValue<string>("SBFileLocation");
+                                    sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                                    byte[] arrayOfSB = null;
+                                    using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+                                    {
+                                        arrayOfSB = nativeReader.ReadToEnd();
+                                    }
+                                    File.Delete(sbpath);
+                                    using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+                                    {
+
+                                        nativeWriter.Write(arrayOfSB);
+                                        nativeWriter.Seek(sb_cas_offset_position, SeekOrigin.Begin);
+                                        nativeWriter.Write((int)positionOfNewData);
+                                        nativeWriter.Write((int)ebxData.Length);
+
+                                    }
+
+                                }
                             }
                         }
+
+
+                        //MemoryStream memStream = new MemoryStream();
+
+                        //    EbxWriterV2 ebxWriter = new EbxWriterV2(memStream);
+                        //    ebxWriter.WriteAsset(inEbx);
+                        //modEBX.Value.
+                        //CasWriter casWriter = new CasWriter()
                     }
                 }
             }

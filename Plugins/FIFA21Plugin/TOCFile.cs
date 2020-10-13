@@ -64,10 +64,11 @@ namespace FIFA21Plugin
     public class TOCFile
     {
         public SBFile AssociatedSBFile { get; set; }
+        public string FileLocation { get; internal set; }
 
-		//public int[] ArrayOfInitialHeaderData = new int[12];
+        //public int[] ArrayOfInitialHeaderData = new int[12];
 
-		public ContainerMetaData MetaData = new ContainerMetaData();
+        public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
 
 		public string SuperBundleName;
@@ -147,17 +148,18 @@ namespace FIFA21Plugin
                 //nativeReader.Position = 556 + tocMetaData[3] - ((tocMetaData[2] + 2) * 4);
                 for (int indexOfBundleCount = 0; indexOfBundleCount < tocMetaData[2]; indexOfBundleCount++)
 				{
-					int unk1 = nativeReader.ReadInt(Endian.Big);
-					int unk2 = nativeReader.ReadInt(Endian.Big);
-					int unk3 = nativeReader.ReadInt(Endian.Big);
-					int offset = nativeReader.ReadInt(Endian.Big);
-					//uint size = nativeReader.ReadUInt(Endian.Big);
+					int unkOffset = nativeReader.ReadInt(Endian.Big);
+					int size = nativeReader.ReadInt(Endian.Big);
+					int casIndex = nativeReader.ReadInt(Endian.Big);
+					int dataOffset = nativeReader.ReadInt(Endian.Big);
+					//uint unk4 = nativeReader.ReadUInt(Endian.Big);
 					BaseBundleInfo newBundleInfo = new BaseBundleInfo
 					{
+						UnkOffset = unkOffset,
                         //Name = name,
-                        Offset = offset,
-                        //Offset = unk3,
-                        Size = unk2
+                        Offset = dataOffset,
+                        CasIndex = casIndex,
+                        Size = size
 					};
 					Bundles.Add(newBundleInfo);
 				}
