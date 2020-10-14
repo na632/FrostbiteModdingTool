@@ -41,28 +41,23 @@ namespace FIFA21Plugin
                 List<DbObject> objs = new List<DbObject>();
                 using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
                 {
+
+                    // TOC File 
                     TOCFile = new TOCFile(this);
                     TOCFile.FileLocation = tocPath;
-
                     TOCFile.SuperBundleName = tocPath;
                     TOCFile.Read(nativeReader);
+
+                    // SB File
                     var rObjs = ReadSB(sbPath, helper);
                     if (rObjs != null)
                         objs.AddRange(rObjs);
 
-                    // Attempt to read itself
+                    // Attempt to read from CAS
                     if (File.ReadAllBytes(sbPath).Length <= 64)
                     {
 
-                        //    using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
-                        //    {
-                        //        TOCFile = new TOCFile(this);
-                        //        TOCFile.FileLocation = tocPath;
-
-                        //        TOCFile.SuperBundleName = tocPath;
-                        //        TOCFile.Read(nativeReader);
-                        //        objs.AddRange(ReadSB(tocPath, helper));
-                        //    }
+                      
                     }
                     return objs;
                     //}

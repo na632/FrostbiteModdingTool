@@ -39,81 +39,79 @@ namespace FIFA21Plugin
 
 			public long Size;
 
-			public long UnkOffset;
+			public long CasStringOffset;
 
             public int CasIndex { get; internal set; }
         }
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			foreach (CatalogInfo item5 in parent.fs.EnumerateCatalogInfos())
+			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
 			{
-				foreach (string sbName in item5.SuperBundles.Keys)
+				foreach (CatalogInfo item5 in parent.fs.EnumerateCatalogInfos())
 				{
-					SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-					int sbIndex = -1;
-					if (superBundleEntry != null)
+					foreach (string sbName in item5.SuperBundles.Keys)
 					{
-						sbIndex = parent.superBundles.IndexOf(superBundleEntry);
-					}
-					else
-					{
-						parent.superBundles.Add(new SuperBundleEntry
+						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
+						int sbIndex = -1;
+						if (superBundleEntry != null)
 						{
-							Name = sbName
-						});
-						sbIndex = parent.superBundles.Count - 1;
-					}
-					parent.logger.Log($"Loading data ({sbName})");
-					string tocFile = sbName.Replace("win32", item5.Name).Replace("cs/", "");
-					if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
-					{
-						tocFile = sbName;
-					}
-					List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
-					List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
-					string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
-					if (!string.IsNullOrEmpty(tocFileLocation))
-					{
-
-						// TODO: this needs to be a bundle within a super bundle but for now its loading the first one
-
-						TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-						var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true);
-						if (dbObjects != null)
-						{
-
-							foreach (DbObject @object in dbObjects.Where(x => x != null))
-							{
-								parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
-								parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
-								parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
-							}
-
-
+							sbIndex = parent.superBundles.IndexOf(superBundleEntry);
 						}
-					}
+						else
+						{
+							parent.superBundles.Add(new SuperBundleEntry
+							{
+								Name = sbName
+							});
+							sbIndex = parent.superBundles.Count - 1;
+						}
+						parent.logger.Log($"Loading data ({sbName})");
+						string tocFile = sbName.Replace("win32", item5.Name).Replace("cs/", "");
+						if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
+						{
+							tocFile = sbName;
+						}
+						List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
+						List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
+						string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
+						if (!string.IsNullOrEmpty(tocFileLocation))
+						{
+							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
+							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true);
+							if (dbObjects != null)
+							{
+
+								foreach (DbObject @object in dbObjects.Where(x => x != null))
+								{
+									parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
+									parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
+									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+								}
 
 
-					tocFileLocation = parent.fs.ResolvePath($"native_patch/{tocFile}.toc");
-					if (!string.IsNullOrEmpty(tocFileLocation))
-					{
+							}
+						}
 
-						// TODO: this needs to be a bundle within a super bundle but for now its loading the first one
 
-						TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-						var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, false);
-						if (dbObjects != null)
+						tocFileLocation = parent.fs.ResolvePath($"native_patch/{tocFile}.toc");
+						if (!string.IsNullOrEmpty(tocFileLocation))
 						{
 
-							foreach (DbObject @object in dbObjects.Where(x => x != null))
+							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
+							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, false);
+							if (dbObjects != null)
 							{
-								parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
-								parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
-								parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
-							}
 
-							AllDbObjects.AddRange(dbObjects);
+								foreach (DbObject @object in dbObjects.Where(x => x != null))
+								{
+									parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
+									parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
+									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+								}
+
+								AllDbObjects.AddRange(dbObjects);
+							}
 						}
 					}
 				}

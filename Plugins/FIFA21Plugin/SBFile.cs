@@ -99,39 +99,7 @@ namespace FIFA21Plugin
                     // ---------------------------------------------------------------------------------------------------------------------
                     // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
 
-                    // Read out the Header Info
-                    var SBHeaderInformation = new SBHeaderInformation(binarySbReader2);
-                    //
-                    List<Sha1> sha1 = new List<Sha1>();
-                    for (int i = 0; i < SBHeaderInformation.totalCount; i++)
-                    {
-                        sha1.Add(binarySbReader2.ReadSha1());
-                    }
-                    dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, sha1, binarySbReader2)));
-                    dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, sha1, binarySbReader2)));
-                    dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, sha1, binarySbReader2)));
-                    dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
-                    dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
-                    dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
-                    dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
-
-                    if (SBHeaderInformation.chunkCount != 0)
-                    {
-                        using (DbReader dbReader = new DbReader(nativeReader.CreateViewStream(SBHeaderInformation.metaOffset + BaseBundleItem.Offset, nativeReader.Length - binarySbReader2.Position), new NullDeobfuscator()))
-                        {
-                            var o = dbReader.ReadDbObject();
-                            dbObject.AddValue("chunkMeta", o);
-                        }
-                    }
-
-                    binarySbReader2.Position = SBHeaderInformation.size;
-                    //if (binarySbReader2.Position != binarySbReader2.Length)
-                    if (SBHeaderInformation.size > binarySbReader2.Position)
-                    {
-                        //ReadDataBlock(dbObject.GetValue<DbObject>("ebx"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
-                        //ReadDataBlock(dbObject.GetValue<DbObject>("res"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
-                        //ReadDataBlock(dbObject.GetValue<DbObject>("chunks"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
-                    }
+                    SBHeaderInformation SBHeaderInformation = BinaryRead_FIFA21(nativeReader, BaseBundleItem, dbObject, binarySbReader2);
 
                     // END OF BINARY READER
                     // ---------------------------------------------------------------------------------------------------------------------
@@ -168,20 +136,20 @@ namespace FIFA21Plugin
 
                         ebxObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position);
                         int offset = binarySbReader2.ReadInt(Endian.Big);
-                        if (offset < 0) 
+                        if (offset < 0)
                             throw new ArgumentOutOfRangeException("[ERROR] EBX Offset cannot be a minus figure");
 
                         ebxObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position);
                         int size = binarySbReader2.ReadInt(Endian.Big);
-                        if(size < 0)
+                        if (size < 0)
                             throw new ArgumentOutOfRangeException("[ERROR] EBX Size cannot be a minus figure");
 
                         if (catalog > AssetManager.Instance.fs.CatalogCount - 1)
                             throw new ArgumentOutOfRangeException("[ERROR] Catalog doesn't match number of cat");
                         //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
-                            ebxObject.SetValue("catalog", catalog);
+                        ebxObject.SetValue("catalog", catalog);
                         //if(cas > 0)
-                            ebxObject.SetValue("cas", cas);
+                        ebxObject.SetValue("cas", cas);
                         ebxObject.SetValue("offset", offset);
                         ebxObject.SetValue("size", size);
                         if (patchFlag)
@@ -193,7 +161,7 @@ namespace FIFA21Plugin
 
                     var positionBeforeRes = binarySbReader2.Position;
 
-                    
+
 
                     for (int indexRes = 0; indexRes < dbObject.GetValue<DbObject>("res").Count; indexRes++)
                     {
@@ -213,15 +181,15 @@ namespace FIFA21Plugin
                         int offset = binarySbReader2.ReadInt(Endian.Big);
                         resObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position);
                         int size = binarySbReader2.ReadInt(Endian.Big);
-                        
+
                         resObject.SetValue("SBFileLocation", FileLocation);
                         resObject.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
 
                         //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
-                            resObject.SetValue("catalog", catalog);
+                        resObject.SetValue("catalog", catalog);
                         //if(cas > 0)
-                            resObject.SetValue("cas", cas);
-                        
+                        resObject.SetValue("cas", cas);
+
 
                         resObject.SetValue("offset", offset);
 
@@ -257,9 +225,9 @@ namespace FIFA21Plugin
                         chnkObj.SetValue("SBFileLocation", FileLocation);
                         chnkObj.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
                         //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
-                            chnkObj.SetValue("catalog", catalog);
+                        chnkObj.SetValue("catalog", catalog);
                         //if(cas > 0)
-                            chnkObj.SetValue("cas", cas);
+                        chnkObj.SetValue("cas", cas);
 
                         chnkObj.SetValue("offset", offset);
 
@@ -281,6 +249,49 @@ namespace FIFA21Plugin
             }
 
             return dbObjects;
+        }
+
+        private SBHeaderInformation BinaryRead_FIFA21(
+            NativeReader nativeReader
+            , BaseBundleInfo BaseBundleItem
+            , DbObject dbObject
+            , NativeReader binarySbReader2)
+        {
+            // Read out the Header Info
+            var SBHeaderInformation = new SBHeaderInformation(binarySbReader2);
+            //
+            List<Sha1> sha1 = new List<Sha1>();
+            for (int i = 0; i < SBHeaderInformation.totalCount; i++)
+            {
+                sha1.Add(binarySbReader2.ReadSha1());
+            }
+            dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, sha1, binarySbReader2)));
+            dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, sha1, binarySbReader2)));
+            dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, sha1, binarySbReader2)));
+            dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
+            dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
+            dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
+            dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
+
+            if (SBHeaderInformation.chunkCount != 0)
+            {
+                using (DbReader dbReader = new DbReader(nativeReader.CreateViewStream(SBHeaderInformation.metaOffset + BaseBundleItem.Offset, nativeReader.Length - binarySbReader2.Position), new NullDeobfuscator()))
+                {
+                    var o = dbReader.ReadDbObject();
+                    dbObject.AddValue("chunkMeta", o);
+                }
+            }
+
+            binarySbReader2.Position = SBHeaderInformation.size;
+            //if (binarySbReader2.Position != binarySbReader2.Length)
+            if (SBHeaderInformation.size > binarySbReader2.Position)
+            {
+                //ReadDataBlock(dbObject.GetValue<DbObject>("ebx"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
+                //ReadDataBlock(dbObject.GetValue<DbObject>("res"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
+                //ReadDataBlock(dbObject.GetValue<DbObject>("chunks"), (int)BaseBundleItem.Offset, (int)binarySbReader2.Position, binarySbReader2);
+            }
+
+            return SBHeaderInformation;
         }
 
         private List<object> ReadEbx(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader)

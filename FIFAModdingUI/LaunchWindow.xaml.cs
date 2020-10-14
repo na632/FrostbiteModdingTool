@@ -127,10 +127,41 @@ namespace FIFAModdingUI
 
         }
 
+        public static void RecursiveDelete(DirectoryInfo baseDir)
+        {
+            try
+            {
+                if (!baseDir.Exists)
+                    return;
+
+                foreach (var dir in baseDir.EnumerateDirectories())
+                {
+                    RecursiveDelete(dir);
+                }
+                baseDir.Delete(true);
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
             if (GameInstanceSingleton.GAMEVERSION != null)
             {
+                if(chkCleanLegacyModDirectory.IsChecked.HasValue && chkCleanLegacyModDirectory.IsChecked.Value)
+                {
+                    RecursiveDelete(new DirectoryInfo(GameInstanceSingleton.LegacyModsPath));
+                }
+
+                if (!Directory.Exists(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\"))
+                    Directory.CreateDirectory(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\");
+                if(!Directory.Exists(GameInstanceSingleton.LegacyModsPath))
+                    Directory.CreateDirectory(GameInstanceSingleton.LegacyModsPath);
+
+
+
                 // Copy the Locale.ini if checked
                 if (chkInstallLocale.IsChecked.Value)
                 {

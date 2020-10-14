@@ -26,6 +26,8 @@ namespace v2k4FIFAModdingCL
         public static string FIFAPatchPath { get { return GAMERootPath + "\\Patch\\"; } }
         public static string FIFA_INITFS_Win32 { get { return FIFAPatchPath + "\\initfs_Win32"; } }
 
+        public static string LegacyModsPath { get { return GAMERootPath + "\\LegacyMods\\Legacy\\"; } }
+
         public static bool InitialiseSingleton(string filePath)
         {
             if(!string.IsNullOrEmpty(filePath))

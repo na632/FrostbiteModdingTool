@@ -8,35 +8,38 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 Modding Tool 2020" Height="300" Width="400" ResizeMode="NoResize">
+        Title="paulv2k4 Modding Tool 2021" Height="150" Width="600" ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="180"></ColumnDefinition>
             <ColumnDefinition Width="20"></ColumnDefinition>
             <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="20"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="20"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Button x:Name="btnEditor" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
                     Click="btnEditor_Click"
                     ToolTip="Launcher">
-            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" FontSize="20" />
-                <Label Content="Editor" VerticalAlignment="Center" />
+            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
+                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Label Content="Editor" VerticalAlignment="Center" FontSize="20" />
             </StackPanel>
         </Button>
-        <Button x:Name="btnLegacyEditor" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+        <Button x:Name="btnLegacyModCompiler" Grid.Column="2" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnLegacyEditor_Click"
                     ToolTip="Launcher">
-            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" FontSize="20" />
-                <Label Content="Editor" VerticalAlignment="Center" />
+            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
+                <MaterialDesign:PackIcon Kind="FolderZip" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Label Content="Legacy Compiler" VerticalAlignment="Center" FontSize="20" />
             </StackPanel>
         </Button>
-        <Button x:Name="btnLauncher" Grid.Column="2" Background="Transparent" VerticalContentAlignment="Stretch" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+        <Button x:Name="btnLauncher" Grid.Column="4" Background="Transparent" VerticalContentAlignment="Stretch" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnLauncher_Click"
                     ToolTip="Launcher">
-            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" FontSize="15" />
-                <Label Content="Launcher" VerticalAlignment="Center" />
+            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
+                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Label Content="Launcher" VerticalAlignment="Center" FontSize="20" />
             </StackPanel>
         </Button>
     </Grid>

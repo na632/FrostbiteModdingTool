@@ -60,6 +60,10 @@
     <Content Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json" />
+    <Content Include="..\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="etc\Simple-Injection.dll" />
   </ItemGroup>
 
@@ -155,9 +159,6 @@
     <None Update="Madden21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="FIFA20Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="fifa20_demo.key">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -183,8 +184,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.0\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll" />
-    <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll" />
+    <None Include="..\FrostySdk\fifa21.key" Link="fifa21.key">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.0\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

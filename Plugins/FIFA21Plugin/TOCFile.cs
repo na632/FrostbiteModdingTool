@@ -109,6 +109,9 @@ namespace FIFA21Plugin
 			}
 
         }
+
+		public int[] tocMetaData = new int[12];
+
 		public void Read(NativeReader nativeReader)
 		{
 			var startPosition = nativeReader.Position;
@@ -129,9 +132,6 @@ namespace FIFA21Plugin
 
 			nativeReader.Position -= 4;
 
-			int[] tocMetaData = new int[12];
-
-			
 			for (int num7 = 0; num7 < 12; num7++)
 			{
 				tocMetaData[num7] = nativeReader.ReadInt(Endian.Big);
@@ -148,14 +148,22 @@ namespace FIFA21Plugin
                 //nativeReader.Position = 556 + tocMetaData[3] - ((tocMetaData[2] + 2) * 4);
                 for (int indexOfBundleCount = 0; indexOfBundleCount < tocMetaData[2]; indexOfBundleCount++)
 				{
-					int unkOffset = nativeReader.ReadInt(Endian.Big);
+					int casStringOffset = nativeReader.ReadInt(Endian.Big);
+					if(casStringOffset > 0)
+                    {
+
+                    }
 					int size = nativeReader.ReadInt(Endian.Big);
 					int casIndex = nativeReader.ReadInt(Endian.Big);
+					if(casIndex > 0)
+                    {
+
+                    }
 					int dataOffset = nativeReader.ReadInt(Endian.Big);
 					//uint unk4 = nativeReader.ReadUInt(Endian.Big);
 					BaseBundleInfo newBundleInfo = new BaseBundleInfo
 					{
-						UnkOffset = unkOffset,
+						CasStringOffset = casStringOffset,
                         //Name = name,
                         Offset = dataOffset,
                         CasIndex = casIndex,

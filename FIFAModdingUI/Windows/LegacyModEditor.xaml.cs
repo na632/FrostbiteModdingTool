@@ -76,50 +76,64 @@ namespace FIFAModdingUI.Windows
                     RecursiveDelete(directoryInfoTemp);
                 }
 
-
                 DirectoryCopy(txtLegacyDirectory.Text, "TEMP", true);
                 List<string> listOfCompilableFiles = new List<string>();
 
-                var allFiles = Directory.GetFiles("TEMP", "*.*", SearchOption.AllDirectories);
-                foreach (var file in allFiles.Where(x => !x.Contains(".mod")))
+
+                bool encryptFiles = chkEncryptFiles.IsChecked.HasValue
+                            && chkEncryptFiles.IsChecked.Value; 
+
+                var allFiles = Directory.GetFiles("TEMP", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
+                Task[] tasks = new Task[allFiles.Count()];
+                var index = 0;
+                foreach (var file in allFiles)
                 {
-                    StringBuilder sbFinalResult = new StringBuilder();
+                    //tasks[index] = Task.Run(() =>
+                    //{
+                        StringBuilder sbFinalResult = new StringBuilder();
 
+                        var encrypt = !file.Contains(".dds")
+                            && !file.Contains(".db")
+                           && encryptFiles;
 
-                    if (chkEncryptFiles.IsChecked.HasValue && chkEncryptFiles.IsChecked.Value)
-                    {
-                        var splitExtension = file.Split('.');
-                        if (splitExtension[splitExtension.Length - 1] != "mod")
-                            splitExtension[splitExtension.Length - 1] = "mod";
-
-                        foreach (var str in splitExtension)
+                        if (encrypt)
                         {
-                            if (str == "mod")
+                            var splitExtension = file.Split('.');
+                            if (splitExtension[splitExtension.Length - 1] != "mod")
+                                splitExtension[splitExtension.Length - 1] = "mod";
+
+                            foreach (var str in splitExtension)
                             {
-                                sbFinalResult.Append(".mod");
-                            }
-                            else
-                            {
-                                sbFinalResult.Append(str);
+                                if (str == "mod")
+                                {
+                                    sbFinalResult.Append(".mod");
+                                }
+                                else
+                                {
+                                    sbFinalResult.Append(str);
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        sbFinalResult.Append(file);
-                    }
+                        else
+                        {
+                            sbFinalResult.Append(file);
+                        }
 
-                    if (chkEncryptFiles.IsChecked.HasValue && chkEncryptFiles.IsChecked.Value)
-                    {
-                        txtSaveFileStatus.Text = "Encrypting " + file;
-                        v2k4Encryption.encryptFile(file, sbFinalResult.ToString());
-                        File.Delete(file);
-                    }
+                        if (encrypt)
+                        {
+                            Dispatcher.Invoke(() => {
+                                txtSaveFileStatus.Text = "Encrypting " + file;
+                            });
+                            v2k4Encryption.encryptFile(file, sbFinalResult.ToString());
+                            File.Delete(file);
+                        }
 
-                    //sbFinalResult = sbFinalResult.Replace("TEMP\\", "");
-                    listOfCompilableFiles.Add(sbFinalResult.ToString());
-
+                        listOfCompilableFiles.Add(sbFinalResult.ToString());
+                    //});
+                    //index++;
                 }
+
+                //Task.WaitAll(tasks);
                 txtSaveFileStatus.Text = "Compilation Complete";
 
 
@@ -128,6 +142,9 @@ namespace FIFAModdingUI.Windows
                 var saveFileDialogResult = saveFileDialog.ShowDialog();
                 if (saveFileDialogResult.HasValue && saveFileDialogResult.Value)
                 {
+                    if (File.Exists(saveFileDialog.FileName))
+                        File.Delete(saveFileDialog.FileName);
+
                     using (ZipArchive zipArchive = new ZipArchive(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate), ZipArchiveMode.Create))
                     {
                         foreach (var compatFile in listOfCompilableFiles)
