@@ -56,8 +56,33 @@ namespace FIFA21Plugin
                     // Attempt to read from CAS
                     if (File.ReadAllBytes(sbPath).Length <= 64)
                     {
+                        foreach (var b in TOCFile.Bundles) 
+                        {
+                            MemoryStream memoryStream = new MemoryStream();
 
-                      
+                            using (NativeReader nativeReader3 = new NativeReader(
+                                //new FileStream(AssetManager.fs.ResolvePath(AssetManager.fs.GetFilePath(b.CasIndex)), FileMode.Open, FileAccess.Read))
+                                new FileStream(@"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas", FileMode.Open, FileAccess.Read)
+                                )
+                                )
+                            {
+                                //nativeReader3.Position = b.Offset;
+                            //    nativeReader3.Position = 0;
+                            //    //memoryStream.Write(nativeReader3.ReadBytes((int)b.Size), 0, (int)b.Size);
+                            //    memoryStream.Write(nativeReader3.ReadBytes((int)b.Size), 0, (int)b.Size);
+                            //}
+                            //if (memoryStream.Length > 0)
+                            //{
+                                SBFile sbFile = new SBFile(this, TOCFile, SBIndex);
+                                DbObject obj = new DbObject();
+                                //using (NativeReader nr_mem = new NativeReader(memoryStream))
+                                //{
+                                    sbFile.BinaryRead_FIFA21(b, ref obj, nativeReader3);
+                                //}
+                            }
+                        }
+
+
                     }
                     return objs;
                     //}

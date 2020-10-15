@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Identity.Client;
@@ -39,6 +40,18 @@ namespace FIFAModdingUI
             .Build();
 
             base.OnStartup(e);
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            foreach(var file in Directory.GetParent(Assembly.GetExecutingAssembly().Location).GetFiles())
+            {
+                if(file.Name.Contains("temp_") && file.Name.Contains(".DDS"))
+                {
+                    file.Delete();
+                }
+            }
         }
 
         private void MyHandler(object sender, UnhandledExceptionEventArgs args)

@@ -10,9 +10,12 @@
       Title="FrostyGameplayMain">
 
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <TextBlock>Hello From GP</TextBlock>
-        
         <TabControl x:Name="tabsGameplayMain">
+            <TabItem Header="Advanced">
+                <Grid>
+                    <local:FrostyGameplayAdvancedViewControl x:Name="FrostyGameplayAdvancedView"></local:FrostyGameplayAdvancedViewControl>
+                </Grid>
+            </TabItem>
             <TabItem Header="Basic">
                 <TabControl>
                     <TabItem Header="Movement" DataContext="{Binding Movement}">
@@ -32,11 +35,7 @@
                     </TabItem>
                 </TabControl>
             </TabItem>
-            <TabItem Header="Advanced">
-                <Grid>
-                    <local:FrostyGameplayAdvancedViewControl x:Name="FrostyGameplayAdvancedView"></local:FrostyGameplayAdvancedViewControl>
-                </Grid>
-            </TabItem>
+           
         </TabControl>
     </Grid>
 </Page>

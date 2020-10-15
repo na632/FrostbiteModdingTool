@@ -102,8 +102,8 @@ namespace v2k4FIFAModding.Frosty
         {
             return await new TaskFactory().StartNew(() =>
             {
-
-                return StartNewProject();
+                FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+                return FrostyProject;
             });
         }
 

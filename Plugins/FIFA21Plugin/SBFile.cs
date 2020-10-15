@@ -99,7 +99,8 @@ namespace FIFA21Plugin
                     // ---------------------------------------------------------------------------------------------------------------------
                     // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
 
-                    SBHeaderInformation SBHeaderInformation = BinaryRead_FIFA21(nativeReader, BaseBundleItem, dbObject, binarySbReader2);
+                    //SBHeaderInformation SBHeaderInformation = BinaryRead_FIFA21(nativeReader, BaseBundleItem, dbObject, binarySbReader2);
+                    SBHeaderInformation SBHeaderInformation = BinaryRead_FIFA21(BaseBundleItem, ref dbObject, binarySbReader2);
 
                     // END OF BINARY READER
                     // ---------------------------------------------------------------------------------------------------------------------
@@ -251,10 +252,9 @@ namespace FIFA21Plugin
             return dbObjects;
         }
 
-        private SBHeaderInformation BinaryRead_FIFA21(
-            NativeReader nativeReader
-            , BaseBundleInfo BaseBundleItem
-            , DbObject dbObject
+        public SBHeaderInformation BinaryRead_FIFA21(
+            BaseBundleInfo BaseBundleItem
+            , ref DbObject dbObject
             , NativeReader binarySbReader2)
         {
             // Read out the Header Info
@@ -275,7 +275,8 @@ namespace FIFA21Plugin
 
             if (SBHeaderInformation.chunkCount != 0)
             {
-                using (DbReader dbReader = new DbReader(nativeReader.CreateViewStream(SBHeaderInformation.metaOffset + BaseBundleItem.Offset, nativeReader.Length - binarySbReader2.Position), new NullDeobfuscator()))
+                //using (DbReader dbReader = new DbReader(nativeReader.CreateViewStream(SBHeaderInformation.metaOffset + BaseBundleItem.Offset, nativeReader.Length - binarySbReader2.Position), new NullDeobfuscator()))
+                using (DbReader dbReader = new DbReader(binarySbReader2.CreateViewStream(SBHeaderInformation.metaOffset, binarySbReader2.Length - binarySbReader2.Position), new NullDeobfuscator()))
                 {
                     var o = dbReader.ReadDbObject();
                     dbObject.AddValue("chunkMeta", o);

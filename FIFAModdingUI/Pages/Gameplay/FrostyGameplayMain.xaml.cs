@@ -1,4 +1,4 @@
-﻿using FrostySdk.IO;
+﻿ using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,7 @@ using v2k4FIFAModding;
 using FrostySdk.FrostySdk.Ebx;
 using FIFAModdingUI.Pages.Common;
 using v2k4FIFAModding.Frostbite.EbxTypes;
+using System.IO;
 
 namespace FIFAModdingUI.Pages.Gameplay
 {
@@ -40,7 +41,7 @@ namespace FIFAModdingUI.Pages.Gameplay
         public FrostyGameplayMain()
         {
             InitializeComponent();
-            tabsGameplayMain.IsEnabled = false;
+            //tabsGameplayMain.IsEnabled = false;
             this.DataContext = dc;
 
             new TaskFactory().StartNew(async() => {
@@ -49,6 +50,10 @@ namespace FIFAModdingUI.Pages.Gameplay
                 GameplayProjectManagement.Logger = App.MainEditorWindow;
                 
                 await GameplayProjectManagement.StartNewProjectAsync();
+                //if (File.Exists("GameplayProject.fbproject"))
+                //{
+                //    GameplayProjectManagement.FrostyProject.Load("GameplayProject.fbproject");
+                //}
 
                 var ebxItems = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx();
                 if (ebxItems != null)
@@ -82,7 +87,7 @@ namespace FIFAModdingUI.Pages.Gameplay
 
                         }
 
-                        tabsGameplayMain.IsEnabled = true;
+                        //tabsGameplayMain.IsEnabled = true;
 
                     });
                     //foreach (var i in ebxItems.Where(x => x.Filename.StartsWith("gp_")))

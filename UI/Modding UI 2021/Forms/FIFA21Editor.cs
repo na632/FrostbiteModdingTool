@@ -249,6 +249,7 @@ namespace Modding_UI_2021.Forms
                         }
                         else if(assetEntry.Type.Contains("AttribSchema"))
                         {
+                            rightLayoutPanel.Controls.Clear();
                             foreach(var prop in eb.RootObject.GetProperties())
                             {
                                 var leftrightLayout = new FlowLayoutPanel();

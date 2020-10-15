@@ -312,6 +312,9 @@ namespace FIFAModdingUI.Pages.Common
 
 		public void AssetHasChanged(TextBox sender, string propName)
 		{
+			if (string.IsNullOrEmpty(sender.Text))
+				return;
+
 			string txtboxName = sender.Name;
 			if (!string.IsNullOrEmpty(txtboxName))
 			{
@@ -325,7 +328,7 @@ namespace FIFAModdingUI.Pages.Common
 						// PROPNAME _ POINTS _ INDEX _ (X OR Y)
 						// PROPNAME _ POINTS _ INDEX _ (VALUE)
 						var splitPropName = txtboxName.Split('_');
-						if (splitPropName.Length > 3)
+						if (splitPropName.Length > 3 && !string.IsNullOrEmpty(sender.Text))
 						{
 							if (splitPropName[3] == "X" || splitPropName[3] == "Y")
 							{
@@ -380,9 +383,11 @@ namespace FIFAModdingUI.Pages.Common
 
         private void SaveToRootObject()
         {
-        }
+			FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+			FrostyProject.Save("GameplayProject.fbproject", true);
+		}
 
-        public void AssetHasChanged(TextBox sender, TreeViewItem treetopmostparent, TreeViewItem treeofpropertychanged)
+		public void AssetHasChanged(TextBox sender, TreeViewItem treetopmostparent, TreeViewItem treeofpropertychanged)
         {
 
 		}

@@ -48,9 +48,9 @@ namespace FIFA21Plugin
 		{
 			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
 			{
-				foreach (CatalogInfo item5 in parent.fs.EnumerateCatalogInfos())
+				foreach (CatalogInfo catalogInfoItem in parent.fs.EnumerateCatalogInfos())
 				{
-					foreach (string sbName in item5.SuperBundles.Keys)
+					foreach (string sbName in catalogInfoItem.SuperBundles.Keys)
 					{
 						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
 						int sbIndex = -1;
@@ -63,11 +63,12 @@ namespace FIFA21Plugin
 							parent.superBundles.Add(new SuperBundleEntry
 							{
 								Name = sbName
+								, CatalogInfo = catalogInfoItem
 							});
 							sbIndex = parent.superBundles.Count - 1;
 						}
 						parent.logger.Log($"Loading data ({sbName})");
-						string tocFile = sbName.Replace("win32", item5.Name).Replace("cs/", "");
+						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
 						if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
 						{
 							tocFile = sbName;

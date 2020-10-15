@@ -18,7 +18,7 @@
             <ColumnDefinition Width="180"></ColumnDefinition>
             <ColumnDefinition Width="20"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button x:Name="btnEditor" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
+        <Button x:Name="btnEditor" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnEditor_Click"
                     ToolTip="Launcher">
             <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">

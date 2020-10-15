@@ -149,7 +149,10 @@ namespace FIFA21Plugin
                 for (int indexOfBundleCount = 0; indexOfBundleCount < tocMetaData[2]; indexOfBundleCount++)
 				{
 					int casStringOffset = nativeReader.ReadInt(Endian.Big);
-					if(casStringOffset > 0)
+
+					//var anthemSearcher = 556 + tocMetaData[8] - 48 + casStringOffset;
+					var anthemSearcher = 556 + tocMetaData[8] + casStringOffset;
+					if (casStringOffset > 0)
                     {
 
                     }
@@ -184,26 +187,27 @@ namespace FIFA21Plugin
 				List<Guid> list8 = new List<Guid>();
 				for (int num14 = 0; num14 < tocMetaData[5]; num14++)
 				{
-					byte[] array6 = nativeReader.ReadBytes(16);
-					Guid value2 = new Guid(new byte[16]
-					{
-										array6[15],
-										array6[14],
-										array6[13],
-										array6[12],
-										array6[11],
-										array6[10],
-										array6[9],
-										array6[8],
-										array6[7],
-										array6[6],
-										array6[5],
-										array6[4],
-										array6[3],
-										array6[2],
-										array6[1],
-										array6[0]
-					});
+					//byte[] array6 = nativeReader.ReadBytes(16);
+					//Guid value2 = new Guid(new byte[16]
+					//{
+					//					array6[15],
+					//					array6[14],
+					//					array6[13],
+					//					array6[12],
+					//					array6[11],
+					//					array6[10],
+					//					array6[9],
+					//					array6[8],
+					//					array6[7],
+					//					array6[6],
+					//					array6[5],
+					//					array6[4],
+					//					array6[3],
+					//					array6[2],
+					//					array6[1],
+					//					array6[0]
+					//});
+					Guid value2 = nativeReader.ReadGuid(Endian.Big);
 					int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
 					while (list8.Count <= num15)
 					{
@@ -214,7 +218,7 @@ namespace FIFA21Plugin
 				nativeReader.Position = 556 + tocMetaData[6];
 				for (int num16 = 0; num16 < tocMetaData[5]; num16++)
 				{
-					nativeReader.ReadByte();
+					var unk2 = nativeReader.ReadByte();
 					bool patch2 = nativeReader.ReadBoolean();
 					byte catalog2 = nativeReader.ReadByte();
 					byte cas2 = nativeReader.ReadByte();

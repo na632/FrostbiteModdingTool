@@ -1,0 +1,109 @@
+﻿<Window x:Class="FIFAModdingUI.Windows.FIFA21Editor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FIFAModdingUI.Windows"
+        mc:Ignorable="d"
+         xmlns:localGPControls="clr-namespace:FIFAModdingUI.Pages.Gameplay"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+	xmlns:fbviews="clr-namespace:FolderBrowser.Views;assembly=FolderBrowser"
+        Title="FIFA21Editor" Height="720" Width="1280" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+    <DockPanel LastChildFill="True">
+
+        <Grid DockPanel.Dock="Top" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+                <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                        <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
+                    VerticalAlignment="Center" IsEnabled="False"
+                     
+                    ToolTip="Build FIFA Modding SDK">
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
+                        <Label Content="Build FIFA SDK" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
+                    
+                    ToolTip="Launch FIFA with Frosty Mods">
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                        <Label Content="Launch FIFA" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
+                    
+                    ToolTip="Launch FIFA with Editor Only Mod">
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                        <Label Content="Launch FIFA (Editor Projects)" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <!--<Button x:Name="btnBuildModsLive" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                    Click="btnBuildModsLive_Click"
+                    ToolTip="Build Mod Folder">
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                        <Label Content="Build Mod Folder" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>-->
+                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
+                        <Label Content="Default" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool">
+                    <MaterialDesign:PackIcon Kind="Power" />
+                </Button>
+            </StackPanel>
+            <TabControl x:Name="MainViewer" Grid.Row="1">
+                <TabItem x:Name="TabTextureBrowser" Header="Textures">
+                    <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TreeView Grid.Column="0" x:Name="tvTextureBrowser">
+                            <TreeViewItem Header="">
+                            </TreeViewItem>
+                        </TreeView>
+                        <Image x:Name="ImageViewer" Grid.Column="1"></Image>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="TabGameplay" Header="Gameplay">
+                    <Frame x:Name="GPFrostyGameplayMainFrame"></Frame>
+                </TabItem>
+                
+            </TabControl>
+            
+        </Grid>
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="#FFF3F1F1" BorderBrush="#FFC8C8C8"  >
+            <StatusBarItem>
+                <TextBlock Name="lblProgressText" Text="" Foreground="#FF483939" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar x:Name="LoadingProgressBar" Height="12" Width="200" Maximum="100" Minimum="0"></ProgressBar>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="LoadingText" Height="12" Width="200" FontSize="11" Foreground="black"></TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+    </DockPanel>
+</Window>
