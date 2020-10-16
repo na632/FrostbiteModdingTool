@@ -49,7 +49,14 @@ namespace FIFAModdingUI
             {
                 if(file.Name.Contains("temp_") && file.Name.Contains(".DDS"))
                 {
-                    file.Delete();
+                    try
+                    {
+                        file.Delete();
+                    }
+                    catch
+                    {
+
+                    }
                 }
             }
         }

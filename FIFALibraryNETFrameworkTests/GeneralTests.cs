@@ -376,9 +376,11 @@ namespace FIFALibraryNETFrameworkTests
                         ((dynamic)eb.RootObject).ATTR_JogSpeed = 0.0001f;
                         ((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0.01f;
                         ((dynamic)eb.RootObject).ATTR_JogSpeed = 0.01f;
+                        ((dynamic)eb.RootObject).AnimationPlaybackTimeRatioDribbling = new List<float>() { 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f };
                         ((dynamic)eb.RootObject).ATTR_SprintSpeedTbl = new List<float>() { 0.01f, 0.02f };
                         eb.AddRootObject(eb.RootObject);
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
+                        project.AssetManager.AddEbx(ebx.Name, eb);
                     }
                 }
 
@@ -431,20 +433,20 @@ namespace FIFALibraryNETFrameworkTests
                     
                 }
 
-                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.ToLower().Contains("careerradar")))
-                {
-                    var eb = AssetManager.Instance.GetEbx(ebx);
-                    if (eb != null)
-                    {
-                        var res = AssetManager.Instance.GetResEntry(ebx.Name);
-                        if(res != null)
-                        {
-                            var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
-                            Texture textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
-                            new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.DDS", "*.dds");
-                        }
-                    }
-                }
+                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.ToLower().Contains("careerradar")))
+                //{
+                //    var eb = AssetManager.Instance.GetEbx(ebx);
+                //    if (eb != null)
+                //    {
+                //        var res = AssetManager.Instance.GetResEntry(ebx.Name);
+                //        if(res != null)
+                //        {
+                //            var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
+                //            Texture textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
+                //            new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.DDS", "*.dds");
+                //        }
+                //    }
+                //}
 
 
                 projectManagement.FrostyProject.Save("test_gp_speed_change.fbproject");

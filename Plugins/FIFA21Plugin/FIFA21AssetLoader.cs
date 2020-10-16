@@ -83,6 +83,8 @@ namespace FIFA21Plugin
 							if (dbObjects != null)
 							{
 
+
+
 								foreach (DbObject @object in dbObjects.Where(x => x != null))
 								{
 									parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);

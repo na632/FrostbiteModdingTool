@@ -187,33 +187,37 @@ namespace FIFA21Plugin
 				List<Guid> list8 = new List<Guid>();
 				for (int num14 = 0; num14 < tocMetaData[5]; num14++)
 				{
-					//byte[] array6 = nativeReader.ReadBytes(16);
-					//Guid value2 = new Guid(new byte[16]
-					//{
-					//					array6[15],
-					//					array6[14],
-					//					array6[13],
-					//					array6[12],
-					//					array6[11],
-					//					array6[10],
-					//					array6[9],
-					//					array6[8],
-					//					array6[7],
-					//					array6[6],
-					//					array6[5],
-					//					array6[4],
-					//					array6[3],
-					//					array6[2],
-					//					array6[1],
-					//					array6[0]
-					//});
-					Guid value2 = nativeReader.ReadGuid(Endian.Big);
+                    byte[] array6 = nativeReader.ReadBytes(16);
+                    Guid tocChunkGuid = new Guid(new byte[16]
+                    {
+                                        array6[15],
+                                        array6[14],
+                                        array6[13],
+                                        array6[12],
+                                        array6[11],
+                                        array6[10],
+                                        array6[9],
+                                        array6[8],
+                                        array6[7],
+                                        array6[6],
+                                        array6[5],
+                                        array6[4],
+                                        array6[3],
+                                        array6[2],
+                                        array6[1],
+                                        array6[0]
+                    });
+                    //Guid value2 = nativeReader.ReadGuid(Endian.Little);
+                    if (tocChunkGuid == Guid.Parse("cc9e36b9-9304-2832-01ff-e8820db10773"))
+                    {
+
+                    }
 					int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
 					while (list8.Count <= num15)
 					{
 						list8.Add(Guid.Empty);
 					}
-					list8[num15 / 3] = value2;
+					list8[num15 / 3] = tocChunkGuid;
 				}
 				nativeReader.Position = 556 + tocMetaData[6];
 				for (int num16 = 0; num16 < tocMetaData[5]; num16++)

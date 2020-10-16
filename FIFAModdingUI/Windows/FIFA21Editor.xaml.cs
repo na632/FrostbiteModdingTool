@@ -1,10 +1,13 @@
 ﻿using Frostbite.Textures;
 using FrostySdk;
 using FrostySdk.Interfaces;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -36,7 +39,7 @@ namespace FIFAModdingUI.Windows
 
         ProjectManagement ProjectManagement { get; set; }
 
-        private async void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
+        private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
             dialog.Title = "Find your FIFA exe";
@@ -47,7 +50,7 @@ namespace FIFAModdingUI.Windows
             var filePath = dialog.FileName;
             GameInstanceSingleton.InitialiseSingleton(filePath);
             txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
-            await Start();
+            _ = Start();
         }
 
         private void btnLaunchFIFAMods(object sender, RoutedEventArgs e)
@@ -78,6 +81,7 @@ namespace FIFAModdingUI.Windows
                 });
 
                 BuildTextureBrowser(null);
+                BuildLegacyBrowser(null);
 
                 return true;
             });
@@ -85,21 +89,27 @@ namespace FIFAModdingUI.Windows
 
         string lastTemporaryFileLocation;
         Random Randomizer = new Random();
-        private void BuildTextureBrowser(string filter)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                var index = 0;
+        EbxAssetEntry CurrentTextureAssetEntry = null;
 
-                string lastPath = null;
-                TreeViewItem treeItem = null;
-                var items = ProjectManagement.FrostyProject.AssetManager
-                    .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).ToList();
-                foreach (var i in items)
+        private bool BuildTextureBrowser(string filter)
+        {
+            BackgroundWorker worker = new BackgroundWorker();
+
+            worker.DoWork += (s, we) =>
+            {
+                Dispatcher.Invoke(() =>
                 {
-                    var splitPath = i.Path.Split('/');
-                    //foreach(var innerPath in splitPath)
-                    //{
+                    var index = 0;
+
+                    string lastPath = null;
+                    TreeViewItem treeItem = null;
+                    var items = ProjectManagement.FrostyProject.AssetManager
+                        .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).ToList();
+                    foreach (var i in items)
+                    {
+                        var splitPath = i.Path.Split('/');
+                        //foreach(var innerPath in splitPath)
+                        //{
 
                         bool usePreviousTree = string.IsNullOrEmpty(lastPath) || lastPath.ToLower() == i.Path.ToLower();
 
@@ -111,63 +121,116 @@ namespace FIFAModdingUI.Windows
                         }
                         treeItem.Header = i.Path;
                         lastPath = i.Path;
-                    var innerTreeItem = new Button() { Content = i.DisplayName, Tag = i };
+                        var innerTreeItem = new Label() { Content = i.DisplayName };
 
-                    innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
+                        innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
 
-                    innerTreeItem.MouseDoubleClick += (object sender, MouseButtonEventArgs e) =>
-                    {
-                        try
+                        innerTreeItem.MouseDoubleClick += (object sender, MouseButtonEventArgs e) =>
                         {
-                            var eb = AssetManager.Instance.GetEbx(i);
-                            if (eb != null)
+                            try
                             {
-                                var res = AssetManager.Instance.GetResEntry(i.Name);
-                                if (res != null)
+                                CurrentTextureAssetEntry = i;
+                                var eb = AssetManager.Instance.GetEbx(i);
+                                if (eb != null)
                                 {
-                                    using (var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(res))
+                                    var res = AssetManager.Instance.GetResEntry(i.Name);
+                                    if (res != null)
                                     {
-                                        using (Texture textureAsset = new Texture(resStream, ProjectManagement.FrostyProject.AssetManager))
+                                        using (var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(res))
                                         {
-                                            ImageViewer.Source = null;
-                                            var dumpFile = $"temp_{Randomizer.Next().ToString()}.DDS";
-                                            new TextureExporter().Export(textureAsset, dumpFile, "*.dds");
+                                            using (Texture textureAsset = new Texture(resStream, ProjectManagement.FrostyProject.AssetManager))
+                                            {
+                                                try
+                                                {
+                                                    ImageViewer.Source = null;
+                                                    var dumpFile = $"temp_{Randomizer.Next().ToString()}.DDS";
+                                                    new TextureExporter().Export(textureAsset, dumpFile, "*.dds");
 
-                                            var tempLoc = Directory.GetParent(Assembly.GetEntryAssembly().Location) + "\\" + dumpFile;
-                                            Uri fileUri = new Uri(tempLoc);
-                                            var bImage = new BitmapImage(fileUri);
-                                            ImageViewer.Source = bImage;
-                                            bImage = null;
-                                            fileUri = null;
+                                                    var tempLoc = Directory.GetParent(Assembly.GetEntryAssembly().Location) + "\\" + dumpFile;
+                                                    Uri fileUri = new Uri(tempLoc);
+                                                    var bImage = new BitmapImage(fileUri);
+                                                    ImageViewer.Source = bImage;
+                                                    bImage = null;
+                                                    fileUri = null;
 
-                                            //if (!string.IsNullOrEmpty(lastTemporaryFileLocation))
-                                            //    File.Delete(lastTemporaryFileLocation);
+                                                    //if (!string.IsNullOrEmpty(lastTemporaryFileLocation))
+                                                    //    File.Delete(lastTemporaryFileLocation);
 
-                                            lastTemporaryFileLocation = dumpFile;
+                                                    lastTemporaryFileLocation = dumpFile;
+                                                }
+                                                catch { ImageViewer.Source = null; }
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                        catch(Exception)
+                            catch (Exception)
+                            {
+                                Log("Failed to load texture");
+                            }
+
+
+
+
+                        };
+
+                        treeItem.Items.Add(innerTreeItem);
+
+
+                        //}
+                        index++;
+                        Log($"Loading Texture Browser ({index}/{items.Count()})");
+
+                    }
+                });
+            };
+            worker.RunWorkerAsync();
+            return true;
+        }
+
+        private bool BuildLegacyBrowser(string filter)
+        {
+            BackgroundWorker worker = new BackgroundWorker();
+
+            worker.DoWork += (s, we) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    var index = 0;
+
+                    string lastPath = null;
+                    TreeViewItem treeItem = null;
+                    var items = ProjectManagement.FrostyProject.AssetManager
+                        .EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+                    foreach (var i in items)
+                    {
+                        var splitPath = i.Path.Split('/');
+                        //foreach(var innerPath in splitPath)
+                        //{
+
+                        bool usePreviousTree = string.IsNullOrEmpty(lastPath) || lastPath.ToLower() == i.Path.ToLower();
+
+                        // use previous tree
+                        if (!usePreviousTree || treeItem == null)
                         {
-                            Log("Failed to load texture");
+                            treeItem = new TreeViewItem();
+                            tvLegacy.Items.Add(treeItem);
                         }
+                        treeItem.Header = i.Path;
+                        lastPath = i.Path;
+                        var innerTreeItem = new Label() { Content = i.DisplayName };
 
+                        innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
+                        treeItem.Items.Add(innerTreeItem);
 
-                       
-                        
-                    };
+                        index++;
+                        Log($"Loading Legacy Browser ({index}/{items.Count()})");
 
-                    treeItem.Items.Add(innerTreeItem);
-
-                    
-                    //}
-                    index++;
-                    Log($"Loading Texture Browser ({index}/{items.Count()})");
-
-                }
-            });
+                    }
+                });
+            };
+            worker.RunWorkerAsync();
+            return true;
         }
 
         private void InnerTreeItem_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -188,6 +251,39 @@ namespace FIFAModdingUI.Windows
 
         public void LogError(string text, params object[] vars)
         {
+        }
+
+        private void btnExportTexture_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "DDS File|*.dds";
+            if(saveFileDialog.ShowDialog() == true)
+            {
+                if (CurrentTextureAssetEntry != null)
+                {
+                    var res = AssetManager.Instance.GetResEntry(CurrentTextureAssetEntry.Name);
+                    if (res != null)
+                    {
+                        using (var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(res))
+                        {
+                            using (Texture textureAsset = new Texture(resStream, ProjectManagement.FrostyProject.AssetManager))
+                            {
+                                new TextureExporter().Export(textureAsset, saveFileDialog.FileName, "*.dds");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void btnExportLegacy_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnImportLegacy_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

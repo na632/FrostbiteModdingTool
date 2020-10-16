@@ -84,11 +84,39 @@
                             <TreeViewItem Header="">
                             </TreeViewItem>
                         </TreeView>
-                        <Image x:Name="ImageViewer" Grid.Column="1"></Image>
+                        <StackPanel Orientation="Vertical" Grid.Column="1">
+                            <StackPanel Orientation="Horizontal">
+                                <Button IsEnabled="False">Import</Button>
+                                <Button x:Name="btnExportTexture" Click="btnExportTexture_Click">Export</Button>
+                            </StackPanel>
+                            <Image x:Name="ImageViewer" ></Image>
+                        </StackPanel>
+
                     </Grid>
                 </TabItem>
                 <TabItem x:Name="TabGameplay" Header="Gameplay">
                     <Frame x:Name="GPFrostyGameplayMainFrame"></Frame>
+                </TabItem>
+                <TabItem x:Name="TabLegacy" Header="Legacy">
+                    <Grid Name="gridLegacy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TreeView Grid.Column="0" x:Name="tvLegacy">
+                            <TreeViewItem Header="">
+                            </TreeViewItem>
+                        </TreeView>
+                        <StackPanel Orientation="Vertical" Grid.Column="1">
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="btnImportLegacy" Click="btnImportLegacy_Click" IsEnabled="False">Import</Button>
+                                <Button x:Name="btnExportLegacy" Click="btnExportLegacy_Click">Export</Button>
+                            </StackPanel>
+                            <Image x:Name="ImageViewerLegacy" Visibility="Hidden" ></Image>
+                            <TextBlock x:Name="txtLegacyViewer" Visibility="Hidden"></TextBlock>
+                        </StackPanel>
+
+                    </Grid>
                 </TabItem>
                 
             </TabControl>
