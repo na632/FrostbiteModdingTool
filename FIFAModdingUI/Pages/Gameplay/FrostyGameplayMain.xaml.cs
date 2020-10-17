@@ -21,6 +21,7 @@ using FrostySdk.FrostySdk.Ebx;
 using FIFAModdingUI.Pages.Common;
 using v2k4FIFAModding.Frostbite.EbxTypes;
 using System.IO;
+using System.ComponentModel;
 
 namespace FIFAModdingUI.Pages.Gameplay
 {
@@ -44,64 +45,63 @@ namespace FIFAModdingUI.Pages.Gameplay
             //tabsGameplayMain.IsEnabled = false;
             this.DataContext = dc;
 
-            new TaskFactory().StartNew(async() => {
+            BackgroundWorker backgroundWorker = new BackgroundWorker();
+
+            backgroundWorker.DoWork += (o, bw_e) =>
+            {
 
                 GameplayProjectManagement = new ProjectManagement();
-                GameplayProjectManagement.Logger = App.MainEditorWindow;
-                
-                await GameplayProjectManagement.StartNewProjectAsync();
-                //if (File.Exists("GameplayProject.fbproject"))
-                //{
-                //    GameplayProjectManagement.FrostyProject.Load("GameplayProject.fbproject");
-                //}
+                //GameplayProjectManagement.Logger = App.fif;
 
-                var ebxItems = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx();
+                GameplayProjectManagement.StartNewProjectAsync().Wait();
+
+                var ebxItems = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx().Where(x => x.Filename.StartsWith("gp_") && !x.Path.Contains("smallsided")).OrderBy(x => x.Path).ThenBy(x => x.Filename).ToList();
                 if (ebxItems != null)
                 {
-                    Dispatcher.Invoke(() =>
-                    {
+                    
                         string lastPath = null;
                         TreeViewItem treeItem = null;
                         // only looking for gameplay that is not "smallsided/volta"
-                        foreach (var i in ebxItems.Where(x => x.Filename.StartsWith("gp_") && !x.Path.Contains("smallsided")).OrderBy(x=>x.Path).ThenBy(x=>x.Filename))
+                        foreach (var i in ebxItems)
                         {
-                            Debug.WriteLine(i.Filename);
                             bool usePreviousTree = string.IsNullOrEmpty(lastPath) || lastPath == i.Path;
 
                             // use previous tree
                             if (!usePreviousTree || treeItem == null)
                             {
-                                treeItem = new TreeViewItem();
-                                FrostyGameplayAdvancedView.FrostyTreeView.Items.Add(treeItem);
+                                Dispatcher.Invoke(() =>
+                                {
+                                    treeItem = new TreeViewItem();
+
+                                    FrostyGameplayAdvancedView.FrostyTreeView.Items.Add(treeItem);
+                                });
                             }
-                            treeItem.Header = i.Path;
-                            lastPath = i.Path;
-                            var innerTreeItem = new TreeViewItem() { Header = i.Filename };
-
-                            innerTreeItem.MouseDoubleClick += (object sender, MouseButtonEventArgs e) =>
+                            Dispatcher.Invoke(() =>
                             {
-                                OpenAsset(i);
-                            };
+                                treeItem.Header = i.Path;
+                                lastPath = i.Path;
+                            
+                                var innerTreeItem = new TreeViewItem() { Header = i.Filename };
 
-                            treeItem.Items.Add(innerTreeItem);
+                                innerTreeItem.MouseDoubleClick += (object sender, MouseButtonEventArgs e) =>
+                                {
+                                    OpenAsset(i);
+                                };
 
-                        }
+                                treeItem.Items.Add(innerTreeItem);
+                            });
 
-                        //tabsGameplayMain.IsEnabled = true;
-
-                    });
-                    //foreach (var i in ebxItems.Where(x => x.Filename.StartsWith("gp_")))
-                    //{
-                    //    Debug.WriteLine(i.Filename);
-                    //}
+                    }
                 }
+                    
 
-            });
+            };
+
+            backgroundWorker.RunWorkerAsync();
         }
 
-        public async void OpenAsset(AssetEntry asset, bool createDefaultEditor = true)
+        public void OpenAsset(AssetEntry asset, bool createDefaultEditor = true)
         {
-            //Debug.WriteLine(asset.AssetType);
             if (asset == null || asset.Type == "EncryptedAsset")
             {
                 return;
@@ -111,114 +111,6 @@ namespace FIFAModdingUI.Pages.Gameplay
             if(ebx != null)
             {
                 FrostyGameplayAdvancedView.spPropertyPanel.Children.Add(new Editor(asset, ebx, GameplayProjectManagement.FrostyProject));
-
-                //var aeObjects = ae.RootObject.
-                //var propsOfEbx = ae.RootObject.GetType().GetProperties();
-                //foreach(var p in propsOfEbx)
-                //{
-                //    StackPanel spProp = new StackPanel();
-                //    spProp.Orientation = Orientation.Horizontal;
-
-                //    object propValue = p.GetValue(ae.RootObject, null);
-                //    if(propValue != null)
-                //    {
-                //        var listProp = propValue as IEnumerable<float>;
-                //        if(listProp != null)
-                //        {
-                //            spProp.Orientation = Orientation.Vertical;
-                //            Label label = new Label();
-                //            label.Content = p.Name;
-                //            spProp.Children.Add(label);
-
-                //            var index = 0;
-                //            foreach (var item in listProp)
-                //            {
-                //                StackPanel spSideBySideProp = new StackPanel();
-                //                spSideBySideProp.Orientation = Orientation.Horizontal;
-
-                //                Label tbPropName = new Label();
-                //                tbPropName.Name = "tb" + p.Name + "_" + index;
-                //                tbPropName.Content = p.Name + "[" + index + "]";
-                //                spSideBySideProp.Children.Add(tbPropName);
-
-                //                TextBox txtPropValue = new TextBox();
-                //                txtPropValue.Name = p.Name + "_" + index;
-                //                txtPropValue.Text = item.ToString();
-                //                spSideBySideProp.Children.Add(txtPropValue);
-
-                //                spProp.Children.Add(spSideBySideProp);
-
-                //                index++;
-                //            }
-                //        }
-
-                //        if (propValue is FrostySdk.Ebx.PointerRef)
-                //        {
-                //            //GameplayProjectManagement.FrostyProject.FileSystem.
-                //            var pntRefProp = (FrostySdk.Ebx.PointerRef)propValue;
-                //            if (pntRefProp.Internal != null)
-                //            {
-                //                spProp.Children.Add(new Editor(ae));
-
-                //                //var fce = pntRefProp.Internal.GetObjectAsType<FloatCurve>();
-                //                //if(fce != null)
-                //                //{
-                //                //    fce.Points[fce.Points.Count - 1].Y = 1;
-
-                //                //    var ucFloatCurve = new FloatCurveControl();
-                //                //    ucFloatCurve.DataContext = fce;
-                //                //    spProp.Children.Add(ucFloatCurve);
-
-                //                //}
-                //                //    //var fce = pntRefProp.Internal.GetObjectAsType<FrostySdk.Ebx.FloatCurveEntity>();
-                //                //    //if(fce != null)
-                //                //    //{
-
-                //                //    //}
-                //                //    //if(pntRefProp.Internal.PropertyExists("Points"))
-                //                //    //{
-                //                //    //    var pointProp = pntRefProp.Internal.GetProperty("Points");
-                //                //    //    if(pointProp != null)
-                //                //    //    {
-                //                //    //        //pointProp.
-                //                //    //    }
-                //                //    //}
-                //                //}
-                //                //if (pntRefProp.Internal is FrostySdk.Ebx.)
-                //                //{
-
-                //                //}
-                //            }
-                //        }
-                //    }
-
-                //    //var typeofprop = p.PropertyType.ToString().ToLower();
-                //    //var val = p.GetValue(p);
-                //    //if(typeofprop.Contains("list"))
-                //    //{
-                //    //}
-                //    //else
-                //    //{
-                //    //    TextBlock tbPropName = new TextBlock();
-                //    //    tbPropName.Text = p.Name;
-                //    //    spProp.Children.Add(tbPropName);
-                //    //}
-                //    //switch (typeofprop)
-                //    //{
-                //    //    case "Array":
-                //    //        //Array arrayProp = p as Array<object>;
-                //    //        break;
-                //    //    default:
-                //    //        TextBlock tbPropName = new TextBlock();
-                //    //        tbPropName.Text = p.Name;
-                //    //        spProp.Children.Add(tbPropName);
-                //    //        break;
-
-                //    //}
-
-                //    FrostyGameplayAdvancedView.spPropertyPanel.Children.Add(spProp);
-
-            //}
             }
         }
 

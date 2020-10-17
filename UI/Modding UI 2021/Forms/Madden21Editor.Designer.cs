@@ -160,9 +160,9 @@
             this.PanelEditTextures.Controls.Add(this.ImageViewer);
             this.PanelEditTextures.Dock = System.Windows.Forms.DockStyle.Right;
             this.PanelEditTextures.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.PanelEditTextures.Location = new System.Drawing.Point(548, 31);
+            this.PanelEditTextures.Location = new System.Drawing.Point(-55, 31);
             this.PanelEditTextures.Name = "PanelEditTextures";
-            this.PanelEditTextures.Size = new System.Drawing.Size(1072, 551);
+            this.PanelEditTextures.Size = new System.Drawing.Size(1675, 551);
             this.PanelEditTextures.TabIndex = 3;
             // 
             // PanelTexturesImpExp
@@ -245,7 +245,7 @@
             this.tabControl1.MinimumSize = new System.Drawing.Size(400, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(400, 551);
+            this.tabControl1.Size = new System.Drawing.Size(625, 551);
             this.tabControl1.TabIndex = 4;
             // 
             // tabPage1
@@ -254,7 +254,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(392, 522);
+            this.tabPage1.Size = new System.Drawing.Size(617, 522);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Standard";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -266,7 +266,7 @@
             this.treeView1.Location = new System.Drawing.Point(3, 3);
             this.treeView1.Name = "treeView1";
             this.treeView1.PathSeparator = "/";
-            this.treeView1.Size = new System.Drawing.Size(386, 516);
+            this.treeView1.Size = new System.Drawing.Size(611, 516);
             this.treeView1.TabIndex = 2;
             // 
             // tabPage2

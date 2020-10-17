@@ -8,6 +8,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -97,11 +98,13 @@ namespace FIFAModdingUI.Windows
 
             worker.DoWork += (s, we) =>
             {
-                Dispatcher.Invoke(() =>
-                {
+                
                     var index = 0;
 
-                    string lastPath = null;
+                Dispatcher.Invoke(() =>
+                {
+
+                string lastPath = null;
                     TreeViewItem treeItem = null;
                     var items = ProjectManagement.FrostyProject.AssetManager
                         .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).ToList();
@@ -113,6 +116,7 @@ namespace FIFAModdingUI.Windows
 
                         bool usePreviousTree = string.IsNullOrEmpty(lastPath) || lastPath.ToLower() == i.Path.ToLower();
 
+                   
                         // use previous tree
                         if (!usePreviousTree || treeItem == null)
                         {
@@ -143,20 +147,9 @@ namespace FIFAModdingUI.Windows
                                                 try
                                                 {
                                                     ImageViewer.Source = null;
-                                                    var dumpFile = $"temp_{Randomizer.Next().ToString()}.DDS";
-                                                    new TextureExporter().Export(textureAsset, dumpFile, "*.dds");
-
-                                                    var tempLoc = Directory.GetParent(Assembly.GetEntryAssembly().Location) + "\\" + dumpFile;
-                                                    Uri fileUri = new Uri(tempLoc);
-                                                    var bImage = new BitmapImage(fileUri);
+                                                    var bImage = LoadImage(new TextureExporter().WriteToDDS(textureAsset));
                                                     ImageViewer.Source = bImage;
                                                     bImage = null;
-                                                    fileUri = null;
-
-                                                    //if (!string.IsNullOrEmpty(lastTemporaryFileLocation))
-                                                    //    File.Delete(lastTemporaryFileLocation);
-
-                                                    lastTemporaryFileLocation = dumpFile;
                                                 }
                                                 catch { ImageViewer.Source = null; }
                                             }
@@ -177,12 +170,12 @@ namespace FIFAModdingUI.Windows
                         treeItem.Items.Add(innerTreeItem);
 
 
-                        //}
-                        index++;
+                    //}
+                    index++;
                         Log($"Loading Texture Browser ({index}/{items.Count()})");
 
                     }
-                });
+                    });
             };
             worker.RunWorkerAsync();
             return true;
@@ -202,6 +195,7 @@ namespace FIFAModdingUI.Windows
                     TreeViewItem treeItem = null;
                     var items = ProjectManagement.FrostyProject.AssetManager
                         .EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+                    Debug.WriteLine($"Count of Legacy: {items.Count}");
                     foreach (var i in items)
                     {
                         var splitPath = i.Path.Split('/');
@@ -218,9 +212,11 @@ namespace FIFAModdingUI.Windows
                         }
                         treeItem.Header = i.Path;
                         lastPath = i.Path;
-                        var innerTreeItem = new Label() { Content = i.DisplayName };
+                        var innerTreeItem = new Label() { Content = i.DisplayName, Tag = i };
 
-                        innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
+                        //innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
+                        innerTreeItem.MouseLeftButtonUp += InnerTreeItem_MouseLeftButtonUp;
+                        
                         treeItem.Items.Add(innerTreeItem);
 
                         index++;
@@ -231,6 +227,71 @@ namespace FIFAModdingUI.Windows
             };
             worker.RunWorkerAsync();
             return true;
+        }
+
+        private static System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
+        {
+            if (imageData == null || imageData.Length == 0) return null;
+            var image = new System.Windows.Media.Imaging.BitmapImage();
+            using (var mem = new MemoryStream(imageData))
+            {
+                mem.Position = 0;
+                image.BeginInit();
+                image.CreateOptions = System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = null;
+                image.StreamSource = mem;
+                image.EndInit();
+            }
+            image.Freeze();
+            return image;
+        }
+
+        private void InnerTreeItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Label obj = sender as Label;
+            if(obj != null)
+            {
+                AssetEntry assetEntry = obj.Tag as AssetEntry;
+                if(assetEntry != null)
+                {
+                    NameOfLegacyAsset.Content = assetEntry.Name;
+                    txtLegacyViewer.Visibility = Visibility.Hidden;
+                    ImageViewerLegacy.Visibility = Visibility.Hidden;
+
+                    CurrentLegacySelection = assetEntry;
+                    if(CurrentLegacySelection.Type == "JSON" 
+                        || CurrentLegacySelection.Type == "INI"
+                        || CurrentLegacySelection.Type == "CSV"
+                        || CurrentLegacySelection.Type == "LUA"
+                        )
+                    {
+                        txtLegacyViewer.Visibility = Visibility.Visible;
+                        using (var nr = new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)))
+                        {
+                            txtLegacyViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
+                        }
+                    }
+                    else if(CurrentLegacySelection.Type == "DDS")
+                    {
+
+                        try
+                        {
+                            using (var nr = new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)))
+                            {
+                                ImageViewerLegacy.Source = null;
+                                var bImage = LoadImage(nr.ReadToEnd());
+                                ImageViewerLegacy.Source = bImage;
+                                ImageViewerLegacy.Visibility = Visibility.Visible;
+                                bImage = null;
+                            }
+                        }
+                        catch { ImageViewer.Source = null; }
+
+                    }
+
+                }
+            }
         }
 
         private void InnerTreeItem_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -276,9 +337,21 @@ namespace FIFAModdingUI.Windows
             }
         }
 
+        private AssetEntry CurrentLegacySelection;
+
         private void btnExportLegacy_Click(object sender, RoutedEventArgs e)
         {
-
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            var filt = "*." + CurrentLegacySelection.Type;
+            saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+            saveFileDialog.FileName = CurrentLegacySelection.Name;
+            if (saveFileDialog.ShowDialog().Value)
+            {
+                using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+                {
+                    nativeWriter.Write(new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)).ReadToEnd());
+                }
+            }
         }
 
         private void btnImportLegacy_Click(object sender, RoutedEventArgs e)
