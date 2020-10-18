@@ -75,24 +75,28 @@
             </StackPanel>
             <TabControl x:Name="MainViewer" Grid.Row="1" Height="500">
                 <TabItem x:Name="TabTextureBrowser" Header="Textures">
-                    <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <TreeView Grid.Column="0" x:Name="tvTextureBrowser">
-                            <TreeViewItem Header="">
-                            </TreeViewItem>
-                        </TreeView>
-                        <StackPanel Orientation="Vertical" Grid.Column="1">
-                            <StackPanel Orientation="Horizontal">
-                                <Button IsEnabled="False">Import</Button>
-                                <Button x:Name="btnExportTexture" Click="btnExportTexture_Click">Export</Button>
+                    <StackPanel Orientation="Vertical">
+                        <Label Background="Yellow">Texture Browser is incomplete and missing Kits/Boots/Balls (all the important stuff). Sorry!</Label>
+                        <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TreeView Grid.Column="0" x:Name="tvTextureBrowser">
+                                <TreeViewItem Header="">
+                                </TreeViewItem>
+                            </TreeView>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Button IsEnabled="False">Import</Button>
+                                    <Button x:Name="btnExportTexture" Click="btnExportTexture_Click">Export</Button>
+                                </StackPanel>
+                                <Image x:Name="ImageViewer" ></Image>
                             </StackPanel>
-                            <Image x:Name="ImageViewer" ></Image>
-                        </StackPanel>
 
-                    </Grid>
+                        </Grid>
+                    </StackPanel>
+
                 </TabItem>
                 <TabItem x:Name="TabGameplay" Header="Gameplay">
                     <Frame x:Name="GPFrostyGameplayMainFrame"></Frame>

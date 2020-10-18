@@ -183,6 +183,25 @@ namespace FIFAModdingUI
 
                 if(chkUseLegacyModSupport.IsChecked.HasValue && chkUseLegacyModSupport.IsChecked.Value)
                 {
+                    foreach(var lmodZipped in ListOfMods.Where(x=>x.Contains(".zip")))
+                    {
+                        using (FileStream fsZip = new FileStream(lmodZipped, FileMode.Open))
+                        {
+                            ZipArchive zipA = new ZipArchive(fsZip);
+                            foreach (var zipEntry in zipA.Entries.Where(x => x.FullName.Contains(".lmod")))
+                            {
+                                ZipArchive zipLMod = new ZipArchive(zipEntry.Open());
+                                foreach (var zipEntLMOD in zipA.Entries)
+                                {
+                                    if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName))
+                                    {
+                                        File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName);
+                                    }
+                                }
+                                zipLMod.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
+                            }
+                        }
+                    }
                     foreach(var lmod in ListOfMods.Where(x=> x.Contains(".lmod")))
                     {
                         using (FileStream fs = new FileStream(lmod, FileMode.Open))
@@ -194,7 +213,6 @@ namespace FIFAModdingUI
                                 {
                                     File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName);
                                 }
-
                             }
                             zipA.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
                         }

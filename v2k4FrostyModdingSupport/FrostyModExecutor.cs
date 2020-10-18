@@ -4268,6 +4268,8 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
+        public bool UseSymbolicLinks = false;
+
         [DllImport("kernel32.dll")]
         protected static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
 
@@ -5358,6 +5360,17 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
         List<Assembly> PluginAssemblies = new List<Assembly>();
 
+        private bool FileIsSymbolic(string path)
+        {
+            FileInfo pathInfo = new FileInfo(path);
+            return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+        }
+
+        //private static bool FileIsSymbolic(this FileInfo pathInfo, string path)
+        //{
+        //    return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+        //}
+
         public void InitializePlugins()
         {
             if (Directory.Exists("Plugins"))
@@ -5412,15 +5425,15 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     return false;
                 }
             }
-            
+
             Logger.Log("Initializing resources");
-            
+
             rm = new ResourceManager(fs);
             rm.Initialize();
 
+            bool FrostyModsFound = false;
+
             Logger.Log("Loading mods");
-            bool rebuildModDataFolder = true;
-            if (rebuildModDataFolder)
             {
                 string[] allModPaths = modPaths;
                 var frostyMods = new Dictionary<Stream, FrostyMod>();
@@ -5443,7 +5456,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
                             {
                                 Logger.Log("Loading mod " + zaentr.Name);
-
+                                FrostyModsFound = true;
                                 MemoryStream memoryStream = new MemoryStream();
                                 zaentr.Open().CopyTo(memoryStream);
 
@@ -5454,10 +5467,10 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     //    else 
                     if (f.Contains(".fbmod"))
                     {
+                        FrostyModsFound = true;
 
                         FileInfo fileInfo2 = new FileInfo(rootPath + f);
                         Logger.Log("Loading mod " + fileInfo2.Name);
-
                         var ms = new MemoryStream();
                         using (var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read))
                         {
@@ -5473,278 +5486,262 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
                     var frostyMod2 = kvpMods.Value;
-                        foreach (BaseModResource resource in frostyMod2.Resources.Where(x=>!x.GetType().ToString().EndsWith("EmbeddedResource")))
+                    foreach (BaseModResource resource in frostyMod2.Resources.Where(x => !x.GetType().ToString().EndsWith("EmbeddedResource")))
+                    {
+                        foreach (int modifiedBundle in resource.ModifiedBundles)
                         {
-                            foreach (int modifiedBundle in resource.ModifiedBundles)
+                            if (!modifiedBundles.ContainsKey(modifiedBundle))
                             {
-                                if (!modifiedBundles.ContainsKey(modifiedBundle))
+                                modifiedBundles.Add(modifiedBundle, new ModBundleInfo
                                 {
-                                    modifiedBundles.Add(modifiedBundle, new ModBundleInfo
-                                    {
-                                        Name = modifiedBundle
-                                    });
-                                }
-                                ModBundleInfo modBundleInfo = modifiedBundles[modifiedBundle];
-                                switch (resource.Type)
-                                {
-                                    case ModResourceType.Ebx:
-                                        modBundleInfo.Modify.AddEbx(resource.Name);
-                                        break;
-                                    case ModResourceType.Res:
-                                        modBundleInfo.Modify.AddRes(resource.Name);
-                                        break;
-                                    case ModResourceType.Chunk:
-                                        modBundleInfo.Modify.AddChunk(new Guid(resource.Name));
-                                        break;
-                                }
+                                    Name = modifiedBundle
+                                });
                             }
-                            foreach (int addedBundle in resource.AddedBundles)
+                            ModBundleInfo modBundleInfo = modifiedBundles[modifiedBundle];
+                            switch (resource.Type)
                             {
-                                if (!modifiedBundles.ContainsKey(addedBundle))
-                                {
-                                    modifiedBundles.Add(addedBundle, new ModBundleInfo
-                                    {
-                                        Name = addedBundle
-                                    });
-                                }
-                                ModBundleInfo modBundleInfo2 = modifiedBundles[addedBundle];
-                                switch (resource.Type)
-                                {
-                                    case ModResourceType.Ebx:
-                                        modBundleInfo2.Add.AddEbx(resource.Name);
-                                        break;
-                                    case ModResourceType.Res:
-                                        modBundleInfo2.Add.AddRes(resource.Name);
-                                        break;
-                                    case ModResourceType.Chunk:
-                                        modBundleInfo2.Add.AddChunk(new Guid(resource.Name));
-                                        break;
-                                }
+                                case ModResourceType.Ebx:
+                                    modBundleInfo.Modify.AddEbx(resource.Name);
+                                    break;
+                                case ModResourceType.Res:
+                                    modBundleInfo.Modify.AddRes(resource.Name);
+                                    break;
+                                case ModResourceType.Chunk:
+                                    modBundleInfo.Modify.AddChunk(new Guid(resource.Name));
+                                    break;
                             }
-                            if (resource.Type == ModResourceType.Ebx)
+                        }
+                        foreach (int addedBundle in resource.AddedBundles)
+                        {
+                            if (!modifiedBundles.ContainsKey(addedBundle))
                             {
-                                if (modifiedEbx.ContainsKey(resource.Name))
+                                modifiedBundles.Add(addedBundle, new ModBundleInfo
                                 {
-                                    EbxAssetEntry ebxAssetEntry = modifiedEbx[resource.Name];
-                                    if (ebxAssetEntry.Sha1 == resource.Sha1)
+                                    Name = addedBundle
+                                });
+                            }
+                            ModBundleInfo modBundleInfo2 = modifiedBundles[addedBundle];
+                            switch (resource.Type)
+                            {
+                                case ModResourceType.Ebx:
+                                    modBundleInfo2.Add.AddEbx(resource.Name);
+                                    break;
+                                case ModResourceType.Res:
+                                    modBundleInfo2.Add.AddRes(resource.Name);
+                                    break;
+                                case ModResourceType.Chunk:
+                                    modBundleInfo2.Add.AddChunk(new Guid(resource.Name));
+                                    break;
+                            }
+                        }
+                        if (resource.Type == ModResourceType.Ebx)
+                        {
+                            if (modifiedEbx.ContainsKey(resource.Name))
+                            {
+                                EbxAssetEntry ebxAssetEntry = modifiedEbx[resource.Name];
+                                if (ebxAssetEntry.Sha1 == resource.Sha1)
+                                {
+                                    continue;
+                                }
+                                archiveData[ebxAssetEntry.Sha1].RefCount--;
+                                if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
+                                {
+                                    archiveData.Remove(ebxAssetEntry.Sha1);
+                                }
+                                modifiedEbx.Remove(resource.Name);
+                                numArchiveEntries--;
+                            }
+                            byte[] resourceData = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                            EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
+                            resource.FillAssetEntry(ebxAssetEntry2);
+                            ebxAssetEntry2.Size = resourceData.Length;
+                            modifiedEbx.Add(ebxAssetEntry2.Name, ebxAssetEntry2);
+                            if (!archiveData.ContainsKey(ebxAssetEntry2.Sha1))
+                            {
+                                archiveData.Add(ebxAssetEntry2.Sha1, new ArchiveInfo
+                                {
+                                    Data = resourceData,
+                                    RefCount = 1
+                                });
+                            }
+                            else
+                            {
+                                archiveData[ebxAssetEntry2.Sha1].RefCount++;
+                            }
+                            numArchiveEntries++;
+                        }
+                        else if (resource.Type == ModResourceType.Res)
+                        {
+                            if (resource.HasHandler)
+                            {
+                                ResAssetEntry resAssetEntry = null;
+                                HandlerExtraData handlerExtraData = null;
+                                byte[] resourceData2 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                if (modifiedRes.ContainsKey(resource.Name))
+                                {
+                                    resAssetEntry = modifiedRes[resource.Name];
+                                    handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
+                                }
+                                else
+                                {
+                                    resAssetEntry = new ResAssetEntry();
+                                    handlerExtraData = new HandlerExtraData();
+                                    resource.FillAssetEntry(resAssetEntry);
+                                    foreach (ResCustomHandlerAttribute customAttribute in Assembly.GetExecutingAssembly().GetCustomAttributes<ResCustomHandlerAttribute>())
+                                    {
+                                        if (customAttribute.ResType == (ResourceType)resAssetEntry.ResType)
+                                        {
+                                            handlerExtraData.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
+                                            break;
+                                        }
+                                    }
+                                    resAssetEntry.ExtraData = handlerExtraData;
+                                    modifiedRes.Add(resource.Name, resAssetEntry);
+                                }
+                                handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
+                            }
+                            else
+                            {
+                                if (modifiedRes.ContainsKey(resource.Name))
+                                {
+                                    ResAssetEntry resAssetEntry2 = modifiedRes[resource.Name];
+                                    if (resAssetEntry2.Sha1 == resource.Sha1)
                                     {
                                         continue;
                                     }
-                                    archiveData[ebxAssetEntry.Sha1].RefCount--;
-                                    if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
+                                    archiveData[resAssetEntry2.Sha1].RefCount--;
+                                    if (archiveData[resAssetEntry2.Sha1].RefCount == 0)
                                     {
-                                        archiveData.Remove(ebxAssetEntry.Sha1);
+                                        archiveData.Remove(resAssetEntry2.Sha1);
                                     }
-                                    modifiedEbx.Remove(resource.Name);
+                                    modifiedRes.Remove(resource.Name);
                                     numArchiveEntries--;
                                 }
-                                byte[] resourceData = frostyMod2.GetResourceData(resource, kvpMods.Key);
-                                EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
-                                resource.FillAssetEntry(ebxAssetEntry2);
-                                ebxAssetEntry2.Size = resourceData.Length;
-                                modifiedEbx.Add(ebxAssetEntry2.Name, ebxAssetEntry2);
-                                if (!archiveData.ContainsKey(ebxAssetEntry2.Sha1))
+                                byte[] resourceData3 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                ResAssetEntry resAssetEntry3 = new ResAssetEntry();
+                                resource.FillAssetEntry(resAssetEntry3);
+                                resAssetEntry3.Size = resourceData3.Length;
+                                modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
+                                if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
                                 {
-                                    archiveData.Add(ebxAssetEntry2.Sha1, new ArchiveInfo
+                                    archiveData.Add(resAssetEntry3.Sha1, new ArchiveInfo
                                     {
-                                        Data = resourceData,
+                                        Data = resourceData3,
                                         RefCount = 1
                                     });
                                 }
                                 else
                                 {
-                                    archiveData[ebxAssetEntry2.Sha1].RefCount++;
+                                    archiveData[resAssetEntry3.Sha1].RefCount++;
                                 }
                                 numArchiveEntries++;
                             }
-                            else if (resource.Type == ModResourceType.Res)
+                        }
+                        else if (resource.Type == ModResourceType.Chunk)
+                        {
+                            Guid guid = new Guid(resource.Name);
+                            if (resource.HasHandler)
                             {
-                                if (resource.HasHandler)
+                                ChunkAssetEntry chunkAssetEntry = null;
+                                HandlerExtraData handlerExtraData2 = null;
+                                byte[] resourceData4 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                if (modifiedChunks.ContainsKey(guid))
                                 {
-                                    ResAssetEntry resAssetEntry = null;
-                                    HandlerExtraData handlerExtraData = null;
-                                    byte[] resourceData2 = frostyMod2.GetResourceData(resource, kvpMods.Key);
-                                    if (modifiedRes.ContainsKey(resource.Name))
-                                    {
-                                        resAssetEntry = modifiedRes[resource.Name];
-                                        handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
-                                    }
-                                    else
-                                    {
-                                        resAssetEntry = new ResAssetEntry();
-                                        handlerExtraData = new HandlerExtraData();
-                                        resource.FillAssetEntry(resAssetEntry);
-                                        foreach (ResCustomHandlerAttribute customAttribute in Assembly.GetExecutingAssembly().GetCustomAttributes<ResCustomHandlerAttribute>())
-                                        {
-                                            if (customAttribute.ResType == (ResourceType)resAssetEntry.ResType)
-                                            {
-                                                handlerExtraData.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
-                                                break;
-                                            }
-                                        }
-                                        resAssetEntry.ExtraData = handlerExtraData;
-                                        modifiedRes.Add(resource.Name, resAssetEntry);
-                                    }
-                                    handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
+                                    chunkAssetEntry = modifiedChunks[guid];
+                                    handlerExtraData2 = (HandlerExtraData)chunkAssetEntry.ExtraData;
                                 }
                                 else
                                 {
-                                    if (modifiedRes.ContainsKey(resource.Name))
+                                    chunkAssetEntry = new ChunkAssetEntry();
+                                    handlerExtraData2 = new HandlerExtraData();
+                                    chunkAssetEntry.Id = guid;
+                                    chunkAssetEntry.IsTocChunk = resource.IsTocChunk;
+                                    Type[] types = Assembly.GetExecutingAssembly().GetTypes();
+                                    foreach (Type type in types)
                                     {
-                                        ResAssetEntry resAssetEntry2 = modifiedRes[resource.Name];
-                                        if (resAssetEntry2.Sha1 == resource.Sha1)
+                                        if (type.GetInterface(typeof(Frosty.ModSupport.Handlers.ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
                                         {
-                                            continue;
+                                            handlerExtraData2.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(type);
+                                            break;
                                         }
-                                        archiveData[resAssetEntry2.Sha1].RefCount--;
-                                        if (archiveData[resAssetEntry2.Sha1].RefCount == 0)
-                                        {
-                                            archiveData.Remove(resAssetEntry2.Sha1);
-                                        }
-                                        modifiedRes.Remove(resource.Name);
-                                        numArchiveEntries--;
                                     }
-                                    byte[] resourceData3 = frostyMod2.GetResourceData(resource, kvpMods.Key);
-                                    ResAssetEntry resAssetEntry3 = new ResAssetEntry();
-                                    resource.FillAssetEntry(resAssetEntry3);
-                                    resAssetEntry3.Size = resourceData3.Length;
-                                    modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
-                                    if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
-                                    {
-                                        archiveData.Add(resAssetEntry3.Sha1, new ArchiveInfo
-                                        {
-                                            Data = resourceData3,
-                                            RefCount = 1
-                                        });
-                                    }
-                                    else
-                                    {
-                                        archiveData[resAssetEntry3.Sha1].RefCount++;
-                                    }
-                                    numArchiveEntries++;
+                                    chunkAssetEntry.ExtraData = handlerExtraData2;
+                                    modifiedChunks.Add(guid, chunkAssetEntry);
                                 }
+                                handlerExtraData2.Data = handlerExtraData2.Handler.Load(handlerExtraData2.Data, resourceData4);
                             }
-                            else if (resource.Type == ModResourceType.Chunk)
+                            else
                             {
-                                Guid guid = new Guid(resource.Name);
-                                if (resource.HasHandler)
+                                if (modifiedChunks.ContainsKey(guid))
                                 {
-                                    ChunkAssetEntry chunkAssetEntry = null;
-                                    HandlerExtraData handlerExtraData2 = null;
-                                    byte[] resourceData4 = frostyMod2.GetResourceData(resource, kvpMods.Key);
-                                    if (modifiedChunks.ContainsKey(guid))
+                                    ChunkAssetEntry chunkAssetEntry2 = modifiedChunks[guid];
+                                    if (chunkAssetEntry2.Sha1 == resource.Sha1)
                                     {
-                                        chunkAssetEntry = modifiedChunks[guid];
-                                        handlerExtraData2 = (HandlerExtraData)chunkAssetEntry.ExtraData;
+                                        continue;
                                     }
-                                    else
+                                    archiveData[chunkAssetEntry2.Sha1].RefCount--;
+                                    if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
                                     {
-                                        chunkAssetEntry = new ChunkAssetEntry();
-                                        handlerExtraData2 = new HandlerExtraData();
-                                        chunkAssetEntry.Id = guid;
-                                        chunkAssetEntry.IsTocChunk = resource.IsTocChunk;
-                                        Type[] types = Assembly.GetExecutingAssembly().GetTypes();
-                                        foreach (Type type in types)
-                                        {
-                                            if (type.GetInterface(typeof(Frosty.ModSupport.Handlers.ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
-                                            {
-                                                handlerExtraData2.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(type);
-                                                break;
-                                            }
-                                        }
-                                        chunkAssetEntry.ExtraData = handlerExtraData2;
-                                        modifiedChunks.Add(guid, chunkAssetEntry);
+                                        archiveData.Remove(chunkAssetEntry2.Sha1);
                                     }
-                                    handlerExtraData2.Data = handlerExtraData2.Handler.Load(handlerExtraData2.Data, resourceData4);
+                                    modifiedChunks.Remove(guid);
+                                    numArchiveEntries--;
+                                }
+                                byte[] resourceData5 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
+                                resource.FillAssetEntry(chunkAssetEntry3);
+                                chunkAssetEntry3.Size = resourceData5.Length;
+                                modifiedChunks.Add(guid, chunkAssetEntry3);
+                                if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
+                                {
+                                    archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo
+                                    {
+                                        Data = resourceData5,
+                                        RefCount = 1
+                                    });
                                 }
                                 else
                                 {
-                                    if (modifiedChunks.ContainsKey(guid))
-                                    {
-                                        ChunkAssetEntry chunkAssetEntry2 = modifiedChunks[guid];
-                                        if (chunkAssetEntry2.Sha1 == resource.Sha1)
-                                        {
-                                            continue;
-                                        }
-                                        archiveData[chunkAssetEntry2.Sha1].RefCount--;
-                                        if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
-                                        {
-                                            archiveData.Remove(chunkAssetEntry2.Sha1);
-                                        }
-                                        modifiedChunks.Remove(guid);
-                                        numArchiveEntries--;
-                                    }
-                                    byte[] resourceData5 = frostyMod2.GetResourceData(resource, kvpMods.Key);
-                                    ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
-                                    resource.FillAssetEntry(chunkAssetEntry3);
-                                    chunkAssetEntry3.Size = resourceData5.Length;
-                                    modifiedChunks.Add(guid, chunkAssetEntry3);
-                                    if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
-                                    {
-                                        archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo
-                                        {
-                                            Data = resourceData5,
-                                            RefCount = 1
-                                        });
-                                    }
-                                    else
-                                    {
-                                        archiveData[chunkAssetEntry3.Sha1].RefCount++;
-                                    }
-                                    numArchiveEntries++;
+                                    archiveData[chunkAssetEntry3.Sha1].RefCount++;
                                 }
+                                numArchiveEntries++;
                             }
                         }
+                    }
 
                 }
                 Logger.Log("Cleaning up mod data directory");
                 List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
-                bool flag2 = false;
                 fs.ResetManifest();
-                if (!DeleteSelectFiles(modPath + patchPath) && !Directory.Exists(modPath))
+                //if (!DeleteSelectFiles(modPath + patchPath))
+                if (FrostyModsFound)
                 {
                     //Directory.Delete(modPath, true);
 
-                    flag2 = true;
+                    if (Directory.Exists(modPath))
+                    {
+                        foreach (string file in Directory.EnumerateFiles(modPath, "*.*", SearchOption.AllDirectories))
+                        {
+                            if (FileIsSymbolic(file))
+                            {
+
+                            }
+                            if (file.Contains(modPath))
+                            {
+
+                            }
+                        }
+                    }
+
                     Logger.Log("Creating mod data directory");
                     Directory.CreateDirectory(modPath);
-                    //if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-                    //{
-                    //    if (!Directory.Exists(modPath + "Data"))
-                    //    {
-                    //        Directory.CreateDirectory(modPath + "Data");
-                    //    }
-                    //    list2.Add(new SymLinkStruct(modPath + "Data/Win32", fs.BasePath + "Data/Win32", inFolder: true));
-                    //}
-                    //else
-                    //{
-                    //if(!ProfilesLibrary.IsFIFA21DataVersion())
+
                     // Symbolic link the Data folder
+                    if (UseSymbolicLinks)
+                    {
                         SymbolicLinkList.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
-                    //}
-                    //if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
-                    //{
-                    //    if (!Directory.Exists(modPath + "Update"))
-                    //    {
-                    //        Directory.CreateDirectory(modPath + "Update");
-                    //    }
-                    //    foreach (string item3 in Directory.EnumerateDirectories(fs.BasePath + "Update"))
-                    //    {
-                    //        DirectoryInfo directoryInfo2 = new DirectoryInfo(item3);
-                    //        if (directoryInfo2.Name.ToLower() != "patch")
-                    //        {
-                    //            list2.Add(new SymLinkStruct(modPath + "Update/" + directoryInfo2.Name, directoryInfo2.FullName, inFolder: true));
-                    //        }
-                    //    }
-                    //}
-                    //else if (ProfilesLibrary.DataVersion != 20160927)
-                    //{
-                    //    list2.Add(new SymLinkStruct(modPath + "Update", fs.BasePath + "Update", inFolder: true));
-                    //}
-                    //if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911
-                    //    || ProfilesLibrary.ProfileName == "MADDEN21"
-                    //    )
-                    //{
+                    }
+
                     if (!ProfilesLibrary.IsFIFA21DataVersion())
                     {
                         foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
@@ -5759,143 +5756,143 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             SymbolicLinkList.Add(new SymLinkStruct(inDst, fileInfo3.FullName, inFolder: false));
                         }
                     }
-                    //}
-                }
-               
-                if (SymbolicLinkList.Count > 0)
-                {
-                    if (!RunSymbolicLinkProcess(SymbolicLinkList))
-                    {
-                        Directory.Delete(modPath, recursive: true);
-                        throw new FrostySymLinkException();
-                    }
-                }
-                int workerThreads = 0;
-                int completionPortThreads = 0;
-                ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
-                ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
-                Logger.Log("Applying mods");
-                SymbolicLinkList.Clear();
 
-                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    foreach (Type t in a.GetTypes())
+                    if (SymbolicLinkList.Count > 0)
                     {
-                        if (t.GetInterface("IAssetCompiler") != null)
+                        if (!RunSymbolicLinkProcess(SymbolicLinkList))
                         {
-                            try
+                            Directory.Delete(modPath, recursive: true);
+                            throw new FrostySymLinkException();
+                        }
+                    }
+                    int workerThreads = 0;
+                    int completionPortThreads = 0;
+                    ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+                    ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
+                    Logger.Log("Applying mods");
+                    SymbolicLinkList.Clear();
+
+                    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        foreach (Type t in a.GetTypes())
+                        {
+                            if (t.GetInterface("IAssetCompiler") != null)
                             {
-                                if (t.Name == ProfilesLibrary.AssetCompilerName)
+                                try
                                 {
-                                    ((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this);
+                                    if (t.Name == ProfilesLibrary.AssetCompilerName)
+                                    {
+                                        ((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this);
+                                    }
+                                }
+                                catch
+                                {
                                 }
                             }
-                            catch
-                            {
-                            }
                         }
                     }
-                }
 
 
 
 
-                //if (ProfilesLibrary.IsMaddenDataVersion() || ProfilesLibrary.IsFIFADataVersion())
-                if(ProfilesLibrary.IsFIFADataVersion())
-                {
-                    DbObject layoutToc = null;
-
-                 
-                    using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                    {
-                        layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
-                    }
-
-                    
-                    FifaBundleAction.CasFileCount = fs.CasFileCount;
-                    Madden21BundleAction.CasFileCount = fs.CasFileCount;
-                    List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
-                    List<Madden21BundleAction> madden21BundleActions = new List<Madden21BundleAction>();
-                    ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
-
-                    var numberOfCatalogs = fs.Catalogs.Count();
-                    var numberOfCatalogsCompleted = 0;
-
+                    //if (ProfilesLibrary.IsMaddenDataVersion() || ProfilesLibrary.IsFIFADataVersion())
                     if (ProfilesLibrary.IsFIFADataVersion())
                     {
-                        foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
-                        {
-                            FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
-                            fifaBundleAction.Run();
-                            numberOfCatalogsCompleted++;
-                            logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+                        DbObject layoutToc = null;
 
-                            fifaBundleActions.Add(fifaBundleAction);
+
+                        using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                        {
+                            layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
                         }
 
-                        foreach (FifaBundleAction bundleAction in fifaBundleActions.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
+
+                        FifaBundleAction.CasFileCount = fs.CasFileCount;
+                        Madden21BundleAction.CasFileCount = fs.CasFileCount;
+                        List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
+                        List<Madden21BundleAction> madden21BundleActions = new List<Madden21BundleAction>();
+                        ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
+
+                        var numberOfCatalogs = fs.Catalogs.Count();
+                        var numberOfCatalogsCompleted = 0;
+
+                        if (ProfilesLibrary.IsFIFADataVersion())
                         {
-                            if (bundleAction.HasErrored)
+                            foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
                             {
-                                throw bundleAction.Exception;
+                                FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
+                                fifaBundleAction.Run();
+                                numberOfCatalogsCompleted++;
+                                logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+
+                                fifaBundleActions.Add(fifaBundleAction);
                             }
-                            if (bundleAction.CasFiles.Count > 0)
+
+                            foreach (FifaBundleAction bundleAction in fifaBundleActions.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
                             {
-                                foreach (DbObject installManifestChunks in layoutToc.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
+                                if (bundleAction.HasErrored)
                                 {
-                                    if (bundleAction.CatalogInfo.Name.Equals("win32/" + installManifestChunks.GetValue<string>("name")))
+                                    throw bundleAction.Exception;
+                                }
+                                if (bundleAction.CasFiles.Count > 0)
+                                {
+                                    foreach (DbObject installManifestChunks in layoutToc.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
                                     {
-                                        foreach (int key in bundleAction.CasFiles.Keys)
+                                        if (bundleAction.CatalogInfo.Name.Equals("win32/" + installManifestChunks.GetValue<string>("name")))
                                         {
-                                            DbObject dbObject6 = DbObject.CreateObject();
-                                            dbObject6.SetValue("id", key);
-                                            dbObject6.SetValue("path", bundleAction.CasFiles[key]);
-                                            installManifestChunks.GetValue<DbObject>("files").Add(dbObject6);
+                                            foreach (int key in bundleAction.CasFiles.Keys)
+                                            {
+                                                DbObject dbObject6 = DbObject.CreateObject();
+                                                dbObject6.SetValue("id", key);
+                                                dbObject6.SetValue("path", bundleAction.CasFiles[key]);
+                                                installManifestChunks.GetValue<DbObject>("files").Add(dbObject6);
 
 
+                                            }
+                                            break;
                                         }
-                                        break;
                                     }
                                 }
                             }
                         }
-                    }
 
-                    //if (ProfilesLibrary.IsMaddenDataVersion())
-                    //{
-                    //    logger.Log("Writing new Layout file to Game Mod Folder");
-                    //    using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                    //    {
-                    //        dbWriter.Write(layoutToc);
-                    //        dbWriter.Seek(0, SeekOrigin.Begin);
-                    //        using (NativeReader reader = new NativeReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read))) {
-                    //           var initbytes = reader.ReadBytes(552);
-                    //            dbWriter.Write(initbytes);
-                    //        }
-                    //    }
+                        //if (ProfilesLibrary.IsMaddenDataVersion())
+                        //{
+                        //    logger.Log("Writing new Layout file to Game Mod Folder");
+                        //    using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                        //    {
+                        //        dbWriter.Write(layoutToc);
+                        //        dbWriter.Seek(0, SeekOrigin.Begin);
+                        //        using (NativeReader reader = new NativeReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read))) {
+                        //           var initbytes = reader.ReadBytes(552);
+                        //            dbWriter.Write(initbytes);
+                        //        }
+                        //    }
 
-                    //    //File.Copy(fs.BasePath + patchPath + "/layout.toc", modPath + patchPath + "/layout.toc", true);
+                        //    //File.Copy(fs.BasePath + patchPath + "/layout.toc", modPath + patchPath + "/layout.toc", true);
 
-                    //}
-                    //else
-                    if (!ProfilesLibrary.IsFIFA21DataVersion())
-                    {
-                        logger.Log("Writing new Layout file to Game");
-                        using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                        //}
+                        //else
+                        if (!ProfilesLibrary.IsFIFA21DataVersion())
                         {
-                            dbWriter.Write(layoutToc);
+                            logger.Log("Writing new Layout file to Game");
+                            using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                            {
+                                dbWriter.Write(layoutToc);
+                            }
                         }
                     }
+                    if (!ProfilesLibrary.IsFIFA21DataVersion() && SymbolicLinkList.Count > 0)
+                    {
+                        RunSymbolicLinkProcess(SymbolicLinkList);
+                    }
+
+                    logger.Log("Copying initfs_win32");
+                    CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
                 }
-                if (!ProfilesLibrary.IsFIFA21DataVersion() && SymbolicLinkList.Count > 0)
-                {
-                    RunSymbolicLinkProcess(SymbolicLinkList);
-                }
-               
-                logger.Log("Copying initfs_win32");
-                CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+
             }
-            
+
             CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
             CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
             if (ProfilesLibrary.IsFIFADataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
@@ -5908,7 +5905,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
             }
 
-            return true;
+            return FrostyModsFound;
         }
 
         public async Task<int> Run(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
@@ -5932,11 +5929,19 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             //if(UseLegacyLauncher)
             //    BuildModData_FrostyVersion(inFs, inLogger, rootPath, additionalArgs, modPaths);
             //else
-                await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
+            var foundFrostyMods = await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
 
+            if (foundFrostyMods)
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + additionalArgs);
+            }
+            else
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
+            }
             
-            Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
-            ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + additionalArgs);
             //});
             return 0;
         }

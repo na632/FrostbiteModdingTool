@@ -212,7 +212,7 @@ namespace FIFAModdingUI.Windows
                         }
                         treeItem.Header = i.Path;
                         lastPath = i.Path;
-                        var innerTreeItem = new Label() { Content = i.DisplayName, Tag = i };
+                        var innerTreeItem = new Label() { Content = i.Filename, Tag = i };
 
                         //innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
                         innerTreeItem.MouseLeftButtonUp += InnerTreeItem_MouseLeftButtonUp;
@@ -316,20 +316,23 @@ namespace FIFAModdingUI.Windows
 
         private void btnExportTexture_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "DDS File|*.dds";
-            if(saveFileDialog.ShowDialog() == true)
+            if (CurrentTextureAssetEntry != null)
             {
-                if (CurrentTextureAssetEntry != null)
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "DDS File|*.dds";
+                if (saveFileDialog.ShowDialog() == true)
                 {
-                    var res = AssetManager.Instance.GetResEntry(CurrentTextureAssetEntry.Name);
-                    if (res != null)
+                    if (CurrentTextureAssetEntry != null)
                     {
-                        using (var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(res))
+                        var res = AssetManager.Instance.GetResEntry(CurrentTextureAssetEntry.Name);
+                        if (res != null)
                         {
-                            using (Texture textureAsset = new Texture(resStream, ProjectManagement.FrostyProject.AssetManager))
+                            using (var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(res))
                             {
-                                new TextureExporter().Export(textureAsset, saveFileDialog.FileName, "*.dds");
+                                using (Texture textureAsset = new Texture(resStream, ProjectManagement.FrostyProject.AssetManager))
+                                {
+                                    new TextureExporter().Export(textureAsset, saveFileDialog.FileName, "*.dds");
+                                }
                             }
                         }
                     }
@@ -341,15 +344,18 @@ namespace FIFAModdingUI.Windows
 
         private void btnExportLegacy_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            var filt = "*." + CurrentLegacySelection.Type;
-            saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-            saveFileDialog.FileName = CurrentLegacySelection.Name;
-            if (saveFileDialog.ShowDialog().Value)
+            if (CurrentLegacySelection != null)
             {
-                using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                var filt = "*." + CurrentLegacySelection.Type;
+                saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+                saveFileDialog.FileName = CurrentLegacySelection.Filename;
+                if (saveFileDialog.ShowDialog().Value)
                 {
-                    nativeWriter.Write(new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)).ReadToEnd());
+                    using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+                    {
+                        nativeWriter.Write(new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)).ReadToEnd());
+                    }
                 }
             }
         }

@@ -22,6 +22,8 @@ using FIFAModdingUI.Pages.Common;
 using v2k4FIFAModding.Frostbite.EbxTypes;
 using System.IO;
 using System.ComponentModel;
+using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 
 namespace FIFAModdingUI.Pages.Gameplay
 {
@@ -135,6 +137,37 @@ namespace FIFAModdingUI.Pages.Gameplay
             //getEbx_movement.AddRootObject(root);
             GameplayProjectManagement.FrostyProject.AssetManager.ModifyEbx(ebxItem_movement.Name, getEbx_movement);
             //btnTestChangeSpeed.IsEnabled = false;
+        }
+
+        private void btnGameplaySave_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Project files|*.fbproject";
+            if (saveFileDialog.ShowDialog().HasValue) 
+            {
+                GameplayProjectManagement.FrostyProject.Save(saveFileDialog.FileName, true);
+            }
+        }
+
+        private void btnGameplayOpen_Click(object sender, RoutedEventArgs e)
+        {
+            VistaOpenFileDialog openFileDialog = new VistaOpenFileDialog();
+            openFileDialog.Filter = "Project files|*.fbproject";
+            if (openFileDialog.ShowDialog().HasValue)
+            {
+                GameplayProjectManagement.FrostyProject.Load(openFileDialog.FileName);
+            }
+        }
+
+        private void btnGameplayWriteToMod_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Mod files|*.fbmod";
+            if (saveFileDialog.ShowDialog().HasValue)
+            {
+                GameplayProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName
+                    , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool GP Mod", Version = "1.00" });
+            }
         }
     }
 }

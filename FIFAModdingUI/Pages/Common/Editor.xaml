@@ -42,7 +42,7 @@
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>-->
-    <TreeView x:Name="TreeView1">
+    <TreeView x:Name="TreeView1" Height="400" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible">
     </TreeView>
     
 

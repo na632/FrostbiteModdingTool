@@ -695,9 +695,14 @@ namespace FIFA21Plugin
                     {
                         var ebxData = parent.archiveData[modEBX.Value.Sha1].Data;
                         var casPath = originalEntry.ExtraData.CasPath.Replace("native_data"
-                            , AssetManager.Instance.fs.BasePath + "Data");
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Data");
                         casPath = casPath.Replace("native_patch"
                             , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
+
+                        if (originalEntry.ExtraData.CasPath.Contains("native_data"))
+                        {
+                            continue;
+                        }
 
                         byte[] originalCASArray = null;
                         using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
@@ -705,45 +710,44 @@ namespace FIFA21Plugin
                             originalCASArray = readerOfCas.ReadToEnd();
                         }
 
-                        //var positionOfNewData = 0;
-                        //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(casPath, FileMode.Open)))
-                        //{
-                        //    nativeWriter.Write(originalArray);
-                        //    // write the new data to end of the file (this should be fine)
-                        //    positionOfNewData = (int)nativeWriter.BaseStream.Position;
-                        //    nativeWriter.Write(ebxData);
-                        //}
-
+                        var positionOfNewData = 0;
+                        using (NativeWriter nativeWriter = new NativeWriter(new FileStream(casPath, FileMode.Open)))
+                        {
+                            nativeWriter.Write(originalCASArray);
+                            // write the new data to end of the file (this should be fine)
+                            positionOfNewData = (int)nativeWriter.BaseStream.Position;
+                            nativeWriter.Write(ebxData);
+                        }
 
                         foreach (var @object in assetLoader.AllDbObjects)
+                        {
+                            foreach (DbObject ebxObject in @object.GetValue<DbObject>("ebx"))
                             {
-                                foreach (DbObject ebxObject in @object.GetValue<DbObject>("ebx"))
+                                if (ebxObject.GetValue<string>("name") == modEBX.Value.Name)
                                 {
-                                    if (ebxObject.GetValue<string>("name") == modEBX.Value.Name)
+                                    var sb_cas_offset_position = ebxObject.GetValue<int>("SB_CAS_Offset_Position");
+
+                                    var sbpath = ebxObject.GetValue<string>("SBFileLocation");
+                                    sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                                    byte[] arrayOfSB = null;
+                                    using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
                                     {
-                                        var sb_cas_offset_position = ebxObject.GetValue<int>("SB_CAS_Offset_Position");
+                                        arrayOfSB = nativeReader.ReadToEnd();
+                                    }
+                                    File.Delete(sbpath);
+                                    using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+                                    {
 
-                                        var sbpath = ebxObject.GetValue<string>("SBFileLocation");
-                                        //sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
-                                        //byte[] arrayOfSB = null;
-                                        //using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
-                                        //{
-                                        //    arrayOfSB = nativeReader.ReadToEnd();
-                                        //}
-                                        //File.Delete(sbpath);
-                                        //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
-                                        //{
-
-                                        //    nativeWriter.Write(arrayOfSB);
-                                        //    nativeWriter.Seek(sb_cas_offset_position, SeekOrigin.Begin);
-                                        //    nativeWriter.Write((int)positionOfNewData);
-                                        //    nativeWriter.Write((int)ebxData.Length);
-
-                                        //}
+                                        nativeWriter.Write(arrayOfSB);
+                                        nativeWriter.BaseStream.Position = sb_cas_offset_position;
+                                        nativeWriter.Write((int)positionOfNewData);
+                                        nativeWriter.Write((int)ebxData.Length);
 
                                     }
+
                                 }
                             }
+                        }
 
 
                         //MemoryStream memStream = new MemoryStream();

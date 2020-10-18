@@ -35,9 +35,8 @@ namespace FIFA21Plugin
                     Directory.CreateDirectory(destinationPath);
 
                 var sourceDirectoryInfo = new DirectoryInfo(sourcePath);
-                foreach (FileInfo sourceFileInfo in sourceDirectoryInfo.EnumerateFiles())
-                    sourceFileInfo.CopyTo(Path.Combine(destinationPath, sourceFileInfo.Name), true);
-
+                    foreach (FileInfo sourceFileInfo in sourceDirectoryInfo.EnumerateFiles())
+                        sourceFileInfo.CopyTo(Path.Combine(destinationPath, sourceFileInfo.Name), true);
                 if (!recursive)
                     continue;
 
@@ -77,18 +76,31 @@ namespace FIFA21Plugin
                 var numberOfCatalogs = fs.Catalogs.Count();
                 var numberOfCatalogsCompleted = 0;
 
-                // --------------------------------------------------------------------------------------
-                // Run a check against all changes and build your new TOC/SB/CAS files
-                //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
-                //{
-                //    FIFA21BundleAction maddenBundleAction = new FIFA21BundleAction(catalogItem, (FrostyModExecutor)frostyModExecuter);
-                //    maddenBundleAction.Run();
-                //    numberOfCatalogsCompleted++;
-                //    logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+                if (!((FrostyModExecutor)frostyModExecuter).UseSymbolicLinks)
+                {
+                    logger.Log("No Symbolic Link - Copying files from Data to ModData");
 
-                //    madden21BundleActions.Add(maddenBundleAction);
-                //}
-                //
+                    Directory.CreateDirectory(fs.BasePath + ModDirectory + "//Data//");
+
+                    var dataFiles = Directory.EnumerateFiles(fs.BasePath + "Data", "*.*", SearchOption.AllDirectories);
+                    var dataFileCount = dataFiles.Count();
+                    var indexOfDataFile = 0;
+                    foreach (var f in dataFiles)
+                    {
+                        var finalDestination = f.Replace("Data", @"ModData\Data\");
+
+                        var lastIndexOf = finalDestination.LastIndexOf("\\");
+                        var newDirectory = finalDestination.Substring(0, lastIndexOf) + "\\";
+                        if (!Directory.Exists(newDirectory))
+                        {
+                            Directory.CreateDirectory(newDirectory);
+                        }
+                        File.Copy(f, finalDestination, true);
+                        indexOfDataFile++;
+                        logger.Log($"Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
+                    }
+                }
+
                 logger.Log("Copying files from Patch to ModData");
                 // Copied Patch CAS files from Patch to Mod Data Patch
                 DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);
@@ -96,6 +108,7 @@ namespace FIFA21Plugin
                 //{
                     FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
                     fifaBundleAction.Run();
+
                     //numberOfCatalogsCompleted++;
                     //logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
                 //}

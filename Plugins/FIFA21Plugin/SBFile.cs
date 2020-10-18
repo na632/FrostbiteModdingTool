@@ -170,12 +170,8 @@ namespace FIFA21Plugin
                         {
                             var b = binarySbReader2.ReadByte();
                             patchFlag = binarySbReader2.ReadBoolean();
-                            var possibleCat = binarySbReader2.ReadByte();
-                            if (possibleCat > 0 && possibleCat < AssetManager.Instance.fs.Catalogs.Count() - 1)
-                            {
-                                catalog = possibleCat;
-                                cas = binarySbReader2.ReadByte();
-                            }
+                            catalog = binarySbReader2.ReadByte();
+                            cas = binarySbReader2.ReadByte();
                         }
                         DbObject resObject = dbObject.GetValue<DbObject>("res")[indexRes] as DbObject;
                         resObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position);
@@ -206,12 +202,8 @@ namespace FIFA21Plugin
                         {
                             var b = binarySbReader2.ReadByte();
                             patchFlag = binarySbReader2.ReadBoolean();
-                            var possibleCat = binarySbReader2.ReadByte();
-                            if (possibleCat > 0 && possibleCat < AssetManager.Instance.fs.Catalogs.Count() - 1)
-                            {
-                                catalog = possibleCat;
-                                cas = binarySbReader2.ReadByte();
-                            }
+                            catalog = binarySbReader2.ReadByte();
+                            cas = binarySbReader2.ReadByte();
                         }
                         DbObject chnkObj = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
                         chnkObj.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position);
@@ -314,6 +306,7 @@ namespace FIFA21Plugin
                 //System.Diagnostics.Debug.WriteLine("EBX:: " + name);
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
+                dbObject.AddValue("SB_OriginalSize_Position", reader.Position);
                 dbObject.AddValue("originalSize", num2);
                 list.Add(dbObject);
                 reader.Position = position;

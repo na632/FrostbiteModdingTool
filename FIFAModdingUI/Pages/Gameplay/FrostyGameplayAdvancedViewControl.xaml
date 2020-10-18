@@ -5,26 +5,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Gameplay"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="400" d:DesignWidth="800">
     <UserControl.Resources>
     </UserControl.Resources>
-    <Grid HorizontalAlignment="Stretch">
-        <ScrollViewer Name="scroll1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <TreeView x:Name="FrostyTreeView" Grid.Column="0" >
-                </TreeView>
+        <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TreeView x:Name="FrostyTreeView" Grid.Column="0" Height="400" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible" >
+            </TreeView>
 
-                <DockPanel Grid.Column="1">
 
-                    <StackPanel x:Name="spPropertyPanel">
+        <StackPanel x:Name="spPropertyPanel" Grid.Column="1" MinHeight="400" Height="400" MaxHeight="400">
 
-                    </StackPanel>
-                </DockPanel>
-            </Grid>
-        </ScrollViewer>
+        </StackPanel>
+
     </Grid>
 </UserControl>

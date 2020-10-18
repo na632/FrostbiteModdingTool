@@ -11,12 +11,12 @@ namespace FIFAModdingUI
 {
     public static class LaunchFIFA
     {
-        public static void Launch(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true)
+        public static void Launch(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true, bool useSymbolicLink = true)
         {
             LaunchAsync(FIFARootPath, ModDirectory, OrderedListOfMods, logger, FIFAVERSION, buildMods).Wait();
         }
 
-        public static async Task<int> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true)
+        public static async Task<int> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true, bool useSymbolicLink = true)
         {
             if (logger == null)
                 logger = new TestLog();
@@ -33,6 +33,7 @@ namespace FIFAModdingUI
             fileSystem.Initialize();
             _ = new FrostyProfile("Default");
             var fme = new FrostyModExecutor();
+            fme.UseSymbolicLinks = useSymbolicLink;
             return await fme.Run(fileSystem, logger, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
         }
     }

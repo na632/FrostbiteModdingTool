@@ -64,22 +64,21 @@ namespace FIFA21Plugin
 
                         MemoryStream memoryStream = new MemoryStream();
 
-                        using (NativeReader nativeReader3 = new NativeReader(
-                            //new FileStream(AssetManager.fs.ResolvePath(AssetManager.fs.GetFilePath(b.CasIndex)), FileMode.Open, FileAccess.Read))
-                            new FileStream(AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas", FileMode.Open, FileAccess.Read)
-                            )
-                            )
-                        {
+                        //using (NativeReader nativeReader3 = new NativeReader(
+                        //    //new FileStream(AssetManager.fs.ResolvePath(AssetManager.fs.GetFilePath(b.CasIndex)), FileMode.Open, FileAccess.Read))
+                        //    new FileStream(AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas", FileMode.Open, FileAccess.Read)
+                        //    )
+                        //    )
+                        //{
 
-                            SBFile sbFile = new SBFile(this, TOCFile, SBIndex);
-                            DbObject obj = new DbObject();
-                            sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo(), ref obj, nativeReader3);
-                            objs.Add(obj);
-                        }
+                        //    SBFile sbFile = new SBFile(this, TOCFile, SBIndex);
+                        //    DbObject obj = new DbObject();
+                        //    sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo(), ref obj, nativeReader3);
+                        //    objs.Add(obj);
+                        //}
 
                         //var casFile1 = AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas";
                         //using (NativeReader nativeReader3 = new NativeReader(
-                        //    //new FileStream(AssetManager.fs.ResolvePath(AssetManager.fs.GetFilePath(b.CasIndex)), FileMode.Open, FileAccess.Read))
                         //    new FileStream(casFile1, FileMode.Open, FileAccess.Read)
                         //    )
                         //    )
@@ -91,9 +90,8 @@ namespace FIFA21Plugin
                         //    objs.Add(obj);
                         //}
 
-                        //var casFile2 = AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_02\cas_01.cas";
+                        //var casFile2 = AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_01.cas";
                         //using (NativeReader nativeReader3 = new NativeReader(
-                        //    //new FileStream(AssetManager.fs.ResolvePath(AssetManager.fs.GetFilePath(b.CasIndex)), FileMode.Open, FileAccess.Read))
                         //    new FileStream(casFile2, FileMode.Open, FileAccess.Read)
                         //    )
                         //    )
@@ -103,6 +101,26 @@ namespace FIFA21Plugin
                         //    DbObject obj = new DbObject();
                         //    sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo(), ref obj, nativeReader3);
                         //    objs.Add(obj);
+                        //}
+
+                        //var casFile8 = AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_08\cas_01.cas";
+                        //using (NativeReader nativeReader3 = new NativeReader(
+                        //    new FileStream(casFile8, FileMode.Open, FileAccess.Read)
+                        //    )
+                        //    )
+                        //{
+
+                        //    SBFile sbFile = new SBFile(this, TOCFile, SBIndex);
+                        //    DbObject obj = new DbObject();
+                        //    sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo(), ref obj, nativeReader3);
+                        //    objs.Add(obj);
+
+                        //    SBFile sbFile2 = new SBFile(this, TOCFile, SBIndex);
+                        //    var obj2 = new DbObject();
+
+                        //    sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo(), ref obj2
+                        //        , new NativeReader(nativeReader3.CreateViewStream(770646876, nativeReader3.Length - 770646876)));
+                        //    objs.Add(obj2);
                         //}
 
                     }

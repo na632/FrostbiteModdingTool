@@ -370,7 +370,6 @@ namespace FIFALibraryNETFrameworkTests
                     {
 
                         File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.Objects));
                         ((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0.0001f;
                         ((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0.0001f;
                         ((dynamic)eb.RootObject).ATTR_JogSpeed = 0.0001f;
@@ -378,9 +377,7 @@ namespace FIFALibraryNETFrameworkTests
                         ((dynamic)eb.RootObject).ATTR_JogSpeed = 0.01f;
                         ((dynamic)eb.RootObject).AnimationPlaybackTimeRatioDribbling = new List<float>() { 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f };
                         ((dynamic)eb.RootObject).ATTR_SprintSpeedTbl = new List<float>() { 0.01f, 0.02f };
-                        eb.AddRootObject(eb.RootObject);
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
-                        project.AssetManager.AddEbx(ebx.Name, eb);
                     }
                 }
 
@@ -391,16 +388,49 @@ namespace FIFALibraryNETFrameworkTests
                     {
 
                         File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.Objects));
                         ((dynamic)eb.RootObject).pushpull_minHeldTicksForShirtPulledFoul = 15;
                         ((dynamic)eb.RootObject).pushpull_maxDistance = 4f;
                         ((dynamic)eb.RootObject).pushpull_minDistance = 0.01f;
                         ((dynamic)eb.RootObject).pushpull_SituationModifier = 4.0f;
-                        //((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0.01f;
-                        //((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0.01f;
-                        //((dynamic)eb.RootObject).ATTR_JogSpeed = 0.01f;
-                        eb.AddObject(eb.RootObject);
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaistandingtackle_runtime")))
+                { 
+                        var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+
+                        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[0].Y = 10;
+                        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[1].Y = 10;
+                        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[2].Y = 10;
+                        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[3].Y = 10;
+                        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[4].Y = 10;
+                        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[5].Y = 10;
+                        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[6].Y = 10;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_playercontactscore_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartCalf = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartFoot = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartThigh = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartHips = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartTorso = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartHead = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        ((dynamic)eb.RootObject).PenaltyWeightsBargeTackle = new List<float>() { 30.0f, 30.0f, 30.0f, 30.0f };
+
+                        ((dynamic)eb.RootObject).ScoreAdjustmentAutoTackle = 0;
+                        ((dynamic)eb.RootObject).ScoreAdjustmentBallTouchCancelBarge = 0;
+
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+
                     }
                 }
 
@@ -422,39 +452,92 @@ namespace FIFALibraryNETFrameworkTests
                         ((dynamic)eb.RootObject).FOUL_CollisionMinForceBallTouchCancelled[2] = 1;
 
                         ((dynamic)eb.RootObject).Foul_BargeTackle_DurationAfterPotentialTackleFound = 120;
-                        eb.AddObject(eb.RootObject);
+
+                        ((dynamic)eb.RootObject).Foul_TackleExtendTicksForOtherTackle = 15;
+                        ((dynamic)eb.RootObject).Foul_TackleExtendTicksForSlide = 15;
+
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[0].Y = 1;
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[1].Y = 1;
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[2].Y = 1;
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[3].Y = 1;
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[4].Y = 1;
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[5].Y = 1;
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[6].Y = 1;
+                        ((dynamic)eb.RootObject).Foul_PlayerContactScore_Remapping.Internal.Points[7].Y = 1;
 
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
                     }
                 }
 
-                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.ToLower().Contains("splashscreen")))
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_goalkeeper/gp_goalkeeper_cpu_difficulty_runtime")))
                 {
-                    
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        ((dynamic)eb.RootObject).GK_CPU_Difficulty_Modifier.Internal.Points[0].Y = 2;
+                        ((dynamic)eb.RootObject).GK_CPU_Difficulty_Modifier.Internal.Points[1].Y = 2;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
                 }
 
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.ToLower().Contains("careerradar")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //        var res = AssetManager.Instance.GetResEntry(ebx.Name);
-                //        if(res != null)
-                //        {
-                //            var resStream = projectManagement.FrostyProject.AssetManager.GetRes(res);
-                //            Texture textureAsset = new Texture(resStream, projectManagement.FrostyProject.AssetManager);
-                //            new TextureExporter().Export(textureAsset, $"G:\\{res.Filename}.DDS", "*.dds");
-                //        }
-                //    }
-                //}
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_goalkeeper/gp_goalkeeper_newgk_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Normal.Internal.Points[0].Y = 30;
+                        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Normal.Internal.Points[1].Y = 30;
 
+                        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Aggressive.Internal.Points[0].Y = 30;
+                        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Aggressive.Internal.Points[1].Y = 30;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
-                projectManagement.FrostyProject.Save("test_gp_speed_change.fbproject");
-                projectManagement.FrostyProject.WriteToMod("test_gp_speed_change.fbmod"
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_defense/gp_defense_pushpull_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        ((dynamic)eb.RootObject).PushPull_FallThreshold = 0.01f;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_markingtightness_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        ((dynamic)eb.RootObject).markingTightnessUniversalModifier = 4.0f;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_defense_general_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[0].Y = 1.0f;
+                        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[1].Y = 1.0f;
+                        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[2].Y = 1.0f;
+                        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[3].Y = 1.0f;
+                        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[4].Y = 1.0f;
+
+                        ((dynamic)eb.RootObject).depthThresholdForTransitionDefense = 1.0f;
+
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                projectManagement.FrostyProject.Save("Paulv2k4 FIFA 21 Gameplay.fbproject");
+                projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha.fbmod"
                     , new ModSettings() { Author = "paulv2k4", Category = "Gameplay", Description = "Gameplay Test", Title = "Gameplay Test", Version = "1.00" });
 
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test_gp_speed_change.fbmod" }.ToArray()).Wait();
+                frostyModExecutor.UseSymbolicLinks = true;
+                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha.fbmod" }.ToArray()).Wait();
 
             }
 
