@@ -135,21 +135,16 @@ namespace FIFA21Plugin
                         ebxObject.SetValue("SBFileLocation", FileLocation);
                         ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
 
-                        ebxObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position);
+                        if (ebxObject.GetValue<string>("name", "").Contains("movement"))
+                        {
+                        }
+                        ebxObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + BaseBundleItem.Offset);
                         int offset = binarySbReader2.ReadInt(Endian.Big);
-                        if (offset < 0)
-                            throw new ArgumentOutOfRangeException("[ERROR] EBX Offset cannot be a minus figure");
 
-                        ebxObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position);
+                        ebxObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + BaseBundleItem.Offset);
                         int size = binarySbReader2.ReadInt(Endian.Big);
-                        if (size < 0)
-                            throw new ArgumentOutOfRangeException("[ERROR] EBX Size cannot be a minus figure");
 
-                        if (catalog > AssetManager.Instance.fs.CatalogCount - 1)
-                            throw new ArgumentOutOfRangeException("[ERROR] Catalog doesn't match number of cat");
-                        //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
                         ebxObject.SetValue("catalog", catalog);
-                        //if(cas > 0)
                         ebxObject.SetValue("cas", cas);
                         ebxObject.SetValue("offset", offset);
                         ebxObject.SetValue("size", size);
@@ -206,6 +201,7 @@ namespace FIFA21Plugin
                             cas = binarySbReader2.ReadByte();
                         }
                         DbObject chnkObj = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
+
                         chnkObj.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position);
                         int offset = binarySbReader2.ReadInt(Endian.Big);
                         chnkObj.SetValue("SB_CAS_Size_Position", binarySbReader2.Position);
@@ -244,6 +240,8 @@ namespace FIFA21Plugin
             return dbObjects;
         }
 
+        List<long> Sha1Positions = new List<long>();
+
         public SBHeaderInformation BinaryRead_FIFA21(
             BaseBundleInfo BaseBundleItem
             , ref DbObject dbObject
@@ -255,6 +253,7 @@ namespace FIFA21Plugin
             List<Sha1> sha1 = new List<Sha1>();
             for (int i = 0; i < SBHeaderInformation.totalCount; i++)
             {
+                Sha1Positions.Add(binarySbReader2.Position + BaseBundleItem.Offset);
                 sha1.Add(binarySbReader2.ReadSha1());
             }
             dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, sha1, binarySbReader2)));
@@ -287,27 +286,29 @@ namespace FIFA21Plugin
             return SBHeaderInformation;
         }
 
-        private List<object> ReadEbx(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader)
+        private List<object> ReadEbx(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, BaseBundleInfo baseBundleInfo = null)
         {
             List<object> list = new List<object>();
             for (int i = 0; i < information.ebxCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
                 uint num = reader.ReadUInt(Endian.Little);
-                uint num2 = reader.ReadUInt(Endian.Little);
+                uint originalSize = reader.ReadUInt(Endian.Little);
                 long position = reader.Position;
                 reader.Position = information.stringOffset + num;
 
-                dbObject.AddValue("SB_StringOffsetPosition", reader.Position);
+
+                dbObject.AddValue("SB_StringOffsetPosition", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
 
                 //System.Diagnostics.Debug.WriteLine($"EBX::Position::{reader.Position}");
+                dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
                 dbObject.AddValue("sha1", sha1[i]);
                 var name = reader.ReadNullTerminatedString();
                 //System.Diagnostics.Debug.WriteLine("EBX:: " + name);
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
-                dbObject.AddValue("SB_OriginalSize_Position", reader.Position);
-                dbObject.AddValue("originalSize", num2);
+                dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                dbObject.AddValue("originalSize", originalSize);
                 list.Add(dbObject);
                 reader.Position = position;
             }

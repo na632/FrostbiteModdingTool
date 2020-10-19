@@ -678,14 +678,13 @@ namespace FIFA21Plugin
         {
             try
             {
-                //foreach (var bundles in parent.modifiedBundles)
-                //{
-
-                //}
-
+                parent.Logger.Log("Loading files to know what to change.");
 
                 FIFA21AssetLoader assetLoader = new FIFA21AssetLoader();
                 assetLoader.Load(AssetManager.Instance, new BinarySbDataHelper(AssetManager.Instance));
+
+                parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
+
                 foreach (var modEBX in parent.modifiedEbx)
                 {
                     var inEbx = AssetManager.Instance.GetEbx(modEBX.Value);
@@ -698,11 +697,6 @@ namespace FIFA21Plugin
                             , AssetManager.Instance.fs.BasePath + "ModData\\Data");
                         casPath = casPath.Replace("native_patch"
                             , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
-
-                        if (originalEntry.ExtraData.CasPath.Contains("native_data"))
-                        {
-                            continue;
-                        }
 
                         byte[] originalCASArray = null;
                         using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
@@ -725,7 +719,11 @@ namespace FIFA21Plugin
                             {
                                 if (ebxObject.GetValue<string>("name") == modEBX.Value.Name)
                                 {
+                                    parent.Logger.Log("Writing new asset entry for EBX (" + modEBX + ")");
+
                                     var sb_cas_offset_position = ebxObject.GetValue<int>("SB_CAS_Offset_Position");
+                                    var sb_sha1_position = ebxObject.GetValue<int>("SB_Sha1_Position");
+                                    var sb_original_size_position = ebxObject.GetValue<int>("SB_OriginalSize_Position");
 
                                     var sbpath = ebxObject.GetValue<string>("SBFileLocation");
                                     sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
@@ -737,25 +735,28 @@ namespace FIFA21Plugin
                                     File.Delete(sbpath);
                                     using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
                                     {
+                                        //nativeWriter.Write(arrayOfSB);
+                                        //nativeWriter.BaseStream.Position = sb_cas_offset_position;
+                                        //nativeWriter.Write((uint)positionOfNewData, Endian.Big);
+                                        //nativeWriter.Flush();
 
-                                        nativeWriter.Write(arrayOfSB);
-                                        nativeWriter.BaseStream.Position = sb_cas_offset_position;
-                                        nativeWriter.Write((int)positionOfNewData);
-                                        nativeWriter.Write((int)ebxData.Length);
+                                        //nativeWriter.Write((uint)ebxData.Length, Endian.Big);
+                                        //nativeWriter.Flush();
+
+                                        //nativeWriter.BaseStream.Position = sb_sha1_position;
+                                        //nativeWriter.Write(modEBX.Value.Sha1);
+                                        //nativeWriter.Flush();
+
+                                        //nativeWriter.BaseStream.Position = sb_original_size_position;
+                                        //nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);
+                                        //nativeWriter.Flush();
+
 
                                     }
 
                                 }
                             }
                         }
-
-
-                        //MemoryStream memStream = new MemoryStream();
-
-                        //    EbxWriterV2 ebxWriter = new EbxWriterV2(memStream);
-                        //    ebxWriter.WriteAsset(inEbx);
-                        //modEBX.Value.
-                        //CasWriter casWriter = new CasWriter()
                     }
                 }
             }

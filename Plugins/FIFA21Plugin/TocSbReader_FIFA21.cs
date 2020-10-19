@@ -41,7 +41,7 @@ namespace FIFA21Plugin
                 List<DbObject> objs = new List<DbObject>();
                 using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
                 {
-
+                    
                     // TOC File 
                     TOCFile = new TOCFile(this);
                     TOCFile.FileLocation = tocPath;

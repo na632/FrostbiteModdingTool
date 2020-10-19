@@ -22,40 +22,45 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Row="0"  HorizontalAlignment="Right" Orientation="Horizontal">
-                <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
-                <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
-                        <Label Content="Browse FIFA" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
+            <StackPanel Grid.Row="0"  Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="btnProjectOpen" Click="btnProjectOpen_Click">Open Project</Button>
+                    <Button x:Name="btnProjectSave" Click="btnProjectSave_Click">Save Project</Button>
+                    <Button x:Name="btnProjectWriteToMod" Click="btnProjectWriteToMod_Click">Write to Mod</Button>
+                </StackPanel>
+                <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+                    <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                            <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
                     VerticalAlignment="Center" IsEnabled="False"
                      
                     ToolTip="Build FIFA Modding SDK">
-                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
-                        <Label Content="Build FIFA SDK" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
+                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
+                            <Label Content="Build FIFA SDK" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
                     
                     ToolTip="Launch FIFA with Frosty Mods">
-                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                        <Label Content="Launch FIFA" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
-                    
-                    ToolTip="Launch FIFA with Editor Only Mod">
-                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                        <Label Content="Launch FIFA (Editor Projects)" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <!--<Button x:Name="btnBuildModsLive" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                            <Label Content="Launch FIFA" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                        ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
+                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                            <Label Content="Launch FIFA (Editor Project Only)" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <!--<Button x:Name="btnBuildModsLive" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnBuildModsLive_Click"
                     ToolTip="Build Mod Folder">
                     <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
@@ -63,15 +68,17 @@
                         <Label Content="Build Mod Folder" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>-->
-                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
-                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
-                        <Label Content="Default" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool">
-                    <MaterialDesign:PackIcon Kind="Power" />
-                </Button>
+                    <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
+                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
+                            <Label Content="Default" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool">
+                        <MaterialDesign:PackIcon Kind="Power" />
+                    </Button>
+                </StackPanel>
+
             </StackPanel>
             <TabControl x:Name="MainViewer" Grid.Row="1" Height="500">
                 <TabItem x:Name="TabTextureBrowser" Header="Textures">
@@ -99,7 +106,7 @@
 
                 </TabItem>
                 <TabItem x:Name="TabGameplay" Header="Gameplay">
-                    <Frame x:Name="GPFrostyGameplayMainFrame"></Frame>
+                    <localGPControls:FrostyGameplayMain x:Name="GameplayMain"></localGPControls:FrostyGameplayMain>
                 </TabItem>
                 <TabItem x:Name="TabLegacy" Header="Legacy">
                     <Grid Name="gridLegacy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

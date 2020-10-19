@@ -71,6 +71,7 @@ namespace FIFAModdingUI.Pages.Common
 					v2k4Util.SetPropertyValue(copyOfRoot, item.Item1, item.Item3);
                 }
 				asset.AddObject(copyOfRoot);
+				asset.AddObject(copyOfRoot, true);
 				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
 			}
         }

@@ -5,6 +5,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,7 +39,7 @@ namespace FIFAModdingUI.Windows
             InitializeComponent();
         }
 
-        ProjectManagement ProjectManagement { get; set; }
+        public static ProjectManagement ProjectManagement { get; set; }
 
         private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
         {
@@ -65,9 +66,11 @@ namespace FIFAModdingUI.Windows
 
         }
 
-        public async Task<bool> Start()
+        public bool Start()
         {
-            return await Task.Run<bool>(() =>
+            BackgroundWorker worker = new BackgroundWorker();
+
+            worker.DoWork += (s, we) =>
             {
                 BuildCache buildCache = new BuildCache();
                 buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true).Wait();
@@ -77,15 +80,16 @@ namespace FIFAModdingUI.Windows
 
                 Dispatcher.Invoke(() =>
                 {
-                    GPFrostyGameplayMainFrame.Source = new Uri("../Pages/Gameplay/FrostyGameplayMain.xaml", UriKind.Relative);
-                    MainViewer.IsEnabled = true;
+                    GameplayMain.Initialise();
                 });
 
                 BuildTextureBrowser(null);
                 BuildLegacyBrowser(null);
 
-                return true;
-            });
+            };
+            worker.RunWorkerAsync();
+
+            return true;
         }
 
         string lastTemporaryFileLocation;
@@ -362,6 +366,49 @@ namespace FIFAModdingUI.Windows
 
         private void btnImportLegacy_Click(object sender, RoutedEventArgs e)
         {
+
+        }
+
+        private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Mod files|*.fbmod";
+            if (saveFileDialog.ShowDialog().HasValue)
+            {
+                ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName
+                    , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool GP Mod", Version = "1.00" });
+            }
+        }
+
+        private void btnProjectSave_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Project files|*.fbproject";
+            if (saveFileDialog.ShowDialog().HasValue)
+            {
+                ProjectManagement.FrostyProject.Save(saveFileDialog.FileName, true);
+            }
+        }
+
+        private void btnProjectOpen_Click(object sender, RoutedEventArgs e)
+        {
+            VistaOpenFileDialog openFileDialog = new VistaOpenFileDialog();
+            openFileDialog.Filter = "Project files|*.fbproject";
+            if (openFileDialog.ShowDialog().HasValue)
+            {
+                ProjectManagement.FrostyProject.Load(openFileDialog.FileName);
+            }
+        }
+
+        private void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectManagement.FrostyProject.Save("test.fbproject");
+            ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
+                , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.UseSymbolicLinks = true;
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test.fbmod" }.ToArray()).Wait();
 
         }
     }

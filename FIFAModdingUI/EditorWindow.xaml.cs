@@ -1563,12 +1563,12 @@ namespace FIFAModdingUI
             };
             await Task.Run(delegate
             {
-                if (FrostyGameplayMain.GameplayProjectManagement != null)
-                {
-                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.Save(editorModName);
-                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.WriteToMod(editorModName, new ModSettings() { Title = "Editor GP", Author = "Editor", Version = "1" });
-                }
-                //ExportMod(editorSettings, editorModName, bSilent: true);
+                //if (FrostyGameplayMain.GameplayProjectManagement != null)
+                //{
+                //    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.Save(editorModName);
+                //    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.WriteToMod(editorModName, new ModSettings() { Title = "Editor GP", Author = "Editor", Version = "1" });
+                //}
+                ////ExportMod(editorSettings, editorModName, bSilent: true);
             });
 
             await new TaskFactory().StartNew(async () =>
@@ -1612,11 +1612,11 @@ namespace FIFAModdingUI
             };
             await Task.Run(delegate
             {
-                if (FrostyGameplayMain.GameplayProjectManagement != null)
-                {
-                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.Save(editorModName);
-                    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.WriteToMod(editorModName, new ModSettings() { Title = "Editor GP", Author = "Editor", Version = "1" });
-                }
+                //if (FrostyGameplayMain.GameplayProjectManagement != null)
+                //{
+                //    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.Save(editorModName);
+                //    FrostyGameplayMain.GameplayProjectManagement.FrostyProject.WriteToMod(editorModName, new ModSettings() { Title = "Editor GP", Author = "Editor", Version = "1" });
+                //}
                 //ExportMod(editorSettings, editorModName, bSilent: true);
             });
 

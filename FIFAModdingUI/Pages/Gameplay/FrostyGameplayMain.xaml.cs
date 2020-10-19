@@ -24,40 +24,34 @@ using System.IO;
 using System.ComponentModel;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
+using FIFAModdingUI.Windows;
 
 namespace FIFAModdingUI.Pages.Gameplay
 {
     /// <summary>
     /// Interaction logic for FrostyGameplayMain.xaml
     /// </summary>
-    public partial class FrostyGameplayMain : Page
+    public partial class FrostyGameplayMain : UserControl
     {
-        public static ProjectManagement GameplayProjectManagement { get; set; }
-
-        class DC
-        {
-            AttribSchema_gp_actor_movement Movement = AttribSchema_gp_actor_movement.GetAttrib();
-        };
-
-        DC dc = new DC();
+        public ProjectManagement GameplayProjectManagement 
+        { 
+            get
+            {
+                return FIFA21Editor.ProjectManagement;
+            } 
+        }
 
         public FrostyGameplayMain()
         {
             InitializeComponent();
-            //tabsGameplayMain.IsEnabled = false;
-            this.DataContext = dc;
+        }
 
-            BackgroundWorker backgroundWorker = new BackgroundWorker();
 
-            backgroundWorker.DoWork += (o, bw_e) =>
-            {
+        public void Initialise()
+        {
+            
 
-                GameplayProjectManagement = new ProjectManagement();
-                //GameplayProjectManagement.Logger = App.fif;
-
-                GameplayProjectManagement.StartNewProjectAsync().Wait();
-
-                var ebxItems = GameplayProjectManagement.FrostyProject.AssetManager.EnumerateEbx().Where(x => x.Filename.StartsWith("gp_") && !x.Path.Contains("smallsided")).OrderBy(x => x.Path).ThenBy(x => x.Filename).ToList();
+                var ebxItems = FIFA21Editor.ProjectManagement.FrostyProject.AssetManager.EnumerateEbx().Where(x => x.Filename.StartsWith("gp_") && !x.Path.Contains("smallsided")).OrderBy(x => x.Path).ThenBy(x => x.Filename).ToList();
                 if (ebxItems != null)
                 {
                     
@@ -97,9 +91,7 @@ namespace FIFAModdingUI.Pages.Gameplay
                 }
                     
 
-            };
-
-            backgroundWorker.RunWorkerAsync();
+            
         }
 
         public void OpenAsset(AssetEntry asset, bool createDefaultEditor = true)
@@ -109,7 +101,7 @@ namespace FIFAModdingUI.Pages.Gameplay
                 return;
             }
             FrostyGameplayAdvancedView.spPropertyPanel.Children.Clear();
-            var ebx = GameplayProjectManagement.FrostyProject.AssetManager.GetEbx(asset as EbxAssetEntry);
+            var ebx = FIFA21Editor.ProjectManagement.FrostyProject.AssetManager.GetEbx(asset as EbxAssetEntry);
             if(ebx != null)
             {
                 FrostyGameplayAdvancedView.spPropertyPanel.Children.Add(new Editor(asset, ebx, GameplayProjectManagement.FrostyProject));
