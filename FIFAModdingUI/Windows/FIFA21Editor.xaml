@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI.Windows"
+        xmlns:Model="clr-namespace:FIFAModdingUI.Models" 
         mc:Ignorable="d"
          xmlns:localGPControls="clr-namespace:FIFAModdingUI.Pages.Gameplay"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
@@ -11,6 +12,14 @@
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
 	xmlns:fbviews="clr-namespace:FolderBrowser.Views;assembly=FolderBrowser"
         Title="FIFA 21 Editor (EARLY ALPHA - EXPECT BUGS AND PERFORMANCE ISSUES)" Height="720" Width="1280" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+    <Window.Resources>
+
+        <DataTemplate DataType="{x:Type Model:FileItem}">
+            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+        </DataTemplate>
+
+    </Window.Resources>
+    
     <DockPanel LastChildFill="True">
 
         <Grid DockPanel.Dock="Top" VerticalAlignment="Top">
@@ -24,9 +33,24 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="0"  Orientation="Horizontal">
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="btnProjectOpen" Click="btnProjectOpen_Click">Open Project</Button>
-                    <Button x:Name="btnProjectSave" Click="btnProjectSave_Click">Save Project</Button>
-                    <Button x:Name="btnProjectWriteToMod" Click="btnProjectWriteToMod_Click">Write to Mod</Button>
+                    <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
+                            <Label Content="Open Project" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                            <Label Content="Save Project" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                            <Label Content="Write to Mod" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
                     <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
@@ -81,17 +105,28 @@
 
             </StackPanel>
             <TabControl x:Name="MainViewer" Grid.Row="1" Height="500">
-                <TabItem x:Name="TabTextureBrowser" Header="Textures">
+                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Hidden">
                     <StackPanel Orientation="Vertical">
-                        <Label Background="Yellow">Texture Browser is incomplete and missing Kits/Boots/Balls (all the important stuff). Sorry!</Label>
+                        <Label Background="Yellow">Texture Browser is incomplete and missing Faces/Kits/Boots/Balls (all the important stuff). Sorry!</Label>
                         <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <TreeView Grid.Column="0" x:Name="tvTextureBrowser">
-                                <TreeViewItem Header="">
-                                </TreeViewItem>
+                            <TreeView Grid.Column="0" x:Name="tvTextureBrowser"
+                                      VirtualizingStackPanel.IsVirtualizing="True"
+                                        VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                      >
+                                      >
+                                <!--<TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate DataType="{x:Type Model:DirectoryItem}"
+                                      ItemsSource="{Binding Items}">
+                                            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+                                        </HierarchicalDataTemplate>
+
+                                  
+                                </TreeView.ItemTemplate>-->
                             </TreeView>
                             <StackPanel Orientation="Vertical" Grid.Column="1">
                                 <StackPanel Orientation="Horizontal">
@@ -105,7 +140,7 @@
                     </StackPanel>
 
                 </TabItem>
-                <TabItem x:Name="TabGameplay" Header="Gameplay">
+                <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
                     <localGPControls:FrostyGameplayMain x:Name="GameplayMain"></localGPControls:FrostyGameplayMain>
                 </TabItem>
                 <TabItem x:Name="TabLegacy" Header="Legacy">

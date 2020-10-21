@@ -713,6 +713,22 @@ namespace FIFA21Plugin
                             nativeWriter.Write(ebxData);
                         }
 
+                        using (var f = new FileStream(casPath, FileMode.Open, FileAccess.Read))
+                        {
+                            using (NativeReader reader = new NativeReader(f))
+                            {
+                                byte[] array = null;
+                                using (CasReader casReader = new CasReader(reader.CreateViewStream(positionOfNewData, ebxData.Length)))
+                                {
+                                    array = casReader.Read();
+                                }
+                                if (array == null)
+                                {
+                                    throw new Exception("Array not found in CAS");
+                                }
+                            }
+                        }
+
                         foreach (var @object in assetLoader.AllDbObjects)
                         {
                             foreach (DbObject ebxObject in @object.GetValue<DbObject>("ebx"))
@@ -735,21 +751,21 @@ namespace FIFA21Plugin
                                     File.Delete(sbpath);
                                     using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
                                     {
-                                        //nativeWriter.Write(arrayOfSB);
-                                        //nativeWriter.BaseStream.Position = sb_cas_offset_position;
-                                        //nativeWriter.Write((uint)positionOfNewData, Endian.Big);
-                                        //nativeWriter.Flush();
+                                        nativeWriter.Write(arrayOfSB);
+                                        nativeWriter.BaseStream.Position = sb_cas_offset_position;
+                                        nativeWriter.Write((uint)positionOfNewData, Endian.Big);
+                                        nativeWriter.Flush();
 
-                                        //nativeWriter.Write((uint)ebxData.Length, Endian.Big);
-                                        //nativeWriter.Flush();
+                                        nativeWriter.Write((uint)ebxData.Length, Endian.Big);
+                                        nativeWriter.Flush();
 
-                                        //nativeWriter.BaseStream.Position = sb_sha1_position;
-                                        //nativeWriter.Write(modEBX.Value.Sha1);
-                                        //nativeWriter.Flush();
+                                        nativeWriter.BaseStream.Position = sb_sha1_position;
+                                        nativeWriter.Write(modEBX.Value.Sha1);
+                                        nativeWriter.Flush();
 
-                                        //nativeWriter.BaseStream.Position = sb_original_size_position;
-                                        //nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);
-                                        //nativeWriter.Flush();
+                                        nativeWriter.BaseStream.Position = sb_original_size_position;
+                                        nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);
+                                        nativeWriter.Flush();
 
 
                                     }

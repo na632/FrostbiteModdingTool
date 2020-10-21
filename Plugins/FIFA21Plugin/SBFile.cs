@@ -293,7 +293,10 @@ namespace FIFA21Plugin
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
                 uint num = reader.ReadUInt(Endian.Little);
+
+                dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                 uint originalSize = reader.ReadUInt(Endian.Little);
+
                 long position = reader.Position;
                 reader.Position = information.stringOffset + num;
 
@@ -307,7 +310,6 @@ namespace FIFA21Plugin
                 //System.Diagnostics.Debug.WriteLine("EBX:: " + name);
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
-                dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                 dbObject.AddValue("originalSize", originalSize);
                 list.Add(dbObject);
                 reader.Position = position;

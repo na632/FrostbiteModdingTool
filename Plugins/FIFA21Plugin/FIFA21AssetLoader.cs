@@ -39,7 +39,7 @@ namespace FIFA21Plugin
 
 			public long Size;
 
-			public long CasStringOffset;
+			public long TocOffset;
 
             public int CasIndex { get; internal set; }
         }

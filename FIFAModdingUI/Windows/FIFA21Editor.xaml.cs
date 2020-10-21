@@ -1,4 +1,5 @@
-﻿using Frostbite.Textures;
+﻿using FIFAModdingUI.Models;
+using Frostbite.Textures;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -8,6 +9,7 @@ using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -83,7 +85,24 @@ namespace FIFAModdingUI.Windows
                     GameplayMain.Initialise();
                 });
 
-                BuildTextureBrowser(null);
+                //BuildTextureBrowser(null);
+
+                //// 
+                //var items = ProjectManagement.FrostyProject.AssetManager
+                //       .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).ToList();
+
+                //var itemProvider = new ItemProvider();
+
+                //var textureExplorerItems = itemProvider.GetItems(items);
+
+                //var obserItems = new ObservableCollection<AssetEntry>(items);
+
+                //Dispatcher.Invoke(() =>
+                //{
+                //    tvTextureBrowser.Items.Clear();
+                //    tvTextureBrowser.ItemsSource = obserItems;
+                //});
+
                 BuildLegacyBrowser(null);
 
             };
@@ -102,16 +121,44 @@ namespace FIFAModdingUI.Windows
 
             worker.DoWork += (s, we) =>
             {
-                
-                    var index = 0;
+                var items = ProjectManagement.FrostyProject.AssetManager
+                        .EnumerateEbx("TextureAsset").OrderBy(x => x.Path);
+                var uniquePaths = items.Select(x => x.Path.ToLower()).Distinct();
+
+                //var finalPathDictionary = new List<Tuple<string, List<string>, List<EbxAssetEntry>>>();
+                //foreach(var p in uniquePaths)
+                //{
+                //    var pSplit = p.Split('/');
+                //    if (pSplit.Length > 0)
+                //    {
+                //        var splitIndex = 0;
+                //        foreach (var splitP in pSplit)
+                //        {
+                //            var items_in_the_split = items.Where(x => x.Path.ToLower().Contains(pSplit[0]) && x.Path.ToLower().EndsWith(splitP));
+
+                //            List<string> childPaths = new List<string>();
+                //            if(pSplit.Length-1 > splitIndex)
+                //            {
+                //                var nextPath = pSplit[splitIndex+1];
+                //                if (!childPaths.Contains(nextPath))
+                //                    childPaths.Add(nextPath);
+                //            }
+
+                //            finalPathDictionary.Add(new Tuple<string, List<string>, List<EbxAssetEntry>>(splitP, childPaths, items_in_the_split.ToList()));
+
+                //            splitIndex++;
+                //        }
+                //    }
+                //}
+
+                var index = 0;
 
                 Dispatcher.Invoke(() =>
                 {
 
                 string lastPath = null;
                     TreeViewItem treeItem = null;
-                    var items = ProjectManagement.FrostyProject.AssetManager
-                        .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).ToList();
+                    
                     foreach (var i in items)
                     {
                         var splitPath = i.Path.Split('/');

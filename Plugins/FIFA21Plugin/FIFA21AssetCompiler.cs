@@ -101,6 +101,11 @@ namespace FIFA21Plugin
                     }
                 }
 
+                logger.Log("Deleting CAS files from ModData");
+                foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "//" + PatchDirectory, "*.cas", SearchOption.AllDirectories))
+                {
+                    File.Delete(casFileLocation);
+                }
                 logger.Log("Copying files from Patch to ModData");
                 // Copied Patch CAS files from Patch to Mod Data Patch
                 DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);

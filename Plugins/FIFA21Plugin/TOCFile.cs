@@ -156,29 +156,33 @@ namespace FIFA21Plugin
 				{
 
 				}
+				if (FileLocation.Contains("chants_preview"))
+                {
+
+                }
 				//nativeReader.Position = 556 + tocMetaData[3] - ((tocMetaData[2] + 2) * 4);
 				//for (int indexOfBundleCount = 0; indexOfBundleCount < tocMetaData[2]; indexOfBundleCount++)
 				for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.ItemCount; indexOfBundleCount++)
 				{
-					int casStringOffset = nativeReader.ReadInt(Endian.Big);
+					int TocOffset = nativeReader.ReadInt(Endian.Big);
 
-					//var anthemSearcher = 556 + tocMetaData[8] - 48 + casStringOffset;
-					var anthemSearcher = 556 + tocMetaData[8] + casStringOffset;
-					if (casStringOffset > 0)
+                    //var anthemSearcher = 556 + tocMetaData[8] - 48 + casStringOffset;
+                    //var anthemSearcher = 556 + tocMetaData[8] + casStringOffset;
+                    if (TocOffset != 0)
                     {
 
                     }
-					int size = nativeReader.ReadInt(Endian.Big);
+                    int size = nativeReader.ReadInt(Endian.Big);
 					int casIndex = nativeReader.ReadInt(Endian.Big);
-					if(casIndex > 0)
+                    if (casIndex != 0)
                     {
 
                     }
-					int dataOffset = nativeReader.ReadInt(Endian.Big);
+                    int dataOffset = nativeReader.ReadInt(Endian.Big);
 					//uint unk4 = nativeReader.ReadUInt(Endian.Big);
 					BaseBundleInfo newBundleInfo = new BaseBundleInfo
 					{
-						CasStringOffset = casStringOffset,
+						TocOffset = TocOffset,
                         //Name = name,
                         Offset = dataOffset,
                         CasIndex = casIndex,
@@ -267,8 +271,8 @@ namespace FIFA21Plugin
 				{
 					DbObject resObject = new DbObject();
 					resObject.AddValue("id", nativeReader.ReadGuid());
-					resObject.AddValue("offset", nativeReader.ReadInt(Endian.Big));
-					resObject.AddValue("size", nativeReader.ReadInt(Endian.Big));
+					resObject.AddValue("unk1", nativeReader.ReadInt(Endian.Big));
+					//resObject.AddValue("size", nativeReader.ReadInt(Endian.Big));
 
 					resObjects.Add(resObject);
 				}
@@ -277,7 +281,7 @@ namespace FIFA21Plugin
 				for (int indexOfRes = 0; indexOfRes < MetaData.ResCount; indexOfRes++)
 				{
 					DbObject resObject = resObjects[indexOfRes];
-					resObject.AddValue("ukn1", nativeReader.ReadByte());
+					resObject.AddValue("unk2", nativeReader.ReadByte());
 					resObject.AddValue("patch", nativeReader.ReadBoolean());
 					resObject.AddValue("catalog", nativeReader.ReadByte());
 					resObject.AddValue("cas", nativeReader.ReadByte());

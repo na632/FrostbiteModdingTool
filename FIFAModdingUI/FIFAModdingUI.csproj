@@ -179,7 +179,6 @@
 
   <ItemGroup>
     <Folder Include="Controls\" />
-    <Folder Include="Models\" />
     <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
