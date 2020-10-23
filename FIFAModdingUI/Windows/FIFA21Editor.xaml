@@ -7,6 +7,7 @@
         xmlns:Model="clr-namespace:FIFAModdingUI.Models" 
         mc:Ignorable="d"
          xmlns:localGPControls="clr-namespace:FIFAModdingUI.Pages.Gameplay"
+         xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
@@ -105,7 +106,7 @@
 
             </StackPanel>
             <TabControl x:Name="MainViewer" Grid.Row="1" Height="500">
-                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Hidden">
+                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Collapsed">
                     <StackPanel Orientation="Vertical">
                         <Label Background="Yellow">Texture Browser is incomplete and missing Faces/Kits/Boots/Balls (all the important stuff). Sorry!</Label>
                         <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -140,6 +141,28 @@
                     </StackPanel>
 
                 </TabItem>
+                <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible">
+                    <StackPanel Orientation="Vertical">
+                        <Label Background="Yellow">Kit Browser is incomplete and missing Kits</Label>
+                        <Grid Name="gridKitBrowser" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
+                            
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Button IsEnabled="False">Import</Button>
+                                </StackPanel>
+                                <Image x:Name="ivKit" ></Image>
+                            </StackPanel>
+
+                        </Grid>
+                    </StackPanel>
+
+                </TabItem>
+
                 <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
                     <localGPControls:FrostyGameplayMain x:Name="GameplayMain"></localGPControls:FrostyGameplayMain>
                 </TabItem>

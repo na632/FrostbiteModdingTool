@@ -21,8 +21,8 @@ namespace FIFA21Plugin
         public TOCFile AssociatedTOCFile { get; set; }
         public string FileLocation { get; set; }
 
-        public static readonly int SBInitialHeaderLength = 32;
-        public static readonly int SBInformationHeaderLength = 36;
+        public int SBInitialHeaderLength = 32;
+        public int SBInformationHeaderLength = 36;
 
         public int[] ArrayOfInitialHeaderData = new int[8];
 
@@ -33,6 +33,8 @@ namespace FIFA21Plugin
         private int SuperBundleIndex = 0;
 
         private TocSbReader_FIFA21 ParentReader;
+
+        public SBFile() { }
         public SBFile(TocSbReader_FIFA21 parent, TOCFile parentTOC, int sbIndex)
         {
             ParentReader = parent;
@@ -245,10 +247,11 @@ namespace FIFA21Plugin
         public SBHeaderInformation BinaryRead_FIFA21(
             BaseBundleInfo BaseBundleItem
             , ref DbObject dbObject
-            , NativeReader binarySbReader2)
+            , NativeReader binarySbReader2
+            , bool IncludeAdditionalHeaderLength = true)
         {
             // Read out the Header Info
-            var SBHeaderInformation = new SBHeaderInformation(binarySbReader2);
+            var SBHeaderInformation = new SBHeaderInformation(binarySbReader2, IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 4);
             //
             List<Sha1> sha1 = new List<Sha1>();
             for (int i = 0; i < SBHeaderInformation.totalCount; i++)
@@ -316,7 +319,7 @@ namespace FIFA21Plugin
             }
             return list;
         }
-        private List<object> ReadRes(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader)
+        private List<object> ReadRes(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, BaseBundleInfo baseBundleInfo = null)
         {
             List<object> list = new List<object>();
             int num = (int)information.ebxCount;
@@ -324,15 +327,17 @@ namespace FIFA21Plugin
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
                 uint num2 = reader.ReadUInt(Endian.Little);
-                uint num3 = reader.ReadUInt(Endian.Little);
+                dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                uint original_size = reader.ReadUInt(Endian.Little);
                 long position = reader.Position;
                 reader.Position = information.stringOffset + num2;
+                dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
                 dbObject.AddValue("sha1", sha1[num++]);
                 var name = reader.ReadNullTerminatedString();
                 //System.Diagnostics.Debug.WriteLine("RES:: " + name);
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(name));
-                dbObject.AddValue("originalSize", num3);
+                dbObject.AddValue("originalSize", original_size);
                 list.Add(dbObject);
                 reader.Position = position;
             }
@@ -400,7 +405,7 @@ namespace FIFA21Plugin
         {
             get
             {
-                return stringOffset > SBFile.SBInformationHeaderLength;
+                return stringOffset > AdditionalHeaderLength;
             }
         }
 
@@ -408,17 +413,20 @@ namespace FIFA21Plugin
         { 
             get
             {
-                return metaSize > SBFile.SBInformationHeaderLength && metaOffset > SBFile.SBInformationHeaderLength;
+                return metaSize > AdditionalHeaderLength && metaOffset > AdditionalHeaderLength;
             } 
         }
 
+        int AdditionalHeaderLength = 32;
+
         //public int shaCount;
 
-        public SBHeaderInformation(NativeReader nr)
+        public SBHeaderInformation(NativeReader nr, int additionalHeaderLength = 36)
         {
+            AdditionalHeaderLength = additionalHeaderLength;
             var pos = nr.Position;
 
-            size = nr.ReadInt(Endian.Big) + SBFile.SBInformationHeaderLength;
+            size = nr.ReadInt(Endian.Big) + AdditionalHeaderLength;
             magicStuff = nr.ReadUInt(Endian.Big);
             if (magicStuff != 3599661469)
                 throw new Exception("Magic/Hash is not right, expecting 3599661469");
@@ -427,9 +435,9 @@ namespace FIFA21Plugin
             ebxCount = nr.ReadInt(Endian.Little);
             resCount = nr.ReadInt(Endian.Little);
             chunkCount = nr.ReadInt(Endian.Little);
-            stringOffset = nr.ReadInt(Endian.Little) + SBFile.SBInformationHeaderLength;
-            metaOffset = nr.ReadInt(Endian.Little) + SBFile.SBInformationHeaderLength;
-            metaSize = nr.ReadInt(Endian.Little) + SBFile.SBInformationHeaderLength;
+            stringOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
+            metaOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
+            metaSize = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
         }
     }
 }

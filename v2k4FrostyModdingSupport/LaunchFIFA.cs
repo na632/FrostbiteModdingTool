@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using paulv2k4ModdingExecuter;
 using System.Threading.Tasks;
+using FrostySdk.Managers;
 
 namespace FIFAModdingUI
 {
@@ -18,6 +19,9 @@ namespace FIFAModdingUI
 
         public static async Task<int> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true, bool useSymbolicLink = true)
         {
+
+            
+
             if (logger == null)
                 logger = new TestLog();
 

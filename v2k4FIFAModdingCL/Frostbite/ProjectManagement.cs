@@ -133,6 +133,12 @@ namespace v2k4FIFAModding.Frosty
 
         public FrostyProject StartNewProject()
         {
+            if(AssetManager.Instance == null)
+            {
+                BuildCache buildCache = new BuildCache();
+                buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, Logger, false, true);
+            }
+
             FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
             return FrostyProject;
             //if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))

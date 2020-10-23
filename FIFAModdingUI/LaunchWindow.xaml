@@ -76,7 +76,7 @@
                     <CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu Live Editor (if present)</CheckBox>
                     <CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>
                     <CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>
-                    <CheckBox x:Name="chkUseSymbolicLink" IsEnabled="False" IsChecked="True" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>
+                    <CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>
                 </StackPanel>
             </Grid>
             </StackPanel>

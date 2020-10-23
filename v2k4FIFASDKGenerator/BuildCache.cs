@@ -88,9 +88,7 @@ namespace v2k4FIFASDKGenerator
 							ClassesSdkCreator.ResourceManager.SetLogger(logger);
 							ClassesSdkCreator.ResourceManager.Initialize();
 							ClassesSdkCreator.AssetManager = new AssetManager(ClassesSdkCreator.FileSystem, ClassesSdkCreator.ResourceManager);
-						//LegacyFileManager.AssetManager = ClassesSdkCreator.AssetManager;
-						//ClassesSdkCreator.AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-						ClassesSdkCreator.AssetManager.RegisterLegacyAssetManager();
+							ClassesSdkCreator.AssetManager.RegisterLegacyAssetManager();
 							ClassesSdkCreator.AssetManager.SetLogger(logger);
 							ClassesSdkCreator.AssetManager.Initialize(additionalStartup: true, result);
 							return true;

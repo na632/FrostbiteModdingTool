@@ -2,6 +2,7 @@
 using FIFAModdingUI.Windows.Profile;
 using FrostySdk;
 using FrostySdk.Interfaces;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using v2k4FIFAModding;
+using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
 namespace FIFAModdingUI
@@ -222,6 +224,7 @@ namespace FIFAModdingUI
                 var k = chkUseFileSystem.IsChecked.Value;
                 var useLegacyMods = chkUseLegacyModSupport.IsChecked.Value;
                 var useLiveEditor = chkUseLiveEditor.IsChecked.Value;
+                var useSymbolicLink = chkUseSymbolicLink.IsChecked.Value;
                 // Start the game with mods
                 await new TaskFactory().StartNew(async () =>
                 {
@@ -231,9 +234,19 @@ namespace FIFAModdingUI
                     btnLaunch.IsEnabled = false;
                 });
                 await Task.Delay(1000);
-                //Dispatcher.Invoke(() =>
-                //{
-                await LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems, this, GameInstanceSingleton.GAMEVERSION, true);
+
+                    if (AssetManager.Instance == null)
+                    {
+                        Log("Asset Manager is not initialised - Starting");
+                        ProjectManagement projectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION);
+                        Log("Asset Manager loading complete");
+                    }
+                    //Dispatcher.Invoke(() =>
+                    //{
+
+                    Log("Mod Compiler Started for " + GameInstanceSingleton.GAMEVERSION);
+
+                    await LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems, this, GameInstanceSingleton.GAMEVERSION, true, useSymbolicLink);
 
                     if (useLegacyMods)
                     {

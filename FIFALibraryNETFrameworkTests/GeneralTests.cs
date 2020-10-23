@@ -356,6 +356,25 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void TestChangeOfSplashscreen()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            var allEBX = project.AssetManager.EnumerateEbx().ToList();
+            if (allEBX.Count() > 0)
+            {
+                var files = allEBX.Where(x => x.Name.Contains("splash"));
+                if(files != null)
+                {
+                    foreach(var f in files)
+                    {
+
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void TestOpenOfProject()
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
@@ -364,30 +383,31 @@ namespace FIFALibraryNETFrameworkTests
             if (allEBX.Count() > 0)
             {
                 // Works
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x=>x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime")))
+                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime")))
                 //{
                 //    var eb = AssetManager.Instance.GetEbx(ebx);
                 //    if (eb != null)
                 //    {
-                //        //File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                //        ((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0f;
-                //        ((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0f;
-                //        ((dynamic)eb.RootObject).ATTR_JogSpeed = 0f;
-                //        ((dynamic)eb.RootObject).AnimationPlaybackTimeRatioDribbling = new List<float>() { 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f };
-                //        ((dynamic)eb.RootObject).ATTR_SprintSpeedTbl = new List<float>() { 0f, 0f };
-                //        //eb.AddObject(eb.RootObject);
+                        //        //File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                        //        ((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0f;
+                        //        ((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0f;
+                        //        ((dynamic)eb.RootObject).ATTR_JogSpeed = 0f;
+                        //        ((dynamic)eb.RootObject).AnimationPlaybackTimeRatioDribbling = new List<float>() { 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f };
+                        //        ((dynamic)eb.RootObject).ATTR_SprintSpeedTbl = new List<float>() { 0f, 0f };
+                        //        //eb.AddObject(eb.RootObject);
                 //        project.AssetManager.ModifyEbx(ebx.Name, eb);
                 //    }
                 //}
 
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaimarker_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //    }
-                //    project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //}
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains(
+                    "Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaimarker_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                    }
+                    project.AssetManager.ModifyEbx(ebx.Name, eb);
+                }
 
                 // Works
                 //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_pushpull_runtime")))
@@ -396,59 +416,67 @@ namespace FIFALibraryNETFrameworkTests
                 //    if (eb != null)
                 //    {
 
-                //        //        //        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                //        //        //        ((dynamic)eb.RootObject).pushpull_minHeldTicksForShirtPulledFoul = 15;
-                //        //        //        ((dynamic)eb.RootObject).pushpull_maxDistance = 4f;
-                //        //        //        ((dynamic)eb.RootObject).pushpull_minDistance = 0.01f;
-                //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMinForPull = 2.0f;
-                //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMaxForPull = 3.0f;
-                //        //        //        ((dynamic)eb.RootObject).pushpull_SituationModifier = 4.0f;
+                //        //        //        //        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                //        //        //        //        ((dynamic)eb.RootObject).pushpull_minHeldTicksForShirtPulledFoul = 15;
+                //        //        //        //        ((dynamic)eb.RootObject).pushpull_maxDistance = 4f;
+                //        //        //        //        ((dynamic)eb.RootObject).pushpull_minDistance = 0.01f;
+                //        //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMinForPull = 2.0f;
+                //        //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMaxForPull = 3.0f;
+                //        //        //        //        ((dynamic)eb.RootObject).pushpull_SituationModifier = 4.0f;
                 //        project.AssetManager.ModifyEbx(ebx.Name, eb);
                 //    }
                 //}
 
                 //// Breaks
-                ////foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaistandingtackle_runtime")))
-                ////{ 
-                ////        var eb = AssetManager.Instance.GetEbx(ebx);
-                ////    if (eb != null)
-                ////    {
-
-                ////        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[0].Y = 10;
-                ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[1].Y = 10;
-                ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[2].Y = 10;
-                ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[3].Y = 10;
-                ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[4].Y = 10;
-                ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[5].Y = 10;
-                ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[6].Y = 10;
-                ////        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                ////    }
-                ////}
-
-                //// Breaks
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_playercontactscore_runtime")))
+                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaistandingtackle_runtime")))
                 //{
                 //    var eb = AssetManager.Instance.GetEbx(ebx);
                 //    if (eb != null)
                 //    {
-                //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartCalf = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
-                //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartFoot = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
-                //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartThigh = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
-                //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartHips = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
-                //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartTorso = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
-                //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartHead = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
-                //        //        //        ((dynamic)eb.RootObject).PenaltyWeightsBargeTackle = new List<float>() { 30.0f, 30.0f, 30.0f, 30.0f };
 
-                //        //        ((dynamic)eb.RootObject).ScoreAdjustmentAutoTackle = 0;
-                //        //        ((dynamic)eb.RootObject).ScoreAdjustmentBallTouchCancelBarge = 0;
-
+                //        ////        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[0].Y = 10;
+                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[1].Y = 10;
+                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[2].Y = 10;
+                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[3].Y = 10;
+                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[4].Y = 10;
+                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[5].Y = 10;
+                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[6].Y = 10;
                 //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-
                 //    }
                 //}
 
-                //// BREAKS THE GAME
+                //// Breaks
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_playercontactscore_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartCalf = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartFoot = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartThigh = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartHips = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartTorso = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        //        //        //        ((dynamic)eb.RootObject).PenaltyModifiersCollisionPartHead = new List<float>() { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, };
+                        //        //        //        ((dynamic)eb.RootObject).PenaltyWeightsBargeTackle = new List<float>() { 30.0f, 30.0f, 30.0f, 30.0f };
+
+                        //        //        ((dynamic)eb.RootObject).ScoreAdjustmentAutoTackle = 0;
+                        //        //        ((dynamic)eb.RootObject).ScoreAdjustmentBallTouchCancelBarge = 0;
+
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_ballcontactscore_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
                 foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_foul_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
@@ -481,16 +509,16 @@ namespace FIFALibraryNETFrameworkTests
                     }
                 }
 
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_refereestrictness_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //        ((dynamic)eb.RootObject).referee_strictness_yellowcard_threshold = 75.0f;
-                //        ((dynamic)eb.RootObject).referee_strictness_yellowcard_threshold = 95.0f;
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_refereestrictness_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        //((dynamic)eb.RootObject).referee_strictness_yellowcard_threshold = 75.0f;
+                        //((dynamic)eb.RootObject).referee_strictness_yellowcard_threshold = 95.0f;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
                 //// Works
                 //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_goalkeeper/gp_goalkeeper_cpu_difficulty_runtime")))
@@ -505,19 +533,37 @@ namespace FIFALibraryNETFrameworkTests
                 //}
 
                 //// Works
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_goalkeeper/gp_goalkeeper_newgk_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Normal.Internal.Points[0].Y = 30.0f;
-                //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Normal.Internal.Points[1].Y = 30.0f;
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_goalkeeper/gp_goalkeeper_newgk_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Normal.Internal.Points[0].Y = 30.0f;
+                        //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Normal.Internal.Points[1].Y = 30.0f;
 
-                //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Aggressive.Internal.Points[0].Y = 30.0f;
-                //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Aggressive.Internal.Points[1].Y = 30.0f;
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                        //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Aggressive.Internal.Points[0].Y = 30.0f;
+                        //        ((dynamic)eb.RootObject).GK_RreachTimeBuffer_InsideBox_Aggressive.Internal.Points[1].Y = 30.0f;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_defense/gp_defense_tackling_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_defense/gp_defense_jockey_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
                 //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_defense/gp_defense_pushpull_runtime")))
                 //{
@@ -529,67 +575,70 @@ namespace FIFALibraryNETFrameworkTests
                 //}
 
                 //// Works
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_markingtightness_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //        ((dynamic)eb.RootObject).markingTightnessUniversalModifier = 4.0f;
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains(
+                    "Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_markingtightness_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        //((dynamic)eb.RootObject).markingTightnessUniversalModifier = 4.0f;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
                 // Works
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_defense_general_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //        //        // Works
-                //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[0].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[1].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[2].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[3].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[4].Y = 1.0f;
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains(
+                    "Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_defense_general_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        //        //        // Works
+                        //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[0].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[1].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[2].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[3].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).backwardMarkingSpeedModifier.Internal.Points[4].Y = 1.0f;
 
-                //        //        //        ((dynamic)eb.RootObject).depthThresholdForTransitionDefense = 0.5f;
+                        //        //        //        ((dynamic)eb.RootObject).depthThresholdForTransitionDefense = 0.5f;
 
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_defending_attributes_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //        //        ((dynamic)eb.RootObject).minCmfPosFor7ManBehindBall.Internal.Points[0].Y = 0.1f;
-                //        //        ((dynamic)eb.RootObject).minCmfPosFor7ManBehindBall.Internal.Points[1].Y = 0.1f;
-                //        //        ((dynamic)eb.RootObject).minCmfPosFor7ManBehindBall.Internal.Points[2].Y = 0.1f;
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains(
+                    "Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_defending_attributes_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        //        //        ((dynamic)eb.RootObject).minCmfPosFor7ManBehindBall.Internal.Points[0].Y = 0.1f;
+                        //        //        ((dynamic)eb.RootObject).minCmfPosFor7ManBehindBall.Internal.Points[1].Y = 0.1f;
+                        //        //        ((dynamic)eb.RootObject).minCmfPosFor7ManBehindBall.Internal.Points[2].Y = 0.1f;
 
-                //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[0].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[1].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[2].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[3].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[4].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[0].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[1].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[2].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[3].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).coveringEffectiveness.Internal.Points[4].Y = 1.0f;
 
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[0].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[1].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[2].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[3].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[4].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[5].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[6].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[7].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[8].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[9].Y = 1.0f;
-                //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[10].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[0].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[1].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[2].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[3].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[4].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[5].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[6].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[7].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[8].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[9].Y = 1.0f;
+                        //        //        ((dynamic)eb.RootObject).markingIntelligence.Internal.Points[10].Y = 1.0f;
 
 
 
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
                 //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_positioning/gp_positioning_runpathblock_runtime")))
                 //{
@@ -661,21 +710,21 @@ namespace FIFALibraryNETFrameworkTests
                     }
                 }
 
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_kickerror/gp_kickerror_passshotcontexteffectshotfinesse_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
-                //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[0].Y = 0.2f;
-                //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[1].Y = 0.2f;
-                //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[2].Y = 0.2f;
-                //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[3].Y = 0.2f;
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_kickerror/gp_kickerror_passshotcontexteffectshotfinesse_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[0].Y = 0.2f;
+                        //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[1].Y = 0.2f;
+                        //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[2].Y = 0.2f;
+                        //        //        ((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate.Internal.Points[3].Y = 0.2f;
 
-                //        //((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_MissRateVsAttribute.Internal.Points[0].Y = 5.0f;
-                //        //((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_MissRateVsAttribute.Internal.Points[1].Y = 4.0f;
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                        //        //((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_MissRateVsAttribute.Internal.Points[0].Y = 5.0f;
+                        //        //((dynamic)eb.RootObject).PASSSHOT_CONTEXTEFFECT_MissRateVsAttribute.Internal.Points[1].Y = 4.0f;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
                 projectManagement.FrostyProject.Save("Paulv2k4 FIFA 21 Gameplay.fbproject");
                 projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha.fbmod"
@@ -697,7 +746,7 @@ namespace FIFALibraryNETFrameworkTests
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
             var legacyFiles = project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
-            if(legacyFiles.Count >0 )
+            if(legacyFiles.Count > 0)
             {
 
             }

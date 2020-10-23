@@ -72,19 +72,22 @@ namespace FIFAModdingUI.Windows
         {
             BackgroundWorker worker = new BackgroundWorker();
 
+           
+
             worker.DoWork += (s, we) =>
             {
-                BuildCache buildCache = new BuildCache();
-                buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true).Wait();
 
                 ProjectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
-                ProjectManagement.FrostyProject = new FrostySdk.FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+                ProjectManagement.StartNewProject();
 
-                Dispatcher.Invoke(() =>
-                {
-                    GameplayMain.Initialise();
-                });
+                //BuildCache buildCache = new BuildCache();
+                //buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true).Wait();
 
+                //ProjectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
+                //ProjectManagement.FrostyProject = new FrostySdk.FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+                kitBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                       .EnumerateEbx("TextureAsset").Where(x => x.Path.ToLower().Contains("kit")).OrderBy(x => x.Path).ToList();
+                
                 //BuildTextureBrowser(null);
 
                 //// 
@@ -104,6 +107,11 @@ namespace FIFAModdingUI.Windows
                 //});
 
                 BuildLegacyBrowser(null);
+
+                Dispatcher.Invoke(() =>
+                {
+                    GameplayMain.Initialise();
+                });
 
             };
             worker.RunWorkerAsync();
@@ -315,6 +323,7 @@ namespace FIFAModdingUI.Windows
                         || CurrentLegacySelection.Type == "INI"
                         || CurrentLegacySelection.Type == "CSV"
                         || CurrentLegacySelection.Type == "LUA"
+                        || CurrentLegacySelection.Type == "NAV"
                         )
                     {
                         txtLegacyViewer.Visibility = Visibility.Visible;

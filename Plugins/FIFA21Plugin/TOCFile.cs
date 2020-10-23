@@ -109,7 +109,38 @@ namespace FIFA21Plugin
 				Sec4Size = nativeReader.ReadInt(Endian.Big);
 				Offset8 = nativeReader.ReadInt(Endian.Big);
 
+                if (ListOfPositionChecks.Contains(Offset1))
+                {
+
+                }
+				if (ListOfPositionChecks.Contains(Offset2))
+				{
+
+				}
+				if (ListOfPositionChecks.Contains(Offset4))
+				{
+
+				}
+				if (ListOfPositionChecks.Contains(Offset5))
+				{
+
+				}
+				if (ListOfPositionChecks.Contains(Offset6))
+				{
+
+				}
+				if (ListOfPositionChecks.Contains(Offset7))
+				{
+
+				}
+				if (ListOfPositionChecks.Contains(Offset8))
+				{
+
+				}
 			}
+
+			private List<int> ListOfPositionChecks
+				= new List<int>() { 4118, 4733, 5362, 5659 };
 
         }
 
@@ -243,6 +274,10 @@ namespace FIFA21Plugin
 					byte catalog2 = nativeReader.ReadByte();
 					byte cas2 = nativeReader.ReadByte();
 					uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
+					if(chunkOffset == 4118 || chunkOffset == 4737)
+                    {
+
+                    }
 					uint chunkSize = nativeReader.ReadUInt(Endian.Big);
 					ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
 					chunkAssetEntry2.Id = tocChunkGuids[num16];

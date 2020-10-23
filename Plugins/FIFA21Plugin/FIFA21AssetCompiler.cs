@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FIFA21Plugin
 {
@@ -85,6 +86,7 @@ namespace FIFA21Plugin
                     var dataFiles = Directory.EnumerateFiles(fs.BasePath + "Data", "*.*", SearchOption.AllDirectories);
                     var dataFileCount = dataFiles.Count();
                     var indexOfDataFile = 0;
+                    Task[] tasks = new Task[dataFileCount];
                     foreach (var f in dataFiles)
                     {
                         var finalDestination = f.Replace("Data", @"ModData\Data\");
@@ -95,18 +97,46 @@ namespace FIFA21Plugin
                         {
                             Directory.CreateDirectory(newDirectory);
                         }
-                        File.Copy(f, finalDestination, true);
+                        if (!File.Exists(finalDestination))
+                        {
+                            //tasks[indexOfDataFile] = Task.Run(() =>
+                            //{
+                                //logger.Log($"Copying {f}");
+
+                                //File.Copy(f, finalDestination, true);
+                                using (var inputStream = new NativeReader(File.Open(f, FileMode.Open)))
+                                using (var outputStream = new NativeWriter(File.Open(finalDestination, FileMode.Create)))
+                                {
+                                    //var bufferRead = -1;
+                                    //var bufferLength = 8196;
+                                    //var buffer = new byte[bufferLength];
+
+                                    //while ((bufferRead = inputStream.Read(buffer, 0, bufferLength)) > 0)
+                                    //{
+                                    //    outputStream.Write(buffer, 0, bufferRead);
+                                    //}
+                                    outputStream.Write(inputStream.ReadToEnd());
+                                }
+
+                                //logger.Log($"Copied {f}");
+                            //});
+                        }
                         indexOfDataFile++;
-                        logger.Log($"Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
+                        logger.Log($"First Time Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
                     }
+
+                    //Task.WaitAll(tasks);
                 }
 
-                logger.Log("Deleting CAS files from ModData");
-                foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "//" + PatchDirectory, "*.cas", SearchOption.AllDirectories))
+                if (Directory.Exists(fs.BasePath + ModDirectory + "//" + PatchDirectory))
                 {
-                    File.Delete(casFileLocation);
+                    logger.Log("Deleting CAS files from ModData/Patch");
+                    foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "//" + PatchDirectory, "*.cas", SearchOption.AllDirectories))
+                    {
+                        File.Delete(casFileLocation);
+                    }
                 }
-                logger.Log("Copying files from Patch to ModData");
+                logger.Log("Copying files from Patch to ModData/Patch");
                 // Copied Patch CAS files from Patch to Mod Data Patch
                 DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);
                 //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())

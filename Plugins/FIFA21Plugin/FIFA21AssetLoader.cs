@@ -50,7 +50,7 @@ namespace FIFA21Plugin
 			{
 				foreach (CatalogInfo catalogInfoItem in parent.fs.EnumerateCatalogInfos())
 				{
-					foreach (string sbName in catalogInfoItem.SuperBundles.Keys)
+					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x=>!x.Value).Select(x=>x.Key))
 					{
 						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
 						int sbIndex = -1;
@@ -116,8 +116,46 @@ namespace FIFA21Plugin
 								AllDbObjects.AddRange(dbObjects);
 							}
 						}
+
 					}
 				}
+
+
+				MemoryStream memoryStream = new MemoryStream();
+
+				using (NativeReader nr_cas_01 = new NativeReader(
+					new FileStream(parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas", FileMode.Open, FileAccess.Read)
+					)
+					)
+				{
+					List<long> PositionOfReadableItems = new List<long>();
+					while (nr_cas_01.Position < nr_cas_01.Length)
+					{
+						if (nr_cas_01.ReadUInt(Endian.Big) == 3599661469)
+						{
+							PositionOfReadableItems.Add(nr_cas_01.Position - 8);
+						}
+					}
+
+					nr_cas_01.Position = 0;
+					foreach (var pos in PositionOfReadableItems)
+					{
+						using (
+							NativeReader inner_reader = new NativeReader(
+							nr_cas_01.CreateViewStream(pos, nr_cas_01.Length - pos)
+							))
+						{
+							SBFile sbFile = new SBFile();
+							DbObject obj = new DbObject();
+							sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
+								, ref obj, inner_reader, false);
+							foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+							{
+							}
+						}
+					}
+				}
+
 			}
 		}
 	}

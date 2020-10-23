@@ -16,6 +16,8 @@ namespace FIFA21Plugin
 {
     public class TocSbReader_FIFA21
     {
+        private const uint ReadableSectionMagic = 3599661469;
+
         public AssetManager AssetManager { get; set; }
 
         public TOCFile TOCFile { get; set; }
@@ -62,19 +64,37 @@ namespace FIFA21Plugin
                         }
 
 
-                        MemoryStream memoryStream = new MemoryStream();
+                        //MemoryStream memoryStream = new MemoryStream();
 
-                        //using (NativeReader nativeReader3 = new NativeReader(
-                        //    //new FileStream(AssetManager.fs.ResolvePath(AssetManager.fs.GetFilePath(b.CasIndex)), FileMode.Open, FileAccess.Read))
+                        //using (NativeReader nr_cas_01 = new NativeReader(
                         //    new FileStream(AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas", FileMode.Open, FileAccess.Read)
                         //    )
                         //    )
                         //{
+                        //    List<long> PositionOfReadableItems = new List<long>();
+                        //    while (nr_cas_01.Position < nr_cas_01.Length) 
+                        //    {
+                        //        if (nr_cas_01.ReadUInt(Endian.Big) == ReadableSectionMagic)
+                        //        {
+                        //            PositionOfReadableItems.Add(nr_cas_01.Position - 8);
+                        //        }
+                        //    }
 
-                        //    SBFile sbFile = new SBFile(this, TOCFile, SBIndex);
-                        //    DbObject obj = new DbObject();
-                        //    sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo(), ref obj, nativeReader3);
-                        //    objs.Add(obj);
+                        //    nr_cas_01.Position = 0;
+                        //    using (
+                        //        NativeReader nr_splash = new NativeReader(
+                        //        nr_cas_01.CreateViewStream(69045582, nr_cas_01.Length - 69045582)
+                        //        ))
+                        //    {
+                        //        SBFile sbFile = new SBFile(this, TOCFile, SBIndex);
+                        //        DbObject obj = new DbObject();
+                        //        sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
+                        //            , ref obj, nr_splash, false);
+                        //        foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+                        //        {
+                        //        }
+                        //        objs.Add(obj);
+                        //    }
                         //}
 
                         //var casFile1 = AssetManager.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas";
@@ -128,6 +148,10 @@ namespace FIFA21Plugin
                     //}
                 }
             }
+
+
+
+
             return null;
         }
 
