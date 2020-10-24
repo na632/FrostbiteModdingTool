@@ -121,42 +121,90 @@ namespace FIFA21Plugin
 				}
 
 
-				MemoryStream memoryStream = new MemoryStream();
+				// CAS SEARCHING
 
-				using (NativeReader nr_cas_01 = new NativeReader(
-					new FileStream(parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas", FileMode.Open, FileAccess.Read)
-					)
-					)
+				/*
+				List<string> casFilesToSearch = new List<string>()
 				{
-					List<long> PositionOfReadableItems = new List<long>();
-					while (nr_cas_01.Position < nr_cas_01.Length)
-					{
-						if (nr_cas_01.ReadUInt(Endian.Big) == 3599661469)
-						{
-							PositionOfReadableItems.Add(nr_cas_01.Position - 8);
-						}
-					}
+					parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas",
+					parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas"
 
-					nr_cas_01.Position = 0;
-					foreach (var pos in PositionOfReadableItems)
+				};
+				foreach (var path in casFilesToSearch) 
+				{
+
+					using (NativeReader nr_cas = new NativeReader(
+						new FileStream(path, FileMode.Open, FileAccess.Read)
+						)
+						)
 					{
-						using (
-							NativeReader inner_reader = new NativeReader(
-							nr_cas_01.CreateViewStream(pos, nr_cas_01.Length - pos)
-							))
+
+						List<int> PositionOfReadableItems = SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+
+						List<DbObject> dbObjects = new List<DbObject>();
+						nr_cas.Position = 0;
+						foreach (var pos in PositionOfReadableItems)
 						{
-							SBFile sbFile = new SBFile();
-							DbObject obj = new DbObject();
-							sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
-								, ref obj, inner_reader, false);
-							foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+							// go back 4 from the magic
+							var actualPos = pos - 4;
+
+							using (
+								NativeReader inner_reader = new NativeReader(
+								nr_cas.CreateViewStream(actualPos, nr_cas.Length - actualPos)
+								))
 							{
+								SBFile sbFile = new SBFile();
+								DbObject obj = new DbObject();
+								sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
+									, ref obj, inner_reader, false);
+								foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+								{
+								}
+
+								dbObjects.Add(obj);
 							}
+						}
+
+						if (dbObjects != null)
+						{
+
+							foreach (DbObject @object in dbObjects.Where(x => x != null))
+							{
+								parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
+								parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
+								parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+							}
+
+							AllDbObjects.AddRange(dbObjects);
 						}
 					}
 				}
+				*/
 
 			}
+
+			
+		}
+		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
+		{
+			List<int> positions = new List<int>();
+			int patternLength = pattern.Length;
+			int totalLength = bytes.Length;
+			byte firstMatchByte = pattern[0];
+			for (int i = 0; i < totalLength; i++)
+			{
+				if (firstMatchByte == bytes[i] && totalLength - i >= patternLength)
+				{
+					byte[] match = new byte[patternLength];
+					Array.Copy(bytes, i, match, 0, patternLength);
+					if (match.SequenceEqual<byte>(pattern))
+					{
+						positions.Add(i);
+						i += patternLength - 1;
+					}
+				}
+			}
+			return positions;
 		}
 	}
 

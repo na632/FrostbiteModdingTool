@@ -106,8 +106,8 @@
 
             </StackPanel>
             <TabControl x:Name="MainViewer" Grid.Row="1" Height="500">
-                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Collapsed">
-                    <StackPanel Orientation="Vertical">
+                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
+                    <!--<StackPanel Orientation="Vertical">
                         <Label Background="Yellow">Texture Browser is incomplete and missing Faces/Kits/Boots/Balls (all the important stuff). Sorry!</Label>
                         <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
@@ -120,14 +120,6 @@
                                       ScrollViewer.VerticalScrollBarVisibility="Visible"
                                       >
                                       >
-                                <!--<TreeView.ItemTemplate>
-                                    <HierarchicalDataTemplate DataType="{x:Type Model:DirectoryItem}"
-                                      ItemsSource="{Binding Items}">
-                                            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
-                                        </HierarchicalDataTemplate>
-
-                                  
-                                </TreeView.ItemTemplate>-->
                             </TreeView>
                             <StackPanel Orientation="Vertical" Grid.Column="1">
                                 <StackPanel Orientation="Horizontal">
@@ -138,7 +130,10 @@
                             </StackPanel>
 
                         </Grid>
-                    </StackPanel>
+                    </StackPanel>-->
+
+                    <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
+
 
                 </TabItem>
                 <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible">

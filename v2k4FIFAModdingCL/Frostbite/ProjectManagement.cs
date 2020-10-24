@@ -56,6 +56,14 @@ namespace v2k4FIFAModding.Frosty
             Initialise();
         }
 
+        public ProjectManagement(string gamePath, ILogger logger)
+            //: this(gamePath)
+        {
+            Logger = logger;
+            InitializeOfSelectedGame(gamePath);
+            Initialise();
+        }
+
         public FrostyProject FrostyProject = null;
         public string FilePath = null;
 

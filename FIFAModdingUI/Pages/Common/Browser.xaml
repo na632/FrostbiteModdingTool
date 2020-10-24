@@ -5,8 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel x:Name="spParent">
+             d:DesignHeight="500" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+            <TreeView x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="300" BorderBrush="Gray" BorderThickness="1">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <Label Content="{Binding PathName}"></Label>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="100" BorderBrush="Gray" BorderThickness="1">
+
+            </ListView>
+        </StackPanel>
+        <StackPanel Grid.Column="1">
             
-    </StackPanel>
+        </StackPanel>
+    </Grid>
 </UserControl>

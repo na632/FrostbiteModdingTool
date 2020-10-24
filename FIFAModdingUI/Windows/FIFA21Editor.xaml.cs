@@ -52,9 +52,42 @@ namespace FIFAModdingUI.Windows
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
-            GameInstanceSingleton.InitialiseSingleton(filePath);
-            txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
-            _ = Start();
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                GameInstanceSingleton.InitialiseSingleton(filePath);
+                txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
+
+                Task.Run(() =>
+                {
+
+                    ProjectManagement = new ProjectManagement(filePath, this);
+                    ProjectManagement.StartNewProject();
+                    
+                    // Check and run Legacy Browser (UI is where the slowness is, FIXME)
+                    var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+                    if (legacyFiles.Count > 0)
+                    {
+                        BuildLegacyBrowser(null);
+                    }
+
+                    // Kit Browser
+                    kitBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                       .EnumerateEbx("TextureAsset").Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).ToList();
+
+                    textureBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                       .EnumerateEbx("TextureAsset").Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).ToList();
+
+                    //BuildTextureBrowser(null);
+
+                    Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        GameplayMain.Initialise();
+                    }));
+
+                });
+            }
+
+            //_ = Start();
         }
 
         private void btnLaunchFIFAMods(object sender, RoutedEventArgs e)
@@ -67,62 +100,10 @@ namespace FIFAModdingUI.Windows
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test_gp_speed_change.fbmod" }.ToArray()).Wait();
 
         }
-
-        public bool Start()
-        {
-            BackgroundWorker worker = new BackgroundWorker();
-
-           
-
-            worker.DoWork += (s, we) =>
-            {
-
-                ProjectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
-                ProjectManagement.StartNewProject();
-
-                //BuildCache buildCache = new BuildCache();
-                //buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true).Wait();
-
-                //ProjectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
-                //ProjectManagement.FrostyProject = new FrostySdk.FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
-                kitBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx("TextureAsset").Where(x => x.Path.ToLower().Contains("kit")).OrderBy(x => x.Path).ToList();
-                
-                //BuildTextureBrowser(null);
-
-                //// 
-                //var items = ProjectManagement.FrostyProject.AssetManager
-                //       .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).ToList();
-
-                //var itemProvider = new ItemProvider();
-
-                //var textureExplorerItems = itemProvider.GetItems(items);
-
-                //var obserItems = new ObservableCollection<AssetEntry>(items);
-
-                //Dispatcher.Invoke(() =>
-                //{
-                //    tvTextureBrowser.Items.Clear();
-                //    tvTextureBrowser.ItemsSource = obserItems;
-                //});
-
-                BuildLegacyBrowser(null);
-
-                Dispatcher.Invoke(() =>
-                {
-                    GameplayMain.Initialise();
-                });
-
-            };
-            worker.RunWorkerAsync();
-
-            return true;
-        }
-
         string lastTemporaryFileLocation;
         Random Randomizer = new Random();
         EbxAssetEntry CurrentTextureAssetEntry = null;
-
+        /*
         private bool BuildTextureBrowser(string filter)
         {
             BackgroundWorker worker = new BackgroundWorker();
@@ -130,43 +111,17 @@ namespace FIFAModdingUI.Windows
             worker.DoWork += (s, we) =>
             {
                 var items = ProjectManagement.FrostyProject.AssetManager
-                        .EnumerateEbx("TextureAsset").OrderBy(x => x.Path);
+                        .EnumerateEbx("TextureAsset").Where(x=>x.Path.ToLower() != "kit").OrderBy(x => x.Path);
                 var uniquePaths = items.Select(x => x.Path.ToLower()).Distinct();
-
-                //var finalPathDictionary = new List<Tuple<string, List<string>, List<EbxAssetEntry>>>();
-                //foreach(var p in uniquePaths)
-                //{
-                //    var pSplit = p.Split('/');
-                //    if (pSplit.Length > 0)
-                //    {
-                //        var splitIndex = 0;
-                //        foreach (var splitP in pSplit)
-                //        {
-                //            var items_in_the_split = items.Where(x => x.Path.ToLower().Contains(pSplit[0]) && x.Path.ToLower().EndsWith(splitP));
-
-                //            List<string> childPaths = new List<string>();
-                //            if(pSplit.Length-1 > splitIndex)
-                //            {
-                //                var nextPath = pSplit[splitIndex+1];
-                //                if (!childPaths.Contains(nextPath))
-                //                    childPaths.Add(nextPath);
-                //            }
-
-                //            finalPathDictionary.Add(new Tuple<string, List<string>, List<EbxAssetEntry>>(splitP, childPaths, items_in_the_split.ToList()));
-
-                //            splitIndex++;
-                //        }
-                //    }
-                //}
 
                 var index = 0;
 
-                Dispatcher.Invoke(() =>
+                Dispatcher.BeginInvoke((Action)(() =>
                 {
 
-                string lastPath = null;
+                    string lastPath = null;
                     TreeViewItem treeItem = null;
-                    
+
                     foreach (var i in items)
                     {
                         var splitPath = i.Path.Split('/');
@@ -175,7 +130,7 @@ namespace FIFAModdingUI.Windows
 
                         bool usePreviousTree = string.IsNullOrEmpty(lastPath) || lastPath.ToLower() == i.Path.ToLower();
 
-                   
+
                         // use previous tree
                         if (!usePreviousTree || treeItem == null)
                         {
@@ -229,24 +184,24 @@ namespace FIFAModdingUI.Windows
                         treeItem.Items.Add(innerTreeItem);
 
 
-                    //}
-                    index++;
+                        //}
+                        index++;
                         Log($"Loading Texture Browser ({index}/{items.Count()})");
 
                     }
-                    });
+                }));
             };
             worker.RunWorkerAsync();
             return true;
         }
-
+        */
         private bool BuildLegacyBrowser(string filter)
         {
             BackgroundWorker worker = new BackgroundWorker();
 
             worker.DoWork += (s, we) =>
             {
-                Dispatcher.Invoke(() =>
+                Dispatcher.BeginInvoke((Action)(() =>
                 {
                     var index = 0;
 
@@ -275,14 +230,14 @@ namespace FIFAModdingUI.Windows
 
                         //innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
                         innerTreeItem.MouseLeftButtonUp += InnerTreeItem_MouseLeftButtonUp;
-                        
+
                         treeItem.Items.Add(innerTreeItem);
 
                         index++;
                         Log($"Loading Legacy Browser ({index}/{items.Count()})");
 
                     }
-                });
+                }));
             };
             worker.RunWorkerAsync();
             return true;
@@ -346,7 +301,8 @@ namespace FIFAModdingUI.Windows
                                 bImage = null;
                             }
                         }
-                        catch { ImageViewer.Source = null; }
+                        catch { //ImageViewer.Source = null; 
+                        }
 
                     }
 

@@ -363,10 +363,23 @@ namespace FIFALibraryNETFrameworkTests
             var allEBX = project.AssetManager.EnumerateEbx().ToList();
             if (allEBX.Count() > 0)
             {
-                var files = allEBX.Where(x => x.Name.Contains("splash"));
+                var files = allEBX.Where(x => x.Name.Contains("splashscreen"));
                 if(files != null)
                 {
                     foreach(var f in files)
+                    {
+
+                    }
+                }
+            }
+
+            var allRES = project.AssetManager.EnumerateRes().ToList();
+            if (allRES.Count() > 0)
+            {
+                var files = allRES.Where(x => x.Name.Contains("splashscreen"));
+                if (files != null)
+                {
+                    foreach (var f in files)
                     {
 
                     }
@@ -410,22 +423,22 @@ namespace FIFALibraryNETFrameworkTests
                 }
 
                 // Works
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_pushpull_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_pushpull_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
 
-                //        //        //        //        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                //        //        //        //        ((dynamic)eb.RootObject).pushpull_minHeldTicksForShirtPulledFoul = 15;
-                //        //        //        //        ((dynamic)eb.RootObject).pushpull_maxDistance = 4f;
-                //        //        //        //        ((dynamic)eb.RootObject).pushpull_minDistance = 0.01f;
-                //        //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMinForPull = 2.0f;
-                //        //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMaxForPull = 3.0f;
-                //        //        //        //        ((dynamic)eb.RootObject).pushpull_SituationModifier = 4.0f;
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                        //        //        //        //        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                        //        //        //        //        ((dynamic)eb.RootObject).pushpull_minHeldTicksForShirtPulledFoul = 15;
+                        //        //        //        //        ((dynamic)eb.RootObject).pushpull_maxDistance = 4f;
+                        //        //        //        //        ((dynamic)eb.RootObject).pushpull_minDistance = 0.01f;
+                        //        //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMinForPull = 2.0f;
+                        //        //        //        //        ((dynamic)eb.RootObject).pushpull_distanceMultiplierMaxForPull = 3.0f;
+                        //        //        //        //        ((dynamic)eb.RootObject).pushpull_SituationModifier = 4.0f;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
                 //// Breaks
                 //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaistandingtackle_runtime")))
@@ -447,7 +460,7 @@ namespace FIFALibraryNETFrameworkTests
                 //}
 
                 //// Breaks
-                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_playercontactscore_runtime")))
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_foul_playercontactscore_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
                     if (eb != null)
@@ -468,7 +481,7 @@ namespace FIFALibraryNETFrameworkTests
                     }
                 }
 
-                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_ballcontactscore_runtime")))
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_foul_ballcontactscore_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
                     if (eb != null)
@@ -727,11 +740,11 @@ namespace FIFALibraryNETFrameworkTests
                 }
 
                 projectManagement.FrostyProject.Save("Paulv2k4 FIFA 21 Gameplay.fbproject");
-                projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha.fbmod"
+                projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha 2.fbmod"
                     , new ModSettings() { Author = "paulv2k4", Category = "Gameplay", Description = "Gameplay Test", Title = "Gameplay Test", Version = "1.00" });
 
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-                frostyModExecutor.UseSymbolicLinks = true;
+                //frostyModExecutor.UseSymbolicLinks = true;
                 frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha.fbmod" }.ToArray()).Wait();
 
             }
