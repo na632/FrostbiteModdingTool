@@ -12,19 +12,36 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
-            <TreeView x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="300" BorderBrush="Gray" BorderThickness="1">
+            <TreeView x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="300" BorderBrush="LightGray" BorderThickness="1">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                        <Label Content="{Binding PathName}"></Label>
+                        <Label Content="{Binding PathName}" Tag="{Binding Parent}" MouseUp="Label_MouseUp"></Label>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
-            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="100" BorderBrush="Gray" BorderThickness="1">
-
+            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="150" BorderBrush="LightGray" BorderThickness="1">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding DisplayName}" Tag="{Binding}" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
             </ListView>
         </StackPanel>
-        <StackPanel Grid.Column="1">
-            
+        <StackPanel Grid.Column="1" Orientation="Vertical" Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="btnImport" IsEnabled="False" Click="btnImport_Click">
+                    Import
+                </Button>
+                <Button x:Name="btnExport" IsEnabled="False" Click="btnExport_Click">
+                    Export
+                </Button>
+            </StackPanel>
+            <Image x:Name="ImageViewer" MinHeight="256" Visibility="Collapsed">
+                
+            </Image>
+            <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999"  Visibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                
+            </TextBox>
         </StackPanel>
     </Grid>
 </UserControl>

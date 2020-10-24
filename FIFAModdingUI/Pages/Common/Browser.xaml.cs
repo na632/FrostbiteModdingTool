@@ -1,9 +1,17 @@
-﻿using FrostySdk.Managers;
+﻿using Frostbite.Textures;
+using FrostySdk;
+using FrostySdk.IO;
+using FrostySdk.Managers;
+using FrostySdk.Resources;
+using KUtility;
 using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +24,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using v2k4FIFAModding.Frosty;
+using Xceed.Wpf.AvalonDock.Converters;
+using FrostySdk.FrostySdk.Managers;
+using Microsoft.Win32;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -31,9 +43,9 @@ namespace FIFAModdingUI.Pages.Common
         }
 
 
-        private List<EbxAssetEntry> allAssets;
+        private List<IAssetEntry> allAssets;
 
-        public List<EbxAssetEntry> AllAssetEntries
+        public List<IAssetEntry> AllAssetEntries
         {
             get { return allAssets; }
             set { allAssets = value; Update(); }
@@ -134,32 +146,201 @@ namespace FIFAModdingUI.Pages.Common
 
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e)
+        private void btnImport_Click(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            if(button != null)
-            {
-                var file = AllAssetEntries.FirstOrDefault(x => x.Filename == button.Tag.ToString());
-                if (file != null)
-                {
 
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(CurrentPath))
-                    {
-                        BrowseTo(CurrentPath + "/" + button.Tag.ToString());
-                    }
-                    else
-                    {
-                        BrowseTo(button.Tag.ToString());
-                    }
-                }
+        }
+
+        private void btnExport_Click(object sender, RoutedEventArgs e)
+        {
+			if(SelectedLegacyEntry != null)
+            {
+				if (SelectedLegacyEntry != null)
+				{
+					SaveFileDialog saveFileDialog = new SaveFileDialog();
+					var filt = "*." + SelectedLegacyEntry.Type;
+					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+					saveFileDialog.FileName = SelectedLegacyEntry.Filename;
+					if (saveFileDialog.ShowDialog().Value)
+					{
+						using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+						{
+							nativeWriter.Write(new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ReadToEnd());
+						}
+					}
+				}
+			}
+        }
+
+        private void Label_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+			Label label = sender as Label;
+			if (label != null && label.Tag != null) 
+			{
+				var assetPath = label.Tag as AssetPath;
+				if (assetPath != null) 
+				{
+					if (assetPath.FullPath.Length > 3)
+					{
+						var filterPath = (assetPath.FullPath.Substring(1, assetPath.FullPath.Length - 1));
+						var filteredAssets = AllAssetEntries.Where(x => x.Path == filterPath);
+						assetListView.ItemsSource = filteredAssets.Take(100);
+						
+					}
+				}
+			}
+        }
+
+		public EbxAssetEntry SelectedEbxEntry;
+		public LegacyFileEntry SelectedLegacyEntry;
+
+        private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+			try
+			{
+				SelectedEbxEntry = null;
+				SelectedLegacyEntry = null;
+				btnImport.IsEnabled = false;
+				btnExport.IsEnabled = false;
+
+				ImageViewer.Visibility = Visibility.Collapsed;
+				TextViewer.Visibility = Visibility.Collapsed;
+				//EbxViewer.Visibility = Visibility.Hidden;
+
+				Control control = sender as Control;
+				if (control != null)
+				{
+					EbxAssetEntry ebxEntry = control.Tag as EbxAssetEntry;
+					if (ebxEntry != null)
+					{
+						SelectedEbxEntry = ebxEntry;
+						if (ebxEntry.Type == "TextureAsset")
+						{
+							try
+							{
+								var eb = AssetManager.Instance.GetEbx(ebxEntry);
+								if (eb != null)
+								{
+									var res = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+									if (res != null)
+									{
+										using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(res))
+										{
+											using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager))
+											{
+												try
+												{
+													ImageViewer.Source = null;
+
+													var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
+
+													//var textureBytes = new TextureExporter().WriteToDDS(textureAsset);
+													//using (NativeWriter writer = new NativeWriter(new FileStream("temp.dds", FileMode.OpenOrCreate)))
+													//                                    {
+													//	writer.Write(textureBytes);
+													//                                    }
+													//DDSImage img = new DDSImage(File.ReadAllBytes(bPath));
+													TextureExporter textureExporter = new TextureExporter();
+													MemoryStream memoryStream = new MemoryStream();
+													var textureBytes = new NativeReader(textureExporter.ExportToSteam(textureAsset)).ReadToEnd();
+
+													//for (int i = 0; i < img.images.Length; i++)
+													//{
+													//	img.images[i].Save(Directory.GetCurrentDirectory() + @"\mipmap-" + i + ".bmp", ImageFormat.Bmp);
+													//}
+													//var bPathMip = Directory.GetCurrentDirectory() + @"\mipmap-0.bmp";
+
+													var bImage = LoadImage(textureBytes);
+													ImageViewer.Source = bImage;
+													ImageViewer.Visibility = Visibility.Visible;
+													//bImage = null;
+												}
+												catch { ImageViewer.Source = null; }
+											}
+										}
+									}
+								}
+							}
+							catch (Exception)
+							{
+								//Log("Failed to load texture");
+							}
+
+
+
+						}
+					}
+
+					LegacyFileEntry legacyFileEntry = control.Tag as LegacyFileEntry;
+					if (legacyFileEntry != null)
+					{
+						SelectedLegacyEntry = legacyFileEntry;
+
+						List<string> textViewers = new List<string>()
+						{
+							"LUA",
+							"XML",
+							"INI",
+							"NAV",
+							"CSV"
+						};
+
+						List<string> imageViewers = new List<string>()
+						{
+							"PNG",
+							"DDS"
+						};
+						if (textViewers.Contains(legacyFileEntry.Type))
+						{
+							btnExport.IsEnabled = true;
+							TextViewer.Visibility = Visibility.Visible;
+							using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+							{
+								TextViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
+							}
+						}
+						else if (imageViewers.Contains(legacyFileEntry.Type))
+						{
+							btnExport.IsEnabled = true;
+							ImageViewer.Visibility = Visibility.Visible;
+							using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+							{
+								var bImage = LoadImage(nr.ReadToEnd());
+								ImageViewer.Source = bImage;
+							}
+						}
+
+					}
+
+
+				}
+			}
+			catch
+            {
+
             }
         }
-    }
 
-	internal class AssetPath
+		private static System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
+		{
+			if (imageData == null || imageData.Length == 0) return null;
+			var image = new System.Windows.Media.Imaging.BitmapImage();
+			using (var mem = new MemoryStream(imageData))
+			{
+				mem.Position = 0;
+				image.BeginInit();
+				image.CreateOptions = System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat;
+				image.CacheOption = BitmapCacheOption.OnLoad;
+				image.UriSource = null;
+				image.StreamSource = mem;
+				image.EndInit();
+			}
+			image.Freeze();
+			return image;
+		}
+	}
+
+    internal class AssetPath
 	{
 		private static ImageSource ClosedImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/CloseFolder.png") as ImageSource;
 
@@ -232,4 +413,5 @@ namespace FIFAModdingUI.Pages.Common
 			name = newName;
 		}
 	}
+
 }

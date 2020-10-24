@@ -16,6 +16,7 @@ namespace v2k4FIFAModding.Frosty
 {
     public class ProjectManagement : ILogger
     {
+        public static ProjectManagement Instance;
         private static void InitializeOfSelectedGame(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath))
@@ -36,6 +37,7 @@ namespace v2k4FIFAModding.Frosty
         public ProjectManagement()
         {
             Initialise();
+            Instance = this;
         }
 
         private void Initialise()
@@ -54,6 +56,7 @@ namespace v2k4FIFAModding.Frosty
         {
             InitializeOfSelectedGame(gamePath);
             Initialise();
+            Instance = this;
         }
 
         public ProjectManagement(string gamePath, ILogger logger)
@@ -62,6 +65,7 @@ namespace v2k4FIFAModding.Frosty
             Logger = logger;
             InitializeOfSelectedGame(gamePath);
             Initialise();
+            Instance = this;
         }
 
         public FrostyProject FrostyProject = null;

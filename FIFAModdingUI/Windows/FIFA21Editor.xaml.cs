@@ -1,6 +1,7 @@
 ﻿using FIFAModdingUI.Models;
 using Frostbite.Textures;
 using FrostySdk;
+using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -24,6 +25,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
@@ -72,10 +74,12 @@ namespace FIFAModdingUI.Windows
 
                     // Kit Browser
                     kitBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx("TextureAsset").Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).ToList();
+                                       .EnumerateEbx("TextureAsset").Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x=>(IAssetEntry)x).ToList();
 
                     textureBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx("TextureAsset").Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).ToList();
+                                       .EnumerateEbx("TextureAsset").Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+                    legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
                     //BuildTextureBrowser(null);
 

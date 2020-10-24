@@ -139,21 +139,8 @@
                 <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible">
                     <StackPanel Orientation="Vertical">
                         <Label Background="Yellow">Kit Browser is incomplete and missing Kits</Label>
-                        <Grid Name="gridKitBrowser" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition></ColumnDefinition>
-                                <ColumnDefinition></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
+                        <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
                             
-                            <StackPanel Orientation="Vertical" Grid.Column="1">
-                                <StackPanel Orientation="Horizontal">
-                                    <Button IsEnabled="False">Import</Button>
-                                </StackPanel>
-                                <Image x:Name="ivKit" ></Image>
-                            </StackPanel>
-
-                        </Grid>
                     </StackPanel>
 
                 </TabItem>
@@ -162,6 +149,9 @@
                     <localGPControls:FrostyGameplayMain x:Name="GameplayMain"></localGPControls:FrostyGameplayMain>
                 </TabItem>
                 <TabItem x:Name="TabLegacy" Header="Legacy">
+                    <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
+                </TabItem>
+                <TabItem x:Name="TabOldLegacy" Header="Legacy" Visibility="Hidden">
                     <Grid Name="gridLegacy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition></ColumnDefinition>
@@ -183,7 +173,6 @@
 
                     </Grid>
                 </TabItem>
-                
             </TabControl>
             
         </Grid>
