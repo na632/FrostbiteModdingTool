@@ -128,11 +128,12 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 			}
-			if (!assetPathMapping.ContainsKey("/"))
-			{
-				assetPathMapping.Add("/", new AssetPath("![root]", "", null, bInRoot: true));
-			}
-			assetPath.Children.Insert(0, assetPathMapping["/"]);
+            if (!assetPathMapping.ContainsKey("/"))
+            {
+                //assetPathMapping.Add("/", new AssetPath("![root]", "", null, bInRoot: true));
+                assetPathMapping.Add("/", new AssetPath("", "", null, bInRoot: true));
+            }
+            assetPath.Children.Insert(0, assetPathMapping["/"]);
 
 			Dispatcher.BeginInvoke((Action)(() =>
 			{
@@ -183,7 +184,7 @@ namespace FIFAModdingUI.Pages.Common
 					if (assetPath.FullPath.Length > 3)
 					{
 						var filterPath = (assetPath.FullPath.Substring(1, assetPath.FullPath.Length - 1));
-						var filteredAssets = AllAssetEntries.Where(x => x.Path == filterPath);
+						var filteredAssets = AllAssetEntries.Where(x => x.Path.ToLower() == filterPath.ToLower());
 						assetListView.ItemsSource = filteredAssets.Take(100);
 						
 					}
@@ -205,7 +206,7 @@ namespace FIFAModdingUI.Pages.Common
 
 				ImageViewer.Visibility = Visibility.Collapsed;
 				TextViewer.Visibility = Visibility.Collapsed;
-				//EbxViewer.Visibility = Visibility.Hidden;
+				EBXViewer.Visibility = Visibility.Collapsed;
 
 				Control control = sender as Control;
 				if (control != null)
@@ -269,6 +270,20 @@ namespace FIFAModdingUI.Pages.Common
 
 
 						}
+						else
+                        {
+							if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
+							{
+								return;
+							}
+							EBXViewer.Children.Clear();
+							var ebx = ProjectManagement.Instance.FrostyProject.AssetManager.GetEbx(ebxEntry);
+							if (ebx != null)
+							{
+								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject));
+								EBXViewer.Visibility = Visibility.Visible;
+							}
+						}
 					}
 
 					LegacyFileEntry legacyFileEntry = control.Tag as LegacyFileEntry;
@@ -282,6 +297,7 @@ namespace FIFAModdingUI.Pages.Common
 							"XML",
 							"INI",
 							"NAV",
+							"JSON",
 							"CSV"
 						};
 

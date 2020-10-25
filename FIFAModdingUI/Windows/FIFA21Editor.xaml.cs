@@ -81,12 +81,21 @@ namespace FIFAModdingUI.Windows
 
                     legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
+                    dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                       .EnumerateEbx()
+                                       .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+                    gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                      .EnumerateEbx()
+                                      .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
                     //BuildTextureBrowser(null);
 
-                    Dispatcher.BeginInvoke((Action)(() =>
-                    {
-                        GameplayMain.Initialise();
-                    }));
+                    //Dispatcher.BeginInvoke((Action)(() =>
+                    //{
+                    //    GameplayMain.Initialise();
+                    //}));
 
                 });
             }
@@ -400,9 +409,13 @@ namespace FIFAModdingUI.Windows
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Project files|*.fbproject";
-            if (saveFileDialog.ShowDialog().HasValue)
+            var result = saveFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
             {
-                ProjectManagement.FrostyProject.Save(saveFileDialog.FileName, true);
+                if (!string.IsNullOrEmpty(saveFileDialog.FileName))
+                {
+                    ProjectManagement.FrostyProject.Save(saveFileDialog.FileName, true);
+                }
             }
         }
 
@@ -410,9 +423,13 @@ namespace FIFAModdingUI.Windows
         {
             VistaOpenFileDialog openFileDialog = new VistaOpenFileDialog();
             openFileDialog.Filter = "Project files|*.fbproject";
-            if (openFileDialog.ShowDialog().HasValue)
+            var result = openFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
             {
-                ProjectManagement.FrostyProject.Load(openFileDialog.FileName);
+                if (!string.IsNullOrEmpty(openFileDialog.FileName))
+                {
+                    ProjectManagement.FrostyProject.Load(openFileDialog.FileName);
+                }
             }
         }
 
