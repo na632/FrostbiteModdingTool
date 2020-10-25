@@ -1,6 +1,7 @@
 ﻿using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -123,67 +124,107 @@ namespace FIFA21Plugin
 
 				// CAS SEARCHING
 
-				/*
 				List<string> casFilesToSearch = new List<string>()
 				{
 					parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas",
-					parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas"
+					//parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas"
 
 				};
+
+				List<DbObject> casDBObjects = new List<DbObject>();
+
 				foreach (var path in casFilesToSearch) 
 				{
+					var pathSplit = path.Split('\\');
+					//var casCacheFileName = pathSplit[pathSplit.Length - 1] + ".cascache";
+					//if (File.Exists(casCacheFileName))
+					//{
+					//	parent.logger.Log("Loading from " + casCacheFileName);
+					//	var cache = JsonConvert.DeserializeObject<List<DbObject>>(File.ReadAllText(casCacheFileName));
+					//	if (cache != null)
+					//	{
+					//		foreach (DbObject @object in cache.Where(x => x != null))
+					//		{
+					//			parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
+					//			parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
+					//			parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+					//		}
 
-					using (NativeReader nr_cas = new NativeReader(
-						new FileStream(path, FileMode.Open, FileAccess.Read)
-						)
-						)
-					{
+					//		AllDbObjects.AddRange(cache);
+					//	}
+					//}
+					//else
+					//{
 
-						List<int> PositionOfReadableItems = SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+					var mem_stream = new MemoryStream();
+					using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    {
+						fs.CopyTo(mem_stream);
+                    }
+					mem_stream.Position = 0;
+					
 
-						List<DbObject> dbObjects = new List<DbObject>();
-						nr_cas.Position = 0;
-						foreach (var pos in PositionOfReadableItems)
+						using (NativeReader nr_cas = new NativeReader(
+							mem_stream
+							)
+							)
 						{
-							// go back 4 from the magic
-							var actualPos = pos - 4;
 
-							using (
-								NativeReader inner_reader = new NativeReader(
-								nr_cas.CreateViewStream(actualPos, nr_cas.Length - actualPos)
-								))
+							parent.logger.Log("Loading from " + path);
+
+							List<int> PositionOfReadableItems = SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+
+							nr_cas.Position = 0;
+						int index = 0;
+							foreach (var pos in PositionOfReadableItems)
 							{
-								SBFile sbFile = new SBFile();
-								DbObject obj = new DbObject();
-								sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
-									, ref obj, inner_reader, false);
-								foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+								// go back 4 from the magic
+								var actualPos = pos - 4;
+								var nextActualPos = PositionOfReadableItems.Count > index+1 ? PositionOfReadableItems[index + 1] - 4 : nr_cas.Length - actualPos;
+								nr_cas.Position = actualPos;
+
+							var size = nr_cas.ReadInt(Endian.Big);
+
+
+								using (
+									NativeReader inner_reader = new NativeReader(
+									nr_cas.CreateViewStream(actualPos, nextActualPos)
+									))
 								{
+									SBFile sbFile = new SBFile();
+									DbObject obj = new DbObject();
+									sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
+										, ref obj, inner_reader, false);
+									foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+									{
+									}
+
+									casDBObjects.Add(obj);
 								}
-
-								dbObjects.Add(obj);
-							}
-						}
-
-						if (dbObjects != null)
-						{
-
-							foreach (DbObject @object in dbObjects.Where(x => x != null))
-							{
-								parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
-								parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
-								parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+							index++;
 							}
 
-							AllDbObjects.AddRange(dbObjects);
+							
 						}
-					}
+					//}
 				}
-				*/
 
-			}
+                if (casDBObjects != null)
+                {
 
-			
+                    //File.WriteAllText(casCacheFileName, JsonConvert.SerializeObject(dbObjects));
+                    foreach (DbObject @object in casDBObjects.Where(x => x != null))
+                    {
+                        parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
+                        parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
+                        parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+                    }
+
+                    //AllDbObjects.AddRange(casDBObjects);
+                }
+            }
+
+
 		}
 		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
 		{

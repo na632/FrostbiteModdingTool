@@ -440,24 +440,33 @@ namespace FIFALibraryNETFrameworkTests
                     }
                 }
 
-                //// Breaks
-                //foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaistandingtackle_runtime")))
-                //{
-                //    var eb = AssetManager.Instance.GetEbx(ebx);
-                //    if (eb != null)
-                //    {
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaiballhandler_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
-                //        ////        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[0].Y = 10;
-                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[1].Y = 10;
-                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[2].Y = 10;
-                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[3].Y = 10;
-                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[4].Y = 10;
-                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[5].Y = 10;
-                //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[6].Y = 10;
-                //        project.AssetManager.ModifyEbx(ebx.Name, eb);
-                //    }
-                //}
+                //// Breaks
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaistandingtackle_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+
+                        //        ////        File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
+                        //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[0].Y = 10;
+                        //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[1].Y = 10;
+                        //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[2].Y = 10;
+                        //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[3].Y = 10;
+                        //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[4].Y = 10;
+                        //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[5].Y = 10;
+                        //        ////        ((dynamic)eb.RootObject).CPUAI_StandingTackle_FutureBallCheck.Internal.Points[6].Y = 10;
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
 
                 //// Breaks
                 foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_rules/gp_rules_foul_playercontactscore_runtime")))
@@ -560,7 +569,24 @@ namespace FIFALibraryNETFrameworkTests
                     }
                 }
 
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_defense/gp_defense_blockintercept_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+
                 foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_defense/gp_defense_tackling_runtime")))
+                {
+                    var eb = AssetManager.Instance.GetEbx(ebx);
+                    if (eb != null)
+                    {
+                        project.AssetManager.ModifyEbx(ebx.Name, eb);
+                    }
+                }
+                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_defense/gp_defense_sealout_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
                     if (eb != null)
@@ -740,7 +766,7 @@ namespace FIFALibraryNETFrameworkTests
                 }
 
                 projectManagement.FrostyProject.Save("Paulv2k4 FIFA 21 Gameplay.fbproject");
-                projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha 2.fbmod"
+                projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Gameplay Mod Pre Alpha 3.fbmod"
                     , new ModSettings() { Author = "paulv2k4", Category = "Gameplay", Description = "Gameplay Test", Title = "Gameplay Test", Version = "1.00" });
 
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();

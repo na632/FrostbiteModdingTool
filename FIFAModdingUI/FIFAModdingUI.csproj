@@ -54,6 +54,7 @@
     <None Remove="ini\_FIFA19_base.ini" />
     <None Remove="ini\_FIFA20_base.ini" />
     <None Remove="Resources\Classes.txt" />
+    <None Remove="Resources\images\PAULV2K4MODDINGTOOL.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,6 +71,9 @@
   <ItemGroup>
     <Content Include="FrostySdk.Profiles.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA19.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

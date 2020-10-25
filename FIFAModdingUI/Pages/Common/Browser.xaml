@@ -36,7 +36,7 @@
                     Export
                 </Button>
             </StackPanel>
-            <Image x:Name="ImageViewer" MinHeight="256" Visibility="Collapsed">
+            <Image x:Name="ImageViewer" MinHeight="256" Visibility="Collapsed"  MaxWidth="512" MaxHeight="512">
                 
             </Image>
             <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999"  Visibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Visible">

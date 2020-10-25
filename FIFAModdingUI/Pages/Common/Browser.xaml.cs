@@ -149,29 +149,78 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnImport_Click(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void btnExport_Click(object sender, RoutedEventArgs e)
-        {
-			if(SelectedLegacyEntry != null)
-            {
-				if (SelectedLegacyEntry != null)
+			if (SelectedEbxEntry != null)
+			{
+				if (SelectedEbxEntry.Type == "TextureAsset")
 				{
-					SaveFileDialog saveFileDialog = new SaveFileDialog();
-					var filt = "*." + SelectedLegacyEntry.Type;
-					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-					saveFileDialog.FileName = SelectedLegacyEntry.Filename;
-					if (saveFileDialog.ShowDialog().Value)
+					OpenFileDialog openFileDialog = new OpenFileDialog();
+					var filt = "*.DDS";
+					openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+					openFileDialog.FileName = SelectedEbxEntry.Filename;
+					if (openFileDialog.ShowDialog().Value)
 					{
-						using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEbxEntry.Name);
+						if (resEntry != null)
 						{
-							nativeWriter.Write(new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ReadToEnd());
+
+							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
+							{
+								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
+								TextureImporter textureImporter = new TextureImporter();
+								textureImporter.Import(openFileDialog.FileName, SelectedEbxEntry, ref texture);
+							}
+
+
 						}
 					}
 				}
 			}
-        }
+		}
+
+        private void btnExport_Click(object sender, RoutedEventArgs e)
+        {
+			if (SelectedLegacyEntry != null)
+			{
+				SaveFileDialog saveFileDialog = new SaveFileDialog();
+				var filt = "*." + SelectedLegacyEntry.Type;
+				saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+				saveFileDialog.FileName = SelectedLegacyEntry.Filename;
+				if (saveFileDialog.ShowDialog().Value)
+				{
+					using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+					{
+						nativeWriter.Write(new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ReadToEnd());
+					}
+				}
+			}
+
+			if (SelectedEbxEntry != null)
+			{
+				if (SelectedEbxEntry.Type == "TextureAsset")
+				{
+					SaveFileDialog saveFileDialog = new SaveFileDialog();
+					var filt = "*.DDS";
+					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+					saveFileDialog.FileName = SelectedEbxEntry.Filename;
+					if (saveFileDialog.ShowDialog().Value)
+					{
+						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEbxEntry.Name);
+						if(resEntry != null) 
+						{
+
+							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
+                            {
+								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
+								TextureExporter textureExporter = new TextureExporter();
+								textureExporter.Export(texture, saveFileDialog.FileName, "*.dds");
+							}
+
+								
+						}
+					}
+				}
+			}
+		}
 
         private void Label_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -254,6 +303,10 @@ namespace FIFAModdingUI.Pages.Common
 													var bImage = LoadImage(textureBytes);
 													ImageViewer.Source = bImage;
 													ImageViewer.Visibility = Visibility.Visible;
+
+													btnExport.IsEnabled = true;
+													btnImport.IsEnabled = false; // no import yet
+
 													//bImage = null;
 												}
 												catch { ImageViewer.Source = null; }

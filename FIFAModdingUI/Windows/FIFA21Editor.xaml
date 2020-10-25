@@ -12,7 +12,9 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
 	xmlns:fbviews="clr-namespace:FolderBrowser.Views;assembly=FolderBrowser"
-        Title="FIFA 21 Editor (EARLY ALPHA - EXPECT BUGS AND PERFORMANCE ISSUES)" Height="720" Width="1280" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+        Title="FIFA 21 Editor (EARLY ALPHA - EXPECT BUGS AND PERFORMANCE ISSUES)" Height="720" Width="1280"
+         SizeToContent="WidthAndHeight" MinHeight="720" MinWidth="1280"
+        ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
     <Window.Resources>
 
         <DataTemplate DataType="{x:Type Model:FileItem}">
@@ -85,15 +87,7 @@
                             <Label Content="Launch FIFA (Editor Project Only)" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <!--<Button x:Name="btnBuildModsLive" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
-                    Click="btnBuildModsLive_Click"
-                    ToolTip="Build Mod Folder">
-                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                        <Label Content="Build Mod Folder" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>-->
-                    <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center">
+                    <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
                             <Label Content="Default" VerticalAlignment="Center" />

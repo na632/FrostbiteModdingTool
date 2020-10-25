@@ -13,7 +13,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ImageFileItemTemplate">
-            <Image Source="{Binding}"/>
+            <Image Source="{Binding}" MaxWidth="512" MaxHeight="512" />
         </DataTemplate>
 
         <DataTemplate x:Key="FloatItemTemplate">
