@@ -22,7 +22,7 @@
             <ColumnDefinition Width="180"></ColumnDefinition>
             <ColumnDefinition Width="20"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Image Grid.Row="0" Grid.ColumnSpan="6" Source="/Resources/images/PAULV2K4MODDINGTOOL.png" Stretch="Fill" />
+        <Image Grid.Row="0" Grid.ColumnSpan="6" Source="/Resources/images/PAULV2K4MODDINGTOOL2.png" Stretch="Fill" />
         
         <Button x:Name="btnEditor" Grid.Row="1" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnEditor_Click"

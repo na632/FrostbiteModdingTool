@@ -55,6 +55,7 @@
     <None Remove="ini\_FIFA20_base.ini" />
     <None Remove="Resources\Classes.txt" />
     <None Remove="Resources\images\PAULV2K4MODDINGTOOL.png" />
+    <None Remove="Resources\images\PAULV2K4MODDINGTOOL2.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -73,6 +74,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\images\PAULV2K4MODDINGTOOL2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA19.ini">
