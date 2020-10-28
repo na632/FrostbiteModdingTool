@@ -25,7 +25,7 @@ namespace FIFA21Plugin
 
         public int SBIndex { get; set; }
         
-        public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false)
+        public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false, string nativePath = null)
         {
             SBIndex = sbIndex;
 
@@ -51,7 +51,7 @@ namespace FIFA21Plugin
                     TOCFile.Read(nativeReader);
 
                     // SB File
-                    var rObjs = ReadSB(sbPath, helper);
+                    var rObjs = ReadSB(sbPath, helper, nativePath.Replace(".toc", ".sb"));
                     if (rObjs != null)
                         objs.AddRange(rObjs);
 
@@ -157,7 +157,7 @@ namespace FIFA21Plugin
 
         
 
-        public List<DbObject> ReadSB(string sbPath, BinarySbDataHelper helper)
+        public List<DbObject> ReadSB(string sbPath, BinarySbDataHelper helper, string nativeSBPath = null)
         {
             Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
 
@@ -166,6 +166,7 @@ namespace FIFA21Plugin
                 if (nativeReader.Length > 0)
                 {
                     SBFile = new SBFile(this, TOCFile, SBIndex);
+                    SBFile.NativeFileLocation = nativeSBPath;
                     SBFile.FileLocation = sbPath;
                     return SBFile.Read(nativeReader);
                 }

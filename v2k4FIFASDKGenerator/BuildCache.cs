@@ -98,6 +98,7 @@ namespace v2k4FIFASDKGenerator
 				});
 			}
 			Debug.WriteLine($"[ERROR] Failed to initialise");
+			logger.Log("[ERROR] Failed to initialise");
 			return false;
 		}
 

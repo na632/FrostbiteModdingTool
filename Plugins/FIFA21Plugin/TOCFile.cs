@@ -274,7 +274,7 @@ namespace FIFA21Plugin
 					byte catalog2 = nativeReader.ReadByte();
 					byte cas2 = nativeReader.ReadByte();
 					uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
-					if(chunkOffset == 4118 || chunkOffset == 4737)
+					if(chunkOffset >= 4110 && chunkOffset <= 4120)
                     {
 
                     }

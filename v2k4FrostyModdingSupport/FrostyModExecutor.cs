@@ -4268,6 +4268,10 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
+        public string GamePath { get { return fs.BasePath; } }
+        public string GameEXEPath { get { return fs.BasePath + ProfilesLibrary.ProfileName + ".exe"; } }
+        public string GameEXEPathNoExtension { get { return fs.BasePath + ProfilesLibrary.ProfileName + ".exe"; } }
+
         public bool UseSymbolicLinks = false;
 
         [DllImport("kernel32.dll")]

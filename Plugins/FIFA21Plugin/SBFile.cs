@@ -19,6 +19,7 @@ namespace FIFA21Plugin
     public class SBFile
     {
         public TOCFile AssociatedTOCFile { get; set; }
+        public string NativeFileLocation { get; set; }
         public string FileLocation { get; set; }
 
         public int SBInitialHeaderLength = 32;
@@ -76,7 +77,8 @@ namespace FIFA21Plugin
 
                 BundleEntry bundleEntry = new BundleEntry
                 {
-                    Name = AssociatedTOCFile.SuperBundleName + "_" + index.ToString(), 
+                    //Name = AssociatedTOCFile.SuperBundleName + "_" + index.ToString(), 
+                    Name = Guid.NewGuid().ToString(),
                     SuperBundleId = SuperBundleIndex
                 };
                 using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
@@ -134,7 +136,7 @@ namespace FIFA21Plugin
                         }
                         DbObject ebxObject = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
 
-                        ebxObject.SetValue("SBFileLocation", FileLocation);
+                        ebxObject.SetValue("SBFileLocation", NativeFileLocation);
                         ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
 
                         if (ebxObject.GetValue<string>("name", "").Contains("movement"))

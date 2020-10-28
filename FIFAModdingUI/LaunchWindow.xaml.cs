@@ -238,7 +238,9 @@ namespace FIFAModdingUI
                     if (AssetManager.Instance == null)
                     {
                         Log("Asset Manager is not initialised - Starting");
-                        ProjectManagement projectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION);
+                        ProjectManagement projectManagement = new ProjectManagement(
+                            GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION
+                            , this);
                         Log("Asset Manager loading complete");
                     }
                     //Dispatcher.Invoke(() =>

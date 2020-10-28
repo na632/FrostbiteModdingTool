@@ -99,55 +99,23 @@
                 </StackPanel>
 
             </StackPanel>
-            <TabControl x:Name="MainViewer" Grid.Row="1" Height="500">
+            <TabControl x:Name="MainViewer" Grid.Row="1">
                 <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
                     <StackPanel Orientation="Vertical">
                         <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
                     </StackPanel>
                 </TabItem>
                 <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
-                    <!--<StackPanel Orientation="Vertical">
-                        <Label Background="Yellow">Texture Browser is incomplete and missing Faces/Kits/Boots/Balls (all the important stuff). Sorry!</Label>
-                        <Grid Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition></ColumnDefinition>
-                                <ColumnDefinition></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <TreeView Grid.Column="0" x:Name="tvTextureBrowser"
-                                      VirtualizingStackPanel.IsVirtualizing="True"
-                                        VirtualizingStackPanel.VirtualizationMode="Recycling"
-                                      ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                      >
-                                      >
-                            </TreeView>
-                            <StackPanel Orientation="Vertical" Grid.Column="1">
-                                <StackPanel Orientation="Horizontal">
-                                    <Button IsEnabled="False">Import</Button>
-                                    <Button x:Name="btnExportTexture" Click="btnExportTexture_Click">Export</Button>
-                                </StackPanel>
-                                <Image x:Name="ImageViewer" ></Image>
-                            </StackPanel>
-
-                        </Grid>
-                    </StackPanel>-->
-
                     <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
-
-
                 </TabItem>
                 <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible">
                     <StackPanel Orientation="Vertical">
                         <Label Background="Yellow">Kit Browser is incomplete and missing Kits</Label>
                         <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
-                            
                     </StackPanel>
-
                 </TabItem>
-
                 <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
-                    <!--<localGPControls:FrostyGameplayMain x:Name="GameplayMain"></localGPControls:FrostyGameplayMain>-->
                     <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
-
                 </TabItem>
                 <TabItem x:Name="TabLegacy" Header="Legacy">
                     <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
