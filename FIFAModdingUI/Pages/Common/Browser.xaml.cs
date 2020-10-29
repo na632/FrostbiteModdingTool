@@ -252,6 +252,7 @@ namespace FIFAModdingUI.Pages.Common
 				SelectedLegacyEntry = null;
 				btnImport.IsEnabled = false;
 				btnExport.IsEnabled = false;
+				btnRevert.IsEnabled = false;
 
 				ImageViewer.Visibility = Visibility.Collapsed;
 				TextViewer.Visibility = Visibility.Collapsed;
@@ -335,6 +336,8 @@ namespace FIFAModdingUI.Pages.Common
 							{
 								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject));
 								EBXViewer.Visibility = Visibility.Visible;
+								btnRevert.IsEnabled = true;
+
 							}
 						}
 					}
@@ -407,7 +410,19 @@ namespace FIFAModdingUI.Pages.Common
 			image.Freeze();
 			return image;
 		}
-	}
+
+        private void btnRevert_Click(object sender, RoutedEventArgs e)
+        {
+			if (EBXViewer.Children.Count > 0)
+			{
+				var ebxviewer = EBXViewer.Children[0] as Editor;
+				if (ebxviewer != null)
+				{
+					ebxviewer.RevertAsset();
+				}
+			}
+        }
+    }
 
     internal class AssetPath
 	{

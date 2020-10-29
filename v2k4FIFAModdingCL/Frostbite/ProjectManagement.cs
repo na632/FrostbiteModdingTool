@@ -92,6 +92,11 @@ namespace v2k4FIFAModding.Frosty
                 ClearCurrentConsoleLine();
                 Console.WriteLine(text);
                 lastMessage = text;
+
+                if(Logger != null)
+                {
+                    Logger.Log(text, vars);
+                }
             }
         }
 

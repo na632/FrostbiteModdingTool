@@ -19,7 +19,7 @@
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
-            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="150" BorderBrush="LightGray" BorderThickness="1">
+            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="200" BorderBrush="LightGray" BorderThickness="1">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Label Content="{Binding DisplayName}" Tag="{Binding}" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
@@ -34,6 +34,9 @@
                 </Button>
                 <Button x:Name="btnExport" IsEnabled="False" Click="btnExport_Click">
                     Export
+                </Button>
+                <Button x:Name="btnRevert" IsEnabled="False" Click="btnRevert_Click">
+                    Revert
                 </Button>
             </StackPanel>
             <Image x:Name="ImageViewer" MinHeight="256" Visibility="Collapsed"  MaxWidth="512" MaxHeight="512">

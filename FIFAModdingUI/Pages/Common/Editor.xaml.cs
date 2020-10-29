@@ -1,4 +1,5 @@
 ﻿using FrostySdk;
+using FrostySdk.FrostySdk.Ebx;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -52,17 +53,22 @@ namespace FIFAModdingUI.Pages.Common
         {
             get
             {
-				List<Tuple<string, string, object>> items = new List<Tuple<string, string, object>>();
-				foreach (var p in RootObject.GetType().GetProperties())
-                {
-					items.Add(new Tuple<string, string, object>(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null)));
-                }
-				return items;
+				if (_rootObjProps == null)
+				{
+					_rootObjProps = new List<Tuple<string, string, object>>();
+
+					foreach (var p in RootObject.GetType().GetProperties())
+					{
+						_rootObjProps.Add(new Tuple<string, string, object>(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null)));
+					}
+					return _rootObjProps.OrderBy(x => x.Item1).ToList();
+				}
+				return _rootObjProps;
 			}
 			set
             {
 				//var originalAssetEntry = FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name == AssetEntry.Name);
-				FrostyProject.AssetManager.RevertAsset(AssetEntry);
+				//FrostyProject.AssetManager.RevertAsset(AssetEntry);
 
 				_rootObjProps = value;
 				foreach(var item in _rootObjProps.Where(x=> !x.Item1.StartsWith("__")))
@@ -73,6 +79,12 @@ namespace FIFAModdingUI.Pages.Common
 				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
 			}
         }
+
+		public void RevertAsset() {
+			FrostyProject.AssetManager.RevertAsset(AssetEntry);
+			this.Visibility = Visibility.Collapsed;
+		}
+
 
 
 		//public object InteralObject {
@@ -247,13 +259,21 @@ namespace FIFAModdingUI.Pages.Common
 						}
 						break;
 					case "System.Single":
+					case "System.Int":
+					case "System.Int32":
+					case "System.Int64":
 						TreeViewItem SysSingleTreeView = new TreeViewItem();
 						SysSingleTreeView.Header = "Value";
 
 						TextBox txt = new TextBox();
 						txt.Name = p.Item1;
 						txt.Text = p.Item3.ToString();
-						txt.TextChanged += (object sender, TextChangedEventArgs e) => {
+						//txt.SetBindi = "{Binding RootObject." + p.Item1 + "}";// p.Item3.ToString();
+						//txt.TextChanged += (object sender, TextChangedEventArgs e) => {
+						//	AssetHasChanged(sender as TextBox, p.Item1);
+						//};
+
+						txt.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) => {
 							AssetHasChanged(sender as TextBox, p.Item1);
 						};
 
@@ -369,7 +389,11 @@ namespace FIFAModdingUI.Pages.Common
 							else if (splitPropName.Length > 1)// && splitPropName[3] == "VALUE")
 							{
 								var replacementitem3 = rootProp.Item3;
-								replacementitem3 = System.Single.Parse(sender.Text);
+								if(rootProp.Item2 == "System.Int32")
+									replacementitem3 = System.Int32.Parse(sender.Text);
+								else
+									replacementitem3 = System.Single.Parse(sender.Text);
+
 								var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
 								newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
 								RootObjectProperties = newlist;
@@ -399,7 +423,7 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 
-				SaveToRootObject();
+				//SaveToRootObject();
 			}
             catch
             {
@@ -409,8 +433,8 @@ namespace FIFAModdingUI.Pages.Common
 
         private void SaveToRootObject()
         {
-			FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
-			FrostyProject.Save("GameplayProject.fbproject", true);
+			//FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+			//FrostyProject.Save("GameplayProject.fbproject", true);
 		}
 
 		public void AssetHasChanged(TextBox sender, TreeViewItem treetopmostparent, TreeViewItem treeofpropertychanged)

@@ -76,10 +76,10 @@ namespace FIFAModdingUI.Windows
 
                     // Kit Browser
                     kitBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx("TextureAsset").Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x=>(IAssetEntry)x).ToList();
+                                       .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x=>(IAssetEntry)x).ToList();
 
                     textureBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx("TextureAsset").Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                                       .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
                     legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
@@ -333,12 +333,16 @@ namespace FIFAModdingUI.Windows
         {
         }
 
+        public string LogText = string.Empty;
+
         public void Log(string text, params object[] vars)
         {
-            Dispatcher.Invoke(() =>
+            Action action = () =>
             {
                 lblProgressText.Text = string.Format(text, vars);
-            });
+            };
+            Dispatcher.BeginInvoke(action);
+
         }
 
         public void LogWarning(string text, params object[] vars)

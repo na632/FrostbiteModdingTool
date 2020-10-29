@@ -7,6 +7,7 @@ using FrostySdk.Managers;
 using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -159,6 +160,7 @@ namespace FIFA21Plugin
                         }
 
                         parent.Logger.Log("Writing new asset entry for EBX (" + modEBX.Key + ")");
+                        Debug.WriteLine("Writing new asset entry for EBX (" + modEBX.Key + ")");
 
                         var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
                         var sb_sha1_position = originalEntry.SB_Sha1_Position;

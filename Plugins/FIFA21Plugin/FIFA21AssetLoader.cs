@@ -197,9 +197,51 @@ namespace FIFA21Plugin
 								DbObject obj = new DbObject();
 								sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
 									, ref obj, inner_reader, false);
-								foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+
+								var catalogs = AssetManager.Instance.fs.Catalogs;
+								var fixedFileLocation = sbFile.NativeFileLocation.Replace("\\", "/");
+								var catalogName = catalogs.FirstOrDefault(x => fixedFileLocation.ToLower().Contains(x.ToLower()));
+								if (!string.IsNullOrEmpty(catalogName))
 								{
-									parent.ProcessBundleEbx(ebx, parent.bundles.Count - 1, helper);
+									var catalogId = catalogs.ToList().IndexOf(catalogName);
+									var cas = int.Parse(sbFile.NativeFileLocation.Substring(sbFile.NativeFileLocation.Length - 5, 1));
+									var fileSolved = AssetManager.Instance.fs.GetFilePath(catalogId, cas, false);
+									foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+									{
+
+										ebx.SetValue("SBFileLocation", sbFile.FileLocation);
+										ebx.SetValue("catalog", catalogId);
+										ebx.SetValue("cas", cas);
+										//ebx.SetValue("offset", offset);
+										//ebx.SetValue("size", size);
+
+
+										parent.ProcessBundleEbx(ebx, parent.bundles.Count - 1, helper);
+									}
+									foreach (DbObject res in obj.GetValue<DbObject>("res"))
+									{
+
+										res.SetValue("SBFileLocation", sbFile.FileLocation);
+										res.SetValue("catalog", catalogId);
+										res.SetValue("cas", cas);
+										//ebx.SetValue("offset", offset);
+										//ebx.SetValue("size", size);
+
+
+										parent.ProcessBundleRes(res, parent.bundles.Count - 1, helper);
+									}
+									foreach (DbObject chunk in obj.GetValue<DbObject>("chunks"))
+									{
+
+										chunk.SetValue("SBFileLocation", sbFile.FileLocation);
+										chunk.SetValue("catalog", catalogId);
+										chunk.SetValue("cas", cas);
+										//ebx.SetValue("offset", offset);
+										//ebx.SetValue("size", size);
+
+
+										parent.ProcessBundleChunks(chunk, parent.bundles.Count - 1, helper);
+									}
 
 								}
 

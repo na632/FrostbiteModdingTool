@@ -23,13 +23,18 @@
 
     </Window.Resources>
     
-    <DockPanel LastChildFill="True">
-
-        <Grid DockPanel.Dock="Top" VerticalAlignment="Top">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="#FFF3F1F1" BorderBrush="#FFC8C8C8"  >
+            <StatusBarItem>
+                <TextBlock Name="lblProgressText" Text="" Foreground="#FF483939" />
+            </StatusBarItem>
+        </StatusBar>
+        
+        <Grid VerticalAlignment="Top">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -149,12 +154,10 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-            
+            <TextBox x:Name="txtLog" Grid.Row="2" Text="{Binding LogText}" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="175" MinHeight="175" MaxHeight="175">
+                
+            </TextBox>
         </Grid>
-        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="#FFF3F1F1" BorderBrush="#FFC8C8C8"  >
-            <StatusBarItem>
-                <TextBlock Name="lblProgressText" Text="" Foreground="#FF483939" />
-            </StatusBarItem>
-        </StatusBar>
+        
     </DockPanel>
 </Window>
