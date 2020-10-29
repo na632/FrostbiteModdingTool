@@ -234,7 +234,7 @@ namespace FIFAModdingUI.Pages.Common
 					{
 						var filterPath = (assetPath.FullPath.Substring(1, assetPath.FullPath.Length - 1));
 						var filteredAssets = AllAssetEntries.Where(x => x.Path.ToLower() == filterPath.ToLower());
-						assetListView.ItemsSource = filteredAssets.Take(100);
+						assetListView.ItemsSource = filteredAssets.Take(100).OrderBy(x => x.Name);
 						
 					}
 				}

@@ -172,7 +172,7 @@ namespace FIFA21Plugin
 
 							parent.logger.Log("Loading from " + path);
 
-							List<int> PositionOfReadableItems = SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+						List<int> PositionOfReadableItems = new List<int>() { 0x179258B2 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
 
 							nr_cas.Position = 0;
 						int index = 0;
@@ -186,21 +186,25 @@ namespace FIFA21Plugin
 							var size = nr_cas.ReadInt(Endian.Big);
 
 
-								using (
-									NativeReader inner_reader = new NativeReader(
-									nr_cas.CreateViewStream(actualPos, nextActualPos)
-									))
+							using (
+								NativeReader inner_reader = new NativeReader(
+								nr_cas.CreateViewStream(actualPos, nextActualPos)
+								))
+							{
+								SBFile sbFile = new SBFile();
+								sbFile.NativeFileLocation = @"{native_data}\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
+								sbFile.FileLocation = @"{native_data}\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
+								DbObject obj = new DbObject();
+								sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
+									, ref obj, inner_reader, false);
+								foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
 								{
-									SBFile sbFile = new SBFile();
-									DbObject obj = new DbObject();
-									sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
-										, ref obj, inner_reader, false);
-									foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
-									{
-									}
+									parent.ProcessBundleEbx(ebx, parent.bundles.Count - 1, helper);
 
-									casDBObjects.Add(obj);
 								}
+
+								casDBObjects.Add(obj);
+							}
 							index++;
 							}
 

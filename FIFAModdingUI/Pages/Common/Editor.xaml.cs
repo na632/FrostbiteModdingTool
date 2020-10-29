@@ -64,14 +64,12 @@ namespace FIFAModdingUI.Pages.Common
 				//var originalAssetEntry = FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name == AssetEntry.Name);
 				FrostyProject.AssetManager.RevertAsset(AssetEntry);
 
-				var copyOfRoot = RootObject;
 				_rootObjProps = value;
 				foreach(var item in _rootObjProps.Where(x=> !x.Item1.StartsWith("__")))
                 {
-					v2k4Util.SetPropertyValue(copyOfRoot, item.Item1, item.Item3);
+					v2k4Util.SetPropertyValue(RootObject, item.Item1, item.Item3);
+
                 }
-				asset.AddObject(copyOfRoot);
-				asset.AddObject(copyOfRoot, true);
 				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
 			}
         }
@@ -184,9 +182,9 @@ namespace FIFAModdingUI.Pages.Common
 
 								// Guid
 								var spGuid = new StackPanel() { Orientation = Orientation.Horizontal };
-								var lblGuid = new TextBlock() { Text = "__Guid" };
+								var lblGuid = new Label() { Content = "__Guid" };
 								spGuid.Children.Add(lblGuid);
-								var txtGuid = new TextBlock() { Name = p.Item1 + "___Guid", Text = FloatCurve.__InstanceGuid.ToString() };
+								var txtGuid = new Label() { Name = p.Item1 + "___Guid", Content = FloatCurve.__InstanceGuid.ToString() };
 								spGuid.Children.Add(txtGuid);
 								propTreeViewParent.Items.Add(spGuid);
 
@@ -316,49 +314,80 @@ namespace FIFAModdingUI.Pages.Common
 			if (string.IsNullOrEmpty(sender.Text))
 				return;
 
-			string txtboxName = sender.Name;
-			if (!string.IsNullOrEmpty(txtboxName))
+			try
 			{
-				var rootProp = RootObjectProperties.Find(x => x.Item1 == propName);
-				if (rootProp != null)
+				string txtboxName = sender.Name;
+				if (!string.IsNullOrEmpty(txtboxName))
 				{
-					if (!txtboxName.StartsWith("_") && !txtboxName.StartsWith("ATTR_") && txtboxName.Contains("_"))
+					var rootProp = RootObjectProperties.Find(x => x.Item1 == propName);
+					if (rootProp != null)
 					{
-						// format should be 
-						// PROPNAME _ ITEM
-						// PROPNAME _ POINTS _ INDEX _ (X OR Y)
-						// PROPNAME _ POINTS _ INDEX _ (VALUE)
-						var splitPropName = txtboxName.Split('_');
-						if (splitPropName.Length > 3 && !string.IsNullOrEmpty(sender.Text))
+						if (!txtboxName.StartsWith("_") && !txtboxName.StartsWith("ATTR_") && txtboxName.Contains("_"))
 						{
-							if (splitPropName[3] == "X" || splitPropName[3] == "Y")
+							// format should be 
+							// PROPNAME _ ITEM
+							// PROPNAME _ POINTS _ INDEX _ (X OR Y)
+							// PROPNAME _ POINTS _ INDEX _ (VALUE)
+							var splitPropName = txtboxName.Split('_');
+							if (splitPropName.Length > 3 && !string.IsNullOrEmpty(sender.Text))
 							{
-								var index = int.Parse(splitPropName[2]);
-
-								var FloatCurve = rootProp.Item3.GetPropertyValue("Internal");
-								var fcPoint = FloatCurve.Points[index];
-
-								if (splitPropName[3] == "X")
+								if (splitPropName[splitPropName.Length - 1] == "X" || splitPropName[splitPropName.Length - 1] == "Y")
 								{
-									fcPoint.X = float.Parse(sender.Text);
-									v2k4Util.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
+									var index = int.Parse(splitPropName[splitPropName.Length - 2]);
+
+									var FloatCurve = rootProp.Item3.GetPropertyValue("Internal");
+									var fcPoint = FloatCurve.Points[index];
+
+									if (splitPropName[splitPropName.Length - 1] == "X")
+									{
+										fcPoint.X = float.Parse(sender.Text);
+										v2k4Util.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
+									}
+									else
+									{
+										fcPoint.Y = float.Parse(sender.Text);
+									}
+
+								}
+								else if(int.TryParse(splitPropName[splitPropName.Length - 2], out int index))
+								{
+									var List = rootProp.Item3 as List<Single>;
+									List[index] = System.Single.Parse(sender.Text);
+									var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
+									newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, List));
+									RootObjectProperties = newlist;
 								}
 								else
-								{
-									fcPoint.Y = float.Parse(sender.Text);
+                                {
+									var replacementitem3 = rootProp.Item3;
+									replacementitem3 = System.Single.Parse(sender.Text);
+									var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
+									newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+									RootObjectProperties = newlist;
 								}
-
+							}
+							else if (splitPropName.Length > 1)// && splitPropName[3] == "VALUE")
+							{
+								var replacementitem3 = rootProp.Item3;
+								replacementitem3 = System.Single.Parse(sender.Text);
+								var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
+								newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+								RootObjectProperties = newlist;
 							}
 						}
-						else if (splitPropName.Length > 2)// && splitPropName[3] == "VALUE")
+						else if (propName.StartsWith("ATTR_"))
 						{
-
+							var splitPropName = txtboxName.Split('_');
+							if (splitPropName.Length == 2)
+							{
+								var replacementitem3 = rootProp.Item3;
+								replacementitem3 = System.Single.Parse(sender.Text);
+								var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
+								newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+								RootObjectProperties = newlist;
+							}
 						}
-					}
-					else if (propName.StartsWith("ATTR_"))
-					{
-						var splitPropName = txtboxName.Split('_');
-						if (splitPropName.Length == 2)
+						else
 						{
 							var replacementitem3 = rootProp.Item3;
 							replacementitem3 = System.Single.Parse(sender.Text);
@@ -366,20 +395,16 @@ namespace FIFAModdingUI.Pages.Common
 							newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
 							RootObjectProperties = newlist;
 						}
-					}
-					else
-					{
-						var replacementitem3 = rootProp.Item3;
-						replacementitem3 = System.Single.Parse(sender.Text);
-						var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
-						newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
-						RootObjectProperties = newlist;
-					}
 
+					}
 				}
-            }
 
-			SaveToRootObject();
+				SaveToRootObject();
+			}
+            catch
+            {
+
+            }
 		}
 
         private void SaveToRootObject()

@@ -397,7 +397,7 @@ namespace FIFALibraryNETFrameworkTests
             {
                 var gameplayEBX = allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/")).ToList();
                 // Works
-                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains(
+                foreach (EbxAssetEntry ebx in gameplayEBX.Where(x => x.Name.Contains(
                     "Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
@@ -407,7 +407,7 @@ namespace FIFALibraryNETFrameworkTests
                         ((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0f;
                         ((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0f;
                         ((dynamic)eb.RootObject).ATTR_JogSpeed = 0f;
-                        ((dynamic)eb.RootObject).AnimationPlaybackTimeRatioDribbling = new List<float>() { 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f };
+                        //((dynamic)eb.RootObject).AnimationPlaybackTimeRatioDribbling = new List<float>() { 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f };
                         ((dynamic)eb.RootObject).ATTR_SprintSpeedTbl = new List<float>() { 0f, 0f };
                         //eb.AddObject(eb.RootObject);
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
@@ -415,7 +415,7 @@ namespace FIFALibraryNETFrameworkTests
                 }
                 
                 // Breaks
-                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains(
+                foreach (EbxAssetEntry ebx in gameplayEBX.Where(x => x.Name.Contains(
                     "Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaimarker_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
@@ -425,7 +425,8 @@ namespace FIFALibraryNETFrameworkTests
                     project.AssetManager.ModifyEbx(ebx.Name, eb);
                 }
 
-                foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_goalkeeper/gp_goalkeeper_cpu_difficulty_runtime")))
+                foreach (EbxAssetEntry ebx in gameplayEBX.Where(x => x.Name.Contains(
+                    "Fifa/Attribulator/Gameplay/groups/gp_goalkeeper/gp_goalkeeper_cpu_difficulty_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);
                     if (eb != null)

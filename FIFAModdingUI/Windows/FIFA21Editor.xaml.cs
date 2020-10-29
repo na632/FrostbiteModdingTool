@@ -59,6 +59,8 @@ namespace FIFAModdingUI.Windows
                 GameInstanceSingleton.InitialiseSingleton(filePath);
                 txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
 
+               
+
                 Task.Run(() =>
                 {
 
@@ -100,6 +102,10 @@ namespace FIFAModdingUI.Windows
                 });
             }
 
+            btnProjectNew.IsEnabled = true;
+            btnProjectOpen.IsEnabled = true;
+            btnProjectSave.IsEnabled = true;
+            btnProjectWriteToMod.IsEnabled = true;
             //_ = Start();
         }
 
@@ -433,16 +439,24 @@ namespace FIFAModdingUI.Windows
             }
         }
 
-        private void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
+        private async void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
         {
             ProjectManagement.FrostyProject.Save("test.fbproject");
             ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
-            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.UseSymbolicLinks = true;
-            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test.fbmod" }.ToArray()).Wait();
+            await Task.Run(() =>
+            {
 
+                paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+                frostyModExecutor.UseSymbolicLinks = true;
+                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test.fbmod" }.ToArray()).Wait();
+            });
+        }
+
+        private void btnProjectNew_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectManagement.FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
         }
     }
 }

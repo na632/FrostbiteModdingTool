@@ -36,19 +36,25 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="0"  Orientation="Horizontal">
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
+                            <Label Content="New Project" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
                             <Label Content="Open Project" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
                             <Label Content="Save Project" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
+                    <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
                             <Label Content="Write to Mod" VerticalAlignment="Center" />
