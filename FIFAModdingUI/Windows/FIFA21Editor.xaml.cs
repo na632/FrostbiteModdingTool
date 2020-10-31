@@ -59,53 +59,62 @@ namespace FIFAModdingUI.Windows
                 GameInstanceSingleton.InitialiseSingleton(filePath);
                 txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
 
-               
+
 
                 Task.Run(() =>
                 {
 
                     ProjectManagement = new ProjectManagement(filePath, this);
                     ProjectManagement.StartNewProject();
-                    
+
                     // Check and run Legacy Browser (UI is where the slowness is, FIXME)
                     var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
-                    if (legacyFiles.Count > 0)
-                    {
-                        BuildLegacyBrowser(null);
-                    }
+
+                    Log("Initialise Legacy Browser");
+                    legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
                     // Kit Browser
+                    Log("Initialise Kit Browser");
                     kitBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x=>(IAssetEntry)x).ToList();
+                                       .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
+                    Log("Initialise Texture Browser");
                     textureBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
                                        .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
-                    legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
-
+                    Log("Initialise Data Browser");
                     dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
                                        .EnumerateEbx()
                                        .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
+                    Log("Initialise Gameplay Browser");
                     gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
                                       .EnumerateEbx()
                                       .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
 
+                    Dispatcher.InvokeAsync(() => {
+
+                        btnProjectNew.IsEnabled = true;
+                        btnProjectOpen.IsEnabled = true;
+                        btnProjectSave.IsEnabled = true;
+                        btnProjectWriteToMod.IsEnabled = true;
+
+                    });
+                
+                });
+
+
                     //BuildTextureBrowser(null);
 
-                    //Dispatcher.BeginInvoke((Action)(() =>
-                    //{
-                    //    GameplayMain.Initialise();
-                    //}));
+                //Dispatcher.BeginInvoke((Action)(() =>
+                //{
+                //    GameplayMain.Initialise();
+                //}));
 
-                });
             }
 
-            btnProjectNew.IsEnabled = true;
-            btnProjectOpen.IsEnabled = true;
-            btnProjectSave.IsEnabled = true;
-            btnProjectWriteToMod.IsEnabled = true;
+            
             //_ = Start();
         }
 
@@ -337,11 +346,36 @@ namespace FIFAModdingUI.Windows
 
         public void Log(string text, params object[] vars)
         {
-            Action action = () =>
+            Dispatcher.InvokeAsync(() =>
             {
                 lblProgressText.Text = string.Format(text, vars);
-            };
-            Dispatcher.BeginInvoke(action);
+            });
+
+            LogAsync(text);
+        }
+
+        public async void LogAsync(string in_text)
+        {
+            var txt = string.Empty;
+            Dispatcher.Invoke(() => {
+                txt = txtLog.Text;
+            });
+
+            var text = await Task.Run(() =>
+            {
+                var stringBuilder = new StringBuilder();
+
+                stringBuilder.Append(txt);
+                stringBuilder.AppendLine(in_text);
+
+                return stringBuilder.ToString();
+            });
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                txtLog.Text = text;
+                txtLog.ScrollToEnd();
+            });
 
         }
 

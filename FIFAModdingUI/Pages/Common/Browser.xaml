@@ -48,6 +48,10 @@
             <StackPanel x:Name="EBXViewer" Visibility="Collapsed">
                 
             </StackPanel>
+
+            <StackPanel x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
+                <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

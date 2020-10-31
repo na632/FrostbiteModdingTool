@@ -154,7 +154,7 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-            <TextBox x:Name="txtLog" Grid.Row="2" Text="{Binding LogText}" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="175" MinHeight="175" MaxHeight="175">
+            <TextBox x:Name="txtLog" IsReadOnly="True" Grid.Row="2" Text="{Binding LogText}" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="175" MinHeight="175" MaxHeight="175">
                 
             </TextBox>
         </Grid>

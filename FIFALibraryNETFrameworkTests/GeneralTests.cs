@@ -404,11 +404,11 @@ namespace FIFALibraryNETFrameworkTests
                     if (eb != null)
                     {
                         //File.WriteAllText("testextract.json", JsonConvert.SerializeObject(eb.RootObject));
-                        ((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0f;
-                        ((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0f;
-                        ((dynamic)eb.RootObject).ATTR_JogSpeed = 0f;
+                        //((dynamic)eb.RootObject).ATTR_DribbleWalkAcceleration = 0f;
+                        //((dynamic)eb.RootObject).ATTR_DribbleJogSpeed = 0f;
+                        //((dynamic)eb.RootObject).ATTR_JogSpeed = 0f;
                         //((dynamic)eb.RootObject).AnimationPlaybackTimeRatioDribbling = new List<float>() { 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f };
-                        ((dynamic)eb.RootObject).ATTR_SprintSpeedTbl = new List<float>() { 0f, 0f };
+                        //((dynamic)eb.RootObject).ATTR_SprintSpeedTbl = new List<float>() { 0f, 0f };
                         //eb.AddObject(eb.RootObject);
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
                     }

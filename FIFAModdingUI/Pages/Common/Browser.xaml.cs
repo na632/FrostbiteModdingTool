@@ -28,6 +28,7 @@ using v2k4FIFAModding.Frosty;
 using Xceed.Wpf.AvalonDock.Converters;
 using FrostySdk.FrostySdk.Managers;
 using Microsoft.Win32;
+using FIFAModdingUI.Windows;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -37,6 +38,13 @@ namespace FIFAModdingUI.Pages.Common
     public partial class Browser : UserControl
     {
 
+		private FIFA21Editor FIFA21EditorWindow 
+		{ 
+			get
+            {
+				return App.MainEditorWindow as FIFA21Editor;
+            } 
+		}
         public Browser()
         {
             InitializeComponent();
@@ -168,6 +176,8 @@ namespace FIFAModdingUI.Pages.Common
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
 								TextureImporter textureImporter = new TextureImporter();
 								textureImporter.Import(openFileDialog.FileName, SelectedEbxEntry, ref texture);
+								FIFA21EditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEbxEntry.Filename}");
+
 							}
 
 
@@ -190,6 +200,7 @@ namespace FIFAModdingUI.Pages.Common
 					using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
 					{
 						nativeWriter.Write(new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ReadToEnd());
+						FIFA21EditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveFileDialog.FileName}");
 					}
 				}
 			}
@@ -213,9 +224,11 @@ namespace FIFAModdingUI.Pages.Common
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
 								TextureExporter textureExporter = new TextureExporter();
 								textureExporter.Export(texture, saveFileDialog.FileName, "*.dds");
+								FIFA21EditorWindow.Log($"Exported {SelectedEbxEntry.Filename} to {saveFileDialog.FileName}");
+
 							}
 
-								
+
 						}
 					}
 				}
@@ -257,6 +270,7 @@ namespace FIFAModdingUI.Pages.Common
 				ImageViewer.Visibility = Visibility.Collapsed;
 				TextViewer.Visibility = Visibility.Collapsed;
 				EBXViewer.Visibility = Visibility.Collapsed;
+				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
 
 				Control control = sender as Control;
 				if (control != null)
@@ -269,6 +283,8 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							try
 							{
+								FIFA21EditorWindow.Log("Loading Texture " + ebxEntry.Filename);
+
 								var eb = AssetManager.Instance.GetEbx(ebxEntry);
 								if (eb != null)
 								{
@@ -318,7 +334,7 @@ namespace FIFAModdingUI.Pages.Common
 							}
 							catch (Exception)
 							{
-								//Log("Failed to load texture");
+								FIFA21EditorWindow.Log("Failed to load texture");
 							}
 
 
@@ -334,6 +350,8 @@ namespace FIFAModdingUI.Pages.Common
 							var ebx = ProjectManagement.Instance.FrostyProject.AssetManager.GetEbx(ebxEntry);
 							if (ebx != null)
 							{
+								FIFA21EditorWindow.Log("Loading EBX " + ebxEntry.Filename);
+
 								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject));
 								EBXViewer.Visibility = Visibility.Visible;
 								btnRevert.IsEnabled = true;
@@ -362,8 +380,11 @@ namespace FIFAModdingUI.Pages.Common
 							"PNG",
 							"DDS"
 						};
+
 						if (textViewers.Contains(legacyFileEntry.Type))
 						{
+							FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+
 							btnExport.IsEnabled = true;
 							TextViewer.Visibility = Visibility.Visible;
 							using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
@@ -373,6 +394,8 @@ namespace FIFAModdingUI.Pages.Common
 						}
 						else if (imageViewers.Contains(legacyFileEntry.Type))
 						{
+							FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+
 							btnExport.IsEnabled = true;
 							ImageViewer.Visibility = Visibility.Visible;
 							using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
@@ -380,6 +403,12 @@ namespace FIFAModdingUI.Pages.Common
 								var bImage = LoadImage(nr.ReadToEnd());
 								ImageViewer.Source = bImage;
 							}
+						}
+						else
+                        {
+							FIFA21EditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
+							btnExport.IsEnabled = true;
+							UnknownLegacyFileViewer.Visibility = Visibility.Visible;
 						}
 
 					}

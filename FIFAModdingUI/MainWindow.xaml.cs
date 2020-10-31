@@ -34,7 +34,8 @@ namespace FIFAModdingUI
         private void btnEditor_Click(object sender, RoutedEventArgs e)
         {
             //new EditorLoginWindow().Show();
-            new FIFA21Editor().Show();
+            App.MainEditorWindow = new FIFA21Editor();
+            App.MainEditorWindow.Show();
             this.Close();
         }
 
