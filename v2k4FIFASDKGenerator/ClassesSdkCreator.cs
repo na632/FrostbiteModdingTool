@@ -802,7 +802,10 @@ namespace v2k4FIFASDKGenerator
 
             foreach (ClassInfo classInfo2 in classInfos)
             {
-                if (classInfo2.typeInfo.Type == 2 || classInfo2.typeInfo.Type == 3 || classInfo2.typeInfo.Type == 8 || classInfo2.typeInfo.Type == 27)
+                if (classInfo2.typeInfo.Type == 2
+                    || classInfo2.typeInfo.Type == 3
+                    || classInfo2.typeInfo.Type == 8
+                    || classInfo2.typeInfo.Type == 27)
                 {
                     if (classInfo2.typeInfo.Type == 27)
                     {
@@ -884,7 +887,9 @@ namespace v2k4FIFASDKGenerator
                         dbObject3.AddValue("flags", (int)classInfo3.typeInfo.flags);
                         dbObject3.AddValue("offset", (int)field.offset);
                         dbObject3.AddValue("index", field.index);
-                        if (classInfo3.typeInfo.Type == 3 || classInfo3.typeInfo.Type == 2 || classInfo3.typeInfo.Type == 8)
+                        if (classInfo3.typeInfo.Type == 3
+                            || classInfo3.typeInfo.Type == 2 
+                            || classInfo3.typeInfo.Type == 8)
                         {
                             dbObject3.AddValue("baseType", classInfo3.typeInfo.name);
                         }

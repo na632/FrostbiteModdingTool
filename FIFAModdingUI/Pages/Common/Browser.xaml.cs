@@ -157,17 +157,17 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnImport_Click(object sender, RoutedEventArgs e)
         {
-			if (SelectedEbxEntry != null)
+			if (SelectedEntry != null)
 			{
-				if (SelectedEbxEntry.Type == "TextureAsset")
+				if (SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture")
 				{
 					OpenFileDialog openFileDialog = new OpenFileDialog();
 					var filt = "*.DDS";
 					openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-					openFileDialog.FileName = SelectedEbxEntry.Filename;
+					openFileDialog.FileName = SelectedEntry.Filename;
 					if (openFileDialog.ShowDialog().Value)
 					{
-						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEbxEntry.Name);
+						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEntry.Name);
 						if (resEntry != null)
 						{
 
@@ -175,12 +175,22 @@ namespace FIFAModdingUI.Pages.Common
 							{
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
 								TextureImporter textureImporter = new TextureImporter();
-								textureImporter.Import(openFileDialog.FileName, SelectedEbxEntry, ref texture);
-								FIFA21EditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEbxEntry.Filename}");
+								EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
+								ResAssetEntry resAssetEntry = SelectedEntry as ResAssetEntry;
 
+								if (ebxAssetEntry != null)
+									textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
+								else if (resAssetEntry != null)
+								{
+									textureImporter.ImportTextureFromFileToTextureAsset(openFileDialog.FileName, ref texture, out string Message); 
+									FIFA21EditorWindow.Log($"{Message}");
+
+								}
+
+
+
+								FIFA21EditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
 							}
-
-
 						}
 					}
 				}
@@ -205,17 +215,17 @@ namespace FIFAModdingUI.Pages.Common
 				}
 			}
 
-			if (SelectedEbxEntry != null)
+			if (SelectedEntry != null)
 			{
-				if (SelectedEbxEntry.Type == "TextureAsset")
+				if (SelectedEntry.Type == "TextureAsset")
 				{
 					SaveFileDialog saveFileDialog = new SaveFileDialog();
 					var filt = "*.DDS";
 					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-					saveFileDialog.FileName = SelectedEbxEntry.Filename;
+					saveFileDialog.FileName = SelectedEntry.Filename;
 					if (saveFileDialog.ShowDialog().Value)
 					{
-						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEbxEntry.Name);
+						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEntry.Name);
 						if(resEntry != null) 
 						{
 
@@ -224,7 +234,7 @@ namespace FIFAModdingUI.Pages.Common
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
 								TextureExporter textureExporter = new TextureExporter();
 								textureExporter.Export(texture, saveFileDialog.FileName, "*.dds");
-								FIFA21EditorWindow.Log($"Exported {SelectedEbxEntry.Filename} to {saveFileDialog.FileName}");
+								FIFA21EditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
 
 							}
 
@@ -254,14 +264,14 @@ namespace FIFAModdingUI.Pages.Common
 			}
         }
 
-		public EbxAssetEntry SelectedEbxEntry;
+		public AssetEntry SelectedEntry;
 		public LegacyFileEntry SelectedLegacyEntry;
 
         private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
 			try
 			{
-				SelectedEbxEntry = null;
+				SelectedEntry = null;
 				SelectedLegacyEntry = null;
 				btnImport.IsEnabled = false;
 				btnExport.IsEnabled = false;
@@ -278,7 +288,7 @@ namespace FIFAModdingUI.Pages.Common
 					EbxAssetEntry ebxEntry = control.Tag as EbxAssetEntry;
 					if (ebxEntry != null)
 					{
-						SelectedEbxEntry = ebxEntry;
+						SelectedEntry = ebxEntry;
 						if (ebxEntry.Type == "TextureAsset")
 						{
 							try
@@ -291,44 +301,7 @@ namespace FIFAModdingUI.Pages.Common
 									var res = AssetManager.Instance.GetResEntry(ebxEntry.Name);
 									if (res != null)
 									{
-										using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(res))
-										{
-											using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager))
-											{
-												try
-												{
-													ImageViewer.Source = null;
-
-													var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
-
-													//var textureBytes = new TextureExporter().WriteToDDS(textureAsset);
-													//using (NativeWriter writer = new NativeWriter(new FileStream("temp.dds", FileMode.OpenOrCreate)))
-													//                                    {
-													//	writer.Write(textureBytes);
-													//                                    }
-													//DDSImage img = new DDSImage(File.ReadAllBytes(bPath));
-													TextureExporter textureExporter = new TextureExporter();
-													MemoryStream memoryStream = new MemoryStream();
-													var textureBytes = new NativeReader(textureExporter.ExportToSteam(textureAsset)).ReadToEnd();
-
-													//for (int i = 0; i < img.images.Length; i++)
-													//{
-													//	img.images[i].Save(Directory.GetCurrentDirectory() + @"\mipmap-" + i + ".bmp", ImageFormat.Bmp);
-													//}
-													//var bPathMip = Directory.GetCurrentDirectory() + @"\mipmap-0.bmp";
-
-													var bImage = LoadImage(textureBytes);
-													ImageViewer.Source = bImage;
-													ImageViewer.Visibility = Visibility.Visible;
-
-													btnExport.IsEnabled = true;
-													btnImport.IsEnabled = false; // no import yet
-
-													//bImage = null;
-												}
-												catch { ImageViewer.Source = null; }
-											}
-										}
+										BuildTextureViewerFromAssetEntry(res);
 									}
 								}
 							}
@@ -341,7 +314,7 @@ namespace FIFAModdingUI.Pages.Common
 
 						}
 						else
-                        {
+						{
 							if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
 							{
 								return;
@@ -360,12 +333,40 @@ namespace FIFAModdingUI.Pages.Common
 						}
 					}
 
-					LegacyFileEntry legacyFileEntry = control.Tag as LegacyFileEntry;
-					if (legacyFileEntry != null)
+					else
 					{
-						SelectedLegacyEntry = legacyFileEntry;
 
-						List<string> textViewers = new List<string>()
+						ResAssetEntry resEntry = control.Tag as ResAssetEntry;
+						if (resEntry != null)
+						{
+							SelectedEntry = resEntry;
+							if (SelectedEntry.Type == "Texture")
+							{
+								try
+								{
+									FIFA21EditorWindow.Log("Loading Texture " + SelectedEntry.Filename);
+
+									BuildTextureViewerFromAssetEntry(resEntry);
+								}
+								catch (Exception)
+								{
+									FIFA21EditorWindow.Log("Failed to load texture");
+								}
+
+
+
+							}
+
+						}
+						else
+						{
+
+							LegacyFileEntry legacyFileEntry = control.Tag as LegacyFileEntry;
+							if (legacyFileEntry != null)
+							{
+								SelectedLegacyEntry = legacyFileEntry;
+
+								List<string> textViewers = new List<string>()
 						{
 							"LUA",
 							"XML",
@@ -375,52 +376,84 @@ namespace FIFAModdingUI.Pages.Common
 							"CSV"
 						};
 
-						List<string> imageViewers = new List<string>()
+								List<string> imageViewers = new List<string>()
 						{
 							"PNG",
 							"DDS"
 						};
 
-						if (textViewers.Contains(legacyFileEntry.Type))
-						{
-							FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+								if (textViewers.Contains(legacyFileEntry.Type))
+								{
+									FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
-							btnExport.IsEnabled = true;
-							TextViewer.Visibility = Visibility.Visible;
-							using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
-							{
-								TextViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
-							}
-						}
-						else if (imageViewers.Contains(legacyFileEntry.Type))
-						{
-							FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+									btnExport.IsEnabled = true;
+									TextViewer.Visibility = Visibility.Visible;
+									using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+									{
+										TextViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
+									}
+								}
+								else if (imageViewers.Contains(legacyFileEntry.Type))
+								{
+									FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
-							btnExport.IsEnabled = true;
-							ImageViewer.Visibility = Visibility.Visible;
-							using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
-							{
-								var bImage = LoadImage(nr.ReadToEnd());
-								ImageViewer.Source = bImage;
+									btnExport.IsEnabled = true;
+									ImageViewer.Visibility = Visibility.Visible;
+									using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+									{
+										var bImage = LoadImage(nr.ReadToEnd());
+										ImageViewer.Source = bImage;
+									}
+								}
+								else
+								{
+									FIFA21EditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
+									btnExport.IsEnabled = true;
+									UnknownLegacyFileViewer.Visibility = Visibility.Visible;
+								}
+
 							}
-						}
-						else
-                        {
-							FIFA21EditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
-							btnExport.IsEnabled = true;
-							UnknownLegacyFileViewer.Visibility = Visibility.Visible;
 						}
 
 					}
-
-
 				}
 			}
 			catch
             {
+				FIFA21EditorWindow.Log("Failed to load file");
 
-            }
-        }
+			}
+		}
+
+		private void BuildTextureViewerFromAssetEntry(ResAssetEntry res)
+        {
+			using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(res))
+			{
+				using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager))
+				{
+					try
+					{
+						ImageViewer.Source = null;
+
+						var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
+
+						TextureExporter textureExporter = new TextureExporter();
+						MemoryStream memoryStream = new MemoryStream();
+						var textureBytes = new NativeReader(textureExporter.ExportToSteam(textureAsset)).ReadToEnd();
+
+						var bImage = LoadImage(textureBytes);
+						ImageViewer.Source = bImage;
+						ImageViewer.Visibility = Visibility.Visible;
+
+						btnExport.IsEnabled = true;
+						btnImport.IsEnabled = true; 
+						btnRevert.IsEnabled = true;
+
+					}
+					catch { ImageViewer.Source = null; }
+				}
+			}
+		}
 
 		private static System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
 		{
@@ -442,7 +475,11 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnRevert_Click(object sender, RoutedEventArgs e)
         {
-			if (EBXViewer.Children.Count > 0)
+			if(SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture")
+            {
+				AssetManager.Instance.RevertAsset(SelectedEntry);
+			}
+			else if (EBXViewer.Children.Count > 0)
 			{
 				var ebxviewer = EBXViewer.Children[0] as Editor;
 				if (ebxviewer != null)
@@ -450,6 +487,8 @@ namespace FIFAModdingUI.Pages.Common
 					ebxviewer.RevertAsset();
 				}
 			}
+			
+
         }
     }
 

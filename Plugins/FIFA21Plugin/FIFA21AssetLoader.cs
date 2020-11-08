@@ -114,7 +114,7 @@ namespace FIFA21Plugin
 									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
 								}
 
-								AllDbObjects.AddRange(dbObjects);
+								//AllDbObjects.AddRange(dbObjects);
 							}
 						}
 
@@ -127,7 +127,7 @@ namespace FIFA21Plugin
 				List<string> casFilesToSearch = new List<string>()
 				{
 					//parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_00\cas_01.cas",
-					//parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas"
+					parent.fs.BasePath + @"\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas"
 
 				};
 
@@ -172,7 +172,7 @@ namespace FIFA21Plugin
 
 							parent.logger.Log("Loading from " + path);
 
-						List<int> PositionOfReadableItems = new List<int>() { 0x179258B2 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+						List<int> PositionOfReadableItems = new List<int>() { 445679993, 0x1AACEF0E };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
 
 							nr_cas.Position = 0;
 						int index = 0;
@@ -191,10 +191,13 @@ namespace FIFA21Plugin
 								nr_cas.CreateViewStream(actualPos, nextActualPos)
 								))
 							{
+								//TOCFile file = new TOCFile(new TocSbReader_FIFA21());
+								//file.Bundles = new List<BaseBundleInfo>() { new BaseBundleInfo() { CasIndex = 3, Offset = 0, Size = nextActualPos } };
 								SBFile sbFile = new SBFile();
 								sbFile.NativeFileLocation = @"{native_data}\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
 								sbFile.FileLocation = @"{native_data}\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
 								DbObject obj = new DbObject();
+								//sbFile.Read(inner_reader);
 								sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
 									, ref obj, inner_reader, false);
 
@@ -216,7 +219,6 @@ namespace FIFA21Plugin
 										//ebx.SetValue("size", size);
 
 
-										parent.ProcessBundleEbx(ebx, parent.bundles.Count - 1, helper);
 									}
 									foreach (DbObject res in obj.GetValue<DbObject>("res"))
 									{
@@ -228,7 +230,6 @@ namespace FIFA21Plugin
 										//ebx.SetValue("size", size);
 
 
-										parent.ProcessBundleRes(res, parent.bundles.Count - 1, helper);
 									}
 									foreach (DbObject chunk in obj.GetValue<DbObject>("chunks"))
 									{
@@ -240,8 +241,11 @@ namespace FIFA21Plugin
 										//ebx.SetValue("size", size);
 
 
-										parent.ProcessBundleChunks(chunk, parent.bundles.Count - 1, helper);
 									}
+									//parent.ProcessBundleEbx(obj, parent.bundles.Count - 1, helper);
+									//parent.ProcessBundleRes(obj, parent.bundles.Count - 1, helper);
+									//parent.ProcessBundleChunks(obj, parent.bundles.Count - 1, helper);
+
 
 								}
 
@@ -272,6 +276,7 @@ namespace FIFA21Plugin
 
 
 		}
+
 		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
 		{
 			List<int> positions = new List<int>();

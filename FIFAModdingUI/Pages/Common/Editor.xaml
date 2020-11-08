@@ -7,43 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <UserControl.Resources>
-        <DataTemplate x:Key="GeneralFileItemTemplate">
-            <TextBlock Text="{Binding}"/>
-        </DataTemplate>
+    <StackPanel>
+        <CheckBox x:Name="chkImportFromFiles" Content="Import from raw file" Unchecked="chkImportFromFiles_Checked" Checked="chkImportFromFiles_Checked"></CheckBox>
+        <TreeView x:Name="TreeView1" IsEnabled="{Binding chkImportFromFiles.IsChecked.Value}" Height="400" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible">
+        </TreeView>
+    </StackPanel>
 
-        <DataTemplate x:Key="ImageFileItemTemplate">
-            <Image Source="{Binding}" MaxWidth="512" MaxHeight="512" />
-        </DataTemplate>
-
-        <DataTemplate x:Key="FloatItemTemplate">
-            <StackPanel>
-            <Label Content="{Binding Item1}"/>
-            <TextBox Text="{Binding Item3, Mode=OneWay}"/>
-            </StackPanel>
-        </DataTemplate>
-        <DataTemplate x:Key="PointerRefItemTemplate">
-        </DataTemplate>
-        <local:FileItemTemplateSelector x:Key="FileItemTemplateSelector" 
-                                        GeneralFileItemTemplate="{StaticResource GeneralFileItemTemplate}"
-                                        ImageFileItemTemplate="{StaticResource ImageFileItemTemplate}"
-                                        FloatItemTemplate="{StaticResource FloatItemTemplate}"
-                                        PointerRefItemTemplate="{StaticResource PointerRefItemTemplate}"
-                                        />
-        <local:PointerRefTemplateSelector x:Key="PointerRefTemplateSelector"
-                                        FloatItemTemplate="{StaticResource FloatItemTemplate}"
-                                        PointerRefItemTemplate="{StaticResource PointerRefItemTemplate}"
-                                          ></local:PointerRefTemplateSelector>
-    </UserControl.Resources>
-    <!-- <ListView ItemsSource="{Binding RootObjectProperties}"  ItemTemplateSelector="{StaticResource FileItemTemplateSelector}">
-        <ListView.ItemTemplate>
-            <DataTemplate DataType="System.Single">
-                <TextBlock Text="{Binding Item3}"/>
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>-->
-    <TreeView x:Name="TreeView1" Height="400" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible">
-    </TreeView>
-    
 
 </UserControl>

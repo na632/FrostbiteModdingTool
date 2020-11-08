@@ -117,8 +117,6 @@ namespace FIFA21Plugin
 
                 foreach (var modEBX in parent.modifiedEbx)
                 {
-                    //var inEbx = AssetManager.Instance.GetEbx(modEBX.Value);
-
                     var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
                     if(originalEntry != null)
                     {
@@ -194,52 +192,152 @@ namespace FIFA21Plugin
 
 
                         }
-                        /*
-                        foreach (var @object in assetLoader.AllDbObjects)
+                    }
+                }
+                foreach (var modRES in parent.modifiedRes)
+                {
+                    var originalEntry = AssetManager.Instance.GetResEntry(modRES.Value.Name);
+                    if (originalEntry != null)
+                    {
+                        //var resData = originalEntry.ModifiedEntry.Data;
+                        var resData = parent.archiveData[modRES.Value.Sha1].Data;
+
+                        var casPath = originalEntry.ExtraData.CasPath.Replace("native_data"
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Data");
+                        casPath = casPath.Replace("native_patch"
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
+
+                        byte[] originalCASArray = null;
+                        using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
                         {
-                            foreach (DbObject ebxObject in @object.GetValue<DbObject>("ebx"))
+                            originalCASArray = readerOfCas.ReadToEnd();
+                        }
+
+                        var positionOfNewData = 0;
+                        using (NativeWriter nativeWriter = new NativeWriter(new FileStream(casPath, FileMode.Open)))
+                        {
+                            nativeWriter.Write(originalCASArray);
+                            // write the new data to end of the file (this should be fine)
+                            positionOfNewData = (int)nativeWriter.BaseStream.Position;
+                            nativeWriter.Write(resData);
+                        }
+
+                        using (var f = new FileStream(casPath, FileMode.Open, FileAccess.Read))
+                        {
+                            using (NativeReader reader = new NativeReader(f))
                             {
-                                if (ebxObject.GetValue<string>("name") == modEBX.Value.Name)
+                                byte[] array = null;
+                                using (CasReader casReader = new CasReader(reader.CreateViewStream(positionOfNewData, resData.Length)))
                                 {
-                                    parent.Logger.Log("Writing new asset entry for EBX (" + modEBX + ")");
-
-                                    var sb_cas_offset_position = ebxObject.GetValue<int>("SB_CAS_Offset_Position");
-                                    var sb_sha1_position = ebxObject.GetValue<int>("SB_Sha1_Position");
-                                    var sb_original_size_position = ebxObject.GetValue<int>("SB_OriginalSize_Position");
-
-                                    var sbpath = ebxObject.GetValue<string>("SBFileLocation");
-                                    sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
-                                    byte[] arrayOfSB = null;
-                                    using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
-                                    {
-                                        arrayOfSB = nativeReader.ReadToEnd();
-                                    }
-                                    File.Delete(sbpath);
-                                    using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
-                                    {
-                                        nativeWriter.Write(arrayOfSB);
-                                        nativeWriter.BaseStream.Position = sb_cas_offset_position;
-                                        nativeWriter.Write((uint)positionOfNewData, Endian.Big);
-                                        nativeWriter.Flush();
-
-                                        nativeWriter.Write((uint)ebxData.Length, Endian.Big);
-                                        nativeWriter.Flush();
-
-                                        nativeWriter.BaseStream.Position = sb_sha1_position;
-                                        nativeWriter.Write(modEBX.Value.Sha1);
-                                        nativeWriter.Flush();
-
-                                        nativeWriter.BaseStream.Position = sb_original_size_position;
-                                        nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);
-                                        nativeWriter.Flush();
-
-
-                                    }
-
+                                    array = casReader.Read();
+                                }
+                                if (array == null)
+                                {
+                                    throw new Exception("Array not found in CAS");
                                 }
                             }
                         }
-                        */
+
+                        parent.Logger.Log("Writing new asset entry for RES (" + modRES.Key + ")");
+                        Debug.WriteLine("Writing new asset entry for RES (" + modRES.Key + ")");
+
+                        var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
+                        var sb_sha1_position = originalEntry.SB_Sha1_Position;
+                        var sb_original_size_position = originalEntry.SB_OriginalSize_Position;
+
+                        var sbpath = parent.fs.ResolvePath(originalEntry.SBFileLocation);
+                        sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                        byte[] arrayOfSB = null;
+                        using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+                        {
+                            arrayOfSB = nativeReader.ReadToEnd();
+                        }
+                        File.Delete(sbpath);
+                        using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+                        {
+                            nativeWriter.Write(arrayOfSB);
+                            nativeWriter.BaseStream.Position = sb_cas_offset_position;
+                            nativeWriter.Write((uint)positionOfNewData, Endian.Big);
+                            nativeWriter.Flush();
+
+                            nativeWriter.Write((uint)resData.Length, Endian.Big);
+                            nativeWriter.Flush();
+
+                            nativeWriter.BaseStream.Position = sb_sha1_position;
+                            nativeWriter.Write(modRES.Value.Sha1);
+                            nativeWriter.Flush();
+
+                            nativeWriter.BaseStream.Position = sb_original_size_position;
+                            nativeWriter.Write(Convert.ToUInt32(modRES.Value.OriginalSize), Endian.Little);
+                            nativeWriter.Flush();
+                        }
+
+                    }
+                }
+                foreach (var modChunk in parent.modifiedChunks)
+                {
+                    var originalEntry = AssetManager.Instance.GetChunkEntry(modChunk.Value.Id);
+                    if (originalEntry != null)
+                    {
+                        var originalDataLength = AssetManager.Instance.GetChunk(originalEntry).Length;
+                        var data = parent.archiveData[modChunk.Value.Sha1].Data;
+
+                        var casPath = originalEntry.ExtraData.CasPath.Replace("native_data"
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Data");
+                        casPath = casPath.Replace("native_patch"
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
+
+
+                        parent.Logger.Log("Writing new asset entry for Chunk (" + modChunk.Key + ")");
+                        Debug.WriteLine("Writing new asset entry for Chunk (" + modChunk.Key + ")");
+
+                        byte[] originalCASArray = null;
+                        using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
+                        {
+                            originalCASArray = readerOfCas.ReadToEnd();
+                        }
+
+                        var new_position = 0;
+                        using (NativeWriter nativeWriter = new NativeWriter(new FileStream(casPath, FileMode.Open)))
+                        {
+                            nativeWriter.Write(originalCASArray);
+                            new_position = (int)nativeWriter.BaseStream.Position;
+                            nativeWriter.Write(data);
+
+                        }
+
+                        var sbpath = parent.fs.ResolvePath(originalEntry.SBFileLocation);
+                        sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                        byte[] arrayOfSB = null;
+                        using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+                        {
+                            arrayOfSB = nativeReader.ReadToEnd();
+                        }
+                        File.Delete(sbpath);
+                        using (NativeWriter nativeWriter = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+                        {
+                            nativeWriter.Write(arrayOfSB);
+
+                            nativeWriter.BaseStream.Position = originalEntry.SB_CAS_Offset_Position;
+                            nativeWriter.Write((uint)new_position, Endian.Big);
+                            nativeWriter.Flush();
+
+                            nativeWriter.BaseStream.Position = originalEntry.SB_CAS_Size_Position;
+                            nativeWriter.Write((uint)data.Length, Endian.Big);
+                            nativeWriter.Flush();
+
+                            nativeWriter.BaseStream.Position = originalEntry.SB_Sha1_Position;
+                            nativeWriter.Write(modChunk.Value.Sha1);
+                            nativeWriter.Flush();
+
+                            //nativeWriter.BaseStream.Position = originalEntry.SB_OriginalSize_Position - 4;
+                            //nativeWriter.Write((uint)data.Length, Endian.Little);
+                            //nativeWriter.Flush();
+
+                            //nativeWriter.BaseStream.Position = originalEntry.SB_OriginalSize_Position;
+                            //nativeWriter.Write(Convert.ToUInt32(modChunk.Value.Size), Endian.Little);
+                            //nativeWriter.Flush();
+                        }
                     }
                 }
             }

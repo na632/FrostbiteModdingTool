@@ -60,6 +60,12 @@ namespace FIFA21Plugin
 
         public List<DbObject> Read(NativeReader nativeReader)
         {
+            if (NativeFileLocation.Contains("contentsb"))
+            {
+
+            }
+
+
             List<DbObject> dbObjects = new List<DbObject>();
 
             var startOffset = nativeReader.Position;
@@ -173,12 +179,12 @@ namespace FIFA21Plugin
                             cas = binarySbReader2.ReadByte();
                         }
                         DbObject resObject = dbObject.GetValue<DbObject>("res")[indexRes] as DbObject;
-                        resObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position);
+                        resObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + BaseBundleItem.Offset);
                         int offset = binarySbReader2.ReadInt(Endian.Big);
-                        resObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position);
+                        resObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + BaseBundleItem.Offset);
                         int size = binarySbReader2.ReadInt(Endian.Big);
 
-                        resObject.SetValue("SBFileLocation", FileLocation);
+                        resObject.SetValue("SBFileLocation", NativeFileLocation);
                         resObject.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
 
                         //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
@@ -206,16 +212,16 @@ namespace FIFA21Plugin
                         }
                         DbObject chnkObj = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
 
-                        chnkObj.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position);
+                        chnkObj.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + BaseBundleItem.Offset);
                         int offset = binarySbReader2.ReadInt(Endian.Big);
-                        chnkObj.SetValue("SB_CAS_Size_Position", binarySbReader2.Position);
+                        chnkObj.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + BaseBundleItem.Offset);
                         int size = binarySbReader2.ReadInt(Endian.Big);
 
                         //if (catalog < 0 || catalog > AssetManager.Instance.fs.CatalogCount - 1)
                         //{
 
                         //}
-                        chnkObj.SetValue("SBFileLocation", FileLocation);
+                        chnkObj.SetValue("SBFileLocation", NativeFileLocation);
                         chnkObj.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
                         //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
                         chnkObj.SetValue("catalog", catalog);
@@ -261,9 +267,9 @@ namespace FIFA21Plugin
                 Sha1Positions.Add(binarySbReader2.Position + BaseBundleItem.Offset);
                 sha1.Add(binarySbReader2.ReadSha1());
             }
-            dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, sha1, binarySbReader2)));
-            dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, sha1, binarySbReader2)));
-            dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, sha1, binarySbReader2)));
+            dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, sha1, binarySbReader2, BaseBundleItem)));
+            dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, sha1, binarySbReader2, BaseBundleItem)));
+            dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, sha1, binarySbReader2, BaseBundleItem)));
             dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
             dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
             dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
@@ -328,18 +334,23 @@ namespace FIFA21Plugin
             for (int i = 0; i < information.resCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
-                uint num2 = reader.ReadUInt(Endian.Little);
+                uint stringPosition = reader.ReadUInt(Endian.Little);
+
                 dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
-                uint original_size = reader.ReadUInt(Endian.Little);
+                uint originalSize = reader.ReadUInt(Endian.Little);
+
                 long position = reader.Position;
-                reader.Position = information.stringOffset + num2;
+
+                reader.Position = information.stringOffset + stringPosition;
+                dbObject.AddValue("SB_StringOffsetPosition", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
                 dbObject.AddValue("sha1", sha1[num++]);
                 var name = reader.ReadNullTerminatedString();
                 //System.Diagnostics.Debug.WriteLine("RES:: " + name);
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(name));
-                dbObject.AddValue("originalSize", original_size);
+                dbObject.AddValue("originalSize", originalSize);
                 list.Add(dbObject);
                 reader.Position = position;
             }
@@ -363,7 +374,7 @@ namespace FIFA21Plugin
             return list;
         }
 
-        private List<object> ReadChunks(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader)
+        private List<object> ReadChunks(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, BaseBundleInfo baseBundleInfo = null)
         {
             var currentPostion = reader.Position;
 
@@ -372,15 +383,20 @@ namespace FIFA21Plugin
             for (int i = 0; i < information.chunkCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
+                dbObject.AddValue("SB_Guid_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                 Guid guid = reader.ReadGuid(Endian.Little);
-                uint num2 = reader.ReadUInt(Endian.Little);
-                uint num3 = reader.ReadUInt(Endian.Little);
-                long num4 = (num2 & 0xFFFF) | num3;
+                dbObject.AddValue("SB_LogicalOffset_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                uint logicalOffset = reader.ReadUInt(Endian.Little);
+                dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                uint size_position = reader.ReadUInt(Endian.Little);
+                //dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                long original_size_position = (logicalOffset & 0xFFFF) | size_position;
                 dbObject.AddValue("id", guid);
-                dbObject.AddValue("sha1", sha1[num + i]);
-                dbObject.AddValue("logicalOffset", num2);
-                dbObject.AddValue("logicalSize", num3);
-                dbObject.AddValue("originalSize", num4);
+                dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
+                dbObject.AddValue("sha1", sha1[num + i]); 
+                dbObject.AddValue("logicalOffset", logicalOffset);
+                dbObject.AddValue("logicalSize", size_position);
+                dbObject.AddValue("originalSize", original_size_position);
                 list.Add(dbObject);
             }
             return list;

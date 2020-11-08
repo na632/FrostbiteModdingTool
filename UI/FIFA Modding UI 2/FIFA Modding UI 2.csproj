@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>FIFA_Modding_UI_2</RootNamespace>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
+    <ProjectReference Include="..\..\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
+    <ProjectReference Include="..\..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+  </ItemGroup>
+
+</Project>

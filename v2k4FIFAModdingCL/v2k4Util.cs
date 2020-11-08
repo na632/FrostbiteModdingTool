@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using System.Dynamic;
 
 namespace v2k4FIFAModding
 {
@@ -15,6 +16,12 @@ namespace v2k4FIFAModding
             foreach (DataRow row in dataTable.Rows)
                 yield return row;
         }
+
+        public static bool HasProperty(ExpandoObject obj, string propertyName)
+        {
+            return ((IDictionary<String, object>)obj).ContainsKey(propertyName);
+        }
+
 
         public static bool PropertyExists(this object obj, string propName)
         {
@@ -43,7 +50,8 @@ namespace v2k4FIFAModding
         {
             Type t = obj.GetType();
             var p = t.GetProperty(propName);
-            p.SetValue(obj, value);
+            if(propName != "BaseField")
+                p.SetValue(obj, value);
         }
 
         //public static void SetPropertyValue(this object obj, string propName, dynamic value)

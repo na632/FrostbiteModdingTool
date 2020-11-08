@@ -67,16 +67,24 @@ namespace FIFAModdingUI.Windows
                     ProjectManagement = new ProjectManagement(filePath, this);
                     ProjectManagement.StartNewProject();
 
+                   
+                    // Kit Browser
+                    Log("Initialise Kit Browser");
+                    var kitList = ProjectManagement.FrostyProject.AssetManager
+                                       .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                    kitList.AddRange(ProjectManagement.FrostyProject.AssetManager
+                                            .EnumerateRes((int)ResourceType.Texture)
+                                            .Where(x => x.Path.Contains("character/kit")));
+                    kitList = kitList.OrderBy(x => x.Name).ToList();
+                    var citykits = kitList.Where(x => x.Name.ToLower().Contains("manchester_city"));
+                    kitBrowser.AllAssetEntries = kitList;
+
                     // Check and run Legacy Browser (UI is where the slowness is, FIXME)
                     var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
 
                     Log("Initialise Legacy Browser");
                     legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
-                    // Kit Browser
-                    Log("Initialise Kit Browser");
-                    kitBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
                     Log("Initialise Texture Browser");
                     textureBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
@@ -127,148 +135,6 @@ namespace FIFAModdingUI.Windows
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test_gp_speed_change.fbmod" }.ToArray()).Wait();
 
-        }
-        string lastTemporaryFileLocation;
-        Random Randomizer = new Random();
-        EbxAssetEntry CurrentTextureAssetEntry = null;
-        /*
-        private bool BuildTextureBrowser(string filter)
-        {
-            BackgroundWorker worker = new BackgroundWorker();
-
-            worker.DoWork += (s, we) =>
-            {
-                var items = ProjectManagement.FrostyProject.AssetManager
-                        .EnumerateEbx("TextureAsset").Where(x=>x.Path.ToLower() != "kit").OrderBy(x => x.Path);
-                var uniquePaths = items.Select(x => x.Path.ToLower()).Distinct();
-
-                var index = 0;
-
-                Dispatcher.BeginInvoke((Action)(() =>
-                {
-
-                    string lastPath = null;
-                    TreeViewItem treeItem = null;
-
-                    foreach (var i in items)
-                    {
-                        var splitPath = i.Path.Split('/');
-                        //foreach(var innerPath in splitPath)
-                        //{
-
-                        bool usePreviousTree = string.IsNullOrEmpty(lastPath) || lastPath.ToLower() == i.Path.ToLower();
-
-
-                        // use previous tree
-                        if (!usePreviousTree || treeItem == null)
-                        {
-                            treeItem = new TreeViewItem();
-                            tvTextureBrowser.Items.Add(treeItem);
-                        }
-                        treeItem.Header = i.Path;
-                        lastPath = i.Path;
-                        var innerTreeItem = new Label() { Content = i.DisplayName };
-
-                        innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
-
-                        innerTreeItem.MouseDoubleClick += (object sender, MouseButtonEventArgs e) =>
-                        {
-                            try
-                            {
-                                CurrentTextureAssetEntry = i;
-                                var eb = AssetManager.Instance.GetEbx(i);
-                                if (eb != null)
-                                {
-                                    var res = AssetManager.Instance.GetResEntry(i.Name);
-                                    if (res != null)
-                                    {
-                                        using (var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(res))
-                                        {
-                                            using (Texture textureAsset = new Texture(resStream, ProjectManagement.FrostyProject.AssetManager))
-                                            {
-                                                try
-                                                {
-                                                    ImageViewer.Source = null;
-                                                    var bImage = LoadImage(new TextureExporter().WriteToDDS(textureAsset));
-                                                    ImageViewer.Source = bImage;
-                                                    bImage = null;
-                                                }
-                                                catch { ImageViewer.Source = null; }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                Log("Failed to load texture");
-                            }
-
-
-
-
-                        };
-
-                        treeItem.Items.Add(innerTreeItem);
-
-
-                        //}
-                        index++;
-                        Log($"Loading Texture Browser ({index}/{items.Count()})");
-
-                    }
-                }));
-            };
-            worker.RunWorkerAsync();
-            return true;
-        }
-        */
-        private bool BuildLegacyBrowser(string filter)
-        {
-            BackgroundWorker worker = new BackgroundWorker();
-
-            worker.DoWork += (s, we) =>
-            {
-                Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    var index = 0;
-
-                    string lastPath = null;
-                    TreeViewItem treeItem = null;
-                    var items = ProjectManagement.FrostyProject.AssetManager
-                        .EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
-                    Debug.WriteLine($"Count of Legacy: {items.Count}");
-                    foreach (var i in items)
-                    {
-                        var splitPath = i.Path.Split('/');
-                        //foreach(var innerPath in splitPath)
-                        //{
-
-                        bool usePreviousTree = string.IsNullOrEmpty(lastPath) || lastPath.ToLower() == i.Path.ToLower();
-
-                        // use previous tree
-                        if (!usePreviousTree || treeItem == null)
-                        {
-                            treeItem = new TreeViewItem();
-                            tvLegacy.Items.Add(treeItem);
-                        }
-                        treeItem.Header = i.Path;
-                        lastPath = i.Path;
-                        var innerTreeItem = new Label() { Content = i.Filename, Tag = i };
-
-                        //innerTreeItem.PreviewMouseRightButtonUp += InnerTreeItem_PreviewMouseRightButtonUp;
-                        innerTreeItem.MouseLeftButtonUp += InnerTreeItem_MouseLeftButtonUp;
-
-                        treeItem.Items.Add(innerTreeItem);
-
-                        index++;
-                        Log($"Loading Legacy Browser ({index}/{items.Count()})");
-
-                    }
-                }));
-            };
-            worker.RunWorkerAsync();
-            return true;
         }
 
         private static System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
@@ -387,32 +253,6 @@ namespace FIFAModdingUI.Windows
         {
         }
 
-        private void btnExportTexture_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentTextureAssetEntry != null)
-            {
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "DDS File|*.dds";
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    if (CurrentTextureAssetEntry != null)
-                    {
-                        var res = AssetManager.Instance.GetResEntry(CurrentTextureAssetEntry.Name);
-                        if (res != null)
-                        {
-                            using (var resStream = ProjectManagement.FrostyProject.AssetManager.GetRes(res))
-                            {
-                                using (Texture textureAsset = new Texture(resStream, ProjectManagement.FrostyProject.AssetManager))
-                                {
-                                    new TextureExporter().Export(textureAsset, saveFileDialog.FileName, "*.dds");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         private AssetEntry CurrentLegacySelection;
 
         private void btnExportLegacy_Click(object sender, RoutedEventArgs e)
@@ -442,10 +282,23 @@ namespace FIFAModdingUI.Windows
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Mod files|*.fbmod";
-            if (saveFileDialog.ShowDialog().HasValue)
+            var resultValue = saveFileDialog.ShowDialog(); 
+            if (resultValue.HasValue && resultValue.Value)
             {
                 ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName
                     , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool GP Mod", Version = "1.00" });
+                using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
+                {
+                    if(fs.Length > 1024 * 5)
+                    {
+                        Log("Saved mod successfully to " + saveFileDialog.FileName );
+                    }
+                    else
+                    {
+                        Log("An error has occurred Saving mod to " + saveFileDialog.FileName + " file seems too small");
+
+                    }
+                }
             }
         }
 
@@ -459,6 +312,9 @@ namespace FIFAModdingUI.Windows
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
                     ProjectManagement.FrostyProject.Save(saveFileDialog.FileName, true);
+
+                    Log("Saved project successfully to " + saveFileDialog.FileName);
+
                 }
             }
         }
@@ -473,13 +329,15 @@ namespace FIFAModdingUI.Windows
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
                     ProjectManagement.FrostyProject.Load(openFileDialog.FileName);
+
+                    Log("Opened project successfully from " + openFileDialog.FileName);
+
                 }
             }
         }
 
         private async void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
         {
-            ProjectManagement.FrostyProject.Save("test.fbproject");
             ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
@@ -494,7 +352,10 @@ namespace FIFAModdingUI.Windows
 
         private void btnProjectNew_Click(object sender, RoutedEventArgs e)
         {
+            AssetManager.Instance.Reset();
+            Log("Asset Manager Reset");
             ProjectManagement.FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+            Log("New Project Created");
         }
     }
 }

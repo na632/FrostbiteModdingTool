@@ -10,16 +10,17 @@ namespace v2k4FIFASDKGenerator.FIFA21
 		public override void Read(MemoryReader reader)
 		{
 			name = reader.ReadNullTerminatedString();
-            if (name.ToLower().Contains("AttribSchema_gp_goalkeeper_cpu_difficulty".ToLower()))
+            if (name.ToLower().Contains("gp_goalkeeper_cpu_difficulty".ToLower()))
             {
 
             }
 			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			flags >>= 1;
-			size = reader.ReadUInt();
-			reader.Position -= 4L;
-			size = reader.ReadUShort();
+            size = reader.ReadUInt();
+            reader.Position -= 4L;
+            size = reader.ReadUShort();
+
 			guid = reader.ReadGuid();
 
 			long position = reader.ReadLong();
@@ -29,6 +30,14 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			fieldCount = reader.ReadUShort();
 
 			padding3 = reader.ReadUInt();
+			if(padding3 != 0)
+            {
+
+            }
+			else
+            {
+
+            }
 			long[] array = new long[7];
 			for (int i = 0; i < 7; i++)
 			{
@@ -47,12 +56,15 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			{
 				reader.Position = array[1];
 				//reader.Position = array[3];
+				//reader.Position = array[4];
+				//if(reader.Position == 0)                
+				//reader.Position = array[3];
+
 				flag = true;
 			}
 			else if (base.Type == 8)
 			{
 				parentClass = 0L;
-				reader.Position = array[0];
 				reader.Position = array[0];
 				flag = true;
 			}

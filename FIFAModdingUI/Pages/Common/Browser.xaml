@@ -20,12 +20,40 @@
                 </TreeView.ItemTemplate>
             </TreeView>
             <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="200" BorderBrush="LightGray" BorderThickness="1">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding DisplayName}" Tag="{Binding}" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Content="{Binding DisplayName}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Asset Type">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Content="{Binding AssetType}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Type">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Content="{Binding Type}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Is Modified">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Content="{Binding IsModified}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
             </ListView>
+            
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Vertical" Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Horizontal">

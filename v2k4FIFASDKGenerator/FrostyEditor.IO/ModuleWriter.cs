@@ -249,16 +249,21 @@ namespace FrostyEditor
 				return "";
 			}
 			StringBuilder stringBuilder = new StringBuilder();
-			string text = classObj.GetValue("parent", "").Replace(':', '_');
+			string parentClassName = classObj.GetValue("parent", "").Replace(':', '_');
 			EbxFieldType ebxFieldType = (EbxFieldType)classObj.GetValue("type", 0);
 			DbObject value = classObj.GetValue<DbObject>("meta");
-			string text2 = classObj.GetValue<string>("name").Replace(':', '_');
+			string className = classObj.GetValue<string>("name").Replace(':', '_');
 			stringBuilder.Append(WriteClassAttributes(classObj));
-			stringBuilder.AppendLine("public class " + text2 + ((text != "") ? (" : " + text) : ""));
+			if(className.Contains("gp_") || className == "AttribGroupRuntime")
+			{
+
+            }
+
+			stringBuilder.AppendLine("public class " + className + ((parentClassName != "") ? (" : " + parentClassName) : ""));
 			stringBuilder.AppendLine("{");
 			if (ebxFieldType == EbxFieldType.Pointer)
 			{
-				if (text == "DataContainer")
+				if (parentClassName == "DataContainer")
 				{
 					stringBuilder.AppendLine("[" + typeof(IsTransientAttribute).Name + "]");
 					if (!classObj.HasValue("isData"))
@@ -272,7 +277,7 @@ namespace FrostyEditor
 					stringBuilder.AppendLine("public CString __Id\r\n{\r\nget\r\n{\r\nreturn GetId();\r\n}\r\nset { __id = value; }\r\n}\r\n");
 					stringBuilder.AppendLine("protected CString __id = new CString();");
 				}
-				if (text == "")
+				if (parentClassName == "")
 				{
 					stringBuilder.AppendLine("[" + typeof(IsTransientAttribute).Name + "]");
 					stringBuilder.AppendLine("[" + typeof(IsReadOnlyAttribute).Name + "]");
@@ -319,7 +324,7 @@ namespace FrostyEditor
 					}
 				}
 			}
-			if (text == "DataContainer" && !flag2)
+			if (parentClassName == "DataContainer" && !flag2)
 			{
 				string name4 = typeof(EbxClassMetaAttribute).GetProperties()[4].Name;
 				string name5 = typeof(GlobalAttributes).GetFields()[0].Name;
@@ -341,8 +346,8 @@ namespace FrostyEditor
 			if (ebxFieldType == EbxFieldType.Struct && classObj.GetValue<DbObject>("fields").Count > 0)
 			{
 				stringBuilder.AppendLine("public override bool Equals(object obj)\r\n{");
-				stringBuilder.AppendLine("if (obj == null || !(obj is " + text2 + "))\r\nreturn false;");
-				stringBuilder.AppendLine(text2 + " b = (" + text2 + ")obj;");
+				stringBuilder.AppendLine("if (obj == null || !(obj is " + className + "))\r\nreturn false;");
+				stringBuilder.AppendLine(className + " b = (" + className + ")obj;");
 				stringBuilder.Append("return ");
 				int num = 0;
 				foreach (DbObject item2 in classObj.GetValue<DbObject>("fields"))
@@ -374,7 +379,7 @@ namespace FrostyEditor
 		private string WriteField(DbObject fieldObj)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			string value = fieldObj.GetValue<string>("name");
+			string fieldName = fieldObj.GetValue<string>("name");
 			EbxFieldType ebxFieldType = (EbxFieldType)fieldObj.GetValue("type", 0);
 			string value2 = fieldObj.GetValue("baseType", "");
 			DbObject value3 = fieldObj.GetValue<DbObject>("meta");
@@ -403,7 +408,7 @@ namespace FrostyEditor
 					value2 = dbObject.GetValue<string>("baseType");
 				}
 			}
-			string text = "";
+			string fieldType = "";
 			bool flag2 = false;
 			stringBuilder.Append(WriteFieldAttributes(fieldObj));
 			if (ebxFieldType == EbxFieldType.Array)
@@ -413,23 +418,26 @@ namespace FrostyEditor
 				{
 					type = (EbxFieldType)dbObject.GetValue("arrayType", 0);
 				}
-				text = "List<" + GetFieldType(type, value2) + ">";
+				fieldType = "List<" + GetFieldType(type, value2) + ">";
 				flag2 = true;
 			}
 			else
 			{
-				text = GetFieldType(ebxFieldType, value2);
+				fieldType = GetFieldType(ebxFieldType, value2);
 				flag2 = (ebxFieldType == EbxFieldType.ResourceRef || ebxFieldType == EbxFieldType.BoxedValueRef || ebxFieldType == EbxFieldType.CString || ebxFieldType == EbxFieldType.FileRef || ebxFieldType == EbxFieldType.TypeRef || ebxFieldType == EbxFieldType.Struct);
 			}
+			if (string.IsNullOrEmpty(fieldType))
+				fieldType = "PointerRef";
+
 			if (value3 != null && value3.HasValue("accessor"))
 			{
-				stringBuilder.AppendLine("public " + text + " " + value + " { " + value3.GetValue<string>("accessor") + " }");
+				stringBuilder.AppendLine("public " + fieldType + " " + fieldName + " { " + value3.GetValue<string>("accessor") + " }");
 			}
 			else
 			{
-				stringBuilder.AppendLine("public " + text + " " + value + " { get { return _" + value + "; } set { _" + value + " = value; } }");
+				stringBuilder.AppendLine("public " + fieldType + " " + fieldName + " { get { return _" + fieldName + "; } set { _" + fieldName + " = value; } }");
 			}
-			stringBuilder.AppendLine("protected " + text + " _" + value + (flag2 ? (" = new " + text + "()") : "") + ";");
+			stringBuilder.AppendLine("protected " + fieldType + " _" + fieldName + (flag2 ? (" = new " + fieldType + "()") : "") + ";");
 			return stringBuilder.ToString();
 		}
 

@@ -388,6 +388,23 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void TestChangeOfKitTexture()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\kit test project.fbproject");
+            
+            projectManagement.FrostyProject.Save("Paulv2k4 FIFA 21 Kit Test.fbproject");
+            projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Kit Test.fbmod"
+                , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            //frostyModExecutor.UseSymbolicLinks = true;
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void TestOpenOfProject()
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
@@ -413,7 +430,7 @@ namespace FIFALibraryNETFrameworkTests
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
                     }
                 }
-                
+                /*
                 // Breaks
                 foreach (EbxAssetEntry ebx in gameplayEBX.Where(x => x.Name.Contains(
                     "Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaimarker_runtime")))
@@ -446,8 +463,7 @@ namespace FIFALibraryNETFrameworkTests
                         project.AssetManager.ModifyEbx(ebx.Name, eb);
                     }
                 }
-                /*
-
+                
                 foreach (EbxAssetEntry ebx in allEBX.Where(x => x.Name.Contains("Fifa/Attribulator/Gameplay/groups/gp_cpuai/gp_cpuai_cpuaiballhandler_runtime")))
                 {
                     var eb = AssetManager.Instance.GetEbx(ebx);

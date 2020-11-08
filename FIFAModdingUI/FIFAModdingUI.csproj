@@ -9,7 +9,6 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>false</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
-    <ApplicationIcon>discordicon.ico</ApplicationIcon>
     <Company>PARGSoft</Company>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
@@ -56,6 +55,8 @@
     <None Remove="Resources\Classes.txt" />
     <None Remove="Resources\images\PAULV2K4MODDINGTOOL.png" />
     <None Remove="Resources\images\PAULV2K4MODDINGTOOL2.png" />
+    <None Remove="Resources\images\PAULV2K4MODDINGTOOL3.png" />
+    <None Remove="Resources\images\PAULV2K4MODDINGTOOL4.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,6 +78,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\images\PAULV2K4MODDINGTOOL3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\images\PAULV2K4MODDINGTOOL4.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA19.ini">
@@ -143,18 +150,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\images\cash.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -180,6 +175,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Update="Resources\images\PAUL-TOOL-COVER.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SDK\FIFA20SDK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -192,6 +190,7 @@
     <Folder Include="Controls\" />
     <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -207,6 +206,35 @@
     <None Include="..\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\Resource1.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Resource1.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

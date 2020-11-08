@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using v2k4FIFAModding;
+using Xceed.Wpf.AvalonDock.Controls;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -175,7 +176,10 @@ namespace FIFAModdingUI.Pages.Common
 			Asset = inAsset;
 			FrostyProject = frostyProject;
 
-            this.DataContext = this;
+			if (FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
+				chkImportFromFiles.IsChecked = true;
+
+			this.DataContext = this;
 			this.TreeView1.Items.Clear();
 			foreach (var p in RootObjectProperties.OrderBy(x=>x.Item1))
 			{
@@ -189,6 +193,7 @@ namespace FIFAModdingUI.Pages.Common
 						if (p.Item3.PropertyExists("Internal"))
 						{
 							var FloatCurve = p.Item3.GetPropertyValue("Internal");
+							//if (FloatCurve != null && v2k4Util.HasProperty(FloatCurve, "MinX"))
 							if (FloatCurve != null)
 							{
 
@@ -202,7 +207,7 @@ namespace FIFAModdingUI.Pages.Common
 
 								// Min X
 								var spMinX = new StackPanel() { Orientation = Orientation.Horizontal };
-								var lblMinX = new TextBlock() { Text = "MinX" };
+								var lblMinX = new Label() { Content = "MinX" };
 								spMinX.Children.Add(lblMinX);
 								var txtMinX = new TextBox() { Name = "MinX", Text = FloatCurve.MinX.ToString() };
 								spMinX.Children.Add(txtMinX);
@@ -210,7 +215,7 @@ namespace FIFAModdingUI.Pages.Common
 
 								// Max X 
 								var spMaxX = new StackPanel() { Orientation = Orientation.Horizontal };
-								var lblMaxX = new TextBlock() { Text = "MaxX" };
+								var lblMaxX = new Label() { Content = "MaxX" };
 								spMaxX.Children.Add(lblMaxX);
 								var txtMaxX = new TextBox() { Name = "MaxX", Text = FloatCurve.MaxX.ToString() };
 								spMaxX.Children.Add(txtMaxX);
@@ -231,8 +236,8 @@ namespace FIFAModdingUI.Pages.Common
 										TreeViewItem SubChild1ItemX = new TreeViewItem();
 										SubChild1ItemX.Header = "X";
 										var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_X", Text = FloatCurve.Points[i].X.ToString() };
-										txtPointX.TextChanged += (object sender, TextChangedEventArgs e) =>
-										{
+										txtPointX.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) => {
+										
 											AssetHasChanged(sender as TextBox, p.Item1);
 										};
 										SubChild1ItemX.Items.Add(txtPointX);
@@ -241,8 +246,7 @@ namespace FIFAModdingUI.Pages.Common
 										TreeViewItem SubChild1ItemY = new TreeViewItem();
 										SubChild1ItemY.Header = "Y";
 										var txtPointY = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_Y", Text = FloatCurve.Points[i].Y.ToString() };
-										txtPointY.TextChanged += (object sender, TextChangedEventArgs e) =>
-										{
+										txtPointY.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) => {
 											AssetHasChanged(sender as TextBox, p.Item1);
 										};
 										SubChild1ItemY.Items.Add(txtPointY);
@@ -264,7 +268,7 @@ namespace FIFAModdingUI.Pages.Common
 					case "System.Int64":
 						TreeViewItem SysSingleTreeView = new TreeViewItem();
 						SysSingleTreeView.Header = "Value";
-
+						SysSingleTreeView.IsExpanded = true;
 						TextBox txt = new TextBox();
 						txt.Name = p.Item1;
 						txt.Text = p.Item3.ToString();
@@ -278,6 +282,7 @@ namespace FIFAModdingUI.Pages.Common
 						};
 
 						SysSingleTreeView.Items.Add(txt);
+						propTreeViewParent.IsExpanded = true;
 
 
 						propTreeViewParent.Items.Add(SysSingleTreeView);
@@ -312,6 +317,7 @@ namespace FIFAModdingUI.Pages.Common
 						break;
 					case "FrostySdk.Ebx.CString":
                         TreeViewItem SysCStringTreeView = new TreeViewItem();
+						SysCStringTreeView.IsExpanded = true;
 
 						SysCStringTreeView.Header = "Value";
 
@@ -321,6 +327,22 @@ namespace FIFAModdingUI.Pages.Common
 
 
 						propTreeViewParent.Items.Add(SysCStringTreeView);
+						propTreeViewParent.IsExpanded = true;
+
+
+						break;
+					case "System.Boolean":
+						CheckBox checkBox = new CheckBox();
+						checkBox.IsChecked = bool.Parse(p.Item3.ToString());
+						propTreeViewParent.Items.Add(checkBox);
+						propTreeViewParent.IsExpanded = true;
+						break;
+					case "FrostySdk.Ebx.AssetClassGuid":
+						TextBox txtGuid2 = new TextBox();
+						txtGuid2.Text = p.Item3.ToString();
+						txtGuid2.IsEnabled = false;
+						propTreeViewParent.Items.Add(txtGuid2); 
+						propTreeViewParent.IsExpanded = true;
 
 						break;
 
@@ -366,7 +388,11 @@ namespace FIFAModdingUI.Pages.Common
 									else
 									{
 										fcPoint.Y = float.Parse(sender.Text);
+										v2k4Util.SetPropertyValue(FloatCurve.Points[index], "Y", fcPoint.Y);
 									}
+
+									SaveToRootObject();
+
 
 								}
 								else if(int.TryParse(splitPropName[splitPropName.Length - 2], out int index))
@@ -423,17 +449,15 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 
-				//SaveToRootObject();
 			}
             catch
             {
-
             }
 		}
 
         private void SaveToRootObject()
         {
-			//FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+			FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
 			//FrostyProject.Save("GameplayProject.fbproject", true);
 		}
 
@@ -442,9 +466,26 @@ namespace FIFAModdingUI.Pages.Common
 
 		}
 
+        private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
+        {
+			var listoffiles = FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse;
+
+			if (((CheckBox)sender).IsChecked.Value)
+			{
+				if (!listoffiles.Contains(AssetEntry.Filename))
+					listoffiles.Add(AssetEntry.Filename);
+			}
+			else
+			{
+				if (listoffiles.Contains(AssetEntry.Filename))
+					listoffiles.RemoveAll(x => x.ToLower() == AssetEntry.Filename.ToLower());
+			}
+
+			FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse = listoffiles;
+		}
     }
 
-	public class MyDataTemplateSelector : DataTemplateSelector
+    public class MyDataTemplateSelector : DataTemplateSelector
 	{
 		public DataTemplate TextTemplate { get; set; }
 		public DataTemplate ImageTemplate { get; set; }
