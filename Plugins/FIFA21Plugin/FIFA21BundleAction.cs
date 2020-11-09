@@ -186,9 +186,9 @@ namespace FIFA21Plugin
                             nativeWriter.Write(modEBX.Value.Sha1);
                             nativeWriter.Flush();
 
-                            nativeWriter.BaseStream.Position = sb_original_size_position;
-                            nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);
-                            nativeWriter.Flush();
+                            //nativeWriter.BaseStream.Position = sb_original_size_position;
+                            //nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);
+                            //nativeWriter.Flush();
 
 
                         }

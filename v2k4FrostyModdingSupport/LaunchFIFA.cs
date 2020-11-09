@@ -36,8 +36,12 @@ namespace FIFAModdingUI
             }
             fileSystem.Initialize();
             _ = new FrostyProfile("Default");
+
+            logger.Log("Running Mod Executer");
             var fme = new FrostyModExecutor();
             fme.UseSymbolicLinks = useSymbolicLink;
+
+
             return await fme.Run(fileSystem, logger, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
         }
     }

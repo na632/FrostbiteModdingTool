@@ -72,9 +72,9 @@ namespace FIFAModdingUI.Windows
                     Log("Initialise Kit Browser");
                     var kitList = ProjectManagement.FrostyProject.AssetManager
                                        .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                    kitList.AddRange(ProjectManagement.FrostyProject.AssetManager
-                                            .EnumerateRes((int)ResourceType.Texture)
-                                            .Where(x => x.Path.Contains("character/kit")));
+                    //kitList.AddRange(ProjectManagement.FrostyProject.AssetManager
+                     //                       .EnumerateRes((int)ResourceType.Texture)
+                     //                       .Where(x => x.Path.Contains("character/kit")));
                     kitList = kitList.OrderBy(x => x.Name).ToList();
                     var citykits = kitList.Where(x => x.Name.ToLower().Contains("manchester_city"));
                     kitBrowser.AllAssetEntries = kitList;
