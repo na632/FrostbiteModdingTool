@@ -12,7 +12,7 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
 	xmlns:fbviews="clr-namespace:FolderBrowser.Views;assembly=FolderBrowser"
-        Title="FIFA 21 Editor (EARLY ALPHA - EXPECT BUGS)" Height="720" Width="1280"
+        Title="{Binding Path=WindowTitle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
          SizeToContent="WidthAndHeight" MinHeight="720" MinWidth="1280"
         ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
         

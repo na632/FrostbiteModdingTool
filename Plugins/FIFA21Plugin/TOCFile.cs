@@ -147,7 +147,7 @@ namespace FIFA21Plugin
 			}
 
 			private List<int> ListOfPositionChecks
-				= new List<int>() { 4118, 4733, 5362, 5659 };
+				= new List<int>() { 0, 4118, 4733, 5362, 5659, 2268974 };
 
         }
 
@@ -347,7 +347,7 @@ namespace FIFA21Plugin
 
 					}
 					*/
-					if (MetaData.Offset1 != 0)
+					if (MetaData.Offset1 != 0 && MetaData.Offset1 != 32)
 					{
 						if (MetaData.ResCount > 0)
 						{

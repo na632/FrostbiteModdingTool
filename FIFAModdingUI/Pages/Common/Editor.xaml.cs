@@ -346,6 +346,71 @@ namespace FIFAModdingUI.Pages.Common
 
 						break;
 
+					case "System.Collections.Generic.List`1[FrostySdk.Ebx.HotspotEntry]":
+						var d = (dynamic)p.Item3;
+
+						TreeViewItem lstHSDynamicTreeViewParent = new TreeViewItem();
+						lstHSDynamicTreeViewParent.Header = "Values";
+						for (var i = 0; i < d.Count; i++)
+						{
+							Grid gridBounds = new Grid();
+							RowDefinition gridRow1 = new RowDefinition();
+							RowDefinition gridRow2 = new RowDefinition();
+							gridBounds.RowDefinitions.Add(gridRow1);
+							gridBounds.RowDefinitions.Add(gridRow2);
+
+							ColumnDefinition gridCol1 = new ColumnDefinition();
+							ColumnDefinition gridCol2 = new ColumnDefinition();
+							ColumnDefinition gridCol3 = new ColumnDefinition();
+							gridBounds.ColumnDefinitions.Add(gridCol1);
+							gridBounds.ColumnDefinitions.Add(gridCol2);
+							gridBounds.ColumnDefinitions.Add(gridCol3);
+
+							Label hsboundx = new Label();
+							hsboundx.Content = "X";
+							Grid.SetRow(hsboundx, 0);
+							Grid.SetColumn(hsboundx, 0);
+
+							Label lblhsboundy = new Label();
+							lblhsboundy.Content = "Y";
+							Grid.SetRow(lblhsboundy, 0);
+							Grid.SetColumn(lblhsboundy, 1);
+
+							Label lblhsboundz = new Label();
+							lblhsboundz.Content = "Z";
+							Grid.SetRow(lblhsboundz, 0);
+							Grid.SetColumn(lblhsboundz, 2);
+
+							TextBox txthsboundx = new TextBox();
+							txthsboundx.Text = d[i].Bounds.x.ToString();
+							Grid.SetRow(txthsboundx, 1);
+							Grid.SetColumn(txthsboundx, 0);
+
+							TextBox txthsboundy = new TextBox();
+							txthsboundy.Text = d[i].Bounds.y.ToString();
+							Grid.SetRow(txthsboundy, 1);
+							Grid.SetColumn(txthsboundy, 1);
+
+							TextBox txthsboundz = new TextBox();
+							txthsboundz.Text = d[i].Bounds.z.ToString();
+							Grid.SetRow(txthsboundz, 1);
+							Grid.SetColumn(txthsboundz, 2);
+
+							gridBounds.Children.Add(hsboundx);
+							gridBounds.Children.Add(lblhsboundy);
+							gridBounds.Children.Add(lblhsboundz);
+
+							gridBounds.Children.Add(txthsboundx);
+							gridBounds.Children.Add(txthsboundy);
+							gridBounds.Children.Add(txthsboundz);
+
+							lstHSDynamicTreeViewParent.Items.Add(gridBounds);
+
+						}
+						propTreeViewParent.Items.Add(lstHSDynamicTreeViewParent);
+
+						break;
+
 
 				}
 			}

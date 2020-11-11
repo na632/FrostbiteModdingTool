@@ -22,7 +22,6 @@ using v2k4FIFAModdingCL.Career;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using Simple_Injector.Etc;
 using System.Data;
 using System.Threading;
 using Microsoft.VisualBasic.FileIO;

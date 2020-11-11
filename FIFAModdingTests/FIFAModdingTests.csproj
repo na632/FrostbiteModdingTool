@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FIFAModdingUI\FIFAModdingUI.csproj" />
+    <ProjectReference Include="..\FIFAModdingUI\FrostbiteModdingUI.csproj" />
     <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
     <ProjectReference Include="..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
   </ItemGroup>

@@ -29,6 +29,7 @@ using Xceed.Wpf.AvalonDock.Converters;
 using FrostySdk.FrostySdk.Managers;
 using Microsoft.Win32;
 using FIFAModdingUI.Windows;
+using Newtonsoft.Json;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -48,6 +49,7 @@ namespace FIFAModdingUI.Pages.Common
         public Browser()
         {
             InitializeComponent();
+			DataContext = this;
         }
 
 
@@ -59,7 +61,22 @@ namespace FIFAModdingUI.Pages.Common
             set { allAssets = value; Update(); }
         }
 
-        public List<string> CurrentAssets { get; set; }
+		public string FilterText { get; set; }
+
+		public List<IAssetEntry> FilteredAssetEntries
+		{
+			get 
+			{
+				if (!string.IsNullOrEmpty(FilterText))
+				{
+					return allAssets.Where(x => x.Name.Contains(FilterText)).ToList();
+				}
+				else
+					return allAssets;
+			}
+		}
+
+		public List<string> CurrentAssets { get; set; }
 
         public int CurrentTier { get; set; }
 
@@ -86,7 +103,7 @@ namespace FIFAModdingUI.Pages.Common
 		public void Update()
         {
 			AssetPath assetPath = new AssetPath("", "", null);
-			foreach (AssetEntry item in AllAssetEntries)
+			foreach (AssetEntry item in FilteredAssetEntries)
 			{
 				//if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
 				{
@@ -143,7 +160,13 @@ namespace FIFAModdingUI.Pages.Common
             }
             assetPath.Children.Insert(0, assetPathMapping["/"]);
 
-			Dispatcher.BeginInvoke((Action)(() =>
+			//Dispatcher.BeginInvoke((Action)(() =>
+			//{
+			//	assetTreeView.ItemsSource = assetPath.Children;
+			//	assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
+			//}));
+
+			Dispatcher.InvokeAsync((Action)(() =>
 			{
 				assetTreeView.ItemsSource = assetPath.Children;
 				assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
@@ -184,13 +207,41 @@ namespace FIFAModdingUI.Pages.Common
 								{
 									textureImporter.ImportTextureFromFileToTextureAsset(openFileDialog.FileName, ref texture, out string Message); 
 									FIFA21EditorWindow.Log($"{Message}");
+									UpdateAssetListView();
 
 								}
 
-
-
 								FIFA21EditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
 							}
+						}
+					}
+				}
+
+				if (SelectedEntry.Type == "HotspotDataAsset")
+				{
+					OpenFileDialog openFileDialog = new OpenFileDialog();
+					var filt = "*.json";
+					openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+					openFileDialog.FileName = SelectedEntry.Filename;
+					var dialogResult = openFileDialog.ShowDialog();
+					if (dialogResult.HasValue && dialogResult.Value)
+					{
+						var ebx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
+						if(ebx != null)
+                        {
+							var robj = (dynamic)ebx.RootObject;
+							var fileHS = (Newtonsoft.Json.Linq.JArray)JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(openFileDialog.FileName)).Hotspots;
+							var fhs2 = fileHS.ToObject<List<dynamic>>();
+							for (var i = 0; i < robj.Hotspots.Count; i++)
+							{
+								robj.Hotspots[i].Bounds.x = (float)fhs2[i].Bounds.x;
+								robj.Hotspots[i].Bounds.y = (float)fhs2[i].Bounds.y;
+								robj.Hotspots[i].Bounds.z = (float)fhs2[i].Bounds.z;
+							}
+							AssetManager.Instance.ModifyEbx(SelectedEntry.Name, ebx);
+							UpdateAssetListView();
+
+							EBXViewer.Visibility = Visibility.Collapsed;
 						}
 					}
 				}
@@ -242,27 +293,57 @@ namespace FIFAModdingUI.Pages.Common
 						}
 					}
 				}
+
+				if (SelectedEntry.Type == "HotspotDataAsset")
+				{
+					var ebx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
+					if (ebx != null)
+					{
+						SaveFileDialog saveFileDialog = new SaveFileDialog();
+						var filt = "*.json";
+						saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+						saveFileDialog.FileName = SelectedEntry.Filename;
+						var dialogAnswer = saveFileDialog.ShowDialog();
+						if (dialogAnswer.HasValue && dialogAnswer.Value)
+						{
+							var json = JsonConvert.SerializeObject(ebx.RootObject, Formatting.Indented);
+							File.WriteAllText(saveFileDialog.FileName, json);
+							FIFA21EditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+						}
+					}
+					else
+                    {
+						FIFA21EditorWindow.Log("Failed to export file");
+                    }
+				}
 			}
 		}
+
+		AssetPath SelectedAssetPath = null;
 
         private void Label_MouseUp(object sender, MouseButtonEventArgs e)
         {
 			Label label = sender as Label;
 			if (label != null && label.Tag != null) 
 			{
-				var assetPath = label.Tag as AssetPath;
-				if (assetPath != null) 
-				{
-					if (assetPath.FullPath.Length > 3)
-					{
-						var filterPath = (assetPath.FullPath.Substring(1, assetPath.FullPath.Length - 1));
-						var filteredAssets = AllAssetEntries.Where(x => x.Path.ToLower() == filterPath.ToLower());
-						assetListView.ItemsSource = filteredAssets.Take(100).OrderBy(x => x.Name);
-						
-					}
-				}
+				SelectedAssetPath = label.Tag as AssetPath;
+				UpdateAssetListView();
 			}
         }
+
+		public void UpdateAssetListView()
+        {
+			if (SelectedAssetPath != null)
+			{
+				if (SelectedAssetPath.FullPath.Length > 3)
+				{
+					var filterPath = (SelectedAssetPath.FullPath.Substring(1, SelectedAssetPath.FullPath.Length - 1));
+					var filteredAssets = AllAssetEntries.Where(x => x.Path.ToLower() == filterPath.ToLower());
+					assetListView.ItemsSource = filteredAssets.Take(100).OrderBy(x => x.Name);
+
+				}
+			}
+		}
 
 		public AssetEntry SelectedEntry;
 		public LegacyFileEntry SelectedLegacyEntry;
@@ -277,7 +358,7 @@ namespace FIFAModdingUI.Pages.Common
 				btnExport.IsEnabled = false;
 				btnRevert.IsEnabled = false;
 
-				ImageViewer.Visibility = Visibility.Collapsed;
+				ImageViewerScreen.Visibility = Visibility.Collapsed;
 				TextViewer.Visibility = Visibility.Collapsed;
 				EBXViewer.Visibility = Visibility.Collapsed;
 				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
@@ -328,7 +409,11 @@ namespace FIFAModdingUI.Pages.Common
 								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject));
 								EBXViewer.Visibility = Visibility.Visible;
 								btnRevert.IsEnabled = true;
-
+								if(ebxEntry.Type == "HotspotDataAsset")
+                                {
+									btnImport.IsEnabled = true;
+									btnExport.IsEnabled = true;
+								}
 							}
 						}
 					}
@@ -398,7 +483,7 @@ namespace FIFAModdingUI.Pages.Common
 									FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
 									btnExport.IsEnabled = true;
-									ImageViewer.Visibility = Visibility.Visible;
+									ImageViewerScreen.Visibility = Visibility.Visible;
 									using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
 									{
 										var bImage = LoadImage(nr.ReadToEnd());
@@ -443,14 +528,18 @@ namespace FIFAModdingUI.Pages.Common
 
 						var bImage = LoadImage(textureBytes);
 						ImageViewer.Source = bImage;
-						ImageViewer.Visibility = Visibility.Visible;
+						ImageViewerScreen.Visibility = Visibility.Visible;
+
+						lblImageName.Content = res.Filename;
+						lblImageDDSType.Content = textureAsset.PixelFormat;
+						lblImageRESType.Content = textureAsset.Type;
 
 						btnExport.IsEnabled = true;
 						btnImport.IsEnabled = true; 
 						btnRevert.IsEnabled = true;
 
 					}
-					catch { ImageViewer.Source = null; }
+					catch { ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed; }
 				}
 			}
 		}
@@ -489,6 +578,16 @@ namespace FIFAModdingUI.Pages.Common
 			}
 			
 
+        }
+
+        private void txtFilter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+			Update();
+        }
+
+        private void txtFilter_KeyUp(object sender, KeyEventArgs e)
+        {
+			Update();
         }
     }
 

@@ -4,6 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
+              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+            xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+            xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="800">
     <Grid>
@@ -12,13 +16,21 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
-            <TreeView x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="300" BorderBrush="LightGray" BorderThickness="1">
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                        <Label Content="{Binding PathName}" Tag="{Binding}" MouseUp="Label_MouseUp"></Label>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
+            <StackPanel>
+                <DockPanel>
+                    <Label  DockPanel.Dock="Left">Filter: </Label>
+                    <TextBox DockPanel.Dock="Right" x:Name="txtFilter" Text="{Binding FilterText}" 
+                             TextChanged="txtFilter_TextChanged"
+                              KeyUp="txtFilter_KeyUp" ></TextBox>
+                </DockPanel>
+                <TreeView x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="300" BorderBrush="LightGray" BorderThickness="1">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <Label Content="{Binding PathName}" Tag="{Binding}" MouseUp="Label_MouseUp"></Label>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </StackPanel>
             <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="200" BorderBrush="LightGray" BorderThickness="1">
                 <ListView.View>
                     <GridView>
@@ -57,19 +69,36 @@
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Vertical" Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnImport" IsEnabled="False" Click="btnImport_Click">
-                    Import
+                <Button x:Name="btnImport" IsEnabled="False" Click="btnImport_Click" Height="30" Background="Transparent">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
+                        <Label Content="Import" VerticalAlignment="Center" />
+                    </StackPanel>
                 </Button>
-                <Button x:Name="btnExport" IsEnabled="False" Click="btnExport_Click">
-                    Export
+                <Button x:Name="btnExport" IsEnabled="False" Click="btnExport_Click" Height="30" Background="Transparent">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Export" VerticalAlignment="Center" />
+                        <Label Content="Export" VerticalAlignment="Center" />
+                    </StackPanel>
                 </Button>
-                <Button x:Name="btnRevert" IsEnabled="False" Click="btnRevert_Click">
-                    Revert
+                <Button x:Name="btnRevert" IsEnabled="False" Click="btnRevert_Click" Height="30" Background="Transparent">
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Reverse" VerticalAlignment="Center" />
+                        <Label Content="Revert" VerticalAlignment="Center" />
+                    </StackPanel>
                 </Button>
             </StackPanel>
-            <Image x:Name="ImageViewer" MinHeight="256" Visibility="Collapsed"  MaxWidth="512" MaxHeight="512">
+            <StackPanel x:Name="ImageViewerScreen" Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <Label>Name: </Label><Label x:Name="lblImageName"></Label>
+                    <Label>DDS Type: </Label><Label x:Name="lblImageDDSType"></Label>
+                    <Label>RES Image Type: </Label><Label x:Name="lblImageRESType"></Label>
+                </StackPanel>
+                <Image x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="512" MaxHeight="512">
                 
-            </Image>
+                </Image>
+            </StackPanel>
+            
             <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999"  Visibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Visible">
                 
             </TextBox>

@@ -41,6 +41,24 @@ namespace FIFAModdingUI.Windows
         public FIFA21Editor()
         {
             InitializeComponent();
+            this.DataContext = this;
+        }
+
+        public string WindowTitle 
+        { 
+            get 
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.Append("FIFA 21 Editor - Early Alpha");
+                if(ProjectManagement != null 
+                    && ProjectManagement.FrostyProject != null)
+                {
+                    stringBuilder.Append(" [ " + ProjectManagement.FrostyProject.DisplayName + " ] ");
+                }
+                    
+                
+                return stringBuilder.ToString();
+            } 
         }
 
         public static ProjectManagement ProjectManagement { get; set; }
@@ -107,7 +125,7 @@ namespace FIFAModdingUI.Windows
                         btnProjectOpen.IsEnabled = true;
                         btnProjectSave.IsEnabled = true;
                         btnProjectWriteToMod.IsEnabled = true;
-
+                        var wt = WindowTitle;
                     });
                 
                 });

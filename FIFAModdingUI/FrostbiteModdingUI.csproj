@@ -40,7 +40,6 @@
 
   <ItemGroup>
     <None Remove="download.png" />
-    <None Remove="etc\Simple-Injection.dll" />
     <None Remove="FrostySdk.Profiles.bin" />
     <None Remove="ini\AIObjectiveSystem_FIFA19.ini" />
     <None Remove="ini\AIObjectiveSystem_FIFA20.ini" />
@@ -67,7 +66,6 @@
     <Content Include="..\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="etc\Simple-Injection.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -115,6 +113,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CSharpImageLibrary" Version="4.2.0" />
     <PackageReference Include="Dirkster.FolderBrowser" Version="3.1.1" />
     <PackageReference Include="EO.WebBrowser" Version="20.2.34" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
@@ -125,6 +124,8 @@
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="1.1.0" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
     <PackageReference Include="System.Management" Version="4.7.0" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
   </ItemGroup>
