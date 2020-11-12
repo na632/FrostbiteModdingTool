@@ -22,11 +22,12 @@ namespace FIFA21Plugin.Textures
 			var compatible_extensions = new List<string>() { "DDS", "PNG" };
 			if (!compatible_extensions.Contains(extension))
 			{
-				return;
+				throw new NotImplementedException("Incorrect file type used in Texture Importer");
 			}
 
 			TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.DDS;
-			Enum.Parse(imageFormat.GetType(), extension);
+			imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
+
 
 			MemoryStream memoryStream = null;
 			TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
@@ -34,6 +35,32 @@ namespace FIFA21Plugin.Textures
 			{
 				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(path, FileMode.Open, FileAccess.Read)));
 			}
+			else
+            {
+				TextureUtils.TextureImportOptions options = default(TextureUtils.TextureImportOptions);
+				options.type = textureAsset.Type;
+				options.format = TextureUtils.ToShaderFormat(textureAsset.PixelFormat, (textureAsset.Flags & TextureFlags.SrgbGamma) != 0);
+				options.generateMipmaps = (textureAsset.MipCount > 1);
+				options.mipmapsFilter = 0;
+				options.resizeTexture = false;
+				options.resizeFilter = 0;
+				options.resizeHeight = 0;
+				options.resizeWidth = 0;
+				if (textureAsset.Type == TextureType.TT_2d)
+				{
+					byte[] pngarray = NativeReader.ReadInStream(new FileStream(path, FileMode.Open, FileAccess.Read));
+					TextureUtils.ConvertImageToDDS(pngarray, pngarray.Length, imageFormat, options, ref pOutData);
+				}
+				else
+                {
+					throw new NotImplementedException("Unable to process PNG into non-2D texture");
+                }
+			}
+
+			if(imageFormat != TextureUtils.ImageFormat.DDS)
+            {
+				memoryStream = new MemoryStream(pOutData.Data);
+            }
 
 			if (!Directory.Exists("Debugging"))
 				Directory.CreateDirectory("Debugging");
@@ -47,7 +74,6 @@ namespace FIFA21Plugin.Textures
 				fileStream.Flush();
 			}
 			memoryStream.Position = 0;
-
 			
 
 			using (NativeReader nativeReader = new NativeReader(memoryStream))

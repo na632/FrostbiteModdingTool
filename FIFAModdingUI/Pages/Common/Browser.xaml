@@ -92,7 +92,10 @@
                 <StackPanel Orientation="Horizontal">
                     <Label>Name: </Label><Label x:Name="lblImageName"></Label>
                     <Label>DDS Type: </Label><Label x:Name="lblImageDDSType"></Label>
-                    <Label>RES Image Type: </Label><Label x:Name="lblImageRESType"></Label>
+                    <Label>RES Image Type:</Label>
+                    <Label x:Name="lblImageRESType"></Label>
+                    <Label>Image Size:</Label>
+                    <Label x:Name="lblImageSize"></Label>
                 </StackPanel>
                 <Image x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="512" MaxHeight="512">
                 

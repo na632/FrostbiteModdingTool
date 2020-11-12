@@ -186,7 +186,7 @@ namespace FIFAModdingUI.Pages.Common
 				{
 					OpenFileDialog openFileDialog = new OpenFileDialog();
 					var filt = "*.DDS";
-					openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+					openFileDialog.Filter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 					openFileDialog.FileName = SelectedEntry.Filename;
 					if (openFileDialog.ShowDialog().Value)
 					{
@@ -209,6 +209,17 @@ namespace FIFAModdingUI.Pages.Common
 									FIFA21EditorWindow.Log($"{Message}");
 									UpdateAssetListView();
 
+
+
+								}
+
+								if (ebxAssetEntry != null)
+								{
+									var res = AssetManager.Instance.GetResEntry(ebxAssetEntry.Name);
+									if (res != null)
+									{
+										BuildTextureViewerFromAssetEntry(res);
+									}
 								}
 
 								FIFA21EditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
@@ -533,6 +544,7 @@ namespace FIFAModdingUI.Pages.Common
 						lblImageName.Content = res.Filename;
 						lblImageDDSType.Content = textureAsset.PixelFormat;
 						lblImageRESType.Content = textureAsset.Type;
+						lblImageSize.Content = textureAsset.Width + "x" + textureAsset.Height;
 
 						btnExport.IsEnabled = true;
 						btnImport.IsEnabled = true; 
