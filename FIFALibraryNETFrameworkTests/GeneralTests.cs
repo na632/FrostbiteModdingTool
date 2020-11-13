@@ -400,7 +400,24 @@ namespace FIFALibraryNETFrameworkTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             //frostyModExecutor.UseSymbolicLinks = true;
+            //frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+        }
+
+
+        [TestMethod]
+        public void TestOpenOfCompleteProject()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Pre-Alpha 14.fbproject");
+
+            projectManagement.FrostyProject.WriteToMod("Paulv2k4 Test.fbmod"
+                    , new ModSettings() { Author = "paulv2k4", Category = "Test", Description = "Test", Title = "Test", Version = "1.00" });
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            //frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 Test.fbmod" }.ToArray()).Wait();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 Test.fbmod" }.ToArray()).Wait();
 
         }
 

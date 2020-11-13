@@ -147,7 +147,7 @@ namespace FIFA21Plugin
 			}
 
 			private List<int> ListOfPositionChecks
-				= new List<int>() { 0, 4118, 4733, 5362, 5659, 2268974 };
+				= new List<int>() { 0, 4118, 4733, 5361, 5659, 2268974 };
 
         }
 
@@ -199,174 +199,188 @@ namespace FIFA21Plugin
 				////}
 
 				List<int> bundleReferences = new List<int>();
-				if (MetaData.BundleCount > 0 && MetaData.BundleCount != MetaData.CasIndexingLength)
+
+				// Obviously not usable in standard way
+				if (MetaData.BundleCount == 32)
 				{
-					//for (int num8 = 0; num8 < tocMetaData[2]; num8++)
-					for (int index = 0; index < MetaData.BundleCount; index++)
+					//nativeReader.Position = 556 + MetaData.Offset6;
+					//var newOffset = nativeReader.ReadInt(Endian.Big) + 556;
+					//nativeReader.Position = newOffset;
+					//var nextOffset = nativeReader.ReadInt(Endian.Big) + 556;
+
+				}
+				else
+				{
+
+
+					if (MetaData.BundleCount > 0 && MetaData.BundleCount != MetaData.CasIndexingLength)
 					{
-						bundleReferences.Add((int)nativeReader.ReadUInt(Endian.Big));
-					}
-					nativeReader.Position = actualInternalPos + MetaData.CasIndexingLength;
+						//for (int num8 = 0; num8 < tocMetaData[2]; num8++)
+						for (int index = 0; index < MetaData.BundleCount; index++)
+						{
+							bundleReferences.Add((int)nativeReader.ReadUInt(Endian.Big));
+						}
+						nativeReader.Position = actualInternalPos + MetaData.CasIndexingLength;
 
-					/*
-					handle.read(4)
-
-		while handle.tell() % 8 != 0:
-            handle.read(1)
-					*/
-
-
-					//if (FileLocation.Contains("fifagame"))
-					//{
-
-					//}
-					//if (FileLocation.Contains("chants_preview"))
-					//{
-
-					//}
-					//nativeReader.Position = 556 + tocMetaData[3] - ((tocMetaData[2] + 2) * 4);
-					//for (int indexOfBundleCount = 0; indexOfBundleCount < tocMetaData[2]; indexOfBundleCount++)
-					for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.BundleCount; indexOfBundleCount++)
-					{
 						/*
-							string_off = unpack(">I", handle.read(4))[0]
-							size = unpack(">I", handle.read(4))[0]
-							handle.read(4)  # unknown
-							offset = unpack(">I", handle.read(4))[0]
-							name = ReadUtil.read_string_rewind(handle, offset6 + string_off)
+						handle.read(4)
 
-						 */
-						int string_off = nativeReader.ReadInt(Endian.Big);
+			while handle.tell() % 8 != 0:
+				handle.read(1)
+						*/
 
 
-						if (FileLocation.Contains("contentlaunch"))
-						{
-
-						}
-						//var anthemSearcher = 556 + tocMetaData[8] - 48 + casStringOffset;
-						//var anthemSearcher = 556 + tocMetaData[8] + casStringOffset;
-
-						//var t = TocOffset + off;
-
-						//if (t >= 2600000 && t <= 2605400)
+						//if (FileLocation.Contains("fifagame"))
 						//{
-						//	t += 50;
+
 						//}
-						int size = nativeReader.ReadInt(Endian.Big);
+						//if (FileLocation.Contains("chants_preview"))
+						//{
 
-						nativeReader.ReadInt(Endian.Big); // unknown
-
-						int dataOffset = nativeReader.ReadInt(Endian.Big);
-
-						BaseBundleInfo newBundleInfo = new BaseBundleInfo
+						//}
+						//nativeReader.Position = 556 + tocMetaData[3] - ((tocMetaData[2] + 2) * 4);
+						//for (int indexOfBundleCount = 0; indexOfBundleCount < tocMetaData[2]; indexOfBundleCount++)
+						for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.BundleCount; indexOfBundleCount++)
 						{
-							TocOffset = string_off,
-							Offset = dataOffset,
-							Size = size
-						};
-						Bundles.Add(newBundleInfo);
-					}
+							/*
+								string_off = unpack(">I", handle.read(4))[0]
+								size = unpack(">I", handle.read(4))[0]
+								handle.read(4)  # unknown
+								offset = unpack(">I", handle.read(4))[0]
+								name = ReadUtil.read_string_rewind(handle, offset6 + string_off)
 
-					/*
-					List<DbObject> resObjects = new List<DbObject>();
+							 */
+							int string_off = nativeReader.ReadInt(Endian.Big);
 
-					if (MetaData.Offset2 > MetaData.MetaDataLength && MetaData.Offset2 > MetaData.Offset1)
-					{
 
-						// need to fix this part and then build res objects
-						nativeReader.Position = MetaData.Offset2 + 556;
-						// starts at 314572 for content launch sb (kits and faces)
-						// this sequence seems to end at 814930 for content launch sb
-						for (int indexOfRes = 0; indexOfRes < MetaData.ResCount; indexOfRes++)
-						{
-							DbObject resObject = new DbObject();
-							resObject.AddValue("id", nativeReader.ReadGuid());
-							resObject.AddValue("bit1", nativeReader.ReadBoolean());
-							resObject.AddValue("bit2", nativeReader.ReadBoolean());
-							resObject.AddValue("unk1", nativeReader.ReadUShort());
-
-							resObjects.Add(resObject);
-						}
-
-						nativeReader.Position = MetaData.Offset5 + 556;
-						for (int indexOfRes = 0; indexOfRes < MetaData.ResCount; indexOfRes++)
-						{
-							DbObject resObject = resObjects[indexOfRes];
-							resObject.AddValue("unk3", nativeReader.ReadByte());
-							resObject.AddValue("patch", nativeReader.ReadBoolean());
-							resObject.AddValue("catalog", nativeReader.ReadByte());
-							resObject.AddValue("cas", nativeReader.ReadByte());
-							resObject.AddValue("offset", nativeReader.ReadInt(Endian.Big));
-							resObject.AddValue("size", nativeReader.ReadInt(Endian.Big));
-
-							var casPath = AssetManager.Instance.fs.GetFilePath(
-								resObject.GetValue<int>("catalog")
-								, resObject.GetValue<int>("cas")
-								, resObject.GetValue<bool>("patch"));
-							resObject.AddValue("casPath", casPath);
-							if (casPath.Contains("/fifa_installpackage_03/cas_03.cas"))
+							if (FileLocation.Contains("contentlaunch"))
 							{
 
 							}
+							//var anthemSearcher = 556 + tocMetaData[8] - 48 + casStringOffset;
+							//var anthemSearcher = 556 + tocMetaData[8] + casStringOffset;
 
-							resObjects.Add(resObject);
-						}
-					}
+							//var t = TocOffset + off;
 
-					if (MetaData.Offset11 + 552 < nativeReader.Length)
-					{
-						nativeReader.Position = MetaData.Offset11 + 556;
+							//if (t >= 2600000 && t <= 2605400)
+							//{
+							//	t += 50;
+							//}
+							int size = nativeReader.ReadInt(Endian.Big);
 
-						List<int> collection = new List<int>();
-						for (var i = 0; i < MetaData.Offset10; i++)
-						{
-							collection.Add(nativeReader.ReadInt(Endian.Big));
-						}
+							nativeReader.ReadInt(Endian.Big); // unknown
 
-						nativeReader.Position += 4;
-						List<int> collection2 = new List<int>();
+							int dataOffset = nativeReader.ReadInt(Endian.Big);
 
-
-						for (var i = 0; i < MetaData.Offset8; i++)
-						{
-							collection2.Add(nativeReader.ReadInt(Endian.Big));
-						}
-						for (var i = 0; i < MetaData.Offset9; i++)
-						{
-							collection2.Add(nativeReader.ReadInt(Endian.Big));
-						}
-						for (var i = 0; i < MetaData.ResCount; i++)
-						{
-							collection2.Add(nativeReader.ReadInt(Endian.Big));
-						}
-						for (var i = 0; i < MetaData.Sec4Size; i++)
-						{
-							collection2.Add(nativeReader.ReadInt(Endian.Big));
-						}
-
-
-					}
-					*/
-					if (MetaData.Offset1 != 0 && MetaData.Offset1 != 32)
-					{
-						if (MetaData.ResCount > 0)
-						{
-							nativeReader.Position = actualInternalPos + MetaData.Offset1;
-							List<int> list7 = new List<int>();
-							for (int num13 = 0; num13 < tocMetaData[5]; num13++)
+							BaseBundleInfo newBundleInfo = new BaseBundleInfo
 							{
-								list7.Add(nativeReader.ReadInt(Endian.Big));
+								TocOffset = string_off,
+								Offset = dataOffset,
+								Size = size
+							};
+							Bundles.Add(newBundleInfo);
+						}
+
+						/*
+						List<DbObject> resObjects = new List<DbObject>();
+
+						if (MetaData.Offset2 > MetaData.MetaDataLength && MetaData.Offset2 > MetaData.Offset1)
+						{
+
+							// need to fix this part and then build res objects
+							nativeReader.Position = MetaData.Offset2 + 556;
+							// starts at 314572 for content launch sb (kits and faces)
+							// this sequence seems to end at 814930 for content launch sb
+							for (int indexOfRes = 0; indexOfRes < MetaData.ResCount; indexOfRes++)
+							{
+								DbObject resObject = new DbObject();
+								resObject.AddValue("id", nativeReader.ReadGuid());
+								resObject.AddValue("bit1", nativeReader.ReadBoolean());
+								resObject.AddValue("bit2", nativeReader.ReadBoolean());
+								resObject.AddValue("unk1", nativeReader.ReadUShort());
+
+								resObjects.Add(resObject);
 							}
-							nativeReader.Position = actualInternalPos + MetaData.Offset2;
 
-							var chunks = new List<ChunkAssetEntry>();
-
-							List<Guid> tocChunkGuids = new List<Guid>();
-							for (int num14 = 0; num14 < MetaData.ResCount; num14++)
+							nativeReader.Position = MetaData.Offset5 + 556;
+							for (int indexOfRes = 0; indexOfRes < MetaData.ResCount; indexOfRes++)
 							{
-								byte[] array6 = nativeReader.ReadBytes(16);
-								Guid tocChunkGuid = new Guid(new byte[16]
+								DbObject resObject = resObjects[indexOfRes];
+								resObject.AddValue("unk3", nativeReader.ReadByte());
+								resObject.AddValue("patch", nativeReader.ReadBoolean());
+								resObject.AddValue("catalog", nativeReader.ReadByte());
+								resObject.AddValue("cas", nativeReader.ReadByte());
+								resObject.AddValue("offset", nativeReader.ReadInt(Endian.Big));
+								resObject.AddValue("size", nativeReader.ReadInt(Endian.Big));
+
+								var casPath = AssetManager.Instance.fs.GetFilePath(
+									resObject.GetValue<int>("catalog")
+									, resObject.GetValue<int>("cas")
+									, resObject.GetValue<bool>("patch"));
+								resObject.AddValue("casPath", casPath);
+								if (casPath.Contains("/fifa_installpackage_03/cas_03.cas"))
 								{
+
+								}
+
+								resObjects.Add(resObject);
+							}
+						}
+
+						if (MetaData.Offset11 + 552 < nativeReader.Length)
+						{
+							nativeReader.Position = MetaData.Offset11 + 556;
+
+							List<int> collection = new List<int>();
+							for (var i = 0; i < MetaData.Offset10; i++)
+							{
+								collection.Add(nativeReader.ReadInt(Endian.Big));
+							}
+
+							nativeReader.Position += 4;
+							List<int> collection2 = new List<int>();
+
+
+							for (var i = 0; i < MetaData.Offset8; i++)
+							{
+								collection2.Add(nativeReader.ReadInt(Endian.Big));
+							}
+							for (var i = 0; i < MetaData.Offset9; i++)
+							{
+								collection2.Add(nativeReader.ReadInt(Endian.Big));
+							}
+							for (var i = 0; i < MetaData.ResCount; i++)
+							{
+								collection2.Add(nativeReader.ReadInt(Endian.Big));
+							}
+							for (var i = 0; i < MetaData.Sec4Size; i++)
+							{
+								collection2.Add(nativeReader.ReadInt(Endian.Big));
+							}
+
+
+						}
+						*/
+						if (MetaData.Offset1 != 0 && MetaData.Offset1 != 32)
+						{
+							if (MetaData.ResCount > 0)
+							{
+								nativeReader.Position = actualInternalPos + MetaData.Offset1;
+								List<int> list7 = new List<int>();
+								for (int num13 = 0; num13 < MetaData.ResCount; num13++)
+								{
+									list7.Add(nativeReader.ReadInt(Endian.Big));
+								}
+								nativeReader.Position = actualInternalPos + MetaData.Offset2;
+
+								var chunks = new List<ChunkAssetEntry>();
+
+								List<Guid> tocChunkGuids = new List<Guid>();
+								for (int num14 = 0; num14 < MetaData.ResCount; num14++)
+								{
+									byte[] array6 = nativeReader.ReadBytes(16);
+									Guid tocChunkGuid = new Guid(new byte[16]
+									{
 										array6[15],
 										array6[14],
 										array6[13],
@@ -383,99 +397,85 @@ namespace FIFA21Plugin
 										array6[2],
 										array6[1],
 										array6[0]
-								});
-								//Guid value2 = nativeReader.ReadGuid(Endian.Little);
-								//if (tocChunkGuid == Guid.Parse("cc9e36b9-9304-2832-01ff-e8820db10773"))
-								//{
+									});
+									//Guid value2 = nativeReader.ReadGuid(Endian.Little);
+									//if (tocChunkGuid == Guid.Parse("cc9e36b9-9304-2832-01ff-e8820db10773"))
+									//{
 
-								//}
-								int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
-								while (tocChunkGuids.Count <= num15)
-								{
-									tocChunkGuids.Add(Guid.Empty);
+									//}
+									int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
+									while (tocChunkGuids.Count <= num15)
+									{
+										tocChunkGuids.Add(Guid.Empty);
+									}
+									tocChunkGuids[num15 / 3] = tocChunkGuid;
 								}
-								tocChunkGuids[num15 / 3] = tocChunkGuid;
+								nativeReader.Position = actualInternalPos + MetaData.Offset4;
+
+
+								ParentReader.AssetManager.logger.Log($"Found {MetaData.ResCount} Chunks in TOC");
+
+								for (int num16 = 0; num16 < MetaData.ResCount; num16++)
+								{
+									var unk2 = nativeReader.ReadByte();
+									bool patch2 = nativeReader.ReadBoolean();
+									byte catalog2 = nativeReader.ReadByte();
+									byte cas2 = nativeReader.ReadByte();
+									uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
+									uint chunkSize = nativeReader.ReadUInt(Endian.Big);
+									ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
+									chunkAssetEntry2.Id = tocChunkGuids[num16];
+									chunkAssetEntry2.Size = chunkSize;
+									chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
+									chunkAssetEntry2.ExtraData = new AssetExtraData();
+									chunkAssetEntry2.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog2, cas2, patch2);
+									if (chunkAssetEntry2.ExtraData.CasPath.Contains("/fifa_installpackage_03/cas_03.cas"))
+									{
+										//BoyerMoore boyerMoore1 = new BoyerMoore(chunkAssetEntry2.Id.ToByteArray());
+										//using (FileStream fsCas = new FileStream(AssetManager.Instance.fs.ResolvePath(chunkAssetEntry2.ExtraData.CasPath), FileMode.Open))
+										//using (NativeReader reader = new NativeReader(fsCas))
+										//{
+										//	var positionInCas = boyerMoore1.Search(reader.ReadToEnd());
+										//}
+
+									}
+									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
+									//if (AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
+									//{
+										AssetManager.Instance.chunkList.Remove(chunkAssetEntry2.Id);
+									//}
+									AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
+									chunks.Add(chunkAssetEntry2);
+								}
 							}
-							nativeReader.Position = actualInternalPos + MetaData.Offset4;
 
-
-							ParentReader.AssetManager.logger.Log($"Found {MetaData.ResCount} Chunks in TOC");
-
-							for (int num16 = 0; num16 < MetaData.ResCount; num16++)
+							for (int sha1Index = 0; sha1Index < MetaData.ResCount; sha1Index++)
 							{
-								var unk2 = nativeReader.ReadByte();
-								bool patch2 = nativeReader.ReadBoolean();
-								byte catalog2 = nativeReader.ReadByte();
-								byte cas2 = nativeReader.ReadByte();
-								uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
-								uint chunkSize = nativeReader.ReadUInt(Endian.Big);
-								ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
-								chunkAssetEntry2.Id = tocChunkGuids[num16];
-								chunkAssetEntry2.Size = chunkSize;
-								chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
-								chunkAssetEntry2.ExtraData = new AssetExtraData();
-								chunkAssetEntry2.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog2, cas2, patch2);
-								if (chunkAssetEntry2.ExtraData.CasPath.Contains("/fifa_installpackage_03/cas_03.cas"))
-								{
-
-								}
-								chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
-								if (AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
-								{
-									AssetManager.Instance.chunkList.Remove(chunkAssetEntry2.Id);
-								}
-								AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
-								chunks.Add(chunkAssetEntry2);
+								var sha1 = nativeReader.ReadGuid();
+								//var unk1 = nativeReader.ReadInt();
+								//var unk2 = nativeReader.ReadInt();
 							}
 
-							//if (chunks.Count > 0)
-							//{
-							//	for(var i = 0; i < chunks.Count;i++)
-							//                      {
-							//		var chunk = chunks[i];
-							//		if (!string.IsNullOrEmpty(chunk.ExtraData.CasPath))
-							//		{
-							//			var cas_file_path = AssetManager.Instance.fs.ResolvePath(chunk.ExtraData.CasPath);
-							//			using (var cas_stream = new FileStream(cas_file_path, FileMode.Open)) 
-							//			{
-							//				BoyerMoore boyerMoore1 = new BoyerMoore(chunk.Id.ToByteArray().Reverse().ToArray());
 
-							//                                  using (NativeReader entire_cas_reader = new NativeReader(cas_stream))
-							//                                  {
-							//					//	using (var cas_read = entire_cas_reader.CreateViewStream(MetaData.Offset5, entire_cas_reader.Length - MetaData.Offset5))
-							//					//                                  {
-
-							//					//                                  }
-							//					 var search = boyerMoore1.SearchAll(entire_cas_reader.ReadToEnd());
-
-
-							//				}
-							//			}
-							//		}
-
-							//	}
-							//}
 						}
-
-						//nativeReader.Position = actualInternalPos + tocMetaData[8];
-
 					}
+
+					//if (MetaData.Offset5 > 128)
+					//{
+					//	SBFile sbFile = new SBFile(ParentReader, this, 0);
+					//	BaseBundleInfo newBundleInfo = new BaseBundleInfo
+					//	{
+					//		TocOffset = 0,
+					//		Offset = MetaData.Offset5,
+					//		Size = MetaData.Offset6
+					//	};
+					//	//Bundles.Add(newBundleInfo);
+					//}
 				}
 
-				if(MetaData.Offset5 > 128)
-                {
-					SBFile sbFile = new SBFile(ParentReader, this, 0);
-					BaseBundleInfo newBundleInfo = new BaseBundleInfo
-					{
-						TocOffset = 0,
-						Offset = MetaData.Offset5,
-						Size = MetaData.Offset6
-					};
-					//Bundles.Add(newBundleInfo);
-                }
 
 			}
-			
+
 
 		}
 	}

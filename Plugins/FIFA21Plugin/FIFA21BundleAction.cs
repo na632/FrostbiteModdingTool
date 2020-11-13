@@ -101,6 +101,68 @@ namespace FIFA21Plugin
             return true;
         }
 
+        private enum ModType
+        {
+            EBX,
+            RES,
+            CHUNK
+        }
+
+        private Dictionary<string, List<Tuple<Sha1, string, ModType>>> GetModdedCasFiles()
+        {
+            Dictionary<string, List<Tuple<Sha1, string, ModType>>> casToMods = new Dictionary<string, List<Tuple<Sha1, string, ModType>>>();
+            foreach (var modEBX in parent.modifiedEbx)
+            {
+                var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
+                if (originalEntry != null)
+                {
+                    var casPath = originalEntry.ExtraData.CasPath;
+                    if (!casToMods.ContainsKey(casPath))
+                    {
+                        casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType>>() { new Tuple<Sha1, string, ModType>(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX) });
+                    }
+                    else
+                    {
+                        casToMods[casPath].Add(new Tuple<Sha1, string, ModType>(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX));
+                    }
+                }
+            }
+            foreach (var modRES in parent.modifiedRes)
+            {
+                var originalEntry = AssetManager.Instance.GetEbxEntry(modRES.Value.Name);
+                if (originalEntry != null)
+                {
+                    var casPath = originalEntry.ExtraData.CasPath;
+                    if (!casToMods.ContainsKey(casPath))
+                    {
+                        casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType>>() { new Tuple<Sha1, string, ModType>(modRES.Value.Sha1, modRES.Value.Name, ModType.RES) });
+                    }
+                    else
+                    {
+                        casToMods[casPath].Add(new Tuple<Sha1, string, ModType>(modRES.Value.Sha1, modRES.Value.Name, ModType.RES));
+                    }
+                }
+            }
+            foreach (var modChunks in parent.modifiedChunks)
+            {
+                var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
+                if (originalEntry != null)
+                {
+                    var casPath = originalEntry.ExtraData.CasPath;
+                    if (!casToMods.ContainsKey(casPath))
+                    {
+                        casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType>>() { new Tuple<Sha1, string, ModType>(modChunks.Value.Sha1, modChunks.Value.Id.ToString(), ModType.CHUNK) });
+                    }
+                    else
+                    {
+                        casToMods[casPath].Add(new Tuple<Sha1, string, ModType>(modChunks.Value.Sha1, modChunks.Value.Id.ToString(), ModType.CHUNK));
+                    }
+                }
+            }
+
+            return casToMods;
+        }
+
         public void Run()
         {
             try
@@ -115,6 +177,95 @@ namespace FIFA21Plugin
 
                 parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
 
+                var dictOfModsToCas = GetModdedCasFiles();
+                if(dictOfModsToCas != null && dictOfModsToCas.Count > 0)
+                {
+                    foreach (var item in dictOfModsToCas) 
+                    {
+                        var casPath = item.Key.Replace("native_data"
+                                , AssetManager.Instance.fs.BasePath + "ModData\\Data");
+                        casPath = casPath.Replace("native_patch"
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
+
+                        byte[] originalCASArray = null;
+                        using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
+                        {
+                            originalCASArray = readerOfCas.ReadToEnd();
+                        }
+
+                        var positionOfNewData = 0;
+                        using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
+                        {
+                            nwCas.Write(originalCASArray);
+                            foreach (var modItem in item.Value)
+                            {
+                                byte[] data = new byte[0];
+                                AssetEntry originalEntry = null;
+                                switch(modItem.Item3)
+                                {
+                                    case ModType.EBX:
+                                        originalEntry = AssetManager.Instance.GetEbxEntry(modItem.Item2);
+                                        break;
+                                    case ModType.RES:
+                                        originalEntry = AssetManager.Instance.GetResEntry(modItem.Item2);
+                                        break;
+                                    case ModType.CHUNK:
+                                        originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(modItem.Item2));
+                                        break;
+                                }
+                                if (originalEntry != null)
+                                {
+                                    data = parent.archiveData[modItem.Item1].Data;
+                                }
+                               
+                                if (data.Length > 0)
+                                {
+                                    // write the new data to end of the file (this should be fine)
+                                    positionOfNewData = (int)nwCas.BaseStream.Position;
+                                    nwCas.Write(data);
+
+                                    parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
+                                    Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
+
+                                    var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
+                                    var sb_sha1_position = originalEntry.SB_Sha1_Position;
+                                    var sb_original_size_position = originalEntry.SB_OriginalSize_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
+
+                                    var sbpath = parent.fs.ResolvePath(originalEntry.SBFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
+                                    sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                                    byte[] arrayOfSB = null;
+                                    using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+                                    {
+                                        arrayOfSB = nativeReader.ReadToEnd();
+                                    }
+                                    File.Delete(sbpath);
+                                    using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+                                    {
+                                        nw_sb.Write(arrayOfSB);
+                                        nw_sb.BaseStream.Position = sb_cas_offset_position;
+                                        nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                                        nw_sb.Flush();
+
+                                        nw_sb.Write((uint)data.Length, Endian.Big);
+                                        nw_sb.Flush();
+
+                                        nw_sb.BaseStream.Position = sb_sha1_position;
+                                        nw_sb.Write(modItem.Item1);
+                                        nw_sb.Flush();
+
+                                        //nativeWriter.BaseStream.Position = sb_original_size_position;
+                                        //nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);
+                                        //nativeWriter.Flush();
+
+
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+                /*
                 foreach (var modEBX in parent.modifiedEbx)
                 {
                     var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
@@ -338,8 +489,9 @@ namespace FIFA21Plugin
                             //nativeWriter.Write(Convert.ToUInt32(modChunk.Value.Size), Endian.Little);
                             //nativeWriter.Flush();
                         }
-                    }
+            }
                 }
+                */
             }
             catch (Exception e)
             {

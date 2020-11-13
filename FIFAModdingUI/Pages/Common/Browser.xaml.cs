@@ -185,7 +185,6 @@ namespace FIFAModdingUI.Pages.Common
 				if (SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture")
 				{
 					OpenFileDialog openFileDialog = new OpenFileDialog();
-					var filt = "*.DDS";
 					openFileDialog.Filter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 					openFileDialog.FileName = SelectedEntry.Filename;
 					if (openFileDialog.ShowDialog().Value)
@@ -350,7 +349,7 @@ namespace FIFAModdingUI.Pages.Common
 				{
 					var filterPath = (SelectedAssetPath.FullPath.Substring(1, SelectedAssetPath.FullPath.Length - 1));
 					var filteredAssets = AllAssetEntries.Where(x => x.Path.ToLower() == filterPath.ToLower());
-					assetListView.ItemsSource = filteredAssets.Take(100).OrderBy(x => x.Name);
+					assetListView.ItemsSource = filteredAssets.OrderBy(x => x.Name);
 
 				}
 			}
