@@ -66,6 +66,7 @@ namespace FIFA21Plugin
     {
         public SBFile AssociatedSBFile { get; set; }
         public string FileLocation { get; internal set; }
+        public string NativeFileLocation { get; internal set; }
 
         //public int[] ArrayOfInitialHeaderData = new int[12];
 
@@ -417,14 +418,24 @@ namespace FIFA21Plugin
 
 								for (int num16 = 0; num16 < MetaData.ResCount; num16++)
 								{
+									ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
+									 
 									var unk2 = nativeReader.ReadByte();
 									bool patch2 = nativeReader.ReadBoolean();
 									byte catalog2 = nativeReader.ReadByte();
 									byte cas2 = nativeReader.ReadByte();
+
+									chunkAssetEntry2.SB_CAS_Offset_Position = (int)nativeReader.Position;
 									uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
+									chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
 									uint chunkSize = nativeReader.ReadUInt(Endian.Big);
-									ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
 									chunkAssetEntry2.Id = tocChunkGuids[num16];
+                                    if (chunkAssetEntry2.Id.ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
+                                    {
+                                    }
+                                    chunkAssetEntry2.TOCFileLocation = NativeFileLocation;
+									chunkAssetEntry2.SBFileLocation = null;
+
 									chunkAssetEntry2.Size = chunkSize;
 									chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
 									chunkAssetEntry2.ExtraData = new AssetExtraData();
@@ -440,11 +451,10 @@ namespace FIFA21Plugin
 
 									}
 									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
-									//if (AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
-									//{
-										AssetManager.Instance.chunkList.Remove(chunkAssetEntry2.Id);
-									//}
-									AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
+                                    if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
+                                    {
+										AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
+									}
 									chunks.Add(chunkAssetEntry2);
 								}
 							}

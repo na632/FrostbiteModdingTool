@@ -187,6 +187,9 @@ namespace FIFA21Plugin
                         casPath = casPath.Replace("native_patch"
                             , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
 
+
+                        parent.Logger.Log($"Modifying CAS file - {casPath}");
+
                         byte[] originalCASArray = null;
                         using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
                         {
@@ -231,8 +234,11 @@ namespace FIFA21Plugin
                                     var sb_sha1_position = originalEntry.SB_Sha1_Position;
                                     var sb_original_size_position = originalEntry.SB_OriginalSize_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
 
-                                    var sbpath = parent.fs.ResolvePath(originalEntry.SBFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
+
+                                    var sbpath = parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
                                     sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                                    sbpath = sbpath.Replace("\\data", "\\ModData\\Data");
+
                                     byte[] arrayOfSB = null;
                                     using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
                                     {
@@ -249,9 +255,12 @@ namespace FIFA21Plugin
                                         nw_sb.Write((uint)data.Length, Endian.Big);
                                         nw_sb.Flush();
 
-                                        nw_sb.BaseStream.Position = sb_sha1_position;
-                                        nw_sb.Write(modItem.Item1);
-                                        nw_sb.Flush();
+                                        if (sb_sha1_position != 0)
+                                        {
+                                            nw_sb.BaseStream.Position = sb_sha1_position;
+                                            nw_sb.Write(modItem.Item1);
+                                            nw_sb.Flush();
+                                        }
 
                                         //nativeWriter.BaseStream.Position = sb_original_size_position;
                                         //nativeWriter.Write(Convert.ToUInt32(modEBX.Value.OriginalSize), Endian.Little);

@@ -356,6 +356,8 @@ namespace FIFAModdingUI.Windows
 
         private async void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
         {
+            await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = false; });
+
             ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
@@ -366,6 +368,36 @@ namespace FIFAModdingUI.Windows
                 frostyModExecutor.UseSymbolicLinks = true;
                 frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test.fbmod" }.ToArray()).Wait();
             });
+
+            InjectLegacyDLL();
+
+            await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = true; });
+
+        }
+
+        private void InjectLegacyDLL()
+        {
+            string legacyModSupportFile = null;
+            if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
+            {
+                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+            }
+            else if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
+            {
+                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
+            }
+
+            if (!string.IsNullOrEmpty(legacyModSupportFile))
+            {
+
+                if (File.Exists(legacyModSupportFile))
+                {
+                    File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
+                }
+
+                var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+            }
         }
 
         private void btnProjectNew_Click(object sender, RoutedEventArgs e)

@@ -143,7 +143,7 @@ namespace FIFA21Plugin
                         DbObject ebxObject = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
 
                         ebxObject.SetValue("SBFileLocation", NativeFileLocation);
-                        ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
+                        ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
                         if (ebxObject.GetValue<string>("name", "").Contains("movement"))
                         {
@@ -185,7 +185,7 @@ namespace FIFA21Plugin
                         int size = binarySbReader2.ReadInt(Endian.Big);
 
                         resObject.SetValue("SBFileLocation", NativeFileLocation);
-                        resObject.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
+                        resObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
                         //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
                         resObject.SetValue("catalog", catalog);
@@ -212,6 +212,10 @@ namespace FIFA21Plugin
                         }
                         DbObject chnkObj = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
 
+                        if (chnkObj.GetValue<Guid>("id").ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
+                        {
+
+                        }
                         chnkObj.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + BaseBundleItem.Offset);
                         int offset = binarySbReader2.ReadInt(Endian.Big);
                         chnkObj.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + BaseBundleItem.Offset);
@@ -222,7 +226,7 @@ namespace FIFA21Plugin
 
                         //}
                         chnkObj.SetValue("SBFileLocation", NativeFileLocation);
-                        chnkObj.SetValue("TOCFileLocation", AssociatedTOCFile.FileLocation);
+                        chnkObj.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                         //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
                         chnkObj.SetValue("catalog", catalog);
                         //if(cas > 0)
