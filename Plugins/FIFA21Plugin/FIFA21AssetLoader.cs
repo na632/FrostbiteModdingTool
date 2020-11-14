@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿using Frosty.Hash;
+using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json;
@@ -173,90 +174,158 @@ namespace FIFA21Plugin
 							parent.logger.Log("Loading from " + path);
 
 						//List<int> PositionOfReadableItems = new List<int>() { 445679993, 448409056 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
-						List<int> PositionOfReadableItems = new List<int>() { 448409056 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+						List<int> PositionOfReadableItems = new List<int>() { 443937737 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
 
 							nr_cas.Position = 0;
 						int index = 0;
-							foreach (var pos in PositionOfReadableItems)
-							{
-								// go back 4 - 32 from the magic
-								var actualPos = pos - 32;
-								var nextActualPos = PositionOfReadableItems.Count > index+1 ? PositionOfReadableItems[index + 1] - 4 : nr_cas.Length - actualPos;
-								nr_cas.Position = actualPos;
+						foreach (var pos in PositionOfReadableItems)
+						{
+							// go back 4 from the magic
+							var actualPos = pos - 4;
+							var nextActualPos = PositionOfReadableItems.Count > index + 1 ? PositionOfReadableItems[index + 1] - 4 : nr_cas.Length - actualPos;
+							nr_cas.Position = actualPos;
 
 							BaseBundleInfo baseBundleInfo = new BaseBundleInfo();
 							baseBundleInfo.Offset = actualPos;
 							baseBundleInfo.Size = nextActualPos;
 
-                            TOCFile tocfile = new TOCFile(new TocSbReader_FIFA21());
+							TOCFile tocfile = new TOCFile(new TocSbReader_FIFA21());
 							tocfile.Bundles = new List<BaseBundleInfo>() { baseBundleInfo };
 
 							//var size = nr_cas.ReadInt(Endian.Big);
 
 
-							//using (
-							//	NativeReader inner_reader = new NativeReader(
-							//	nr_cas.CreateViewStream(actualPos, nextActualPos)
-							//	))
-							//{
+							using (
+								NativeReader inner_reader = new NativeReader(
+								nr_cas.CreateViewStream(actualPos, nextActualPos)
+								))
+							{
 								SBFile sbFile = new SBFile();
 								sbFile.AssociatedTOCFile = tocfile;
 								sbFile.NativeFileLocation = @"{native_data}\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
 								sbFile.FileLocation = @"{native_data}\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
 								DbObject obj = new DbObject();
-								//sbFile.Read(nr_cas);
-								//sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
-								//	, ref obj, inner_reader, false);
 
-								//var catalogs = AssetManager.Instance.fs.Catalogs;
-								//var fixedFileLocation = sbFile.NativeFileLocation.Replace("\\", "/");
-								//var catalogName = catalogs.FirstOrDefault(x => fixedFileLocation.ToLower().Contains(x.ToLower()));
-								//if (!string.IsNullOrEmpty(catalogName))
-								//{
-								//	var catalogId = catalogs.ToList().IndexOf(catalogName);
-								//	var cas = int.Parse(sbFile.NativeFileLocation.Substring(sbFile.NativeFileLocation.Length - 5, 1));
-								//	var fileSolved = AssetManager.Instance.fs.GetFilePath(catalogId, cas, false);
-								//	foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
-								//	{
+								var dbObj = new DbObject();
 
-								//		ebx.SetValue("SBFileLocation", sbFile.FileLocation);
-								//		ebx.SetValue("catalog", catalogId);
-								//		ebx.SetValue("cas", cas);
-								//		//ebx.SetValue("offset", offset);
-								//		//ebx.SetValue("size", size);
+								//SBHeaderInformation SBHeaderInformation = new BinaryReader_FIFA21().BinaryRead_FIFA21(baseBundleInfo, ref dbObj, nr_cas, true);
+
+								var size = inner_reader.ReadInt(Endian.Big);
+								var magicStuff = inner_reader.ReadUInt(Endian.Big);
+								if (magicStuff != 3599661469)
+									throw new Exception("Magic/Hash is not right, expecting 3599661469");
+
+								var totalCount = inner_reader.ReadInt(Endian.Little);
+								var	ebxCount = inner_reader.ReadInt(Endian.Little);
+								var	resCount = inner_reader.ReadInt(Endian.Little);
+								var	chunkCount = inner_reader.ReadInt(Endian.Little);
+								var	stringOffset = inner_reader.ReadInt(Endian.Little);
+								var	metaOffset = inner_reader.ReadInt(Endian.Little);
+								var	metaSize = inner_reader.ReadInt(Endian.Little);
+
+								List<Sha1> sha1 = new List<Sha1>();
+								for (int i = 0; i < totalCount; i++)
+								{
+									sha1.Add(inner_reader.ReadSha1());
+								}
+
+								List<object> ObjectList = new List<object>();
+								for (int i = 0; i < ebxCount; i++)
+								{
+
+									DbObject dbObject = new DbObject(new Dictionary<string, object>());
+									dbObject.AddValue("AssetType", "EBX");
+									uint num = inner_reader.ReadUInt(Endian.Little);
+									dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+									uint originalSize = inner_reader.ReadUInt(Endian.Little);
+									dbObject.AddValue("SB_StringOffsetPosition", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+									dbObject.AddValue("originalSize", originalSize);
+									ObjectList.Add(dbObject);
+								}
+								for (int i = 0; i < resCount; i++)
+								{
+									DbObject dbObject = new DbObject(new Dictionary<string, object>());
+									dbObject.AddValue("AssetType", "RES");
+									uint num = inner_reader.ReadUInt(Endian.Little);
+									dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+									uint originalSize = inner_reader.ReadUInt(Endian.Little);
+									dbObject.AddValue("SB_StringOffsetPosition", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+									dbObject.AddValue("originalSize", originalSize);
+									ObjectList.Add(dbObject);
+								}
+								for(var i = 0; i < chunkCount; i++)
+                                {
+									inner_reader.ReadInt();
+                                }
+								for (var i = 0; i < resCount; i++)
+								{
+									inner_reader.ReadInt();
+									inner_reader.ReadInt();
+									inner_reader.ReadInt();
+									inner_reader.ReadInt();
+								}
+								for (int i = 0; i < chunkCount; i++)
+								{
+									sha1.Add(inner_reader.ReadSha1());
+								}
+
+								 var shouldbeZero = inner_reader.ReadInt();
 
 
-								//	}
-								//	foreach (DbObject res in obj.GetValue<DbObject>("res"))
-								//	{
+							}
+							//sbFile.Read(nr_cas);
+							//sbFile.BinaryRead_FIFA21(new FIFA21AssetLoader.BaseBundleInfo()
+							//	, ref obj, inner_reader, false);
 
-								//		res.SetValue("SBFileLocation", sbFile.FileLocation);
-								//		res.SetValue("catalog", catalogId);
-								//		res.SetValue("cas", cas);
-								//		//ebx.SetValue("offset", offset);
-								//		//ebx.SetValue("size", size);
+							//var catalogs = AssetManager.Instance.fs.Catalogs;
+							//var fixedFileLocation = sbFile.NativeFileLocation.Replace("\\", "/");
+							//var catalogName = catalogs.FirstOrDefault(x => fixedFileLocation.ToLower().Contains(x.ToLower()));
+							//if (!string.IsNullOrEmpty(catalogName))
+							//{
+							//	var catalogId = catalogs.ToList().IndexOf(catalogName);
+							//	var cas = int.Parse(sbFile.NativeFileLocation.Substring(sbFile.NativeFileLocation.Length - 5, 1));
+							//	var fileSolved = AssetManager.Instance.fs.GetFilePath(catalogId, cas, false);
+							//	foreach (DbObject ebx in obj.GetValue<DbObject>("ebx"))
+							//	{
 
-
-								//	}
-								//	foreach (DbObject chunk in obj.GetValue<DbObject>("chunks"))
-								//	{
-
-								//		chunk.SetValue("SBFileLocation", sbFile.FileLocation);
-								//		chunk.SetValue("catalog", catalogId);
-								//		chunk.SetValue("cas", cas);
-								//		//ebx.SetValue("offset", offset);
-								//		//ebx.SetValue("size", size);
-
-
-								//	}
-								//	//parent.ProcessBundleEbx(obj, parent.bundles.Count - 1, helper);
-								//	//parent.ProcessBundleRes(obj, parent.bundles.Count - 1, helper);
-								//	//parent.ProcessBundleChunks(obj, parent.bundles.Count - 1, helper);
+							//		ebx.SetValue("SBFileLocation", sbFile.FileLocation);
+							//		ebx.SetValue("catalog", catalogId);
+							//		ebx.SetValue("cas", cas);
+							//		//ebx.SetValue("offset", offset);
+							//		//ebx.SetValue("size", size);
 
 
-								//}
+							//	}
+							//	foreach (DbObject res in obj.GetValue<DbObject>("res"))
+							//	{
 
-								casDBObjects.Add(obj);
+							//		res.SetValue("SBFileLocation", sbFile.FileLocation);
+							//		res.SetValue("catalog", catalogId);
+							//		res.SetValue("cas", cas);
+							//		//ebx.SetValue("offset", offset);
+							//		//ebx.SetValue("size", size);
+
+
+							//	}
+							//	foreach (DbObject chunk in obj.GetValue<DbObject>("chunks"))
+							//	{
+
+							//		chunk.SetValue("SBFileLocation", sbFile.FileLocation);
+							//		chunk.SetValue("catalog", catalogId);
+							//		chunk.SetValue("cas", cas);
+							//		//ebx.SetValue("offset", offset);
+							//		//ebx.SetValue("size", size);
+
+
+							//	}
+							//	//parent.ProcessBundleEbx(obj, parent.bundles.Count - 1, helper);
+							//	//parent.ProcessBundleRes(obj, parent.bundles.Count - 1, helper);
+							//	//parent.ProcessBundleChunks(obj, parent.bundles.Count - 1, helper);
+
+
+							//}
+
+							//casDBObjects.Add(obj);
 							//}
 							index++;
 							}

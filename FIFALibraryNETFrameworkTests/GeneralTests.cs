@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using FrostySdk.Resources;
 using Frostbite.Textures;
+using static FrostySdk.Managers.AssetManager;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -333,6 +334,185 @@ namespace FIFALibraryNETFrameworkTests
 
         public void LogWarning(string text, params object[] vars)
         {
+        }
+
+        [TestMethod]
+        public void TestFindItemsCAS()
+        {
+            var mem_stream = new MemoryStream();
+            using (var fs = new FileStream(@"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas", FileMode.Open, FileAccess.Read))
+            {
+                fs.CopyTo(mem_stream);
+            }
+            mem_stream.Position = 0;
+
+
+            using (NativeReader nr_cas = new NativeReader(
+                mem_stream
+                )
+                )
+            {
+
+                //List<int> PositionOfReadableItems = new List<int>() { 445679993, 448409056 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+                List<int> PositionOfReadableItems = new List<int>() { 443937737 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
+
+                nr_cas.Position = 0;
+                int index = 0;
+                foreach (var pos in PositionOfReadableItems)
+                {
+                    // go back 4 from the magic
+                    var actualPos = pos - 4;
+                    var nextActualPos = PositionOfReadableItems.Count > index + 1 ? PositionOfReadableItems[index + 1] - 4 : nr_cas.Length - actualPos;
+                    nr_cas.Position = actualPos;
+
+                    BaseBundleInfo baseBundleInfo = new BaseBundleInfo();
+                    baseBundleInfo.Offset = actualPos;
+                    baseBundleInfo.Size = nextActualPos;
+
+                    using (
+                        NativeReader inner_reader = new NativeReader(
+                        nr_cas.CreateViewStream(actualPos, nextActualPos)
+                        ))
+                    {
+                        DbObject obj = new DbObject();
+
+                        var dbObj = new DbObject();
+
+                        var startPosition = inner_reader.Position;
+
+                        var size = inner_reader.ReadInt(Endian.Big);
+                        var magicStuff = inner_reader.ReadUInt(Endian.Big);
+                        if (magicStuff != 3599661469)
+                            throw new Exception("Magic/Hash is not right, expecting 3599661469");
+
+                        var totalCount = inner_reader.ReadInt(Endian.Little);
+                        var ebxCount = inner_reader.ReadInt(Endian.Little);
+                        var resCount = inner_reader.ReadInt(Endian.Little);
+                        var chunkCount = inner_reader.ReadInt(Endian.Little);
+                        var stringOffset = inner_reader.ReadInt(Endian.Little) + 4;
+                        var metaOffset = inner_reader.ReadInt(Endian.Little);
+                        var metaSize = inner_reader.ReadInt(Endian.Little);
+
+                        DbObject FullObjectList = new DbObject();
+
+                        List<int> Sha1Positions = new List<int>();
+                        List<Sha1> sha1 = new List<Sha1>();
+                        for (int i = 0; i < totalCount; i++)
+                        {
+                            Sha1Positions.Add((int)inner_reader.Position);
+                            sha1.Add(inner_reader.ReadSha1());
+                        }
+
+                        List<DbObject> EbxObjectList = new List<DbObject>();
+                        for (int i = 0; i < ebxCount; i++)
+                        {
+                            DbObject dbObject = new DbObject(new Dictionary<string, object>());
+                            dbObject.AddValue("AssetType", "EBX");
+
+                            dbObject.AddValue("SB_StringOffsetPosition", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                            uint num = inner_reader.ReadUInt(Endian.Little);
+                            dbObject.AddValue("StringOffsetPos", num);
+
+                            dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                            uint originalSize = inner_reader.ReadUInt(Endian.Little);
+                            dbObject.AddValue("originalSize", originalSize);
+
+                            dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
+                            dbObject.AddValue("sha1", sha1[i]);
+
+                            EbxObjectList.Add(dbObject);
+                        }
+                        List<DbObject> ResObjectList = new List<DbObject>();
+                        for (int i = 0; i < resCount; i++)
+                        {
+                            DbObject dbObject = new DbObject(new Dictionary<string, object>());
+                            dbObject.AddValue("AssetType", "RES");
+
+                            dbObject.AddValue("SB_StringOffsetPosition", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                            uint num = inner_reader.ReadUInt(Endian.Little);
+                            dbObject.AddValue("StringOffsetPos", num);
+
+                            dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
+                            uint originalSize = inner_reader.ReadUInt(Endian.Little);
+                            dbObject.AddValue("originalSize", originalSize);
+
+                            dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
+                            dbObject.AddValue("sha1", sha1[i]);
+
+                            ResObjectList.Add(dbObject);
+                        }
+                        for (var i = 0; i < resCount; i++)
+                        {
+                            inner_reader.ReadInt();
+                        }
+                        for (var i = 0; i < resCount; i++)
+                        {
+                            inner_reader.ReadInt();
+                            inner_reader.ReadInt();
+                            inner_reader.ReadInt();
+                            inner_reader.ReadInt();
+                        }
+                        for (int i = 0; i < resCount; i++)
+                        {
+                            //sha1.Add(inner_reader.ReadSha1());
+
+                            // resids ?? 1 long or 2 ints?
+                            inner_reader.ReadULong();
+
+                        }
+
+                        // next section expected to be 24 x 22 = 528 bytes . 443940113  ->  443940641
+                        for (int i = 0; i < resCount; i++)
+                        {
+                            // Guid?
+                            inner_reader.ReadGuid();
+                            // always 0
+                            inner_reader.ReadInt();
+                            // some offset
+                            inner_reader.ReadInt();
+
+                        }
+
+
+                        for(var i = 0; i < ebxCount; i++)
+                        {
+                            var string_offset = EbxObjectList[i].GetValue<int>("StringOffsetPos");
+
+                            inner_reader.Position = stringOffset + string_offset;
+                            var name = inner_reader.ReadNullTerminatedString();
+                            EbxObjectList[i].AddValue("name", name);
+                            // TODO ADD THIS IN PROD
+                            // EbxObjectList[i].AddValue("nameHash", Fnv1.HashString(name));
+
+                        }
+
+                        for (var i = 0; i < resCount; i++)
+                        {
+                            var string_offset = ResObjectList[i].GetValue<int>("StringOffsetPos");
+
+                            inner_reader.Position = stringOffset + string_offset;
+                            var name = inner_reader.ReadNullTerminatedString();
+                            ResObjectList[i].AddValue("name", name);
+                            // TODO ADD THIS IN PROD
+                            // EbxObjectList[i].AddValue("nameHash", Fnv1.HashString(name));
+
+                        }
+
+
+
+                        var shouldBeReadableString = inner_reader.ReadNullTerminatedString();
+                        if(shouldBeReadableString.Length > 0)
+                        {
+
+                        }
+
+
+                        FullObjectList.AddValue("ebx", EbxObjectList);
+                        FullObjectList.AddValue("res", ResObjectList);
+
+                    }
+                }
+            }
         }
 
         [TestMethod]
