@@ -37,6 +37,9 @@ namespace v2k4FIFASDKGenerator
 				if (File.Exists(ProfilesLibrary.CacheName + ".cache") && forceDeleteOfOld)
 					File.Delete(ProfilesLibrary.CacheName + ".cache");
 
+				if (File.Exists(ProfilesLibrary.CacheName + ".CachingSBData.cache") && forceDeleteOfOld)
+					File.Delete(ProfilesLibrary.CacheName + ".CachingSBData.cache");
+
 				return await new TaskFactory().StartNew(() => { 
 				
 						if (ProfilesLibrary.RequiresKey)

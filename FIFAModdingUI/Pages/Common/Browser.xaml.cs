@@ -180,6 +180,20 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnImport_Click(object sender, RoutedEventArgs e)
         {
+			if (SelectedLegacyEntry != null)
+			{
+				OpenFileDialog openFileDialog = new OpenFileDialog();
+				openFileDialog.Filter = $"Files (*.{SelectedLegacyEntry.Type})|*.{SelectedLegacyEntry.Type}";
+				openFileDialog.FileName = SelectedLegacyEntry.Filename;
+				var result = openFileDialog.ShowDialog();
+				if (result.HasValue && result.Value == true)
+				{
+					AssetManager.Instance.ModifyCustomAsset("legacy"
+						, SelectedLegacyEntry.Name
+						, File.ReadAllBytes(openFileDialog.FileName));
+				}
+			}
+
 			if (SelectedEntry != null)
 			{
 				if (SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture")
@@ -460,6 +474,7 @@ namespace FIFAModdingUI.Pages.Common
 							if (legacyFileEntry != null)
 							{
 								SelectedLegacyEntry = legacyFileEntry;
+								btnImport.IsEnabled = true;
 
 								List<string> textViewers = new List<string>()
 						{

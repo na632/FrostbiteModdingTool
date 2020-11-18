@@ -69,14 +69,14 @@
                     </Button>
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
-                    <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+                    <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game >>>>" VerticalAlignment="Center" />
                     <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
-                            <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                            <Label Content="Browse for Game" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
+                    <!--<Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
                     VerticalAlignment="Center" IsEnabled="False"
                      
                     ToolTip="Build FIFA Modding SDK">
@@ -92,23 +92,23 @@
                             <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
                             <Label Content="Launch FIFA" VerticalAlignment="Center" />
                         </StackPanel>
-                    </Button>
+                    </Button>-->
                     <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
                         <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                            <Label Content="Launch FIFA (Editor Project Only)" VerticalAlignment="Center" />
+                            <Label Content="Launch Game (Editor Project Only)" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False">
+                    <!--<Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
                             <Label Content="Default" VerticalAlignment="Center" />
                         </StackPanel>
-                    </Button>
-                    <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool">
+                    </Button>-->
+                    <!--<Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool">
                         <MaterialDesign:PackIcon Kind="Power" />
-                    </Button>
+                    </Button>-->
                 </StackPanel>
 
             </StackPanel>
