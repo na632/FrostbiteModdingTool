@@ -85,6 +85,20 @@ namespace FIFA21Plugin
                     //Task.WaitAll(tasks);
                 }
 
+                if (Directory.Exists(fs.BasePath + ModDirectory + "\\Data"))
+                {
+                    logger.Log("Deleting TOC/SB files from ModData/Data");
+                    foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.sb", SearchOption.AllDirectories))
+                    {
+                        File.Delete(sbFileLocation);
+                    }
+                    foreach (string tocFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.toc", SearchOption.AllDirectories))
+                    {
+                        File.Delete(tocFileLocation);
+                    }
+
+                }
+
                 if (Directory.Exists(fs.BasePath + ModDirectory + "\\" + PatchDirectory))
                 {
                     logger.Log("Deleting CAS files from ModData/Patch");
@@ -105,15 +119,20 @@ namespace FIFA21Plugin
                 logger.Log("Copying files from Patch to ModData/Patch");
                 // Copied Patch CAS files from Patch to Mod Data Patch
                 //DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);
+                CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
                 CopyDataFolder(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "\\" + PatchDirectory, logger);
 
                 //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
                 //{
-                    FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
-                    fifaBundleAction.Run();
 
-                    //numberOfCatalogsCompleted++;
-                    //logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+                FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
+                fifaBundleAction.Run();
+
+                //FIFA21BundleAction2 fifaBundleAction = new FIFA21BundleAction2((FrostyModExecutor)frostyModExecuter);
+                //fifaBundleAction.Run();
+
+                //numberOfCatalogsCompleted++;
+                //logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
                 //}
                 // --------------------------------------------------------------------------------------
 

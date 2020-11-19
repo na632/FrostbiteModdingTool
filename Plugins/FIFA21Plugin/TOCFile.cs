@@ -464,21 +464,6 @@ namespace FIFA21Plugin
 									if (chunkAssetEntry2.ExtraData.CasPath.Contains("/fifa_installpackage_03/cas_03.cas"))
 									{
 
-
-                                        //BoyerMoore boyerMoore1 = new BoyerMoore(chunkAssetEntry2.Id.ToByteArray());
-										//using (FileStream fsCas = new FileStream(AssetManager.Instance.fs.ResolvePath(chunkAssetEntry2.ExtraData.CasPath), FileMode.Open))
-										//using (NativeReader reader = new NativeReader(fsCas))
-										//{
-										//    var positionInCas = boyerMoore1.Search(reader.ReadToEnd());
-										//}
-          //                              BoyerMoore boyerMoore1 = new BoyerMoore(new byte[] { 0x1A, 0x90, 0x84, 0xD3 });
-										//var readerBeforeSearch = nativeReader.Position;
-										//var positionInTOC = boyerMoore1.SearchAll(nativeReader.ReadToEnd());
-										//nativeReader.Position = readerBeforeSearch;
-										//boyerMoore1.SetPattern(new byte[] { 0xD3, 0x84, 0x90, 0x1A });
-										//positionInTOC = boyerMoore1.SearchAll(nativeReader.ReadToEnd());
-										//nativeReader.Position = readerBeforeSearch;
-
 									}
 									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
                                     if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
@@ -492,85 +477,8 @@ namespace FIFA21Plugin
 							_ = nativeReader.Position;
 							if(nativeReader.Position < nativeReader.Length)
                             {
-
-								//for (int sha1Index = 0; sha1Index < MetaData.ResCount; sha1Index++)
-								//{
-								//	var sha1 = nativeReader.ReadGuid();
-								//	//var unk1 = nativeReader.ReadInt();
-								//	//var unk2 = nativeReader.ReadInt();
-								//}
-								if (FileLocation.Contains(@"data\win32/contentlaunchsb") 
-									|| FileLocation.Contains(@"data\win32/contentsb")
-									|| FileLocation.Contains(@"data\win32/globalsfull")
-									)
-								{
-									AssetManager.Instance.logger.Log("Searching for CAS Data from " + FileLocation);
-									Dictionary<string, List<CASBundle>> CASToBundles = new Dictionary<string, List<CASBundle>>();
-									
-									BoyerMoore casBinarySearcher = new BoyerMoore(new byte[] { 0x20, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00 });
-									var readerBeforeSearch = nativeReader.Position;
-									//var readerBeforeSearch = 0;
-									//var positionInTOC = new List<int>();// casBinarySearcher.SearchAll(nativeReader.ReadToEnd());
-									var positionInTOC = casBinarySearcher.SearchAll(nativeReader.ReadToEnd());
-									//positionInTOC.Clear();
-									foreach (var p in positionInTOC)
-									{
-										nativeReader.Position = p + readerBeforeSearch - 4;
-										var totalityOffsetCount = nativeReader.ReadInt();
-										// 0x20 x 3
-										_ = nativeReader.ReadInt();
-										_ = nativeReader.ReadInt();
-										_ = nativeReader.ReadInt();
-
-										var catalog = nativeReader.ReadInt(Endian.Big);
-										var cas = (int)nativeReader.ReadByte();
-
-										//_ = nativeReader.ReadInt();
-
-										CASBundle bundle = new CASBundle();
-										bundle.Catalog = catalog;
-										bundle.Cas = cas;
-										bundle.BundleOffset = nativeReader.ReadInt(Endian.Big);
-										bundle.DataOffset = nativeReader.ReadInt(Endian.Big);
-										for(var i = 1; i < totalityOffsetCount && totalityOffsetCount < 100; i++)
-                                        {
-											bundle.Offsets.Add(nativeReader.ReadInt(Endian.Big));
-											bundle.Sizes.Add(nativeReader.ReadInt(Endian.Big));
-										}
-										if (AssetManager.Instance.fs.Catalogs.Count() > catalog)
-										{
-											var path = AssetManager.Instance.fs.ResolvePath(AssetManager.Instance.fs.GetFilePath(catalog, cas, false));
-
-											var lstBundles = new List<CASBundle>();
-											if (CASToBundles.ContainsKey(path))
-											{
-												lstBundles = CASToBundles[path];
-											}
-											else
-											{
-												CASToBundles.Add(path, lstBundles);
-											}
-
-											lstBundles.Add(bundle);
-											CASToBundles[path] = lstBundles;
-										}
-									}
-
-									if(CASToBundles.Count > 0)
-                                    {
-										AssetManager.Instance.logger.Log($"Found {CASToBundles.Count} CAS to Bundles");
-
-										foreach (var cas2bundle in CASToBundles)
-                                        {
-											AssetManager.Instance.logger.Log($"Found {cas2bundle.Value.Count} Bundles in {cas2bundle.Key} loading...");
-
-											CASDataLoader casDataLoader = new CASDataLoader();
-											casDataLoader.Load(AssetManager.Instance, cas2bundle.Key, cas2bundle.Value);
-										}
-									}
-								}
-
-
+								TOCCasDataLoader casDataLoader = new TOCCasDataLoader(this);
+								//casDataLoader.Load(nativeReader);
 							}
 
 

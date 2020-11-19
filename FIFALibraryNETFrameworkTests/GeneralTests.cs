@@ -364,28 +364,33 @@ namespace FIFALibraryNETFrameworkTests
             var allEBX = project.AssetManager.EnumerateEbx().ToList();
             if (allEBX.Count() > 0)
             {
-                var files = allEBX.Where(x => x.Name.Contains("splashscreen"));
+                var files = allEBX.Where(x => x.Name.Contains("SplashScreen"));
                 if(files != null)
                 {
                     foreach(var f in files)
                     {
-
+                        TextureExporter textureExporter = new TextureExporter();
+                        var rE = project.AssetManager.GetResEntry(f.Name);
+                        using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(rE))
+                        {
+                            textureExporter.Export(new Texture(resStream, AssetManager.Instance), f.Filename + ".dds", "*.dds");
+                        }
                     }
                 }
             }
 
-            var allRES = project.AssetManager.EnumerateRes().ToList();
-            if (allRES.Count() > 0)
-            {
-                var files = allRES.Where(x => x.Name.Contains("splashscreen"));
-                if (files != null)
-                {
-                    foreach (var f in files)
-                    {
+            //var allRES = project.AssetManager.EnumerateRes().ToList();
+            //if (allRES.Count() > 0)
+            //{
+            //    var files = allRES.Where(x => x.Name.Contains("splashscreen"));
+            //    if (files != null)
+            //    {
+            //        foreach (var f in files)
+            //        {
 
-                    }
-                }
-            }
+            //        }
+            //    }
+            //}
         }
 
         [TestMethod]
@@ -393,9 +398,9 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
+            //projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\juventus change kit.fbproject");
             projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\kit test project.fbproject");
             
-            projectManagement.FrostyProject.Save("Paulv2k4 FIFA 21 Kit Test.fbproject");
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Kit Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
 
@@ -404,6 +409,21 @@ namespace FIFALibraryNETFrameworkTests
             //frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
         }
+
+        [TestMethod]
+        public void TestChangeOfFaceTexture()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\thiago changed.fbproject");
+
+            projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Face Test.fbmod"
+                , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Face Test.fbmod" }.ToArray()).Wait();
+        }
+
 
         [TestMethod]
         public void TestAddOfKitTexture()

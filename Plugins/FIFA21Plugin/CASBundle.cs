@@ -28,5 +28,8 @@ namespace FIFA21Plugin
                 return Sizes.Where(x => x < 10095655).Sum() + DataOffset;
             } 
         }
+
+        public List<long> TOCOffsets = new List<long>();
+        public List<long> TOCSizes = new List<long>();
     }
 }

@@ -18,7 +18,7 @@ using static paulv2k4ModdingExecuter.FrostyModExecutor;
 namespace FIFA21Plugin
 {
 
-    public class FIFA21BundleAction
+    public class FIFA21BundleAction2
     {
         public class BundleFileEntry
         {
@@ -83,13 +83,13 @@ namespace FIFA21Plugin
         /// <param name="inCatalogInfo"></param>
         /// <param name="inDoneEvent"></param>
         /// <param name="inParent"></param>
-        public FIFA21BundleAction(CatalogInfo inCatalogInfo, FrostyModExecutor inParent)
+        public FIFA21BundleAction2(CatalogInfo inCatalogInfo, FrostyModExecutor inParent)
         {
             catalogInfo = inCatalogInfo;
             parent = inParent;
         }
 
-        public FIFA21BundleAction(FrostyModExecutor inParent)
+        public FIFA21BundleAction2(FrostyModExecutor inParent)
         {
             parent = inParent;
         }
@@ -239,11 +239,6 @@ namespace FIFA21Plugin
                     foreach (var item in dictOfModsToCas) 
                     {
                         var casPath = string.Empty;
-                        if (!string.IsNullOrEmpty(item.Key))
-                        {
-                            casPath = item.Key.Replace("native_data"
-                                , AssetManager.Instance.fs.BasePath + "ModData\\Data");
-                        }
 
                         if (item.Key == string.Empty)
                         {
@@ -253,8 +248,8 @@ namespace FIFA21Plugin
                         }
 
 
-                        //casPath = item.Key.Replace("native_data"
-                        //        , AssetManager.Instance.fs.BasePath + "ModData\\Data");
+                        casPath = item.Key.Replace("native_data"
+                                , AssetManager.Instance.fs.BasePath + "ModData\\Data");
                         casPath = casPath.Replace("native_patch"
                             , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
 
@@ -271,11 +266,13 @@ namespace FIFA21Plugin
                         using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
                         {
                             nwCas.Write(originalCASArray);
+                            Dictionary<AssetEntry, Sha1> OriginalEntryToSha1 = new Dictionary<AssetEntry, Sha1>();
+                            Dictionary<AssetEntry, byte[]> OriginalEntriesToNewData = new Dictionary<AssetEntry, byte[]>();
                             foreach (var modItem in item.Value)
                             {
                                 byte[] data = new byte[0];
                                 AssetEntry originalEntry = null;
-                                switch(modItem.Item3)
+                                switch (modItem.Item3)
                                 {
                                     case ModType.EBX:
                                         originalEntry = AssetManager.Instance.GetEbxEntry(modItem.Item2);
@@ -290,52 +287,143 @@ namespace FIFA21Plugin
                                 if (originalEntry != null)
                                 {
                                     data = parent.archiveData[modItem.Item1].Data;
+                                    if (data.Length > 0)
+                                    {
+                                        OriginalEntriesToNewData.Add(originalEntry, data);
+                                        OriginalEntryToSha1.Add(originalEntry, modItem.Item1);
+                                    }
                                 }
-                               
-                                if (data.Length > 0)
+                            }
+
+                            Dictionary<string, List<Tuple<int, AssetEntry, byte[]>>> DataInNewPositionsForSb = new Dictionary<string, List<Tuple<int, AssetEntry, byte[]>>>();
+                            foreach (var entry in OriginalEntriesToNewData)
+                            {
+                                positionOfNewData = (int)nwCas.BaseStream.Position;
+                                var data = entry.Value;
+                                nwCas.Write(data);
+
+                                List<Tuple<int, AssetEntry, byte[]>> lst = new List<Tuple<int, AssetEntry, byte[]>>();
+
+                                var sbpath = parent.fs.ResolvePath(!string.IsNullOrEmpty(entry.Key.SBFileLocation) ? entry.Key.SBFileLocation : entry.Key.TOCFileLocation);
+                                sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                                sbpath = sbpath.Replace("\\data", "\\ModData\\Data");
+                                
+                                if (DataInNewPositionsForSb.ContainsKey(sbpath))
+                                    lst = DataInNewPositionsForSb[sbpath];
+
+                                lst.Add(new Tuple<int, AssetEntry, byte[]>(positionOfNewData, entry.Key, entry.Value));
+
+                                if (DataInNewPositionsForSb.ContainsKey(sbpath))
+                                    DataInNewPositionsForSb[sbpath] = lst;
+                                else
+                                    DataInNewPositionsForSb.Add(sbpath, lst);
+                            }
+
+                            if(DataInNewPositionsForSb.Count > 0)
+                            {
+                                foreach(var sb in DataInNewPositionsForSb)
                                 {
-                                    // write the new data to end of the file (this should be fine)
-                                    positionOfNewData = (int)nwCas.BaseStream.Position;
-                                    nwCas.Write(data);
-
-                                    parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
-                                    Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
-
-                                    var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
-                                    var sb_sha1_position = originalEntry.SB_Sha1_Position;
-                                    var sb_original_size_position = originalEntry.SB_OriginalSize_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
-
-
-                                    var sbpath = parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
-                                    sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
-                                    sbpath = sbpath.Replace("\\data", "\\ModData\\Data");
-
+                                    var sbpath = sb.Key;
+                                    var listEntries = sb.Value;
                                     byte[] arrayOfSB = null;
                                     using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
                                     {
                                         arrayOfSB = nativeReader.ReadToEnd();
                                     }
                                     File.Delete(sbpath);
+                                    parent.Logger.Log($"Writing new {sbpath})");
                                     using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
                                     {
                                         nw_sb.Write(arrayOfSB);
-                                        nw_sb.BaseStream.Position = sb_cas_offset_position;
-                                        nw_sb.Write((uint)positionOfNewData, Endian.Big);
-                                        nw_sb.Flush();
 
-                                        nw_sb.Write((uint)data.Length, Endian.Big);
-                                        nw_sb.Flush();
-
-                                        if (sb_sha1_position != 0)
+                                        foreach (var lstEntryItem in listEntries)
                                         {
-                                            nw_sb.BaseStream.Position = sb_sha1_position;
-                                            nw_sb.Write(modItem.Item1);
-                                            nw_sb.Flush();
-                                        }
+                                            var originalEntry = lstEntryItem.Item2;
+                                            var data = lstEntryItem.Item3;
 
+                                            parent.Logger.Log($"Writing new asset entry for ({originalEntry.Name})");
+                                            
+                                            var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
+                                            var sb_sha1_position = originalEntry.SB_Sha1_Position;
+                                            var sb_original_size_position = originalEntry.SB_OriginalSize_Position;
+                                            var sb_size_position = originalEntry.SB_CAS_Size_Position;
+
+                                            nw_sb.BaseStream.Position = sb_cas_offset_position;
+                                            nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                                            nw_sb.Flush();
+
+                                            nw_sb.BaseStream.Position = sb_size_position;
+                                            nw_sb.Write((uint)data.Length, Endian.Big);
+                                            nw_sb.Flush();
+
+                                            if (sb_sha1_position != 0 && sb_sha1_position < nw_sb.BaseStream.Length)
+                                            {
+                                                nw_sb.BaseStream.Position = sb_sha1_position;
+                                                nw_sb.Write(OriginalEntryToSha1[originalEntry]);
+                                                nw_sb.Flush();
+                                            }
+                                        }
                                     }
+
+                                  
+
                                 }
                             }
+
+                                //if (data.Length > 0)
+                                //{
+                                //    // write the new data to end of the file (this should be fine)
+                                    
+
+                                //    parent.Logger.Log($"Writing new asset entry for {modItem.Item3} ({originalEntry.Name})");
+
+                                //    var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
+                                //    var sb_sha1_position = originalEntry.SB_Sha1_Position;
+                                //    var sb_original_size_position = originalEntry.SB_OriginalSize_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
+                                //    var sb_size_position = originalEntry.SB_CAS_Size_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
+
+
+                                //    //var sbpath = !string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation;// ebxObject.GetValue<string>("SBFileLocation");
+                                //    var sbpath = parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
+                                //    sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch");
+                                //    sbpath = sbpath.Replace("\\data", "\\ModData\\Data");
+                                //    bool Written_Sha1_to_Cas = false;
+                                //    if(sbpath.Contains(".toc"))
+                                //    {
+                                //        nwCas.BaseStream.Position = sb_sha1_position;
+                                //        nwCas.Write(modItem.Item1);
+                                //        nwCas.Flush();
+                                //        Written_Sha1_to_Cas = true;
+                                //    }
+
+                                //    byte[] arrayOfSB = null;
+                                //    using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+                                //    {
+                                //        arrayOfSB = nativeReader.ReadToEnd();
+                                //    }
+                                //    File.Delete(sbpath);
+                                //    parent.Logger.Log($"Writing new {sbpath})");
+                                //    using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+                                //    {
+                                //        nw_sb.Write(arrayOfSB);
+                                //        nw_sb.BaseStream.Position = sb_cas_offset_position;
+                                //        nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                                //        nw_sb.Flush();
+
+                                //        nw_sb.BaseStream.Position = sb_size_position;
+                                //        nw_sb.Write((uint)data.Length, Endian.Big);
+                                //        nw_sb.Flush();
+
+                                //        if (!Written_Sha1_to_Cas && sb_sha1_position != 0)
+                                //        {
+                                //            nw_sb.BaseStream.Position = sb_sha1_position;
+                                //            nw_sb.Write(modItem.Item1);
+                                //            nw_sb.Flush();
+                                //        }
+
+                                //    }
+                                //}
+                            //}
                             
                         }
                     }

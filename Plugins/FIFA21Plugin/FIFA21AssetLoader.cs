@@ -81,34 +81,29 @@ namespace FIFA21Plugin
 						}
 						List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
 						List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
-						string tocFileLocation = parent.fs.ResolvePath($"native_data/{tocFile}.toc");
+						var tocFileRAW = $"native_data/{tocFile}.toc";
+						string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
 						if (!string.IsNullOrEmpty(tocFileLocation))
 						{
 							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, $"native_patch/{tocFile}.toc");
+							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
 							if (dbObjects != null)
 							{
-
-
-
 								foreach (DbObject @object in dbObjects.Where(x => x != null))
 								{
 									parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
 									parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
 									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
 								}
-
-
 							}
 						}
 
-
-						tocFileLocation = parent.fs.ResolvePath($"native_patch/{tocFile}.toc");
+						tocFileRAW = $"native_patch/{tocFile}.toc";
+						tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
 						if (!string.IsNullOrEmpty(tocFileLocation))
 						{
-
 							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, false, $"native_patch/{tocFile}.toc");
+							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, false, tocFileRAW);
 							if (dbObjects != null)
 							{
 
@@ -119,7 +114,6 @@ namespace FIFA21Plugin
 									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
 								}
 
-								//AllDbObjects.AddRange(dbObjects);
 							}
 						}
 
