@@ -240,12 +240,12 @@ namespace FIFA21Plugin
                     {
                         var casPath = string.Empty;
 
-                        if (item.Key == string.Empty)
-                        {
-                            GetNewCasPath(item, out casPath, out string sbFilePath, out CachingSBData data, out CachingSBData.Bundle bundle);
-                            BuildNewSB(data, bundle);
-                            continue;
-                        }
+                        //if (item.Key == string.Empty)
+                        //{
+                        //    GetNewCasPath(item, out casPath, out string sbFilePath, out CachingSBData data, out CachingSBData.Bundle bundle);
+                        //    BuildNewSB(data, bundle);
+                        //    continue;
+                        //}
 
 
                         casPath = item.Key.Replace("native_data"
@@ -261,9 +261,10 @@ namespace FIFA21Plugin
                         {
                             originalCASArray = readerOfCas.ReadToEnd();
                         }
+                        File.Delete(casPath);
 
                         var positionOfNewData = 0;
-                        using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
+                        using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.OpenOrCreate)))
                         {
                             nwCas.Write(originalCASArray);
                             Dictionary<AssetEntry, Sha1> OriginalEntryToSha1 = new Dictionary<AssetEntry, Sha1>();

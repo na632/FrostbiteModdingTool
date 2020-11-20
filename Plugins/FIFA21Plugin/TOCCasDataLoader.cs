@@ -28,9 +28,19 @@ namespace FIFA21Plugin
 				//	//var unk1 = nativeReader.ReadInt();
 				//	//var unk2 = nativeReader.ReadInt();
 				//}
-				if (TOCFile.FileLocation.Contains(@"data\win32/contentlaunchsb")
+				if (
+
+					TOCFile.FileLocation.Contains(@"data\win32/contentlaunchsb")
 					|| TOCFile.FileLocation.Contains(@"data\win32/contentsb")
 					|| TOCFile.FileLocation.Contains(@"data\win32/globalsfull")
+
+					// not neccessary
+					//|| TOCFile.FileLocation.Contains(@"data\win32/careersba")
+					//|| TOCFile.FileLocation.Contains(@"data\win32/ui")
+					// adboards and stadiums
+					//|| TOCFile.FileLocation.Contains(@"data\win32/worldssb")
+
+					// globals wont load properly
 					//|| FileLocation.Contains(@"data\win32/globals")
 					)
 				{

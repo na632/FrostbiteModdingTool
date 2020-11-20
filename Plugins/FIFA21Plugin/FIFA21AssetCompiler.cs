@@ -126,10 +126,8 @@ namespace FIFA21Plugin
                 //{
 
                 FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
-                fifaBundleAction.Run();
-
                 //FIFA21BundleAction2 fifaBundleAction = new FIFA21BundleAction2((FrostyModExecutor)frostyModExecuter);
-                //fifaBundleAction.Run();
+                fifaBundleAction.Run();
 
                 //numberOfCatalogsCompleted++;
                 //logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");

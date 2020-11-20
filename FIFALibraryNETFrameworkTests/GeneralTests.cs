@@ -399,7 +399,7 @@ namespace FIFALibraryNETFrameworkTests
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
             //projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\juventus change kit.fbproject");
-            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\kit test project.fbproject");
+            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\kit test project 2.fbproject");
             
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Kit Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });

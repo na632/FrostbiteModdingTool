@@ -94,7 +94,10 @@ namespace FIFA21Plugin
                         var resCount = inner_reader.ReadInt(Endian.Little);
                         var chunkCount = inner_reader.ReadInt(Endian.Little);
                         if(ebxCount + resCount + chunkCount != totalCount) return;
-                            //throw new Exception("Total Count is not right");
+                        //throw new Exception("Total Count is not right");
+
+                        if (totalCount != casBundle.Offsets.Count) 
+                            return;
 
                         var stringOffset = inner_reader.ReadInt(Endian.Little) + 4;
                         var metaOffset = inner_reader.ReadInt(Endian.Little) + 4;
@@ -118,11 +121,11 @@ namespace FIFA21Plugin
                         }
                         inner_reader.Position = posBeforeChunkMeta;
 
-                        List<int> Sha1Positions = new List<int>();
+                        List<long> Sha1Positions = new List<long>();
                         List<Sha1> sha1 = new List<Sha1>();
                         for (int i = 0; i < totalCount; i++)
                         {
-                            Sha1Positions.Add((int)baseBundleInfo.Offset + (int)inner_reader.Position);
+                            Sha1Positions.Add(inner_reader.Position + baseBundleInfo.Offset);
                             sha1.Add(inner_reader.ReadSha1());
                         }
 
@@ -204,6 +207,10 @@ namespace FIFA21Plugin
 
                             dbObject.AddValue("SB_Guid_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                             Guid guid = inner_reader.ReadGuid(Endian.Little);
+                            if (guid.ToString() == "c03a15a9-6747-22dd-c760-af2e149e6223") // Juventus Test
+                            {
+
+                            }
                             dbObject.AddValue("SB_LogicalOffset_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                             uint logicalOffset = inner_reader.ReadUInt(Endian.Little);
                             dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
@@ -273,7 +280,7 @@ namespace FIFA21Plugin
                         //var positionBeforeLoad = inner_reader.Position;
                         for (var i = 0; i < ebxCount; i++)
                         {
-                            if (casBundle.Offsets.Count - 1 > i )
+                            //if (casBundle.Offsets.Count - 1 > i )
                             {
                                 var new_pos = casBundle.Offsets[i] - casBundle.BundleOffset;
                                 if (new_pos < 0 || new_pos > inner_reader.Length)
@@ -447,10 +454,10 @@ namespace FIFA21Plugin
                             chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                            if (parent.chunkList.ContainsKey(chunkAssetEntry.Id) && chunkAssetEntry.ExtraData.DataOffset > 0)
-                                parent.chunkList.Remove(chunkAssetEntry.Id);
+                            //if (parent.chunkList.ContainsKey(chunkAssetEntry.Id) && chunkAssetEntry.ExtraData.DataOffset > 0)
+                            //    parent.chunkList.Remove(chunkAssetEntry.Id);
                             
-                            if (!parent.chunkList.ContainsKey(chunkAssetEntry.Id))
+                            //if (!parent.chunkList.ContainsKey(chunkAssetEntry.Id))
                                 parent.AddChunk(chunkAssetEntry);
                         }
 
@@ -461,48 +468,6 @@ namespace FIFA21Plugin
 
         }
 
-
-        private void ReadDataBlock(List<DbObject> list, NativeReader reader, int bundleOffset)
-        {
-            foreach (DbObject item in list)
-            {
-            //    item.AddValue("offset", bundleOffset + reader.Position);
-                long num = item.GetValue("originalSize", 0L);
-                long num2 = 0L;
-            //    if (true)
-            //    {
-                    num2 = num;
-                    item.AddValue("data", reader.ReadBytes((int)num));
-            //    }
-            //    else
-            //    {
-            //        while (num > 0)
-            //        {
-            //            int num3 = reader.ReadInt(Endian.Big);
-            //            ushort num4 = reader.ReadUShort();
-            //            int num5 = reader.ReadUShort(Endian.Big);
-            //            int num6 = (num4 & 0xFF00) >> 8;
-            //            if ((num6 & 0xF) != 0)
-            //            {
-            //                num5 = ((num6 & 0xF) << 16) + num5;
-            //            }
-            //            if ((num3 & 4278190080u) != 0L)
-            //            {
-            //                num3 &= 0xFFFFFF;
-            //            }
-            //            num -= num3;
-            //            if ((ushort)(num4 & 0x7F) == 0)
-            //            {
-            //                num5 = num3;
-            //            }
-            //            num2 += num5 + 8;
-            //            reader.Position += num5;
-            //        }
-            //    }
-                item.AddValue("size", num2);
-                item.AddValue("sb", true);
-            }
-        }
 
     }
 

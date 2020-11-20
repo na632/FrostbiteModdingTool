@@ -88,7 +88,7 @@ namespace FIFA21Plugin
 			public int BundleCount { get; set; }
 			public int Offset1 { get; set; }
 			public int Offset2 { get; set; }
-			public int ResCount { get; set; }
+			public int ChunkCount { get; set; }
 			public int Offset4 { get; set; }
 			public int Offset5 { get; set; }
 			public int Offset6 { get; set; }
@@ -106,7 +106,7 @@ namespace FIFA21Plugin
 				BundleCount = nativeReader.ReadInt(Endian.Big);
 				Offset1 = nativeReader.ReadInt(Endian.Big);
 				Offset2 = nativeReader.ReadInt(Endian.Big);
-				ResCount = nativeReader.ReadInt(Endian.Big);
+				ChunkCount = nativeReader.ReadInt(Endian.Big);
 				Offset4 = nativeReader.ReadInt(Endian.Big);
 				Offset5 = nativeReader.ReadInt(Endian.Big);
 				Offset6 = nativeReader.ReadInt(Endian.Big);
@@ -386,11 +386,11 @@ namespace FIFA21Plugin
 
 						if (MetaData.Offset1 != 0 && MetaData.Offset1 != 32)
 						{
-							if (MetaData.ResCount > 0)
+							if (MetaData.ChunkCount > 0)
 							{
 								nativeReader.Position = actualInternalPos + MetaData.Offset1;
 								List<int> list7 = new List<int>();
-								for (int num13 = 0; num13 < MetaData.ResCount; num13++)
+								for (int num13 = 0; num13 < MetaData.ChunkCount; num13++)
 								{
 									list7.Add(nativeReader.ReadInt(Endian.Big));
 								}
@@ -398,7 +398,7 @@ namespace FIFA21Plugin
 
 
 								List<Guid> tocChunkGuids = new List<Guid>();
-								for (int num14 = 0; num14 < MetaData.ResCount; num14++)
+								for (int num14 = 0; num14 < MetaData.ChunkCount; num14++)
 								{
 									byte[] array6 = nativeReader.ReadBytes(16);
 									Guid tocChunkGuid = new Guid(new byte[16]
@@ -420,27 +420,35 @@ namespace FIFA21Plugin
 										array6[1],
 										array6[0]
 									});
-									//Guid value2 = nativeReader.ReadGuid(Endian.Little);
+									nativeReader.Position -= 16;
+									Guid value2 = nativeReader.ReadGuid(Endian.Little);
+									nativeReader.Position -= 16;
+									Guid value3 = nativeReader.ReadGuid(Endian.Big);
 									//if (tocChunkGuid == Guid.Parse("cc9e36b9-9304-2832-01ff-e8820db10773"))
 									//{
 
 									//}
 									int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
-									while (tocChunkGuids.Count <= num15)
-									{
-										tocChunkGuids.Add(Guid.Empty);
-									}
-									tocChunkGuids[num15 / 3] = tocChunkGuid;
+                                    while (tocChunkGuids.Count <= num15)
+                                    {
+                                        tocChunkGuids.Add(Guid.Empty);
+                                    }
+                                    tocChunkGuids[num15 / 3] = tocChunkGuid;
+                                    //tocChunkGuids.Add(tocChunkGuid);
 								}
 								nativeReader.Position = actualInternalPos + MetaData.Offset4;
 
 
-								ParentReader.AssetManager.logger.Log($"Found {MetaData.ResCount} Chunks in TOC");
+								ParentReader.AssetManager.logger.Log($"Found {MetaData.ChunkCount} Chunks in TOC");
 
-								for (int num16 = 0; num16 < MetaData.ResCount; num16++)
+								if (NativeFileLocation.Contains("matchcinematicssba.toc"))
+									return;
+
+								for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 								{
 									ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
-									 
+									chunkAssetEntry2.TOCFileLocation = this.NativeFileLocation;
+
 									var unk2 = nativeReader.ReadByte();
 									bool patch2 = nativeReader.ReadBoolean();
 									byte catalog2 = nativeReader.ReadByte();
@@ -450,27 +458,27 @@ namespace FIFA21Plugin
 									uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
 									chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
 									uint chunkSize = nativeReader.ReadUInt(Endian.Big);
-									chunkAssetEntry2.Id = tocChunkGuids[num16];
+									chunkAssetEntry2.Id = tocChunkGuids[chunkIndex];
                                     if (chunkAssetEntry2.Id.ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
                                     {
+
                                     }
-                                    chunkAssetEntry2.TOCFileLocation = NativeFileLocation;
-									chunkAssetEntry2.SBFileLocation = null;
+									if (chunkAssetEntry2.Id.ToString() == "c03a15a9-6747-22dd-c760-af2e149e6223") // Juventus Test
+									{
+
+									}
 
 									chunkAssetEntry2.Size = chunkSize;
 									chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
 									chunkAssetEntry2.ExtraData = new AssetExtraData();
 									chunkAssetEntry2.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog2, cas2, patch2);
-									if (chunkAssetEntry2.ExtraData.CasPath.Contains("/fifa_installpackage_03/cas_03.cas"))
-									{
-
-									}
 									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
-                                    if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
-                                    {
-										AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
-									}
-									chunks.Add(chunkAssetEntry2);
+          //                          if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
+          //                          {
+										//AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
+										AssetManager.Instance.AddChunk(chunkAssetEntry2);
+									//}
+									//chunks.Add(chunkAssetEntry2);
 								}
 							}
 
@@ -478,7 +486,7 @@ namespace FIFA21Plugin
 							if(nativeReader.Position < nativeReader.Length)
                             {
 								TOCCasDataLoader casDataLoader = new TOCCasDataLoader(this);
-								//casDataLoader.Load(nativeReader);
+								casDataLoader.Load(nativeReader);
 							}
 
 
