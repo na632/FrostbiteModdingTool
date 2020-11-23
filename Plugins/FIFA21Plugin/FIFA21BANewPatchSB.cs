@@ -247,7 +247,7 @@ namespace FIFA21Plugin
 
                         if (item.Key == string.Empty || item.Key.Contains("native_data"))
                         {
-                            GetNewCasPath(out casPath, out string sbFilePath, out CachingSBData data, out CachingSBData.Bundle bundle);
+                            GetNewCasPath(item, out casPath, out string sbFilePath, out CachingSBData data, out CachingSBData.Bundle bundle);
                             BuildNewSB(data, bundle, item, casPath);
                             continue;
                         }
@@ -391,7 +391,7 @@ namespace FIFA21Plugin
         }
 
         private string GetNewCasPath(
-            
+            KeyValuePair<string, List<Tuple<Sha1, string, ModType, bool>>> modItems,
             out string casPath,
             out string sbFilePath,
             out CachingSBData cachingSBData,
@@ -402,6 +402,31 @@ namespace FIFA21Plugin
             sbFilePath = string.Empty;
             cachingSBData = null;
             cachingBundle = null;
+
+
+            foreach (var modItem in modItems.Value) 
+            {
+                AssetEntry originalEntry = null;
+
+                switch (modItem.Item3)
+                {
+                    case ModType.EBX:
+                        originalEntry = AssetManager.Instance.GetEbxEntry(modItem.Item2);
+                        break;
+                    case ModType.RES:
+                        originalEntry = AssetManager.Instance.GetResEntry(modItem.Item2);
+                        break;
+                    case ModType.CHUNK:
+                        originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(modItem.Item2));
+                        break;
+                }
+                if (originalEntry != null)
+                {
+                    //CachingSB.CachingSBs.Where(x => originalEntry. .SBFile);.
+
+                }
+            }
+
 
             var lastSb = CachingSB.CachingSBs[CachingSB.CachingSBs.Count - 1];
             if(lastSb != null)
@@ -523,6 +548,7 @@ namespace FIFA21Plugin
                             byte[] NewSha1Section = msNewSha1Section.ToArray();
                             nwNewSB.Write(NewSha1Section);
 
+                            var ObjectsPosition = nwNewSB.BaseStream.Position;
                             var msNewEBXSection = new MemoryStream();
                             using (NativeWriter nwNewEBXSection = new NativeWriter(msNewEBXSection, leaveOpen: true))
                             {
@@ -558,6 +584,7 @@ namespace FIFA21Plugin
                             byte[] NewChunkSection = msNewChunkSection.ToArray();
                             nwNewSB.Write(NewChunkSection);
 
+                            var StringsPosition = nwNewSB.BaseStream.Position;
                             var msNewStringsSection = new MemoryStream();
                             Dictionary<Sha1, long> Sha1ToStringPosition = new Dictionary<Sha1, long>();
                             using (NativeWriter nwNewStringsSection = new NativeWriter(msNewStringsSection, leaveOpen: true))
@@ -571,6 +598,8 @@ namespace FIFA21Plugin
                             byte[] NewStringsSection = msNewStringsSection.ToArray();
                             nwNewSB.Write(NewStringsSection);
 
+
+                            var DataCatalogPosition = nwNewSB.BaseStream.Position;
                             var msNewDataCatalogSection = new MemoryStream();
                             using (NativeWriter nwNewDataCatalogSection = new NativeWriter(msNewDataCatalogSection, leaveOpen: true))
                             {
@@ -596,6 +625,7 @@ namespace FIFA21Plugin
                             byte[] NewDataCatalogSection = msNewDataCatalogSection.ToArray();
                             nwNewSB.Write(NewDataCatalogSection);
 
+                            var DataCASChangePosition = nwNewSB.BaseStream.Position;
                             var msNewCASChangeSection = new MemoryStream();
                             using (NativeWriter nwNewCASChangeSection = new NativeWriter(msNewCASChangeSection, leaveOpen: true))
                             {
@@ -606,6 +636,11 @@ namespace FIFA21Plugin
                             }
                             byte[] NewCASChangeSection = msNewCASChangeSection.ToArray();
                             nwNewSB.Write(NewCASChangeSection);
+
+
+                            // Set String Position
+                            nwNewSB.BaseStream.Position = BinaryStringOffsetPosition;
+                            nwNewSB.Write((int)StringsPosition - cachingBundleDataToUse.StartOffset, Endian.Little);
 
                             nwNewSB.Flush();
                         }

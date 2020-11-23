@@ -38,6 +38,7 @@ namespace FIFAModdingUI
         {
             InitializeComponent();
             GetListOfModsAndOrderThem();
+
             try
             {
                 if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
@@ -369,11 +370,13 @@ namespace FIFAModdingUI
                 if(GameInstanceSingleton.GAMEVERSION == "FIFA21")
                 {
                     txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
+                    chkUseSymbolicLink.Visibility = Visibility.Collapsed;
                 }
 
                 if(GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
                 {
                     listMods.IsEnabled = true;
+                    
                 }
                 else
                 {

@@ -230,10 +230,10 @@ namespace FIFAModdingUI.Windows
 
         public void Log(string text, params object[] vars)
         {
-            Dispatcher.InvokeAsync(() =>
-            {
-                lblProgressText.Text = string.Format(text, vars);
-            });
+            //Dispatcher.InvokeAsync(() =>
+            //{
+                //lblProgressText.Text = string.Format(text, vars);
+            //});
 
             LogAsync(text);
         }

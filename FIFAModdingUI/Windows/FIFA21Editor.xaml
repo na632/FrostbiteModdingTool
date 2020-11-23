@@ -26,21 +26,18 @@
     </Window.Resources>
     
     <DockPanel>
-        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="#FFF3F1F1" BorderBrush="#FFC8C8C8"  >
-            <StatusBarItem>
-                <TextBlock Name="lblProgressText" Text="" Foreground="#FF483939" />
-            </StatusBarItem>
-        </StatusBar>
         
-        <Grid VerticalAlignment="Top">
+        <Grid DockPanel.Dock="Top" ShowGridLines="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="200"></RowDefinition>
+                <RowDefinition MinHeight="400" Height="*"></RowDefinition>
+                <RowDefinition Height="*" MaxHeight="200"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
+            <GridSplitter></GridSplitter>
+
             <StackPanel Grid.Row="0"  Orientation="Horizontal">
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
@@ -76,23 +73,6 @@
                             <Label Content="Browse for Game" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <!--<Button x:Name="btnBuildFIFASDK" Height="30" Background="Transparent" BorderBrush="{x:Null}"
-                    VerticalAlignment="Center" IsEnabled="False"
-                     
-                    ToolTip="Build FIFA Modding SDK">
-                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
-                            <Label Content="Build FIFA SDK" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnLaunchFIFA" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
-                    
-                    ToolTip="Launch FIFA with Frosty Mods">
-                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                            <Label Content="Launch FIFA" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>-->
                     <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
                         <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
@@ -100,66 +80,62 @@
                             <Label Content="Launch Game (Editor Project Only)" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <!--<Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False">
-                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="Person" VerticalAlignment="Center" />
-                            <Label Content="Default" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>-->
-                    <!--<Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool">
-                        <MaterialDesign:PackIcon Kind="Power" />
-                    </Button>-->
+                  
                 </StackPanel>
 
             </StackPanel>
-            <TabControl x:Name="MainViewer" Grid.Row="1">
-                <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
-                    <StackPanel Orientation="Vertical">
-                        <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
-                    </StackPanel>
-                </TabItem>
-                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
-                    <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
-                </TabItem>
-                <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible">
-                    <StackPanel Orientation="Vertical">
-                        <Label Background="Yellow">Kit Browser is incomplete and missing Kits</Label>
-                        <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
-                    </StackPanel>
-                </TabItem>
-                <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
-                    <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
-                </TabItem>
-                <TabItem x:Name="TabLegacy" Header="Legacy">
-                    <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
-                </TabItem>
-                <TabItem x:Name="TabOldLegacy" Header="Legacy" Visibility="Hidden">
-                    <Grid Name="gridLegacy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <TreeView Grid.Column="0" x:Name="tvLegacy">
-                            <TreeViewItem Header="">
-                            </TreeViewItem>
-                        </TreeView>
-                        <StackPanel Orientation="Vertical" Grid.Column="1">
-                            <StackPanel Orientation="Horizontal">
-                                <Button x:Name="btnImportLegacy" Click="btnImportLegacy_Click" IsEnabled="False">Import</Button>
-                                <Button x:Name="btnExportLegacy" Click="btnExportLegacy_Click">Export</Button>
-                            </StackPanel>
-                            <Label x:Name="NameOfLegacyAsset"></Label>
-                            <Image x:Name="ImageViewerLegacy" Visibility="Hidden" ></Image>
-                            <TextBox MaxLines="99999" MaxHeight="500" x:Name="txtLegacyViewer" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible" Visibility="Hidden"></TextBox>
-                        </StackPanel>
+            <DockPanel Grid.Row="1">
 
-                    </Grid>
-                </TabItem>
-            </TabControl>
-            <TextBox x:Name="txtLog" IsReadOnly="True" Grid.Row="2" Text="{Binding LogText}" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="175" MinHeight="175" MaxHeight="175">
-                
-            </TextBox>
+                <TabControl x:Name="MainViewer">
+                    <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
+                        <StackPanel Orientation="Vertical">
+                            <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
+                        <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
+                    </TabItem>
+                    <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible">
+                        <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
+                    </TabItem>
+                    <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
+                        <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
+                    </TabItem>
+                    <TabItem x:Name="TabLegacy" Header="Legacy">
+                        <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
+                    </TabItem>
+                    <TabItem x:Name="TabOldLegacy" Header="Legacy" Visibility="Hidden">
+                        <Grid Name="gridLegacy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TreeView Grid.Column="0" x:Name="tvLegacy">
+                                <TreeViewItem Header="">
+                                </TreeViewItem>
+                            </TreeView>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="btnImportLegacy" Click="btnImportLegacy_Click" IsEnabled="False">Import</Button>
+                                    <Button x:Name="btnExportLegacy" Click="btnExportLegacy_Click">Export</Button>
+                                </StackPanel>
+                                <Label x:Name="NameOfLegacyAsset"></Label>
+                                <Image x:Name="ImageViewerLegacy" Visibility="Hidden" ></Image>
+                                <TextBox MaxLines="99999" MaxHeight="500" x:Name="txtLegacyViewer" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible" Visibility="Hidden"></TextBox>
+                            </StackPanel>
+
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </DockPanel>
+            <DockPanel Grid.Row="2" >
+                <TextBox x:Name="txtLog" DockPanel.Dock="Top" IsReadOnly="True" Text="{Binding LogText}" ScrollViewer.VerticalScrollBarVisibility="Visible">
+
+                </TextBox>
+            </DockPanel>
+         
         </Grid>
-        
+       
+
     </DockPanel>
 </Window>

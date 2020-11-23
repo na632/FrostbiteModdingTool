@@ -17,6 +17,11 @@ namespace FIFA21Plugin
         public TOCFile AssociatedTOCFile { get; set; }
         public string NativeFileLocation { get; set; }
 
+        public List<EbxAssetEntry> CASEBXEntries = new List<EbxAssetEntry>();
+        public List<ResAssetEntry> CASRESEntries = new List<ResAssetEntry>();
+        public List<ChunkAssetEntry> CASCHUNKEntries = new List<ChunkAssetEntry>();
+        public DbObject CASBinaryMeta { get; set; }
+
         public CASDataLoader(TOCFile inTOC)
         {
             AssociatedTOCFile = inTOC;
@@ -122,6 +127,8 @@ namespace FIFA21Plugin
                             {
                                 var o = dbReader.ReadDbObject();
                                 FullObjectList.AddValue("chunkMeta", o);
+
+                                CASBinaryMeta = o;
                             }
                         }
                         inner_reader.Position = posBeforeChunkMeta;
@@ -394,6 +401,8 @@ namespace FIFA21Plugin
                             {
                                 if(!parent.ebxList.ContainsKey(ebxAssetEntry.Name))
                                     parent.AddEbx(ebxAssetEntry);
+
+                                CASEBXEntries.Add(ebxAssetEntry);
                             }
                         }
 
@@ -427,6 +436,9 @@ namespace FIFA21Plugin
                             {
                                 if (!parent.resList.ContainsKey(resAssetEntry.Name))
                                     parent.AddRes(resAssetEntry);
+
+                                CASRESEntries.Add(resAssetEntry);
+
                             }
                             iRes++;
                         }
@@ -460,6 +472,9 @@ namespace FIFA21Plugin
                             
                             //if (!parent.chunkList.ContainsKey(chunkAssetEntry.Id))
                                 parent.AddChunk(chunkAssetEntry);
+
+                            CASCHUNKEntries.Add(chunkAssetEntry);
+
                         }
 
                     }
