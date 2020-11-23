@@ -429,12 +429,12 @@ namespace FIFA21Plugin
 
 									//}
 									int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
-                                    while (tocChunkGuids.Count <= num15)
-                                    {
-                                        tocChunkGuids.Add(Guid.Empty);
-                                    }
-                                    tocChunkGuids[num15 / 3] = tocChunkGuid;
-                                    //tocChunkGuids.Add(tocChunkGuid);
+									while (tocChunkGuids.Count <= num15)
+									{
+										tocChunkGuids.Add(Guid.Empty);
+									}
+									tocChunkGuids[num15 / 3] = tocChunkGuid;
+									//tocChunkGuids.Add(tocChunkGuid);
 								}
 								nativeReader.Position = actualInternalPos + MetaData.Offset4;
 
@@ -443,6 +443,11 @@ namespace FIFA21Plugin
 
 								if (NativeFileLocation.Contains("matchcinematicssba.toc"))
 									return;
+
+								if (NativeFileLocation.Contains("contentsb.toc"))
+								{
+
+								}
 
 								for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 								{
@@ -459,10 +464,10 @@ namespace FIFA21Plugin
 									chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
 									uint chunkSize = nativeReader.ReadUInt(Endian.Big);
 									chunkAssetEntry2.Id = tocChunkGuids[chunkIndex];
-                                    if (chunkAssetEntry2.Id.ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
-                                    {
+									if (chunkAssetEntry2.Id.ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
+									{
 
-                                    }
+									}
 									if (chunkAssetEntry2.Id.ToString() == "c03a15a9-6747-22dd-c760-af2e149e6223") // Juventus Test
 									{
 
@@ -473,14 +478,28 @@ namespace FIFA21Plugin
 									chunkAssetEntry2.ExtraData = new AssetExtraData();
 									chunkAssetEntry2.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog2, cas2, patch2);
 									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
-          //                          if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
-          //                          {
-										//AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
-										AssetManager.Instance.AddChunk(chunkAssetEntry2);
+									//                          if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry2.Id))
+									//                          {
+									//AssetManager.Instance.chunkList.Add(chunkAssetEntry2.Id, chunkAssetEntry2);
+									//AssetManager.Instance.AddChunk(chunkAssetEntry2);
 									//}
-									//chunks.Add(chunkAssetEntry2);
+									chunks.Add(chunkAssetEntry2);
+								}
+
+								_ = nativeReader.Position;
+								for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+								{
+									
+									var chunkAssetEntry = chunks[chunkIndex];
+									//chunkAssetEntry.SB_Sha1_Position = (int)nativeReader.Position;
+									//var sha1 = nativeReader.ReadSha1();
+									//chunkAssetEntry.Sha1 = sha1;
+									//chunkAssetEntry.BaseSha1 = sha1;
+									AssetManager.Instance.AddChunk(chunkAssetEntry);
+
 								}
 							}
+
 
 							_ = nativeReader.Position;
 							if(nativeReader.Position < nativeReader.Length)

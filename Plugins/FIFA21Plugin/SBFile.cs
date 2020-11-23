@@ -114,6 +114,16 @@ namespace FIFA21Plugin
             return dbObjects;
         }
 
+        public class BundleHeader
+        {
+            public uint CatalogOffset { get; set; }
+            public uint unk1 { get; set; }
+            public uint casFileForGroupOffset { get; set; }
+            public uint unk2 { get; set; }
+            public uint CatalogAndCASOffset { get; set; }
+
+        }
+
         /// <summary>
         /// Reads the reader from a viewstream of the internal bundle
         /// </summary>
@@ -131,6 +141,8 @@ namespace FIFA21Plugin
             }
             binarySbReader2.Position = 0;
 
+            var cachingSBDataBundle = new CachingSBData.Bundle();
+            cachingSBDataBundle.StartOffset = (int)bundleOffset;
 
             uint CatalogOffset = binarySbReader2.ReadUInt(Endian.Big);
             uint unk1 = binarySbReader2.ReadUInt(Endian.Big) + CatalogOffset;
@@ -138,8 +150,18 @@ namespace FIFA21Plugin
             var unk2 = binarySbReader2.ReadUInt(Endian.Big);
             uint CatalogAndCASOffset = binarySbReader2.ReadUInt(Endian.Big);
 
-            var cachingSBDataBundle = new CachingSBData.Bundle();
-            cachingSBDataBundle.StartOffset = (int)bundleOffset;
+            cachingSBDataBundle.BundleHeader = new BundleHeader()
+            {
+                CatalogOffset = CatalogOffset
+                 ,
+                unk1 = unk1
+                 ,
+                casFileForGroupOffset = casFileForGroupOffset
+                 ,
+                unk2 = unk2
+                 ,
+                CatalogAndCASOffset = CatalogAndCASOffset
+            };
 
             // read 3 unknowns 
             //binarySbReader2.Position += 12;
@@ -154,6 +176,10 @@ namespace FIFA21Plugin
             //SBHeaderInformation SBHeaderInformation = BinaryRead_FIFA21(nativeReader, BaseBundleItem, dbObject, binarySbReader2);
             SBHeaderInformation SBHeaderInformation = new BinaryReader_FIFA21().BinaryRead_FIFA21(bundleOffset, ref dbObject, binarySbReader2, true);
             cachingSBDataBundle.BinaryDataOffsetEnd = (int)binarySbReader2.Position;
+
+            binarySbReader2.Position = cachingSBDataBundle.BinaryDataOffset;
+            //cachingSBDataBundle.BinaryDataData = binarySbReader2.ReadBytes((int)cachingSBDataBundle.BinaryDataOffsetEnd - (int)cachingSBDataBundle.BinaryDataOffset);
+
             // END OF BINARY READER
             // ---------------------------------------------------------------------------------------------------------------------
 
@@ -167,11 +193,11 @@ namespace FIFA21Plugin
                 booleanChangeOfCas[booleanIndex] = binarySbReader2.ReadBoolean();
                 boolChangeOfCasData[booleanIndex] = Convert.ToByte(booleanChangeOfCas[booleanIndex]);
             }
-            cachingSBDataBundle.BooleanOfCasGroupData = boolChangeOfCasData;
-            cachingSBDataBundle.BooleanOfCasGroupOffsetEnd = (int)binarySbReader2.Position;
+            //cachingSBDataBundle.BooleanOfCasGroupData = boolChangeOfCasData;
+            cachingSBDataBundle.BooleanOfCasGroupOffsetEnd = binarySbReader2.Position;
 
             binarySbReader2.Position = CatalogAndCASOffset;
-            cachingSBDataBundle.CatalogCasGroupOffset = (int)binarySbReader2.Position;
+            cachingSBDataBundle.CatalogCasGroupOffset = binarySbReader2.Position;
 
             bool patchFlag = false;
             int unkInBatch1 = 0;
@@ -194,9 +220,6 @@ namespace FIFA21Plugin
                 ebxObject.SetValue("SBFileLocation", NativeFileLocation);
                 ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
-                if (ebxObject.GetValue<string>("name", "").Contains("movement"))
-                {
-                }
                 ebxObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
                 int offset = binarySbReader2.ReadInt(Endian.Big);
 
@@ -210,8 +233,9 @@ namespace FIFA21Plugin
                 if (patchFlag)
                 {
                     ebxObject.SetValue("patch", true);
-                    //cachingSBDataBundle.LastPatchCAS = cas;
-                    //cachingSBDataBundle.LastPatchCatalogId = catalog;
+
+                    cachingSBDataBundle.LastCAS = cas;
+                    cachingSBDataBundle.LastCatalogId = catalog;
                 }
 
             }
@@ -244,8 +268,9 @@ namespace FIFA21Plugin
                 if (patchFlag)
                 {
                     resObject.SetValue("patch", true);
-                    //cachingSBDataBundle.LastCAS = cas;
-                    //cachingSBDataBundle.LastCatalogId = catalog;
+
+                    cachingSBDataBundle.LastCAS = cas;
+                    cachingSBDataBundle.LastCatalogId = catalog;
                 }
             }
 
@@ -262,10 +287,6 @@ namespace FIFA21Plugin
                 }
                 DbObject chnkObj = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
 
-                if (chnkObj.GetValue<Guid>("id").ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
-                {
-
-                }
                 chnkObj.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
                 int offset = binarySbReader2.ReadInt(Endian.Big);
                 chnkObj.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
@@ -295,10 +316,15 @@ namespace FIFA21Plugin
             }
 
             // 
-            cachingSBDataBundle.LastCAS = cas;
-            cachingSBDataBundle.LastCatalogId = catalog;
+            //cachingSBDataBundle.LastCAS = cas;
+            //cachingSBDataBundle.LastCatalogId = catalog;
 
             cachingSBDataBundle.CatalogCasGroupOffsetEnd = (int)binarySbReader2.Position;
+
+            binarySbReader2.Position = cachingSBDataBundle.CatalogCasGroupOffset;
+            //cachingSBDataBundle.CatalogCasGroupData = binarySbReader2.ReadBytes((int)cachingSBDataBundle.CatalogCasGroupOffsetEnd - (int)cachingSBDataBundle.CatalogCasGroupOffset);
+
+
             return cachingSBDataBundle;
         }
 

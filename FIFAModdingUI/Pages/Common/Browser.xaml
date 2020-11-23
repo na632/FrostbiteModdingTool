@@ -20,10 +20,9 @@
                 <DockPanel>
                     <Label  DockPanel.Dock="Left">Filter: </Label>
                     <TextBox DockPanel.Dock="Right" x:Name="txtFilter" Text="{Binding FilterText}" 
-                             TextChanged="txtFilter_TextChanged"
-                              KeyUp="txtFilter_KeyUp" ></TextBox>
+                             TextChanged="txtFilter_TextChanged" ></TextBox>
                 </DockPanel>
-                <TreeView x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="300" BorderBrush="LightGray" BorderThickness="1">
+                <TreeView x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="250" BorderBrush="LightGray" BorderThickness="1">
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <Label Content="{Binding PathName}" Tag="{Binding}" MouseUp="Label_MouseUp"></Label>
@@ -31,7 +30,7 @@
                     </TreeView.ItemTemplate>
                 </TreeView>
             </StackPanel>
-            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="200" BorderBrush="LightGray" BorderThickness="1">
+            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="250" BorderBrush="LightGray" BorderThickness="1">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Name">

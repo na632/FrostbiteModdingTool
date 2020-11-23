@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using static FIFA21Plugin.SBFile;
 
 namespace FIFA21Plugin
 {
@@ -37,26 +38,28 @@ namespace FIFA21Plugin
         public string SBFile { get; set; }
         public class Bundle
         {
-            public int StartOffset { get; set; }
+            public BundleHeader BundleHeader { get; set; }
 
-            public int BooleanOfCasGroupOffset { get; set; }
-            public int BooleanOfCasGroupOffsetEnd { get; set; }
+            public long StartOffset { get; set; }
+
+            public long BooleanOfCasGroupOffset { get; set; }
+            public long BooleanOfCasGroupOffsetEnd { get; set; }
 
             public byte[] BooleanOfCasGroupData { get; set; }
 
-            public int CatalogCasGroupOffset { get; set; }
+            public long CatalogCasGroupOffset { get; set; }
 
             public byte[] CatalogCasGroupData { get; set; }
 
 
-            public int BinaryDataOffset { get; set; }
+            public long BinaryDataOffset { get; set; }
 
             public byte[] BinaryDataData { get; set; }
 
             public int LastCatalogId { get; set; }
             public int LastCAS { get; set; }
-            public int BinaryDataOffsetEnd { get; internal set; }
-            public int CatalogCasGroupOffsetEnd { get; internal set; }
+            public long BinaryDataOffsetEnd { get; internal set; }
+            public long CatalogCasGroupOffsetEnd { get; internal set; }
         }
 
         public List<Bundle> Bundles = new List<Bundle>();

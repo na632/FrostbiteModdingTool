@@ -97,7 +97,8 @@ namespace FIFA21Plugin
 						}
 						if (catalog > 0 && AssetManager.Instance.fs.Catalogs.Count() > catalog)
 						{
-							var path = AssetManager.Instance.fs.ResolvePath(AssetManager.Instance.fs.GetFilePath(catalog, cas, false));
+							//var path = AssetManager.Instance.fs.ResolvePath(AssetManager.Instance.fs.GetFilePath(catalog, cas, false));
+							var path = AssetManager.Instance.fs.GetFilePath(catalog, cas, false);
 							if (!string.IsNullOrEmpty(path))
 							{
 								var lstBundles = new List<CASBundle>();

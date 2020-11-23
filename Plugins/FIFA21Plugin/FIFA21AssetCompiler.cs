@@ -77,13 +77,13 @@ namespace FIFA21Plugin
                 var numberOfCatalogs = fs.Catalogs.Count();
                 var numberOfCatalogsCompleted = 0;
 
-                if (!((FrostyModExecutor)frostyModExecuter).UseSymbolicLinks)
-                {
-                    logger.Log("No Symbolic Link - Copying files from Data to ModData");
+                //if (!((FrostyModExecutor)frostyModExecuter).UseSymbolicLinks)
+                //{
+                    //logger.Log("No Symbolic Link - Copying files from Data to ModData");
                     CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
 
                     //Task.WaitAll(tasks);
-                }
+                //}
 
                 if (Directory.Exists(fs.BasePath + ModDirectory + "\\Data"))
                 {
@@ -126,7 +126,7 @@ namespace FIFA21Plugin
                 //{
 
                 FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
-                //FIFA21BundleAction2 fifaBundleAction = new FIFA21BundleAction2((FrostyModExecutor)frostyModExecuter);
+                //FIFA21BANewPatchSB fifaBundleAction = new FIFA21BANewPatchSB((FrostyModExecutor)frostyModExecuter);
                 fifaBundleAction.Run();
 
                 //numberOfCatalogsCompleted++;
@@ -205,7 +205,11 @@ namespace FIFA21Plugin
                 }
                 if(File.Exists(finalDestination))
                 {
-                    if(File.GetLastWriteTime(finalDestination).Ticks < File.GetLastWriteTime(f).Ticks)
+                    if(
+                        File.GetLastWriteTime(finalDestination).Ticks < File.GetLastWriteTime(f).Ticks
+                        //|| File.ReadAllBytes(finalDestination).Length != File.ReadAllBytes(f).Length
+                        || new FileInfo(finalDestination).Length !=  new FileInfo(f).Length
+                        )
                     {
                         File.Delete(finalDestination);
                     }

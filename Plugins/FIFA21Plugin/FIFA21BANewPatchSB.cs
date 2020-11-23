@@ -18,7 +18,7 @@ using static paulv2k4ModdingExecuter.FrostyModExecutor;
 namespace FIFA21Plugin
 {
 
-    public class FIFA21BundleAction
+    public class FIFA21BANewPatchSB
     {
         public class BundleFileEntry
         {
@@ -83,13 +83,13 @@ namespace FIFA21Plugin
         /// <param name="inCatalogInfo"></param>
         /// <param name="inDoneEvent"></param>
         /// <param name="inParent"></param>
-        public FIFA21BundleAction(CatalogInfo inCatalogInfo, FrostyModExecutor inParent)
+        public FIFA21BANewPatchSB(CatalogInfo inCatalogInfo, FrostyModExecutor inParent)
         {
             catalogInfo = inCatalogInfo;
             parent = inParent;
         }
 
-        public FIFA21BundleAction(FrostyModExecutor inParent)
+        public FIFA21BANewPatchSB(FrostyModExecutor inParent)
         {
             parent = inParent;
         }
@@ -245,13 +245,13 @@ namespace FIFA21Plugin
                                 , AssetManager.Instance.fs.BasePath + "ModData\\Data");
                         }
 
-                        //if (item.Key == string.Empty || item.Key.Contains("native_data"))
-                        //{
-                        //    GetNewCasPath(item, out casPath, out string sbFilePath, out CachingSBData data, out CachingSBData.Bundle bundle);
-                        //    BuildNewSB(data, bundle);
-                        //    continue;
-                        //}
-                        
+                        if (item.Key == string.Empty || item.Key.Contains("native_data"))
+                        {
+                            GetNewCasPath(out casPath, out string sbFilePath, out CachingSBData data, out CachingSBData.Bundle bundle);
+                            BuildNewSB(data, bundle, item, casPath);
+                            continue;
+                        }
+
                         casPath = casPath.Replace("native_patch"
                             , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
 
@@ -391,7 +391,7 @@ namespace FIFA21Plugin
         }
 
         private string GetNewCasPath(
-            KeyValuePair<string, List<Tuple<Sha1, string, ModType, bool>>> item,
+            
             out string casPath,
             out string sbFilePath,
             out CachingSBData cachingSBData,
@@ -419,17 +419,216 @@ namespace FIFA21Plugin
             return casPath;
         }
 
-        private void BuildNewSB(CachingSBData cachingData, CachingSBData.Bundle cachingBundleDataToUse)
+        private void BuildNewSB(CachingSBData cachingData
+            , CachingSBData.Bundle cachingBundleDataToUse
+            , KeyValuePair<string, List<Tuple<Sha1, string, ModType, bool>>> item
+            , string casPath
+            )
         {
-            byte[] oldSBFileData;
-            var sbPath = AssetManager.Instance.fs.ResolvePath(cachingData.SBFile);
-            using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open)))
+            casPath = AssetManager.Instance.fs.ResolvePath(casPath);
+            using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
             {
-                oldSBFileData = nativeReader.ReadToEnd();
-            }
-            if(oldSBFileData.Length > 0)
-            {
+                byte[] oldSBFileData;
+                var sbPath = AssetManager.Instance.fs.ResolvePath(cachingData.SBFile);
+                sbPath = sbPath.Replace("\\patch", "\\ModData\\Patch");
+                sbPath = sbPath.Replace("\\data", "\\ModData\\Data");
 
+                using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open)))
+                {
+                    oldSBFileData = nativeReader.ReadToEnd();
+                }
+                File.Delete(sbPath);
+                if (oldSBFileData.Length > 0)
+                {
+                    var newLocationOfBundle = 0;
+                    using (NativeReader nrOriginalSB = new NativeReader(new MemoryStream(oldSBFileData)))
+                    {
+                        nrOriginalSB.BaseStream.Position = cachingBundleDataToUse.StartOffset;
+                        var bundleData = nrOriginalSB.ReadBytes((int)cachingBundleDataToUse.BooleanOfCasGroupOffsetEnd);
+
+                        using (NativeWriter nwNewSB = new NativeWriter(new FileStream(sbPath, FileMode.CreateNew)))
+                        {
+                            nwNewSB.Write(oldSBFileData);
+                            newLocationOfBundle = (int)nwNewSB.BaseStream.Position;
+                            nwNewSB.BaseStream.Position = newLocationOfBundle;
+
+                            /*
+                             * 
+                                uint CatalogOffset = binarySbReader2.ReadUInt(Endian.Big);
+                                uint unk1 = binarySbReader2.ReadUInt(Endian.Big) + CatalogOffset;
+                                uint casFileForGroupOffset = binarySbReader2.ReadUInt(Endian.Big);
+                                var unk2 = binarySbReader2.ReadUInt(Endian.Big);
+                                uint CatalogAndCASOffset = binarySbReader2.ReadUInt(Endian.Big);
+                             */
+                            var CatalogOffsetPosition = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(cachingBundleDataToUse.BundleHeader.CatalogOffset, Endian.Big);
+                            var Unk1Position = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(cachingBundleDataToUse.BundleHeader.unk1, Endian.Big);
+                            var CasFileForGroupOffsetPosition = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(cachingBundleDataToUse.BundleHeader.casFileForGroupOffset, Endian.Big);
+                            var Unk2Position = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(cachingBundleDataToUse.BundleHeader.unk2, Endian.Big);
+                            var CatalogAndCASOffset = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(cachingBundleDataToUse.BundleHeader.CatalogAndCASOffset, Endian.Big);
+                            /* 3 unknowns of 4 byte groups (ints?)
+                             * 
+                             */
+                            nwNewSB.BaseStream.Position += 12;
+                            // ------------------------------------------------
+                            // Binary stuff with all the names of EBX/RES/Chunk
+
+                            /*
+                            size = nr.ReadInt(Endian.Big) + AdditionalHeaderLength;
+                            magicStuff = nr.ReadUInt(Endian.Big);
+                            if (magicStuff != 3599661469)
+                                throw new Exception("Magic/Hash is not right, expecting 3599661469");
+
+                            totalCount = nr.ReadInt(Endian.Little);
+                            ebxCount = nr.ReadInt(Endian.Little);
+                            resCount = nr.ReadInt(Endian.Little);
+                            chunkCount = nr.ReadInt(Endian.Little);
+                            stringOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
+                            metaOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
+                            metaSize = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
+                            */
+                            var additionalEBXCount = item.Value.Count(x => x.Item3 == ModType.EBX);
+                            var additionalRESCount = item.Value.Count(x => x.Item3 == ModType.RES);
+                            var additionalChunkCount = item.Value.Count(x => x.Item3 == ModType.CHUNK);
+                            var additionalTotalCount = additionalEBXCount + additionalRESCount + additionalChunkCount;
+
+                            var BinarySizePosition = nwNewSB.BaseStream.Position;
+                            nrOriginalSB.Position = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(0, Endian.Big); // Size  - HeaderLength
+                            nwNewSB.Write(3599661469, Endian.Big); // Magic
+                            nwNewSB.Write(additionalTotalCount, Endian.Little); // Total Count of EBX/RES/Chunk
+                            nwNewSB.Write(additionalEBXCount, Endian.Little); // EBX Count
+                            nwNewSB.Write(additionalRESCount, Endian.Little); // RES Count
+                            nwNewSB.Write(additionalChunkCount, Endian.Little); // Chunk Count
+                            var BinaryStringOffsetPosition = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(0, Endian.Little); // String Offset - HeaderLength
+                            var BinaryMetaOffsetPosition = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(0, Endian.Little); // Meta Offset - HeaderLength
+                            var BinaryMetaSizePosition = nwNewSB.BaseStream.Position;
+                            nwNewSB.Write(0, Endian.Little); // Meta Size - HeaderLength
+                            nwNewSB.Flush();
+
+                            var msNewSha1Section = new MemoryStream();
+                            using (NativeWriter nwNewSha1Section = new NativeWriter(msNewSha1Section, leaveOpen: true))
+                            {
+                                foreach (var it in item.Value)
+                                {
+                                    nwNewSha1Section.Write(it.Item1);
+                                }
+                            }
+                            byte[] NewSha1Section = msNewSha1Section.ToArray();
+                            nwNewSB.Write(NewSha1Section);
+
+                            var msNewEBXSection = new MemoryStream();
+                            using (NativeWriter nwNewEBXSection = new NativeWriter(msNewEBXSection, leaveOpen: true))
+                            {
+                                foreach (var it in item.Value.Where(x=>x.Item3 == ModType.EBX))
+                                {
+                                    //nwNewEBXSection.Write((int)Sha1ToStringPosition[it.Item1]);
+                                    nwNewEBXSection.Write((int)0);
+                                    nwNewEBXSection.Write((int)parent.modifiedEbx[it.Item2].OriginalSize);
+                                }
+                            }
+                            byte[] NewEBXSection = msNewEBXSection.ToArray();
+                            nwNewSB.Write(NewEBXSection);
+
+                            var msNewRESSection = new MemoryStream();
+                            using (NativeWriter nwNewRESSection = new NativeWriter(msNewRESSection, leaveOpen: true))
+                            {
+                                foreach (var it in item.Value.Where(x => x.Item3 == ModType.RES))
+                                {
+                                    nwNewRESSection.Write((int)0);
+                                    //nwNewRESSection.Write((int)Sha1ToStringPosition[it.Item1]);
+                                }
+                            }
+                            byte[] NewRESSection = msNewRESSection.ToArray();
+                            nwNewSB.Write(NewRESSection);
+
+                            var msNewChunkSection = new MemoryStream();
+                            using (NativeWriter nwNewChunkSection = new NativeWriter(msNewChunkSection, leaveOpen: true))
+                            {
+                                foreach (var it in item.Value.Where(x => x.Item3 == ModType.CHUNK))
+                                {
+                                }
+                            }
+                            byte[] NewChunkSection = msNewChunkSection.ToArray();
+                            nwNewSB.Write(NewChunkSection);
+
+                            var msNewStringsSection = new MemoryStream();
+                            Dictionary<Sha1, long> Sha1ToStringPosition = new Dictionary<Sha1, long>();
+                            using (NativeWriter nwNewStringsSection = new NativeWriter(msNewStringsSection, leaveOpen: true))
+                            {
+                                foreach (var it in item.Value)
+                                {
+                                    Sha1ToStringPosition.Add(it.Item1, nwNewStringsSection.BaseStream.Position);
+                                    nwNewStringsSection.WriteNullTerminatedString(it.Item2);
+                                }
+                            }
+                            byte[] NewStringsSection = msNewStringsSection.ToArray();
+                            nwNewSB.Write(NewStringsSection);
+
+                            var msNewDataCatalogSection = new MemoryStream();
+                            using (NativeWriter nwNewDataCatalogSection = new NativeWriter(msNewDataCatalogSection, leaveOpen: true))
+                            {
+                                foreach (var it in item.Value)
+                                {
+                                    var moddata = parent.archiveData[it.Item1].Data;
+                                    // unk
+                                    nwNewDataCatalogSection.Write((byte)0);
+                                    // patch
+                                    nwNewDataCatalogSection.Write((byte)1);
+                                    // catalog
+                                    nwNewDataCatalogSection.Write((byte)cachingBundleDataToUse.LastCatalogId);
+                                    // cas
+                                    nwNewDataCatalogSection.Write((byte)cachingBundleDataToUse.LastCAS);
+                                    // offset
+                                    nwCas.BaseStream.Position = nwCas.BaseStream.Length;
+                                    nwNewDataCatalogSection.Write((int)nwCas.BaseStream.Position, Endian.Big);
+                                    nwCas.Write(moddata);
+                                    // size
+                                    nwNewDataCatalogSection.Write((int)moddata.Length, Endian.Big);
+                                }
+                            }
+                            byte[] NewDataCatalogSection = msNewDataCatalogSection.ToArray();
+                            nwNewSB.Write(NewDataCatalogSection);
+
+                            var msNewCASChangeSection = new MemoryStream();
+                            using (NativeWriter nwNewCASChangeSection = new NativeWriter(msNewCASChangeSection, leaveOpen: true))
+                            {
+                                foreach (var it in item.Value)
+                                {
+                                    nwNewCASChangeSection.Write((byte)1);
+                                }
+                            }
+                            byte[] NewCASChangeSection = msNewCASChangeSection.ToArray();
+                            nwNewSB.Write(NewCASChangeSection);
+
+                            nwNewSB.Flush();
+                        }
+                    }
+
+                    var tocPath = sbPath.Replace(".sb", ".toc");
+                    byte[] originalTOCData;
+                    using (NativeReader nrOriginalTOC = new NativeReader(new FileStream(tocPath, FileMode.Open)))
+                    {
+                        originalTOCData = nrOriginalTOC.ReadToEnd();
+                    }
+                    File.Delete(tocPath);
+                    var locationOfBundleBytes = BitConverter.GetBytes(cachingBundleDataToUse.StartOffset);
+                    BoyerMoore boyerMoore = new BoyerMoore(locationOfBundleBytes.Reverse().ToArray());
+                    var lstOfLocationsInTOC = boyerMoore.SearchAll(originalTOCData);
+
+                    using (NativeWriter nwNewTOC = new NativeWriter(new FileStream(tocPath, FileMode.CreateNew)))
+                    {
+                        nwNewTOC.Write(originalTOCData);
+                        nwNewTOC.BaseStream.Position = lstOfLocationsInTOC.First();
+                        nwNewTOC.Write(newLocationOfBundle, Endian.Big);
+                    }
+                }
             }
         }
 
