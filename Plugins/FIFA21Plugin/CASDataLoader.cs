@@ -239,6 +239,12 @@ namespace FIFA21Plugin
                             dbObject.AddValue("SB_Sha1_Position", Sha1Positions[ebxCount + resCount + i]);
                             dbObject.AddValue("sha1", sha1[ebxCount + resCount + i]);
 
+                            if (AssetManager.Instance.chunkList.ContainsKey(guid))
+                            {
+                                AssetManager.Instance.chunkList[guid].Sha1 = sha1[ebxCount + resCount + i];
+                                AssetManager.Instance.chunkList[guid].CASFileLocation = NativeFileLocation;
+                            }
+
                             ChunkObjectList.Add(dbObject);
                         }
 

@@ -406,8 +406,8 @@ namespace FIFALibraryNETFrameworkTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             //frostyModExecutor.UseSymbolicLinks = true;
-            //frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
-            frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+            //frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
         }
 
         [TestMethod]

@@ -145,7 +145,7 @@ namespace FIFA21Plugin
             cachingSBDataBundle.StartOffset = (int)bundleOffset;
 
             uint CatalogOffset = binarySbReader2.ReadUInt(Endian.Big);
-            uint unk1 = binarySbReader2.ReadUInt(Endian.Big) + CatalogOffset;
+            uint EndOfMeta = binarySbReader2.ReadUInt(Endian.Big) + CatalogOffset - 4; // end of META
             uint casFileForGroupOffset = binarySbReader2.ReadUInt(Endian.Big);
             var unk2 = binarySbReader2.ReadUInt(Endian.Big);
             uint CatalogAndCASOffset = binarySbReader2.ReadUInt(Endian.Big);
@@ -154,7 +154,7 @@ namespace FIFA21Plugin
             {
                 CatalogOffset = CatalogOffset
                  ,
-                unk1 = unk1
+                unk1 = EndOfMeta
                  ,
                 casFileForGroupOffset = casFileForGroupOffset
                  ,

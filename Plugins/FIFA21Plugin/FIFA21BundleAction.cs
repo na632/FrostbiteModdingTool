@@ -256,6 +256,11 @@ namespace FIFA21Plugin
                             , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
 
 
+                        if (!casPath.Contains("ModData"))
+                        {
+                            throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
+                        }
+
                         Debug.WriteLine($"Modifying CAS file - {casPath}");
                         parent.Logger.Log($"Modifying CAS file - {casPath}");
 
@@ -326,8 +331,13 @@ namespace FIFA21Plugin
                                     //}
 
                                     sbpath = parent.fs.ResolvePath(sbpath).ToLower();
-                                    sbpath = sbpath.Replace("\\patch", "\\ModData\\Patch".ToLower());
-                                    sbpath = sbpath.Replace("\\data", "\\ModData\\Data".ToLower());
+                                    sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
+                                    sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
+
+                                    if (!sbpath.ToLower().Contains("moddata"))
+                                    {
+                                        throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
+                                    }
 
                                     parent.Logger.Log($"Writing new entry in ({sbpath})");
                                     Debug.WriteLine($"Writing new entry in ({sbpath})");

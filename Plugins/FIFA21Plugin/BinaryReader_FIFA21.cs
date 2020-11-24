@@ -148,15 +148,15 @@ namespace FIFA21Plugin
                 dbObject.AddValue("SB_LogicalOffset_Position", reader.Position + baseBundleOffset);
                 uint logicalOffset = reader.ReadUInt(Endian.Little);
                 dbObject.AddValue("SB_OriginalSize_Position", reader.Position + baseBundleOffset);
-                uint size_position = reader.ReadUInt(Endian.Little);
+                uint chunkLogicalSize = reader.ReadUInt(Endian.Little);
                 //dbObject.AddValue("SB_OriginalSize_Position", reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
-                long original_size_position = (logicalOffset & 0xFFFF) | size_position;
+                long chunkOriginalSize = (logicalOffset & 0xFFFF) | chunkLogicalSize;
                 dbObject.AddValue("id", guid);
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
                 dbObject.AddValue("sha1", sha1[num + i]);
                 dbObject.AddValue("logicalOffset", logicalOffset);
-                dbObject.AddValue("logicalSize", size_position);
-                dbObject.AddValue("originalSize", original_size_position);
+                dbObject.AddValue("logicalSize", chunkLogicalSize);
+                dbObject.AddValue("originalSize", chunkOriginalSize);
                 list.Add(dbObject);
             }
             return list;
