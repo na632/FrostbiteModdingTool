@@ -63,17 +63,20 @@ namespace FIFAModdingUI.Pages.Common
 
 		public string FilterText { get; set; }
 
-		public List<IAssetEntry> FilteredAssetEntries
+		public async Task<List<IAssetEntry>> GetFilteredAssetEntries()
 		{
-			get 
+
+			return await Dispatcher.InvokeAsync(() =>
 			{
-				if (!string.IsNullOrEmpty(FilterText))
+				if (!string.IsNullOrEmpty(txtFilter.Text))
 				{
-					return allAssets.Where(x => x.Name.Contains(FilterText)).ToList();
+					return allAssets.Where(x => x.Name.Contains(txtFilter.Text)).ToList();
 				}
 				else
 					return allAssets;
-			}
+
+			});
+
 		}
 
 		public List<string> CurrentAssets { get; set; }
@@ -100,10 +103,13 @@ namespace FIFAModdingUI.Pages.Common
 		private Dictionary<string, AssetPath> assetPathMapping = new Dictionary<string, AssetPath>(StringComparer.OrdinalIgnoreCase);
 		private AssetPath selectedPath;
 
-		public void Update()
+		public async void Update()
         {
 			AssetPath assetPath = new AssetPath("", "", null);
-			foreach (AssetEntry item in FilteredAssetEntries)
+
+			var assets = await GetFilteredAssetEntries();
+
+			foreach (AssetEntry item in assets)
 			{
 				//if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
 				{
@@ -166,7 +172,7 @@ namespace FIFAModdingUI.Pages.Common
 			//	assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
 			//}));
 
-			Dispatcher.InvokeAsync((Action)(() =>
+			await Dispatcher.InvokeAsync((Action)(() =>
 			{
 				assetTreeView.ItemsSource = assetPath.Children;
 				assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
@@ -559,6 +565,9 @@ namespace FIFAModdingUI.Pages.Common
 						lblImageDDSType.Content = textureAsset.PixelFormat;
 						lblImageRESType.Content = textureAsset.Type;
 						lblImageSize.Content = textureAsset.Width + "x" + textureAsset.Height;
+						lblImageCASFile.Content = res.ExtraData.CasPath;
+						lblImageCASOffset.Content = res.ExtraData.DataOffset;
+						lblImageBundleFile.Content = !string.IsNullOrEmpty(res.SBFileLocation) ? res.SBFileLocation : res.TOCFileLocation;
 
 						btnExport.IsEnabled = true;
 						btnImport.IsEnabled = true; 
@@ -608,12 +617,15 @@ namespace FIFAModdingUI.Pages.Common
 
         private void txtFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
-			Update();
+			//Update();
         }
 
         private void txtFilter_KeyUp(object sender, KeyEventArgs e)
         {
-			Update();
+			if (e.Key == Key.Enter)
+			{
+				Update();
+			}
         }
     }
 

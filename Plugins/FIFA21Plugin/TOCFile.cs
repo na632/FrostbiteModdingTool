@@ -464,6 +464,9 @@ namespace FIFA21Plugin
 									chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
 									uint chunkSize = nativeReader.ReadUInt(Endian.Big);
 									chunkAssetEntry2.Id = tocChunkGuids[chunkIndex];
+
+									//long origSize = (logicalOffset & 0xFFFF) | chunkSize;
+
 									if (chunkAssetEntry2.Id.ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
 									{
 

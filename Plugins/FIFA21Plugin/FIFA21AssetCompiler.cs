@@ -125,12 +125,12 @@ namespace FIFA21Plugin
                 //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
                 //{
 
-                //FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
+                FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
                 ////FIFA21BANewPatchSB fifaBundleAction = new FIFA21BANewPatchSB((FrostyModExecutor)frostyModExecuter);
-                //fifaBundleAction.Run();
+                fifaBundleAction.Run();
 
-                FIFA21ContentPatchBuilder contentPatchBuilder = new FIFA21ContentPatchBuilder((FrostyModExecutor)frostyModExecuter);
-                contentPatchBuilder.TransferDataToPatch();
+                //FIFA21ContentPatchBuilder contentPatchBuilder = new FIFA21ContentPatchBuilder((FrostyModExecutor)frostyModExecuter);
+                //contentPatchBuilder.TransferDataToPatch();
 
                 //numberOfCatalogsCompleted++;
                 //logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");

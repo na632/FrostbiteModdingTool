@@ -36,12 +36,12 @@ namespace FIFA21Plugin
 
 					// not neccessary
 					//|| TOCFile.FileLocation.Contains(@"data\win32/careersba")
-					//|| TOCFile.FileLocation.Contains(@"data\win32/ui")
+					|| TOCFile.FileLocation.Contains(@"data\win32/ui")
 					// adboards and stadiums
 					//|| TOCFile.FileLocation.Contains(@"data\win32/worldssb")
 
 					// globals wont load properly
-					//|| FileLocation.Contains(@"data\win32/globals")
+					|| TOCFile.FileLocation.Contains(@"data\win32/globals")
 					)
 				{
 					//if(FileLocation.Contains(@"data\win32/"))
@@ -71,23 +71,23 @@ namespace FIFA21Plugin
 						nativeReader.Position = p + readerBeforeSearch - 4;
 						var totalityOffsetCount = nativeReader.ReadInt(Endian.Big);
 						// 0x20 x 3
-						_ = nativeReader.ReadInt();
-						_ = nativeReader.ReadInt();
-						_ = nativeReader.ReadInt();
-						_ = nativeReader.ReadInt();
+						var unk1 = nativeReader.ReadInt(Endian.Big);
+						var unk2 = nativeReader.ReadInt(Endian.Big);
+						var unk3 = nativeReader.ReadInt(Endian.Big);
+						var unk4 = nativeReader.ReadInt(Endian.Big);
 
-						_ = nativeReader.ReadByte();
-						_ = nativeReader.ReadByte();
+						var unk5 = nativeReader.ReadByte();
+						var unk6 = nativeReader.ReadByte();
 						var catalog = (int)nativeReader.ReadByte();
 						var cas = (int)nativeReader.ReadByte();
-
-						//_ = nativeReader.ReadInt();
 
 						CASBundle bundle = new CASBundle();
 						bundle.Catalog = catalog;
 						bundle.Cas = cas;
 						bundle.BundleOffset = nativeReader.ReadInt(Endian.Big);
 						bundle.DataOffset = nativeReader.ReadInt(Endian.Big);
+						bundle.TOCOffsets.Add(bundle.BundleOffset);
+						bundle.TOCSizes.Add(bundle.DataOffset);
 						for (var i = 1; i < totalityOffsetCount; i++)
 						{
 							bundle.TOCOffsets.Add(nativeReader.Position);

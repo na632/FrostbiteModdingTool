@@ -96,7 +96,8 @@ namespace FIFA21Plugin
 
                         var size = inner_reader.ReadInt(Endian.Big);
                         var magicStuff = inner_reader.ReadUInt(Endian.Big);
-                        if (magicStuff != 3599661469) return;
+                        if (magicStuff != 3599661469) 
+                            return;
                             //throw new Exception("Magic/Hash is not right, expecting 3599661469");
 
                         var totalCount = inner_reader.ReadInt(Endian.Little);
@@ -241,6 +242,7 @@ namespace FIFA21Plugin
 
                             if (AssetManager.Instance.chunkList.ContainsKey(guid))
                             {
+                                AssetManager.Instance.chunkList[guid].SB_Sha1_Position = (int)Sha1Positions[ebxCount + resCount + i];
                                 AssetManager.Instance.chunkList[guid].Sha1 = sha1[ebxCount + resCount + i];
                                 AssetManager.Instance.chunkList[guid].CASFileLocation = NativeFileLocation;
                             }
@@ -298,53 +300,49 @@ namespace FIFA21Plugin
                         //var positionBeforeLoad = inner_reader.Position;
                         for (var i = 0; i < ebxCount; i++)
                         {
-                            //if (casBundle.Offsets.Count - 1 > i )
+                            var ebxobjectinlist = EbxObjectList[i];
+
+                            EbxObjectList[i].SetValue("offset", casBundle.Offsets[i]);
+                            EbxObjectList[i].SetValue("size", casBundle.Sizes[i]);
+
+                            EbxObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                            EbxObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[i]);
+                            EbxObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[i]);
+
+                            var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
+                            bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
+
+                            using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
                             {
-                                var new_pos = casBundle.Offsets[i] - casBundle.BundleOffset;
-                                if (new_pos < 0 || new_pos > inner_reader.Length)
-                                    break;
-
-                                inner_reader.Position = new_pos;
-                                EbxObjectList[i].SetValue("offset", casBundle.BundleOffset + inner_reader.Position);
-                                EbxObjectList[i].SetValue("size", casBundle.Sizes[i]);
-
-                                EbxObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
-                                EbxObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[i]);
-                                EbxObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[i]);
-
-                                using (var vs = inner_reader.CreateViewStream(inner_reader.Position, casBundle.Sizes[i]))
+                                CasReader casReader = new CasReader(vs);
+                                var b = casReader.ReadBlock();
+                                if (b != null && b.Length > 0)
                                 {
-                                    CasReader casReader = new CasReader(vs);
-                                    var b = casReader.ReadBlock();
-                                    if (b != null && b.Length > 0)
-                                    {
-                                        var ms = new MemoryStream();
-                                        NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
-                                        nativeWriter_ForMS.Write(b);
-                                        ms.Position = 0;
-                                        EbxReader_F21 ebxReader_F21 = new EbxReader_F21(ms, AssetManager.Instance.fs, false);
-                                        //ebxReader_F21.InternalReadObjects();
-                                        EbxObjectList[i].AddValue("loaded", 1);
+                                    //var ms = new MemoryStream();
+                                    //NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
+                                    //nativeWriter_ForMS.Write(b);
+                                    //ms.Position = 0;
+                                    //EbxReader_F21 ebxReader_F21 = new EbxReader_F21(ms, AssetManager.Instance.fs, false);
+                                    //ebxReader_F21.InternalReadObjects();
+                                    EbxObjectList[i].AddValue("loaded", 1);
 
-                                    }
                                 }
                             }
                         }
-                        for (var i = 0; i < resCount && casBundle.Offsets.Count - 1 > ebxCount + i; i++)
+                        for (var i = 0; i < resCount; i++)
                         {
-                            var new_pos = casBundle.Offsets[ebxCount + i] - casBundle.BundleOffset;
-                            if (new_pos < 0 || new_pos > inner_reader.Length)
-                                break;
-
-                            inner_reader.Position = new_pos;
-                            ResObjectList[i].SetValue("offset", casBundle.BundleOffset + inner_reader.Position);
+                            ResObjectList[i].SetValue("offset", casBundle.Offsets[ebxCount + i]);
                             ResObjectList[i].SetValue("size", casBundle.Sizes[ebxCount + i]);
 
                             ResObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                             ResObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + i]);
                             ResObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + i]);
 
-                            using (var vs = inner_reader.CreateViewStream(inner_reader.Position, casBundle.Sizes[ebxCount + i]))
+
+                            var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
+                            bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
+
+                            using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
                             {
                                 CasReader casReader = new CasReader(vs);
                                 var b = casReader.ReadBlock();
@@ -353,28 +351,45 @@ namespace FIFA21Plugin
                                     ResObjectList[i].AddValue("loaded", 1);
                                 }
                             }
+                           
                         }
                         //for (var i = 0; i < chunkCount && casBundle.Offsets.Count - 1 > ebxCount + resCount + i; i++)
-                        for (var i = 0; i < chunkCount
-                            && casBundle.Offsets.Count > ebxCount + resCount + i
-                            ; i++)
+                        for (var i = 0; i < chunkCount; i++)
                         {
                             if(ChunkObjectList[i].GetValue<Guid>("id").ToString() == "64c1f350-a32a-8b77-d962-af3887e656d5")
                             {
 
+                         
                             }
-                            var new_pos = casBundle.Offsets[ebxCount + resCount + i] - casBundle.BundleOffset;
-                            if (new_pos < 0 || new_pos > inner_reader.Length)
-                                break;
+                            if (ChunkObjectList[i].GetValue<Guid>("id").ToString() == "c03a15a9-6747-22dd-c760-af2e149e6223") // Juventus Test
+                            {
 
-                            inner_reader.Position = new_pos;
-                            //ChunkObjectList[i].SetValue("offset", casBundle.BundleOffset + inner_reader.Position);
-                            ChunkObjectList[i].SetValue("offset", casBundle.Offsets[ebxCount + resCount + i]);
-                            ChunkObjectList[i].SetValue("size", casBundle.Sizes[ebxCount + resCount + i]);
+                            }
 
-                            ChunkObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
-                            ChunkObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
-                            ChunkObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + resCount + i]);
+                            if (casBundle.Offsets.Count > ebxCount + resCount + i)
+                            {
+                                //var new_pos = casBundle.Offsets[ebxCount + resCount + i] - casBundle.BundleOffset;
+                                //if ((new_pos < 0))//|| new_pos > inner_reader.Length))
+                                //    continue;
+
+                                //ChunkObjectList[i].SetValue("offset", casBundle.BundleOffset + inner_reader.Position);
+                                ChunkObjectList[i].SetValue("offset", casBundle.Offsets[ebxCount + resCount + i]);
+                                ChunkObjectList[i].SetValue("size", casBundle.Sizes[ebxCount + resCount + i]);
+
+                                ChunkObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                                ChunkObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
+                                ChunkObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + resCount + i]);
+                            }
+                            else if(parent.chunkList.ContainsKey(ChunkObjectList[i].GetValue<Guid>("id")))
+                            {
+                                var originalChunk = parent.chunkList[ChunkObjectList[i].GetValue<Guid>("id")];
+                                ChunkObjectList[i].SetValue("offset", originalChunk.ExtraData.DataOffset);
+                                ChunkObjectList[i].SetValue("size", originalChunk.Size);
+
+                                ChunkObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                                ChunkObjectList[i].SetValue("SB_CAS_Offset_Position", originalChunk.SB_CAS_Offset_Position);
+                                ChunkObjectList[i].SetValue("SB_CAS_Size_Position", originalChunk.SB_CAS_Size_Position);
+                            }
 
                         }
 
@@ -440,7 +455,7 @@ namespace FIFA21Plugin
 
                             if (item.GetValue<int>("loaded", 0) == 1)
                             {
-                                if (!parent.resList.ContainsKey(resAssetEntry.Name))
+                                if (!parent.resList.ContainsKey(resAssetEntry.Name) && !parent.resRidList.ContainsKey(resAssetEntry.ResRid))
                                     parent.AddRes(resAssetEntry);
 
                                 CASRESEntries.Add(resAssetEntry);

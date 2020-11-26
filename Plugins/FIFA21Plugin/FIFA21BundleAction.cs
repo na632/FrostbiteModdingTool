@@ -291,16 +291,43 @@ namespace FIFA21Plugin
                                     case ModType.CHUNK:
                                         originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(modItem.Item2));
 
-                                        ChunkDups.AddRange(AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)).Where(x => x.ExtraData != null && x.ExtraData.DataOffset > 0));
-                                        
+
+                                        ChunkDups.AddRange(AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)));
+
                                         break;
                                 }
                                 if (originalEntry != null)
                                 {
                                     data = parent.archiveData[modItem.Item1].Data;
                                 }
-                               
+
+
+
+                                //if (modItem.Item3 == ModType.RES)
+                                //    continue;
+
+                                //if(data.Length > 0
+                                //    && originalEntry.ExtraData.CasPath.Contains("native_data")
+                                   
+                                //    && 
+                                //     originalEntry.ExtraData.DataOffset > 0
+                                //    //&&
+                                    
+                                //    //( modItem.Item3 == ModType.RES || modItem.Item3 == ModType.CHUNK )
+                                //    && modItem.Item3 == ModType.CHUNK
+                                //    )
+                                //{
+                                //    if(data.Length != originalEntry.Size)
+                                //    {
+
+                                //    }
+                                //    nwCas.BaseStream.Position = originalEntry.ExtraData.DataOffset;
+                                //    nwCas.Write(data);
+                                //}
+                                //else 
                                 if (data.Length > 0)
+
+                                //&& originalEntry.ExtraData.CasPath.Contains("native_patch"))
                                 {
                                     // write the new data to end of the file (this should be fine)
                                     positionOfNewData = (int)nwCas.BaseStream.Position;
@@ -308,92 +335,10 @@ namespace FIFA21Plugin
 
                                     parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
                                     Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
-
-                                    var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
-                                    var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
-                                    var sb_sha1_position = originalEntry.SB_Sha1_Position;
-                                    var sb_original_size_position = originalEntry.SB_OriginalSize_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
-
-                                    var CasSha1 = false;
-                                    var sbpath = string.Empty;
-                                    //parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
-                                    if (!string.IsNullOrEmpty(originalEntry.SBFileLocation))
-                                        sbpath = originalEntry.SBFileLocation;
-                                    else if (!string.IsNullOrEmpty(originalEntry.TOCFileLocation))
+                                    ChangeSB(positionOfNewData, modItem, data.Length, originalEntry, nwCas);
+                                    for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
                                     {
-                                        sbpath = originalEntry.TOCFileLocation;
-                                        CasSha1 = true;
-                                    }
-
-                                    //if (!string.IsNullOrEmpty(originalEntry.CASFileLocation))
-                                    //{
-                                    //    CasSB = true;
-                                    //}
-
-                                    sbpath = parent.fs.ResolvePath(sbpath).ToLower();
-                                    sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
-                                    sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
-
-                                    if (!sbpath.ToLower().Contains("moddata"))
-                                    {
-                                        throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
-                                    }
-
-                                    parent.Logger.Log($"Writing new entry in ({sbpath})");
-                                    Debug.WriteLine($"Writing new entry in ({sbpath})");
-
-                                    if (CasSha1)
-                                    {
-                                        //nwCas.BaseStream.Position = sb_cas_offset_position;
-                                        //nwCas.Write((uint)positionOfNewData, Endian.Big);
-
-                                        //nwCas.BaseStream.Position = sb_cas_size_position;
-                                        //nwCas.Write((uint)data.Length, Endian.Big);
-
-                                        if (sb_sha1_position != 0)
-                                        {
-                                            nwCas.BaseStream.Position = sb_sha1_position;
-                                            nwCas.Write(modItem.Item1);
-                                        }
-                                    }
-                                    //else
-                                    
-                                    
-                                    {
-                                        //bool CasSha = false;
-                                        //if (sbpath.Contains(".toc"))
-                                        //{
-                                        //    CasSha = true;
-                                        //    //nwCas.BaseStream.Position = sb_sha1_position;
-                                        //    //nwCas.Write(modItem.Item1);
-                                        //}
-
-
-                                        byte[] arrayOfSB = null;
-                                        using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
-                                        {
-                                            arrayOfSB = nativeReader.ReadToEnd();
-                                        }
-                                        File.Delete(sbpath);
-                                        using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
-                                        {
-                                            nw_sb.Write(arrayOfSB);
-                                            nw_sb.BaseStream.Position = sb_cas_offset_position;
-                                            nw_sb.Write((uint)positionOfNewData, Endian.Big);
-                                            nw_sb.Flush();
-
-                                            nw_sb.BaseStream.Position = sb_cas_size_position;
-                                            nw_sb.Write((uint)data.Length, Endian.Big);
-                                            nw_sb.Flush();
-
-                                            if (sb_sha1_position != 0 && !CasSha1)
-                                            {
-                                                nw_sb.BaseStream.Position = sb_sha1_position;
-                                                nw_sb.Write(modItem.Item1);
-                                                nw_sb.Flush();
-                                            }
-
-                                        }
+                                        ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
                                     }
                                 }
                             }
@@ -407,6 +352,98 @@ namespace FIFA21Plugin
                 throw e;
             }
 
+        }
+
+        private void ChangeSB(int positionOfNewData, Tuple<Sha1, string, ModType, bool> modItem, int sizeOfData, AssetEntry originalEntry, NativeWriter nwCas)
+        {
+            var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
+            var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
+            var sb_sha1_position = originalEntry.SB_Sha1_Position;
+            //var sb_original_size_position = originalEntry.SB_OriginalSize_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
+
+            var CasSha1 = false;
+            var sbpath = string.Empty;
+            //parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
+            if (!string.IsNullOrEmpty(originalEntry.SBFileLocation))
+                sbpath = originalEntry.SBFileLocation;
+            else if (!string.IsNullOrEmpty(originalEntry.TOCFileLocation))
+            {
+                sbpath = originalEntry.TOCFileLocation;
+                CasSha1 = true;
+            }
+
+            //if (!string.IsNullOrEmpty(originalEntry.CASFileLocation))
+            //{
+            //    CasSB = true;
+            //}
+
+            sbpath = parent.fs.ResolvePath(sbpath).ToLower();
+            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
+            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
+
+            if (!sbpath.ToLower().Contains("moddata"))
+            {
+                throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
+            }
+
+            //parent.Logger.Log($"Writing new entry in ({sbpath})");
+            //Debug.WriteLine($"Writing new entry in ({sbpath})");
+
+            if (CasSha1)
+            {
+                //nwCas.BaseStream.Position = sb_cas_offset_position;
+                //nwCas.Write((uint)positionOfNewData, Endian.Big);
+
+                //nwCas.BaseStream.Position = sb_cas_size_position;
+                //nwCas.Write((uint)data.Length, Endian.Big);
+
+                //if (sb_sha1_position != 0)
+                //{
+                //    nwCas.BaseStream.Position = sb_sha1_position;
+                //    nwCas.Write(modItem.Item1);
+                //}
+            }
+            //else
+
+
+            {
+                //bool CasSha = false;
+                //if (sbpath.Contains(".toc"))
+                //{
+                //    CasSha = true;
+                //    //nwCas.BaseStream.Position = sb_sha1_position;
+                //    //nwCas.Write(modItem.Item1);
+                //}
+
+
+                byte[] arrayOfSB = null;
+                using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+                {
+                    arrayOfSB = nativeReader.ReadToEnd();
+                }
+                File.Delete(sbpath);
+                using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+                {
+                    nw_sb.Write(arrayOfSB);
+                    nw_sb.BaseStream.Position = sb_cas_offset_position;
+                    nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                    nw_sb.Flush();
+
+                    nw_sb.BaseStream.Position = sb_cas_size_position;
+                    nw_sb.Write((uint)sizeOfData, Endian.Big);
+                    nw_sb.Flush();
+
+                    if (sb_sha1_position != 0 && !CasSha1)
+                    {
+                        nw_sb.BaseStream.Position = sb_sha1_position;
+                        nw_sb.Write(modItem.Item1);
+                        nw_sb.Flush();
+                    }
+
+                }
+
+                
+            }
         }
 
         private string GetNewCasPath(

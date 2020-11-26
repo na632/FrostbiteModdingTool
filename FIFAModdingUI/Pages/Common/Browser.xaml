@@ -28,7 +28,7 @@
             <DockPanel Grid.Row="0">
                 <Label  DockPanel.Dock="Left">Filter:</Label>
                 <TextBox DockPanel.Dock="Right" x:Name="txtFilter" Text="{Binding FilterText}" 
-                             TextChanged="txtFilter_TextChanged" ></TextBox>
+                             KeyUp="txtFilter_KeyUp" ></TextBox>
             </DockPanel>
             <TreeView Grid.Row="1" x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible"  BorderBrush="LightGray" BorderThickness="1">
                 <TreeView.ItemTemplate>
@@ -107,6 +107,14 @@
                 <Image x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="512" MaxHeight="512">
                 
                 </Image>
+                <StackPanel Orientation="Horizontal">
+                    <Label>CAS File:</Label>
+                    <Label x:Name="lblImageCASFile"></Label>
+                    <Label>CAS Offset:</Label>
+                    <Label x:Name="lblImageCASOffset"></Label>
+                    <Label>Bundle File:</Label>
+                    <Label x:Name="lblImageBundleFile"></Label>
+                </StackPanel>
             </StackPanel>
             
             <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999"  Visibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Visible">

@@ -129,10 +129,6 @@
       <Link>v2k4Encryption.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="E:\Origin Games\FIFA 20\v20.0.1.3a\FIFALiveEditor.DLL">
-      <Link>FIFALiveEditor.DLL</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="FrostySdk.Profiles.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
