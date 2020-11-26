@@ -149,6 +149,31 @@ namespace FIFAModdingUI
             }
         }
 
+        public async void LogAsync(string in_text)
+        {
+            var txt = string.Empty;
+            Dispatcher.Invoke(() => {
+                txt = txtLog.Text;
+            });
+
+            var text = await Task.Run(() =>
+            {
+                var stringBuilder = new StringBuilder();
+
+                stringBuilder.Append(txt);
+                stringBuilder.AppendLine(in_text);
+
+                return stringBuilder.ToString();
+            });
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                txtLog.Text = text;
+                txtLog.ScrollToEnd();
+            });
+
+        }
+
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
             if (GameInstanceSingleton.GAMEVERSION != null)
@@ -236,54 +261,75 @@ namespace FIFAModdingUI
                 });
                 await Task.Delay(1000);
 
-                    if (AssetManager.Instance == null)
+                    try
                     {
-                        Log("Asset Manager is not initialised - Starting");
-                        ProjectManagement projectManagement = new ProjectManagement(
-                            GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION
-                            , this);
-                        Log("Asset Manager loading complete");
+                        if (AssetManager.Instance == null)
+                        {
+                            Log("Asset Manager is not initialised - Starting");
+                            ProjectManagement projectManagement = new ProjectManagement(
+                                GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe"
+                                , this);
+                            Log("Asset Manager loading complete");
+                        }
+                    }
+                    catch(Exception AssetManagerException)
+                    {
+                        LogError(AssetManagerException.ToString());
+                        return;
                     }
                     //Dispatcher.Invoke(() =>
                     //{
 
                     Log("Mod Compiler Started for " + GameInstanceSingleton.GAMEVERSION);
 
-                    await LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems, this, GameInstanceSingleton.GAMEVERSION, true, useSymbolicLink);
-
-                    if (useLegacyMods)
+                    var launchSuccess = false;
+                    try
                     {
-                        string legacyModSupportFile = null;
-                        if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
-                        {
-                            legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
-                        }
-                        else if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
-                        {
-                            legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
-                        }
+                        var launchTask = LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems, this, GameInstanceSingleton.GAMEVERSION, true, useSymbolicLink);
+                        launchSuccess = await launchTask;
+                    }
+                    catch(Exception launchException)
+                    {
+                        Log("[ERROR] Error caught in Launch Task. You must fix the error before using this Launcher.");
+                        LogError(launchException.ToString());
+                    }
+                    if (launchSuccess)
+                    {
 
-                        if (!string.IsNullOrEmpty(legacyModSupportFile)) {
-
-                            if (File.Exists(legacyModSupportFile))
+                        if (useLegacyMods)
+                        {
+                            string legacyModSupportFile = null;
+                            if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
                             {
-                                File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
+                                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                            }
+                            else if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
+                            {
+                                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
                             }
 
-                            var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
-                            //var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
-                            //Debug.WriteLine(legmodsupportdllpath);
-                            //Debug.WriteLine(actualsupportdllpath);
-                            GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                            if (!string.IsNullOrEmpty(legacyModSupportFile))
+                            {
+
+                                if (File.Exists(legacyModSupportFile))
+                                {
+                                    File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
+                                }
+
+                                var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                                //var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
+                                //Debug.WriteLine(legmodsupportdllpath);
+                                //Debug.WriteLine(actualsupportdllpath);
+                                GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                            }
+                        }
+
+                        if (useLiveEditor)
+                        {
+                            if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
+                                GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                         }
                     }
-
-                    if (useLiveEditor)
-                    {
-                        if(File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
-                            GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
-                    }
-                       
                     //});
                     await Task.Delay(1000);
                     Dispatcher.Invoke(() =>
@@ -393,25 +439,20 @@ namespace FIFAModdingUI
 
         public void Log(string text, params object[] vars)
         {
-            Dispatcher.Invoke(() =>
-            {
-                lblProgressText.Text = text;
-            });
+            LogAsync(text);
         }
 
         public void LogWarning(string text, params object[] vars)
         {
-            Dispatcher.Invoke(() =>
-            {
-                lblProgressText.Text = text;
-            });
+            LogAsync("[WARNING] " + text);
         }
 
         public void LogError(string text, params object[] vars)
         {
-            Dispatcher.Invoke(() =>
+            
+            Dispatcher.InvokeAsync(() =>
             {
-                lblProgressText.Text = text;
+                File.WriteAllText("ErrorLog.txt", DateTime.Now.ToString() + " \n" + text);
             });
         }
 

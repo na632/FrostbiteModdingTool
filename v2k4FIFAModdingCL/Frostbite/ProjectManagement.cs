@@ -21,6 +21,9 @@ namespace v2k4FIFAModding.Frosty
         {
             if (!string.IsNullOrEmpty(filePath))
             {
+                if (!File.Exists(filePath))
+                    throw new FileNotFoundException("File path / Game EXE doesn't exist");
+
                 var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
                 GameInstanceSingleton.GAMERootPath = FIFADirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);

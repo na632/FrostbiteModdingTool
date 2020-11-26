@@ -57,11 +57,16 @@ namespace FIFA21Plugin
         /// <returns></returns>
         public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
+            if (!ProfilesLibrary.IsFIFA21DataVersion())
+            {
+                logger.Log("[ERROR] Wrong compiler used for Game");
+                return false;
+            }
 
             // ------------------------------------------------------------------------------------------
             // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
-            if (ProfilesLibrary.IsFIFA21DataVersion())
-            {
+            //if (ProfilesLibrary.IsFIFA21DataVersion())
+            //{
                 DbObject layoutToc = null;
 
                 // Read the original Layout TOC into a DB Object
@@ -80,7 +85,7 @@ namespace FIFA21Plugin
                 //if (!((FrostyModExecutor)frostyModExecuter).UseSymbolicLinks)
                 //{
                     //logger.Log("No Symbolic Link - Copying files from Data to ModData");
-                    CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
+                    //CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
 
                     //Task.WaitAll(tasks);
                 //}
@@ -182,8 +187,8 @@ namespace FIFA21Plugin
                 // --------------------------------------------------------------------------------------
 
                 return true;
-            }
-            return false;
+            //}
+            //return false;
         }
 
         private static void CopyDataFolder(string from_datafolderpath, string to_datafolderpath, ILogger logger)

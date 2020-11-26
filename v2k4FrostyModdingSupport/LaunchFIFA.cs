@@ -17,26 +17,28 @@ namespace FIFAModdingUI
             LaunchAsync(FIFARootPath, ModDirectory, OrderedListOfMods, logger, FIFAVERSION, buildMods).Wait();
         }
 
-        public static async Task<int> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true, bool useSymbolicLink = true)
+        public static async Task<bool> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true, bool useSymbolicLink = true)
         {
-
-            
-
             if (logger == null)
+            {
                 logger = new TestLog();
+                logger.Log("[ERROR] No logger provided for launching service");
+            }
 
             if (!ProfilesLibrary.Initialize(FIFAVERSION))
             {
                 throw new Exception("Unable to Initialize Profile");
             }
+            logger.Log("[DEBUG] Profile Initialised");
+
             FileSystem fileSystem = new FileSystem(FIFARootPath);
             foreach (FileSystemSource source in ProfilesLibrary.Sources)
             {
                 fileSystem.AddSource(source.Path, source.SubDirs);
             }
             fileSystem.Initialize();
-            _ = new FrostyProfile("Default");
-
+            logger.Log("[DEBUG] File System Initialised");
+            
             logger.Log("Running Mod Executer");
             var fme = new FrostyModExecutor();
             fme.UseSymbolicLinks = useSymbolicLink;

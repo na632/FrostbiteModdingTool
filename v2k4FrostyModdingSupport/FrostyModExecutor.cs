@@ -5375,7 +5375,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
         //    return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
         //}
 
-        public void InitializePlugins()
+        public bool InitializePlugins()
         {
             if (Directory.Exists("Plugins"))
             {
@@ -5383,19 +5383,33 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 {
                     if (p.ToLower().EndsWith(".dll"))
                     {
-                        PluginAssemblies.Add(Assembly.LoadFrom(p));
+                        logger.Log($"Loading Plugin {p}");
+                        try
+                        {
+                            var assemble = Assembly.LoadFrom(p);
+                            PluginAssemblies.Add(assemble);
+                        }
+                        catch(Exception e)
+                        {
+                            logger.LogError(e.Message);
+                            logger.Log("[ERROR] Unable to load Plugin. It may be blocked by antivirus.");
+                            return false;
+                        }
                     }
                 }
+                return true;
             }
+            return false;
         }
 
         public async Task<bool> BuildModData(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
         {
-            InitializePlugins();
-
-
             fs = inFs;
             Logger = inLogger;
+
+            if (!InitializePlugins())
+                return false;
+
             string modPath = fs.BasePath + modDirName + "\\";
             string patchPath = "Patch";
             //if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
@@ -5722,29 +5736,29 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 {
                     //Directory.Delete(modPath, true);
 
-                    if (Directory.Exists(modPath))
-                    {
-                        foreach (string file in Directory.EnumerateFiles(modPath, "*.*", SearchOption.AllDirectories))
-                        {
-                            if (FileIsSymbolic(file))
-                            {
+                    //if (Directory.Exists(modPath))
+                    //{
+                    //    foreach (string file in Directory.EnumerateFiles(modPath, "*.*", SearchOption.AllDirectories))
+                    //    {
+                    //        if (FileIsSymbolic(file))
+                    //        {
 
-                            }
-                            if (file.Contains(modPath))
-                            {
+                    //        }
+                    //        if (file.Contains(modPath))
+                    //        {
 
-                            }
-                        }
-                    }
+                    //        }
+                    //    }
+                    //}
 
                     Logger.Log("Creating mod data directory");
                     Directory.CreateDirectory(modPath);
 
                     // Symbolic link the Data folder
-                    if (UseSymbolicLinks)
-                    {
-                        SymbolicLinkList.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
-                    }
+                    //if (UseSymbolicLinks)
+                    //{
+                    //    SymbolicLinkList.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
+                    //}
 
                     if (!ProfilesLibrary.IsFIFA21DataVersion())
                     {
@@ -5786,6 +5800,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                 {
                                     if (t.Name == ProfilesLibrary.AssetCompilerName)
                                     {
+                                        Logger.Log("Attempting to load Compiler for " + GameEXEPath);
+
                                         ((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this);
                                     }
                                 }
@@ -5912,7 +5928,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             return FrostyModsFound;
         }
 
-        public async Task<int> Run(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
+        public async Task<bool> Run(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
         {
             fs = inFs;
             string modPath = fs.BasePath + modDirName + "\\";
@@ -5945,9 +5961,9 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
-            
+
             //});
-            return 0;
+            return true;
         }
 
         private void WriteArchiveData(string catalog, CasDataEntry casDataEntry)

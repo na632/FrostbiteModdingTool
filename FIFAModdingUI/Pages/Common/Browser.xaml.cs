@@ -68,12 +68,44 @@ namespace FIFAModdingUI.Pages.Common
 
 			return await Dispatcher.InvokeAsync(() =>
 			{
-				if (!string.IsNullOrEmpty(txtFilter.Text))
+				var assets = allAssets;
+				if (assets != null)
 				{
-					return allAssets.Where(x => x.Name.Contains(txtFilter.Text)).ToList();
+					bool OnlyModified 
+					= chkShowOnlyModified.IsChecked.HasValue 
+					&& chkShowOnlyModified.IsChecked.Value;
+
+					if (!string.IsNullOrEmpty(txtFilter.Text))
+					{
+						assets = assets.Where(x =>
+							x.Name.Contains(txtFilter.Text)
+							).ToList();
+					}
+
+					assets = assets.Where(x => 
+						
+						(
+						chkShowOnlyModified.IsChecked == true 
+						&& x.IsModified
+						)
+						|| chkShowOnlyModified.IsChecked == false
+						
+						).ToList();
+
+					//assets = assets.Where(
+					//	x =>
+					//	(chkShowOnlyModified.IsChecked == true && x.IsModified)
+					//	|| chkShowOnlyModified.IsChecked == false
+
+					//	//(chkShowOnlyModified.IsChecked.HasValue
+					//	//&& chkShowOnlyModified.IsChecked.Value == true
+					//	//&& x.IsModified == true)
+					//	//|| 
+					//	//(chkShowOnlyModified.IsChecked == false)
+					//	).ToList();
+
 				}
-				else
-					return allAssets;
+				return assets;
 
 			});
 
@@ -361,6 +393,19 @@ namespace FIFAModdingUI.Pages.Common
 			}
         }
 
+		private void Label_KeyUp(object sender, KeyEventArgs e)
+		{
+			if(e.Key == Key.Enter || e.Key == Key.Return)
+            {
+				Label label = sender as Label;
+				if (label != null && label.Tag != null)
+				{
+					SelectedAssetPath = label.Tag as AssetPath;
+					UpdateAssetListView();
+				}
+			}
+		}
+
 		public void UpdateAssetListView()
         {
 			if (SelectedAssetPath != null)
@@ -369,6 +414,17 @@ namespace FIFAModdingUI.Pages.Common
 				{
 					var filterPath = (SelectedAssetPath.FullPath.Substring(1, SelectedAssetPath.FullPath.Length - 1));
 					var filteredAssets = AllAssetEntries.Where(x => x.Path.ToLower() == filterPath.ToLower());
+
+					filteredAssets = filteredAssets.Where(x =>
+
+						(
+						chkShowOnlyModified.IsChecked == true
+						&& x.IsModified
+						)
+						|| chkShowOnlyModified.IsChecked == false
+
+						).ToList();
+
 					assetListView.ItemsSource = filteredAssets.OrderBy(x => x.Name);
 
 				}
@@ -380,6 +436,19 @@ namespace FIFAModdingUI.Pages.Common
 
         private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+			OpenAsset(sender);
+		}
+
+		private void AssetEntry_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Enter || e.Key == Key.Return)
+			{
+				OpenAsset(sender);
+			}
+		}
+
+		private void OpenAsset(object sender)
+		{
 			try
 			{
 				SelectedEntry = null;
@@ -439,8 +508,8 @@ namespace FIFAModdingUI.Pages.Common
 								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject));
 								EBXViewer.Visibility = Visibility.Visible;
 								btnRevert.IsEnabled = true;
-								if(ebxEntry.Type == "HotspotDataAsset")
-                                {
+								if (ebxEntry.Type == "HotspotDataAsset")
+								{
 									btnImport.IsEnabled = true;
 									btnExport.IsEnabled = true;
 								}
@@ -535,7 +604,7 @@ namespace FIFAModdingUI.Pages.Common
 				}
 			}
 			catch
-            {
+			{
 				FIFA21EditorWindow.Log("Failed to load file");
 
 			}
@@ -627,6 +696,18 @@ namespace FIFAModdingUI.Pages.Common
 				Update();
 			}
         }
+
+        private void chkShowOnlyModified_Checked(object sender, RoutedEventArgs e)
+        {
+			Update();
+        }
+
+        private void chkShowOnlyModified_Unchecked(object sender, RoutedEventArgs e)
+        {
+			Update();
+		}
+
+       
     }
 
     internal class AssetPath

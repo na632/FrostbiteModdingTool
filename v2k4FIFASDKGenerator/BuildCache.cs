@@ -26,7 +26,17 @@ namespace v2k4FIFASDKGenerator
 		/// <returns></returns>
 		public bool LoadData(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
-			return LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
+			try
+			{
+				var task = LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK);
+
+				return task.Result;
+			}
+			catch(Exception LoadDataException)
+            {
+				throw LoadDataException;
+            }
+
 		}
 
 		public async Task<bool> LoadDataAsync(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)

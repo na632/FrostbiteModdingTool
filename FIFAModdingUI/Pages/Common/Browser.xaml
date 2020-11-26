@@ -9,7 +9,7 @@
             xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
 
              mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="800">
+             d:DesignHeight="720" d:DesignWidth="1280">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -25,48 +25,60 @@
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <DockPanel Grid.Row="0">
-                <Label  DockPanel.Dock="Left">Filter:</Label>
-                <TextBox DockPanel.Dock="Right" x:Name="txtFilter" Text="{Binding FilterText}" 
-                             KeyUp="txtFilter_KeyUp" ></TextBox>
-            </DockPanel>
+            <Grid Background="White" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75*" ></ColumnDefinition>
+                    <ColumnDefinition Width="312*" ></ColumnDefinition>
+                    <ColumnDefinition Width="253*" ></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <GridSplitter/>
+                <GridSplitter Grid.Column="1" ></GridSplitter>
+                <GridSplitter Grid.Column="2" ></GridSplitter>
+                <Label Grid.Column="0">Filter:</Label>
+                <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                    KeyUp="txtFilter_KeyUp"  />
+                <CheckBox Grid.Column="2" x:Name="chkShowOnlyModified" 
+                           Checked="chkShowOnlyModified_Checked" Unchecked="chkShowOnlyModified_Unchecked"
+                           Content="Show Only Modified" HorizontalAlignment="Stretch"  />
+            </Grid>
+
             <TreeView Grid.Row="1" x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible"  BorderBrush="LightGray" BorderThickness="1">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                        <Label Content="{Binding PathName}" Tag="{Binding}" MouseUp="Label_MouseUp"></Label>
+                        <Label Content="{Binding PathName}" Tag="{Binding}" MouseUp="Label_MouseUp" KeyUp="Label_KeyUp"></Label>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
         </Grid>
         <StackPanel  Grid.Column="0" Grid.Row="1">
-            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="200" BorderBrush="LightGray" BorderThickness="1">
+            <ListView x:Name="assetListView" ScrollViewer.VerticalScrollBarVisibility="Visible" Height="200" BorderBrush="LightGray" BorderThickness="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <ListView.View>
                     <GridView >
                         <GridViewColumn Header="Name">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding DisplayName}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                    <Label Content="{Binding DisplayName}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn Header="Asset Type">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding AssetType}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                    <Label Content="{Binding AssetType}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn Header="Type">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding Type}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                    <Label Content="{Binding Type}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn Header="Is Modified">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding IsModified}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" ></Label>
+                                    <Label Content="{Binding IsModified}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -95,19 +107,26 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <StackPanel x:Name="ImageViewerScreen" Visibility="Collapsed">
-                <StackPanel Orientation="Horizontal">
-                    <Label>Name: </Label><Label x:Name="lblImageName"></Label>
-                    <Label>DDS Type: </Label><Label x:Name="lblImageDDSType"></Label>
+            <Grid Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="512"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
+                    <Label>Name:</Label>
+                    <Label x:Name="lblImageName"></Label>
+                    <Label>DDS Type:</Label>
+                    <Label x:Name="lblImageDDSType"></Label>
                     <Label>RES Image Type:</Label>
                     <Label x:Name="lblImageRESType"></Label>
                     <Label>Image Size:</Label>
                     <Label x:Name="lblImageSize"></Label>
                 </StackPanel>
-                <Image x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="512" MaxHeight="512">
-                
+                <Image Grid.Row="1" x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="512" MaxHeight="512">
+
                 </Image>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel  Grid.Row="2" Background="White" Orientation="Horizontal">
                     <Label>CAS File:</Label>
                     <Label x:Name="lblImageCASFile"></Label>
                     <Label>CAS Offset:</Label>
@@ -115,13 +134,13 @@
                     <Label>Bundle File:</Label>
                     <Label x:Name="lblImageBundleFile"></Label>
                 </StackPanel>
-            </StackPanel>
-            
+            </Grid>
+
             <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999"  Visibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Visible">
-                
+
             </TextBox>
             <StackPanel x:Name="EBXViewer" Visibility="Collapsed">
-                
+
             </StackPanel>
 
             <StackPanel x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">

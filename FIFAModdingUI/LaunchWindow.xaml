@@ -80,8 +80,9 @@
                 </StackPanel>
             </Grid>
             </StackPanel>
-            <Grid Margin="5" x:Name="pnlModDescription" Visibility="Hidden">
+            <Grid Margin="5" x:Name="pnlModDescription" Visibility="Collapsed">
                 <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
@@ -102,14 +103,18 @@
                     <TextBlock  FontSize="16" >Author / Creator</TextBlock>
                     <TextBox IsReadOnly="True" x:Name="txtModAuthor"></TextBox>
                 </StackPanel>
+                    
             </Grid>
+            <StackPanel>
+            <Label>Launcher Log:</Label>
+            <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
+
+            </TextBox>
+            </StackPanel>
         </StackPanel>
        
 
-        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="#FFF3F1F1" BorderBrush="#FFC8C8C8"  >
-            <StatusBarItem>
-                <TextBlock Name="lblProgressText" Text="" Foreground="#FF483939" />
-            </StatusBarItem>
-        </StatusBar>
+        
+        
     </DockPanel>
 </Window>
