@@ -58,15 +58,15 @@ namespace FIFA21Plugin
 					//var positionInTOC = new List<int>();// casBinarySearcher.SearchAll(nativeReader.ReadToEnd());
 					var dataToEnd = nativeReader.ReadToEnd();
 					var positionInTOC = casBinarySearcher.SearchAll(dataToEnd);
-					//casBinarySearcher.SetPattern(new byte[] { 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20 });
-					//positionInTOC.AddRange(casBinarySearcher.SearchAll(dataToEnd));
-					//positionInTOC.Clear();
-					//if (FileLocation.Contains(@"globals"))
-					//{
-					//	positionInTOC.Clear();
-					//	positionInTOC.Add(271748 - (int)readerBeforeSearch);
-					//}
-					foreach (var p in positionInTOC)
+                    //casBinarySearcher.SetPattern(new byte[] { 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20 });
+                    //positionInTOC.AddRange(casBinarySearcher.SearchAll(dataToEnd));
+                    //positionInTOC.Clear();
+                    if (TOCFile.NativeFileLocation.Contains(@"globals"))
+                    {
+                        //	positionInTOC.Clear();
+                        //	positionInTOC.Add(271748 - (int)readerBeforeSearch);
+                    }
+                    foreach (var p in positionInTOC)
 					{
 						nativeReader.Position = p + readerBeforeSearch - 4;
 						var totalityOffsetCount = nativeReader.ReadInt(Endian.Big);
@@ -84,10 +84,10 @@ namespace FIFA21Plugin
 						CASBundle bundle = new CASBundle();
 						bundle.Catalog = catalog;
 						bundle.Cas = cas;
+						//bundle.TOCOffsets.Add(nativeReader.Position);
 						bundle.BundleOffset = nativeReader.ReadInt(Endian.Big);
+						//bundle.TOCSizes.Add(nativeReader.Position);
 						bundle.DataOffset = nativeReader.ReadInt(Endian.Big);
-						bundle.TOCOffsets.Add(bundle.BundleOffset);
-						bundle.TOCSizes.Add(bundle.DataOffset);
 						for (var i = 1; i < totalityOffsetCount; i++)
 						{
 							bundle.TOCOffsets.Add(nativeReader.Position);

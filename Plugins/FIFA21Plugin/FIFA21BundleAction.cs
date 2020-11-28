@@ -356,10 +356,12 @@ namespace FIFA21Plugin
 
         private void ChangeSB(int positionOfNewData, Tuple<Sha1, string, ModType, bool> modItem, int sizeOfData, AssetEntry originalEntry, NativeWriter nwCas)
         {
+            if (modItem.Item3 == ModType.RES)
+                return;
+
             var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
             var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
             var sb_sha1_position = originalEntry.SB_Sha1_Position;
-            //var sb_original_size_position = originalEntry.SB_OriginalSize_Position;// ebxObject.GetValue<int>("SB_OriginalSize_Position");
 
             var CasSha1 = false;
             var sbpath = string.Empty;
@@ -371,11 +373,6 @@ namespace FIFA21Plugin
                 sbpath = originalEntry.TOCFileLocation;
                 CasSha1 = true;
             }
-
-            //if (!string.IsNullOrEmpty(originalEntry.CASFileLocation))
-            //{
-            //    CasSB = true;
-            //}
 
             sbpath = parent.fs.ResolvePath(sbpath).ToLower();
             sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
@@ -397,11 +394,18 @@ namespace FIFA21Plugin
                 //nwCas.BaseStream.Position = sb_cas_size_position;
                 //nwCas.Write((uint)data.Length, Endian.Big);
 
-                //if (sb_sha1_position != 0)
-                //{
-                //    nwCas.BaseStream.Position = sb_sha1_position;
-                //    nwCas.Write(modItem.Item1);
-                //}
+                if (sb_sha1_position != 0)
+                {
+                    nwCas.BaseStream.Position = sb_sha1_position;
+                    var tempCasCheck = Sha1.Zero;
+
+                    using (NativeReader tempNRCAS = new NativeReader(new FileStream(AssetManager.Instance.fs.ResolvePath(originalEntry.ExtraData.CasPath), FileMode.Open)))
+                    {
+                        tempNRCAS.Position = sb_sha1_position;
+                        tempCasCheck = tempNRCAS.ReadSha1();
+                    }
+                    //nwCas.Write(modItem.Item1);
+                }
             }
             //else
 

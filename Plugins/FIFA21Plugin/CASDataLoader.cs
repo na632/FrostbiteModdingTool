@@ -380,16 +380,16 @@ namespace FIFA21Plugin
                                 ChunkObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
                                 ChunkObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + resCount + i]);
                             }
-                            else if(parent.chunkList.ContainsKey(ChunkObjectList[i].GetValue<Guid>("id")))
-                            {
-                                var originalChunk = parent.chunkList[ChunkObjectList[i].GetValue<Guid>("id")];
-                                ChunkObjectList[i].SetValue("offset", originalChunk.ExtraData.DataOffset);
-                                ChunkObjectList[i].SetValue("size", originalChunk.Size);
+                            //else if(parent.chunkList.ContainsKey(ChunkObjectList[i].GetValue<Guid>("id")))
+                            //{
+                            //    var originalChunk = parent.chunkList[ChunkObjectList[i].GetValue<Guid>("id")];
+                            //    ChunkObjectList[i].SetValue("offset", originalChunk.ExtraData.DataOffset);
+                            //    ChunkObjectList[i].SetValue("size", originalChunk.Size);
 
-                                ChunkObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
-                                ChunkObjectList[i].SetValue("SB_CAS_Offset_Position", originalChunk.SB_CAS_Offset_Position);
-                                ChunkObjectList[i].SetValue("SB_CAS_Size_Position", originalChunk.SB_CAS_Size_Position);
-                            }
+                            //    ChunkObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                            //    ChunkObjectList[i].SetValue("SB_CAS_Offset_Position", originalChunk.SB_CAS_Offset_Position);
+                            //    ChunkObjectList[i].SetValue("SB_CAS_Size_Position", originalChunk.SB_CAS_Size_Position);
+                            //}
 
                         }
 
