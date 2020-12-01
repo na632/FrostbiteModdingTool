@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI.Windows;
+using FrostbiteModdingUI.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +50,14 @@ namespace FIFAModdingUI
         {
             new LaunchWindow().Show();
             this.Close();
+        }
+
+        private void btnMadden21Editor_Click(object sender, RoutedEventArgs e)
+        {
+            App.MainEditorWindow = new Madden21Editor();
+            App.MainEditorWindow.Show();
+            this.Close();
+
         }
     }
 }

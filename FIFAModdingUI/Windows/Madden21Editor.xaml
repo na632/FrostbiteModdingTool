@@ -5,8 +5,111 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
-        Title="Madden21Editor" Height="450" Width="800">
-    <Grid>
+         xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
         
-    </Grid>
+         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+	xmlns:fbviews="clr-namespace:FolderBrowser.Views;assembly=FolderBrowser"
+        Title="Madden 21 Editor" Height="720" Width="1280"
+         SizeToContent="WidthAndHeight" MinHeight="720" MinWidth="1280"
+        ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
+         WindowStartupLocation="CenterScreen"
+        >
+
+    <DockPanel>
+
+        <Grid DockPanel.Dock="Top" ShowGridLines="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition MinHeight="400" Height="*"></RowDefinition>
+                <RowDefinition Height="*" MaxHeight="200"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <GridSplitter></GridSplitter>
+
+            <StackPanel Grid.Row="0"  Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
+                            <Label Content="New Project" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
+                            <Label Content="Open Project" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                            <Label Content="Save Project" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <!--<Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                            <Label Content="Write to Mod" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>-->
+                </StackPanel>
+                <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
+                    <TextBox x:Name="txtGameDirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game >>>>" VerticalAlignment="Center" />
+                    <Button Name="btnBrowseGameDirectory"  Height="30" Click="btnBrowseGameDirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                            <Label Content="Browse for Game" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnLaunchGameInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="False"
+                        ToolTip="Launch Game (Edited)" Click="btnLaunchGameInEditor_Click">
+                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                            <Label Content="Launch Game (Editor Project Only)" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <!--<Button x:Name="btnBuildSDK" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                        ToolTip="Rebuild SDK" Click="btnBuildSDK_Click">
+                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
+                            <Label Content="Rebuild SDK" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>-->
+
+                </StackPanel>
+
+            </StackPanel>
+            <DockPanel Grid.Row="1">
+
+                <TabControl x:Name="MainViewer">
+                    <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
+                        <StackPanel Orientation="Vertical">
+                            <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
+                        <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
+                    </TabItem>
+                    <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
+                        <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
+                    </TabItem>
+                    <TabItem x:Name="TabLegacy" Header="Legacy">
+                        <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
+                    </TabItem>
+                </TabControl>
+            </DockPanel>
+            <DockPanel Grid.Row="2" >
+                <TextBox x:Name="txtLog" DockPanel.Dock="Top" IsReadOnly="True" Text="{Binding LogText}" ScrollViewer.VerticalScrollBarVisibility="Visible">
+
+                </TextBox>
+            </DockPanel>
+
+        </Grid>
+
+
+    </DockPanel>
 </Window>

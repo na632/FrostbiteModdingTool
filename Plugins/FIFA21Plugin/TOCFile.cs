@@ -76,6 +76,19 @@ namespace FIFA21Plugin
 		public string SuperBundleName;
 
 		private TocSbReader_FIFA21 ParentReader;
+		
+		/// <summary>
+		/// Only for testing
+		/// </summary>
+		public TOCFile()
+        {
+
+        }
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parent"></param>
 		public TOCFile(TocSbReader_FIFA21 parent)
         {
 			ParentReader = parent;
@@ -101,66 +114,66 @@ namespace FIFA21Plugin
 
 			public void Read(NativeReader nativeReader)
 			{
-				Magic = nativeReader.ReadInt(Endian.Big);
-				CasIndexingLength = nativeReader.ReadInt(Endian.Big);
-				BundleCount = nativeReader.ReadInt(Endian.Big);
-				Offset1 = nativeReader.ReadInt(Endian.Big);
-				Offset2 = nativeReader.ReadInt(Endian.Big);
-				ChunkCount = nativeReader.ReadInt(Endian.Big);
-				Offset4 = nativeReader.ReadInt(Endian.Big);
-				Offset5 = nativeReader.ReadInt(Endian.Big);
-				Offset6 = nativeReader.ReadInt(Endian.Big);
-				Offset7 = nativeReader.ReadInt(Endian.Big);
-				CountOfSomething = nativeReader.ReadInt(Endian.Big);
-				
-				
+				Magic = nativeReader.ReadInt(Endian.Big); // 4
+				CasIndexingLength = nativeReader.ReadInt(Endian.Big); // 4
+				BundleCount = nativeReader.ReadInt(Endian.Big); // 4
+				Offset1 = nativeReader.ReadInt(Endian.Big); // 16
+				Offset2 = nativeReader.ReadInt(Endian.Big);  // 20
+				ChunkCount = nativeReader.ReadInt(Endian.Big);  // 24
+				Offset4 = nativeReader.ReadInt(Endian.Big); // 28
+				Offset5 = nativeReader.ReadInt(Endian.Big); // 32
+				Offset6 = nativeReader.ReadInt(Endian.Big); // 36
+				Offset7 = nativeReader.ReadInt(Endian.Big); // 40
+				CountOfSomething = nativeReader.ReadInt(Endian.Big); // 48
+
+
 				// Testing
-				CountOfSomething2 = nativeReader.ReadInt(Endian.Big);
-				Offset9 = nativeReader.ReadInt(Endian.Big);
-				Offset10 = nativeReader.ReadInt(Endian.Big);
-				Offset11 = nativeReader.ReadInt(Endian.Big);
-				nativeReader.Position -= 16;
+				//CountOfSomething2 = nativeReader.ReadInt(Endian.Big);
+				//Offset9 = nativeReader.ReadInt(Endian.Big);
+				//Offset10 = nativeReader.ReadInt(Endian.Big);
+				//Offset11 = nativeReader.ReadInt(Endian.Big);
+				//nativeReader.Position -= 16;
 
-                if (ListOfPositionChecks.Contains(Offset1))
-                {
+				//            if (ListOfPositionChecks.Contains(Offset1))
+				//            {
 
-                }
-				if (ListOfPositionChecks.Contains(Offset2))
-				{
+				//            }
+				//if (ListOfPositionChecks.Contains(Offset2))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(Offset4))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(Offset4))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(Offset5))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(Offset5))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(Offset6))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(Offset6))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(Offset7))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(Offset7))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(CountOfSomething2))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(CountOfSomething2))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(Offset9))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(Offset9))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(Offset10))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(Offset10))
+				//{
 
-				}
-				if (ListOfPositionChecks.Contains(Offset11))
-				{
+				//}
+				//if (ListOfPositionChecks.Contains(Offset11))
+				//{
 
-				}
+				//}
 
 				//BoyerMoore boyerMoore = new BoyerMoore(new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3C });
 				//var findInternalPatterns = boyerMoore.SearchAll(nativeReader.ReadToEnd());
@@ -187,18 +200,19 @@ namespace FIFA21Plugin
 			}
 			nativeReader.Position = 0;
 
-            if (FileLocation.Contains("contentlaunchsb"))
-            {
-				// Manchester City CAS location is 1aa28887 (1A A2 88 87 in Endian.BIG)
-				// Found this in Data / ContentLaunchSb TOC at Offset 2605292 / 27 c0 ec 00  ( 27c0ec00 in Endian.BIG | 00 EC C0 27 Endian.Little)
-			}
+   //         if (FileLocation.Contains("contentlaunchsb"))
+   //         {
+			//	// Manchester City CAS location is 1aa28887 (1A A2 88 87 in Endian.BIG)
+			//	// Found this in Data / ContentLaunchSb TOC at Offset 2605292 / 27 c0 ec 00  ( 27c0ec00 in Endian.BIG | 00 EC C0 27 Endian.Little)
+			//}
 
-			ParentReader.AssetManager.logger.Log("Seaching for Internal TOC Bundles");
+			//ParentReader.AssetManager.logger.Log("Seaching for Internal TOC Bundles");
+			AssetManager.Instance.logger.Log("Seaching for Internal TOC Bundles");
 			//var findInternalPatterns = FIFA21AssetLoader.SearchBytePattern(new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3C }, nativeReader.ReadToEnd());
 			BoyerMoore boyerMoore = new BoyerMoore(new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3C });
 			var findInternalPatterns = boyerMoore.SearchAll(nativeReader.ReadToEnd());
 			nativeReader.Position = startPosition;
-			ParentReader.AssetManager.logger.Log($"{findInternalPatterns.Count} Internal TOC Bundles found");
+			AssetManager.Instance.logger.Log($"{findInternalPatterns.Count} Internal TOC Bundles found");
 
 			foreach (var internalPos in findInternalPatterns)
 			{
@@ -274,10 +288,10 @@ namespace FIFA21Plugin
 							int string_off = nativeReader.ReadInt(Endian.Big);
 
 
-							if (FileLocation.Contains("contentsb"))
-							{
+							//if (FileLocation.Contains("contentsb"))
+							//{
 
-							}
+							//}
 							//var anthemSearcher = 556 + tocMetaData[8] - 48 + casStringOffset;
 							//var anthemSearcher = 556 + tocMetaData[8] + casStringOffset;
 

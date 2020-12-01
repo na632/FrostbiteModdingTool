@@ -30,6 +30,7 @@ using FrostySdk.FrostySdk.Managers;
 using Microsoft.Win32;
 using FIFAModdingUI.Windows;
 using Newtonsoft.Json;
+using FrostbiteModdingUI.Windows;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -39,11 +40,11 @@ namespace FIFAModdingUI.Pages.Common
     public partial class Browser : UserControl
     {
 
-		private FIFA21Editor FIFA21EditorWindow 
+		private IEditorWindow MainEditorWindow 
 		{ 
 			get
             {
-				return App.MainEditorWindow as FIFA21Editor;
+				return App.MainEditorWindow as IEditorWindow;
             } 
 		}
         public Browser()
@@ -257,7 +258,7 @@ namespace FIFAModdingUI.Pages.Common
 								else if (resAssetEntry != null)
 								{
 									textureImporter.ImportTextureFromFileToTextureAsset(openFileDialog.FileName, ref texture, out string Message); 
-									FIFA21EditorWindow.Log($"{Message}");
+									MainEditorWindow.Log($"{Message}");
 									UpdateAssetListView();
 
 
@@ -273,7 +274,7 @@ namespace FIFAModdingUI.Pages.Common
 									}
 								}
 
-								FIFA21EditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
+								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
 							}
 						}
 					}
@@ -323,7 +324,7 @@ namespace FIFAModdingUI.Pages.Common
 					using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
 					{
 						nativeWriter.Write(new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ReadToEnd());
-						FIFA21EditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveFileDialog.FileName}");
+						MainEditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveFileDialog.FileName}");
 					}
 				}
 			}
@@ -347,7 +348,7 @@ namespace FIFAModdingUI.Pages.Common
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
 								TextureExporter textureExporter = new TextureExporter();
 								textureExporter.Export(texture, saveFileDialog.FileName, "*.dds");
-								FIFA21EditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+								MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
 
 							}
 
@@ -370,12 +371,12 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							var json = JsonConvert.SerializeObject(ebx.RootObject, Formatting.Indented);
 							File.WriteAllText(saveFileDialog.FileName, json);
-							FIFA21EditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+							MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
 						}
 					}
 					else
                     {
-						FIFA21EditorWindow.Log("Failed to export file");
+						MainEditorWindow.Log("Failed to export file");
                     }
 				}
 			}
@@ -473,7 +474,7 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							try
 							{
-								FIFA21EditorWindow.Log("Loading Texture " + ebxEntry.Filename);
+								MainEditorWindow.Log("Loading Texture " + ebxEntry.Filename);
 
 								var eb = AssetManager.Instance.GetEbx(ebxEntry);
 								if (eb != null)
@@ -487,7 +488,7 @@ namespace FIFAModdingUI.Pages.Common
 							}
 							catch (Exception)
 							{
-								FIFA21EditorWindow.Log("Failed to load texture");
+								MainEditorWindow.Log("Failed to load texture");
 							}
 
 
@@ -503,7 +504,7 @@ namespace FIFAModdingUI.Pages.Common
 							var ebx = ProjectManagement.Instance.FrostyProject.AssetManager.GetEbx(ebxEntry);
 							if (ebx != null)
 							{
-								FIFA21EditorWindow.Log("Loading EBX " + ebxEntry.Filename);
+								MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
 								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject));
 								EBXViewer.Visibility = Visibility.Visible;
@@ -528,13 +529,13 @@ namespace FIFAModdingUI.Pages.Common
 							{
 								try
 								{
-									FIFA21EditorWindow.Log("Loading Texture " + SelectedEntry.Filename);
+									MainEditorWindow.Log("Loading Texture " + SelectedEntry.Filename);
 
 									BuildTextureViewerFromAssetEntry(resEntry);
 								}
 								catch (Exception)
 								{
-									FIFA21EditorWindow.Log("Failed to load texture");
+									MainEditorWindow.Log("Failed to load texture");
 								}
 
 
@@ -569,7 +570,7 @@ namespace FIFAModdingUI.Pages.Common
 
 								if (textViewers.Contains(legacyFileEntry.Type))
 								{
-									FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
 									btnExport.IsEnabled = true;
 									TextViewer.Visibility = Visibility.Visible;
@@ -580,7 +581,7 @@ namespace FIFAModdingUI.Pages.Common
 								}
 								else if (imageViewers.Contains(legacyFileEntry.Type))
 								{
-									FIFA21EditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
 									btnExport.IsEnabled = true;
 									ImageViewerScreen.Visibility = Visibility.Visible;
@@ -592,7 +593,7 @@ namespace FIFAModdingUI.Pages.Common
 								}
 								else
 								{
-									FIFA21EditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
+									MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
 									btnExport.IsEnabled = true;
 									UnknownLegacyFileViewer.Visibility = Visibility.Visible;
 								}
@@ -605,7 +606,7 @@ namespace FIFAModdingUI.Pages.Common
 			}
 			catch
 			{
-				FIFA21EditorWindow.Log("Failed to load file");
+				MainEditorWindow.Log("Failed to load file");
 
 			}
 		}

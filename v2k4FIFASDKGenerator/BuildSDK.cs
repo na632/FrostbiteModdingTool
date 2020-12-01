@@ -1,6 +1,7 @@
 ﻿using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
+using FrostySdk.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,12 +9,30 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static Frosty.OpenFrostyFiles;
 
 namespace v2k4FIFASDKGenerator
 {
     public class BuildSDK
     {
-		Process process = null;
+
+        private ILogger logger;
+
+        public ILogger Logger
+        {
+            get { 
+				if(logger== null)
+                {
+					logger = new NullLogger();
+                }
+				return logger
+					
+					; }
+            set { logger = value; }
+        }
+
+
+        Process process = null;
 		bool ResultState = false;
 		public async Task<bool> Build()
         {
@@ -29,13 +48,15 @@ namespace v2k4FIFASDKGenerator
 						|| x.ProcessName.ToUpper().Contains("MADDEN21")
 						|| x.ProcessName.Contains("bf4")
 						);
-                //if (process.ProcessName.ToUpper() == "MADDEN21")
-                //{
-                //    var result = await new BuildSDK2().Build();
-                //    return result;
-                //}
-                string text = process.MainModule?.ModuleName;
-
+				//if (process.ProcessName.ToUpper() == "MADDEN21")
+				//{
+				//    var result = await new BuildSDK2().Build();
+				//    return result;
+				//}
+				if (process != null)
+				{
+					string text = process.MainModule?.ModuleName;
+				}
 				attemptToFindProcess++;
 				Thread.Sleep(100);
 				if (attemptToFindProcess > 5)
@@ -129,14 +150,14 @@ namespace v2k4FIFASDKGenerator
 				if (process.ProcessName.ToUpper() == "MADDEN21")
                 {
 					//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
-					sdkUpdateState.TypeInfoOffset = 0x1483A82D0;
+					sdkUpdateState.TypeInfoOffset = 0x1483DF760;
 
 				}
 				else if (process.ProcessName.ToUpper() == "FIFA21")
 				{
 					//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
 					//sdkUpdateState.TypeInfoOffset = 0x1498D7290;
-					sdkUpdateState.TypeInfoOffset = 0x149B2D290;
+					sdkUpdateState.TypeInfoOffset = 0x149B40290;
 					// AOB 48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08
 
 				}

@@ -131,7 +131,6 @@ namespace FIFA21Plugin
                 //{
 
                 FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
-                ////FIFA21BANewPatchSB fifaBundleAction = new FIFA21BANewPatchSB((FrostyModExecutor)frostyModExecuter);
                 fifaBundleAction.Run();
 
                 //FIFA21ContentPatchBuilder contentPatchBuilder = new FIFA21ContentPatchBuilder((FrostyModExecutor)frostyModExecuter);

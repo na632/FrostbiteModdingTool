@@ -1,4 +1,5 @@
 ﻿using FrostySdk;
+using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;

@@ -19,8 +19,8 @@ namespace FIFALibraryNETFrameworkTests
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             projectManagement.StartNewProject();
 
-            TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
-            tocCasReader_M21.Read(@"E:\Origin Games\Madden NFL 21\Patch\Win32\splash.toc", 0, new FrostySdk.Managers.BinarySbDataHelper(projectManagement.FrostyProject.AssetManager));
+            //TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
+            //tocCasReader_M21.Read(@"E:\Origin Games\Madden NFL 21\Patch\Win32\splash.toc", 0, new FrostySdk.Managers.BinarySbDataHelper(projectManagement.FrostyProject.AssetManager));
 
         }
     }

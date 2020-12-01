@@ -1,4 +1,5 @@
 ﻿using Frostbite.Textures;
+using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Newtonsoft.Json;

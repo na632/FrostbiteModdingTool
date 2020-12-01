@@ -1,5 +1,6 @@
 ﻿using FIFAModdingUI.Models;
 using Frostbite.Textures;
+using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
@@ -36,12 +37,18 @@ namespace FIFAModdingUI.Windows
     /// <summary>
     /// Interaction logic for FIFA21Editor.xaml
     /// </summary>
-    public partial class FIFA21Editor : Window, ILogger
+    public partial class FIFA21Editor : Window, IEditorWindow
     {
         public FIFA21Editor()
         {
             InitializeComponent();
             this.DataContext = this;
+            Closing += FIFA21Editor_Closing;
+        }
+
+        private void FIFA21Editor_Closing(object sender, CancelEventArgs e)
+        {
+            new MainWindow().Show();
         }
 
         public string WindowTitle 

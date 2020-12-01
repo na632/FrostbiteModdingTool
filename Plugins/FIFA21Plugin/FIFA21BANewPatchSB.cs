@@ -96,8 +96,8 @@ namespace FIFA21Plugin
 
         private bool CheckTocCasReadCorrectly(string tocPath)
         {
-            TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
-            tocCasReader_M21.Read(tocPath, 0, new BinarySbDataHelper(AssetManager.Instance));
+            //TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
+            //tocCasReader_M21.Read(tocPath, 0, new BinarySbDataHelper(AssetManager.Instance));
             return true;
         }
 

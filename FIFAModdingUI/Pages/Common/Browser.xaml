@@ -20,7 +20,7 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <GridSplitter Grid.Column="0"></GridSplitter>
-        <Grid  Grid.Column="0" Grid.Row="0">
+        <Grid MaxHeight="400"  Grid.Column="0" Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition></RowDefinition>

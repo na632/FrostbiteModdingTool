@@ -80,6 +80,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="FrostbiteModExecuters\BundleActions\" />
     <Folder Include="Profiles\" />
   </ItemGroup>
 

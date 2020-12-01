@@ -96,8 +96,8 @@ namespace FIFA21Plugin
 
         private bool CheckTocCasReadCorrectly(string tocPath)
         {
-            TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
-            tocCasReader_M21.Read(tocPath, 0, new BinarySbDataHelper(AssetManager.Instance));
+            //TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
+            //tocCasReader_M21.Read(tocPath, 0, new BinarySbDataHelper(AssetManager.Instance));
             return true;
         }
 
@@ -215,6 +215,7 @@ namespace FIFA21Plugin
         }
 
         CachingSBData CachingSBData = new CachingSBData();
+        List<ChunkAssetEntry> ChunkDups = new List<ChunkAssetEntry>();
 
         public void Run()
         {
@@ -279,7 +280,6 @@ namespace FIFA21Plugin
                             {
                                 byte[] data = new byte[0];
                                 AssetEntry originalEntry = null;
-                                List<ChunkAssetEntry> ChunkDups = new List<ChunkAssetEntry>();
                                 switch(modItem.Item3)
                                 {
                                     case ModType.EBX:
@@ -291,8 +291,9 @@ namespace FIFA21Plugin
                                     case ModType.CHUNK:
                                         originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(modItem.Item2));
 
-
-                                        ChunkDups.AddRange(AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)));
+                                        ChunkDups.Clear();
+                                        ChunkDups.AddRange(
+                                            AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)).Where(x=>x.Sha1 != originalEntry.Sha1));
 
                                         break;
                                 }

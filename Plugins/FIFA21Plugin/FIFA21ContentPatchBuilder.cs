@@ -98,7 +98,8 @@ namespace FIFA21Plugin
                             var moddedChunkDict = parent.modifiedChunks;
 
                             var moddedEBX = parent.modifiedEbx.Where(x => ebxObjects.Any(y=>y.Name.ToLower() == x.Key.ToLower())).ToList();
-                            var moddedRES = parent.modifiedRes.Where(x => resObjects.Any(y => y.Name.ToLower() == x.Key.ToLower())).ToList();
+                            //var moddedRES = parent.modifiedRes.Where(x => resObjects.Any(y => y.Name.ToLower() == x.Key.ToLower())).ToList();
+                            var moddedRES = new Dictionary<string, ResAssetEntry>().ToList();
                             var moddedChunk = parent.modifiedChunks.Where(x => chunkObjects.Any(y=>y.Id.ToString() == x.Key.ToString().ToLower())).ToList();
 
                             var piemontekitmodRes = parent.modifiedRes;
@@ -106,7 +107,7 @@ namespace FIFA21Plugin
                             var piemontekit = parent.modifiedRes.Where(x => resObjects.Any(y => y.Name.ToLower() == x.Key.ToLower())).ToList();
 
                             ebxObjects = ebxObjects.Where(x => !moddedEBXDict.ContainsKey(x.Name)).ToList();
-                            resObjects = resObjects.Where(x => !moddedRESDict.ContainsKey(x.Name)).ToList();
+                            //resObjects = resObjects.Where(x => !moddedRESDict.ContainsKey(x.Name)).ToList();
                             chunkObjects = chunkObjects.Where(x => !moddedChunkDict.ContainsKey(x.Id)).ToList();
 
 
@@ -121,14 +122,14 @@ namespace FIFA21Plugin
                                         using (NativeWriter nwSB = new NativeWriter(msSB, leaveOpen: true))
                                         {
 
-                                            nwSB.Write((int)32, Endian.Big); // start of bundle
-                                            nwSB.Write((int)-1, Endian.Big); // End of Meta (dont know yet)
-                                            nwSB.Write((int)-1, Endian.Big); // CAS for Group Offset
-                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out)
-                                            nwSB.Write((int)-1, Endian.Big); // Catalog and CAS Offset
-                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out)
-                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out)
-                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out)
+                                            nwSB.Write((int)32, Endian.Big); // start of bundle  -  0 
+                                            nwSB.Write((int)-1, Endian.Big); // End of Meta (dont know yet) - 4
+                                            nwSB.Write((int)-1, Endian.Big); // CAS for Group Offset - 8
+                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out) - 12
+                                            nwSB.Write((int)-1, Endian.Big); // Catalog and CAS Offset - 16
+                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out) - 20
+                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out) - 24
+                                            nwSB.Write((int)0, Endian.Big); // Unknown (Figure Out) - 28
 
                                             var ebxCount = ebxObjects.Count + moddedEBX.Count();
                                             var resCount = resObjects.Count + moddedRES.Count();
@@ -137,16 +138,17 @@ namespace FIFA21Plugin
                                             var totalCount = ebxCount + resCount + chunkCount;
 
                                             var BaseSizePosition = nwSB.BaseStream.Position;
-                                            nwSB.Write((int)-1, Endian.Big); // Binary Size
-                                            nwSB.Write((uint)3599661469, Endian.Big); // Magic
-                                            nwSB.Write((uint)totalCount, Endian.Little); // Total
-                                            nwSB.Write((uint)ebxCount, Endian.Little); // EBX Count
-                                            nwSB.Write((uint)resCount, Endian.Little); // Res Count
-                                            nwSB.Write((uint)chunkCount, Endian.Little); // Chunk Count
-                                            var StringOffsetPosition = nwSB.BaseStream.Position;
-                                            nwSB.Write((int)-1, Endian.Little); // String Offset
-                                            nwSB.Write((int)-1, Endian.Little); // Meta Offset
-                                            nwSB.Write((int)9, Endian.Little); // Meta Size
+                                            nwSB.Write((int)-1, Endian.Big); // Binary Size - 32
+                                            nwSB.Write((uint)3599661469, Endian.Big); // Magic - 36
+                                            nwSB.Write((uint)totalCount, Endian.Little); // Total - 40
+                                            nwSB.Write((uint)ebxCount, Endian.Little); // EBX Count - 44 
+                                            nwSB.Write((uint)resCount, Endian.Little); // Res Count - 48
+                                            nwSB.Write((uint)chunkCount, Endian.Little); // Chunk Count - 52
+                                            var StringOffsetPosition = nwSB.BaseStream.Position; 
+                                            nwSB.Write((int)-1, Endian.Little); // String Offset - 56
+                                            nwSB.Write((int)-1, Endian.Little); // Meta Offset - 60
+                                            nwSB.Write((int)-1, Endian.Little); // Meta Size - 64
+                                            nwSB.Flush();
 
                                             using (var msNewDataSha1Section = new MemoryStream())
                                             {
@@ -498,26 +500,32 @@ namespace FIFA21Plugin
 
                                             nwSB.BaseStream.Position = 0;
                                             nwSB.BaseStream.Position = 4;
-                                            nwSB.Write((int)MetaPositionEnd);
+                                            nwSB.Write((int)MetaPositionEnd, Endian.Big);
 
                                             nwSB.BaseStream.Position = 8;
-                                            nwSB.Write((int)CasGroupSectionOffsetPosition);
+                                            nwSB.Write((int)CasGroupSectionOffsetPosition, Endian.Big);
 
                                             nwSB.BaseStream.Position = 12;
-                                            nwSB.Write((int)MetaPosition);
+                                            nwSB.Write((int)MetaPosition, Endian.Big);
 
                                             nwSB.BaseStream.Position = 16;
-                                            nwSB.Write((int)CatalogSectionOffsetPosition);
+                                            nwSB.Write((int)CatalogSectionOffsetPosition, Endian.Big);
 
-                                            nwSB.Write((int)MetaPositionEnd + 32);
-                                            nwSB.Write((int)MetaPositionEnd + 32);
+                                            nwSB.Write((int)MetaPositionEnd, Endian.Big);
+                                            nwSB.Write((int)MetaPositionEnd, Endian.Big);
 
                                             nwSB.BaseStream.Position = BaseSizePosition;
-                                            nwSB.Write((int)MetaPositionEnd - 32);
+                                            nwSB.Write((int)MetaPositionEnd, Endian.Big);
+
                                             nwSB.BaseStream.Position = StringOffsetPosition;
-                                            nwSB.Write((int)StringPosition);
-                                            nwSB.Write((int)MetaPosition);
-                                            nwSB.Write((int)MetaPositionEnd - MetaPosition);
+
+                                            // var StringOffsetPosition = nwSB.BaseStream.Position; 
+                                            // nwSB.Write((int)-1, Endian.Little); // String Offset - 56
+                                            // nwSB.Write((int)-1, Endian.Little); // Meta Offset - 60
+                                            // nwSB.Write((int)-1, Endian.Little); // Meta Size - 64
+                                            nwSB.Write((int)StringPosition); // String Offset - 56
+                                            nwSB.Write((int)MetaPosition); // Meta Offset - 60
+                                            nwSB.Write((int)MetaPositionEnd - (int)MetaPosition); // Meta Size - 64
                                         }
 
                                         msSB.Position = 0;
@@ -535,28 +543,39 @@ namespace FIFA21Plugin
                                     using (NativeWriter nwTOC = new NativeWriter(msTOC, leaveOpen: true))
                                     {
                                         nwTOC.Write(startBytes);
-                                        nwTOC.Write((int)64, Endian.Big);
-                                        nwTOC.Write((int)1, Endian.Big);
-                                        nwTOC.Write((int)80, Endian.Big);
-                                        nwTOC.Write((int)80, Endian.Big);
+                                        nwTOC.Write((int)64, Endian.Big); // 4
+                                        nwTOC.Write((int)1, Endian.Big); // 8
+                                        nwTOC.Write((int)80, Endian.Big);  // 12
+                                        nwTOC.Write((int)80, Endian.Big);  // 16
+                                        nwTOC.Write((int)0, Endian.Big);  // 20
+                                        nwTOC.Write((int)80, Endian.Big);  // 24
+                                        nwTOC.Write((int)80, Endian.Big);  // 28
+                                        nwTOC.Write((int)80, Endian.Big);  // 32
+                                        nwTOC.Write((int)80, Endian.Big);  // 36
+                                        nwTOC.Write((int)0, Endian.Big); // 40
+
+                                        //nwTOC.Write((int)7, Endian.Big);
+                                        nwTOC.Write((int)1, Endian.Big); // 44
+                                        //nwTOC.Write((int)10, Endian.Big);
+                                        nwTOC.Write((int)0, Endian.Big); // 48
+                                        //nwTOC.Write((int)46, Endian.Big);
                                         nwTOC.Write((int)0, Endian.Big);
-                                        nwTOC.Write((int)80, Endian.Big);
-                                        nwTOC.Write((int)80, Endian.Big);
-                                        nwTOC.Write((int)80, Endian.Big);
-                                        nwTOC.Write((int)80, Endian.Big);
+                                        //nwTOC.Write((int)120, Endian.Big);
                                         nwTOC.Write((int)0, Endian.Big);
-                                        nwTOC.Write((int)7, Endian.Big);
-                                        nwTOC.Write((int)10, Endian.Big);
-                                        nwTOC.Write((int)46, Endian.Big);
-                                        nwTOC.Write((int)120, Endian.Big);
                                         nwTOC.Write((int)-1, Endian.Big);
                                         nwTOC.Write((int)0, Endian.Big);
                                         nwTOC.Write((int)SBFileSize, Endian.Big);
                                         nwTOC.Write((int)0, Endian.Big);
                                         nwTOC.Write((int)0, Endian.Big);
-                                        nwTOC.Write(restOfBytes);
+                                        //nwTOC.Write(restOfBytes);
                                     }
                                     var newTOCData = msTOC.ToArray();
+                                    msTOC.Position = 0;
+                                    using(NativeReader nrTOC_TEST = new NativeReader(msTOC))
+                                    {
+                                        TOCFile tocTest = new TOCFile();
+                                        tocTest.Read(nrTOC_TEST);
+                                    }
 
                                     File.Delete(modDataTOC);
                                     using (NativeWriter nwTOCFile = new NativeWriter(new FileStream(modDataTOC, FileMode.Create)))

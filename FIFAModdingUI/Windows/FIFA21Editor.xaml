@@ -15,6 +15,7 @@
         Title="{Binding Path=WindowTitle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
          SizeToContent="WidthAndHeight" MinHeight="720" MinWidth="1280"
         ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
+         WindowStartupLocation="CenterScreen"
         
         >
     <Window.Resources>

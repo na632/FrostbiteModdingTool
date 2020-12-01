@@ -18,7 +18,6 @@ using System.Threading.Tasks;
 using Frosty.ModSupport;
 using System.IO.Compression;
 using FrostySdk.FrostySdk.Deobfuscators;
-using paulv2k4FrostyModdingSupport.FrostbiteModExecuters.BundleActions;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -5760,7 +5759,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     //    SymbolicLinkList.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
                     //}
 
-                    if (!ProfilesLibrary.IsFIFA21DataVersion())
+                    if (!ProfilesLibrary.IsFIFA21DataVersion() && !ProfilesLibrary.IsMaddenDataVersion())
                     {
                         foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
                         {
@@ -5828,9 +5827,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
 
                         FifaBundleAction.CasFileCount = fs.CasFileCount;
-                        Madden21BundleAction.CasFileCount = fs.CasFileCount;
                         List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
-                        List<Madden21BundleAction> madden21BundleActions = new List<Madden21BundleAction>();
                         ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
 
                         var numberOfCatalogs = fs.Catalogs.Count();

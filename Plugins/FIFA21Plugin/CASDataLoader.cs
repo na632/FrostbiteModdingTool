@@ -246,7 +246,6 @@ namespace FIFA21Plugin
                                 AssetManager.Instance.chunkList[guid].Sha1 = sha1[ebxCount + resCount + i];
                                 AssetManager.Instance.chunkList[guid].CASFileLocation = NativeFileLocation;
                             }
-
                             ChunkObjectList.Add(dbObject);
                         }
 
@@ -495,6 +494,7 @@ namespace FIFA21Plugin
                                 parent.AddChunk(chunkAssetEntry);
 
                             CASCHUNKEntries.Add(chunkAssetEntry);
+
 
                         }
 
