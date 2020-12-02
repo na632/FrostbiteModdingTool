@@ -5374,39 +5374,39 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
         //    return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
         //}
 
-        public bool InitializePlugins()
-        {
-            if (Directory.Exists("Plugins"))
-            {
-                foreach (var p in Directory.EnumerateFiles("Plugins"))
-                {
-                    if (p.ToLower().EndsWith(".dll"))
-                    {
-                        logger.Log($"Loading Plugin {p}");
-                        try
-                        {
-                            var assemble = Assembly.LoadFrom(p);
-                            PluginAssemblies.Add(assemble);
-                        }
-                        catch(Exception e)
-                        {
-                            logger.LogError(e.Message);
-                            logger.Log("[ERROR] Unable to load Plugin. It may be blocked by antivirus.");
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
+        //public bool InitializePlugins()
+        //{
+        //    if (Directory.Exists("Plugins"))
+        //    {
+        //        foreach (var p in Directory.EnumerateFiles("Plugins"))
+        //        {
+        //            if (p.ToLower().EndsWith(".dll") && (p.ToLower().Contains(ProfilesLibrary.DisplayName.ToLower())))
+        //            {
+        //                logger.Log($"Loading Plugin {p}");
+        //                try
+        //                {
+        //                    var assemble = Assembly.LoadFrom(p);
+        //                    PluginAssemblies.Add(assemble);
+        //                }
+        //                catch(Exception e)
+        //                {
+        //                    logger.LogError(e.Message);
+        //                    logger.Log("[ERROR] Unable to load Plugin. It may be blocked by antivirus.");
+        //                    return false;
+        //                }
+        //            }
+        //        }
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         public async Task<bool> BuildModData(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
         {
             fs = inFs;
             Logger = inLogger;
 
-            if (!InitializePlugins())
+            if (!AssetManager.Instance.InitializePlugins())
                 return false;
 
             string modPath = fs.BasePath + modDirName + "\\";
@@ -5801,7 +5801,11 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                     {
                                         Logger.Log("Attempting to load Compiler for " + GameEXEPath);
 
-                                        ((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this);
+                                        if (!((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this))
+                                        {
+                                            Logger.LogError("Unable to load Compiler. Stopping");
+                                            return false;
+                                        }
                                     }
                                 }
                                 catch

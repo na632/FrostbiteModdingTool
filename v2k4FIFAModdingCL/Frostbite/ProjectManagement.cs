@@ -107,12 +107,36 @@ namespace v2k4FIFAModding.Frosty
 
         public void LogError(string text, params object[] vars)
         {
+            if (text != lastMessage)
+            {
+                Debug.WriteLine(text);
 
+                ClearCurrentConsoleLine();
+                Console.WriteLine(text);
+                lastMessage = text;
+
+                if (Logger != null)
+                {
+                    Logger.LogWarning(text, vars);
+                }
+            }
         }
 
         public void LogWarning(string text, params object[] vars)
         {
+            if (text != lastMessage)
+            {
+                Debug.WriteLine(text);
 
+                ClearCurrentConsoleLine();
+                Console.WriteLine(text);
+                lastMessage = text;
+
+                if (Logger != null)
+                {
+                    Logger.LogError(text, vars);
+                }
+            }
         }
 
         /// <summary>

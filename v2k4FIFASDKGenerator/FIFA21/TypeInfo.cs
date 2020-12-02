@@ -14,6 +14,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
             {
 
             }
+			if (name.ToLower().Contains("gp_actor_movement".ToLower()))
+			{
+
+			}
 			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			flags >>= 1;
@@ -75,6 +79,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
 					FieldInfo fieldInfo = new FieldInfo();
 					fieldInfo.Read(reader);
 					fieldInfo.index = j;
+					if(fieldInfo.offset == 304)
+                    {
+
+                    }
 					fields.Add(fieldInfo);
 				}
 			}

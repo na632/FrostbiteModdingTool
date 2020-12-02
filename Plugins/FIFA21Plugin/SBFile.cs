@@ -37,6 +37,8 @@ namespace FIFA21Plugin
 
         public SBFile() { }
 
+
+
         public SBFile(TocSbReader_FIFA21 parent, TOCFile parentTOC, int sbIndex)
         {
             ParentReader = parent;
@@ -320,7 +322,10 @@ namespace FIFA21Plugin
             //cachingSBDataBundle.LastCatalogId = catalog;
 
             cachingSBDataBundle.CatalogCasGroupOffsetEnd = (int)binarySbReader2.Position;
+            if(cachingSBDataBundle.CatalogCasGroupOffsetEnd == 0)
+            {
 
+            }
             binarySbReader2.Position = cachingSBDataBundle.CatalogCasGroupOffset;
             //cachingSBDataBundle.CatalogCasGroupData = binarySbReader2.ReadBytes((int)cachingSBDataBundle.CatalogCasGroupOffsetEnd - (int)cachingSBDataBundle.CatalogCasGroupOffset);
 

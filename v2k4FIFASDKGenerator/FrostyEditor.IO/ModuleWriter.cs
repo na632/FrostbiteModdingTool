@@ -10,6 +10,7 @@ using System.IO;
 using System.Text;
 using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 using System.Diagnostics;
+using System.Linq;
 
 namespace FrostyEditor
 {
@@ -258,6 +259,14 @@ namespace FrostyEditor
 			{
 
             }
+            if (className.Contains("AttribGroupRuntime_gp_actor"))
+            {
+
+            }
+			if (className.Contains("gp_actor_movement"))
+			{
+
+			}
 
 			stringBuilder.AppendLine("public class " + className + ((parentClassName != "") ? (" : " + parentClassName) : ""));
 			stringBuilder.AppendLine("{");
@@ -294,7 +303,9 @@ namespace FrostyEditor
 			}
 			bool flag = classObj.GetValue<string>("name").Equals("Asset");
 			bool flag2 = false;
-			foreach (DbObject item in classObj.GetValue<DbObject>("fields"))
+
+			var class_fields = classObj.GetValue<DbObject>("fields").list.OrderBy(x => ((DbObject)x).GetValue<int>("offset"));
+			foreach (DbObject item in class_fields)
 			{
 				stringBuilder.Append(WriteField(item));
 				if (!flag && item.GetValue<string>("name").Equals("Name", StringComparison.OrdinalIgnoreCase) && ebxFieldType == EbxFieldType.Pointer && (byte)item.GetValue("type", 0) == 7)
@@ -467,7 +478,7 @@ namespace FrostyEditor
 			{
 				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0) + ")]");
 			}
-			if (ProfilesLibrary.DataVersion == 20171117)
+			if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsFIFA21DataVersion())
 			{
 				stringBuilder.AppendLine("[" + typeof(RuntimeSizeAttribute).Name + "(" + classObj.GetValue("runtimeSize", 0) + ")]");
 			}

@@ -378,13 +378,14 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\GraphicMod\paulv2k4 FIFA 21 License Pack.fbproject");
+            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\kit test project.fbproject");
 
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Kit Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+           // frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+            frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
         }
 
         [TestMethod]
@@ -893,11 +894,11 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            var skinnedMeshEntry = project.AssetManager.EnumerateEbx().Where(x => x.Name.ToLower().Contains("gp_actor_movement_runtime")).FirstOrDefault();
-            if (skinnedMeshEntry != null)
+            var movemententry = project.AssetManager.EnumerateEbx().Where(x => x.Name == "Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime").FirstOrDefault();
+            if (movemententry != null)
             {
-                var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
-                if (skinnedMeshEbx != null)
+                var movementebx = project.AssetManager.GetEbx(movemententry);
+                if (movementebx != null)
                 {
 
                 }

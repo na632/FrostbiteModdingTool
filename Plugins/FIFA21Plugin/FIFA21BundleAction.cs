@@ -217,7 +217,7 @@ namespace FIFA21Plugin
         CachingSBData CachingSBData = new CachingSBData();
         List<ChunkAssetEntry> ChunkDups = new List<ChunkAssetEntry>();
 
-        public void Run()
+        public bool Run()
         {
             try
             {
@@ -302,33 +302,7 @@ namespace FIFA21Plugin
                                     data = parent.archiveData[modItem.Item1].Data;
                                 }
 
-
-
-                                //if (modItem.Item3 == ModType.RES)
-                                //    continue;
-
-                                //if(data.Length > 0
-                                //    && originalEntry.ExtraData.CasPath.Contains("native_data")
-                                   
-                                //    && 
-                                //     originalEntry.ExtraData.DataOffset > 0
-                                //    //&&
-                                    
-                                //    //( modItem.Item3 == ModType.RES || modItem.Item3 == ModType.CHUNK )
-                                //    && modItem.Item3 == ModType.CHUNK
-                                //    )
-                                //{
-                                //    if(data.Length != originalEntry.Size)
-                                //    {
-
-                                //    }
-                                //    nwCas.BaseStream.Position = originalEntry.ExtraData.DataOffset;
-                                //    nwCas.Write(data);
-                                //}
-                                //else 
                                 if (data.Length > 0)
-
-                                //&& originalEntry.ExtraData.CasPath.Contains("native_patch"))
                                 {
                                     // write the new data to end of the file (this should be fine)
                                     positionOfNewData = (int)nwCas.BaseStream.Position;
@@ -336,23 +310,73 @@ namespace FIFA21Plugin
 
                                     parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
                                     Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
-                                    ChangeSB(positionOfNewData, modItem, data.Length, originalEntry, nwCas);
+
+                                    bool patchedInSb = false;
+                                    patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
                                     for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
                                     {
-                                        ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
+                                        patchedInSb = PatchInSb(modItem, data, ChunkDups[i], nwCas);
                                     }
+
+                                    if (!patchedInSb)
+                                    {
+
+                                        ChangeSB(positionOfNewData, modItem, data.Length, originalEntry, nwCas);
+                                        for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
+                                        {
+                                            ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
+                                        }
+                                    }
+
+                                   
                                 }
                             }
                             
                         }
                     }
                 }
+                return true;
             }
             catch (Exception e)
             {
                 throw e;
             }
 
+        }
+
+        private bool PatchInSb(Tuple<Sha1, string, ModType, bool> modItem, byte[] data, AssetEntry originalEntry, NativeWriter nwCas)
+        {
+            var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
+            var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
+            var sb_sha1_position = originalEntry.SB_Sha1_Position;
+
+            var CasSha1 = false;
+            var sbpath = string.Empty;
+            //parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
+            if (!string.IsNullOrEmpty(originalEntry.SBFileLocation))
+                sbpath = originalEntry.SBFileLocation;
+            else if (!string.IsNullOrEmpty(originalEntry.TOCFileLocation))
+            {
+                sbpath = originalEntry.TOCFileLocation;
+                CasSha1 = true;
+            }
+
+            if (sbpath.Contains(".toc"))
+            {
+                var p = sbpath.Replace(".toc", ".sb");
+                p = p.Replace("native_data", "native_patch");
+
+                var csbs = CachingSB.CachingSBs;
+                var fileToAddTo = csbs.FirstOrDefault(x => x.SBFile == p);
+                var lastBundle = fileToAddTo.GetLastBundle();
+
+                //return true;
+            }
+            //sbpath = parent.fs.ResolvePath(sbpath).ToLower();
+            //sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
+            //sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
+
+            return false;
         }
 
         private void ChangeSB(int positionOfNewData, Tuple<Sha1, string, ModType, bool> modItem, int sizeOfData, AssetEntry originalEntry, NativeWriter nwCas)
@@ -408,47 +432,35 @@ namespace FIFA21Plugin
                     //nwCas.Write(modItem.Item1);
                 }
             }
-            //else
 
 
+            byte[] arrayOfSB = null;
+            using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
             {
-                //bool CasSha = false;
-                //if (sbpath.Contains(".toc"))
-                //{
-                //    CasSha = true;
-                //    //nwCas.BaseStream.Position = sb_sha1_position;
-                //    //nwCas.Write(modItem.Item1);
-                //}
+                arrayOfSB = nativeReader.ReadToEnd();
+            }
+            File.Delete(sbpath);
+            using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+            {
+                nw_sb.Write(arrayOfSB);
+                nw_sb.BaseStream.Position = sb_cas_offset_position;
+                nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                nw_sb.Flush();
 
+                nw_sb.BaseStream.Position = sb_cas_size_position;
+                nw_sb.Write((uint)sizeOfData, Endian.Big);
+                nw_sb.Flush();
 
-                byte[] arrayOfSB = null;
-                using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+                if (sb_sha1_position != 0 && !CasSha1)
                 {
-                    arrayOfSB = nativeReader.ReadToEnd();
-                }
-                File.Delete(sbpath);
-                using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
-                {
-                    nw_sb.Write(arrayOfSB);
-                    nw_sb.BaseStream.Position = sb_cas_offset_position;
-                    nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                    nw_sb.BaseStream.Position = sb_sha1_position;
+                    nw_sb.Write(modItem.Item1);
                     nw_sb.Flush();
-
-                    nw_sb.BaseStream.Position = sb_cas_size_position;
-                    nw_sb.Write((uint)sizeOfData, Endian.Big);
-                    nw_sb.Flush();
-
-                    if (sb_sha1_position != 0 && !CasSha1)
-                    {
-                        nw_sb.BaseStream.Position = sb_sha1_position;
-                        nw_sb.Write(modItem.Item1);
-                        nw_sb.Flush();
-                    }
-
                 }
+
+            }
 
                 
-            }
         }
 
         private string GetNewCasPath(

@@ -149,8 +149,23 @@ namespace FIFAModdingUI
             }
         }
 
+        bool stopLoggingUntilComplete = false;
+
         public async void LogAsync(string in_text)
         {
+            if (stopLoggingUntilComplete)
+                return;
+
+            if(in_text.Contains("Read out of Cache"))
+            {
+                stopLoggingUntilComplete = true;
+
+            }
+            if (in_text.Contains("Loading complete "))
+            {
+                stopLoggingUntilComplete = false;
+            }
+
             var txt = string.Empty;
             Dispatcher.Invoke(() => {
                 txt = txtLog.Text;
@@ -162,6 +177,10 @@ namespace FIFAModdingUI
 
                 stringBuilder.Append(txt);
                 stringBuilder.AppendLine(in_text);
+                if(stopLoggingUntilComplete)
+                {
+                    stringBuilder.AppendLine("Please wait for compiler to finish first load. This may take 10-20 minutes");
+                }
 
                 return stringBuilder.ToString();
             });
@@ -320,7 +339,18 @@ namespace FIFAModdingUI
                                 //var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
                                 //Debug.WriteLine(legmodsupportdllpath);
                                 //Debug.WriteLine(actualsupportdllpath);
-                                GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                                try
+                                {
+                                    Log("Injecting Live Legacy Mod Support");
+                                    GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                                    Log("Injected Live Legacy Mod Support");
+
+                                }
+                                catch (Exception InjectDLLException)
+                                {
+                                    LogError("Launcher could not inject Live Legacy File Support");
+                                    LogError(InjectDLLException.ToString());
+                                }
                             }
                         }
 
@@ -449,9 +479,11 @@ namespace FIFAModdingUI
 
         public void LogError(string text, params object[] vars)
         {
-            
+            LogAsync("[ERROR] " + text);
+
             Dispatcher.InvokeAsync(() =>
             {
+
                 File.WriteAllText("ErrorLog.txt", DateTime.Now.ToString() + " \n" + text);
             });
         }

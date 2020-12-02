@@ -82,15 +82,17 @@ namespace FIFA21Plugin
                 var numberOfCatalogs = fs.Catalogs.Count();
                 var numberOfCatalogsCompleted = 0;
 
-                //if (!((FrostyModExecutor)frostyModExecuter).UseSymbolicLinks)
-                //{
-                    //logger.Log("No Symbolic Link - Copying files from Data to ModData");
-                    //CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
+            //if (!((FrostyModExecutor)frostyModExecuter).UseSymbolicLinks)
+            //{
+            //logger.Log("No Symbolic Link - Copying files from Data to ModData");
+            //CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
 
-                    //Task.WaitAll(tasks);
-                //}
+            //Task.WaitAll(tasks);
+            //}
+            Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
+            Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-                if (Directory.Exists(fs.BasePath + ModDirectory + "\\Data"))
+            if (Directory.Exists(fs.BasePath + ModDirectory + "\\Data"))
                 {
                     logger.Log("Deleting TOC/SB files from ModData/Data");
                     foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.sb", SearchOption.AllDirectories))
@@ -131,7 +133,7 @@ namespace FIFA21Plugin
                 //{
 
                 FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
-                fifaBundleAction.Run();
+            return fifaBundleAction.Run();
 
                 //FIFA21ContentPatchBuilder contentPatchBuilder = new FIFA21ContentPatchBuilder((FrostyModExecutor)frostyModExecuter);
                 //contentPatchBuilder.TransferDataToPatch();
@@ -185,7 +187,6 @@ namespace FIFA21Plugin
                 //}
                 // --------------------------------------------------------------------------------------
 
-                return true;
             //}
             //return false;
         }
@@ -200,7 +201,7 @@ namespace FIFA21Plugin
             Task[] tasks = new Task[dataFileCount];
             foreach (var f in dataFiles)
             {
-                var finalDestination = f.Replace(from_datafolderpath, to_datafolderpath);
+                var finalDestination = f.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
 
                 bool Copied = false;
 
@@ -210,7 +211,7 @@ namespace FIFA21Plugin
                 {
                     Directory.CreateDirectory(newDirectory);
                 }
-                if(File.Exists(finalDestination))
+                if(File.Exists(finalDestination) && finalDestination.Contains("moddata"))
                 {
                     if(
                         File.GetLastWriteTime(finalDestination).Ticks < File.GetLastWriteTime(f).Ticks
@@ -232,8 +233,10 @@ namespace FIFA21Plugin
                 }
                 indexOfDataFile++;
 
-                if(Copied)
+                if (Copied)
                     logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
+                else
+                    dataFileCount--;
             }
         }
     }

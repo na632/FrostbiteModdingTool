@@ -94,7 +94,7 @@ namespace FIFA21Plugin
                         inner_reader.Position = startPosition;
 
 
-                        var size = inner_reader.ReadInt(Endian.Big);
+                        var size = inner_reader.ReadInt(Endian.Big) + 4;
                         var magicStuff = inner_reader.ReadUInt(Endian.Big);
                         if (magicStuff != 3599661469) 
                             return;
@@ -296,6 +296,7 @@ namespace FIFA21Plugin
 
                         var dataOffset = baseBundleInfo.Offset + inner_reader.Position;
 
+
                         //var positionBeforeLoad = inner_reader.Position;
                         for (var i = 0; i < ebxCount; i++)
                         {
@@ -391,6 +392,14 @@ namespace FIFA21Plugin
                             //}
 
                         }
+
+                        //var posBeforeReadBlock = inner_reader.Position;
+                        //inner_reader.Position = size;
+                        //ReadDataBlock(EbxObjectList, inner_reader, (int)baseBundleInfo.Offset, (int)inner_reader.Position);
+                        //ReadDataBlock(ResObjectList, inner_reader, (int)baseBundleInfo.Offset, (int)inner_reader.Position);
+                        //ReadDataBlock(ChunkObjectList, inner_reader, (int)baseBundleInfo.Offset, (int)inner_reader.Position);
+                        //inner_reader.Position = posBeforeReadBlock;
+
 
                         FullObjectList.AddValue("ebx", EbxObjectList);
                         FullObjectList.AddValue("res", ResObjectList);
@@ -504,6 +513,49 @@ namespace FIFA21Plugin
 
 
         }
+
+
+
+        private void ReadDataBlock(List<DbObject> list, NativeReader reader, int bundleOffset, int Position)
+        {
+            if (list == null)
+            {
+                return;
+            }
+
+            foreach (DbObject item in list)
+            {
+                item.SetValue("offset", bundleOffset + Position);
+                long num = item.GetValue("originalSize", 0L);
+                long num2 = 0L;
+               
+                while (num > 0)
+                {
+                    int num3 = reader.ReadInt(Endian.Big);
+                    ushort num4 = reader.ReadUShort();
+                    int num5 = reader.ReadUShort(Endian.Big);
+                    int num6 = (num4 & 0xFF00) >> 8;
+                    if ((num6 & 0xF) != 0)
+                    {
+                        num5 = ((num6 & 0xF) << 16) + num5;
+                    }
+                    if ((num3 & 4278190080u) != 0L)
+                    {
+                        num3 &= 0xFFFFFF;
+                    }
+                    num -= num3;
+                    if ((ushort)(num4 & 0x7F) == 0)
+                    {
+                        num5 = num3;
+                    }
+                    num2 += num5 + 8;
+                    Position += num5;
+                }
+                item.AddValue("size", num2);
+                item.AddValue("sb", true);
+            }
+        }
+
 
 
     }

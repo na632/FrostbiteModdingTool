@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using static FIFA21Plugin.SBFile;
 
@@ -43,6 +44,7 @@ namespace FIFA21Plugin
             public long StartOffset { get; set; }
 
             public long BooleanOfCasGroupOffset { get; set; }
+
             public long BooleanOfCasGroupOffsetEnd { get; set; }
 
             public byte[] BooleanOfCasGroupData { get; set; }
@@ -51,18 +53,26 @@ namespace FIFA21Plugin
 
             public byte[] CatalogCasGroupData { get; set; }
 
-
             public long BinaryDataOffset { get; set; }
 
             public byte[] BinaryDataData { get; set; }
 
             public int LastCatalogId { get; set; }
             public int LastCAS { get; set; }
-            public long BinaryDataOffsetEnd { get; internal set; }
-            public long CatalogCasGroupOffsetEnd { get; internal set; }
+            public long BinaryDataOffsetEnd { get; set; }
+            public long CatalogCasGroupOffsetEnd { get; set; }
         }
 
         public List<Bundle> Bundles = new List<Bundle>();
+
+        public Bundle GetLastBundle()
+        {
+            if(Bundles.Count > 0)
+            {
+                return Bundles.OrderByDescending(x => x.StartOffset).FirstOrDefault();
+            }
+            return null;
+        }
 
 
 

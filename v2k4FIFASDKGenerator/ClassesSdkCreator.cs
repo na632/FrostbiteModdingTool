@@ -93,6 +93,10 @@ namespace v2k4FIFASDKGenerator
 
         public bool CrossReferenceAssets(SdkUpdateTask task)
         {
+            if(FileSystem == null)
+            {
+                FileSystem = AssetManager.Instance.fs;
+            }
             // Data must be loaded and cached before SDK is built
 
             mapping = new Dictionary<string, Tuple<EbxClass, DbObject>>();
@@ -184,6 +188,10 @@ namespace v2k4FIFASDKGenerator
 
                 }
                 if (className.Contains("attrib"))
+                {
+
+                }
+                if (className.Contains("gp_actor_movement"))
                 {
 
                 }
@@ -391,7 +399,7 @@ namespace v2k4FIFASDKGenerator
                                     }
                                     if (!flag)
                                     {
-                                        uint num8 = (ProfilesLibrary.DataVersion == 20190905) ? 3301947476u : 3109710567u;
+                                        uint num8 = (ProfilesLibrary.DataVersion == 20190905 || ProfilesLibrary.IsFIFA21DataVersion()) ? 3301947476u : 3109710567u;
                                         if (field.NameHash != num8)
                                         {
                                             field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
@@ -422,6 +430,11 @@ namespace v2k4FIFASDKGenerator
 
         private int ProcessClass(EbxClass pclass, DbObject pobj, List<EbxField> fields, DbObject outList, ref int offset, ref int fieldIndex)
         {
+            if (pclass.Name.Contains("gp_actor_movement"))
+            {
+
+            }
+
             string parent = pobj.GetValue<string>("parent");
             if (parent != "")
             {
