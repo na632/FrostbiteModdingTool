@@ -248,7 +248,7 @@ namespace FIFALibraryNETFrameworkTests
         [TestMethod]
         public void TestSDKGeneratorInjection()
         {
-            int? proc = getProcIDFromName("Madden21");
+            int? proc = getProcIDFromName("FIFA21");
             //if (!proc.HasValue || proc == 0)
             //{
             //    var r = LaunchFIFA.LaunchAsync(
@@ -262,11 +262,11 @@ namespace FIFALibraryNETFrameworkTests
             //}
 
 
-            proc = getProcIDFromName("Madden21");
+            proc = getProcIDFromName("FIFA21");
             while (!proc.HasValue || proc == 0)
             {
                 Debug.WriteLine($"Waiting for FIFA to appear");
-                proc = getProcIDFromName("Madden21");
+                proc = getProcIDFromName("FIFA21");
                 Thread.Sleep(1000);
             }
             if (proc.HasValue)
@@ -384,8 +384,8 @@ namespace FIFALibraryNETFrameworkTests
                 , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-           // frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
-            frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+           frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+           // frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
         }
 
         [TestMethod]
@@ -407,7 +407,7 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Pre-Alpha 16.fbproject");
+            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 1 RC2.fbproject");
 
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 GP Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "GP", Description = "GP", Title = "GP", Version = "1.00" });
@@ -870,7 +870,7 @@ namespace FIFALibraryNETFrameworkTests
         //}
 
         [TestMethod]
-        public void TestOpenFaceMesh()
+        public void TestExportFaceMesh()
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
@@ -882,8 +882,9 @@ namespace FIFALibraryNETFrameworkTests
                 {
                     var resentry = project.AssetManager.GetRes(project.AssetManager.GetResEntry(skinnedMeshEntry.Name));
                     MeshSet meshSet = new MeshSet(resentry, project.AssetManager);
-                    FBXExporter exporter = new FBXExporter();
-                    exporter.ExportFBX(meshSet, skinnedMeshEbx.RootObject, "test.fbx", "2019", "Centimeters", "", "ascii");
+
+                    var exporter = new MeshAssetFbxExporter();
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Centimeters", true, "", "*.fbx", meshSet);
 
                 }
             }

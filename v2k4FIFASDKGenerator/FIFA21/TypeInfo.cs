@@ -24,6 +24,7 @@ namespace v2k4FIFASDKGenerator.FIFA21
             size = reader.ReadUInt();
             reader.Position -= 4L;
             size = reader.ReadUShort();
+			//reader.Position += 2;
 
 			guid = reader.ReadGuid();
 
@@ -50,7 +51,7 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			reader.Position = position;
 			nameSpace = reader.ReadNullTerminatedString();
 			bool flag = false;
-			parentClass = array[0];
+			//parentClass = array[0];
 			if (base.Type == 2)
 			{
 				reader.Position = array[6];
@@ -71,6 +72,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
 				parentClass = 0L;
 				reader.Position = array[0];
 				flag = true;
+			}
+			else if (Type == 4)
+			{
+				parentClass = array[0];
 			}
 			if (flag)
 			{

@@ -11,10 +11,6 @@
       "SubDirs": false
     },
     {
-      "Path": "Update",
-      "SubDirs": true
-    },
-    {
       "Path": "Data",
       "SubDirs": false
     }

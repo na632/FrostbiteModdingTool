@@ -107,6 +107,7 @@
     <None Include="..\FrostySdk\Madden21Profile.json">
       <Link>Madden21Profile.json</Link>
     </None>
+    <None Include="app.config" />
     <None Include="FIFA20Profile - Copy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

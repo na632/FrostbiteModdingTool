@@ -8,7 +8,7 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 Modding Tool 2021 Launcher" Height="800" Width="1000" ResizeMode="NoResize">
+        Title="paulv2k4 Modding Tool 2021 Launcher" Height="800" Width="1000" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" VerticalAlignment="Top">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
@@ -22,11 +22,11 @@
                         <Label Content="Legacy Mod Settings" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+                <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game EXE >>>>" VerticalAlignment="Center" />
                 <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
                     <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
-                        <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                        <Label Content="Browse for Game" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
                 <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool" Click="btnCloseModdingTool_Click">

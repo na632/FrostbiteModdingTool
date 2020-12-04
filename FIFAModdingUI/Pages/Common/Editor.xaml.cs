@@ -1,10 +1,12 @@
-﻿using FrostySdk;
+﻿using FrostbiteModdingUI.Pages.Common.EBX;
+using FrostySdk;
 using FrostySdk.FrostySdk.Ebx;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +29,46 @@ namespace FIFAModdingUI.Pages.Common
 	/// </summary>
 	public partial class Editor : UserControl
 	{
+		public class ModdableProperty : INotifyPropertyChanged
+        {
+			public string PropertyName { get; set; }
+			public string PropertyType { get; set; }
+
+            private object propValue;
+
+            public object PropertyValue
+            {
+                get { return propValue; }
+                set 
+				{
+					if (propValue != value)
+					{
+						propValue = value;
+						if (PropertyChanged != null)
+							PropertyChanged.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+					}
+				}
+            }
+
+
+            public ModdableProperty(string n, string t, object v)
+            {
+				PropertyName = n;
+				PropertyType = t;
+				propValue = v;
+			}
+			public ModdableProperty(string n, string t, object v, PropertyChangedEventHandler modpropchanged)
+			{
+				PropertyChanged += modpropchanged;
+				PropertyName = n;
+				PropertyType = t;
+				propValue = v;
+			}
+
+			public event PropertyChangedEventHandler PropertyChanged;
+        }
+
+
 
 		public static readonly DependencyProperty AssetEntryProperty;
 
@@ -44,25 +86,26 @@ namespace FIFAModdingUI.Pages.Common
 
 		public object RootObject { get { return asset.RootObject; } }
 
-		private List<Tuple<string, string, object>> _rootObjProps;
+		private List<ModdableProperty> _rootObjProps;
 		/// <summary>
 		/// Item 1: PropertyName
 		/// Item 2: PropertyType
 		/// Item 3: PropertyValue
 		/// </summary>
-		public List<Tuple<string,string,object>> RootObjectProperties
+		public List<ModdableProperty> RootObjectProperties
         {
             get
             {
 				if (_rootObjProps == null)
 				{
-					_rootObjProps = new List<Tuple<string, string, object>>();
+					_rootObjProps = new List<ModdableProperty>();
 
 					foreach (var p in RootObject.GetType().GetProperties())
 					{
-						_rootObjProps.Add(new Tuple<string, string, object>(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null)));
+						var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null), Modprop_PropertyChanged);
+						_rootObjProps.Add(modprop);
 					}
-					return _rootObjProps.OrderBy(x => x.Item1).ToList();
+					return _rootObjProps.OrderBy(x=>x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 				}
 				return _rootObjProps;
 			}
@@ -72,14 +115,20 @@ namespace FIFAModdingUI.Pages.Common
 				//FrostyProject.AssetManager.RevertAsset(AssetEntry);
 
 				_rootObjProps = value;
-				foreach(var item in _rootObjProps.Where(x=> !x.Item1.StartsWith("__")))
+				foreach(var item in _rootObjProps.Where(x=> !x.PropertyName.StartsWith("__")))
                 {
-					v2k4Util.SetPropertyValue(RootObject, item.Item1, item.Item3);
+					v2k4Util.SetPropertyValue(RootObject, item.PropertyName, item.PropertyValue);
 
                 }
 				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
 			}
         }
+
+        private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+			_rootObjProps.Find(x => x.PropertyName == ((ModdableProperty)sender).PropertyName).PropertyValue = ((ModdableProperty)sender).PropertyValue;
+			FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
+		}
 
 		public void RevertAsset() {
 			FrostyProject.AssetManager.RevertAsset(AssetEntry);
@@ -133,35 +182,6 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-        public object MyChangingProperty { get; internal set; }
-
-        protected event RoutedEventHandler onAssetModified;
-
-		public event RoutedEventHandler OnAssetModified
-		{
-			add
-			{
-				onAssetModified += value;
-			}
-			remove
-			{
-				onAssetModified -= value;
-			}
-		}
-
-		private static void OnAssetModifiedChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-		{
-			if ((bool)e.NewValue)
-			{
-				Editor frostyAssetEditor = o as Editor;
-				frostyAssetEditor.asset.Update();
-			
-				//App.AssetManager.ModifyEbx(frostyAssetEditor.AssetEntry.Name, frostyAssetEditor.asset);
-				//frostyAssetEditor.InvokeOnAssetModified();
-				//frostyAssetEditor.AssetModified = false;
-			}
-		}
-
 		public Editor()
         {
             InitializeComponent();
@@ -181,18 +201,19 @@ namespace FIFAModdingUI.Pages.Common
 
 			this.DataContext = this;
 			this.TreeView1.Items.Clear();
-			foreach (var p in RootObjectProperties.OrderBy(x=>x.Item1))
+			foreach (var p in RootObjectProperties.OrderBy(x=>x.PropertyName))
 			{
 				TreeViewItem propTreeViewParent = new TreeViewItem();
-				propTreeViewParent.Header = p.Item1;
-				TreeView1.Items.Add(propTreeViewParent);
+				propTreeViewParent.Header = p.PropertyName;
 
-				switch (p.Item2)
+				bool AddToPropTreeViewParent = true;
+
+				switch (p.PropertyType)
 				{
 					case "FrostySdk.Ebx.PointerRef":
-						if (p.Item3.PropertyExists("Internal"))
+						if (p.PropertyValue.PropertyExists("Internal"))
 						{
-							var FloatCurve = p.Item3.GetPropertyValue("Internal");
+							var FloatCurve = p.PropertyValue.GetPropertyValue("Internal");
 							//if (FloatCurve != null && v2k4Util.HasProperty(FloatCurve, "MinX"))
 							if (FloatCurve != null)
 							{
@@ -201,7 +222,7 @@ namespace FIFAModdingUI.Pages.Common
 								var spGuid = new StackPanel() { Orientation = Orientation.Horizontal };
 								var lblGuid = new Label() { Content = "__Guid" };
 								spGuid.Children.Add(lblGuid);
-								var txtGuid = new Label() { Name = p.Item1 + "___Guid", Content = FloatCurve.__InstanceGuid.ToString() };
+								var txtGuid = new Label() { Name = p.PropertyName + "___Guid", Content = FloatCurve.__InstanceGuid.ToString() };
 								spGuid.Children.Add(txtGuid);
 								propTreeViewParent.Items.Add(spGuid);
 
@@ -235,19 +256,19 @@ namespace FIFAModdingUI.Pages.Common
 
 										TreeViewItem SubChild1ItemX = new TreeViewItem();
 										SubChild1ItemX.Header = "X";
-										var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_X", Text = FloatCurve.Points[i].X.ToString() };
+										var txtPointX = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_X", Text = FloatCurve.Points[i].X.ToString() };
 										txtPointX.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) => {
 										
-											AssetHasChanged(sender as TextBox, p.Item1);
+											AssetHasChanged(sender as TextBox, p.PropertyName);
 										};
 										SubChild1ItemX.Items.Add(txtPointX);
 										Child1Item.Items.Add(SubChild1ItemX);
 
 										TreeViewItem SubChild1ItemY = new TreeViewItem();
 										SubChild1ItemY.Header = "Y";
-										var txtPointY = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_Y", Text = FloatCurve.Points[i].Y.ToString() };
+										var txtPointY = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Y", Text = FloatCurve.Points[i].Y.ToString() };
 										txtPointY.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) => {
-											AssetHasChanged(sender as TextBox, p.Item1);
+											AssetHasChanged(sender as TextBox, p.PropertyName);
 										};
 										SubChild1ItemY.Items.Add(txtPointY);
 
@@ -270,15 +291,15 @@ namespace FIFAModdingUI.Pages.Common
 						SysSingleTreeView.Header = "Value";
 						SysSingleTreeView.IsExpanded = true;
 						TextBox txt = new TextBox();
-						txt.Name = p.Item1;
-						txt.Text = p.Item3.ToString();
-						//txt.SetBindi = "{Binding RootObject." + p.Item1 + "}";// p.Item3.ToString();
+						txt.Name = p.PropertyName;
+						txt.Text = p.PropertyValue.ToString();
+						//txt.SetBindi = "{Binding RootObject." + p.PropertyName + "}";// p.PropertyValue.ToString();
 						//txt.TextChanged += (object sender, TextChangedEventArgs e) => {
-						//	AssetHasChanged(sender as TextBox, p.Item1);
+						//	AssetHasChanged(sender as TextBox, p.PropertyName);
 						//};
 
 						txt.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) => {
-							AssetHasChanged(sender as TextBox, p.Item1);
+							AssetHasChanged(sender as TextBox, p.PropertyName);
 						};
 
 						SysSingleTreeView.Items.Add(txt);
@@ -293,7 +314,7 @@ namespace FIFAModdingUI.Pages.Common
 						TreeViewItem lstSingleTreeViewParent = new TreeViewItem();
 						lstSingleTreeViewParent.Header = "Values";
 
-						var listSingle = p.Item3 as List<System.Single>;
+						var listSingle = p.PropertyValue as List<System.Single>;
 						for (var i = 0; i < listSingle.Count; i++)
 						{
 							var point = listSingle[i];
@@ -302,9 +323,9 @@ namespace FIFAModdingUI.Pages.Common
 
 							TreeViewItem SubChild1ItemX = new TreeViewItem();
 							SubChild1ItemX.Header = "Value";
-							var txtPointX = new TextBox() { Name = p.Item1 + "_Points_" + i.ToString() + "_Value", Text = listSingle[i].ToString() };
+							var txtPointX = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Value", Text = listSingle[i].ToString() };
 							txtPointX.TextChanged += (object sender, TextChangedEventArgs e) => {
-								AssetHasChanged(sender as TextBox, p.Item1);
+								AssetHasChanged(sender as TextBox, p.PropertyName);
 							};
 							SubChild1ItemX.Items.Add(txtPointX);
 							Child1Item.Items.Add(SubChild1ItemX);
@@ -322,7 +343,7 @@ namespace FIFAModdingUI.Pages.Common
 						SysCStringTreeView.Header = "Value";
 
 						TextBox txtCS = new TextBox();
-						txtCS.Text = p.Item3.ToString();
+						txtCS.Text = p.PropertyValue.ToString();
 						SysCStringTreeView.Items.Add(txtCS);
 
 
@@ -332,14 +353,17 @@ namespace FIFAModdingUI.Pages.Common
 
 						break;
 					case "System.Boolean":
-						CheckBox checkBox = new CheckBox();
-						checkBox.IsChecked = bool.Parse(p.Item3.ToString());
-						propTreeViewParent.Items.Add(checkBox);
-						propTreeViewParent.IsExpanded = true;
+						//CheckBox checkBox = new CheckBox();
+						//checkBox.IsChecked = bool.Parse(p.PropertyValue.ToString());
+						System_Boolean system_Boolean = new System_Boolean();
+						system_Boolean.DataContext = p;
+						TreeView1.Items.Add(system_Boolean);
+						//propTreeViewParent.Items.Add(system_Boolean);
+						//propTreeViewParent.IsExpanded = true;
 						break;
 					case "FrostySdk.Ebx.AssetClassGuid":
 						TextBox txtGuid2 = new TextBox();
-						txtGuid2.Text = p.Item3.ToString();
+						txtGuid2.Text = p.PropertyValue.ToString();
 						txtGuid2.IsEnabled = false;
 						propTreeViewParent.Items.Add(txtGuid2); 
 						propTreeViewParent.IsExpanded = true;
@@ -347,7 +371,7 @@ namespace FIFAModdingUI.Pages.Common
 						break;
 
 					case "System.Collections.Generic.List`1[FrostySdk.Ebx.HotspotEntry]":
-						var d = (dynamic)p.Item3;
+						var d = (dynamic)p.PropertyValue;
 
 						TreeViewItem lstHSDynamicTreeViewParent = new TreeViewItem();
 						lstHSDynamicTreeViewParent.Header = "Values";
@@ -413,6 +437,10 @@ namespace FIFAModdingUI.Pages.Common
 
 
 				}
+
+				if(AddToPropTreeViewParent)
+					TreeView1.Items.Add(propTreeViewParent);
+
 			}
 		}
 
@@ -426,7 +454,7 @@ namespace FIFAModdingUI.Pages.Common
 				string txtboxName = sender.Name;
 				if (!string.IsNullOrEmpty(txtboxName))
 				{
-					var rootProp = RootObjectProperties.Find(x => x.Item1 == propName);
+					var rootProp = RootObjectProperties.Find(x => x.PropertyName == propName);
 					if (rootProp != null)
 					{
 						if (!txtboxName.StartsWith("_") && !txtboxName.StartsWith("ATTR_") && txtboxName.Contains("_"))
@@ -442,7 +470,7 @@ namespace FIFAModdingUI.Pages.Common
 								{
 									var index = int.Parse(splitPropName[splitPropName.Length - 2]);
 
-									var FloatCurve = rootProp.Item3.GetPropertyValue("Internal");
+									var FloatCurve = rootProp.PropertyValue.GetPropertyValue("Internal");
 									var fcPoint = FloatCurve.Points[index];
 
 									if (splitPropName[splitPropName.Length - 1] == "X")
@@ -462,31 +490,31 @@ namespace FIFAModdingUI.Pages.Common
 								}
 								else if(int.TryParse(splitPropName[splitPropName.Length - 2], out int index))
 								{
-									var List = rootProp.Item3 as List<Single>;
+									var List = rootProp.PropertyValue as List<Single>;
 									List[index] = System.Single.Parse(sender.Text);
-									var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
-									newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, List));
+									var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
+									newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, List));
 									RootObjectProperties = newlist;
 								}
 								else
                                 {
-									var replacementitem3 = rootProp.Item3;
+									var replacementitem3 = rootProp.PropertyValue;
 									replacementitem3 = System.Single.Parse(sender.Text);
-									var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
-									newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+									var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
+									newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
 									RootObjectProperties = newlist;
 								}
 							}
 							else if (splitPropName.Length > 1)// && splitPropName[3] == "VALUE")
 							{
-								var replacementitem3 = rootProp.Item3;
-								if(rootProp.Item2 == "System.Int32")
+								var replacementitem3 = rootProp.PropertyValue;
+								if(rootProp.PropertyType == "System.Int32")
 									replacementitem3 = System.Int32.Parse(sender.Text);
 								else
 									replacementitem3 = System.Single.Parse(sender.Text);
 
-								var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
-								newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+								var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
+								newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
 								RootObjectProperties = newlist;
 							}
 						}
@@ -495,19 +523,19 @@ namespace FIFAModdingUI.Pages.Common
 							var splitPropName = txtboxName.Split('_');
 							if (splitPropName.Length == 2)
 							{
-								var replacementitem3 = rootProp.Item3;
+								var replacementitem3 = rootProp.PropertyValue;
 								replacementitem3 = System.Single.Parse(sender.Text);
-								var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
-								newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+								var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
+								newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
 								RootObjectProperties = newlist;
 							}
 						}
 						else
 						{
-							var replacementitem3 = rootProp.Item3;
+							var replacementitem3 = rootProp.PropertyValue;
 							replacementitem3 = System.Single.Parse(sender.Text);
-							var newlist = RootObjectProperties.Where(x => x.Item1 != rootProp.Item1).ToList();
-							newlist.Add(new Tuple<string, string, object>(rootProp.Item1, rootProp.Item2, replacementitem3));
+							var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
+							newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
 							RootObjectProperties = newlist;
 						}
 
@@ -550,82 +578,5 @@ namespace FIFAModdingUI.Pages.Common
 		}
     }
 
-    public class MyDataTemplateSelector : DataTemplateSelector
-	{
-		public DataTemplate TextTemplate { get; set; }
-		public DataTemplate ImageTemplate { get; set; }
-
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
-        {
-            return base.SelectTemplate(item, container);
-        }
-  //      protected override DataTemplate SelectTemplateCore(object item)
-		//{
-		//	//if (item is TextItem)
-		//	//	return TextTemplate;
-		//	//if (item is ImageItem)
-		//	//	return ImageTemplate;
-
-		//	return base.SelectTemplateCore(item);
-		//}
-
-		//protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
-		//{
-		//	return SelectTemplateCore(item);
-		//}
-	}
-
-	public class FileItemTemplateSelector : DataTemplateSelector
-	{
-
-
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
-        {
-			var castedTuple = item as Tuple<string, string, object>;
-			if (castedTuple != null) {
-				if (castedTuple.Item3.GetType().ToString() == "FrostySdk.Ebx.PointerRef")
-                {
-					return PointerRefItemTemplate;
-				}
-				switch(castedTuple.Item3.GetType().ToString())
-                {
-					case "System.Single":
-						return FloatItemTemplate;
-                }
-			}
-
-            return base.SelectTemplate(item, container);
-        }
-        //protected override DataTemplate SelectTemplate(object item, DependencyObject container)
-        //{
-        //	var file = item as FileObject;
-        //	switch (file.MimeType)
-        //	{
-        //		case "image/png":
-        //		case "image/jpg":
-        //			return ImageFileItemTemplate;
-        //		default:
-        //			return GeneralFileItemTemplate;
-        //	}
-        //}
-
-        public DataTemplate GeneralFileItemTemplate { get; set; }
-		public DataTemplate ImageFileItemTemplate { get; set; }
-		public DataTemplate FloatItemTemplate { get; set; }
-		public DataTemplate PointerRefItemTemplate { get; set; }
-	}
-
-	public class PointerRefTemplateSelector : DataTemplateSelector
-    {
-
-		public DataTemplate GeneralFileItemTemplate { get; set; }
-		public DataTemplate ImageFileItemTemplate { get; set; }
-		public DataTemplate FloatItemTemplate { get; set; }
-		public DataTemplate PointerRefItemTemplate { get; set; }
-
-		public override DataTemplate SelectTemplate(object item, DependencyObject container)
-        {
-            return base.SelectTemplate(item, container);
-        }
-    }
+   
 }

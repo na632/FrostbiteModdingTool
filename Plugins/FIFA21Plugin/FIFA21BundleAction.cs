@@ -344,6 +344,9 @@ namespace FIFA21Plugin
 
         }
 
+        NativeWriter CurrentCasFile;
+        int? LastCatalogUsed;
+
         private bool PatchInSb(Tuple<Sha1, string, ModType, bool> modItem, byte[] data, AssetEntry originalEntry, NativeWriter nwCas)
         {
             var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
@@ -369,6 +372,83 @@ namespace FIFA21Plugin
                 var csbs = CachingSB.CachingSBs;
                 var fileToAddTo = csbs.FirstOrDefault(x => x.SBFile == p);
                 var lastBundle = fileToAddTo.GetLastBundle();
+
+                var moddata_sbfile = AssetManager.Instance.fs.ResolvePath(fileToAddTo.SBFile).Replace("\\patch\\", "\\moddata\\patch\\");
+                byte[] sbFile_data;
+                using (NativeReader nativeReader = new NativeReader(new FileStream(moddata_sbfile, FileMode.Open)))
+                {
+                    sbFile_data = nativeReader.ReadToEnd();
+                }
+
+                if (sbFile_data.Length > 0)
+                {
+                    using (NativeReader nativeReader = new NativeReader(new MemoryStream(sbFile_data))) 
+                    {
+                        // 
+                        // Gather the last Original Bundle and add to it
+                        nativeReader.Position = lastBundle.StartOffset;
+
+                        var binaryDataOffset = nativeReader.Position += lastBundle.BinaryDataOffset;
+                        nativeReader.Position = binaryDataOffset;
+                        // Header Data (not names and offsets)
+                        lastBundle.BinaryDataData = nativeReader.ReadBytes(36);
+                        nativeReader.Position -= 36;
+                        SBHeaderInformation headerInformation = new SBHeaderInformation(nativeReader, 0);
+                        switch (modItem.Item3)
+                        {
+                            case ModType.EBX:
+                                headerInformation.ebxCount++;
+                                break;
+                            case ModType.RES:
+                                headerInformation.resCount++;
+                                break;
+                            case ModType.CHUNK:
+                                headerInformation.chunkCount++;
+                                break;
+                        }
+
+
+
+                        // Boolean Cas Data 
+                        var booleanCasOffset = lastBundle.StartOffset += lastBundle.BooleanOfCasGroupOffset;
+
+                        //if (LastCatalogUsed == null || CurrentCasFile == null || LastCatalogUsed != lastBundle.LastCatalogId)
+                        //{
+                        //    var path = AssetManager.Instance.fs.GetFilePath(lastBundle.LastCatalogId, lastBundle.LastCAS, true);
+                        //    AssetManager.Instance.fs.ResolvePath(path, true);
+                        //    CurrentCasFile = new NativeWriter(new FileStream(path, FileMode.Open));
+                        //    //CurrentCasFile = GetNextCas(
+                        //    //        AssetManager.Instance.fs.EnumerateCatalogInfos().FirstOrDefault(x => x.PersistentIndex == lastBundle.LastCatalogId).Name
+                        //    //        , out int casFileIndex);
+                        //    LastCatalogUsed = lastBundle.LastCatalogId;
+
+                        //}
+
+                    }
+
+                    //var msNewStringsSection = new MemoryStream();
+                    //Dictionary<Sha1, long> Sha1ToStringPosition = new Dictionary<Sha1, long>();
+                    //using (NativeWriter nwNewStringsSection = new NativeWriter(msNewStringsSection, leaveOpen: true))
+                    //{
+                    //    foreach (var it in item.Value)
+                    //    {
+                    //        Sha1ToStringPosition.Add(it.Item1, nwNewStringsSection.BaseStream.Position);
+                    //        nwNewStringsSection.WriteNullTerminatedString(it.Item2);
+                    //    }
+                    //}
+                    //byte[] NewStringsSection = msNewStringsSection.ToArray();
+
+                    using (NativeWriter nativeWriter = new NativeWriter(new FileStream(moddata_sbfile, FileMode.Open)))
+                    {
+                        nativeWriter.BaseStream.Position = lastBundle.StartOffset;
+                        nativeWriter.BaseStream.Position += lastBundle.BinaryDataOffset;
+                        nativeWriter.Write(lastBundle.BinaryDataData);
+                    }
+                }
+                else
+                {
+                    throw new Exception("Mod Data - SB file data doesn't exist!");
+                }
 
                 //return true;
             }
@@ -506,19 +586,19 @@ namespace FIFA21Plugin
             }
         }
 
-        private NativeWriter GetNextCas(out int casFileIndex)
+        private NativeWriter GetNextCas(string catalogName, out int casFileIndex)
         {
             int num = 1;
-            string text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + num.ToString("D2") + ".cas";
+            string text = parent.fs.BasePath + "ModData\\patch\\" + catalogName + "\\cas_" + num.ToString("D2") + ".cas";
             while (File.Exists(text))
             {
                 num++;
-                text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + num.ToString("D2") + ".cas";
+                text = parent.fs.BasePath + "ModData\\patch\\" + catalogName + "\\cas_" + num.ToString("D2") + ".cas";
             }
             lock (locker)
             {
-                casFiles.Add(++CasFileCount, "/native_data/Patch/" + catalogInfo.Name + "/cas_" + num.ToString("D2") + ".cas");
-                AssetManager.Instance.ModCASFiles.Add(CasFileCount, "/native_data/Patch/" + catalogInfo.Name + "/cas_" + num.ToString("D2") + ".cas");
+                casFiles.Add(++CasFileCount, parent.fs.BasePath + "ModData\\patch\\" + catalogName + "/cas_" + num.ToString("D2") + ".cas");
+                AssetManager.Instance.ModCASFiles.Add(CasFileCount, parent.fs.BasePath + "ModData\\patch\\" + catalogName + "/cas_" + num.ToString("D2") + ".cas");
                 casFileIndex = CasFileCount;
             }
             FileInfo fileInfo = new FileInfo(text);

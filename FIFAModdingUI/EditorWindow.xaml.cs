@@ -1698,6 +1698,7 @@ namespace FIFAModdingUI
         public string FIFAInstallEXEPath { get; set; }
         public string FIFAFrostyModsDirectory { get; set; }
         #endregion
+
         public void Save()
         {
             using (StreamWriter sw = new StreamWriter(FullFilePath))

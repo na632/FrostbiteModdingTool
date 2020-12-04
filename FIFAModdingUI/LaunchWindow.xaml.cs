@@ -1,5 +1,6 @@
 ﻿using FIFAModdingUI.Mods;
 using FIFAModdingUI.Windows.Profile;
+using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
@@ -37,14 +38,33 @@ namespace FIFAModdingUI
         public LaunchWindow()
         {
             InitializeComponent();
+            this.Closing += LaunchWindow_Closing;
+
             GetListOfModsAndOrderThem();
 
             try
             {
+                if (!File.Exists(AppSettings.Settings.FIFAInstallEXEPath))
+                {
+                    AppSettings.Settings.FIFAInstallEXEPath = null;
+                }
+
                 if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
                 {
                     txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
                     InitializeOfSelectedGame(AppSettings.Settings.FIFAInstallEXEPath);
+                }
+                else
+                {
+                    var bS = new FindGameEXEWindow().ShowDialog();
+                    if (bS.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
+                    {
+                        InitializeOfSelectedGame(AppSettings.Settings.FIFAInstallEXEPath);
+                    }
+                    else
+                    {
+                        throw new Exception("Unable to start up Game");
+                    }
                 }
             }
             catch (Exception e)
@@ -52,6 +72,11 @@ namespace FIFAModdingUI
                 txtFIFADirectory.Text = "";
                 Trace.WriteLine(e.ToString());
             }
+        }
+
+        private void LaunchWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            new MainWindow().Show();
         }
 
         private ObservableCollection<string> ListOfMods = new ObservableCollection<string>();
@@ -195,7 +220,7 @@ namespace FIFAModdingUI
 
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
-            if (GameInstanceSingleton.GAMEVERSION != null)
+            if (!string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION) && !string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
             {
                 if(chkCleanLegacyModDirectory.IsChecked.HasValue && chkCleanLegacyModDirectory.IsChecked.Value)
                 {
@@ -428,6 +453,12 @@ namespace FIFAModdingUI
 
         private void InitializeOfSelectedGame(string filePath)
         {
+            if(!File.Exists(filePath))
+            {
+                LogError($"Game EXE Path {filePath} doesn't exist!");
+                return;
+            }
+
             if (!string.IsNullOrEmpty(filePath))
             {
                 AppSettings.Settings.FIFAInstallEXEPath = filePath;
@@ -442,11 +473,16 @@ namespace FIFAModdingUI
                     txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
                     btnLaunch.IsEnabled = true;
                 }
+                else
+                {
+                    throw new Exception("Unsupported Game EXE Selected");
+                }
 
                 if(GameInstanceSingleton.GAMEVERSION == "FIFA21")
                 {
                     txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
                     chkUseSymbolicLink.Visibility = Visibility.Collapsed;
+                    chkUseSymbolicLink.IsChecked = false;
                 }
 
                 if(GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
@@ -481,11 +517,10 @@ namespace FIFAModdingUI
         {
             LogAsync("[ERROR] " + text);
 
-            Dispatcher.InvokeAsync(() =>
-            {
+            if (File.Exists("ErrorLog.txt"))
+                File.Delete("ErrorLog.txt");
 
-                File.WriteAllText("ErrorLog.txt", DateTime.Now.ToString() + " \n" + text);
-            });
+            File.WriteAllText("ErrorLog.txt", DateTime.Now.ToString() + " \n" + text);
         }
 
         private void listMods_SelectionChanged(object sender, SelectionChangedEventArgs e)

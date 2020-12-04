@@ -9,7 +9,7 @@
 
     <StackPanel>
         <CheckBox x:Name="chkImportFromFiles" Content="Import from raw file" Unchecked="chkImportFromFiles_Checked" Checked="chkImportFromFiles_Checked"></CheckBox>
-        <TreeView x:Name="TreeView1" IsEnabled="{Binding chkImportFromFiles.IsChecked.Value}" Height="400" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible">
+        <TreeView x:Name="TreeView1" Height="400" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible">
         </TreeView>
     </StackPanel>
 

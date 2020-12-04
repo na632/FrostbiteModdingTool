@@ -47,8 +47,8 @@ namespace v2k4FIFAModdingCL
 
         public static List<string> CompatibleGameVersions = new List<string>()
         {
-            "FIFA19.exe",
-            "FIFA20_demo.exe",
+            //"FIFA19.exe",
+            //"FIFA20_demo.exe",
             "FIFA20.exe",
             "FIFA21.exe",
             "MADDEN20.exe",
@@ -94,7 +94,7 @@ namespace v2k4FIFAModdingCL
 
         public static void InjectDLL(string dllpath)
         {
-            Thread.Sleep(4000);
+            Thread.Sleep(5000);
 
             dllpath = dllpath.Replace(@"\\\\", @"\");
             dllpath = dllpath.Replace(@"\\", @"\");
@@ -105,11 +105,12 @@ namespace v2k4FIFAModdingCL
                 {
                     Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
                     proc = GetProcIDFromName(GAMEVERSION);
-                    Thread.Sleep(4000);
+                    Thread.Sleep(5000);
                 }
                 if (proc.HasValue)
                 {
                     Debug.WriteLine($"About to inject: {dllpath}");
+                    Thread.Sleep(1000);
                     var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
                     bl.InjectDll();
                     Debug.WriteLine($"Injected: {dllpath}");
