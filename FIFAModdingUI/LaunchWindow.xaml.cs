@@ -4,6 +4,7 @@ using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
+using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -232,8 +233,6 @@ namespace FIFAModdingUI
                 if(!Directory.Exists(GameInstanceSingleton.LegacyModsPath))
                     Directory.CreateDirectory(GameInstanceSingleton.LegacyModsPath);
 
-
-
                 // Copy the Locale.ini if checked
                 if (chkInstallLocale.IsChecked.Value)
                 {
@@ -313,6 +312,11 @@ namespace FIFAModdingUI
                             ProjectManagement projectManagement = new ProjectManagement(
                                 GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe"
                                 , this);
+
+                            if(AssetManager.Instance == null)
+                            {
+                                throw new Exception("Asset Manager has not been loaded against " + GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
+                            }
                             Log("Asset Manager loading complete");
                         }
                     }
@@ -483,6 +487,8 @@ namespace FIFAModdingUI
                     txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
                     chkUseSymbolicLink.Visibility = Visibility.Collapsed;
                     chkUseSymbolicLink.IsChecked = false;
+                    btnLaunchOtherTool.Visibility = Visibility.Visible;
+                    btnLaunchOtherTool.IsEnabled = true;
                 }
 
                 if(GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
@@ -566,6 +572,14 @@ namespace FIFAModdingUI
         private void btnLegacyModSupportSettings_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void btnLaunchOtherTool_Click(object sender, RoutedEventArgs e)
+        {
+            FindOtherLauncherEXEWindow findOtherLauncherEXEWindow = new FindOtherLauncherEXEWindow();
+            findOtherLauncherEXEWindow.InjectLegacyModSupport = chkUseLegacyModSupport.IsChecked.Value;
+            findOtherLauncherEXEWindow.InjectLiveEditorSupport = chkUseLiveEditor.IsChecked.Value;
+            findOtherLauncherEXEWindow.ShowDialog();
         }
     }
 

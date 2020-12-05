@@ -34,9 +34,13 @@ namespace v2k4FIFAModding.Frosty
                     throw new Exception("Unable to Initialize Profile");
                 }
             }
+            else
+            {
+                throw new FileNotFoundException("Empty Game Path given!");
+            }
         }
 
-        private static string PreviousGameVersion;
+        private static string PreviousGameVersion { get; set; }
 
         public ProjectManagement()
         {
@@ -53,6 +57,7 @@ namespace v2k4FIFAModding.Frosty
                 //if(!File.Exists(FIFAInstanceSingleton.V))
                 //var buildSDK = new BuildSDK();
                 //var b = buildSDK.Build().Result;
+                PreviousGameVersion = GameInstanceSingleton.GAMEVERSION;
             }
         }
 

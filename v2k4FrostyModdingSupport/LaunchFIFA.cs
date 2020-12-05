@@ -25,26 +25,31 @@ namespace FIFAModdingUI
                 logger.Log("[ERROR] No logger provided for launching service");
             }
 
-            if (!ProfilesLibrary.Initialize(FIFAVERSION))
+            if(AssetManager.Instance.fs == null)
             {
-                throw new Exception("Unable to Initialize Profile");
+                throw new Exception("Asset Manager is not initialised");
             }
-            logger.Log("[DEBUG] Profile Initialised");
 
-            FileSystem fileSystem = new FileSystem(FIFARootPath);
-            foreach (FileSystemSource source in ProfilesLibrary.Sources)
-            {
-                fileSystem.AddSource(source.Path, source.SubDirs);
-            }
-            fileSystem.Initialize();
-            logger.Log("[DEBUG] File System Initialised");
+            //if (!ProfilesLibrary.Initialize(FIFAVERSION))
+            //{
+            //    throw new Exception("Unable to Initialize Profile");
+            //}
+            ////logger.Log("[DEBUG] Profile Initialised");
+
+            //FileSystem fileSystem = new FileSystem(FIFARootPath);
+            //foreach (FileSystemSource source in ProfilesLibrary.Sources)
+            //{
+            //    fileSystem.AddSource(source.Path, source.SubDirs);
+            //}
+            //fileSystem.Initialize();
+            //logger.Log("[DEBUG] File System Initialised");
             
             logger.Log("Running Mod Executer");
             var fme = new FrostyModExecutor();
             fme.UseSymbolicLinks = useSymbolicLink;
 
 
-            return await fme.Run(fileSystem, logger, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
+            return await fme.Run(AssetManager.Instance.fs, logger, ModDirectory, "-DrawStatsEnable 1", OrderedListOfMods.ToArray());
         }
     }
 

@@ -6242,7 +6242,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             return true;
         }
 
-        private void ExecuteProcess(string processName, string args, bool waitForExit = false, bool asAdmin = false)
+        public void ExecuteProcess(string processName, string args, bool waitForExit = false, bool asAdmin = false)
         {
             using (Process process = new Process())
             {
