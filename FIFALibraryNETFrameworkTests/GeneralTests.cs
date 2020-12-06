@@ -407,13 +407,14 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 1 RC2.fbproject");
+            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\Simple GP Change.fbproject");
 
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 GP Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "GP", Description = "GP", Title = "GP", Version = "1.00" });
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
+            frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
+            //frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
         }
 
 

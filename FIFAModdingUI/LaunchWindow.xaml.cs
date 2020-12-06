@@ -219,19 +219,66 @@ namespace FIFAModdingUI
 
         }
 
+        /// <summary>
+        /// Setup and Extract lmods to the LegacyMods folder
+        /// </summary>
+        private void DoLegacyModSetup()
+        {
+            if (chkCleanLegacyModDirectory.IsChecked.HasValue && chkCleanLegacyModDirectory.IsChecked.Value)
+            {
+                RecursiveDelete(new DirectoryInfo(GameInstanceSingleton.LegacyModsPath));
+            }
+
+            if (!Directory.Exists(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\"))
+                Directory.CreateDirectory(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\");
+            if (!Directory.Exists(GameInstanceSingleton.LegacyModsPath))
+                Directory.CreateDirectory(GameInstanceSingleton.LegacyModsPath);
+
+            if (chkUseLegacyModSupport.IsChecked.HasValue && chkUseLegacyModSupport.IsChecked.Value)
+            {
+                foreach (var lmodZipped in ListOfMods.Where(x => x.Contains(".zip")))
+                {
+                    using (FileStream fsZip = new FileStream(lmodZipped, FileMode.Open))
+                    {
+                        ZipArchive zipA = new ZipArchive(fsZip);
+                        foreach (var zipEntry in zipA.Entries.Where(x => x.FullName.Contains(".lmod")))
+                        {
+                            ZipArchive zipLMod = new ZipArchive(zipEntry.Open());
+                            foreach (var zipEntLMOD in zipA.Entries)
+                            {
+                                if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName))
+                                {
+                                    File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName);
+                                }
+                            }
+                            zipLMod.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
+                        }
+                    }
+                }
+                foreach (var lmod in ListOfMods.Where(x => x.Contains(".lmod")))
+                {
+                    using (FileStream fs = new FileStream(lmod, FileMode.Open))
+                    {
+                        ZipArchive zipA = new ZipArchive(fs);
+                        foreach (var ent in zipA.Entries)
+                        {
+                            if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName))
+                            {
+                                File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName);
+                            }
+                        }
+                        zipA.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
+                    }
+                }
+            }
+
+        }
+
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION) && !string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
             {
-                if(chkCleanLegacyModDirectory.IsChecked.HasValue && chkCleanLegacyModDirectory.IsChecked.Value)
-                {
-                    RecursiveDelete(new DirectoryInfo(GameInstanceSingleton.LegacyModsPath));
-                }
-
-                if (!Directory.Exists(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\"))
-                    Directory.CreateDirectory(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\");
-                if(!Directory.Exists(GameInstanceSingleton.LegacyModsPath))
-                    Directory.CreateDirectory(GameInstanceSingleton.LegacyModsPath);
+                DoLegacyModSetup();
 
                 // Copy the Locale.ini if checked
                 if (chkInstallLocale.IsChecked.Value)
@@ -248,44 +295,6 @@ namespace FIFAModdingUI
                                     ent.ExtractToFile(GameInstanceSingleton.FIFALocaleINIPath);
                                 }
                             }
-                        }
-                    }
-                }
-
-                if(chkUseLegacyModSupport.IsChecked.HasValue && chkUseLegacyModSupport.IsChecked.Value)
-                {
-                    foreach(var lmodZipped in ListOfMods.Where(x=>x.Contains(".zip")))
-                    {
-                        using (FileStream fsZip = new FileStream(lmodZipped, FileMode.Open))
-                        {
-                            ZipArchive zipA = new ZipArchive(fsZip);
-                            foreach (var zipEntry in zipA.Entries.Where(x => x.FullName.Contains(".lmod")))
-                            {
-                                ZipArchive zipLMod = new ZipArchive(zipEntry.Open());
-                                foreach (var zipEntLMOD in zipA.Entries)
-                                {
-                                    if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName))
-                                    {
-                                        File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName);
-                                    }
-                                }
-                                zipLMod.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
-                            }
-                        }
-                    }
-                    foreach(var lmod in ListOfMods.Where(x=> x.Contains(".lmod")))
-                    {
-                        using (FileStream fs = new FileStream(lmod, FileMode.Open))
-                        {
-                            ZipArchive zipA = new ZipArchive(fs);
-                            foreach (var ent in zipA.Entries)
-                            {
-                                if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName))
-                                {
-                                    File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName);
-                                }
-                            }
-                            zipA.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
                         }
                     }
                 }
@@ -576,6 +585,8 @@ namespace FIFAModdingUI
 
         private void btnLaunchOtherTool_Click(object sender, RoutedEventArgs e)
         {
+            DoLegacyModSetup();
+
             FindOtherLauncherEXEWindow findOtherLauncherEXEWindow = new FindOtherLauncherEXEWindow();
             findOtherLauncherEXEWindow.InjectLegacyModSupport = chkUseLegacyModSupport.IsChecked.Value;
             findOtherLauncherEXEWindow.InjectLiveEditorSupport = chkUseLiveEditor.IsChecked.Value;

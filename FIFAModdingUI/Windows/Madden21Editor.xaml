@@ -59,8 +59,8 @@
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
                     <TextBox x:Name="txtGameDirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game >>>>" VerticalAlignment="Center" />
-                    <Button Name="btnBrowseGameDirectory"  Height="30" Click="btnBrowseGameDirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Name="btnBrowseGameDirectory"  Height="30" Click="btnBrowseGameDirectory_Click" Background="Transparent" BorderBrush={x:Null}">
+                        <"StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
                             <Label Content="Browse for Game" VerticalAlignment="Center" />
                         </StackPanel>

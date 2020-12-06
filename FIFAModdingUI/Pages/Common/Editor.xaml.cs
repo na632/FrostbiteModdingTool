@@ -126,8 +126,12 @@ namespace FIFAModdingUI.Pages.Common
 
         private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-			_rootObjProps.Find(x => x.PropertyName == ((ModdableProperty)sender).PropertyName).PropertyValue = ((ModdableProperty)sender).PropertyValue;
-			FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
+			var index = _rootObjProps.FindIndex(x => x.PropertyName == ((ModdableProperty)sender).PropertyName);
+			var o = _rootObjProps[index];
+			o.PropertyValue = ((ModdableProperty)sender).PropertyValue;
+			var robjs = RootObjectProperties;
+			robjs[index] = o;
+			RootObjectProperties = robjs;
 		}
 
 		public void RevertAsset() {
