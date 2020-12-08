@@ -66,6 +66,12 @@
     <Content Include="..\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\FrostySdk\Madden20Profile.json" Link="Madden20Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -157,12 +163,6 @@
     <None Update="FIFA20Legacy.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Madden20Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Madden21Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="fifa20_demo.key">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -189,6 +189,7 @@
 
   <ItemGroup>
     <Folder Include="Controls\" />
+    <Folder Include="Frosty\" />
     <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
