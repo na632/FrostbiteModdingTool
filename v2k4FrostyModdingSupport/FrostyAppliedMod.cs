@@ -6,7 +6,7 @@ namespace Frosty.ModSupport
 	{
 		private bool isEnabled;
 
-		private FrostyMod mod;
+		private FrostbiteMod mod;
 
 		public bool IsEnabled
 		{
@@ -20,9 +20,9 @@ namespace Frosty.ModSupport
 			}
 		}
 
-		public FrostyMod Mod => mod;
+		public FrostbiteMod Mod => mod;
 
-		public FrostyAppliedMod(FrostyMod inMod, bool inIsEnabled = true)
+		public FrostyAppliedMod(FrostbiteMod inMod, bool inIsEnabled = true)
 		{
 			mod = inMod;
 			isEnabled = inIsEnabled;

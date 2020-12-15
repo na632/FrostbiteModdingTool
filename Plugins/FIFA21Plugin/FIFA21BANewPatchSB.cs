@@ -65,11 +65,11 @@ namespace FIFA21Plugin
 
         private FrostyModExecutor parent;
 
-        private CatalogInfo catalogInfo;
+        private Catalog catalogInfo;
 
         private Dictionary<int, string> casFiles = new Dictionary<int, string>();
 
-        public CatalogInfo CatalogInfo => catalogInfo;
+        public Catalog CatalogInfo => catalogInfo;
 
         public Dictionary<int, string> CasFiles => casFiles;
 
@@ -83,7 +83,7 @@ namespace FIFA21Plugin
         /// <param name="inCatalogInfo"></param>
         /// <param name="inDoneEvent"></param>
         /// <param name="inParent"></param>
-        public FIFA21BANewPatchSB(CatalogInfo inCatalogInfo, FrostyModExecutor inParent)
+        public FIFA21BANewPatchSB(Catalog inCatalogInfo, FrostyModExecutor inParent)
         {
             catalogInfo = inCatalogInfo;
             parent = inParent;

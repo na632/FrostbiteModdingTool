@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using FrostySdk.Resources;
 using Frostbite.Textures;
 using static FrostySdk.Managers.AssetManager;
-using Frostbite.Fbx;
+//using Frostbite.Fbx;
 using FrostySdk.Frostbite;
 using paulv2k4ModdingExecuter;
 
@@ -46,7 +46,7 @@ namespace FIFALibraryNETFrameworkTests
             var FileSystem = new FrostySdk.FileSystem(@"E:\Origin Games\FIFA 20");
             var ResourceManager = new ResourceManager(FileSystem);
             var AssetManager = new AssetManager(FileSystem, ResourceManager);
-            var FrostyProject = new FrostyProject(AssetManager, FileSystem);
+            var FrostyProject = new FrostbiteProject(AssetManager, FileSystem);
             FrostyProject.Load(@"J:\Work\Modding\FIFA Modding\Gameplay mod\Version TC 2 Alpha 10\paulv2k4 FIFA 20 Gameplay Mod - TC 2 Alpha 10.fbproject");
             if (FrostyProject != null)
             {
@@ -884,8 +884,8 @@ namespace FIFALibraryNETFrameworkTests
                     var resentry = project.AssetManager.GetRes(project.AssetManager.GetResEntry(skinnedMeshEntry.Name));
                     MeshSet meshSet = new MeshSet(resentry, project.AssetManager);
 
-                    var exporter = new MeshAssetFbxExporter();
-                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Centimeters", true, "", "*.fbx", meshSet);
+                    //var exporter = new MeshAssetFbxExporter();
+                    //exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Centimeters", true, "", "*.fbx", meshSet);
 
                 }
             }
@@ -902,8 +902,30 @@ namespace FIFALibraryNETFrameworkTests
                 var movementebx = project.AssetManager.GetEbx(movemententry);
                 if (movementebx != null)
                 {
-
+                    dynamic movement = (dynamic)movementebx.RootObject;
+                    movement.ATTR_DribbleJogSpeed = 0.5f;
+                    project.AssetManager.ModifyEbx(movemententry.Name, movementebx);
                 }
+                project.Save("test.fbproject");
+
+                project.Load("test.fbproject");
+                movemententry = project.AssetManager.EnumerateEbx().Where(x => x.Name == "Fifa/Attribulator/Gameplay/groups/gp_actor/gp_actor_movement_runtime").FirstOrDefault();
+                if (movemententry != null)
+                {
+                    movementebx = project.AssetManager.GetEbx(movemententry);
+                    if (movementebx != null)
+                    {
+                        dynamic movement = (dynamic)movementebx.RootObject;
+                    }
+                }
+
+                projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 GP Test.fbmod"
+               , new ModSettings() { Author = "paulv2k4", Category = "GP", Description = "GP", Title = "GP", Version = "1.00" });
+
+                paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+                //frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
+                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
+
             }
         }
 
@@ -944,6 +966,38 @@ namespace FIFALibraryNETFrameworkTests
                 }
             }
         }
+
+        [TestClass]
+        public class Textures
+        {
+            [TestMethod]
+            public void TestImportOfPNGToLegacy()
+            {
+                ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+                var project = projectManagement.StartNewProject();
+                var legacyPressStartEbxEntries = project.AssetManager.EnumerateCustomAssets("legacy").Where(x => x.Name.ToLower().Contains("pressstart")).ToList();
+
+                var legacyPressStartEbxEntry = project.AssetManager.EnumerateCustomAssets("legacy").FirstOrDefault(x => x.Name.ToLower().Contains("pressstart.dds"));
+
+
+                byte[] bytes = null;
+
+                using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyPressStartEbxEntry)))
+                {
+                    var oldImage = new CSharpImageLibrary.ImageEngineImage(nr.ReadToEnd());
+
+                    var newImage = new CSharpImageLibrary.ImageEngineImage(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\PressStart.png");
+                    if (oldImage.Header.Width != newImage.Header.Width)
+                        throw new Exception("Image size is incorrect");
+
+                    bytes = newImage.Save(oldImage.FormatDetails, CSharpImageLibrary.MipHandling.KeepExisting);
+
+                    project.AssetManager.ModifyCustomAsset("legacy", legacyPressStartEbxEntry.Name, bytes);
+                }
+            }
+        }
+
+       
     }
 
     [TestClass]

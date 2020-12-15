@@ -219,26 +219,64 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnImport_Click(object sender, RoutedEventArgs e)
         {
+			var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 			if (SelectedLegacyEntry != null)
 			{
 				OpenFileDialog openFileDialog = new OpenFileDialog();
 				openFileDialog.Filter = $"Files (*.{SelectedLegacyEntry.Type})|*.{SelectedLegacyEntry.Type}";
 				openFileDialog.FileName = SelectedLegacyEntry.Filename;
+
+				byte[] bytes = File.ReadAllBytes(openFileDialog.FileName);
+				bool isImage = false;
+				if (SelectedLegacyEntry.Type == "DDS")
+				{
+					openFileDialog.Filter = imageFilter;
+					isImage = true;
+				}
+
 				var result = openFileDialog.ShowDialog();
 				if (result.HasValue && result.Value == true)
 				{
+					if (isImage)
+					{
+						using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)))
+						{
+							try
+							{
+								var oldImage = new CSharpImageLibrary.ImageEngineImage(nr.ReadToEnd());
+
+								var newImage = new CSharpImageLibrary.ImageEngineImage(openFileDialog.FileName);
+								if (oldImage.Header.Width != newImage.Header.Width)
+									throw new Exception("Image size is incorrect");
+
+								bytes = newImage.Save(oldImage.FormatDetails, CSharpImageLibrary.MipHandling.KeepExisting);
+							}
+							catch (Exception ConversionEx)
+							{
+								MainEditorWindow.LogError(ConversionEx.Message);
+							}
+						}
+
+						ImageViewer.Source = LoadImage(bytes);
+					}
+					else
+                    {
+						TextViewer.Text = ASCIIEncoding.ASCII.GetString(bytes);
+                    }
+
 					AssetManager.Instance.ModifyCustomAsset("legacy"
 						, SelectedLegacyEntry.Name
-						, File.ReadAllBytes(openFileDialog.FileName));
+						, bytes);
+
+
 				}
 			}
-
-			if (SelectedEntry != null)
+			else if (SelectedEntry != null)
 			{
 				if (SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture")
 				{
 					OpenFileDialog openFileDialog = new OpenFileDialog();
-					openFileDialog.Filter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
+					openFileDialog.Filter = imageFilter;
 					openFileDialog.FileName = SelectedEntry.Filename;
 					if (openFileDialog.ShowDialog().Value)
 					{
@@ -582,7 +620,7 @@ namespace FIFAModdingUI.Pages.Common
 								else if (imageViewers.Contains(legacyFileEntry.Type))
 								{
 									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
-
+									btnImport.IsEnabled = true;
 									btnExport.IsEnabled = true;
 									ImageViewerScreen.Visibility = Visibility.Visible;
 									using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
@@ -708,7 +746,14 @@ namespace FIFAModdingUI.Pages.Common
 			Update();
 		}
 
-       
+        private void TextViewer_LostFocus(object sender, RoutedEventArgs e)
+        {
+			var bytes = ASCIIEncoding.ASCII.GetBytes(TextViewer.Text);
+
+			AssetManager.Instance.ModifyCustomAsset("legacy"
+						, SelectedLegacyEntry.Name
+						, bytes);
+		}
     }
 
     internal class AssetPath

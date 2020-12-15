@@ -77,7 +77,7 @@ namespace v2k4FIFAModding.Frosty
 
         public static void ExportMod(ModSettings modSettings, string filename, bool bSilent)
         {
-            var project = new FrostyProject(AssetManager, new FileSystem(@"E:\Origin Games\FIFA 20\"));
+            var project = new FrostbiteProject(AssetManager, new FileSystem(@"E:\Origin Games\FIFA 20\"));
             project.WriteToMod(filename, modSettings);
             if (!bSilent)
             {

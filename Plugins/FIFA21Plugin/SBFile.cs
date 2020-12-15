@@ -123,6 +123,24 @@ namespace FIFA21Plugin
             public uint casFileForGroupOffset { get; set; }
             public uint unk2 { get; set; }
             public uint CatalogAndCASOffset { get; set; }
+            public uint unk3 { get; set; }
+            public uint unk4 { get; set; }
+            public uint unk5 { get; set; }
+
+            public byte[] Write()
+            {
+                MemoryStream memoryStream = new MemoryStream();
+                NativeWriter nw = new NativeWriter(memoryStream);
+                nw.Write((int)CatalogOffset, Endian.Big);
+                nw.Write((int)unk1, Endian.Big);
+                nw.Write((int)casFileForGroupOffset, Endian.Big);
+                nw.Write((int)unk2, Endian.Big);
+                nw.Write((int)CatalogAndCASOffset, Endian.Big);
+                nw.Write((int)unk3, Endian.Big);
+                nw.Write((int)unk4, Endian.Big);
+                nw.Write((int)unk5, Endian.Big);
+                return memoryStream.ToArray();
+            }
 
         }
 

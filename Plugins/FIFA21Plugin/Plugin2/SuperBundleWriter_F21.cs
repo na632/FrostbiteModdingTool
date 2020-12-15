@@ -1,7 +1,8 @@
 using FrostySdk;
 using FrostySdk.IO;
 using System;
-using System.Buffers;
+using System.Collections.Generic;
+//using System.Buffers;
 using System.IO;
 using System.Linq;
 
@@ -41,7 +42,8 @@ namespace FIFA21Plugin.Plugin2
 			writer.WriteInt32BigEndian(0);
 			writer.WriteInt32BigEndian(0);
 			long bundleEndPosition = new BundleWriter_F21().Write(stream, bundle);
-			byte[] flags = ArrayPool<byte>.Shared.Rent(entriesCount);
+			//byte[] flags = ArrayPool<byte>.Shared.Rent(entriesCount);
+			byte[] flags = new byte[entriesCount];
 			int currentCasIdentifier = -1;
 			long startOfEntryDataOffset = writer.Position - 32 - sbStartingPosition;
 			int entryIndex = 0;
@@ -63,8 +65,8 @@ namespace FIFA21Plugin.Plugin2
 				entryIndex++;
 			}
 			long startOfFlagsOffset = writer.Position - sbStartingPosition;
-			writer.WriteBytes(flags, 0, entriesCount);
-			ArrayPool<byte>.Shared.Return(flags);
+			writer.WriteBytes(flags);
+			//ArrayPool<byte>.Shared.Return(flags);
 			long endPosition = writer.Position;
 			writer.Position = headerStartPosition;
 			writer.WriteInt32BigEndian((int)startOfEntryDataOffset);

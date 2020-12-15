@@ -80,7 +80,7 @@ namespace Modding_UI_2021.Forms
                 buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, loadSDK: true).Wait();
 
                 ProjectManagement = new ProjectManagement(GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
-                ProjectManagement.FrostyProject = new FrostySdk.FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+                ProjectManagement.FrostyProject = new FrostySdk.FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
                 List<Task> tasks = new List<Task>();
                 var taskFact = new TaskFactory();
                 tasks.Add(taskFact.StartNew(() =>

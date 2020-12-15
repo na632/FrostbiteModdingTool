@@ -244,7 +244,7 @@ namespace FrostbiteModdingUI.Windows
         {
             AssetManager.Instance.Reset();
             Log("Asset Manager Reset");
-            ProjectManagement.FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+            ProjectManagement.FrostyProject = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             Log("New Project Created");
         }
     }

@@ -136,7 +136,11 @@
                 </StackPanel>
             </Grid>
 
-            <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999"  Visibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999" 
+                     Visibility="Collapsed"
+                     ScrollViewer.VerticalScrollBarVisibility="Visible"
+                      LostFocus="TextViewer_LostFocus"
+                     >
 
             </TextBox>
             <StackPanel x:Name="EBXViewer" Visibility="Collapsed">

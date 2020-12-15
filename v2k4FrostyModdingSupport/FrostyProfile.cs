@@ -27,7 +27,7 @@ namespace FrostyModManager
 			Config.Add("Profiles", name, ToConfigString());
 		}
 
-		public void AddMod(FrostyMod mod, bool isEnabled = true)
+		public void AddMod(FrostbiteMod mod, bool isEnabled = true)
 		{
 			if (appliedMods.FindIndex((FrostyAppliedMod a) => a.Mod == mod) == -1)
 			{

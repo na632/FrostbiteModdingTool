@@ -77,7 +77,7 @@ namespace v2k4FIFAModding.Frosty
             Instance = this;
         }
 
-        public FrostyProject FrostyProject = null;
+        public FrostbiteProject FrostyProject = null;
         public string FilePath = null;
 
         public ILogger Logger = null;
@@ -148,11 +148,11 @@ namespace v2k4FIFAModding.Frosty
         /// Starts the process of Loading Cache etc and Creates a New Project
         /// </summary>
         /// <returns></returns>
-        public async Task<FrostyProject> StartNewProjectAsync()
+        public async Task<FrostbiteProject> StartNewProjectAsync()
         {
             return await new TaskFactory().StartNew(() =>
             {
-                FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+                FrostyProject = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
                 return FrostyProject;
             });
         }
@@ -181,7 +181,7 @@ namespace v2k4FIFAModding.Frosty
          */
 
 
-        public FrostyProject StartNewProject()
+        public FrostbiteProject StartNewProject()
         {
             if(AssetManager.Instance == null)
             {
@@ -189,7 +189,7 @@ namespace v2k4FIFAModding.Frosty
                 buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, Logger, false, true);
             }
 
-            FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+            FrostyProject = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             return FrostyProject;
             //if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
             //{

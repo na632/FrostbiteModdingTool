@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -28,6 +29,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 using v2k4FIFASDKGenerator;
@@ -112,8 +114,11 @@ namespace FIFAModdingUI.Windows
 
 
                     Log("Initialise Texture Browser");
-                    textureBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                    List<IAssetEntry> textureAssets = ProjectManagement.FrostyProject.AssetManager
                                        .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                    textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.ToUpper().Contains(".DDS")));
+
+                    textureBrowser.AllAssetEntries = textureAssets;
 
                     Log("Initialise Data Browser");
                     dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
@@ -305,26 +310,133 @@ namespace FIFAModdingUI.Windows
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Mod files|*.fbmod";
-            var resultValue = saveFileDialog.ShowDialog(); 
-            if (resultValue.HasValue && resultValue.Value)
+            try
             {
-                ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName
-                    , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool GP Mod", Version = "1.00" });
-                using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Mod files|*.fbmod";
+                var resultValue = saveFileDialog.ShowDialog();
+                if (resultValue.HasValue && resultValue.Value)
                 {
-                    if(fs.Length > 1024 * 5)
+                    ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName
+                        , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool Mod", Version = "1.00" });
+                    using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
                     {
-                        Log("Saved mod successfully to " + saveFileDialog.FileName );
-                    }
-                    else
-                    {
-                        Log("An error has occurred Saving mod to " + saveFileDialog.FileName + " file seems too small");
+                        //if (fs.Length > 1024 * 2)
+                        //{
+                            Log("Saved mod successfully to " + saveFileDialog.FileName);
+                        //}
+                        //else
+                        //{
+                        //    Log("An error has occurred Saving mod to " + saveFileDialog.FileName + " file seems too small");
 
+                        //}
+                    }
+                }
+
+                if (ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true).Count() > 0)
+                {
+                    saveFileDialog.Filter = "Legacy Mod files|*.lmod";
+                    resultValue = saveFileDialog.ShowDialog();
+                    saveFileDialog.FileName = saveFileDialog.FileName.Replace(".fbmod", "");
+                    if (resultValue.HasValue && resultValue.Value)
+                    {
+                        if (Directory.Exists("Temp"))
+                        {
+                            Directory.Delete("Temp", true);
+                        }
+                        Directory.CreateDirectory("Temp");
+                        foreach (var entry in ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true))
+                        {
+                            var compilePath = "Temp/" + entry.Path;
+                            if (!Directory.Exists(compilePath))
+                            {
+                                Directory.CreateDirectory(compilePath);
+                            }
+
+                            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(compilePath + "/" + entry.Filename + "." + entry.Type, FileMode.Create)))
+                            {
+                                nativeWriter.Write(new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", entry)).ReadToEnd());
+                            }
+                        }
+
+                        Task.Run(() =>
+                        {
+                            CompileLMOD(saveFileDialog.FileName);
+                        }).ContinueWith((i) => {
+                        
+
+
+                        });
                     }
                 }
             }
+            catch(Exception SaveException)
+            {
+                LogError(SaveException.ToString());
+            }
+        }
+
+        private void CompileLMOD(string filename)
+        {
+            List<string> listOfCompilableFiles = new List<string>();
+            var index = 0;
+            var allFiles = Directory.GetFiles("Temp", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
+            foreach (var file in allFiles)
+            {
+                StringBuilder sbFinalResult = new StringBuilder();
+
+                var encrypt = !file.Contains(".dds")
+                    && !file.Contains(".db");
+
+                if (encrypt)
+                {
+                    var splitExtension = file.Split('.');
+                    if (splitExtension[splitExtension.Length - 1] != "mod")
+                        splitExtension[splitExtension.Length - 1] = "mod";
+
+                    foreach (var str in splitExtension)
+                    {
+                        if (str == "mod")
+                        {
+                            sbFinalResult.Append(".mod");
+                        }
+                        else
+                        {
+                            sbFinalResult.Append(str);
+                        }
+                    }
+                }
+                else
+                {
+                    sbFinalResult.Append(file);
+                }
+
+                if (encrypt)
+                {
+                    Log("Encrypting " + file);
+                    v2k4Encryption.encryptFile(file, sbFinalResult.ToString());
+                    File.Delete(file);
+                }
+
+                listOfCompilableFiles.Add(sbFinalResult.ToString());
+                index++;
+            }
+
+            Log("Encryption compilation complete");
+
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            using (ZipArchive zipArchive = new ZipArchive(new FileStream(filename, FileMode.OpenOrCreate), ZipArchiveMode.Create))
+            {
+                foreach (var compatFile in listOfCompilableFiles)
+                {
+                    zipArchive.CreateEntryFromFile(compatFile, compatFile.Replace("Temp\\", ""));
+                }
+            }
+
+            Log($"Legacy Mod file saved to {filename}");
+
         }
 
         private void btnProjectSave_Click(object sender, RoutedEventArgs e)
@@ -411,7 +523,7 @@ namespace FIFAModdingUI.Windows
         {
             AssetManager.Instance.Reset();
             Log("Asset Manager Reset");
-            ProjectManagement.FrostyProject = new FrostyProject(AssetManager.Instance, AssetManager.Instance.fs);
+            ProjectManagement.FrostyProject = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             Log("New Project Created");
         }
     }

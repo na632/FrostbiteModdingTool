@@ -65,11 +65,11 @@ namespace FIFA21Plugin
 
         private FrostyModExecutor parent;
 
-        private CatalogInfo catalogInfo;
+        private Catalog catalogInfo;
 
         private Dictionary<int, string> casFiles = new Dictionary<int, string>();
 
-        public CatalogInfo CatalogInfo => catalogInfo;
+        public Catalog CatalogInfo => catalogInfo;
 
         public Dictionary<int, string> CasFiles => casFiles;
 
@@ -83,7 +83,7 @@ namespace FIFA21Plugin
         /// <param name="inCatalogInfo"></param>
         /// <param name="inDoneEvent"></param>
         /// <param name="inParent"></param>
-        public FIFA21BundleAction(CatalogInfo inCatalogInfo, FrostyModExecutor inParent)
+        public FIFA21BundleAction(Catalog inCatalogInfo, FrostyModExecutor inParent)
         {
             catalogInfo = inCatalogInfo;
             parent = inParent;
@@ -292,8 +292,11 @@ namespace FIFA21Plugin
                                         originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(modItem.Item2));
 
                                         ChunkDups.Clear();
+                                        //ChunkDups.AddRange(
+                                        //    AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)).Where(x=>x.Sha1 != originalEntry.Sha1));
+
                                         ChunkDups.AddRange(
-                                            AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)).Where(x=>x.Sha1 != originalEntry.Sha1));
+                                            AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)));
 
                                         break;
                                 }
@@ -313,19 +316,19 @@ namespace FIFA21Plugin
 
                                     bool patchedInSb = false;
                                     patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
-                                    for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
-                                    {
-                                        patchedInSb = PatchInSb(modItem, data, ChunkDups[i], nwCas);
-                                    }
+                                    //for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
+                                    //{
+                                    //    patchedInSb = PatchInSb(modItem, data, ChunkDups[i], nwCas);
+                                    //}
 
                                     if (!patchedInSb)
                                     {
 
                                         ChangeSB(positionOfNewData, modItem, data.Length, originalEntry, nwCas);
-                                        for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
-                                        {
-                                            ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
-                                        }
+                                        //for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
+                                        //{
+                                        //    ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
+                                        //}
                                     }
 
                                    
@@ -382,47 +385,63 @@ namespace FIFA21Plugin
 
                 if (sbFile_data.Length > 0)
                 {
+                    var ms_NewData = new MemoryStream();
                     using (NativeReader nativeReader = new NativeReader(new MemoryStream(sbFile_data))) 
                     {
-                        // 
-                        // Gather the last Original Bundle and add to it
-                        nativeReader.Position = lastBundle.StartOffset;
-
-                        var binaryDataOffset = nativeReader.Position += lastBundle.BinaryDataOffset;
-                        nativeReader.Position = binaryDataOffset;
-                        // Header Data (not names and offsets)
-                        lastBundle.BinaryDataData = nativeReader.ReadBytes(36);
-                        nativeReader.Position -= 36;
-                        SBHeaderInformation headerInformation = new SBHeaderInformation(nativeReader, 0);
-                        switch (modItem.Item3)
+                        using (NativeWriter nw_NewData = new NativeWriter(ms_NewData))
                         {
-                            case ModType.EBX:
-                                headerInformation.ebxCount++;
-                                break;
-                            case ModType.RES:
-                                headerInformation.resCount++;
-                                break;
-                            case ModType.CHUNK:
-                                headerInformation.chunkCount++;
-                                break;
+
+                            // 
+                            // Gather the last Original Bundle and add to it
+                            nativeReader.Position = lastBundle.StartOffset;
+
+                            // read header in
+                            var bundleHeader = lastBundle.BundleHeader;
+                            nw_NewData.Write(bundleHeader.Write());
+
+                            var binaryDataOffset = nativeReader.Position += lastBundle.BinaryDataOffset;
+                            nativeReader.Position = binaryDataOffset;
+                            // Header Data (not names and offsets)
+                            lastBundle.BinaryDataData = nativeReader.ReadBytes(36);
+                            nativeReader.Position -= 36;
+                            SBHeaderInformation headerInformation = new SBHeaderInformation(nativeReader, 0);
+
+                            switch (modItem.Item3)
+                            {
+                                case ModType.EBX:
+                                    headerInformation.ebxCount++;
+                                    break;
+                                case ModType.RES:
+                                    headerInformation.resCount++;
+                                    break;
+                                case ModType.CHUNK:
+                                    headerInformation.chunkCount++;
+                                    break;
+                            }
+                            headerInformation.totalCount = headerInformation.ebxCount + headerInformation.resCount + headerInformation.chunkCount;
+                            // Create the initial dataset
+                            nw_NewData.Write(headerInformation.Write());
+
+                            // Write all strings etc.
+
+
+
+                            // Boolean Cas Data 
+                            var booleanCasOffset = lastBundle.StartOffset += lastBundle.BooleanOfCasGroupOffset;
+                            nativeReader.Position = booleanCasOffset;
+                            var booleanCasData = nativeReader.ReadBytes((int)lastBundle.BooleanOfCasGroupOffsetEnd);
+                            var boolCasList = new List<byte>(booleanCasData);
+                            boolCasList.Add(0);
+
+
+
+                            nw_NewData.Position = 32;
+                            nw_NewData.Write(headerInformation.Write());
+
+
                         }
 
-
-
-                        // Boolean Cas Data 
-                        var booleanCasOffset = lastBundle.StartOffset += lastBundle.BooleanOfCasGroupOffset;
-
-                        //if (LastCatalogUsed == null || CurrentCasFile == null || LastCatalogUsed != lastBundle.LastCatalogId)
-                        //{
-                        //    var path = AssetManager.Instance.fs.GetFilePath(lastBundle.LastCatalogId, lastBundle.LastCAS, true);
-                        //    AssetManager.Instance.fs.ResolvePath(path, true);
-                        //    CurrentCasFile = new NativeWriter(new FileStream(path, FileMode.Open));
-                        //    //CurrentCasFile = GetNextCas(
-                        //    //        AssetManager.Instance.fs.EnumerateCatalogInfos().FirstOrDefault(x => x.PersistentIndex == lastBundle.LastCatalogId).Name
-                        //    //        , out int casFileIndex);
-                        //    LastCatalogUsed = lastBundle.LastCatalogId;
-
-                        //}
+                        var outArray = ms_NewData.ToArray();
 
                     }
 
@@ -493,12 +512,6 @@ namespace FIFA21Plugin
 
             if (CasSha1)
             {
-                //nwCas.BaseStream.Position = sb_cas_offset_position;
-                //nwCas.Write((uint)positionOfNewData, Endian.Big);
-
-                //nwCas.BaseStream.Position = sb_cas_size_position;
-                //nwCas.Write((uint)data.Length, Endian.Big);
-
                 if (sb_sha1_position != 0)
                 {
                     nwCas.BaseStream.Position = sb_sha1_position;
@@ -509,7 +522,7 @@ namespace FIFA21Plugin
                         tempNRCAS.Position = sb_sha1_position;
                         tempCasCheck = tempNRCAS.ReadSha1();
                     }
-                    //nwCas.Write(modItem.Item1);
+                    nwCas.Write(modItem.Item1);
                 }
             }
 
@@ -518,18 +531,21 @@ namespace FIFA21Plugin
             using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
             {
                 arrayOfSB = nativeReader.ReadToEnd();
+                nativeReader.Position = sb_cas_offset_position;
+                var originalOffset = nativeReader.ReadInt(Endian.Big);
             }
-            File.Delete(sbpath);
-            using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.OpenOrCreate)))
+            //File.Delete(sbpath);
+            using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
             {
+                nw_sb.Position = 0;
                 nw_sb.Write(arrayOfSB);
                 nw_sb.BaseStream.Position = sb_cas_offset_position;
                 nw_sb.Write((uint)positionOfNewData, Endian.Big);
-                nw_sb.Flush();
+                //nw_sb.Flush();
 
-                nw_sb.BaseStream.Position = sb_cas_size_position;
+                //nw_sb.BaseStream.Position = sb_cas_size_position;
                 nw_sb.Write((uint)sizeOfData, Endian.Big);
-                nw_sb.Flush();
+                //nw_sb.Flush();
 
                 if (sb_sha1_position != 0 && !CasSha1)
                 {

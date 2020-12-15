@@ -11,6 +11,7 @@
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
     <Company>PARGSoft</Company>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>paulv2k4.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

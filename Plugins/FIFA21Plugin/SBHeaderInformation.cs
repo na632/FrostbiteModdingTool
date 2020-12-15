@@ -1,6 +1,7 @@
 ﻿using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace FIFA21Plugin
@@ -55,6 +56,22 @@ namespace FIFA21Plugin
             stringOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
             metaOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
             metaSize = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
+        }
+
+        public byte[] Write()
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            NativeWriter nw = new NativeWriter(memoryStream);
+            nw.Write((int)size, Endian.Big);
+            nw.Write(3599661469, Endian.Big);
+            nw.Write(totalCount, Endian.Little);
+            nw.Write(ebxCount, Endian.Little);
+            nw.Write(resCount, Endian.Little);
+            nw.Write(chunkCount, Endian.Little);
+            nw.Write(stringOffset, Endian.Little);
+            nw.Write(metaOffset, Endian.Little);
+            nw.Write(metaSize, Endian.Little);
+            return memoryStream.ToArray();
         }
     }
 }

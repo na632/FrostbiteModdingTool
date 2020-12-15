@@ -488,11 +488,11 @@ namespace FrostyEditor
 				{
 					stringBuilder.AppendLine("[" + typeof(ClassConverterAttribute).Name + "(\"" + value.GetValue<string>("valueConverter") + "\")]");
 				}
-				if (value.HasValue("description"))
-				{
-					stringBuilder.AppendLine("[" + typeof(DescriptionAttribute).Name + "(\"" + value.GetValue<string>("description") + "\")]");
-				}
-				if (value.HasValue("inline"))
+                if (value.HasValue("description"))
+                {
+                    stringBuilder.AppendLine("// [" + typeof(DescriptionAttribute).Name + "(\"" + value.GetValue<string>("description") + "\")]");
+                }
+                if (value.HasValue("inline"))
 				{
 					stringBuilder.AppendLine("[" + typeof(IsInlineAttribute).Name + "]");
 				}
@@ -558,11 +558,11 @@ namespace FrostyEditor
 				{
 					stringBuilder.AppendLine("[" + typeof(DisplayNameAttribute) + "(\"" + value.GetValue<string>("displayName") + "\")]");
 				}
-				if (value.HasValue("description"))
-				{
-					stringBuilder.AppendLine("[" + typeof(DescriptionAttribute) + "(\"" + value.GetValue<string>("description") + "\")]");
-				}
-				if (value.HasValue("editor"))
+                if (value.HasValue("description"))
+                {
+                    stringBuilder.AppendLine("// [" + typeof(DescriptionAttribute) + "(\"" + value.GetValue<string>("description") + "\")]");
+                }
+                if (value.HasValue("editor"))
 				{
 					stringBuilder.AppendLine("[" + typeof(EditorAttribute).Name + "(\"" + value.GetValue<string>("editor") + "\")]");
 				}

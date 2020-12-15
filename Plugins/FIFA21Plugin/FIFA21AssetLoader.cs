@@ -54,7 +54,7 @@ namespace FIFA21Plugin
 
 			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
 			{
-				foreach (CatalogInfo catalogInfoItem in parent.fs.EnumerateCatalogInfos())
+				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
 				{
 					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x=>!x.Value).Select(x=>x.Key))
 					{

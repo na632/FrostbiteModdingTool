@@ -9,6 +9,9 @@ namespace FIFA21Plugin.Plugin2
 	{
 		public void Write(string path, TocFile_F21 tocFile, bool writeHeader = false)
 		{
+			if (path.Contains("ModData") && new FileInfo(path).Exists)
+				File.Delete(path);
+
 			using (FileStream stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.Read, 65536, FileOptions.SequentialScan))
 			{
 				Write(stream, tocFile, writeHeader);
@@ -98,7 +101,7 @@ namespace FIFA21Plugin.Plugin2
 			}
 			foreach (TocFile_F21.CasBundle casBundle in tocFile.CasBundles)
 			{
-				byte[] flags = ArrayPool<byte>.Shared.Rent(casBundle.Entries.Count + 1);
+				byte[] flags = new byte[casBundle.Entries.Count + 1]; // ArrayPool<byte>.Shared.Rent(casBundle.Entries.Count + 1);
 				int entryIndex = 0;
 				int currentCasIdentifier = CasFile.CreateCasIdentifier(0, casBundle.InPatch, (byte)casBundle.CasCatalog, (byte)casBundle.CasIndex);
 				flags[entryIndex] = 1;
@@ -156,7 +159,7 @@ namespace FIFA21Plugin.Plugin2
 				writer.WriteInt32BigEndian(32);
 				writer.WriteInt32BigEndian(32);
 				writer.Position = endPosition;
-				ArrayPool<byte>.Shared.Return(flags);
+				//ArrayPool<byte>.Shared.Return(flags);
 			}
 			writer.Position = bundleDataOffsetPosition;
 			writer.WriteInt32BigEndian((int)(bundleDataOffset - startPosition));

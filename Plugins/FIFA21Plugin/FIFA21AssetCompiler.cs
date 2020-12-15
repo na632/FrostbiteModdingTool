@@ -129,11 +129,20 @@ namespace FIFA21Plugin
                 CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
                 CopyDataFolder(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "\\" + PatchDirectory, logger);
 
-                //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
-                //{
+            //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
+            //{
+            var fme = (FrostyModExecutor)frostyModExecuter;
 
-                FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction((FrostyModExecutor)frostyModExecuter);
+            FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction(fme);
             return fifaBundleAction.Run();
+
+            //Plugin2.Execution.Plugin2Executer plugin2Executer = new Plugin2.Execution.Plugin2Executer(AssetManager.Instance.fs, KeyManager.Instance, "ModData");
+            //plugin2Executer.Logger = logger;
+            //plugin2Executer.modifiedEbx = fme.modifiedEbx;
+            //plugin2Executer.modifiedRes = fme.modifiedRes;
+            //plugin2Executer.modifiedChunks = fme.modifiedChunks;
+            //plugin2Executer.archiveData = fme.archiveData;
+            //return plugin2Executer.BuildFIFA21Mods("Patch", "ModData").Result;
 
                 //FIFA21ContentPatchBuilder contentPatchBuilder = new FIFA21ContentPatchBuilder((FrostyModExecutor)frostyModExecuter);
                 //contentPatchBuilder.TransferDataToPatch();

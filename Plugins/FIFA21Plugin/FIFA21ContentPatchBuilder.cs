@@ -22,7 +22,7 @@ namespace FIFA21Plugin
         /// <param name="inCatalogInfo"></param>
         /// <param name="inDoneEvent"></param>
         /// <param name="inParent"></param>
-        public FIFA21ContentPatchBuilder(CatalogInfo inCatalogInfo, FrostyModExecutor inParent)
+        public FIFA21ContentPatchBuilder(Catalog inCatalogInfo, FrostyModExecutor inParent)
         {
             //catalogInfo = inCatalogInfo;
             parent = inParent;
@@ -33,8 +33,8 @@ namespace FIFA21Plugin
             parent = inParent;
         }
 
-        private List<FrostySdk.CatalogInfo> _catalogs;
-        public List<FrostySdk.CatalogInfo> Catalogs 
+        private List<FrostySdk.Catalog> _catalogs;
+        public List<FrostySdk.Catalog> Catalogs 
         { 
             get
             {
@@ -54,7 +54,7 @@ namespace FIFA21Plugin
 
             parent.Logger.Log("Started Patch Builder");
 
-            foreach (CatalogInfo catalogInfo in AssetManager.Instance.fs.EnumerateCatalogInfos())
+            foreach (Catalog catalogInfo in AssetManager.Instance.fs.EnumerateCatalogInfos())
             {
                 foreach(var sb in catalogInfo.SuperBundles.Keys)
                 {

@@ -234,11 +234,11 @@ namespace paulv2k4ModdingExecuter
 
             private FrostyModExecutor parent;
 
-            private CatalogInfo catalogInfo;
+            private Catalog catalogInfo;
 
             private Dictionary<int, string> casFiles = new Dictionary<int, string>();
 
-            public CatalogInfo CatalogInfo => catalogInfo;
+            public Catalog CatalogInfo => catalogInfo;
 
             public Dictionary<int, string> CasFiles => casFiles;
 
@@ -246,7 +246,7 @@ namespace paulv2k4ModdingExecuter
 
             public Exception Exception => errorException;
 
-            public FifaBundleAction(CatalogInfo inCatalogInfo, ManualResetEvent inDoneEvent, FrostyModExecutor inParent)
+            public FifaBundleAction(Catalog inCatalogInfo, ManualResetEvent inDoneEvent, FrostyModExecutor inParent)
             {
                 catalogInfo = inCatalogInfo;
                 parent = inParent;
@@ -4341,7 +4341,7 @@ namespace paulv2k4ModdingExecuter
             foreach (string str in array2)
             {
                 FileInfo fileInfo2 = new FileInfo(rootPath + str);
-                FrostyMod frostyMod2 = new FrostyMod(fileInfo2.FullName);
+                FrostbiteMod frostyMod2 = new FrostbiteMod(fileInfo2.FullName);
                 if (frostyMod2.NewFormat)
                 {
                     foreach (BaseModResource resource in frostyMod2.Resources)
@@ -4995,7 +4995,7 @@ namespace paulv2k4ModdingExecuter
                 List<FifaBundleAction> list3 = new List<FifaBundleAction>();
                 ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
                 int num6 = 0;
-                foreach (CatalogInfo item5 in fs.EnumerateCatalogInfos())
+                foreach (Catalog item5 in fs.EnumerateCatalogInfos())
                 {
                     FifaBundleAction fifaBundleAction = new FifaBundleAction(item5, inDoneEvent, this);
                     ThreadPool.QueueUserWorkItem(fifaBundleAction.ThreadPoolCallback, null);
@@ -5321,7 +5321,7 @@ namespace paulv2k4ModdingExecuter
                 foreach (string text7 in array2)
                 {
                     FileInfo fileInfo9 = new FileInfo(rootPath + text7);
-                    FrostyMod frostyMod3 = new FrostyMod(fileInfo9.FullName);
+                    FrostbiteMod frostyMod3 = new FrostbiteMod(fileInfo9.FullName);
                     string text8 = "";
                     if (frostyMod3.NewFormat)
                     {
@@ -5453,7 +5453,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             Logger.Log("Loading mods");
             {
                 string[] allModPaths = modPaths;
-                var frostyMods = new Dictionary<Stream, FrostyMod>();
+                var frostyMods = new Dictionary<Stream, FrostbiteMod>();
 
                 // Sort out Zipped Files
                 //if (allModPaths.Contains(".zip"))
@@ -5477,7 +5477,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                 MemoryStream memoryStream = new MemoryStream();
                                 zaentr.Open().CopyTo(memoryStream);
 
-                                frostyMods.Add(new MemoryStream(memoryStream.ToArray()), new FrostyMod(new MemoryStream(memoryStream.ToArray())));
+                                frostyMods.Add(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
                             }
                         }
                     }
@@ -5492,13 +5492,13 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         using (var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read))
                         {
                             fs.CopyTo(ms);
-                            frostyMods.Add(new MemoryStream(ms.ToArray()), new FrostyMod(new MemoryStream(ms.ToArray())));
+                            frostyMods.Add(new MemoryStream(ms.ToArray()), new FrostbiteMod(new MemoryStream(ms.ToArray())));
                         }
                     }
                 }
 
                 //foreach (string str in allModPaths)
-                foreach (KeyValuePair<Stream, FrostyMod> kvpMods in frostyMods)
+                foreach (KeyValuePair<Stream, FrostbiteMod> kvpMods in frostyMods)
                 {
                     Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
@@ -5839,7 +5839,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
                         if (ProfilesLibrary.IsFIFADataVersion())
                         {
-                            foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
+                            foreach (Catalog catalogItem in fs.EnumerateCatalogInfos())
                             {
                                 FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
                                 fifaBundleAction.Run();

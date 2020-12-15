@@ -140,7 +140,7 @@ namespace FIFAModdingTests
             var FileSystem = new FrostySdk.FileSystem(@"E:\Origin Games\FIFA 20");
             var ResourceManager = new ResourceManager(FileSystem);
             var AssetManager = new AssetManager(FileSystem, ResourceManager);
-            var FrostyProject = new FrostyProject(AssetManager, FileSystem);
+            var FrostyProject = new FrostbiteProject(AssetManager, FileSystem);
             FrostyProject.Load(@"J:\Work\Modding\FIFA Modding\Gameplay mod\Version TC 2 Alpha 10\paulv2k4 FIFA 20 Gameplay Mod - TC 2 Alpha 10.fbproject");
             if (FrostyProject != null)
             {

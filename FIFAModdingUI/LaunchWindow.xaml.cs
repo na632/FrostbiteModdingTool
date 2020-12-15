@@ -544,7 +544,7 @@ namespace FIFAModdingUI
                 var selectedIndex = this.listMods.SelectedIndex;
                 var selectedMod = this.listMods.SelectedItem as string;
                 if (selectedMod.Contains(".fbmod")) {
-                        var fm = new FrostyMod(selectedMod);
+                        var fm = new FrostbiteMod(selectedMod);
                         if (fm.ModDetails != null)
                         {
                             txtModAuthor.Text = fm.ModDetails.Author;

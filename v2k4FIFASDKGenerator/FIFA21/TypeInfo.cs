@@ -10,10 +10,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
 		public override void Read(MemoryReader reader)
 		{
 			name = reader.ReadNullTerminatedString();
-            if (name.ToLower().Contains("gp_goalkeeper_cpu_difficulty".ToLower()))
-            {
+			if (name.ToLower().Contains("gp_goalkeeper_cpu_difficulty".ToLower()))
+			{
 
-            }
+			}
 			if (name.ToLower().Contains("gp_actor_movement".ToLower()))
 			{
 
@@ -21,10 +21,9 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			flags >>= 1;
-            size = reader.ReadUInt();
-            reader.Position -= 4L;
-            size = reader.ReadUShort();
-			//reader.Position += 2;
+			size = reader.ReadUInt();
+			reader.Position -= 4L;
+			size = reader.ReadUShort();
 
 			guid = reader.ReadGuid();
 
@@ -35,14 +34,14 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			fieldCount = reader.ReadUShort();
 
 			padding3 = reader.ReadUInt();
-			if(padding3 != 0)
-            {
+			if (padding3 != 0)
+			{
 
-            }
+			}
 			else
-            {
+			{
 
-            }
+			}
 			long[] array = new long[7];
 			for (int i = 0; i < 7; i++)
 			{
@@ -51,7 +50,7 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			reader.Position = position;
 			nameSpace = reader.ReadNullTerminatedString();
 			bool flag = false;
-			//parentClass = array[0];
+			parentClass = array[0];
 			if (base.Type == 2)
 			{
 				reader.Position = array[6];
@@ -62,8 +61,8 @@ namespace v2k4FIFASDKGenerator.FIFA21
 				reader.Position = array[1];
 				//reader.Position = array[3];
 				//reader.Position = array[4];
-				//if(reader.Position == 0)                
-				//reader.Position = array[3];
+				if(reader.Position == 0)                
+				reader.Position = array[3];
 
 				flag = true;
 			}
@@ -73,10 +72,6 @@ namespace v2k4FIFASDKGenerator.FIFA21
 				reader.Position = array[0];
 				flag = true;
 			}
-			else if (Type == 4)
-			{
-				parentClass = array[0];
-			}
 			if (flag)
 			{
 				for (int j = 0; j < fieldCount; j++)
@@ -84,10 +79,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
 					FieldInfo fieldInfo = new FieldInfo();
 					fieldInfo.Read(reader);
 					fieldInfo.index = j;
-					if(fieldInfo.offset == 304)
-                    {
+					if (fieldInfo.offset == 304)
+					{
 
-                    }
+					}
 					fields.Add(fieldInfo);
 				}
 			}

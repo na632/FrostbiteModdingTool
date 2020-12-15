@@ -430,271 +430,239 @@ namespace v2k4FIFASDKGenerator
 
         private int ProcessClass(EbxClass pclass, DbObject pobj, List<EbxField> fields, DbObject outList, ref int offset, ref int fieldIndex)
         {
-            if (pclass.Name.Contains("gp_actor_movement"))
-            {
-
-            }
-
             string parent = pobj.GetValue<string>("parent");
             if (parent != "")
             {
-                Tuple<EbxClass, DbObject> tuple = values.Find((Tuple<EbxClass, DbObject> a) => a.Item1.Name == parent);
-                offset = ProcessClass(tuple.Item1, tuple.Item2, fieldMapping[tuple.Item1.Name], outList, ref offset, ref fieldIndex);
-                if (tuple.Item1.Name == "DataContainer" && pclass.Name != "Asset")
+                Tuple<EbxClass, DbObject> tuple2 = values.Find((Tuple<EbxClass, DbObject> a) => a.Item1.Name == parent);
+                offset = ProcessClass(tuple2.Item1, tuple2.Item2, fieldMapping[tuple2.Item1.Name], outList, ref offset, ref fieldIndex);
+                if (tuple2.Item1.Name == "DataContainer" && pclass.Name != "Asset")
                 {
                     pobj.SetValue("isData", true);
                 }
             }
             if (processed.Contains(pclass))
             {
-                foreach (DbObject @out in outList)
+                foreach (DbObject dbObject in outList.List)
                 {
-                    if (@out.GetValue<string>("name") == pclass.Name)
+                    if (dbObject.GetValue<string>("name") == pclass.Name)
                     {
-                        fieldIndex += @out.GetValue<DbObject>("fields").Count;
-                        return @out.GetValue("size", 0);
+                        fieldIndex += dbObject.GetValue<DbObject>("fields").Count;
+                        return dbObject.GetValue<int>("size");
                     }
                 }
                 return 0;
             }
             processed.Add(pclass);
-            int num = classMetaList.FindIndex((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name);
-            DbObject dbObject2 = null;
-            if (num != -1)
-            {
-                dbObject2 = (classMetaList[num] as DbObject);
-            }
-            DbObject value = pobj.GetValue<DbObject>("fields");
-            DbObject dbObject3 = new DbObject(bObject: false);
+            DbObject dbObject2 = classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject;
+            DbObject dbObject3 = pobj.GetValue<DbObject>("fields");
+            DbObject dbObject4 = DbObject.CreateList();
             if (pclass.DebugType == EbxFieldType.Enum)
             {
-                foreach (DbObject item2 in value)
+                foreach (DbObject dbObject8 in dbObject3.List)
                 {
-                    DbObject dbObject5 = new DbObject();
-                    dbObject5.AddValue("name", item2.GetValue<string>("name"));
-                    dbObject5.AddValue("value", item2.GetValue("value", 0));
-                    dbObject3.Add(dbObject5);
+                    DbObject dbObject12 = DbObject.CreateObject();
+                    dbObject12.AddValue("name", dbObject8.GetValue<string>("name"));
+                    dbObject12.AddValue("value", dbObject8.GetValue<int>("value"));
+                    dbObject4.List.Add(dbObject12);
                 }
             }
             else
             {
-                List<EbxField> list = new List<EbxField>();
-                foreach (DbObject item3 in value)
+                List<EbxField> ebxFieldList = new List<EbxField>();
+                foreach (DbObject dbObject7 in dbObject3.List)
                 {
-                    EbxField item = default(EbxField);
-                    item.Name = item3.GetValue<string>("name");
-                    item.Type = (ushort)item3.GetValue("flags", 0);
-                    item.DataOffset = (uint)item3.GetValue("offset", 0);
-                    item.NameHash = (uint)item3.GetValue("nameHash", 0);
-                    list.Add(item);
-                }
-                list.Sort((EbxField a, EbxField b) => a.DataOffset.CompareTo(b.DataOffset));
-                foreach (EbxField field in list)
-                {
-                    if (field.Name == string.Empty)
-                        continue;
-
-                    if (field.DebugType != 0)
+                    ebxFieldList.Add(new EbxField
                     {
-                        DbObject dbObject7 = null;
-                        foreach (DbObject item4 in value)
+                        Name = dbObject7.GetValue<string>("name"),
+                        Type = (ushort)dbObject7.GetValue<int>("flags"),
+                        DataOffset = (uint)dbObject7.GetValue<int>("offset"),
+                        NameHash = (uint)dbObject7.GetValue<int>("nameHash")
+                    });
+                }
+                ebxFieldList.Sort((EbxField a, EbxField b) => a.DataOffset.CompareTo(b.DataOffset));
+                foreach (EbxField ebxField in ebxFieldList)
+                {
+                    EbxField field = ebxField;
+                    if (field.DebugType == EbxFieldType.Inherited)
+                    {
+                        continue;
+                    }
+                    DbObject dbObject6 = null;
+                    foreach (DbObject dbObject11 in dbObject3.List)
+                    {
+                        if (dbObject11.GetValue<string>("name") == field.Name)
                         {
-                            if (item4.GetValue<string>("name") == field.Name)
+                            dbObject6 = dbObject11;
+                            break;
+                        }
+                    }
+                    if (dbObject6 == null)
+                    {
+                        Console.WriteLine(pclass.Name + "." + field.Name + " missing from executable definition");
+                        continue;
+                    }
+                    DbObject fieldObj = DbObject.CreateObject();
+                    if (dbObject2 != null)
+                    {
+                        DbObject dbObject10 = dbObject2.GetValue<DbObject>("fields");
+            DbObject dbObject13 = classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject;
+                        if (dbObject13 !=  null)
+                        {
+                            fieldObj.AddValue("meta", dbObject13);
+                        }
+                    }
+                    fieldObj.AddValue("name", field.Name);
+                    fieldObj.AddValue("type", (int)field.DebugType);
+                    fieldObj.AddValue("flags", (int)field.Type);
+                    fieldObj.AddValue("offset", (int)field.DataOffset);
+                    fieldObj.AddValue("nameHash", field.NameHash);
+                    if (field.DebugType == EbxFieldType.Pointer || field.DebugType == EbxFieldType.Struct || field.DebugType == EbxFieldType.Enum)
+                    {
+                        string baseTypeName2 = dbObject6.GetValue<string>("baseType");
+                        int index2 = values.FindIndex((Tuple<EbxClass, DbObject> a) => a.Item1.Name == baseTypeName2 && !a.Item2.HasValue("basic"));
+                        if (index2 != -1)
+                        {
+                            fieldObj.AddValue("baseType", values[index2].Item1.Name);
+                        }
+                        else if (field.DebugType == EbxFieldType.Enum)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        if (field.DebugType == EbxFieldType.Struct)
+                        {
+                            foreach (EbxField field2 in fields)
                             {
-                                dbObject7 = item4;
-                                break;
+                                if (field2.Name.Equals(field.Name))
+                                {
+                                    if (field.Type != field2.Type)
+                                    {
+                                        fieldObj.SetValue("flags", (int)field2.Type);
+                                    }
+                                    break;
+                                }
+                            }
+                            while (offset % (int)values[index2].Item1.Alignment != 0)
+                            {
+                                offset++;
                             }
                         }
-                        if (dbObject7 == null)
+                    }
+                    else if (field.DebugType == EbxFieldType.Array)
+                    {
+                        string baseTypeName = dbObject6.GetValue<string>("baseType");
+                        int index3 = values.FindIndex((Tuple<EbxClass, DbObject> a) => a.Item1.Name == baseTypeName && !a.Item2.HasValue("basic"));
+                        if (index3 != -1)
                         {
-                            Console.WriteLine(pclass.Name + "." + field.Name + " missing from executable definition");
+                            fieldObj.AddValue("baseType", values[index3].Item1.Name);
+                            fieldObj.AddValue("arrayFlags", (int)values[index3].Item1.Type);
                         }
                         else
                         {
-                            DbObject fieldObj = new DbObject();
-                            if (dbObject2 != null)
+                            EbxFieldType ebxFieldType = (EbxFieldType)((uint)(dbObject6.GetValue<int>("arrayFlags") >> 4) & 0x1Fu);
+                            if (ebxFieldType - 2 <= EbxFieldType.DbObject || ebxFieldType == EbxFieldType.Enum)
                             {
-                                DbObject value2 = dbObject2.GetValue<DbObject>("fields");
-                                num = value2.FindIndex((object o) => ((DbObject)o).GetValue<string>("name") == field.Name);
-                                if (num != -1)
-                                {
-                                    DbObject value3 = value2[num] as DbObject;
-                                    fieldObj.AddValue("meta", value3);
-                                }
+                                fieldObj.AddValue("baseType", baseTypeName);
                             }
-                            fieldObj.AddValue("name", field.Name);
-                            fieldObj.AddValue("type", (int)field.DebugType);
-                            fieldObj.AddValue("flags", (int)field.Type);
-                            // -----------------------------------------------------------------------------------------------------
-                            // -----------------------------------------------------------------------------------------------------
-                            // -----------------------------------------------------------------------------------------------------
-                            // -----------------------------------------------------------------------------------------------------
-                            // IMPORTANT!!
-                            // 
-                            // -----------------------------------------------------------------------------------------------------
-                            // -----------------------------------------------------------------------------------------------------
-
-                            if (ProfilesLibrary.IsFIFADataVersion()
-                                || ProfilesLibrary.IsMaddenDataVersion()
-                                || ProfilesLibrary.IsFIFA21DataVersion()
-
-                                )
-                            {
-                                fieldObj.AddValue("offset", (int)field.DataOffset);
-                                fieldObj.AddValue("nameHash", field.NameHash);
-                            }
-                            if (field.DebugType == EbxFieldType.Pointer || field.DebugType == EbxFieldType.Struct || field.DebugType == EbxFieldType.Enum)
-                            {
-                                string baseTypeName2 = dbObject7.GetValue<string>("baseType");
-                                int num2 = values.FindIndex((Tuple<EbxClass, DbObject> a) => a.Item1.Name == baseTypeName2 && !a.Item2.HasValue("basic"));
-                                if (num2 != -1)
-                                {
-                                    fieldObj.AddValue("baseType", values[num2].Item1.Name);
-                                }
-                                else if (field.DebugType == EbxFieldType.Enum)
-                                {
-                                    throw new InvalidDataException();
-                                }
-                                if (field.DebugType == EbxFieldType.Struct)
-                                {
-                                    foreach (EbxField field2 in fields)
-                                    {
-                                        if (field2.Name.Equals(field.Name))
-                                        {
-                                            if (field.Type != field2.Type)
-                                            {
-                                                fieldObj.SetValue("flags", (int)field2.Type);
-                                            }
-                                            break;
-                                        }
-                                    }
-                                    while (offset % (int)values[num2].Item1.Alignment != 0)
-                                    {
-                                        offset++;
-                                    }
-                                }
-                            }
-                            else if (field.DebugType == EbxFieldType.Array)
-                            {
-                                string baseTypeName = dbObject7.GetValue<string>("baseType");
-                                int num3 = values.FindIndex((Tuple<EbxClass, DbObject> a) => a.Item1.Name == baseTypeName && !a.Item2.HasValue("basic"));
-                                if (num3 != -1)
-                                {
-                                    fieldObj.AddValue("baseType", values[num3].Item1.Name);
-                                    fieldObj.AddValue("arrayFlags", (int)values[num3].Item1.Type);
-                                }
-                                else
-                                {
-                                    EbxFieldType ebxFieldType = (EbxFieldType)((dbObject7.GetValue("arrayFlags", 0) >> 4) & 0x1F);
-                                    if (ebxFieldType == EbxFieldType.Pointer || ebxFieldType == EbxFieldType.Struct || ebxFieldType == EbxFieldType.Enum)
-                                    {
-                                        fieldObj.AddValue("baseType", baseTypeName);
-                                    }
-                                    fieldObj.AddValue("arrayFlags", dbObject7.GetValue("arrayFlags", 0));
-                                }
-                                if (dbObject7.HasValue("guid"))
-                                {
-                                    fieldObj.SetValue("guid", dbObject7.GetValue<Guid>("guid"));
-                                }
-                            }
-                            if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef)
-                            {
-                                while (offset % 8 != 0)
-                                {
-                                    offset++;
-                                }
-                            }
-                            else if (field.DebugType == EbxFieldType.Array || field.DebugType == EbxFieldType.Pointer)
-                            {
-                                while (offset % 4 != 0)
-                                {
-                                    offset++;
-                                }
-                            }
-                            if (ProfilesLibrary.DataVersion != 20181207)
-                            {
-                                fieldObj.AddValue("offset", offset);
-                            }
-                            fieldObj.SetValue("index", dbObject7.GetValue("index", 0) + fieldIndex);
-                            dbObject3.Add(fieldObj);
-                            switch (field.DebugType)
-                            {
-                                case EbxFieldType.Struct:
-                                    {
-                                        Tuple<EbxClass, DbObject> tuple2 = values.Find((Tuple<EbxClass, DbObject> a) => a.Item1.Name == fieldObj.GetValue<string>("baseType"));
-                                        int num4 = 0;
-                                        int fieldIndex2 = 0;
-                                        offset += ProcessClass(tuple2.Item1, tuple2.Item2, fieldMapping[tuple2.Item1.Name], outList, ref num4, ref fieldIndex2);
-                                        break;
-                                    }
-                                case EbxFieldType.Pointer:
-                                    offset += 4;
-                                    break;
-                                case EbxFieldType.Array:
-                                    offset += 4;
-                                    break;
-                                case EbxFieldType.String:
-                                    offset += 32;
-                                    break;
-                                case EbxFieldType.CString:
-                                    offset += 4;
-                                    break;
-                                case EbxFieldType.Enum:
-                                    offset += 4;
-                                    break;
-                                case EbxFieldType.FileRef:
-                                    offset += 8;
-                                    break;
-                                case EbxFieldType.Boolean:
-                                    offset++;
-                                    break;
-                                case EbxFieldType.Int8:
-                                    offset++;
-                                    break;
-                                case EbxFieldType.UInt8:
-                                    offset++;
-                                    break;
-                                case EbxFieldType.Int16:
-                                    offset += 2;
-                                    break;
-                                case EbxFieldType.UInt16:
-                                    offset += 2;
-                                    break;
-                                case EbxFieldType.Int32:
-                                    offset += 4;
-                                    break;
-                                case EbxFieldType.UInt32:
-                                    offset += 4;
-                                    break;
-                                case EbxFieldType.Int64:
-                                    offset += 8;
-                                    break;
-                                case EbxFieldType.UInt64:
-                                    offset += 8;
-                                    break;
-                                case EbxFieldType.Float32:
-                                    offset += 4;
-                                    break;
-                                case EbxFieldType.Float64:
-                                    offset += 8;
-                                    break;
-                                case EbxFieldType.Guid:
-                                    offset += 16;
-                                    break;
-                                case EbxFieldType.Sha1:
-                                    offset += 20;
-                                    break;
-                                case EbxFieldType.ResourceRef:
-                                    offset += 8;
-                                    break;
-                                case EbxFieldType.TypeRef:
-                                    offset += 8;
-                                    break;
-                                case EbxFieldType.BoxedValueRef:
-                                    offset += 16;
-                                    break;
-                            }
+                            fieldObj.AddValue("arrayFlags", dbObject6.GetValue<int>("arrayFlags"));
                         }
+                        if (dbObject6.HasValue("guid"))
+                        {
+                            fieldObj.SetValue("guid", dbObject6.GetValue<Guid>("guid"));
+                        }
+                    }
+                    if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef)
+                    {
+                        while (offset % 8 != 0)
+                        {
+                            offset++;
+                        }
+                    }
+                    else if (field.DebugType == EbxFieldType.Array || field.DebugType == EbxFieldType.Pointer)
+                    {
+                        while (offset % 4 != 0)
+                        {
+                            offset++;
+                        }
+                    }
+                    fieldObj.AddValue("offset", offset);
+                    fieldObj.SetValue("index", dbObject6.GetValue<int>("index") + fieldIndex);
+                    dbObject4.List.Add(fieldObj);
+                    switch (field.DebugType)
+                    {
+                        case EbxFieldType.Struct:
+                            {
+                                Tuple<EbxClass, DbObject> tuple = values.Find((Tuple<EbxClass, DbObject> a) => a.Item1.Name == fieldObj.GetValue<string>("baseType"));
+                                int offset2 = 0;
+                                int fieldIndex2 = 0;
+                                offset += ProcessClass(tuple.Item1, tuple.Item2, fieldMapping[tuple.Item1.Name], outList, ref offset2, ref fieldIndex2);
+                                break;
+                            }
+                        case EbxFieldType.Pointer:
+                            offset += 4;
+                            break;
+                        case EbxFieldType.Array:
+                            offset += 4;
+                            break;
+                        case EbxFieldType.String:
+                            offset += 32;
+                            break;
+                        case EbxFieldType.CString:
+                            offset += 4;
+                            break;
+                        case EbxFieldType.Enum:
+                            offset += 4;
+                            break;
+                        case EbxFieldType.FileRef:
+                            offset += 8;
+                            break;
+                        case EbxFieldType.Boolean:
+                            offset++;
+                            break;
+                        case EbxFieldType.Int8:
+                            offset++;
+                            break;
+                        case EbxFieldType.UInt8:
+                            offset++;
+                            break;
+                        case EbxFieldType.Int16:
+                            offset += 2;
+                            break;
+                        case EbxFieldType.UInt16:
+                            offset += 2;
+                            break;
+                        case EbxFieldType.Int32:
+                            offset += 4;
+                            break;
+                        case EbxFieldType.UInt32:
+                            offset += 4;
+                            break;
+                        case EbxFieldType.UInt64:
+                            offset += 8;
+                            break;
+                        case EbxFieldType.Int64:
+                            offset += 8;
+                            break;
+                        case EbxFieldType.Float32:
+                            offset += 4;
+                            break;
+                        case EbxFieldType.Float64:
+                            offset += 8;
+                            break;
+                        case EbxFieldType.Guid:
+                            offset += 16;
+                            break;
+                        case EbxFieldType.Sha1:
+                            offset += 20;
+                            break;
+                        case EbxFieldType.ResourceRef:
+                            offset += 8;
+                            break;
+                        case EbxFieldType.TypeRef:
+                            offset += 8;
+                            break;
+                        case EbxFieldType.BoxedValueRef:
+                            offset += 16;
+                            break;
                     }
                 }
             }
@@ -704,35 +672,32 @@ namespace v2k4FIFASDKGenerator
             }
             pobj.SetValue("flags", (int)pclass.Type);
             pobj.SetValue("size", offset);
-            if (ProfilesLibrary.DataVersion == 20181207)
-            {
-                pobj.SetValue("size", pclass.Size);
-            }
             if (pclass.DebugType == EbxFieldType.Enum)
             {
                 pobj.SetValue("size", 4);
             }
             pobj.SetValue("alignment", (int)pclass.Alignment);
-            pobj.SetValue("fields", dbObject3);
-            fieldIndex += dbObject3.Count;
+            pobj.SetValue("fields", dbObject4);
+            fieldIndex += dbObject4.Count;
             if (dbObject2 != null)
             {
                 pobj.AddValue("meta", dbObject2);
-                foreach (DbObject item5 in dbObject2.GetValue<DbObject>("fields"))
+                foreach (DbObject dbObject5 in dbObject2.GetValue<DbObject>("fields").List)
                 {
-                    if (item5.GetValue("added", defaultValue: false))
+                    if (dbObject5.GetValue<bool>("added"))
                     {
-                        DbObject dbObject10 = new DbObject();
-                        dbObject10.AddValue("name", item5.GetValue<string>("name"));
-                        dbObject10.AddValue("type", 15);
-                        dbObject10.AddValue("meta", item5);
-                        pobj.GetValue<DbObject>("fields").Add(dbObject10);
+                        DbObject dbObject9 = DbObject.CreateObject();
+                        dbObject9.AddValue("name", dbObject5.GetValue<string>("name"));
+                        dbObject9.AddValue("type", 15);
+                        dbObject9.AddValue("meta", dbObject5);
+                        pobj.GetValue<DbObject>("fields").List.Add(dbObject9);
                     }
                 }
             }
-            outList.Add(pobj);
+            outList.List.Add(pobj);
             return offset;
         }
+
 
         private DbObject DumpClasses(SdkUpdateTask task)
         {

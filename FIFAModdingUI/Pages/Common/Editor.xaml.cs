@@ -173,7 +173,7 @@ namespace FIFAModdingUI.Pages.Common
 
 		public EbxAsset Asset { get { return asset; } set { asset = value; } }
 
-        public FrostyProject FrostyProject { get; }
+        public FrostbiteProject FrostyProject { get; }
 
         public bool AssetModified
 		{
@@ -193,7 +193,7 @@ namespace FIFAModdingUI.Pages.Common
 			this.DataContext = Asset;
 		}
 
-		public Editor(AssetEntry inAssetEntry, EbxAsset inAsset, FrostyProject frostyProject)
+		public Editor(AssetEntry inAssetEntry, EbxAsset inAsset, FrostbiteProject frostyProject)
 		{
 			InitializeComponent();
 			// intialise objs

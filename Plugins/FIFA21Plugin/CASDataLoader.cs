@@ -84,14 +84,14 @@ namespace FIFA21Plugin
 
                         var dbObj = new DbObject();
 
-                        var startPosition = inner_reader.Position;
-                        if (File.Exists("debugCASViewStream.dat"))
-                            File.Delete("debugCASViewStream.dat");
-                        using (NativeWriter writer = new NativeWriter(new FileStream("debugCASViewStream.dat", FileMode.OpenOrCreate)))
-                        {
-                            writer.Write(inner_reader.ReadToEnd());
-                        }
-                        inner_reader.Position = startPosition;
+                        //var startPosition = inner_reader.Position;
+                        //if (File.Exists("debugCASViewStream.dat"))
+                        //    File.Delete("debugCASViewStream.dat");
+                        //using (NativeWriter writer = new NativeWriter(new FileStream("debugCASViewStream.dat", FileMode.OpenOrCreate)))
+                        //{
+                        //    writer.Write(inner_reader.ReadToEnd());
+                        //}
+                        //inner_reader.Position = startPosition;
 
 
                         var size = inner_reader.ReadInt(Endian.Big) + 4;
@@ -366,7 +366,7 @@ namespace FIFA21Plugin
 
                             }
 
-                            if (casBundle.Offsets.Count > ebxCount + resCount + i)
+                            //if (casBundle.Offsets.Count > ebxCount + resCount + i)
                             {
                                 //var new_pos = casBundle.Offsets[ebxCount + resCount + i] - casBundle.BundleOffset;
                                 //if ((new_pos < 0))//|| new_pos > inner_reader.Length))
@@ -492,15 +492,19 @@ namespace FIFA21Plugin
                             chunkAssetEntry.CASFileLocation = NativeFileLocation;
                             //chunkAssetEntry.SBFileLocation = AssociatedTOCFile.NativeFileLocation;
                             chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+
+                            //if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry.Id))
+                            //{
                             chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+                            //}
 
                             //if (parent.chunkList.ContainsKey(chunkAssetEntry.Id) && chunkAssetEntry.ExtraData.DataOffset > 0)
                             //    parent.chunkList.Remove(chunkAssetEntry.Id);
-                            
+
                             //if (!parent.chunkList.ContainsKey(chunkAssetEntry.Id))
-                                parent.AddChunk(chunkAssetEntry);
+                            parent.AddChunk(chunkAssetEntry);
 
                             CASCHUNKEntries.Add(chunkAssetEntry);
 
