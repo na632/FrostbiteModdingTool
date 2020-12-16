@@ -1,1 +1,0 @@
-paulv2k4FrostbiteTool.exe -p "E:\Origin Games\FIFA 20\FIFA20.exe" --export true --exportFiles "211110","211111"

@@ -1,1 +1,0 @@
-paulv2k4FrostbiteTool.exe -p "E:\Origin Games\Madden NFL 21\Madden21.exe" --export true --exportFiles "splashscreen"
