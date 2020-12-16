@@ -480,6 +480,26 @@ namespace FIFAModdingUI.Windows
             ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
+            var modifiedLegacy = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true).ToList();
+            
+            modifiedLegacy.ForEach(
+                entry => 
+                {
+
+                    var extractPath = AssetManager.Instance.fs.BasePath + "/LegacyMods/Legacy/" + entry.Path;
+                    if(!string.IsNullOrEmpty(extractPath))
+                    {
+                        if(!Directory.Exists(extractPath))
+                            Directory.CreateDirectory(extractPath);
+
+                        if (File.Exists(extractPath + "/" + entry.Filename + ".mod"))
+                        {
+
+                        }
+                    }
+
+                
+                });
             await Task.Run(() =>
             {
 

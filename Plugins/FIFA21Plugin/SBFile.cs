@@ -3,6 +3,7 @@ using FrostySdk;
 using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -144,6 +145,8 @@ namespace FIFA21Plugin
 
         }
 
+        public CachingSBData.Bundle CachedBundle { get; set; }
+
         /// <summary>
         /// Reads the reader from a viewstream of the internal bundle
         /// </summary>
@@ -161,16 +164,26 @@ namespace FIFA21Plugin
             }
             binarySbReader2.Position = 0;
 
-            var cachingSBDataBundle = new CachingSBData.Bundle();
-            cachingSBDataBundle.StartOffset = (int)bundleOffset;
+            CachedBundle = new CachingSBData.Bundle();
+            CachedBundle.StartOffset = (int)bundleOffset;
+            dbObject.SetValue("BundleStartOffset", CachedBundle.StartOffset);
 
             uint CatalogOffset = binarySbReader2.ReadUInt(Endian.Big);
+            dbObject.SetValue("CatalogOffset", CatalogOffset);
+
             uint EndOfMeta = binarySbReader2.ReadUInt(Endian.Big) + CatalogOffset - 4; // end of META
+            dbObject.SetValue("EndOfMeta", EndOfMeta);
+
             uint casFileForGroupOffset = binarySbReader2.ReadUInt(Endian.Big);
+            dbObject.SetValue("CasFileForGroupOffset", casFileForGroupOffset);
+
+
             var unk2 = binarySbReader2.ReadUInt(Endian.Big);
             uint CatalogAndCASOffset = binarySbReader2.ReadUInt(Endian.Big);
+            dbObject.SetValue("CatalogAndCASOffset", CatalogAndCASOffset);
 
-            cachingSBDataBundle.BundleHeader = new BundleHeader()
+
+            CachedBundle.BundleHeader = new BundleHeader()
             {
                 CatalogOffset = CatalogOffset
                  ,
@@ -184,7 +197,6 @@ namespace FIFA21Plugin
             };
 
             // read 3 unknowns 
-            //binarySbReader2.Position += 12;
             _ = binarySbReader2.ReadInt(Endian.Big);
             _ = binarySbReader2.ReadInt(Endian.Big);
             _ = binarySbReader2.ReadInt(Endian.Big);
@@ -192,19 +204,19 @@ namespace FIFA21Plugin
             // ---------------------------------------------------------------------------------------------------------------------
             // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
 
-            cachingSBDataBundle.BinaryDataOffset = (int)binarySbReader2.Position;
+            CachedBundle.BinaryDataOffset = (int)binarySbReader2.Position;
             //SBHeaderInformation SBHeaderInformation = BinaryRead_FIFA21(nativeReader, BaseBundleItem, dbObject, binarySbReader2);
             SBHeaderInformation SBHeaderInformation = new BinaryReader_FIFA21().BinaryRead_FIFA21(bundleOffset, ref dbObject, binarySbReader2, true);
-            cachingSBDataBundle.BinaryDataOffsetEnd = (int)binarySbReader2.Position;
+            CachedBundle.BinaryDataOffsetEnd = (int)binarySbReader2.Position;
 
-            binarySbReader2.Position = cachingSBDataBundle.BinaryDataOffset;
+            binarySbReader2.Position = CachedBundle.BinaryDataOffset;
             //cachingSBDataBundle.BinaryDataData = binarySbReader2.ReadBytes((int)cachingSBDataBundle.BinaryDataOffsetEnd - (int)cachingSBDataBundle.BinaryDataOffset);
 
             // END OF BINARY READER
             // ---------------------------------------------------------------------------------------------------------------------
 
             binarySbReader2.Position = casFileForGroupOffset;
-            cachingSBDataBundle.BooleanOfCasGroupOffset = (int)binarySbReader2.Position;
+            CachedBundle.BooleanOfCasGroupOffset = (int)binarySbReader2.Position;
             byte[] boolChangeOfCasData = new byte[SBHeaderInformation.totalCount];
 
             bool[] booleanChangeOfCas = new bool[SBHeaderInformation.totalCount];
@@ -213,11 +225,13 @@ namespace FIFA21Plugin
                 booleanChangeOfCas[booleanIndex] = binarySbReader2.ReadBoolean();
                 boolChangeOfCasData[booleanIndex] = Convert.ToByte(booleanChangeOfCas[booleanIndex]);
             }
+            dbObject.SetValue("BoolChangeOfCasData", boolChangeOfCasData);
+
             //cachingSBDataBundle.BooleanOfCasGroupData = boolChangeOfCasData;
-            cachingSBDataBundle.BooleanOfCasGroupOffsetEnd = binarySbReader2.Position;
+            CachedBundle.BooleanOfCasGroupOffsetEnd = binarySbReader2.Position;
 
             binarySbReader2.Position = CatalogAndCASOffset;
-            cachingSBDataBundle.CatalogCasGroupOffset = binarySbReader2.Position;
+            CachedBundle.CatalogCasGroupOffset = binarySbReader2.Position;
 
             bool patchFlag = false;
             int unkInBatch1 = 0;
@@ -238,7 +252,8 @@ namespace FIFA21Plugin
                 DbObject ebxObject = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
 
                 ebxObject.SetValue("SBFileLocation", NativeFileLocation);
-                ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                if(AssociatedTOCFile != null)
+                    ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
                 ebxObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
                 int offset = binarySbReader2.ReadInt(Endian.Big);
@@ -254,8 +269,8 @@ namespace FIFA21Plugin
                 {
                     ebxObject.SetValue("patch", true);
 
-                    cachingSBDataBundle.LastCAS = cas;
-                    cachingSBDataBundle.LastCatalogId = catalog;
+                    CachedBundle.LastCAS = cas;
+                    CachedBundle.LastCatalogId = catalog;
                 }
 
             }
@@ -276,7 +291,8 @@ namespace FIFA21Plugin
                 int size = binarySbReader2.ReadInt(Endian.Big);
 
                 resObject.SetValue("SBFileLocation", NativeFileLocation);
-                resObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                if (AssociatedTOCFile != null)
+                    resObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
                 //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
                 resObject.SetValue("catalog", catalog);
@@ -289,8 +305,8 @@ namespace FIFA21Plugin
                 {
                     resObject.SetValue("patch", true);
 
-                    cachingSBDataBundle.LastCAS = cas;
-                    cachingSBDataBundle.LastCatalogId = catalog;
+                    CachedBundle.LastCAS = cas;
+                    CachedBundle.LastCatalogId = catalog;
                 }
             }
 
@@ -317,7 +333,8 @@ namespace FIFA21Plugin
 
                 //}
                 chnkObj.SetValue("SBFileLocation", NativeFileLocation);
-                chnkObj.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                if (AssociatedTOCFile != null)
+                    chnkObj.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                 //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
                 chnkObj.SetValue("catalog", catalog);
                 //if(cas > 0)
@@ -330,8 +347,8 @@ namespace FIFA21Plugin
                 {
                     chnkObj.SetValue("patch", true);
 
-                    cachingSBDataBundle.LastCAS = cas;
-                    cachingSBDataBundle.LastCatalogId = catalog;
+                    CachedBundle.LastCAS = cas;
+                    CachedBundle.LastCatalogId = catalog;
                 }
             }
 
@@ -339,18 +356,141 @@ namespace FIFA21Plugin
             //cachingSBDataBundle.LastCAS = cas;
             //cachingSBDataBundle.LastCatalogId = catalog;
 
-            cachingSBDataBundle.CatalogCasGroupOffsetEnd = (int)binarySbReader2.Position;
-            if(cachingSBDataBundle.CatalogCasGroupOffsetEnd == 0)
+            CachedBundle.CatalogCasGroupOffsetEnd = (int)binarySbReader2.Position;
+            if(CachedBundle.CatalogCasGroupOffsetEnd == 0)
             {
 
             }
-            binarySbReader2.Position = cachingSBDataBundle.CatalogCasGroupOffset;
+            binarySbReader2.Position = CachedBundle.CatalogCasGroupOffset;
             //cachingSBDataBundle.CatalogCasGroupData = binarySbReader2.ReadBytes((int)cachingSBDataBundle.CatalogCasGroupOffsetEnd - (int)cachingSBDataBundle.CatalogCasGroupOffset);
 
 
-            return cachingSBDataBundle;
+            return CachedBundle;
         }
 
+        public byte[] WriteInternalBundle(
+            DbObject dboBundle
+            , Tuple<Sha1, string, FIFA21BundleAction.ModType, bool> modItem
+            , FrostyModExecutor parent
+            )
+        {
+            DbObject additionalDboObject = new DbObject(new Dictionary<string, object>());
+            switch (modItem.Item3)
+            {
+                case FIFA21BundleAction.ModType.EBX:
+                    additionalDboObject.AddValue("sha1", modItem.Item1);
+                    additionalDboObject.AddValue("name", modItem.Item2);
+
+                    dboBundle.GetValue<DbObject>("ebx").Add(additionalDboObject);
+
+                    break;
+                case FIFA21BundleAction.ModType.RES:
+                    additionalDboObject.AddValue("sha1", modItem.Item1);
+                    additionalDboObject.AddValue("name", modItem.Item2);
+
+                    dboBundle.GetValue<DbObject>("res").Add(additionalDboObject);
+                    break;
+                case FIFA21BundleAction.ModType.CHUNK:
+                    additionalDboObject.AddValue("sha1", modItem.Item1);
+
+                    dboBundle.GetValue<DbObject>("chunks").Add(additionalDboObject);
+
+                    break;
+            }
+
+            var ms_data = new MemoryStream();
+            using (NativeWriter writer = new NativeWriter(ms_data))
+            {
+                long startPosition = writer.Position;
+
+                // Catalog Offset
+                writer.Write((int)0);
+
+                // Length Of Meta + 4
+                writer.Write((int)0);
+
+                // casFileForGroupOffset
+                writer.Write((int)0);
+
+                // Unk2
+                writer.Write((int)0);
+
+                // CatalogAndCASOffset
+                writer.Write((int)0);
+
+
+                //
+                writer.Write((int)0);
+                writer.Write((int)0);
+                writer.Write((int)0);
+
+
+                // Binary Writer ---------
+
+                long bundleStartOffset = writer.Position;
+                int ebxCount = dboBundle.GetValue<DbObject>("ebx").List.Count;
+                int resCount = dboBundle.GetValue<DbObject>("res").List.Count;
+                int chunkCount = dboBundle.GetValue<DbObject>("chunks").List.Count;
+                int totalCount = ebxCount + resCount + chunkCount;
+                writer.Write(3599661469u, Endian.Big);
+                writer.Write((int)totalCount);
+                writer.Write((int)ebxCount);
+                writer.Write((int)resCount);
+                writer.Write((int)chunkCount);
+                long placeholderPosition = writer.Position;
+                writer.Write((int)0);
+                writer.Write((int)0);
+                writer.Write((int)0);
+                foreach (DbObject item in dboBundle.GetValue<DbObject>("ebx").List
+                    .Concat(dboBundle.GetValue<DbObject>("res").List)
+                    .Concat(dboBundle.GetValue<DbObject>("chunks").List))
+                {
+                    Sha1 hash = item.GetValue<Sha1>("sha1");
+                    writer.Write(hash);
+                }
+                //writer.Write(modItem.Item1); // mod item sha1
+                // -- TODO --
+                //WriteInternalEbx(writer, dboBundle.GetValue<DbObject>("ebx").List.Cast<DbObject>(), ref entryNamesOffset);
+                //WriteInternalRes(writer, dboBundle.GetValue<DbObject>("res").List.Cast<DbObject>(), ref entryNamesOffset);
+                //WriteInternalChunks(writer, dboBundle.GetValue<DbObject>("chunks").List.Cast<DbObject>());
+                long stringsOffset = writer.Position - bundleStartOffset;
+                foreach (DbObject entry in dboBundle.GetValue<DbObject>("ebx"))
+                {
+                    writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
+                }
+                foreach (DbObject entry in dboBundle.GetValue<DbObject>("res"))
+                {
+                    writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
+                }
+                long chunkMetaOffset = 0L;
+                long chunkMetaSize = 0L;
+                if (chunkCount > 0)
+                {
+                    chunkMetaOffset = writer.Position - bundleStartOffset;
+                    //writer.Write(new DbWriter(writer.BaseStream).WriteDbObject("chunkMeta", dboBundle.GetValue<DbObject>("chunkMeta")));
+                }
+                chunkMetaSize = writer.Position - bundleStartOffset - chunkMetaOffset;
+
+                long bundleEndPosition = 0;
+                // --- End of Binary Writer
+                long startOfEntryDataOffset = writer.Position - 32;
+                long startOfFlagsOffset = writer.Position;
+
+                long endPosition = writer.Position;
+                writer.Position = startPosition;
+                writer.WriteInt32BigEndian((int)startOfEntryDataOffset);
+                writer.WriteInt32BigEndian((int)startOfFlagsOffset);
+                writer.WriteInt32BigEndian(totalCount);
+                writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
+                writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
+                writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
+                writer.WriteInt32BigEndian(0);
+                writer.WriteInt32BigEndian((int)bundleEndPosition - 36);
+                writer.Position = endPosition;
+            }
+
+            return ms_data.ToArray();
+        }
     }
 
    

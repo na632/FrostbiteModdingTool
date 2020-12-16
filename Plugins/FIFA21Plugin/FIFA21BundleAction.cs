@@ -101,7 +101,7 @@ namespace FIFA21Plugin
             return true;
         }
 
-        private enum ModType
+        public enum ModType
         {
             EBX,
             RES,
@@ -325,10 +325,10 @@ namespace FIFA21Plugin
                                     {
 
                                         ChangeSB(positionOfNewData, modItem, data.Length, originalEntry, nwCas);
-                                        //for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
-                                        //{
-                                        //    ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
-                                        //}
+                                        for (var i = 0; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
+                                        {
+                                            ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
+                                        }
                                     }
 
                                    
@@ -385,84 +385,21 @@ namespace FIFA21Plugin
 
                 if (sbFile_data.Length > 0)
                 {
-                    var ms_NewData = new MemoryStream();
-                    using (NativeReader nativeReader = new NativeReader(new MemoryStream(sbFile_data))) 
+                    SBFile sbFile = new SBFile();
+                    DbObject dboBundle = new DbObject();
+                    sbFile.ReadInternalBundle((int)lastBundle.StartOffset, ref dboBundle, new NativeReader(new MemoryStream(sbFile_data)));
+                    byte[] new_data = sbFile.WriteInternalBundle(dboBundle, modItem, parent);
+                    if (new_data.Length > 0)
                     {
-                        using (NativeWriter nw_NewData = new NativeWriter(ms_NewData))
-                        {
-
-                            // 
-                            // Gather the last Original Bundle and add to it
-                            nativeReader.Position = lastBundle.StartOffset;
-
-                            // read header in
-                            var bundleHeader = lastBundle.BundleHeader;
-                            nw_NewData.Write(bundleHeader.Write());
-
-                            var binaryDataOffset = nativeReader.Position += lastBundle.BinaryDataOffset;
-                            nativeReader.Position = binaryDataOffset;
-                            // Header Data (not names and offsets)
-                            lastBundle.BinaryDataData = nativeReader.ReadBytes(36);
-                            nativeReader.Position -= 36;
-                            SBHeaderInformation headerInformation = new SBHeaderInformation(nativeReader, 0);
-
-                            switch (modItem.Item3)
-                            {
-                                case ModType.EBX:
-                                    headerInformation.ebxCount++;
-                                    break;
-                                case ModType.RES:
-                                    headerInformation.resCount++;
-                                    break;
-                                case ModType.CHUNK:
-                                    headerInformation.chunkCount++;
-                                    break;
-                            }
-                            headerInformation.totalCount = headerInformation.ebxCount + headerInformation.resCount + headerInformation.chunkCount;
-                            // Create the initial dataset
-                            nw_NewData.Write(headerInformation.Write());
-
-                            // Write all strings etc.
-
-
-
-                            // Boolean Cas Data 
-                            var booleanCasOffset = lastBundle.StartOffset += lastBundle.BooleanOfCasGroupOffset;
-                            nativeReader.Position = booleanCasOffset;
-                            var booleanCasData = nativeReader.ReadBytes((int)lastBundle.BooleanOfCasGroupOffsetEnd);
-                            var boolCasList = new List<byte>(booleanCasData);
-                            boolCasList.Add(0);
-
-
-
-                            nw_NewData.Position = 32;
-                            nw_NewData.Write(headerInformation.Write());
-
-
-                        }
-
-                        var outArray = ms_NewData.ToArray();
 
                     }
-
-                    //var msNewStringsSection = new MemoryStream();
-                    //Dictionary<Sha1, long> Sha1ToStringPosition = new Dictionary<Sha1, long>();
-                    //using (NativeWriter nwNewStringsSection = new NativeWriter(msNewStringsSection, leaveOpen: true))
+          
+                    //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(moddata_sbfile, FileMode.Open)))
                     //{
-                    //    foreach (var it in item.Value)
-                    //    {
-                    //        Sha1ToStringPosition.Add(it.Item1, nwNewStringsSection.BaseStream.Position);
-                    //        nwNewStringsSection.WriteNullTerminatedString(it.Item2);
-                    //    }
+                    //    nativeWriter.BaseStream.Position = lastBundle.StartOffset;
+                    //    nativeWriter.BaseStream.Position += lastBundle.BinaryDataOffset;
+                    //    nativeWriter.Write(lastBundle.BinaryDataData);
                     //}
-                    //byte[] NewStringsSection = msNewStringsSection.ToArray();
-
-                    using (NativeWriter nativeWriter = new NativeWriter(new FileStream(moddata_sbfile, FileMode.Open)))
-                    {
-                        nativeWriter.BaseStream.Position = lastBundle.StartOffset;
-                        nativeWriter.BaseStream.Position += lastBundle.BinaryDataOffset;
-                        nativeWriter.Write(lastBundle.BinaryDataData);
-                    }
                 }
                 else
                 {

@@ -326,9 +326,14 @@ namespace FIFALibraryNETFrameworkTests
     [TestClass]
     public class FIFA21 : ILogger
     {
+        private string prevText = string.Empty;
         public void Log(string text, params object[] vars)
         {
-            Debug.WriteLine("[LOGGER] [DEBUG] " + text);
+            if (prevText != text)
+            {
+                Debug.WriteLine("[LOGGER] [DEBUG] " + text);
+                prevText = text;
+            }
         }
 
         public void LogError(string text, params object[] vars)
@@ -384,8 +389,8 @@ namespace FIFALibraryNETFrameworkTests
                 , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-           frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
-           // frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+          frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
+            //frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Kit Test.fbmod" }.ToArray()).Wait();
         }
 
         [TestMethod]

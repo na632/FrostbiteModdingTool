@@ -226,7 +226,6 @@ namespace FIFAModdingUI.Pages.Common
 				openFileDialog.Filter = $"Files (*.{SelectedLegacyEntry.Type})|*.{SelectedLegacyEntry.Type}";
 				openFileDialog.FileName = SelectedLegacyEntry.Filename;
 
-				byte[] bytes = File.ReadAllBytes(openFileDialog.FileName);
 				bool isImage = false;
 				if (SelectedLegacyEntry.Type == "DDS")
 				{
@@ -237,6 +236,8 @@ namespace FIFAModdingUI.Pages.Common
 				var result = openFileDialog.ShowDialog();
 				if (result.HasValue && result.Value == true)
 				{
+					byte[] bytes = File.ReadAllBytes(openFileDialog.FileName);
+
 					if (isImage)
 					{
 						using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)))
@@ -250,6 +251,8 @@ namespace FIFAModdingUI.Pages.Common
 									throw new Exception("Image size is incorrect");
 
 								bytes = newImage.Save(oldImage.FormatDetails, CSharpImageLibrary.MipHandling.KeepExisting);
+								ImageViewer.Source = newImage.GetWPFBitmap();
+
 							}
 							catch (Exception ConversionEx)
 							{
@@ -257,7 +260,6 @@ namespace FIFAModdingUI.Pages.Common
 							}
 						}
 
-						ImageViewer.Source = LoadImage(bytes);
 					}
 					else
                     {
@@ -500,6 +502,7 @@ namespace FIFAModdingUI.Pages.Common
 				TextViewer.Visibility = Visibility.Collapsed;
 				EBXViewer.Visibility = Visibility.Collapsed;
 				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
+				HEXViewer.Visibility = Visibility.Collapsed;
 
 				Control control = sender as Control;
 				if (control != null)
@@ -625,8 +628,8 @@ namespace FIFAModdingUI.Pages.Common
 									ImageViewerScreen.Visibility = Visibility.Visible;
 									using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
 									{
-										var bImage = LoadImage(nr.ReadToEnd());
-										ImageViewer.Source = bImage;
+										var oldImage = new CSharpImageLibrary.ImageEngineImage(nr.ReadToEnd());
+										ImageViewer.Source = oldImage.GetWPFBitmap();
 									}
 								}
 								else
@@ -634,6 +637,16 @@ namespace FIFAModdingUI.Pages.Common
 									MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
 									btnExport.IsEnabled = true;
 									UnknownLegacyFileViewer.Visibility = Visibility.Visible;
+									//HEXViewer.Visibility = Visibility.Visible;
+									//byte[] bytes;
+									//using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+									//	bytes = nr.ReadToEnd();
+
+									//if (File.Exists("HexViewer.dat"))
+									//	File.Delete("HexViewer.dat");
+
+									//File.WriteAllBytes("HexViewer.dat", bytes);
+									//HEXViewer.FileName = "HexViewer.dat";
 								}
 
 							}

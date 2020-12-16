@@ -9,7 +9,7 @@ namespace FIFA21Plugin
         public int Cas { get; set; }
 
         public int BundleOffset { get; set; }
-        public int DataOffset { get; internal set; }
+        public int BundleSize { get; internal set; }
 
         public List<int> Sizes = new List<int>();
 
@@ -25,11 +25,16 @@ namespace FIFA21Plugin
                 }
 
                 //return Sizes.Where(x => x < 10095655).Sum() + Offsets.Where(x => x < int.MaxValue).Sum() + DataOffset;
-                return Sizes.Where(x => x < 10095655).Sum() + DataOffset;
+                return Sizes.Where(x => x < 10095655).Sum() + BundleSize;
             } 
         }
 
+        public bool Patch { get; internal set; }
+
         public List<long> TOCOffsets = new List<long>();
+        public Dictionary<long,int> TOCOffsetsToCAS = new Dictionary<long, int>();
+        public Dictionary<long,int> TOCOffsetsToCatalog = new Dictionary<long, int>();
+
         public List<long> TOCSizes = new List<long>();
     }
 }

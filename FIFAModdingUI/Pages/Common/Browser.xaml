@@ -7,7 +7,7 @@
               xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
             xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
             xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-
+xmlns:hexeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
              mc:Ignorable="d" 
              d:DesignHeight="720" d:DesignWidth="1280">
     <Grid>
@@ -146,6 +146,11 @@
             <StackPanel x:Name="EBXViewer" Visibility="Collapsed">
 
             </StackPanel>
+
+            <hexeditor:HexEditor x:Name="HEXViewer"
+                                  Width="auto" Height="auto" Visibility="Collapsed">
+                
+            </hexeditor:HexEditor>
 
             <StackPanel x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
                 <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
