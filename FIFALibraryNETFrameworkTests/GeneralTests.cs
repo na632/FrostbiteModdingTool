@@ -948,6 +948,15 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void TestOpenLegacyProject()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            project.Load(@"G:\\Work\\FIFA Modding\\Career Mod\\FIFA-21-Career-Mod\\Paulv2k4 Career Mod Pre Alpha 5.fbproject");
+            
+        }
+
+        [TestMethod]
         public void InjectSDKGeneratorIntoFIFA()
         {
             

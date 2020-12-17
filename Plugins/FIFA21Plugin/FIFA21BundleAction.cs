@@ -265,19 +265,11 @@ namespace FIFA21Plugin
                         Debug.WriteLine($"Modifying CAS file - {casPath}");
                         parent.Logger.Log($"Modifying CAS file - {casPath}");
 
-                        byte[] originalCASArray = null;
-                        using (NativeReader readerOfCas = new NativeReader(new FileStream(casPath, FileMode.Open)))
+                        using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
                         {
-                            originalCASArray = readerOfCas.ReadToEnd();
-                        }
-                        File.Delete(casPath);
-
-                        var positionOfNewData = 0;
-                        using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.CreateNew)))
-                        {
-                            nwCas.Write(originalCASArray);
                             foreach (var modItem in item.Value)
                             {
+                                nwCas.Position = nwCas.Length;
                                 byte[] data = new byte[0];
                                 AssetEntry originalEntry = null;
                                 switch(modItem.Item3)
@@ -296,39 +288,48 @@ namespace FIFA21Plugin
                                         //    AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)).Where(x=>x.Sha1 != originalEntry.Sha1));
 
                                         ChunkDups.AddRange(
-                                            AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)));
+                                            AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2))
+                                            .Where(x=>x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
 
+                                        if(ChunkDups.Count > 0)
+                                        {
+                                            var otherEntry = ChunkDups[0];
+                                        }
                                         break;
                                 }
                                 if (originalEntry != null)
                                 {
                                     data = parent.archiveData[modItem.Item1].Data;
+                                    if(modItem.Item3 == ModType.CHUNK)
+                                        data = originalEntry.ModifiedEntry.Data;
                                 }
 
                                 if (data.Length > 0)
                                 {
+                                    var positionOfData = nwCas.Position;
                                     // write the new data to end of the file (this should be fine)
-                                    positionOfNewData = (int)nwCas.BaseStream.Position;
                                     nwCas.Write(data);
 
                                     parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
                                     Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
 
                                     bool patchedInSb = false;
-                                    patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
-                                    //for (var i = 1; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
-                                    //{
-                                    //    patchedInSb = PatchInSb(modItem, data, ChunkDups[i], nwCas);
-                                    //}
+                                    //patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
 
                                     if (!patchedInSb)
                                     {
-
-                                        ChangeSB(positionOfNewData, modItem, data.Length, originalEntry, nwCas);
-                                        for (var i = 0; ChunkDups.Count > 1 && i < ChunkDups.Count; i++)
+                                        if(ChunkDups.Count > 0)
                                         {
-                                            ChangeSB(positionOfNewData, modItem, data.Length, ChunkDups[i], nwCas);
+                                            Debug.WriteLine(casPath);
+                                            Debug.WriteLine(ChunkDups[0].ExtraData.CasPath);
+
+                                            ChangeSB((int)positionOfData, modItem, data.Length, ChunkDups[0], nwCas);
                                         }
+                                        else
+                                        {
+                                            ChangeSB((int)positionOfData, modItem, data.Length, originalEntry, nwCas);
+                                        }
+                                       
                                     }
 
                                    
@@ -459,7 +460,7 @@ namespace FIFA21Plugin
                         tempNRCAS.Position = sb_sha1_position;
                         tempCasCheck = tempNRCAS.ReadSha1();
                     }
-                    nwCas.Write(modItem.Item1);
+                    //nwCas.Write(modItem.Item1);
                 }
             }
 
