@@ -374,9 +374,10 @@ namespace FIFAModdingUI.Pages.Common
 				if (SelectedEntry.Type == "TextureAsset")
 				{
 					SaveFileDialog saveFileDialog = new SaveFileDialog();
-					var filt = "*.DDS";
-					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+					var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
+					saveFileDialog.Filter = imageFilter;
 					saveFileDialog.FileName = SelectedEntry.Filename;
+					saveFileDialog.AddExtension = true;
 					if (saveFileDialog.ShowDialog().Value)
 					{
 						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEntry.Name);
@@ -386,8 +387,22 @@ namespace FIFAModdingUI.Pages.Common
 							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
                             {
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
-								TextureExporter textureExporter = new TextureExporter();
-								textureExporter.Export(texture, saveFileDialog.FileName, "*.dds");
+								var textureDataBytes = new NativeReader(new TextureExporter().ExportToSteam(texture)).ReadToEnd();
+								var imageEngineData = new CSharpImageLibrary.ImageEngineImage(textureDataBytes);
+								var extractedExt = saveFileDialog.FileName.Substring(saveFileDialog.FileName.Length - 3, 3).ToUpper();
+								if (extractedExt == "PNG")
+								{
+									imageEngineData.Save(
+										saveFileDialog.FileName,
+										new CSharpImageLibrary.ImageFormats.ImageEngineFormatDetails(CSharpImageLibrary.ImageEngineFormat.PNG),
+										CSharpImageLibrary.MipHandling.KeepTopOnly
+										);
+								}
+								else
+								{
+                                    TextureExporter textureExporter = new TextureExporter();
+                                    textureExporter.Export(texture, saveFileDialog.FileName, "*.dds");
+                                }
 								MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
 
 							}

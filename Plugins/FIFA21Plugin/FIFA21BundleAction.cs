@@ -300,8 +300,8 @@ namespace FIFA21Plugin
                                 if (originalEntry != null)
                                 {
                                     data = parent.archiveData[modItem.Item1].Data;
-                                    if(modItem.Item3 == ModType.CHUNK)
-                                        data = originalEntry.ModifiedEntry.Data;
+                                    //if(modItem.Item3 == ModType.CHUNK)
+                                    //    data = originalEntry.ModifiedEntry.Data;
                                 }
 
                                 if (data.Length > 0)

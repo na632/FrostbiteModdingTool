@@ -1009,9 +1009,42 @@ namespace FIFALibraryNETFrameworkTests
                     project.AssetManager.ModifyCustomAsset("legacy", legacyPressStartEbxEntry.Name, bytes);
                 }
             }
+
+            // content/character/kit/kit_112000/newport_county_112254/home_0_0/jersey_112254_0_0_color
+            [TestMethod]
+            public void TestExportOfTextureToPNG()
+            {
+                ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+                var project = projectManagement.StartNewProject();
+                var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry("content/character/kit/kit_112000/newport_county_112254/home_0_0/jersey_112254_0_0_color");
+                if (resEntry != null)
+                {
+
+                    using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
+                    {
+                        Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
+                        var textureDataBytes = new NativeReader(new TextureExporter().ExportToSteam(texture)).ReadToEnd();
+                        var imageEngineData = new CSharpImageLibrary.ImageEngineImage(textureDataBytes);
+                        var extractedExt = "PNG";
+                        if (extractedExt == "PNG")
+                        {
+                            imageEngineData.Save(
+                                "Test.PNG",
+                                new CSharpImageLibrary.ImageFormats.ImageEngineFormatDetails(CSharpImageLibrary.ImageEngineFormat.PNG),
+                                CSharpImageLibrary.MipHandling.KeepTopOnly
+                                );
+                        }
+
+                    }
+
+
+                }
+
+            }
+
         }
 
-       
+
     }
 
     [TestClass]
