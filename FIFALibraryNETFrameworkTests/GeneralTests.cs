@@ -1060,7 +1060,7 @@ namespace FIFALibraryNETFrameworkTests
         [TestMethod]
         public void LoadProjectAndTest()
         {
-            GameInstanceSingleton.InitialiseSingleton(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
+            GameInstanceSingleton.InitializeSingleton(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             projectManagement.StartNewProject();
             projectManagement.FrostyProject.Load("G:\\SplashProj.fbproject");

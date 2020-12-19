@@ -65,6 +65,12 @@
                             <Label Content="Write to Mod" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="True">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
+                            <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
                     <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game >>>>" VerticalAlignment="Center" />

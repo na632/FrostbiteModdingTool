@@ -60,7 +60,7 @@ namespace FrostbiteModdingUI.Windows
                     return;
                 }
 
-                GameInstanceSingleton.InitialiseSingleton(filePath);
+                GameInstanceSingleton.InitializeSingleton(filePath);
                 txtGameDirectory.Text = GameInstanceSingleton.GAMERootPath;
 
                 Task.Run(() =>

@@ -52,7 +52,7 @@ namespace FrostbiteModdingUI.Windows
                 AppSettings.Settings.FIFAInstallEXEPath = filePath;
                 AppSettings.Settings.Save();
 
-                if (GameInstanceSingleton.InitialiseSingleton(filePath))
+                if (GameInstanceSingleton.InitializeSingleton(filePath))
                 {
                     if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
                     {

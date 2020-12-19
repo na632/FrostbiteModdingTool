@@ -28,7 +28,7 @@ namespace v2k4FIFAModdingCL
 
         public static string LegacyModsPath { get { return GAMERootPath + "\\LegacyMods\\Legacy\\"; } }
 
-        public static bool InitialiseSingleton(string filePath)
+        public static bool InitializeSingleton(string filePath)
         {
             if(!string.IsNullOrEmpty(filePath))
             {
