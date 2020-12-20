@@ -44,18 +44,24 @@ namespace v2k4FIFAModding.Frosty
 
         public ProjectManagement()
         {
-            Initialise();
+            Initialize();
             Instance = this;
         }
 
-        private void Initialise()
+        private void Initialize()
         {
-            if (PreviousGameVersion != GameInstanceSingleton.GAMEVERSION && AssetManager.Instance == null)
+            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
+                throw new Exception("Game path has not been selected or initialized");
+
+            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION))
+                throw new Exception("Game EXE has not been selected or initialized");
+
+            if (PreviousGameVersion != GameInstanceSingleton.GAMEVERSION || AssetManager.Instance == null)
             {
                 var buildCache = new BuildCache();
                 buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, logger: this, loadSDK: true);
-                //if(!File.Exists(FIFAInstanceSingleton.V))
-                //var buildSDK = new BuildSDK();
+                //if (!File.Exists(FIFAInstanceSingleton.V))
+                //    var buildSDK = new BuildSDK();
                 //var b = buildSDK.Build().Result;
                 PreviousGameVersion = GameInstanceSingleton.GAMEVERSION;
             }
@@ -64,7 +70,7 @@ namespace v2k4FIFAModding.Frosty
         public ProjectManagement(string gamePath)
         {
             InitializeOfSelectedGame(gamePath);
-            Initialise();
+            Initialize();
             Instance = this;
         }
 
@@ -73,7 +79,7 @@ namespace v2k4FIFAModding.Frosty
         {
             Logger = logger;
             InitializeOfSelectedGame(gamePath);
-            Initialise();
+            Initialize();
             Instance = this;
         }
 

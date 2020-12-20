@@ -317,6 +317,12 @@ namespace FIFAModdingUI
                     {
                         if (AssetManager.Instance == null)
                         {
+                            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
+                                throw new Exception("Game path has not been selected or initialized");
+
+                            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION))
+                                throw new Exception("Game EXE has not been selected or initialized");
+
                             Log("Asset Manager is not initialised - Starting");
                             ProjectManagement projectManagement = new ProjectManagement(
                                 GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe"

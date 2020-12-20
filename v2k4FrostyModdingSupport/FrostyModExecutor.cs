@@ -5369,52 +5369,18 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
         }
 
-        //private static bool FileIsSymbolic(this FileInfo pathInfo, string path)
-        //{
-        //    return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
-        //}
-
-        //public bool InitializePlugins()
-        //{
-        //    if (Directory.Exists("Plugins"))
-        //    {
-        //        foreach (var p in Directory.EnumerateFiles("Plugins"))
-        //        {
-        //            if (p.ToLower().EndsWith(".dll") && (p.ToLower().Contains(ProfilesLibrary.DisplayName.ToLower())))
-        //            {
-        //                logger.Log($"Loading Plugin {p}");
-        //                try
-        //                {
-        //                    var assemble = Assembly.LoadFrom(p);
-        //                    PluginAssemblies.Add(assemble);
-        //                }
-        //                catch(Exception e)
-        //                {
-        //                    logger.LogError(e.Message);
-        //                    logger.Log("[ERROR] Unable to load Plugin. It may be blocked by antivirus.");
-        //                    return false;
-        //                }
-        //            }
-        //        }
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
         public async Task<bool> BuildModData(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
         {
             fs = inFs;
             Logger = inLogger;
 
-            if (!AssetManager.Instance.InitializePlugins())
-                return false;
-
+            if (!AssetManager.InitializePlugins())
+            {
+                throw new Exception("Unable to initialize Plugins");
+            }
             string modPath = fs.BasePath + modDirName + "\\";
             string patchPath = "Patch";
-            //if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115)
-            //{
-            //    patchPath = "Update\\Patch\\Data";
-            //}
+           
             if (ProfilesLibrary.IsMaddenDataVersion())
             {
                 string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
@@ -5439,7 +5405,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             {
                 if (process.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase))
                 {
-                    return false;
+                    throw new Exception("Game process is already running, please close and relaunch");
                 }
             }
 

@@ -42,10 +42,10 @@ namespace FIFA21Plugin.Textures
 				options.format = TextureUtils.ToShaderFormat(textureAsset.PixelFormat, (textureAsset.Flags & TextureFlags.SrgbGamma) != 0);
 				options.generateMipmaps = (textureAsset.MipCount > 1);
 				options.mipmapsFilter = 0;
-				options.resizeTexture = false;
+				options.resizeTexture = true;
 				options.resizeFilter = 0;
-				options.resizeHeight = 0;
-				options.resizeWidth = 0;
+				options.resizeHeight = textureAsset.Height;
+				options.resizeWidth = textureAsset.Width;
 				if (textureAsset.Type == TextureType.TT_2d)
 				{
 					byte[] pngarray = NativeReader.ReadInStream(new FileStream(path, FileMode.Open, FileAccess.Read));

@@ -22,6 +22,7 @@ using static FrostySdk.Managers.AssetManager;
 //using Frostbite.Fbx;
 using FrostySdk.Frostbite;
 using paulv2k4ModdingExecuter;
+using Frostbite;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -1010,6 +1011,43 @@ namespace FIFALibraryNETFrameworkTests
                 }
             }
 
+            [TestMethod]
+            public void TestImportOfTexture()
+            {
+                ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+                var project = projectManagement.StartNewProject();
+
+                TextureConvertingHelper textureConvertingHelper = new TextureConvertingHelper();
+                textureConvertingHelper.ImportATextureIntoRES(
+                    "content/character/kit/kit_112000/newport_county_112254/home_0_0/jersey_112254_0_0_color"
+                    , @"G:\Work\FIFA Modding\GraphicMod\Roma Kit\2048\Home_Kit_Color.png");
+
+                //ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+                //var project = projectManagement.StartNewProject();
+                //var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry("content/character/kit/kit_112000/newport_county_112254/home_0_0/jersey_112254_0_0_color");
+                //if (resEntry != null)
+                //{
+                //    using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
+                //    {
+                //        Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
+                //        var textureDataBytes = new NativeReader(new TextureExporter().ExportToSteam(texture)).ReadToEnd();
+                //        var oldImage = new CSharpImageLibrary.ImageEngineImage(textureDataBytes);
+
+                //        var newImage = new CSharpImageLibrary.ImageEngineImage(@"G:\Work\FIFA Modding\GraphicMod\Roma Kit\2048\Home_Kit_Color.png");
+                //        double reScale = oldImage.Width / newImage.Width;
+                //        newImage.Resize(reScale);
+                //        if(newImage.Width != oldImage.Width)
+                //        {
+                //            throw new ArgumentOutOfRangeException("New Texture Width is not Correct");
+                //        }
+                //        if (newImage.Height != oldImage.Height)
+                //        {
+                //            throw new ArgumentOutOfRangeException("New Texture Height is not Correct");
+                //        }
+                //    }
+                //}
+            }
+
             // content/character/kit/kit_112000/newport_county_112254/home_0_0/jersey_112254_0_0_color
             [TestMethod]
             public void TestExportOfTextureToPNG()
@@ -1023,7 +1061,7 @@ namespace FIFALibraryNETFrameworkTests
                     using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
                     {
                         Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
-                        var textureDataBytes = new NativeReader(new TextureExporter().ExportToSteam(texture)).ReadToEnd();
+                        var textureDataBytes = new NativeReader(new TextureExporter().ExportToStream(texture)).ReadToEnd();
                         var imageEngineData = new CSharpImageLibrary.ImageEngineImage(textureDataBytes);
                         var extractedExt = "PNG";
                         if (extractedExt == "PNG")

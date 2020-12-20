@@ -195,6 +195,7 @@
     <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="Util\" />
   </ItemGroup>
 
   <ItemGroup>

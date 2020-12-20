@@ -31,6 +31,7 @@ using Microsoft.Win32;
 using FIFAModdingUI.Windows;
 using Newtonsoft.Json;
 using FrostbiteModdingUI.Windows;
+using Frostbite;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -219,6 +220,7 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnImport_Click(object sender, RoutedEventArgs e)
         {
+			//var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 			var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 			if (SelectedLegacyEntry != null)
 			{
@@ -288,31 +290,36 @@ namespace FIFAModdingUI.Pages.Common
 
 							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
 							{
-								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
-								TextureImporter textureImporter = new TextureImporter();
-								EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
-								ResAssetEntry resAssetEntry = SelectedEntry as ResAssetEntry;
+                                //TextureConvertingHelper textureConvertingHelper = new TextureConvertingHelper();
+                                //textureConvertingHelper.ImportATextureIntoRES(SelectedEntry.Name, openFileDialog.FileName);
 
-								if (ebxAssetEntry != null)
-									textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
-								else if (resAssetEntry != null)
-								{
-									textureImporter.ImportTextureFromFileToTextureAsset(openFileDialog.FileName, ref texture, out string Message); 
-									MainEditorWindow.Log($"{Message}");
-									UpdateAssetListView();
+                                Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
+                                TextureImporter textureImporter = new TextureImporter();
+                                EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
+                                //ResAssetEntry resAssetEntry = SelectedEntry as ResAssetEntry;
+
+                                //var oldImage = new CSharpImageLibrary.ImageEngineImage(texture.ToBytes());
+
+                                if (ebxAssetEntry != null)
+                                    textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
+                                //else if (resAssetEntry != null)
+                                //{
+                                //	textureImporter.ImportTextureFromFileToTextureAsset(openFileDialog.FileName, ref texture, out string Message); 
+                                //	MainEditorWindow.Log($"{Message}");
+                                //	UpdateAssetListView();
 
 
 
-								}
+                                //}
 
-								if (ebxAssetEntry != null)
-								{
-									var res = AssetManager.Instance.GetResEntry(ebxAssetEntry.Name);
+                                //if (ebxAssetEntry != null)
+                                //{
+                                var res = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
 									if (res != null)
 									{
 										BuildTextureViewerFromAssetEntry(res);
 									}
-								}
+								//}
 
 								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
 							}
@@ -387,7 +394,7 @@ namespace FIFAModdingUI.Pages.Common
 							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
                             {
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
-								var textureDataBytes = new NativeReader(new TextureExporter().ExportToSteam(texture)).ReadToEnd();
+								var textureDataBytes = new NativeReader(new TextureExporter().ExportToStream(texture)).ReadToEnd();
 								var imageEngineData = new CSharpImageLibrary.ImageEngineImage(textureDataBytes);
 								var extractedExt = saveFileDialog.FileName.Substring(saveFileDialog.FileName.Length - 3, 3).ToUpper();
 								if (extractedExt == "PNG")
@@ -691,9 +698,11 @@ namespace FIFAModdingUI.Pages.Common
 
 						TextureExporter textureExporter = new TextureExporter();
 						MemoryStream memoryStream = new MemoryStream();
-						var textureBytes = new NativeReader(textureExporter.ExportToSteam(textureAsset)).ReadToEnd();
+						var textureBytes = new NativeReader(textureExporter.ExportToStream(textureAsset)).ReadToEnd();
 
-						var bImage = LoadImage(textureBytes);
+						var newImage = new CSharpImageLibrary.ImageEngineImage(textureBytes);
+
+						var bImage = newImage.GetWPFBitmap();//  new CSharpImageLibrary. //LoadImage(textureBytes);
 						ImageViewer.Source = bImage;
 						ImageViewerScreen.Visibility = Visibility.Visible;
 
