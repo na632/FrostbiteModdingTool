@@ -60,7 +60,7 @@ namespace FIFAModdingUI.Windows
                 }
                 baseDir.Delete(true);
             }
-            catch(Exception e)
+            catch(Exception)
             {
 
             }
@@ -85,7 +85,7 @@ namespace FIFAModdingUI.Windows
 
                 var allFiles = Directory.GetFiles("TEMP", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
                 Task[] tasks = new Task[allFiles.Count()];
-                var index = 0;
+                //var index = 0;
                 foreach (var file in allFiles)
                 {
                     //tasks[index] = Task.Run(() =>

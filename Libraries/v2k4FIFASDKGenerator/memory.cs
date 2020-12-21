@@ -397,11 +397,12 @@ namespace Memory
         /// <returns></returns>
         public bool isAdmin()
         {
-            using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
-            {
-                WindowsPrincipal principal = new WindowsPrincipal(identity);
-                return principal.IsInRole(WindowsBuiltInRole.Administrator);
-            }
+            //using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+            //{
+            //    WindowsPrincipal principal = new WindowsPrincipal(identity);
+            //    return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            //}
+            return true;
         }
 
         /// <summary>

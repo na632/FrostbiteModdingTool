@@ -2,7 +2,7 @@
 
   <PropertyGroup>
    <!--<TargetFrameworks>net48;netstandard2.0</TargetFrameworks>-->
-    <TargetFrameworks>net48;</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Folder Include="Career\Interfaces\" />
+    <Folder Include="Career\StoryAssetHelpers\" />
     <Folder Include="db\FIFA20\" />
   </ItemGroup>
 
@@ -47,9 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Career\CME\Data\leagues.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
   </ItemGroup>
 
 </Project>

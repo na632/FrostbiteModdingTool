@@ -63,14 +63,14 @@
     <Content Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json" />
-    <Content Include="..\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
+    <Content Include="..\Libraries\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json" />
+    <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\FrostySdk\Madden20Profile.json" Link="Madden20Profile.json">
+    <Content Include="..\Libraries\FrostySdk\Madden20Profile.json" Link="Madden20Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
+    <Content Include="..\Libraries\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -140,10 +140,10 @@
 
   <ItemGroup>
     <Reference Include="FifaLibrary19">
-      <HintPath>..\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
+      <HintPath>..\Libraries\v2k4FIFAModdingCL\FifaLibrary19.dll</HintPath>
     </Reference>
     <Reference Include="FrostyHash">
-      <HintPath>..\v2k4FrostyModdingSupport\FrostyHash.dll</HintPath>
+      <HintPath>..\Libraries\v2k4FrostyModdingSupport\FrostyHash.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression" />
   </ItemGroup>
@@ -153,9 +153,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
-    <ProjectReference Include="..\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
-    <ProjectReference Include="..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+    <ProjectReference Include="..\Libraries\FrostySdk\FrostbiteSdk\FrostbiteSdk.csproj" />
+    <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -199,7 +201,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\FrostySdk\fifa21.key" Link="fifa21.key">
+    <None Include="..\Libraries\FrostySdk\fifa21.key" Link="fifa21.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.0\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
@@ -208,7 +210,7 @@
     <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.0\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
+    <None Include="..\Libraries\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,5 +1,4 @@
 ﻿using Frostbite.Textures;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;

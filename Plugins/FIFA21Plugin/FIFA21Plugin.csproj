@@ -24,13 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\FrostySdk\FrostySdk.csproj" />
-    <ProjectReference Include="..\..\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+    <ProjectReference Include="..\..\Libraries\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="FrostyHash">
-      <HintPath>..\..\v2k4FrostyModdingSupport\FrostyHash.dll</HintPath>
+      <HintPath>..\..\Libraries\v2k4FrostyModdingSupport\FrostyHash.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic.FileIO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -12,7 +11,7 @@ namespace v2k4FIFAModding.Career
     {
         public static Dictionary<string,string> GetCareerSaves()
         {
-            var myDocs = SpecialDirectories.MyDocuments + "\\"
+            var myDocs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\"
                                             + GameInstanceSingleton.GAMEVERSION.Substring(0, 4) + " " + GameInstanceSingleton.GAMEVERSION.Substring(4, 2)
                                             + "\\settings\\";
             return GetCareerSaves(myDocs);

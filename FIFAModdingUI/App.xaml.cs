@@ -20,7 +20,7 @@ namespace FIFAModdingUI
         private static string ClientId = "2b99df49-736b-4b7c-8e9d-bdaa87859b0b";
         //private static string ClientId = "f947871b-8962-4fbe-9444-45ad2ade761f";
 
-        private static string Tenant = "common";
+        //private static string Tenant = "common";
 
         private static IPublicClientApplication _clientApp;
 

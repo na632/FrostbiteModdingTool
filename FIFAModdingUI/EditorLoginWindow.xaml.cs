@@ -27,7 +27,7 @@ namespace FIFAModdingUI
     public partial class EditorLoginWindow : Window
     {
         //Set the API Endpoint to Graph 'me' endpoint
-        string graphAPIEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+        //string graphAPIEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
 
         //Set the scope for API call to user.read
         string[] scopes = new string[] { "user.read" };
@@ -65,7 +65,9 @@ namespace FIFAModdingUI
         public EditorLoginWindow()
         {
             InitializeComponent();
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             AttemptSilentLogin();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             new TaskFactory().StartNew(() => {
 
                 while (true)

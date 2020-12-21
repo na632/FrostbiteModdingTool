@@ -1,8 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Xml.Serialization;
-using v2k4FIFAModdingCL.Career.ObjectiveHelpers;
-using v2k4FIFAModdingCL.Career.StoryAssetHelpers;
 using System.Text;
 using System.Web;
 using v2k4FIFAModdingCL.CGFE;

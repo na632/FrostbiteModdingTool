@@ -86,8 +86,12 @@ xmlns:hexeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
                 </ListView.View>
             </ListView>
         </StackPanel>
-        <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Vertical" Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-            <StackPanel Orientation="Horizontal">
+        <Grid Grid.Column="1" Grid.RowSpan="2"  Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <Grid.RowDefinitions>
+                <RowDefinition MaxHeight="30"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <Button x:Name="btnImport" IsEnabled="False" Click="btnImport_Click" Height="30" Background="Transparent">
                     <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
@@ -107,7 +111,7 @@ xmlns:hexeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <Grid Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
+            <Grid Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="512"></RowDefinition>
@@ -136,25 +140,25 @@ xmlns:hexeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
                 </StackPanel>
             </Grid>
 
-            <TextBox x:Name="TextViewer" MaxHeight="400" MaxLines="999999" 
+            <TextBox Grid.Row="1" x:Name="TextViewer" MaxHeight="400" MaxLines="999999" 
                      Visibility="Collapsed"
                      ScrollViewer.VerticalScrollBarVisibility="Visible"
                       LostFocus="TextViewer_LostFocus"
                      >
 
             </TextBox>
-            <StackPanel x:Name="EBXViewer" Visibility="Collapsed">
+            <StackPanel Grid.Row="1" x:Name="EBXViewer" Visibility="Collapsed">
 
             </StackPanel>
 
-            <hexeditor:HexEditor x:Name="HEXViewer"
+            <hexeditor:HexEditor Grid.Row="1" x:Name="HEXViewer"
                                   Width="auto" Height="auto" Visibility="Collapsed">
                 
             </hexeditor:HexEditor>
 
-            <StackPanel x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
+            <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
                 <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

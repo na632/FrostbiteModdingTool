@@ -135,7 +135,7 @@ namespace FIFAModdingUI.Pages.Common
         }
 
 		private Dictionary<string, AssetPath> assetPathMapping = new Dictionary<string, AssetPath>(StringComparer.OrdinalIgnoreCase);
-		private AssetPath selectedPath;
+		private AssetPath selectedPath = null;
 
 		public async void Update()
         {
@@ -200,21 +200,11 @@ namespace FIFAModdingUI.Pages.Common
             }
             assetPath.Children.Insert(0, assetPathMapping["/"]);
 
-			//Dispatcher.BeginInvoke((Action)(() =>
-			//{
-			//	assetTreeView.ItemsSource = assetPath.Children;
-			//	assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
-			//}));
-
 			await Dispatcher.InvokeAsync((Action)(() =>
 			{
 				assetTreeView.ItemsSource = assetPath.Children;
 				assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
 			}));
-
-
-
-
 
 		}
 
@@ -290,36 +280,19 @@ namespace FIFAModdingUI.Pages.Common
 
 							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
 							{
-                                //TextureConvertingHelper textureConvertingHelper = new TextureConvertingHelper();
-                                //textureConvertingHelper.ImportATextureIntoRES(SelectedEntry.Name, openFileDialog.FileName);
 
                                 Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
                                 TextureImporter textureImporter = new TextureImporter();
                                 EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
-                                //ResAssetEntry resAssetEntry = SelectedEntry as ResAssetEntry;
-
-                                //var oldImage = new CSharpImageLibrary.ImageEngineImage(texture.ToBytes());
 
                                 if (ebxAssetEntry != null)
                                     textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
-                                //else if (resAssetEntry != null)
-                                //{
-                                //	textureImporter.ImportTextureFromFileToTextureAsset(openFileDialog.FileName, ref texture, out string Message); 
-                                //	MainEditorWindow.Log($"{Message}");
-                                //	UpdateAssetListView();
-
-
-
-                                //}
-
-                                //if (ebxAssetEntry != null)
-                                //{
+                               
                                 var res = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
-									if (res != null)
-									{
-										BuildTextureViewerFromAssetEntry(res);
+								if (res != null)
+								{
+									BuildTextureViewerFromAssetEntry(res);
 									}
-								//}
 
 								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
 							}
@@ -795,9 +768,9 @@ namespace FIFAModdingUI.Pages.Common
 
     internal class AssetPath
 	{
-		private static ImageSource ClosedImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/CloseFolder.png") as ImageSource;
+		//private static ImageSource ClosedImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/CloseFolder.png") as ImageSource;
 
-		private static ImageSource OpenImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/OpenFolder.png") as ImageSource;
+		//private static ImageSource OpenImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/OpenFolder.png") as ImageSource;
 
 		private string fullPath;
 

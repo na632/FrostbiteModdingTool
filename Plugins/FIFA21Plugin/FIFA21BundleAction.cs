@@ -181,6 +181,15 @@ namespace FIFA21Plugin
             foreach (var modChunks in parent.modifiedChunks)
             {
                 var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
+
+                // Find other chunk and use it
+                var otherChunks = new List<ChunkAssetEntry>();
+                otherChunks.AddRange(
+                    AssetManager.Instance.GetChunkEntries(modChunks.Key)
+                    .Where(x => x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
+                if (otherChunks.Count > 0)
+                    originalEntry = otherChunks[0];
+
                 if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                 {
                     if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
@@ -223,8 +232,6 @@ namespace FIFA21Plugin
             {
                 parent.Logger.Log("Loading files to know what to change.");
 
-                //FIFA21AssetLoader assetLoader = new FIFA21AssetLoader();
-                //assetLoader.Load(AssetManager.Instance, new BinarySbDataHelper(AssetManager.Instance));
                 BuildCache buildCache = new BuildCache();
                 buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true); ;
 
@@ -303,6 +310,16 @@ namespace FIFA21Plugin
                                     //if(modItem.Item3 == ModType.CHUNK)
                                     //    data = originalEntry.ModifiedEntry.Data;
                                 }
+                                else
+                                {
+                                    parent.Logger.LogError($"Unable to find original archive data for {modItem.Item1}");
+                                    continue;
+                                    //throw new Exception()
+                                }
+
+                                if (data.Length == 0)
+                                    continue;
+
 
                                 if (data.Length > 0)
                                 {
