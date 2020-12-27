@@ -20,9 +20,13 @@ namespace FrostbiteModdingUI.Pages.Common.EBX
     /// </summary>
     public partial class frostysdk_ebx_cstring : UserControl
     {
+      
+
         public frostysdk_ebx_cstring()
         {
             InitializeComponent();
         }
+
+       
     }
 }

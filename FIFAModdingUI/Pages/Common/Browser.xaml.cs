@@ -472,18 +472,26 @@ namespace FIFAModdingUI.Pages.Common
 
         private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-			OpenAsset(sender);
+			AssetEntry entry = ((TextBlock)sender).Tag as EbxAssetEntry;
+			if (entry == null)
+				entry = ((TextBlock)sender).Tag as LegacyFileEntry;
+
+			OpenAsset(entry);
 		}
 
 		private void AssetEntry_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter || e.Key == Key.Return)
 			{
-				OpenAsset(sender);
+				AssetEntry entry = ((TextBlock)sender).Tag as EbxAssetEntry;
+				if(entry == null)
+					entry = ((TextBlock)sender).Tag as LegacyFileEntry;
+
+				OpenAsset(entry);
 			}
 		}
 
-		private void OpenAsset(object sender)
+		private void OpenAsset(AssetEntry entry)
 		{
 			try
 			{
@@ -499,10 +507,10 @@ namespace FIFAModdingUI.Pages.Common
 				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
 				HEXViewer.Visibility = Visibility.Collapsed;
 
-				Control control = sender as Control;
-				if (control != null)
+				//TextBlock control = sender as TextBlock;
+				//if (control != null)
 				{
-					EbxAssetEntry ebxEntry = control.Tag as EbxAssetEntry;
+					EbxAssetEntry ebxEntry = entry as EbxAssetEntry;
 					if (ebxEntry != null)
 					{
 						SelectedEntry = ebxEntry;
@@ -542,7 +550,7 @@ namespace FIFAModdingUI.Pages.Common
 							{
 								MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
-								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject));
+								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.FrostyProject, MainEditorWindow));
 								EBXViewer.Visibility = Visibility.Visible;
 								btnRevert.IsEnabled = true;
 								if (ebxEntry.Type == "HotspotDataAsset")
@@ -553,36 +561,12 @@ namespace FIFAModdingUI.Pages.Common
 							}
 						}
 					}
-
 					else
 					{
 
-						ResAssetEntry resEntry = control.Tag as ResAssetEntry;
-						if (resEntry != null)
-						{
-							SelectedEntry = resEntry;
-							if (SelectedEntry.Type == "Texture")
-							{
-								try
-								{
-									MainEditorWindow.Log("Loading Texture " + SelectedEntry.Filename);
-
-									BuildTextureViewerFromAssetEntry(resEntry);
-								}
-								catch (Exception)
-								{
-									MainEditorWindow.Log("Failed to load texture");
-								}
-
-
-
-							}
-
-						}
-						else
 						{
 
-							LegacyFileEntry legacyFileEntry = control.Tag as LegacyFileEntry;
+							LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
 							if (legacyFileEntry != null)
 							{
 								SelectedLegacyEntry = legacyFileEntry;
@@ -764,6 +748,47 @@ namespace FIFAModdingUI.Pages.Common
 						, SelectedLegacyEntry.Name
 						, bytes);
 		}
+
+        private void TextBlock_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+			if (e.Key == Key.Enter || e.Key == Key.Return)
+			{
+				TextBlock label = sender as TextBlock;
+				if (label != null && label.Tag != null)
+				{
+					SelectedAssetPath = label.Tag as AssetPath;
+					UpdateAssetListView();
+				}
+			}
+		}
+
+        private void TextBlock_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+			TextBlock label = sender as TextBlock;
+			if (label != null && label.Tag != null)
+			{
+				SelectedAssetPath = label.Tag as AssetPath;
+				UpdateAssetListView();
+			}
+		}
+
+        private void assetTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+			var assetP = assetTreeView.SelectedItem as AssetPath;
+			if (assetP != null) 
+			{
+				IAssetEntry entry = AssetManager.Instance.GetEbxEntry(assetP.FullPath);
+				if(entry == null)
+                {
+					entry = AssetManager.Instance.GetCustomAssetEntry("legacy", assetP.FullPath);
+				}
+
+				if(entry != null)
+                {
+
+                }
+			}
+        }
     }
 
     internal class AssetPath

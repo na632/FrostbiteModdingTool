@@ -23,6 +23,7 @@
         <DataTemplate DataType="{x:Type Model:FileItem}">
             <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
         </DataTemplate>
+       
 
     </Window.Resources>
     
@@ -39,7 +40,7 @@
             </Grid.ColumnDefinitions>
             <GridSplitter></GridSplitter>
 
-            <StackPanel Grid.Row="0"  Orientation="Horizontal">
+            <StackPanel Grid.Row="0"  Orientation="Horizontal" Background="White">
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">

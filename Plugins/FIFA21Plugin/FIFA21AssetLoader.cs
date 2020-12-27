@@ -48,10 +48,6 @@ namespace FIFA21Plugin
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			//CASDataLoader casDataLoader = new CASDataLoader();
-			//casDataLoader.Load(parent, helper);
-
-
 			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
 			{
 				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
@@ -83,7 +79,7 @@ namespace FIFA21Plugin
 						List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
 						var tocFileRAW = $"native_data/{tocFile}.toc";
 						string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
-						if (!string.IsNullOrEmpty(tocFileLocation))
+						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
 						{
 							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
 							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
@@ -97,10 +93,14 @@ namespace FIFA21Plugin
 								}
 							}
 						}
+						else
+                        {
+							parent.logger.LogError($"Unable to find {tocFileLocation}");
+                        }
 
 						tocFileRAW = $"native_patch/{tocFile}.toc";
 						tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
-						if (!string.IsNullOrEmpty(tocFileLocation))
+						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
 						{
 							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
 							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, false, tocFileRAW);
@@ -115,6 +115,10 @@ namespace FIFA21Plugin
 								}
 
 							}
+						}
+						else
+						{
+							parent.logger.LogError($"Unable to find {tocFileLocation}");
 						}
 
 					}

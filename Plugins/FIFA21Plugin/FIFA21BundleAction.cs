@@ -307,8 +307,6 @@ namespace FIFA21Plugin
                                 if (originalEntry != null)
                                 {
                                     data = parent.archiveData[modItem.Item1].Data;
-                                    //if(modItem.Item3 == ModType.CHUNK)
-                                    //    data = originalEntry.ModifiedEntry.Data;
                                 }
                                 else
                                 {
@@ -335,11 +333,8 @@ namespace FIFA21Plugin
 
                                     if (!patchedInSb)
                                     {
-                                        if(ChunkDups.Count > 0)
+                                        if(ChunkDups.Count > 0 && originalEntry.SBFileLocation == null)
                                         {
-                                            Debug.WriteLine(casPath);
-                                            Debug.WriteLine(ChunkDups[0].ExtraData.CasPath);
-
                                             ChangeSB((int)positionOfData, modItem, data.Length, ChunkDups[0], nwCas);
                                         }
                                         else
@@ -433,23 +428,23 @@ namespace FIFA21Plugin
             return false;
         }
 
-        private void ChangeSB(int positionOfNewData, Tuple<Sha1, string, ModType, bool> modItem, int sizeOfData, AssetEntry originalEntry, NativeWriter nwCas)
+        private void ChangeSB(int positionOfNewData, Tuple<Sha1, string, ModType, bool> modItem, int sizeOfData, AssetEntry entry, NativeWriter nwCas)
         {
             if (modItem.Item3 == ModType.RES)
                 return;
 
-            var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
-            var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
-            var sb_sha1_position = originalEntry.SB_Sha1_Position;
+            var sb_cas_size_position = entry.SB_CAS_Size_Position;
+            var sb_cas_offset_position = entry.SB_CAS_Offset_Position;
+            var sb_sha1_position = entry.SB_Sha1_Position;
 
             var CasSha1 = false;
             var sbpath = string.Empty;
             //parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
-            if (!string.IsNullOrEmpty(originalEntry.SBFileLocation))
-                sbpath = originalEntry.SBFileLocation;
-            else if (!string.IsNullOrEmpty(originalEntry.TOCFileLocation))
+            if (!string.IsNullOrEmpty(entry.SBFileLocation))
+                sbpath = entry.SBFileLocation;
+            else if (!string.IsNullOrEmpty(entry.TOCFileLocation))
             {
-                sbpath = originalEntry.TOCFileLocation;
+                sbpath = entry.TOCFileLocation;
                 CasSha1 = true;
             }
 
@@ -472,7 +467,7 @@ namespace FIFA21Plugin
                     nwCas.BaseStream.Position = sb_sha1_position;
                     var tempCasCheck = Sha1.Zero;
 
-                    using (NativeReader tempNRCAS = new NativeReader(new FileStream(AssetManager.Instance.fs.ResolvePath(originalEntry.ExtraData.CasPath), FileMode.Open)))
+                    using (NativeReader tempNRCAS = new NativeReader(new FileStream(AssetManager.Instance.fs.ResolvePath(entry.ExtraData.CasPath), FileMode.Open)))
                     {
                         tempNRCAS.Position = sb_sha1_position;
                         tempCasCheck = tempNRCAS.ReadSha1();
@@ -482,18 +477,18 @@ namespace FIFA21Plugin
             }
 
 
-            byte[] arrayOfSB = null;
-            using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
-            {
-                arrayOfSB = nativeReader.ReadToEnd();
-                nativeReader.Position = sb_cas_offset_position;
-                var originalOffset = nativeReader.ReadInt(Endian.Big);
-            }
+            //byte[] arrayOfSB = null;
+            //using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
+            //{
+            //    arrayOfSB = nativeReader.ReadToEnd();
+            //    nativeReader.Position = sb_cas_offset_position;
+            //    var originalOffset = nativeReader.ReadInt(Endian.Big);
+            //}
             //File.Delete(sbpath);
             using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
             {
-                nw_sb.Position = 0;
-                nw_sb.Write(arrayOfSB);
+                //nw_sb.Position = 0;
+                //nw_sb.Write(arrayOfSB);
                 nw_sb.BaseStream.Position = sb_cas_offset_position;
                 nw_sb.Write((uint)positionOfNewData, Endian.Big);
                 //nw_sb.Flush();

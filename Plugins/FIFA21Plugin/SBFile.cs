@@ -81,12 +81,14 @@ namespace FIFA21Plugin
             List<DbObject> dbObjects = new List<DbObject>();
 
             var startOffset = nativeReader.Position;
+#if DEBUG
             if (File.Exists("debugSB.dat"))
                 File.Delete("debugSB.dat");
             using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
             {
                 writer.Write(nativeReader.ReadToEnd());
             }
+#endif
             nativeReader.Position = startOffset;
             var index = 0;
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)

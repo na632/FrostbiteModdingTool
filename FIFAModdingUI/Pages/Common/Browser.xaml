@@ -42,10 +42,16 @@ xmlns:hexeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
                            Content="Show Only Modified" HorizontalAlignment="Stretch"  />
             </Grid>
 
-            <TreeView Grid.Row="1" x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible"  BorderBrush="LightGray" BorderThickness="1">
+            <TreeView Grid.Row="1" x:Name="assetTreeView" ScrollViewer.VerticalScrollBarVisibility="Visible"  
+                      BorderBrush="LightGray" BorderThickness="1"
+                      SelectedItemChanged="assetTreeView_SelectedItemChanged"
+                      >
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                        <Label Content="{Binding PathName}" Tag="{Binding}" MouseUp="Label_MouseUp" KeyUp="Label_KeyUp"></Label>
+                        <TextBlock Text="{Binding PathName}"
+                                   Tag="{Binding}"
+                                   PreviewKeyUp="TextBlock_PreviewKeyUp"
+                                   PreviewMouseUp="TextBlock_PreviewMouseUp"></TextBlock>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
@@ -57,28 +63,47 @@ xmlns:hexeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
                         <GridViewColumn Header="Name">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding DisplayName}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
+                                    <TextBlock Text="{Binding DisplayName}" Tag="{Binding}" 
+                                               PreviewMouseLeftButtonUp="AssetEntry_MouseDoubleClick" 
+                                               KeyUp="AssetEntry_KeyUp" >
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsModified}"
+                                                        Value="True">
+                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn Header="Asset Type">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding AssetType}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
+                                    <TextBlock Text="{Binding AssetType}" Tag="{Binding}"
+                                               MouseLeftButtonUp="AssetEntry_MouseDoubleClick"
+                                               KeyUp="AssetEntry_KeyUp" ></TextBlock>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn Header="Type">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding Type}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
+                                    <TextBlock Text="{Binding Type}" Tag="{Binding}"
+                                               MouseLeftButtonUp="AssetEntry_MouseDoubleClick"
+                                               KeyUp="AssetEntry_KeyUp" ></TextBlock>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn Header="Is Modified">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Content="{Binding IsModified}" Tag="{Binding}" FontWeight="Normal" MouseDoubleClick="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" ></Label>
+                                    <TextBlock Text="{Binding IsModified}" Tag="{Binding}"
+                                               MouseLeftButtonUp="AssetEntry_MouseDoubleClick" KeyUp="AssetEntry_KeyUp" >
+                                    </TextBlock>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -86,7 +111,7 @@ xmlns:hexeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
                 </ListView.View>
             </ListView>
         </StackPanel>
-        <Grid Grid.Column="1" Grid.RowSpan="2"  Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+        <Grid VerticalAlignment="Top" Grid.Column="1" Grid.RowSpan="2"  Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <Grid.RowDefinitions>
                 <RowDefinition MaxHeight="30"></RowDefinition>
                 <RowDefinition></RowDefinition>

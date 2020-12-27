@@ -23,6 +23,7 @@ using static FrostySdk.Managers.AssetManager;
 using FrostySdk.Frostbite;
 using paulv2k4ModdingExecuter;
 using Frostbite;
+using FrostySdk.Frostbite.IO.Output;
 
 namespace FIFALibraryNETFrameworkTests
 {
@@ -351,8 +352,6 @@ namespace FIFALibraryNETFrameworkTests
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
             buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, true);
-           
-
         }
 
         [TestMethod]
@@ -376,6 +375,17 @@ namespace FIFALibraryNETFrameworkTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 Splash Test.fbmod" }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestRunOfFETFifaModsExtension()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() 
+            { @"C:\Users\paula\Downloads\Villalibre Molina.fifamod" }.ToArray()).Wait();
 
         }
 
@@ -887,11 +897,12 @@ namespace FIFALibraryNETFrameworkTests
                 var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
                 if(skinnedMeshEbx != null)
                 {
-                    var resentry = project.AssetManager.GetRes(project.AssetManager.GetResEntry(skinnedMeshEntry.Name));
-                    MeshSet meshSet = new MeshSet(resentry, project.AssetManager);
+                    var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
+                    var res = project.AssetManager.GetRes(resentry);
+                    MeshSet meshSet = new MeshSet(res, project.AssetManager);
 
-                    //var exporter = new MeshAssetFbxExporter();
-                    //exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Centimeters", true, "", "*.fbx", meshSet);
+                    var exporter = new MeshToFbxExporter();
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Centimeters", true, null, "*.fbx", meshSet);
 
                 }
             }
@@ -1093,6 +1104,7 @@ namespace FIFALibraryNETFrameworkTests
         {
             var buildCache = new BuildCache();
             buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21", loadSDK: true, forceDeleteOfOld: true);
+            //buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21", loadSDK: true, forceDeleteOfOld: false);
         }
 
         [TestMethod]
@@ -1103,8 +1115,10 @@ namespace FIFALibraryNETFrameworkTests
             projectManagement.StartNewProject();
             projectManagement.FrostyProject.Load("G:\\SplashProj.fbproject");
 
-            var breaktackle = projectManagement.FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name.Contains("breaktackle"));
-            ((dynamic)projectManagement.FrostyProject.AssetManager.GetEbx(breaktackle).RootObject).AllProMod = 1.0f;
+            var breaktackle = projectManagement.FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name.Contains("breaktackle_gamestyle"));
+            var btEntry = projectManagement.FrostyProject.AssetManager.GetEbx(breaktackle);
+            ((dynamic)btEntry.RootObject).AllProMod = 1.0f;
+            projectManagement.FrostyProject.AssetManager.ModifyEbx(breaktackle.Name, btEntry);
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
 
             var fme = new FrostyModExecutor();

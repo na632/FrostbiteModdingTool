@@ -5424,6 +5424,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 // Sort out Zipped Files
                 //if (allModPaths.Contains(".zip"))
                 //{
+                var compatibleModExtensions = new List<string>() { ".fbmod", ".fifamod" };
+
                 foreach (var f in allModPaths)
                 {
                     if (f.Contains(".zip"))
@@ -5436,7 +5438,10 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         //FileStream fsModZipped = new FileStream(z, FileMode.Open);
                         {
                             ZipArchive zipArchive = new ZipArchive(fsModZipped);
-                            foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
+                            foreach (var zaentr in zipArchive.Entries
+                                .Where(x => 
+                                x.FullName.Contains(".fbmod") 
+                                || x.FullName.Contains(".fifamod") ))
                             {
                                 Logger.Log("Loading mod " + zaentr.Name);
                                 FrostyModsFound = true;
@@ -5448,7 +5453,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         }
                     }
                     //    else 
-                    if (f.Contains(".fbmod"))
+                    if (f.Contains(".fbmod") || f.Contains(".fifamod"))
                     {
                         FrostyModsFound = true;
 

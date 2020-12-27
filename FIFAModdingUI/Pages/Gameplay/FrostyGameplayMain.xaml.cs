@@ -104,7 +104,7 @@ namespace FIFAModdingUI.Pages.Gameplay
             var ebx = FIFA21Editor.ProjectManagement.FrostyProject.AssetManager.GetEbx(asset as EbxAssetEntry);
             if(ebx != null)
             {
-                FrostyGameplayAdvancedView.spPropertyPanel.Children.Add(new Editor(asset, ebx, GameplayProjectManagement.FrostyProject));
+                //FrostyGameplayAdvancedView.spPropertyPanel.Children.Add(new Editor(asset, ebx, GameplayProjectManagement.FrostyProject, MainEditorWindow));
             }
         }
 

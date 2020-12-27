@@ -34,12 +34,35 @@ namespace FIFAModdingUI
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
 
 
-            _clientApp = PublicClientApplicationBuilder.Create(ClientId)
-            .WithAuthority(AzureCloudInstance.AzurePublic, "b72a5240-b495-45c8-8c18-fdad4089216e")
-            .WithRedirectUri("com.FIFAModding.Editor://oauth/redirect")
-            .Build();
+            // _clientApp = PublicClientApplicationBuilder.Create(ClientId)
+            // .WithAuthority(AzureCloudInstance.AzurePublic, "b72a5240-b495-45c8-8c18-fdad4089216e")
+            // .WithRedirectUri("com.FIFAModding.Editor://oauth/redirect")
+            // .Build();
+
+
+            UnblockAllDLL();
 
             base.OnStartup(e);
+        }
+
+        private async void UnblockAllDLL()
+        {
+            var loc = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
+            var psCommmand = $"dir \"{loc}\" -Recurse|Unblock-File";
+            var psCommandBytes = System.Text.Encoding.Unicode.GetBytes(psCommmand);
+            var psCommandBase64 = Convert.ToBase64String(psCommandBytes);
+
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy unrestricted -WindowStyle hidden -EncodedCommand {psCommandBase64}",
+                UseShellExecute = true
+            };
+            startInfo.Verb = "runAs";
+            Process.Start(startInfo);
+
+            await Task.Delay(10000);
+
         }
 
         protected override void OnExit(ExitEventArgs e)

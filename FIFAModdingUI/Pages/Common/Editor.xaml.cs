@@ -7,6 +7,7 @@ using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -67,6 +68,26 @@ namespace FIFAModdingUI.Pages.Common
 			}
 
 			public event PropertyChangedEventHandler PropertyChanged;
+
+            public override string ToString()
+            {
+				if(!string.IsNullOrEmpty(PropertyName))
+                {
+					return string.Format("{0} - {1}", PropertyName, PropertyType);
+                }
+
+                return base.ToString();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return base.Equals(obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
         }
 
 
@@ -112,14 +133,10 @@ namespace FIFAModdingUI.Pages.Common
 			}
 			set
             {
-				//var originalAssetEntry = FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name == AssetEntry.Name);
-				//FrostyProject.AssetManager.RevertAsset(AssetEntry);
-
 				_rootObjProps = value;
 				foreach(var item in _rootObjProps.Where(x=> !x.PropertyName.StartsWith("__")))
                 {
 					v2k4Util.SetPropertyValue(RootObject, item.PropertyName, item.PropertyValue);
-
                 }
 				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
 			}
@@ -140,52 +157,15 @@ namespace FIFAModdingUI.Pages.Common
 			this.Visibility = Visibility.Collapsed;
 		}
 
-
-
-		//public object InteralObject {
-		//          get
-		//          {
-		//		return RootObject.GetType().GetProperties().GetValue(RootObject, null);
-		//	}
-		//	set
-		//          {
-
-		//          }
-
-		//	}
-
 		public IEnumerable<object> RootObjects => asset.RootObjects;
 
 		public IEnumerable<object> Objects => asset.Objects;
 
-		//public AssetEntry AssetEntry
-		//{
-		//	get
-		//	{
-		//		return (AssetEntry)GetValue(AssetEntryProperty);
-		//	}
-		//	private set
-		//	{
-		//		SetValue(AssetEntryProperty, value);
-		//	}
-		//}
 		public AssetEntry AssetEntry { get; set; }
 
 		public EbxAsset Asset { get { return asset; } set { asset = value; } }
 
         public FrostbiteProject FrostyProject { get; }
-
-        public bool AssetModified
-		{
-			get
-			{
-				return (bool)GetValue(AssetModifiedProperty);
-			}
-			set
-			{
-				SetValue(AssetModifiedProperty, value);
-			}
-		}
 
 		public Editor()
         {
@@ -193,43 +173,53 @@ namespace FIFAModdingUI.Pages.Common
 			this.DataContext = Asset;
 		}
 
-		public Editor(AssetEntry inAssetEntry, EbxAsset inAsset, FrostbiteProject frostyProject)
+		public bool CreateEditor(dynamic d)
 		{
-			InitializeComponent();
-			// intialise objs
-			AssetEntry = inAssetEntry;
-			Asset = inAsset;
-			FrostyProject = frostyProject;
+			var propertyNSearch = ((Type)d.GetType()).ToString().ToLower().Replace(".", "_");
 
-			if (FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
-				chkImportFromFiles.IsChecked = true;
+			var allTypes = Assembly.GetExecutingAssembly().GetTypes();
+			var ty = allTypes.FirstOrDefault(x => x.Name.ToLower().Contains(propertyNSearch));
+			if (ty == null && propertyNSearch.ToLower().Contains("list"))
+				ty = allTypes.FirstOrDefault(x => x.Name.ToLower().Contains("genericlist"));
+			if (ty != null)
+			{
+				Control control = Activator.CreateInstance(ty) as Control;
+				if (control != null)
+				{
+					control.DataContext = d;
+					TreeView1.Items.Add(control);
+					return true;
+				}
+			}
+			return false;
+		}
 
-			this.DataContext = this;
+		public void CreateEditor(List<ModdableProperty> moddableProperties)
+        {
 			this.TreeView1.Items.Clear();
-			foreach (var p in RootObjectProperties.OrderBy(x=>x.PropertyName))
+			foreach (var p in moddableProperties)
 			{
 				TreeViewItem propTreeViewParent = new TreeViewItem();
 				propTreeViewParent.Header = p.PropertyName;
 
 				bool AddToPropTreeViewParent = true;
 
-				// Attempt to use the prebuilt controls
-				var propertyNSearch = p.PropertyType.Replace(".", "_").ToLower();
-				var ty = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(x => x.Name.ToLower().Contains(propertyNSearch));
-				if (ty != null)
-				{
-					Control control = Activator.CreateInstance(ty) as Control;
-					if (control != null)
-					{
-						control.DataContext = p;
-						AddToPropTreeViewParent = false;
-						TreeView1.Items.Add(control);
-						continue;
-					}
-				}
+                // Attempt to use the prebuilt controls
+                var propertyNSearch = p.PropertyType.Replace(".", "_").ToLower();
+                var ty = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(x => x.Name.ToLower().Contains(propertyNSearch));
+                if (ty != null)
+                {
+                    Control control = Activator.CreateInstance(ty) as Control;
+                    if (control != null)
+                    {
+                        control.DataContext = p;
+                        AddToPropTreeViewParent = false;
+                        TreeView1.Items.Add(control);
+                        continue;
+                    }
+                }
 
-
-				
+                //if (!CreateEditor(p.PropertyValue))
 				{
 					// if unable to use prebuilt controls, use old system
 					switch (p.PropertyType)
@@ -238,7 +228,6 @@ namespace FIFAModdingUI.Pages.Common
 							if (p.PropertyValue.PropertyExists("Internal"))
 							{
 								var FloatCurve = p.PropertyValue.GetPropertyValue("Internal");
-								//if (FloatCurve != null && v2k4Util.HasProperty(FloatCurve, "MinX"))
 								if (FloatCurve != null)
 								{
 
@@ -304,38 +293,45 @@ namespace FIFAModdingUI.Pages.Common
 										}
 									}
 								}
+								else
+                                {
 
+                                }
 
 
 							}
+							else
+                            {
+
+                            }
 							break;
-						case "System.Single":
-						case "System.Int":
-						case "System.Int32":
-						case "System.Int64":
-							TreeViewItem SysSingleTreeView = new TreeViewItem();
-							SysSingleTreeView.Header = "Value";
-							SysSingleTreeView.IsExpanded = true;
-							TextBox txt = new TextBox();
-							txt.Name = p.PropertyName;
-							txt.Text = p.PropertyValue.ToString();
-							//txt.SetBindi = "{Binding RootObject." + p.PropertyName + "}";// p.PropertyValue.ToString();
-							//txt.TextChanged += (object sender, TextChangedEventArgs e) => {
-							//	AssetHasChanged(sender as TextBox, p.PropertyName);
-							//};
+						//case "System.Single":
+						//case "System.Int":
+						//case "System.Int32":
+						//case "System.Int64":
+						//	TreeViewItem SysSingleTreeView = new TreeViewItem();
+						//	SysSingleTreeView.Header = "Value";
+						//	SysSingleTreeView.IsExpanded = true;
+						//	TextBox txt = new TextBox();
+						//	txt.Name = p.PropertyName;
+						//	txt.Text = p.PropertyValue.ToString();
+						//	//txt.SetBindi = "{Binding RootObject." + p.PropertyName + "}";// p.PropertyValue.ToString();
+						//	//txt.TextChanged += (object sender, TextChangedEventArgs e) => {
+						//	//	AssetHasChanged(sender as TextBox, p.PropertyName);
+						//	//};
 
-							txt.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
-							{
-								AssetHasChanged(sender as TextBox, p.PropertyName);
-							};
+						//	txt.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
+						//	{
+						//		AssetHasChanged(sender as TextBox, p.PropertyName);
+						//	};
 
-							SysSingleTreeView.Items.Add(txt);
-							propTreeViewParent.IsExpanded = true;
+						//	SysSingleTreeView.Items.Add(txt);
+						//	propTreeViewParent.IsExpanded = true;
 
 
-							propTreeViewParent.Items.Add(SysSingleTreeView);
+						//	propTreeViewParent.Items.Add(SysSingleTreeView);
 
-							break;
+						//	break;
 
 						case "System.Collections.Generic.List`1[System.Single]":
 							TreeViewItem lstSingleTreeViewParent = new TreeViewItem();
@@ -364,30 +360,30 @@ namespace FIFAModdingUI.Pages.Common
 							propTreeViewParent.Items.Add(lstSingleTreeViewParent);
 
 							break;
-						case "FrostySdk.Ebx.CString":
-							TreeViewItem SysCStringTreeView = new TreeViewItem();
-							SysCStringTreeView.IsExpanded = true;
+						//case "FrostySdk.Ebx.CString":
+						//	TreeViewItem SysCStringTreeView = new TreeViewItem();
+						//	SysCStringTreeView.IsExpanded = true;
 
-							SysCStringTreeView.Header = "Value";
+						//	SysCStringTreeView.Header = "Value";
 
-							TextBox txtCS = new TextBox();
-							txtCS.Text = p.PropertyValue.ToString();
-							SysCStringTreeView.Items.Add(txtCS);
-
-
-							propTreeViewParent.Items.Add(SysCStringTreeView);
-							propTreeViewParent.IsExpanded = true;
+						//	TextBox txtCS = new TextBox();
+						//	txtCS.Text = p.PropertyValue.ToString();
+						//	SysCStringTreeView.Items.Add(txtCS);
 
 
-							break;
-						case "FrostySdk.Ebx.AssetClassGuid":
-							TextBox txtGuid2 = new TextBox();
-							txtGuid2.Text = p.PropertyValue.ToString();
-							txtGuid2.IsEnabled = false;
-							propTreeViewParent.Items.Add(txtGuid2);
-							propTreeViewParent.IsExpanded = true;
+						//	propTreeViewParent.Items.Add(SysCStringTreeView);
+						//	propTreeViewParent.IsExpanded = true;
 
-							break;
+
+						//	break;
+						//case "FrostySdk.Ebx.AssetClassGuid":
+						//	TextBox txtGuid2 = new TextBox();
+						//	txtGuid2.Text = p.PropertyValue.ToString();
+						//	txtGuid2.IsEnabled = false;
+						//	propTreeViewParent.Items.Add(txtGuid2);
+						//	propTreeViewParent.IsExpanded = true;
+
+						//	break;
 
 						case "System.Collections.Generic.List`1[FrostySdk.Ebx.HotspotEntry]":
 							var d = (dynamic)p.PropertyValue;
@@ -454,13 +450,38 @@ namespace FIFAModdingUI.Pages.Common
 
 							break;
 
+						default:
+							logger.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
+							break;
+
 
 					}
 				}
-				if(AddToPropTreeViewParent)
+				if (AddToPropTreeViewParent)
 					TreeView1.Items.Add(propTreeViewParent);
 
 			}
+
+		}
+
+		public Editor(AssetEntry inAssetEntry
+			, EbxAsset inAsset
+			, FrostbiteProject frostyProject
+			, ILogger inLogger)
+		{
+			InitializeComponent();
+			// intialise objs
+			AssetEntry = inAssetEntry;
+			Asset = inAsset;
+			FrostyProject = frostyProject;
+			logger = inLogger;
+
+			if (FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
+				chkImportFromFiles.IsChecked = true;
+
+			this.DataContext = this;
+
+			CreateEditor(RootObjectProperties);
 		}
 
 		public void AssetHasChanged(TextBox sender, string propName)

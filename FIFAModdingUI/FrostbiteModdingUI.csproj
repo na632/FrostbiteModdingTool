@@ -124,7 +124,7 @@
     <PackageReference Include="Dirkster.FolderBrowser" Version="3.1.1" />
     <PackageReference Include="EO.WebBrowser" Version="20.2.34" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
-    <PackageReference Include="MahApps.Metro" Version="1.6.5" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.3" />
     <PackageReference Include="MaterialDesignThemes" Version="3.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
@@ -192,8 +192,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controls\" />
-    <Folder Include="Frosty\" />
     <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
