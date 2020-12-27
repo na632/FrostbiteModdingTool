@@ -891,7 +891,7 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_0_0")).FirstOrDefault();
+            var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_10264_0_0_mesh")).FirstOrDefault();
             if(skinnedMeshEntry != null)
             {
                 var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
