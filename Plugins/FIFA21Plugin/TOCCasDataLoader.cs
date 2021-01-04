@@ -40,7 +40,6 @@ namespace FIFA21Plugin
 					// adboards and stadiums
 					//|| TOCFile.FileLocation.Contains(@"data\win32/worldssb")
 
-					// globals wont load properly
 					|| TOCFile.FileLocation.Contains(@"data\win32/globals")
 					)
 				{

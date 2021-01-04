@@ -6,15 +6,15 @@
     <Authors>paulv2k4 - Paul Garlick</Authors>
     <Company>paulv2k4</Company>
     <Product>paulv2k4 Frosty Modding Support</Product>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Description>This package is designed for FIFA Mod Tool developers to launch the game with ".fbmod" files integrated.</Description>
     <Copyright>2020 paulv2k4 - Paul Garlick</Copyright>
     <PackageProjectUrl>https://www.fifa-mods.com</PackageProjectUrl>
     <PackageTags>FIFA, FIFA 20, Madden, Frostbite, Frosty, EA</PackageTags>
     <PackageLicenseExpression>BSD-2-Clause OR MIT</PackageLicenseExpression>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Version>1.1.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,6 +24,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

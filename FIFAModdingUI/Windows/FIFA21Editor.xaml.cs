@@ -53,21 +53,22 @@ namespace FIFAModdingUI.Windows
             new MainWindow().Show();
         }
 
+        private string WindowFIFAEditorTitle = "FIFA 21 Editor - Early Alpha";
+
+        private string _windowTitle;
         public string WindowTitle 
         { 
             get 
             {
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.Append("FIFA 21 Editor - Early Alpha");
-                //if(ProjectManagement != null 
-                //    && ProjectManagement.FrostyProject != null)
-                //{
-                //    stringBuilder.Append(" [ " + ProjectManagement.FrostyProject.DisplayName + " ] ");
-                //}
-                    
-                
-                return stringBuilder.ToString();
-            } 
+                stringBuilder.Append(WindowFIFAEditorTitle);
+                _windowTitle = stringBuilder.ToString();
+                return _windowTitle;
+            }
+            set
+            {
+                _windowTitle = WindowFIFAEditorTitle + " - [" + value + "]";
+            }
         }
 
         public static ProjectManagement ProjectManagement { get; set; }
@@ -94,24 +95,33 @@ namespace FIFAModdingUI.Windows
                     ProjectManagement = new ProjectManagement(filePath, this);
                     ProjectManagement.StartNewProject();
 
-                   
+                    Log("Initialize Data Browser");
+                    dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                       .EnumerateEbx()
+                                       .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
                     // Kit Browser
                     Log("Initialize Kit Browser");
                     var kitList = ProjectManagement.FrostyProject.AssetManager
                                        .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                    //kitList.AddRange(ProjectManagement.FrostyProject.AssetManager
-                     //                       .EnumerateRes((int)ResourceType.Texture)
-                     //                       .Where(x => x.Path.Contains("character/kit")));
                     kitList = kitList.OrderBy(x => x.Name).ToList();
                     var citykits = kitList.Where(x => x.Name.ToLower().Contains("manchester_city"));
                     kitBrowser.AllAssetEntries = kitList;
 
-                    // Check and run Legacy Browser (UI is where the slowness is, FIXME)
+                    
+
+                    
+                    Log("Initialize Gameplay Browser");
+                    gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                      .EnumerateEbx()
+                                      .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
                     var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
 
                     Log("Initialize Legacy Browser");
                     legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
-
 
                     Log("Initialize Texture Browser");
                     List<IAssetEntry> textureAssets = ProjectManagement.FrostyProject.AssetManager
@@ -120,16 +130,7 @@ namespace FIFAModdingUI.Windows
 
                     textureBrowser.AllAssetEntries = textureAssets;
 
-                    Log("Initialize Data Browser");
-                    dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx()
-                                       .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
-                    Log("Initialize Gameplay Browser");
-                    gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                      .EnumerateEbx()
-                                      .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
+                    playerEditor.InitPlayerSearch();
 
                     Dispatcher.InvokeAsync(() => {
 
@@ -183,59 +184,6 @@ namespace FIFAModdingUI.Windows
             }
             image.Freeze();
             return image;
-        }
-
-        private void InnerTreeItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Label obj = sender as Label;
-            if(obj != null)
-            {
-                AssetEntry assetEntry = obj.Tag as AssetEntry;
-                if(assetEntry != null)
-                {
-                    NameOfLegacyAsset.Content = assetEntry.Name;
-                    txtLegacyViewer.Visibility = Visibility.Hidden;
-                    ImageViewerLegacy.Visibility = Visibility.Hidden;
-
-                    CurrentLegacySelection = assetEntry;
-                    if(CurrentLegacySelection.Type == "JSON" 
-                        || CurrentLegacySelection.Type == "INI"
-                        || CurrentLegacySelection.Type == "CSV"
-                        || CurrentLegacySelection.Type == "LUA"
-                        || CurrentLegacySelection.Type == "NAV"
-                        )
-                    {
-                        txtLegacyViewer.Visibility = Visibility.Visible;
-                        using (var nr = new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)))
-                        {
-                            txtLegacyViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
-                        }
-                    }
-                    else if(CurrentLegacySelection.Type == "DDS")
-                    {
-
-                        try
-                        {
-                            using (var nr = new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)))
-                            {
-                                ImageViewerLegacy.Source = null;
-                                var bImage = LoadImage(nr.ReadToEnd());
-                                ImageViewerLegacy.Source = bImage;
-                                ImageViewerLegacy.Visibility = Visibility.Visible;
-                                bImage = null;
-                            }
-                        }
-                        catch { //ImageViewer.Source = null; 
-                        }
-
-                    }
-
-                }
-            }
-        }
-
-        private void InnerTreeItem_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
         }
 
         public string LogText = string.Empty;
@@ -468,6 +416,8 @@ namespace FIFAModdingUI.Windows
                     ProjectManagement.FrostyProject.Load(openFileDialog.FileName);
 
                     Log("Opened project successfully from " + openFileDialog.FileName);
+
+                    WindowTitle = openFileDialog.FileName;
 
                 }
             }
@@ -712,5 +662,23 @@ namespace FIFAModdingUI.Windows
             }
         }
 
+        private void MainViewer_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //var t = sender as TabControl;
+            //if (t != null)
+            //{
+            //    var selectedTab = ((TabItem)t.SelectedItem);
+            //    var selectedTabHeader = selectedTab.Header;
+
+            //    if (selectedTabHeader.ToString().Contains("Player"))
+            //    {
+            //        var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+            //        var mainDb = legacyFiles.FirstOrDefault(x => x.Filename.Contains("fifa_ng_db") && x.Type == "DB");
+            //        var mainDbMeta = legacyFiles.FirstOrDefault(x => x.Filename.Contains("fifa_ng_db-meta") && x.Type == "XML");
+            //        playerEditor.LoadPlayerList(mainDb as LegacyFileEntry, mainDbMeta as LegacyFileEntry);
+            //        playerEditor.UpdateLayout();
+            //    }
+            //}
+        }
     }
 }

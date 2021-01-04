@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI;
+using FrostbiteModdingUI.Models;
 using FrostySdk;
 using Microsoft.Win32;
 using System;
@@ -40,6 +41,7 @@ namespace FrostbiteModdingUI.Windows
             {
                 var filePath = dialog.FileName;
                 InitializeOfSelectedGame(filePath);
+
                 this.Close();
             }
 
@@ -49,8 +51,8 @@ namespace FrostbiteModdingUI.Windows
         {
             if (!string.IsNullOrEmpty(filePath))
             {
-                AppSettings.Settings.FIFAInstallEXEPath = filePath;
-                AppSettings.Settings.Save();
+                AppSettings.Settings.GameInstallEXEPath = filePath;
+                //AppSettings.Settings.Save();
 
                 if (GameInstanceSingleton.InitializeSingleton(filePath))
                 {

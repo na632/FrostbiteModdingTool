@@ -8,7 +8,7 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 Modding Tool 2021" Height="320" Width="560" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="paulv2k4 Modding Tool 2021" Height="320" Width="570" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="110"></RowDefinition>
@@ -25,7 +25,7 @@
         <Image Grid.Row="0" Grid.ColumnSpan="6" Source="/Resources/images/PAULV2K4MODDINGTOOL4.png" Stretch="Fill" />
         <Button x:Name="btnFIFA21Editor" Grid.Row="2" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnEditor_Click"
-                    ToolTip="Launcher">
+                    ToolTip="FIFA 21 Editor">
             <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
                 <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 <Label Content="FIFA 21 Editor" VerticalAlignment="Center" FontSize="20" />
@@ -33,23 +33,15 @@
         </Button>
         <Button x:Name="btnMadden21Editor" Grid.Row="2" Grid.Column="2" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnMadden21Editor_Click"
-                    ToolTip="Launcher">
+                    ToolTip="Madden 21 Editor">
             <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
                 <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 <TextBlock Text="Madden 21 Editor" VerticalAlignment="Center" FontSize="19" TextWrapping="Wrap" />
             </StackPanel>
         </Button>
-        <!--<Button x:Name="btnLegacyModCompiler" Grid.Row="2" Grid.Column="4" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
-                    Click="btnLegacyEditor_Click"
-                    ToolTip="Launcher">
-            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
-                <MaterialDesign:PackIcon Kind="FolderZip" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                <Label Content="Legacy Compiler" VerticalAlignment="Center" FontSize="20" />
-            </StackPanel>
-        </Button>-->
         <Button x:Name="btnLauncher" Grid.Row="2" Grid.Column="4" Background="Transparent" VerticalContentAlignment="Stretch" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnLauncher_Click"
-                    ToolTip="Launcher">
+                    ToolTip="Game Mod Launcher">
             <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
                 <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 <Label Content="Launcher" VerticalAlignment="Center" FontSize="20" />

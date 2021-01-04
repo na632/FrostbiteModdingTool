@@ -38,13 +38,10 @@ namespace v2k4FIFASDKGenerator.Frostbite21
 
     public struct TestList
     {
-        UIntPtr m_Head; //0x0000 
-        UIntPtr m_Tail; //0x0008 
     };//Size=0x0010
 
     public struct MemberInfoFlags
     {
-        ushort m_FlagBits; //0x0000 
 
     };//Size=0x0002
 

@@ -400,7 +400,7 @@ namespace FIFA21Plugin
                             ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                             ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                             ebxAssetEntry.ExtraData = new AssetExtraData();
-                            ebxAssetEntry.ExtraData.DataOffset = item.GetValue("offset", 0L);
+                            ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
                             ebxAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? parent.fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : parent.fs.GetFilePath(item.GetValue("cas", 0)));
                             ebxAssetEntry.Guid = Guid.NewGuid(); // this is not right!
 
@@ -431,7 +431,7 @@ namespace FIFA21Plugin
                             resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                             resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                             resAssetEntry.ExtraData = new AssetExtraData();
-                            resAssetEntry.ExtraData.DataOffset = item.GetValue("offset", 0L);
+                            resAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
                             resAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? parent.fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : parent.fs.GetFilePath(item.GetValue("cas", 0)));
                             var resRid = ResIdList[iRes];
                             resAssetEntry.ResRid = resRid;
@@ -465,7 +465,7 @@ namespace FIFA21Plugin
                             chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                             chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                             chunkAssetEntry.ExtraData = new AssetExtraData();
-                            chunkAssetEntry.ExtraData.DataOffset = item.GetValue("offset", 0L);
+                            chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
                             
                             chunkAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? parent.fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : parent.fs.GetFilePath(item.GetValue("cas", 0)));
 
@@ -502,47 +502,6 @@ namespace FIFA21Plugin
 
         }
 
-
-
-        private void ReadDataBlock(List<DbObject> list, NativeReader reader, int bundleOffset, int Position)
-        {
-            if (list == null)
-            {
-                return;
-            }
-
-            foreach (DbObject item in list)
-            {
-                item.SetValue("offset", bundleOffset + Position);
-                long num = item.GetValue("originalSize", 0L);
-                long num2 = 0L;
-               
-                while (num > 0)
-                {
-                    int num3 = reader.ReadInt(Endian.Big);
-                    ushort num4 = reader.ReadUShort();
-                    int num5 = reader.ReadUShort(Endian.Big);
-                    int num6 = (num4 & 0xFF00) >> 8;
-                    if ((num6 & 0xF) != 0)
-                    {
-                        num5 = ((num6 & 0xF) << 16) + num5;
-                    }
-                    if ((num3 & 4278190080u) != 0L)
-                    {
-                        num3 &= 0xFFFFFF;
-                    }
-                    num -= num3;
-                    if ((ushort)(num4 & 0x7F) == 0)
-                    {
-                        num5 = num3;
-                    }
-                    num2 += num5 + 8;
-                    Position += num5;
-                }
-                item.AddValue("size", num2);
-                item.AddValue("sb", true);
-            }
-        }
 
 
 

@@ -92,37 +92,37 @@ namespace FIFA21Plugin
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-            if (Directory.Exists(fs.BasePath + ModDirectory + "\\Data"))
-                {
-                    logger.Log("Deleting TOC/SB files from ModData/Data");
-                    foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.sb", SearchOption.AllDirectories))
-                    {
-                        File.Delete(sbFileLocation);
-                    }
-                    foreach (string tocFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.toc", SearchOption.AllDirectories))
-                    {
-                        File.Delete(tocFileLocation);
-                    }
+            //if (Directory.Exists(fs.BasePath + ModDirectory + "\\Data"))
+            //    {
+            //        logger.Log("Deleting TOC/SB files from ModData/Data");
+            //        foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.sb", SearchOption.AllDirectories))
+            //        {
+            //            File.Delete(sbFileLocation);
+            //        }
+            //        foreach (string tocFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.toc", SearchOption.AllDirectories))
+            //        {
+            //            File.Delete(tocFileLocation);
+            //        }
 
-                }
+            //    }
 
-                if (Directory.Exists(fs.BasePath + ModDirectory + "\\" + PatchDirectory))
-                {
-                    logger.Log("Deleting CAS files from ModData/Patch");
-                    //foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.cas", SearchOption.AllDirectories))
-                    //{
-                    //    File.Delete(casFileLocation);
-                    //}
-                    foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.sb", SearchOption.AllDirectories))
-                    {
-                        File.Delete(sbFileLocation);
-                    }
-                    foreach (string tocFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.toc", SearchOption.AllDirectories))
-                    {
-                        File.Delete(tocFileLocation);
-                    }
+            //    if (Directory.Exists(fs.BasePath + ModDirectory + "\\" + PatchDirectory))
+            //    {
+            //        logger.Log("Deleting CAS files from ModData/Patch");
+            //        //foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.cas", SearchOption.AllDirectories))
+            //        //{
+            //        //    File.Delete(casFileLocation);
+            //        //}
+            //        foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.sb", SearchOption.AllDirectories))
+            //        {
+            //            File.Delete(sbFileLocation);
+            //        }
+            //        foreach (string tocFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.toc", SearchOption.AllDirectories))
+            //        {
+            //            File.Delete(tocFileLocation);
+            //        }
 
-                }
+            //    }
                 logger.Log("Copying files from Patch to ModData/Patch");
                 // Copied Patch CAS files from Patch to Mod Data Patch
                 //DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);
@@ -207,8 +207,8 @@ namespace FIFA21Plugin
             var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
             var dataFileCount = dataFiles.Count();
             var indexOfDataFile = 0;
-            Task[] tasks = new Task[dataFileCount];
-            foreach (var f in dataFiles)
+            ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+            Parallel.ForEach(dataFiles, (f) =>
             {
                 var finalDestination = f.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
 
@@ -220,12 +220,11 @@ namespace FIFA21Plugin
                 {
                     Directory.CreateDirectory(newDirectory);
                 }
-                if(File.Exists(finalDestination) && finalDestination.Contains("moddata"))
+                if (File.Exists(finalDestination) && finalDestination.Contains("moddata"))
                 {
-                    if(
-                        File.GetLastWriteTime(finalDestination).Ticks < File.GetLastWriteTime(f).Ticks
-                        //|| File.ReadAllBytes(finalDestination).Length != File.ReadAllBytes(f).Length
-                        || new FileInfo(finalDestination).Length !=  new FileInfo(f).Length
+                    if (
+                        File.GetLastWriteTime(finalDestination).Ticks != File.GetLastWriteTime(f).Ticks
+                        || new FileInfo(finalDestination).Length != new FileInfo(f).Length
                         )
                     {
                         File.Delete(finalDestination);
@@ -233,20 +232,20 @@ namespace FIFA21Plugin
                 }
                 if (!File.Exists(finalDestination))
                 {
-                    using (var inputStream = new NativeReader(File.Open(f, FileMode.Open)))
-                    using (var outputStream = new NativeWriter(File.Open(finalDestination, FileMode.Create)))
-                    {
-                        outputStream.Write(inputStream.ReadToEnd());
-                    }
+                    //using (var inputStream = new NativeReader(File.Open(f, FileMode.Open)))
+                    //using (var outputStream = new NativeWriter(File.Open(finalDestination, FileMode.Create)))
+                    //{
+                    //    outputStream.Write(inputStream.ReadToEnd());
+                    //}
+
+                    File.Copy(f, finalDestination);
                     Copied = true;
                 }
                 indexOfDataFile++;
 
                 if (Copied)
                     logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
-                else
-                    dataFileCount--;
-            }
+            });
         }
     }
 }

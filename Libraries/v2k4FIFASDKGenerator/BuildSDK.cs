@@ -150,10 +150,12 @@ namespace v2k4FIFASDKGenerator
 				if (process.ProcessName.ToUpper() == "MADDEN21")
                 {
 					//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
-					sdkUpdateState.TypeInfoOffset = 0x1483DF760;
+					// "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10" // Madden 21
+					sdkUpdateState.TypeInfoOffset = 0x1483E1760;
 
 				}
-                else if (process.ProcessName.ToUpper() == "FIFA21")
+                else 
+				if (process.ProcessName.ToUpper() == "FIFA21")
                 {
                     //sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
                     //sdkUpdateState.TypeInfoOffset = 0x1498D7290;
@@ -173,6 +175,7 @@ namespace v2k4FIFASDKGenerator
                 "488b05???????? 48894108 48890d????????",
                 "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
                 "48 39 35 ? ? ? ? 0f 85 57 01 00 00 48 8b 46 10 48 89 05 ? ? ? ? 48 85 c0",
+				"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10" // Madden 21
                 //"30 40 96 49 01 00 00 00 48 70 12 48 01 00 00 00 D0 6F 12 48 01"
 					};
 					IList<long> list = null;
@@ -196,9 +199,9 @@ namespace v2k4FIFASDKGenerator
 					}
 
 					Debug.WriteLine(memoryReader.Position.ToString("X2"));
-					memoryReader.Position = list[0] + 3;
-					int num2 = memoryReader.ReadInt();
-					memoryReader.Position = list[0] + 3 + num2 + 4;
+					memoryReader.Position = list.First() + 3;
+					int off = memoryReader.ReadInt();
+					memoryReader.Position = list.First() + 3 + off + 4;
 					Debug.WriteLine(memoryReader.Position.ToString("X2"));
 
 					long neOffset = memoryReader.ReadLong();

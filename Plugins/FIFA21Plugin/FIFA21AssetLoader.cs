@@ -46,13 +46,13 @@ namespace FIFA21Plugin
             public int CasIndex { get; internal set; }
         }
 
-		public void Load(AssetManager parent, BinarySbDataHelper helper)
+		public void LoadData(AssetManager parent, BinarySbDataHelper helper)
 		{
 			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
 			{
 				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
 				{
-					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x=>!x.Value).Select(x=>x.Key))
+					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
 					{
 						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
 						int sbIndex = -1;
@@ -65,7 +65,8 @@ namespace FIFA21Plugin
 							parent.superBundles.Add(new SuperBundleEntry
 							{
 								Name = sbName
-								, CatalogInfo = catalogInfoItem
+								,
+								CatalogInfo = catalogInfoItem
 							});
 							sbIndex = parent.superBundles.Count - 1;
 						}
@@ -94,12 +95,47 @@ namespace FIFA21Plugin
 							}
 						}
 						else
-                        {
+						{
 							parent.logger.LogError($"Unable to find {tocFileLocation}");
-                        }
+						}
+					}
+				}
+			}
+		}
 
-						tocFileRAW = $"native_patch/{tocFile}.toc";
-						tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
+		public void LoadPatch(AssetManager parent, BinarySbDataHelper helper)
+		{
+			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
+			{
+				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
+				{
+					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
+					{
+						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
+						int sbIndex = -1;
+						if (superBundleEntry != null)
+						{
+							sbIndex = parent.superBundles.IndexOf(superBundleEntry);
+						}
+						else
+						{
+							parent.superBundles.Add(new SuperBundleEntry
+							{
+								Name = sbName
+								,
+								CatalogInfo = catalogInfoItem
+							});
+							sbIndex = parent.superBundles.Count - 1;
+						}
+						parent.logger.Log($"Loading data ({sbName})");
+						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
+						if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
+						{
+							tocFile = sbName;
+						}
+
+						var tocFileRAW = $"native_patch/{tocFile}.toc";
+						var tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
 						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
 						{
 							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
@@ -123,9 +159,13 @@ namespace FIFA21Plugin
 
 					}
 				}
-            }
+			}
+		}
 
-
+		public void Load(AssetManager parent, BinarySbDataHelper helper)
+		{
+			LoadData(parent, helper);
+			LoadPatch(parent, helper);
 		}
 
 		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)

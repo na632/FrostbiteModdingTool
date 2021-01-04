@@ -520,13 +520,13 @@ namespace v2k4FIFASDKGenerator
                     {
                         string baseTypeName2 = dbObject6.GetValue<string>("baseType");
                         int index2 = values.FindIndex((Tuple<EbxClass, DbObject> a) => a.Item1.Name == baseTypeName2 && !a.Item2.HasValue("basic"));
-                        if (index2 != -1)
+                        if (values.Any((Tuple<EbxClass, DbObject> a) => a.Item1.Name == baseTypeName2 && !a.Item2.HasValue("basic")))
                         {
                             fieldObj.AddValue("baseType", values[index2].Item1.Name);
                         }
                         else if (field.DebugType == EbxFieldType.Enum)
                         {
-                            throw new InvalidDataException();
+                            //throw new InvalidDataException();
                         }
                         if (field.DebugType == EbxFieldType.Struct)
                         {
@@ -729,6 +729,10 @@ namespace v2k4FIFASDKGenerator
             else if (ProfilesLibrary.IsFIFA21DataVersion())
             {
                 typeStr = "v2k4FIFASDKGenerator.FIFA21.ClassInfo";
+            }
+            else if (ProfilesLibrary.IsMaddenDataVersion())
+            {
+                typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
             }
             //else if (ProfilesLibrary.DataVersion == 20191101)
             //{

@@ -394,7 +394,7 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\kit test project.fbproject");
+            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Paulv2k4 Licensing Patch 2021.fbproject");
 
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Kit Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
@@ -409,7 +409,7 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\thiago changed.fbproject");
+            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\face texture patch and data test.fbproject");
 
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 Face Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "Kits", Description = "Kits", Title = "Kits", Version = "1.00" });
@@ -423,14 +423,14 @@ namespace FIFALibraryNETFrameworkTests
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
             var project = projectManagement.StartNewProject();
-            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\Simple GP Change.fbproject");
+            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 11.fbproject");
 
             projectManagement.FrostyProject.WriteToMod("Paulv2k4 FIFA 21 GP Test.fbmod"
                 , new ModSettings() { Author = "paulv2k4", Category = "GP", Description = "GP", Title = "GP", Version = "1.00" });
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
-            //frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
+            //frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"Paulv2k4 FIFA 21 GP Test.fbmod" }.ToArray()).Wait();
         }
 
 
@@ -902,7 +902,35 @@ namespace FIFALibraryNETFrameworkTests
                     MeshSet meshSet = new MeshSet(res, project.AssetManager);
 
                     var exporter = new MeshToFbxExporter();
-                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Centimeters", true, null, "*.fbx", meshSet);
+                   
+                    //exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2016", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2016", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.fbx", "2016", "Meters", true, null, "*.fbx", meshSet);
+
+                    exporter.OnlyFirstLOD = true;
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.obj", "2016", "Meters", true, null, "*.obj", meshSet);
+                    Thread.Sleep(1000);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestImportFaceMesh()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_10264_0_0_mesh")).FirstOrDefault();
+            if (skinnedMeshEntry != null)
+            {
+                var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
+                if (skinnedMeshEbx != null)
+                {
+                    var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
+                    var res = project.AssetManager.GetRes(resentry);
+                    MeshSet meshSet = new MeshSet(res, project.AssetManager);
+
+                    //var exporter = new MeshToFbxExporter();
+                    //exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
 
                 }
             }
@@ -1108,23 +1136,60 @@ namespace FIFALibraryNETFrameworkTests
         }
 
         [TestMethod]
+        public void BuildSDK()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("MADDEN21", @"E:\Origin Games\Madden NFL 21", null, forceDeleteOfOld: false);
+
+            var buildSDK = new BuildSDK();
+            var b = buildSDK.Build().Result;
+            Assert.IsTrue(b);
+        }
+
+       
+
+        [TestMethod]
         public void LoadProjectAndTest()
         {
             GameInstanceSingleton.InitializeSingleton(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\Madden NFL 21\Madden21.exe");
             projectManagement.StartNewProject();
-            projectManagement.FrostyProject.Load("G:\\SplashProj.fbproject");
+            projectManagement.FrostyProject.Load(@"E:\Origin Games\Madden NFL 21\splashtest.fbproject");
 
-            var breaktackle = projectManagement.FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name.Contains("breaktackle_gamestyle"));
-            var btEntry = projectManagement.FrostyProject.AssetManager.GetEbx(breaktackle);
-            ((dynamic)btEntry.RootObject).AllProMod = 1.0f;
-            projectManagement.FrostyProject.AssetManager.ModifyEbx(breaktackle.Name, btEntry);
+            //var breaktackle = projectManagement.FrostyProject.AssetManager.EnumerateEbx().FirstOrDefault(x => x.Name.Contains("breaktackle_gamestyle"));
+            //var btEntry = projectManagement.FrostyProject.AssetManager.GetEbx(breaktackle);
+            //((dynamic)btEntry.RootObject).AllProMod = 1.0f;
+            //projectManagement.FrostyProject.AssetManager.ModifyEbx(breaktackle.Name, btEntry);
             projectManagement.FrostyProject.WriteToMod("TestFullMod.fbmod", new ModSettings() { Title = "v2k4 Test Full Mod", Author = "paulv2k4", Version = "1.00" });
 
             var fme = new FrostyModExecutor();
             //var result = fme.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
             var result = fme.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"TestFullMod.fbmod" }.ToArray()).Result;
 
+        }
+
+        [TestMethod]
+        public void SDKGeneratorInjection()
+        {
+            int? proc = GameInstanceSingleton.GetProcIDFromName("MADDEN21");
+            while (!proc.HasValue || proc == 0)
+            {
+                Debug.WriteLine($"Waiting for MADDEN to appear");
+                proc = GameInstanceSingleton.GetProcIDFromName("MADDEN21");
+                Thread.Sleep(1000);
+            }
+
+            if (proc.HasValue)
+            {
+                var dllpath = @"G:\Work\FIFA Modding\SDKGenerator\x64\Debug\Publish\Generator.dll";
+                if (File.Exists(dllpath))
+                {
+                    Debug.WriteLine($"Injecting: {dllpath}");
+                    var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, dllpath, false);
+                    bl.InjectDll();
+                    Debug.WriteLine($"Injected: {dllpath}");
+                }
+            }
         }
 
 

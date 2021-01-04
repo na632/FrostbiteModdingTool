@@ -6,13 +6,12 @@
         xmlns:local="clr-namespace:FIFAModdingUI.Windows"
         xmlns:Model="clr-namespace:FIFAModdingUI.Models" 
         mc:Ignorable="d"
-         xmlns:localGPControls="clr-namespace:FIFAModdingUI.Pages.Gameplay"
          xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
+         xmlns:localPlayerControls="clr-namespace:FrostbiteModdingUI.Pages.Player"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-	xmlns:fbviews="clr-namespace:FolderBrowser.Views;assembly=FolderBrowser"
-        Title="{Binding Path=WindowTitle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
+        Title="{Binding Path=WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
          SizeToContent="WidthAndHeight" MinHeight="720" MinWidth="1280"
         ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
          WindowStartupLocation="CenterScreen"
@@ -94,7 +93,7 @@
             </StackPanel>
             <DockPanel Grid.Row="1">
 
-                <TabControl x:Name="MainViewer">
+                <TabControl x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" >
                     <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
                         <StackPanel Orientation="Vertical">
                             <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
@@ -112,28 +111,14 @@
                     <TabItem x:Name="TabLegacy" Header="Legacy">
                         <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
                     </TabItem>
-                    <TabItem x:Name="TabOldLegacy" Header="Legacy" Visibility="Hidden">
-                        <Grid Name="gridLegacy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition></ColumnDefinition>
-                                <ColumnDefinition></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <TreeView Grid.Column="0" x:Name="tvLegacy">
-                                <TreeViewItem Header="">
-                                </TreeViewItem>
-                            </TreeView>
-                            <StackPanel Orientation="Vertical" Grid.Column="1">
-                                <StackPanel Orientation="Horizontal">
-                                    <Button x:Name="btnImportLegacy" Click="btnImportLegacy_Click" IsEnabled="False">Import</Button>
-                                    <Button x:Name="btnExportLegacy" Click="btnExportLegacy_Click">Export</Button>
-                                </StackPanel>
-                                <Label x:Name="NameOfLegacyAsset"></Label>
-                                <Image x:Name="ImageViewerLegacy" Visibility="Hidden" ></Image>
-                                <TextBox MaxLines="99999" MaxHeight="500" x:Name="txtLegacyViewer" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible" Visibility="Hidden"></TextBox>
-                            </StackPanel>
 
-                        </Grid>
+                    <TabItem x:Name="TabPlayers" Header="Players">
+                        <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
                     </TabItem>
+
+                    <TabItem x:Name="TabTeams" Header="Teams" Visibility="Hidden">
+                    </TabItem>
+
                 </TabControl>
             </DockPanel>
             <DockPanel Grid.Row="2" >

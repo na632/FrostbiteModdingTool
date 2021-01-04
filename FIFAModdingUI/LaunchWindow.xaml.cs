@@ -1,5 +1,6 @@
 ﻿using FIFAModdingUI.Mods;
 using FIFAModdingUI.Windows.Profile;
+using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.Interfaces;
@@ -45,22 +46,22 @@ namespace FIFAModdingUI
 
             try
             {
-                if (!File.Exists(AppSettings.Settings.FIFAInstallEXEPath))
-                {
-                    AppSettings.Settings.FIFAInstallEXEPath = null;
-                }
+                //if (!File.Exists(AppSettings.Settings.FIFAInstallEXEPath))
+                //{
+                //    AppSettings.Settings.FIFAInstallEXEPath = null;
+                //}
 
-                if (!string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
+                if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
                 {
-                    txtFIFADirectory.Text = AppSettings.Settings.FIFAInstallEXEPath;
-                    InitializeOfSelectedGame(AppSettings.Settings.FIFAInstallEXEPath);
+                    txtFIFADirectory.Text = AppSettings.Settings.GameInstallEXEPath;
+                    InitializeOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
                 }
                 else
                 {
                     var bS = new FindGameEXEWindow().ShowDialog();
-                    if (bS.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.FIFAInstallEXEPath))
+                    if (bS.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
                     {
-                        InitializeOfSelectedGame(AppSettings.Settings.FIFAInstallEXEPath);
+                        InitializeOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
                     }
                     else
                     {
@@ -480,8 +481,8 @@ namespace FIFAModdingUI
 
             if (!string.IsNullOrEmpty(filePath))
             {
-                AppSettings.Settings.FIFAInstallEXEPath = filePath;
-                AppSettings.Settings.Save();
+                AppSettings.Settings.GameInstallEXEPath = filePath;
+                //AppSettings.Settings.Save();
 
                 if(GameInstanceSingleton.InitializeSingleton(filePath))
                 {

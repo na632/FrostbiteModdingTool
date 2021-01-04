@@ -4,8 +4,8 @@
     <OutputType>WinExe</OutputType>
 	<TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
-    <PublishTrimmed>false</PublishTrimmed>
-    <PublishSingleFile>false</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>false</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
@@ -120,10 +120,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="CSharpImageLibrary" Version="4.2.0" />
-    <PackageReference Include="Dirkster.FolderBrowser" Version="3.1.1" />
-    <PackageReference Include="EO.WebBrowser" Version="20.2.34" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.1" />
+    <PackageReference Include="HelixToolkit" Version="2.9.0" />
+    <PackageReference Include="HelixToolkit.SharpDX.Assimp" Version="2.9.0" />
+    <PackageReference Include="HelixToolkit.Wpf" Version="2.9.0" />
+    <PackageReference Include="HelixToolkit.Wpf.SharpDX" Version="2.9.0" />
     <PackageReference Include="MahApps.Metro" Version="2.4.3" />
     <PackageReference Include="MaterialDesignThemes" Version="3.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
@@ -131,7 +134,10 @@
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="1.1.0" />
+    <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
     <PackageReference Include="System.Management" Version="4.7.0" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
@@ -180,6 +186,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Update="Resources\FIFA21DBMeta.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\images\PAUL-TOOL-COVER.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -192,6 +201,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\Gameplay\" />
     <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />

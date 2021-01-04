@@ -476,7 +476,7 @@ namespace FIFAModdingUI.Pages.Common
 			FrostyProject = frostyProject;
 			logger = inLogger;
 
-			if (FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
+			if (FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
 				chkImportFromFiles.IsChecked = true;
 
 			this.DataContext = this;
@@ -601,7 +601,7 @@ namespace FIFAModdingUI.Pages.Common
 
         private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
         {
-			var listoffiles = FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse;
+			var listoffiles = FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse;
 
 			if (((CheckBox)sender).IsChecked.Value)
 			{
@@ -614,7 +614,7 @@ namespace FIFAModdingUI.Pages.Common
 					listoffiles.RemoveAll(x => x.ToLower() == AssetEntry.Filename.ToLower());
 			}
 
-			FrostyModWriter.EbxResource.ListOfEBXRawFilesToUse = listoffiles;
+			FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse = listoffiles;
 		}
     }
 

@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Frosty.ModSupport;
 using System.IO.Compression;
 using FrostySdk.FrostySdk.Deobfuscators;
+using FrostySdk.Frosty;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -5419,7 +5420,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             Logger.Log("Loading mods");
             {
                 string[] allModPaths = modPaths;
-                var frostyMods = new Dictionary<Stream, FrostbiteMod>();
+                var frostyMods = new Dictionary<Stream, IFrostbiteMod>();
 
                 // Sort out Zipped Files
                 //if (allModPaths.Contains(".zip"))
@@ -5453,7 +5454,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         }
                     }
                     //    else 
-                    if (f.Contains(".fbmod") || f.Contains(".fifamod"))
+                    if (f.Contains(".fbmod"))
                     {
                         FrostyModsFound = true;
 
@@ -5466,15 +5467,24 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             frostyMods.Add(new MemoryStream(ms.ToArray()), new FrostbiteMod(new MemoryStream(ms.ToArray())));
                         }
                     }
+
+                    if(f.Contains(".fifamod"))
+                    {
+                        FrostyModsFound = true;
+
+                        FileInfo fileInfo2 = new FileInfo(rootPath + f);
+                        Logger.Log("Loading mod " + fileInfo2.Name);
+                        var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
+                        frostyMods.Add(fs, new FIFAMod(string.Empty, fileInfo2.FullName));
+                    }
                 }
 
-                //foreach (string str in allModPaths)
-                foreach (KeyValuePair<Stream, FrostbiteMod> kvpMods in frostyMods)
+                foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
                 {
                     Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
-                    var frostyMod2 = kvpMods.Value;
-                    foreach (BaseModResource resource in frostyMod2.Resources.Where(x => !x.GetType().ToString().EndsWith("EmbeddedResource")))
+                    var frostbiteMod = kvpMods.Value;
+                    foreach (BaseModResource resource in frostbiteMod.Resources)
                     {
                         foreach (int modifiedBundle in resource.ModifiedBundles)
                         {
@@ -5539,7 +5549,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                 modifiedEbx.Remove(resource.Name);
                                 numArchiveEntries--;
                             }
-                            byte[] resourceData = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                            byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                             EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
                             resource.FillAssetEntry(ebxAssetEntry2);
                             ebxAssetEntry2.Size = resourceData.Length;
@@ -5564,7 +5574,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             {
                                 ResAssetEntry resAssetEntry = null;
                                 HandlerExtraData handlerExtraData = null;
-                                byte[] resourceData2 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                byte[] resourceData2 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 if (modifiedRes.ContainsKey(resource.Name))
                                 {
                                     resAssetEntry = modifiedRes[resource.Name];
@@ -5605,7 +5615,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                     modifiedRes.Remove(resource.Name);
                                     numArchiveEntries--;
                                 }
-                                byte[] resourceData3 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                byte[] resourceData3 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ResAssetEntry resAssetEntry3 = new ResAssetEntry();
                                 resource.FillAssetEntry(resAssetEntry3);
                                 resAssetEntry3.Size = resourceData3.Length;
@@ -5632,7 +5642,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             {
                                 ChunkAssetEntry chunkAssetEntry = null;
                                 HandlerExtraData handlerExtraData2 = null;
-                                byte[] resourceData4 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                byte[] resourceData4 = frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 if (modifiedChunks.ContainsKey(guid))
                                 {
                                     chunkAssetEntry = modifiedChunks[guid];
@@ -5675,7 +5685,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                     modifiedChunks.Remove(guid);
                                     numArchiveEntries--;
                                 }
-                                byte[] resourceData5 = frostyMod2.GetResourceData(resource, kvpMods.Key);
+                                byte[] resourceData5 = frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
                                 resource.FillAssetEntry(chunkAssetEntry3);
                                 chunkAssetEntry3.Size = resourceData5.Length;
@@ -5760,7 +5770,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     Logger.Log("Applying mods");
                     SymbolicLinkList.Clear();
 
-                    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
+                        .Where(x=>x.FullName.ToLower().Contains("plugin")))
                     {
                         foreach (Type t in a.GetTypes())
                         {
@@ -5779,8 +5790,10 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                         }
                                     }
                                 }
-                                catch
+                                catch (Exception e)
                                 {
+                                    Logger.LogError($"Error in Compiler :: {e.Message}");
+
                                 }
                             }
                         }

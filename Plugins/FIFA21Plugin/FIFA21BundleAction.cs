@@ -180,7 +180,8 @@ namespace FIFA21Plugin
             }
             foreach (var modChunks in parent.modifiedChunks)
             {
-                var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
+                //var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
+                var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
 
                 // Find other chunk and use it
                 var otherChunks = new List<ChunkAssetEntry>();
@@ -188,7 +189,7 @@ namespace FIFA21Plugin
                     AssetManager.Instance.GetChunkEntries(modChunks.Key)
                     .Where(x => x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
                 if (otherChunks.Count > 0)
-                    originalEntry = otherChunks[0];
+                    originalEntry = otherChunks.Last();
 
                 if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                 {
@@ -253,16 +254,8 @@ namespace FIFA21Plugin
                                 , AssetManager.Instance.fs.BasePath + "ModData\\Data");
                         }
 
-                        //if (item.Key == string.Empty || item.Key.Contains("native_data"))
-                        //{
-                        //    GetNewCasPath(item, out casPath, out string sbFilePath, out CachingSBData data, out CachingSBData.Bundle bundle);
-                        //    BuildNewSB(data, bundle);
-                        //    continue;
-                        //}
-                        
                         casPath = casPath.Replace("native_patch"
                             , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
-
 
                         if (!casPath.Contains("ModData"))
                         {
@@ -291,16 +284,13 @@ namespace FIFA21Plugin
                                         originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(modItem.Item2));
 
                                         ChunkDups.Clear();
-                                        //ChunkDups.AddRange(
-                                        //    AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2)).Where(x=>x.Sha1 != originalEntry.Sha1));
-
                                         ChunkDups.AddRange(
                                             AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2))
                                             .Where(x=>x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
 
                                         if(ChunkDups.Count > 0)
                                         {
-                                            var otherEntry = ChunkDups[0];
+                                            originalEntry = ChunkDups.Last();
                                         }
                                         break;
                                 }
@@ -333,14 +323,14 @@ namespace FIFA21Plugin
 
                                     if (!patchedInSb)
                                     {
-                                        if(ChunkDups.Count > 0 && originalEntry.SBFileLocation == null)
-                                        {
-                                            ChangeSB((int)positionOfData, modItem, data.Length, ChunkDups[0], nwCas);
-                                        }
-                                        else
-                                        {
+                                        //if(ChunkDups.Count > 0 && originalEntry.SBFileLocation == null)
+                                        //{
+                                        //    ChangeSB((int)positionOfData, modItem, data.Length, ChunkDups[0], nwCas);
+                                        //}
+                                        //else
+                                        //{
                                             ChangeSB((int)positionOfData, modItem, data.Length, originalEntry, nwCas);
-                                        }
+                                        //}
                                        
                                     }
 
@@ -365,6 +355,8 @@ namespace FIFA21Plugin
 
         private bool PatchInSb(Tuple<Sha1, string, ModType, bool> modItem, byte[] data, AssetEntry originalEntry, NativeWriter nwCas)
         {
+           
+            
             var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
             var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
             var sb_sha1_position = originalEntry.SB_Sha1_Position;

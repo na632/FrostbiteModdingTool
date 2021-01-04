@@ -10,8 +10,9 @@ namespace v2k4FIFASDKGenerator.Madden21
 		{
 			long position = reader.Position;
 			long position2 = reader.ReadLong();
-			reader.ReadLong();
 			ClassesSdkCreator.offset = reader.ReadLong();
+			//if(ClassesSdkCreator.offset == 0)
+				ClassesSdkCreator.offset = reader.ReadLong();
 
 			id = reader.ReadUShort();
 			//
