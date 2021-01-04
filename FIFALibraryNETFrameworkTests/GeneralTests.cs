@@ -385,7 +385,26 @@ namespace FIFALibraryNETFrameworkTests
             var project = projectManagement.StartNewProject();
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() 
-            { @"C:\Users\paula\Downloads\Villalibre Molina.fifamod" }.ToArray()).Wait();
+            //{ @"C:\Users\paula\Downloads\Villalibre Molina.fifamod" }
+            { @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\FET\Paulv2k4 FIFA 21 Gameplay Mod - Version 1.fifamod" }
+            
+            .ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestRunMassiveMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            var project = projectManagement.StartNewProject();
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            //frostyModExecutor.BuildModData(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() 
+            //{ @"C:\Users\paula\Downloads\EXPANSION MOD V12.fbmod" }
+            //.ToArray()).Wait();
+
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>()
+            { @"C:\Users\paula\Downloads\EXPANSION MOD V12.fbmod" }
+           .ToArray()).Wait();
 
         }
 

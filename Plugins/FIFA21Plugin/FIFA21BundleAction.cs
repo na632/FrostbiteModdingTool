@@ -198,11 +198,11 @@ namespace FIFA21Plugin
                         var casPath = originalEntry.ExtraData.CasPath;
                         if (!casToMods.ContainsKey(casPath))
                         {
-                            casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Value.Id.ToString(), ModType.CHUNK, false) });
+                            casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false) });
                         }
                         else
                         {
-                            casToMods[casPath].Add(new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Value.Id.ToString(), ModType.CHUNK, false));
+                            casToMods[casPath].Add(new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false));
                         }
                     }
                     // Is Added
@@ -265,6 +265,8 @@ namespace FIFA21Plugin
                         Debug.WriteLine($"Modifying CAS file - {casPath}");
                         parent.Logger.Log($"Modifying CAS file - {casPath}");
 
+                        Dictionary<AssetEntry, (long,int)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int)>();
+
                         using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
                         {
                             foreach (var modItem in item.Value)
@@ -317,20 +319,15 @@ namespace FIFA21Plugin
 
                                     parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
                                     Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
+                                    EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length));
 
                                     bool patchedInSb = false;
                                     //patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
 
                                     if (!patchedInSb)
                                     {
-                                        //if(ChunkDups.Count > 0 && originalEntry.SBFileLocation == null)
-                                        //{
-                                        //    ChangeSB((int)positionOfData, modItem, data.Length, ChunkDups[0], nwCas);
-                                        //}
-                                        //else
-                                        //{
-                                            ChangeSB((int)positionOfData, modItem, data.Length, originalEntry, nwCas);
-                                        //}
+                                       
+                                        //ChangeSB((int)positionOfData, modItem, data.Length, originalEntry, nwCas);
                                        
                                     }
 
@@ -339,6 +336,43 @@ namespace FIFA21Plugin
                             }
                             
                         }
+
+                        var groupedBySB = EntriesToNewPosition.GroupBy(x =>
+                                    !string.IsNullOrEmpty(x.Key.SBFileLocation)
+                                    ? x.Key.SBFileLocation
+                                    : x.Key.TOCFileLocation
+                                    )
+                            .ToDictionary(gdc => gdc.Key, gdc => gdc.ToList());
+
+
+                        foreach (var sbGroup in groupedBySB)
+                        {
+                            var sbpath = sbGroup.Key;
+                            sbpath = parent.fs.ResolvePath(sbpath).ToLower();
+                            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
+                            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
+
+                            if (!sbpath.ToLower().Contains("moddata"))
+                            {
+                                throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
+                            }
+                            using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
+                            {
+                                foreach(var assetBundle in sbGroup.Value)
+                                {
+                                    var positionOfNewData = assetBundle.Value.Item1;
+                                    var sizeOfData = assetBundle.Value.Item2;
+
+                                    var sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
+                                    var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
+                                    nw_sb.BaseStream.Position = sb_cas_offset_position;
+                                    nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                                    nw_sb.Write((uint)sizeOfData, Endian.Big);
+                                }
+                            }
+                        }
+
+
                     }
                 }
                 return true;
@@ -422,8 +456,8 @@ namespace FIFA21Plugin
 
         private void ChangeSB(int positionOfNewData, Tuple<Sha1, string, ModType, bool> modItem, int sizeOfData, AssetEntry entry, NativeWriter nwCas)
         {
-            if (modItem.Item3 == ModType.RES)
-                return;
+            //if (modItem.Item3 == ModType.RES)
+            //    return;
 
             var sb_cas_size_position = entry.SB_CAS_Size_Position;
             var sb_cas_offset_position = entry.SB_CAS_Offset_Position;

@@ -232,13 +232,19 @@ namespace FIFA21Plugin
                 }
                 if (!File.Exists(finalDestination))
                 {
-                    //using (var inputStream = new NativeReader(File.Open(f, FileMode.Open)))
-                    //using (var outputStream = new NativeWriter(File.Open(finalDestination, FileMode.Create)))
-                    //{
-                    //    outputStream.Write(inputStream.ReadToEnd());
-                    //}
-
-                    File.Copy(f, finalDestination);
+                    // Quick Copy
+                    if (new FileInfo(f).Length < 1024 * 10)
+                    {
+                        using (var inputStream = new NativeReader(File.Open(f, FileMode.Open)))
+                        using (var outputStream = new NativeWriter(File.Open(finalDestination, FileMode.Create)))
+                        {
+                            outputStream.Write(inputStream.ReadToEnd());
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(f, finalDestination);
+                    }
                     Copied = true;
                 }
                 indexOfDataFile++;
