@@ -1,0 +1,51 @@
+﻿<Window x:Class="FIFAModdingUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FIFAModdingUI"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+        mc:Ignorable="d"
+        Title="paulv2k4 Modding Tool 2021" Height="320" Width="570" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="110"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Image Grid.Row="0" Grid.ColumnSpan="6" Source="/Resources/images/PAULV2K4MODDINGTOOL4.png" Stretch="Fill" />
+        <Button x:Name="btnFIFA21Editor" Grid.Row="2" Grid.Column="0" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                    Click="btnEditor_Click"
+                    ToolTip="FIFA 21 Editor">
+            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
+                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Label Content="FIFA 21 Editor" VerticalAlignment="Center" FontSize="20" />
+            </StackPanel>
+        </Button>
+        <Button x:Name="btnMadden21Editor" Grid.Row="2" Grid.Column="2" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                    Click="btnMadden21Editor_Click"
+                    ToolTip="Madden 21 Editor">
+            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
+                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock Text="Madden 21 Editor" VerticalAlignment="Center" FontSize="19" TextWrapping="Wrap" />
+            </StackPanel>
+        </Button>
+        <Button x:Name="btnLauncher" Grid.Row="2" Grid.Column="4" Background="Transparent" VerticalContentAlignment="Stretch" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+                    Click="btnLauncher_Click"
+                    ToolTip="Game Mod Launcher">
+            <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Vertical">
+                <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Label Content="Launcher" VerticalAlignment="Center" FontSize="20" />
+            </StackPanel>
+        </Button>
+    </Grid>
+</Window>

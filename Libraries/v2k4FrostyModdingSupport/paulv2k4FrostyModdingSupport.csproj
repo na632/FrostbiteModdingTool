@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>paulv2k4FrostyModdingSupport</PackageId>
     <Authors>paulv2k4 - Paul Garlick</Authors>
     <Company>paulv2k4</Company>
@@ -36,15 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="FrostyHash">
-      <HintPath>FrostyHash.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="FrostyHash.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="ThirdParty\CryptBase.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -80,9 +71,5 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="FrostbiteModExecuters\BundleActions\" />
-    <Folder Include="Profiles\" />
-  </ItemGroup>
-
+ 
 </Project>

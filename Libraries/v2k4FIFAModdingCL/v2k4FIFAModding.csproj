@@ -2,7 +2,7 @@
 
   <PropertyGroup>
    <!--<TargetFrameworks>net48;netstandard2.0</TargetFrameworks>-->
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,11 +16,7 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup>
+	<ItemGroup>
     <None Remove="Career\ini\cmsettings.INI" />
   </ItemGroup>
 

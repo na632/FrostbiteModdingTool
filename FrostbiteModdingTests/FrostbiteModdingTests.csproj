@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Libraries\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
+    <PackageReference Include="coverlet.collector" Version="1.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries\FrostbiteSdk\FrostbiteSdk.csproj" />
+    <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Plugins\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Libraries\FrostySdk\fifa20.key" Link="fifa20.key">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Libraries\FrostySdk\fifa21.key" Link="fifa21.key">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Libraries\FrostySdk\madden21.key" Link="madden21.key">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

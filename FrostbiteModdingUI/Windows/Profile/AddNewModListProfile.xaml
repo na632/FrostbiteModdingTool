@@ -1,0 +1,29 @@
+﻿<Window x:Class="FIFAModdingUI.Windows.Profile.AddNewModListProfile"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FIFAModdingUI.Windows.Profile"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+        mc:Ignorable="d"
+        Title="AddNewModListProfile" Height="450" Width="800" ResizeMode="NoResize">
+    <StackPanel Margin="100" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Width="100" Margin="10">Profile Name: </TextBlock>
+            <TextBox Width="300" x:Name="txtProfileName"></TextBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Width="100" Margin="10">Game Location:</TextBlock>
+            <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for FIFA >>>>" VerticalAlignment="Center" />
+            <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
+                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
+                    <Label Content="Browse FIFA" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <Button Margin="10">Save</Button>
+    </StackPanel>
+</Window>

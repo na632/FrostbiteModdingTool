@@ -8,9 +8,13 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
+//using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace FrostyEditor
 {
@@ -99,10 +103,10 @@ namespace FrostyEditor
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.AppendLine("using System;");
 			stringBuilder.AppendLine("using System.Collections.Generic;");
+			stringBuilder.AppendLine("using FrostySdk;");
 			stringBuilder.AppendLine("using FrostySdk.Attributes;");
 			stringBuilder.AppendLine("using FrostySdk.Managers;");
 			stringBuilder.AppendLine("using System.Reflection;");
-			stringBuilder.AppendLine("using FrostySdk;");
 			stringBuilder.AppendLine();
 			stringBuilder.AppendLine("[assembly: SdkVersion(" + (int)version + ")]");
 			stringBuilder.AppendLine();
@@ -178,28 +182,69 @@ namespace FrostyEditor
 
 		public void WriteFromTempCS(uint version)
         {
-			var results = new Microsoft.CSharp.CSharpCodeProvider().CompileAssemblyFromFile(new CompilerParameters
-			{
-				GenerateExecutable = false,
-				OutputAssembly = filename,
-				ReferencedAssemblies =
-				{
-					"mscorlib.dll",
-					"FrostySdk.dll"
-				},
-				CompilerOptions = "-define:DV_" + ProfilesLibrary.DataVersion
-			}, "temp.cs");
+			//var results = new Microsoft.CSharp.CSharpCodeProvider().CompileAssemblyFromFile(new CompilerParameters
+			//{
+			//	GenerateExecutable = false,
+			//	OutputAssembly = filename,
+			//	ReferencedAssemblies =
+			//	{
+			//		"mscorlib.dll",
+			//		"FrostbiteSdk.dll",
+			//		"FrostySdk.dll"
+			//	},
+			//	CompilerOptions = "-define:DV_" + ProfilesLibrary.DataVersion
+			//}, "temp.cs");
 
-			Debug.WriteLine("All errors");
-			foreach (var i in results.Errors)
+			//Debug.WriteLine("All errors");
+			//foreach (var i in results.Errors)
+			//{
+			//	Debug.WriteLine(i);
+			//}
+			//Debug.WriteLine("All output");
+			//foreach (var i in results.Output)
+			//{
+			//	Debug.WriteLine(i);
+			//}
+
+			var codeString = SourceText.From(File.ReadAllText("temp.cs"));
+			var options = CSharpParseOptions.Default
+				.WithLanguageVersion(LanguageVersion.LatestMajor);
+
+			var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, options);
+
+			var references = new MetadataReference[]
 			{
-				Debug.WriteLine(i);
-			}
-			Debug.WriteLine("All output");
-			foreach (var i in results.Output)
+            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+			//MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+			//MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
+			//MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),
+			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.9\netstandard.dll"),
+			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.9\System.Runtime.dll"),
+            MetadataReference.CreateFromFile("FrostySdk.dll"),
+			MetadataReference.CreateFromFile("FrostbiteSdk.dll")
+			};
+
+			using (FileStream stream = new FileStream(filename, FileMode.CreateNew))
 			{
-				Debug.WriteLine(i);
+				var result = CSharpCompilation.Create(filename,
+					new[] { parsedSyntaxTree },
+					references: references,
+					options: new CSharpCompilationOptions(
+						OutputKind.DynamicallyLinkedLibrary,
+						optimizationLevel: OptimizationLevel.Release,
+						assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default,
+						allowUnsafe: true
+						 
+						
+						)).Emit(stream);
+				if (!result.Success)
+				{
+					throw new Exception(result.Diagnostics.Length + " errors");
+				}
+				stream.Flush();
 			}
+
+
 		}
 		public string GetAlphabets(int i)
 
