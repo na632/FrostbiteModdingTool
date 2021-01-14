@@ -406,6 +406,10 @@ namespace FIFAModdingUI
                             if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
                                 GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                         }
+
+                        //ProjectManagement.Instance = null;
+                        //AssetManager.Instance = null;
+                        //GC.Collect();
                     }
                     //});
                     await Task.Delay(1000);

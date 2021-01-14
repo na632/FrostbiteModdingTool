@@ -37,25 +37,13 @@ namespace FIFA21Plugin
         public void Load(AssetManager parent, string path, List<CASBundle> casBundles)
         {
             NativeFileLocation = path;
-            path = parent.fs.ResolvePath(NativeFileLocation);// @"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
-
-            //var mem_stream = new MemoryStream();
-            //using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-            //{
-            //    fs.CopyTo(mem_stream);
-            //}
-            //mem_stream.Position = 0;
+            path = parent.fs.ResolvePath(NativeFileLocation);
 
             using (NativeReader nr_cas = new NativeReader(
-                //mem_stream
                 new FileStream(path, FileMode.Open, FileAccess.Read)
                 )
                 )
             {
-
-                //List<int> PositionOfReadableItems = new List<int>() { 445679993, 448409056 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
-                //List<int> PositionOfReadableItems = new List<int>() { 443937737 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
-                //List<int> PositionOfReadableItems = new List<int>() { 445678420 };  // SearchBytePattern(new byte[] { 0xD6, 0x8E, 0x79, 0x9D }, nr_cas.ReadToEnd()).ToList();
 
                 nr_cas.Position = 0;
                 int index = 0;
@@ -84,16 +72,7 @@ namespace FIFA21Plugin
 
                         var dbObj = new DbObject();
 
-                        //var startPosition = inner_reader.Position;
-                        //if (File.Exists("debugCASViewStream.dat"))
-                        //    File.Delete("debugCASViewStream.dat");
-                        //using (NativeWriter writer = new NativeWriter(new FileStream("debugCASViewStream.dat", FileMode.OpenOrCreate)))
-                        //{
-                        //    writer.Write(inner_reader.ReadToEnd());
-                        //}
-                        //inner_reader.Position = startPosition;
-
-
+              
                         var size = inner_reader.ReadInt(Endian.Big) + 4;
                         var magicStuff = inner_reader.ReadUInt(Endian.Big);
                         if (magicStuff != 3599661469) 
@@ -281,23 +260,9 @@ namespace FIFA21Plugin
                         inner_reader.Position = positionBeforeStringSearch + stringsLength;
                         //inner_reader.Position = 387;
 
-                        // 
-                        // This length should be 1186 for Man City Blueprints at 445678420
-                        //var fndEBXLength = 0;
-                        //for (var i = 0; i < (ebxCount); i++)
-                        //{
-                        //    fndEBXLength += EbxObjectList[i].GetValue("size", 1);
-                        //}
-                        //BoyerMoore boyerSearch = new BoyerMoore();
-
-                        //EbxObjectList[0].SetValue("size", 198);
-                        //EbxObjectList[1].SetValue("size", 341);
-                        //EbxObjectList[2].SetValue("size", 647);
-
+                      
                         var dataOffset = baseBundleInfo.Offset + inner_reader.Position;
 
-
-                        //var positionBeforeLoad = inner_reader.Position;
                         for (var i = 0; i < ebxCount; i++)
                         {
                             var ebxobjectinlist = EbxObjectList[i];
@@ -312,23 +277,24 @@ namespace FIFA21Plugin
                             var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
                             bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
 
-                            //using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
-                            //{
-                            //    CasReader casReader = new CasReader(vs);
-                            //    var b = casReader.ReadBlock();
-                            //    if (b != null && b.Length > 0)
-                            //    {
-                            //        //var ms = new MemoryStream();
-                            //        //NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
-                            //        //nativeWriter_ForMS.Write(b);
-                            //        //ms.Position = 0;
-                            //        //EbxReader_F21 ebxReader_F21 = new EbxReader_F21(ms, AssetManager.Instance.fs, false);
-                            //        //ebxReader_F21.InternalReadObjects();
-                            //        EbxObjectList[i].AddValue("loaded", 1);
-
-                            //    }
-                            //}
+                            using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
+                            {
+                                CasReader casReader = new CasReader(vs);
+                                var b = casReader.ReadBlock();
+                                if (b != null && b.Length > 0)
+                                {
+                                    var ms = new MemoryStream();
+                                    {
+                                        NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
+                                        nativeWriter_ForMS.Write(b);
+                                        ms.Position = 0;
+                                        EbxReader_F21 ebxReader_F21 = new EbxReader_F21(ms);
+                                        EbxObjectList[i].SetValue("Type", ebxReader_F21.RootType);
+                                    }
+                                }
+                            }
                         }
+                       
                         for (var i = 0; i < resCount; i++)
                         {
                             ResObjectList[i].SetValue("offset", casBundle.Offsets[ebxCount + i]);
@@ -337,36 +303,11 @@ namespace FIFA21Plugin
                             ResObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                             ResObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + i]);
                             ResObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + i]);
-
-
-                            //var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
-                            //bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
-
-                            //using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
-                            //{
-                            //    CasReader casReader = new CasReader(vs);
-                            //    var b = casReader.ReadBlock();
-                            //    if (b != null && b.Length > 0)
-                            //    {
-                            //        ResObjectList[i].AddValue("loaded", 1);
-                            //    }
-                            //}
                            
                         }
-                        //for (var i = 0; i < chunkCount && casBundle.Offsets.Count - 1 > ebxCount + resCount + i; i++)
+
                         for (var i = 0; i < chunkCount; i++)
                         {
-                            if(ChunkObjectList[i].GetValue<Guid>("id").ToString() == "64c1f350-a32a-8b77-d962-af3887e656d5")
-                            {
-
-                         
-                            }
-
-                            if (ChunkObjectList[i].GetValue<Guid>("id").ToString() == "c03a15a9-6747-22dd-c760-af2e149e6223") // Juventus Test
-                            {
-
-                            }
-
                             ChunkObjectList[i].SetValue("offset", casBundle.Offsets[ebxCount + resCount + i]);
                             ChunkObjectList[i].SetValue("size", casBundle.Sizes[ebxCount + resCount + i]);
 
@@ -377,14 +318,6 @@ namespace FIFA21Plugin
                             ChunkObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + resCount + i]]);
                             ChunkObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + resCount + i]]);
                         }
-
-                        //var posBeforeReadBlock = inner_reader.Position;
-                        //inner_reader.Position = size;
-                        //ReadDataBlock(EbxObjectList, inner_reader, (int)baseBundleInfo.Offset, (int)inner_reader.Position);
-                        //ReadDataBlock(ResObjectList, inner_reader, (int)baseBundleInfo.Offset, (int)inner_reader.Position);
-                        //ReadDataBlock(ChunkObjectList, inner_reader, (int)baseBundleInfo.Offset, (int)inner_reader.Position);
-                        //inner_reader.Position = posBeforeReadBlock;
-
 
                         FullObjectList.AddValue("ebx", EbxObjectList);
                         FullObjectList.AddValue("res", ResObjectList);
@@ -402,14 +335,14 @@ namespace FIFA21Plugin
                             ebxAssetEntry.ExtraData = new AssetExtraData();
                             ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
                             ebxAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? parent.fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : parent.fs.GetFilePath(item.GetValue("cas", 0)));
-                            ebxAssetEntry.Guid = Guid.NewGuid(); // this is not right!
+                            //ebxAssetEntry.Guid = Guid.NewGuid(); // this is not right!
 
-                            //ebxAssetEntry.CASFileLocation = NativeFileLocation;
-                            //ebxAssetEntry.SBFileLocation = AssociatedTOCFile.NativeFileLocation;
                             ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                             ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+
+                            ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
 
                             //if (item.GetValue<int>("loaded", 0) == 1)
                             //{
@@ -439,20 +372,16 @@ namespace FIFA21Plugin
                             resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta", null);
 
                             resAssetEntry.CASFileLocation = NativeFileLocation;
-                            //resAssetEntry.SBFileLocation = AssociatedTOCFile.NativeFileLocation;
                             resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                             resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                            //if (item.GetValue<int>("loaded", 0) == 1)
-                            //{
                                 if (!parent.resList.ContainsKey(resAssetEntry.Name) && !parent.resRidList.ContainsKey(resAssetEntry.ResRid))
                                     parent.AddRes(resAssetEntry);
 
                                 CASRESEntries.Add(resAssetEntry);
 
-                            //}
                             iRes++;
                         }
 
@@ -474,20 +403,12 @@ namespace FIFA21Plugin
                             chunkAssetEntry.LogicalSize = item.GetValue<uint>("logicalSize");
 
                             chunkAssetEntry.CASFileLocation = NativeFileLocation;
-                            //chunkAssetEntry.SBFileLocation = AssociatedTOCFile.NativeFileLocation;
                             chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
-                            //if (!AssetManager.Instance.chunkList.ContainsKey(chunkAssetEntry.Id))
-                            //{
                             chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
-                            //}
 
-                            //if (parent.chunkList.ContainsKey(chunkAssetEntry.Id) && chunkAssetEntry.ExtraData.DataOffset > 0)
-                            //    parent.chunkList.Remove(chunkAssetEntry.Id);
-
-                            //if (!parent.chunkList.ContainsKey(chunkAssetEntry.Id))
                             parent.AddChunk(chunkAssetEntry);
 
                             CASCHUNKEntries.Add(chunkAssetEntry);
@@ -499,7 +420,8 @@ namespace FIFA21Plugin
                 }
             }
 
-
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
 

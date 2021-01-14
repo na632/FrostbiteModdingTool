@@ -123,11 +123,12 @@ namespace FIFA21Plugin
             //        }
 
             //    }
-                logger.Log("Copying files from Patch to ModData/Patch");
                 // Copied Patch CAS files from Patch to Mod Data Patch
                 //DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);
-                CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
-                CopyDataFolder(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "\\" + PatchDirectory, logger);
+            logger.Log("Copying files from Data to ModData/Data");
+            CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
+            logger.Log("Copying files from Patch to ModData/Patch");
+            CopyDataFolder(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "\\" + PatchDirectory, logger);
 
             //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
             //{
@@ -207,7 +208,7 @@ namespace FIFA21Plugin
             var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
             var dataFileCount = dataFiles.Count();
             var indexOfDataFile = 0;
-            ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+            ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
             Parallel.ForEach(dataFiles, (f) =>
             {
                 var finalDestination = f.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
@@ -220,20 +221,32 @@ namespace FIFA21Plugin
                 {
                     Directory.CreateDirectory(newDirectory);
                 }
-                if (File.Exists(finalDestination) && finalDestination.Contains("moddata"))
+
+
+                if (!finalDestination.Contains("moddata"))
                 {
+                    throw new Exception("Incorrect Copy of Files to ModData");
+                }
+
+                var fIDest = new FileInfo(finalDestination);
+                var fIOrig = new FileInfo(f);
+
+                if (fIDest.Exists && finalDestination.Contains("moddata"))
+                {
+                   
                     if (
-                        File.GetLastWriteTime(finalDestination).Ticks != File.GetLastWriteTime(f).Ticks
-                        || new FileInfo(finalDestination).Length != new FileInfo(f).Length
+                        fIDest.Length != fIOrig.Length
+                        || fIDest.LastWriteTime.Ticks != fIOrig.LastWriteTime.Ticks
                         )
                     {
                         File.Delete(finalDestination);
                     }
                 }
+                
                 if (!File.Exists(finalDestination))
                 {
                     // Quick Copy
-                    if (new FileInfo(f).Length < 1024 * 10)
+                    if (fIOrig.Length < 1024 * 100)
                     {
                         using (var inputStream = new NativeReader(File.Open(f, FileMode.Open)))
                         using (var outputStream = new NativeWriter(File.Open(finalDestination, FileMode.Create)))

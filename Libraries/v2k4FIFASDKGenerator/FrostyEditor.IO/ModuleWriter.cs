@@ -224,6 +224,8 @@ namespace FrostyEditor
 			MetadataReference.CreateFromFile("FrostbiteSdk.dll")
 			};
 
+			if (File.Exists("EbxClasses.dll"))
+				File.Delete("EbxClasses.dll");
 			using (FileStream stream = new FileStream(filename, FileMode.CreateNew))
 			{
 				var result = CSharpCompilation.Create(filename,
@@ -266,17 +268,12 @@ namespace FrostyEditor
 
 			stringBuilder.Append(WriteClassAttributes(enumObj));
 
-			stringBuilder.AppendLine("public enum " + enumObj.GetValue<string>("name"));
+			stringBuilder.AppendLine("public enum " + enumObj.GetValue<string>("name") + " : int");
 			stringBuilder.AppendLine("{");
 			var index = 0;
 			foreach (DbObject item in enumObj.GetValue<DbObject>("fields"))
 			{
 				var name = item.GetValue<string>("name");
-				//if(string.IsNullOrEmpty(name))
-    //            {
-				//	name = GetAlphabets(index);
-    //            }
-
 				var value = item.GetValue("value", 0);
 				if (!string.IsNullOrEmpty(name))
 				{

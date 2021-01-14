@@ -154,12 +154,12 @@ namespace v2k4FIFASDKGenerator
 					sdkUpdateState.TypeInfoOffset = 0x1483E1760;
 
 				}
-                else 
-				if (process.ProcessName.ToUpper() == "FIFA21")
+                else
+                if (process.ProcessName.ToUpper() == "FIFA21")
                 {
                     //sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
                     //sdkUpdateState.TypeInfoOffset = 0x1498D7290;
-                    sdkUpdateState.TypeInfoOffset = 0x149B48680;
+                    sdkUpdateState.TypeInfoOffset = 0x149B49680;
                     // AOB 48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08
 
                 }
@@ -171,18 +171,26 @@ namespace v2k4FIFASDKGenerator
 
 					List<string> patterns = new List<string>()
 					{
-                "488b05???????? 48894108 48890d???????? 48???? C3",
-                "488b05???????? 48894108 48890d????????",
-                "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
-                "48 39 35 ? ? ? ? 0f 85 57 01 00 00 48 8b 46 10 48 89 05 ? ? ? ? 48 85 c0",
-				"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10" // Madden 21
+    //            "488b05???????? 48894108 48890d???????? 48???? C3",
+    //            "488b05???????? 48894108 48890d????????",
+    //            "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+                "48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08",
+				"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10", // Madden 21
                 //"30 40 96 49 01 00 00 00 48 70 12 48 01 00 00 00 D0 6F 12 48 01"
+
+				//"488B05???????? 48894108 ?? 488D05???????? 483905???????????? 488B05???????? 488905????????",
+			"488B05???????? 48894108 C3 488D05????C5?? 483905???????????? 488B05???????? 488905????????",
+			"488B05F6?????? 48894108 C3 488D05????C5?? 483905d3?????????? 488B05????C5?? 488905????????",
+			"488b05???????? 48894108 48890d???????? 48???? C3",
+			"488b05???????? 48894108 48890d????????",
+			"488b05???????? 488905???????? 488d05???????? 488905???????? E9"
+
 					};
-					IList<long> list = null;
+					List<long> list = null;
 					foreach (string pattern in patterns)
 					{
 						memoryReader.Position = baseAddress;
-						list = memoryReader.scan(pattern);
+						list = memoryReader.scan(pattern).ToList();
 						if (list.Count != 0)
 						{
 							break;
@@ -197,14 +205,36 @@ namespace v2k4FIFASDKGenerator
 						Console.WriteLine(task.FailMessage);
 						return false;
 					}
+					list.Sort();
+					//var startOffset = list.First();
+					//// __int32 offset = *reinterpret_cast<__int32*>( address + 3 );
+					//// pointer to actual figure, goto address and read the casted value
+					//memoryReader.Position = startOffset + 3;
+					//int offset = memoryReader.ReadInt();
+					//long extended = 0;
+					//extended |= 0xFFFFFFFF;
+					//extended <<= 32;
+					//extended |= offset;
+					////long neOffset = startOffset + extended + 7 + 0x100000000;
+					//long neOffset = startOffset + offset + 7;
 
-					Debug.WriteLine(memoryReader.Position.ToString("X2"));
-					memoryReader.Position = list.First() + 3;
-					int off = memoryReader.ReadInt();
-					memoryReader.Position = list.First() + 3 + off + 4;
-					Debug.WriteLine(memoryReader.Position.ToString("X2"));
 
-					long neOffset = memoryReader.ReadLong();
+
+
+                    //Debug.WriteLine(memoryReader.Position.ToString("X2"));
+
+
+                    memoryReader.Position = list.First() + 3;
+                    int off = memoryReader.ReadInt();
+                    memoryReader.Position = list.First() + off + 7;
+
+
+
+                    //Debug.WriteLine(memoryReader.Position.ToString("X2"));
+
+                    long neOffset = memoryReader.ReadLong();
+                    //neOffset = memoryReader.ReadInt();
+                    Debug.WriteLine(neOffset.ToString("X2"));
 
 
 					sdkUpdateState.TypeInfoOffset = neOffset;

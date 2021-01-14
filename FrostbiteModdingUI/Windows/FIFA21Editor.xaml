@@ -39,7 +39,7 @@
             </Grid.ColumnDefinitions>
             <GridSplitter></GridSplitter>
 
-            <StackPanel Grid.Row="0"  Orientation="Horizontal" Background="White">
+            <Grid Grid.Row="0" Background="White">
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -71,26 +71,32 @@
                             <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="True">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
+                            <Label Content="Open Mod Details" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
-                    <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game >>>>" VerticalAlignment="Center" />
+                    <!--<TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="?? Game.EXE ??" VerticalAlignment="Center" />
                     <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
                             <Label Content="Browse for Game" VerticalAlignment="Center" />
                         </StackPanel>
-                    </Button>
+                    </Button>-->
                     <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
                         <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                            <Label Content="Launch Game (Editor Project Only)" VerticalAlignment="Center" />
+                            <Label Content="Launch Game" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                   
                 </StackPanel>
 
-            </StackPanel>
+            </Grid>
             <DockPanel Grid.Row="1">
 
                 <TabControl x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" >

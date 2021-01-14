@@ -76,14 +76,16 @@
                 Material="{Binding FloorMaterial}" />
                 <hx:MeshGeometryModel3D
                 CullMode="None"
-                Geometry="{Binding SphereModel}"
-                Instances="{Binding SphereInstances}"
-                Material="{Binding SphereMaterial}" />
+                Geometry="{Binding FaceModel}"
+                Material="{Binding FaceMaterial}" />
                 <hx:MeshGeometryModel3D
                 CullMode="None"
-                Geometry="{Binding BunnyModel}"
-                Instances="{Binding BunnyInstances}"
-                Material="{Binding BunnyMaterial}" />
+                Geometry="{Binding HairCapModel}"
+                Material="{Binding HairCapMaterial}" />
+                <hx:MeshGeometryModel3D
+                CullMode="None"
+                Geometry="{Binding HairModel}"
+                Material="{Binding HairMaterial}" />
             </hx:Viewport3DX>
         </Grid>
     </Grid>

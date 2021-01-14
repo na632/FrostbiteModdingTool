@@ -23,6 +23,8 @@ using System.Windows.Shapes;
 using HelixToolkit.Logger;
 using System.Threading;
 using HelixToolkit.SharpDX.Core.Assimp;
+using FrostySdk.Resources;
+using Frostbite.Textures;
 
 namespace FrostbiteModdingUI.Pages.Player
 {
@@ -88,17 +90,17 @@ namespace FrostbiteModdingUI.Pages.Player
 
         }
 
-        public void InitPlayerSearch()
+        public async void InitPlayerSearch()
         {
-            Task.Run(() =>
+            await Task.Run(() =>
             {
-                //LoadSquadFile();
+                LoadSquadFile();
 
-                //var legacyFiles = AssetManager.Instance.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
-                //var mainDb = legacyFiles.FirstOrDefault(x => x.Filename.Contains("fifa_ng_db") && x.Type == "DB");
-                //var mainDbMeta = legacyFiles.FirstOrDefault(x => x.Filename.Contains("fifa_ng_db-meta") && x.Type == "XML");
-                //LoadPlayerList(mainDb as LegacyFileEntry, mainDbMeta as LegacyFileEntry);
-            }).Wait();
+                var legacyFiles = AssetManager.Instance.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+                var mainDb = legacyFiles.FirstOrDefault(x => x.Filename.Contains("fifa_ng_db") && x.Type == "DB");
+                var mainDbMeta = legacyFiles.FirstOrDefault(x => x.Filename.Contains("fifa_ng_db-meta") && x.Type == "XML");
+                LoadPlayerList(mainDb as LegacyFileEntry, mainDbMeta as LegacyFileEntry);
+            });
 
             // Binding  
             Dispatcher.Invoke(() =>
@@ -219,31 +221,9 @@ namespace FrostbiteModdingUI.Pages.Player
 
             if (p != null)
             {
-                if (File.Exists("test.fbx"))
-                    File.Delete("test.fbx");
-
+                ExportAssetToRenderer(p.PlayerId);
                 Player = p;
-
-                var headEntry = AssetManager.Instance.EnumerateEbx("SkinnedMeshAsset")
-                    .FirstOrDefault(x => x.Path.Contains("content/character/player")
-                    && x.Filename.Contains("_" + Player.PlayerId)
-                    && x.Filename.Contains("head"));
-                if (headEntry != null)
-                {
-                    var skinnedMeshEbx = AssetManager.Instance.GetEbx(headEntry);
-                    if (skinnedMeshEbx != null)
-                    {
-                        var resentry = AssetManager.Instance.GetResEntry(headEntry.Name);
-                        var res = AssetManager.Instance.GetRes(resentry);
-                        MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
-
-                        var exporter = new MeshToFbxExporter();
-                        exporter.OnlyFirstLOD = true;
-                        exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.obj", "2016", "Meters", true, null, "*.obj", meshSet);
-
-                        SetupHeadScene();
-                    }
-                }
+                this.DataContext = this;
             }
         }
 
@@ -268,6 +248,113 @@ namespace FrostbiteModdingUI.Pages.Player
             //ViewportViewModel.GroupModel.AddNode(scene.Root);
 
         }
+
+
+
+
+        private void ExportAssetToRenderer(int id)
+        {
+            if(!Directory.Exists("Renderer"))
+                Directory.CreateDirectory("Renderer");
+
+            try
+            {
+                var m = new PlayerViewportViewModel();
+
+                var texture_entries = AssetManager.Instance.EnumerateEbx("TextureAsset")
+                    .Where(x =>
+                    (x.Name.Contains("head_" + id.ToString() + "_")
+                    || x.Name.Contains("hair_" + id.ToString() + "_")
+                    || x.Name.Contains("haircap_" + id.ToString() + "_")
+                    || x.Name.Contains("face_" + id.ToString() + "_")
+                    )
+                    && x.Name.Contains("player")
+                    ).ToList();
+                foreach (var ebxEntry in texture_entries)
+                {
+                    var ebx = AssetManager.Instance.GetEbx(ebxEntry);
+                    if (ebx != null)
+                    {
+                        var textureEbx = AssetManager.Instance.GetEbx(ebxEntry);
+                        if (textureEbx != null)
+                        {
+                            var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+                            var res = AssetManager.Instance.GetRes(resentry);
+                            Texture t = new Texture(res, AssetManager.Instance);
+                            TextureExporter textureExporter = new TextureExporter();
+
+                            Task.Run(() =>
+                            {
+                                if (ebxEntry.Name.Contains("hair_") && ebxEntry.Name.Contains("_color"))
+                                    textureExporter.Export(t, "Renderer/HairTexture.png", "*.png");
+                                else if (ebxEntry.Name.Contains("face_") && ebxEntry.Name.Contains("_color"))
+                                    textureExporter.Export(t, "Renderer/FaceTexture.png", "*.png");
+                                else if (ebxEntry.Name.Contains("haircap_") && ebxEntry.Name.Contains("_color"))
+                                    textureExporter.Export(t, "Renderer/HairCapTexture.png", "*.png");
+                            }).Wait();
+                            
+                        }
+                    }
+                }
+
+
+                var character_entries = AssetManager.Instance.EnumerateEbx("SkinnedMeshAsset")
+                    .Where(x =>
+                    (x.Name.Contains("head_" + id.ToString() + "_")
+                    || x.Name.Contains("hair_" + id.ToString() + "_")
+                    || x.Name.Contains("haircap_" + id.ToString() + "_")
+                    )
+                    && x.Name.EndsWith("_mesh")
+                    ).ToList();
+                foreach (var ebxEntry in character_entries)
+                {
+                    if (ebxEntry.Type == "SkinnedMeshAsset")
+                    {
+                        if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
+                        {
+                            return;
+                        }
+                        var ebx = AssetManager.Instance.GetEbx(ebxEntry);
+                        if (ebx != null)
+                        {
+                            var skinnedMeshEbx = AssetManager.Instance.GetEbx(ebxEntry);
+                            if (skinnedMeshEbx != null)
+                            {
+                                var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+                                var res = AssetManager.Instance.GetRes(resentry);
+                                MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+
+                                Task.Run(() =>
+                                {
+                                    var exporter = new MeshToFbxExporter();
+                                    exporter.OnlyFirstLOD = true;
+                                    if (ebxEntry.Name.Contains("head_"))
+                                        exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "Renderer/FaceModel.obj", "2016", "Millimeters", true, null, "*.obj", meshSet);
+                                    else if (ebxEntry.Name.Contains("hair_"))
+                                        exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "Renderer/HairModel.obj", "2016", "Millimeters", true, null, "*.obj", meshSet);
+                                    else if (ebxEntry.Name.Contains("haircap_"))
+                                        exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "Renderer/HairCapModel.obj", "2016", "Millimeters", true, null, "*.obj", meshSet);
+                                }).Wait();
+
+
+                            }
+
+
+                        }
+                    }
+                }
+
+                this.Viewport.DataContext = m;
+
+
+
+            }
+            catch
+            {
+
+            }
+        }
+            
 
     }
 }

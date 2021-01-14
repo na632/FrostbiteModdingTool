@@ -1,6 +1,7 @@
 ﻿using FIFAModdingUI.Models;
 using FolderBrowserEx;
 using Frostbite.Textures;
+using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.FrostySdk.Managers;
@@ -46,6 +47,25 @@ namespace FIFAModdingUI.Windows
             InitializeComponent();
             this.DataContext = this;
             Closing += FIFA21Editor_Closing;
+
+            if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+            {
+                InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+            }
+            else
+            {
+                var findGameEXEWindow = new FindGameEXEWindow();
+                var result = findGameEXEWindow.ShowDialog();
+                if (result.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+                {
+                    InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                }
+                else
+                {
+                    findGameEXEWindow.Close();
+                    this.Close();
+                }
+            }
         }
 
         private void FIFA21Editor_Closing(object sender, CancelEventArgs e)
@@ -73,6 +93,63 @@ namespace FIFAModdingUI.Windows
 
         public static ProjectManagement ProjectManagement { get; set; }
 
+        public void InitialiseOfSelectedGame(string filePath)
+        {
+            GameInstanceSingleton.InitializeSingleton(filePath);
+
+            Task.Run(() =>
+            {
+
+                ProjectManagement = new ProjectManagement(filePath, this);
+                ProjectManagement.StartNewProject();
+
+                Log("Initialize Data Browser");
+                dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                   .EnumerateEbx()
+                                   .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
+                // Kit Browser
+                Log("Initialize Kit Browser");
+                var kitList = ProjectManagement.FrostyProject.AssetManager
+                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                kitList = kitList.OrderBy(x => x.Name).ToList();
+                var citykits = kitList.Where(x => x.Name.ToLower().Contains("manchester_city"));
+                kitBrowser.AllAssetEntries = kitList;
+
+
+                Log("Initialize Gameplay Browser");
+                gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                                  .EnumerateEbx()
+                                  .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
+                var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+
+                Log("Initialize Legacy Browser");
+                legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
+
+                Log("Initialize Texture Browser");
+                List<IAssetEntry> textureAssets = ProjectManagement.FrostyProject.AssetManager
+                                   .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.ToUpper().Contains(".DDS")));
+
+                textureBrowser.AllAssetEntries = textureAssets;
+
+                //playerEditor.InitPlayerSearch();
+
+                Dispatcher.InvokeAsync(() => {
+
+                    btnProjectNew.IsEnabled = true;
+                    btnProjectOpen.IsEnabled = true;
+                    btnProjectSave.IsEnabled = true;
+                    btnProjectWriteToMod.IsEnabled = true;
+                    var wt = WindowTitle;
+                });
+
+            });
+        }
+
         private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
@@ -84,64 +161,7 @@ namespace FIFAModdingUI.Windows
             var filePath = dialog.FileName;
             if (!string.IsNullOrEmpty(filePath))
             {
-                GameInstanceSingleton.InitializeSingleton(filePath);
-                txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
-
-
-
-                Task.Run(() =>
-                {
-
-                    ProjectManagement = new ProjectManagement(filePath, this);
-                    ProjectManagement.StartNewProject();
-
-                    Log("Initialize Data Browser");
-                    dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx()
-                                       .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
-
-                    // Kit Browser
-                    Log("Initialize Kit Browser");
-                    var kitList = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                    kitList = kitList.OrderBy(x => x.Name).ToList();
-                    var citykits = kitList.Where(x => x.Name.ToLower().Contains("manchester_city"));
-                    kitBrowser.AllAssetEntries = kitList;
-
-                    
-
-                    
-                    Log("Initialize Gameplay Browser");
-                    gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
-                                      .EnumerateEbx()
-                                      .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
-
-                    var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
-
-                    Log("Initialize Legacy Browser");
-                    legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
-
-                    Log("Initialize Texture Browser");
-                    List<IAssetEntry> textureAssets = ProjectManagement.FrostyProject.AssetManager
-                                       .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                    textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.ToUpper().Contains(".DDS")));
-
-                    textureBrowser.AllAssetEntries = textureAssets;
-
-                    playerEditor.InitPlayerSearch();
-
-                    Dispatcher.InvokeAsync(() => {
-
-                        btnProjectNew.IsEnabled = true;
-                        btnProjectOpen.IsEnabled = true;
-                        btnProjectSave.IsEnabled = true;
-                        btnProjectWriteToMod.IsEnabled = true;
-                        var wt = WindowTitle;
-                    });
                 
-                });
 
 
                     //BuildTextureBrowser(null);
@@ -229,6 +249,7 @@ namespace FIFAModdingUI.Windows
 
         public void LogError(string text, params object[] vars)
         {
+            LogAsync("[ERROR] " + text);
         }
 
         private AssetEntry CurrentLegacySelection;
@@ -265,19 +286,10 @@ namespace FIFAModdingUI.Windows
                 var resultValue = saveFileDialog.ShowDialog();
                 if (resultValue.HasValue && resultValue.Value)
                 {
-                    ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName
-                        , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool Mod", Version = "1.00" });
+                    ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName, ProjectManagement.FrostyProject.ModSettings);
                     using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
                     {
-                        //if (fs.Length > 1024 * 2)
-                        //{
-                            Log("Saved mod successfully to " + saveFileDialog.FileName);
-                        //}
-                        //else
-                        //{
-                        //    Log("An error has occurred Saving mod to " + saveFileDialog.FileName + " file seems too small");
-
-                        //}
+                        Log("Saved mod successfully to " + saveFileDialog.FileName);
                     }
                 }
 
@@ -680,6 +692,12 @@ namespace FIFAModdingUI.Windows
             //        playerEditor.UpdateLayout();
             //    }
             //}
+        }
+
+        private void btnOpenModDetailsPanel_Click(object sender, RoutedEventArgs e)
+        {
+            var mdw = new ModDetailsWindow();
+            mdw.Show();
         }
     }
 }

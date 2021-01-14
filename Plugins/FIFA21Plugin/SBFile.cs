@@ -158,13 +158,13 @@ namespace FIFA21Plugin
         /// <returns></returns>
         public CachingSBData.Bundle ReadInternalBundle(int bundleOffset, ref DbObject dbObject, NativeReader binarySbReader2)
         {
-            if (File.Exists("debugSBViewStream.dat"))
-                File.Delete("debugSBViewStream.dat");
-            using (NativeWriter writer = new NativeWriter(new FileStream("debugSBViewStream.dat", FileMode.OpenOrCreate)))
-            {
-                writer.Write(binarySbReader2.ReadToEnd());
-            }
-            binarySbReader2.Position = 0;
+            //if (File.Exists("debugSBViewStream.dat"))
+            //    File.Delete("debugSBViewStream.dat");
+            //using (NativeWriter writer = new NativeWriter(new FileStream("debugSBViewStream.dat", FileMode.OpenOrCreate)))
+            //{
+            //    writer.Write(binarySbReader2.ReadToEnd());
+            //}
+            //binarySbReader2.Position = 0;
 
             CachedBundle = new CachingSBData.Bundle();
             CachedBundle.StartOffset = (int)bundleOffset;
@@ -274,6 +274,8 @@ namespace FIFA21Plugin
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
                 }
+
+
 
             }
 

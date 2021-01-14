@@ -21,6 +21,9 @@ namespace FrostbiteModdingUI.Models
         public Geometry3D TeapotModel { get; }
 
         public Geometry3D BunnyModel { get; set; }
+        public Geometry3D BunnyModel_1 { get; set; }
+        public Geometry3D BunnyModel_2 { get; set; }
+        public Geometry3D BunnyModel_3 { get; set; }
 
         public PhongMaterial FloorMaterial { get; }
         public PhongMaterial SphereMaterial { get; }
@@ -29,6 +32,9 @@ namespace FrostbiteModdingUI.Models
         public Matrix[] SphereInstances { get; }
 
         public Matrix[] BunnyInstances { get; }
+        public Matrix[] BunnyInstances_1 { get; }
+        public Matrix[] BunnyInstances_2 { get; }
+        public Matrix[] BunnyInstances_3 { get; }
 
         public SSAOQuality[] SSAOQualities { get; } = new SSAOQuality[] { SSAOQuality.High, SSAOQuality.Low };
 
@@ -58,28 +64,44 @@ namespace FrostbiteModdingUI.Models
             if (File.Exists("test_noSkel.obj"))
             {
                 var models = reader.Read("test_noSkel.obj");
-                BunnyModel = models[1].Geometry;
-                BunnyMaterial = PhongMaterials.Green;
+
+                BunnyModel = models[0].Geometry;
+                BunnyMaterial = PhongMaterials.PolishedCopper;
                 BunnyMaterial.AmbientColor = BunnyMaterial.DiffuseColor * 0.5f;
+
+                if(models.Count > 1)
+                {
+                    BunnyModel_1 = models[1].Geometry;
+                }
+                if (models.Count > 2)
+                {
+                    BunnyModel_2 = models[2].Geometry;
+                }
+                if (models.Count > 3)
+                {
+                    BunnyModel_3 = models[3].Geometry;
+                }
             }
             FloorMaterial = PhongMaterials.PureWhite;
             FloorMaterial.AmbientColor = FloorMaterial.DiffuseColor * 0.5f;
             SphereMaterial = PhongMaterials.Red;
             SphereMaterial.AmbientColor = SphereMaterial.DiffuseColor * 0.5f;
-            //SphereInstances = new Matrix[4]
-            //{
-            //    Matrix.Translation(-2.5f, 1, 0),
-            //    Matrix.Translation(2.5f, 1, 0),
-            //    Matrix.Translation(0, 1, -2.5f),
-            //    Matrix.Translation(0, 1, 2.5f)
-            //};
 
             BunnyInstances = new Matrix[1]
             {
-                Matrix.Translation(0f, -0.8f, 0),
-                //Matrix.Translation(6f, -0.8f, 0),
-                //Matrix.Translation(0, -0.8f, -4f),
-                //Matrix.Translation(0, -0.8f, 4f)
+                Matrix.Translation(0, 0, 0),
+            };
+            BunnyInstances_1 = new Matrix[1]
+            {
+                Matrix.Translation(0, 0, 0),
+            };
+            BunnyInstances_2 = new Matrix[1]
+            {
+                Matrix.Translation(0, 0, 0),
+            };
+            BunnyInstances_3 = new Matrix[1]
+            {
+                Matrix.Translation(0, 0, 0),
             };
         }
     }

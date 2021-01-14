@@ -31,36 +31,40 @@ using Newtonsoft.Json;
 using FrostbiteModdingUI.Windows;
 using Frostbite;
 using DDSReader;
+using HelixToolkit.SharpDX.Core.Assimp;
+using FrostbiteModdingUI.Models;
+using System.Threading;
+using FrostySdk.Frostbite.IO.Output;
 
 namespace FIFAModdingUI.Pages.Common
 {
-    /// <summary>
-    /// Interaction logic for Browser.xaml
-    /// </summary>
-    public partial class Browser : UserControl
-    {
+	/// <summary>
+	/// Interaction logic for Browser.xaml
+	/// </summary>
+	public partial class Browser : UserControl
+	{
 
-		private IEditorWindow MainEditorWindow 
-		{ 
+		private IEditorWindow MainEditorWindow
+		{
 			get
-            {
+			{
 				return App.MainEditorWindow as IEditorWindow;
-            } 
+			}
 		}
-        public Browser()
-        {
-            InitializeComponent();
+		public Browser()
+		{
+			InitializeComponent();
 			DataContext = this;
-        }
+		}
 
 
-        private List<IAssetEntry> allAssets;
+		private List<IAssetEntry> allAssets;
 
-        public List<IAssetEntry> AllAssetEntries
-        {
-            get { return allAssets; }
-            set { allAssets = value; Update(); }
-        }
+		public List<IAssetEntry> AllAssetEntries
+		{
+			get { return allAssets; }
+			set { allAssets = value; Update(); }
+		}
 
 		public string FilterText { get; set; }
 
@@ -72,8 +76,8 @@ namespace FIFAModdingUI.Pages.Common
 				var assets = allAssets;
 				if (assets != null)
 				{
-					bool OnlyModified 
-					= chkShowOnlyModified.IsChecked.HasValue 
+					bool OnlyModified
+					= chkShowOnlyModified.IsChecked.HasValue
 					&& chkShowOnlyModified.IsChecked.Value;
 
 					if (!string.IsNullOrEmpty(txtFilter.Text))
@@ -83,14 +87,14 @@ namespace FIFAModdingUI.Pages.Common
 							).ToList();
 					}
 
-					assets = assets.Where(x => 
-						
+					assets = assets.Where(x =>
+
 						(
-						chkShowOnlyModified.IsChecked == true 
+						chkShowOnlyModified.IsChecked == true
 						&& x.IsModified
 						)
 						|| chkShowOnlyModified.IsChecked == false
-						
+
 						).ToList();
 
 					//assets = assets.Where(
@@ -114,30 +118,30 @@ namespace FIFAModdingUI.Pages.Common
 
 		public List<string> CurrentAssets { get; set; }
 
-        public int CurrentTier { get; set; }
+		public int CurrentTier { get; set; }
 
-        public string CurrentPath { get; set; }
+		public string CurrentPath { get; set; }
 
-        public void SelectOption(string name)
-        {
+		public void SelectOption(string name)
+		{
 
-        }
+		}
 
-        public void BrowseTo(string path)
-        {
-            if(!string.IsNullOrEmpty(CurrentPath))
-                CurrentPath = CurrentPath + "/" + path;
-            else
-                CurrentPath = path;
+		public void BrowseTo(string path)
+		{
+			if (!string.IsNullOrEmpty(CurrentPath))
+				CurrentPath = CurrentPath + "/" + path;
+			else
+				CurrentPath = path;
 
-            Update();
-        }
+			Update();
+		}
 
 		private Dictionary<string, AssetPath> assetPathMapping = new Dictionary<string, AssetPath>(StringComparer.OrdinalIgnoreCase);
 		private AssetPath selectedPath = null;
 
 		public async void Update()
-        {
+		{
 			AssetPath assetPath = new AssetPath("", "", null);
 
 			var assets = await GetFilteredAssetEntries();
@@ -192,12 +196,12 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 			}
-            if (!assetPathMapping.ContainsKey("/"))
-            {
-                //assetPathMapping.Add("/", new AssetPath("![root]", "", null, bInRoot: true));
-                assetPathMapping.Add("/", new AssetPath("", "", null, bInRoot: true));
-            }
-            assetPath.Children.Insert(0, assetPathMapping["/"]);
+			if (!assetPathMapping.ContainsKey("/"))
+			{
+				//assetPathMapping.Add("/", new AssetPath("![root]", "", null, bInRoot: true));
+				assetPathMapping.Add("/", new AssetPath("", "", null, bInRoot: true));
+			}
+			assetPath.Children.Insert(0, assetPathMapping["/"]);
 
 			await Dispatcher.InvokeAsync((Action)(() =>
 			{
@@ -207,8 +211,8 @@ namespace FIFAModdingUI.Pages.Common
 
 		}
 
-        private void btnImport_Click(object sender, RoutedEventArgs e)
-        {
+		private void btnImport_Click(object sender, RoutedEventArgs e)
+		{
 			//var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 			var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 			if (SelectedLegacyEntry != null)
@@ -234,18 +238,18 @@ namespace FIFAModdingUI.Pages.Common
 						DDSImage originalImage = new DDSImage(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
 						DDSImage newImage = new DDSImage(bytes);
 						if (originalImage._image.Width != newImage._image.Width)
-                        {
+						{
 							throw new Exception("Invalid Width of New Image for Legacy Asset");
-                        }
+						}
 
 						var textureBytes = new NativeReader(newImage.SaveToStream()).ReadToEnd();
 						ImageViewer.Source = LoadImage(textureBytes);
 						ImageViewerScreen.Visibility = Visibility.Visible;
 					}
 					else
-                    {
+					{
 						TextViewer.Text = ASCIIEncoding.ASCII.GetString(bytes);
-                    }
+					}
 
 					AssetManager.Instance.ModifyCustomAsset("legacy"
 						, SelectedLegacyEntry.Name
@@ -270,18 +274,18 @@ namespace FIFAModdingUI.Pages.Common
 							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
 							{
 
-                                Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
-                                TextureImporter textureImporter = new TextureImporter();
-                                EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
+								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
+								TextureImporter textureImporter = new TextureImporter();
+								EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
 
-                                if (ebxAssetEntry != null)
-                                    textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
-                               
-                                var res = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
+								if (ebxAssetEntry != null)
+									textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
+
+								var res = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
 								if (res != null)
 								{
 									BuildTextureViewerFromAssetEntry(res);
-									}
+								}
 
 								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
 							}
@@ -299,8 +303,8 @@ namespace FIFAModdingUI.Pages.Common
 					if (dialogResult.HasValue && dialogResult.Value)
 					{
 						var ebx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
-						if(ebx != null)
-                        {
+						if (ebx != null)
+						{
 							var robj = (dynamic)ebx.RootObject;
 							var fileHS = (Newtonsoft.Json.Linq.JArray)JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(openFileDialog.FileName)).Hotspots;
 							var fhs2 = fileHS.ToObject<List<dynamic>>();
@@ -317,13 +321,46 @@ namespace FIFAModdingUI.Pages.Common
 						}
 					}
 				}
+
+				if (SelectedEntry.Type == "SkinnedMeshAsset")
+                {
+					OpenFileDialog openFileDialog = new OpenFileDialog();
+					openFileDialog.Filter = "Fbx files (*.fbx)|*.fbx";
+					openFileDialog.FileName = SelectedEntry.Filename;
+					if (openFileDialog.ShowDialog().Value)
+					{
+						var skinnedMeshEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
+						if (skinnedMeshEbx != null)
+						{
+							var resentry = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
+							var res = AssetManager.Instance.GetRes(resentry);
+							MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+
+							try
+							{
+								FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
+								importer.ImportFBX(openFileDialog.FileName, meshSet, skinnedMeshEbx, (EbxAssetEntry)SelectedEntry
+									, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
+								{
+									SkeletonAsset = "content/character/rig/skeleton/player/skeleton_player"
+								});
+								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
+							}
+							catch(Exception ImportException)
+                            {
+								MainEditorWindow.LogError(ImportException.Message);
+                            }
+
+						}
+					}
+				}
 			}
 
 			UpdateAssetListView();
 		}
 
-        private void btnExport_Click(object sender, RoutedEventArgs e)
-        {
+		private void btnExport_Click(object sender, RoutedEventArgs e)
+		{
 			if (SelectedLegacyEntry != null)
 			{
 				SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -353,16 +390,16 @@ namespace FIFAModdingUI.Pages.Common
 					if (saveFileDialog.ShowDialog().Value)
 					{
 						var resEntry = ProjectManagement.Instance.FrostyProject.AssetManager.GetResEntry(SelectedEntry.Name);
-						if(resEntry != null) 
+						if (resEntry != null)
 						{
 
 							using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(resEntry))
-                            {
+							{
 								Texture texture = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager);
-                                var extractedExt = saveFileDialog.FileName.Substring(saveFileDialog.FileName.Length - 3, 3);
-                                TextureExporter textureExporter = new TextureExporter();
-                                textureExporter.Export(texture, saveFileDialog.FileName, "*." + extractedExt);
-                                MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+								var extractedExt = saveFileDialog.FileName.Substring(saveFileDialog.FileName.Length - 3, 3);
+								TextureExporter textureExporter = new TextureExporter();
+								textureExporter.Export(texture, saveFileDialog.FileName, "*." + extractedExt);
+								MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
 							}
 
 
@@ -388,29 +425,63 @@ namespace FIFAModdingUI.Pages.Common
 						}
 					}
 					else
-                    {
+					{
 						MainEditorWindow.Log("Failed to export file");
-                    }
+					}
+				}
+
+				if (SelectedEntry.Type == "SkinnedMeshAsset")
+				{
+					var skinnedMeshEntry = (EbxAssetEntry)SelectedEntry;
+					if (skinnedMeshEntry != null)
+					{
+
+						var skinnedMeshEbx = AssetManager.Instance.GetEbx(skinnedMeshEntry);
+						if (skinnedMeshEbx != null)
+						{
+							var resentry = AssetManager.Instance.GetResEntry(skinnedMeshEntry.Name);
+							var res = AssetManager.Instance.GetRes(resentry);
+							MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+
+							SaveFileDialog saveFileDialog = new SaveFileDialog();
+							var filt = "*.fbx";
+							saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+							saveFileDialog.FileName = SelectedEntry.Filename;
+							var dialogAnswer = saveFileDialog.ShowDialog();
+							if (dialogAnswer.HasValue && dialogAnswer.Value)
+							{
+								var exporter = new MeshToFbxExporter();
+								exporter.Export(AssetManager.Instance
+									, skinnedMeshEbx.RootObject
+									, saveFileDialog.FileName, "2016", "Millimeters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
+								
+								
+								MainEditorWindow.Log($"Exported {SelectedEntry.Name} to {saveFileDialog.FileName}");
+
+
+							}
+						}
+					}
 				}
 			}
 		}
 
 		AssetPath SelectedAssetPath = null;
 
-        private void Label_MouseUp(object sender, MouseButtonEventArgs e)
-        {
+		private void Label_MouseUp(object sender, MouseButtonEventArgs e)
+		{
 			Label label = sender as Label;
-			if (label != null && label.Tag != null) 
+			if (label != null && label.Tag != null)
 			{
 				SelectedAssetPath = label.Tag as AssetPath;
 				UpdateAssetListView();
 			}
-        }
+		}
 
 		private void Label_KeyUp(object sender, KeyEventArgs e)
 		{
-			if(e.Key == Key.Enter || e.Key == Key.Return)
-            {
+			if (e.Key == Key.Enter || e.Key == Key.Return)
+			{
 				Label label = sender as Label;
 				if (label != null && label.Tag != null)
 				{
@@ -421,7 +492,7 @@ namespace FIFAModdingUI.Pages.Common
 		}
 
 		public void UpdateAssetListView()
-        {
+		{
 			if (SelectedAssetPath != null)
 			{
 				if (SelectedAssetPath.FullPath.Length > 3)
@@ -450,8 +521,8 @@ namespace FIFAModdingUI.Pages.Common
 		public AssetEntry SelectedEntry;
 		public LegacyFileEntry SelectedLegacyEntry;
 
-        private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
+		private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+		{
 			AssetEntry entry = ((TextBlock)sender).Tag as EbxAssetEntry;
 			if (entry == null)
 				entry = ((TextBlock)sender).Tag as LegacyFileEntry;
@@ -464,7 +535,7 @@ namespace FIFAModdingUI.Pages.Common
 			if (e.Key == Key.Enter || e.Key == Key.Return)
 			{
 				AssetEntry entry = ((TextBlock)sender).Tag as EbxAssetEntry;
-				if(entry == null)
+				if (entry == null)
 					entry = ((TextBlock)sender).Tag as LegacyFileEntry;
 
 				OpenAsset(entry);
@@ -486,6 +557,7 @@ namespace FIFAModdingUI.Pages.Common
 				TextViewer.Visibility = Visibility.Collapsed;
 				EBXViewer.Visibility = Visibility.Collapsed;
 				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
+				ModelViewer.Visibility = Visibility.Collapsed;
 				//HEXViewer.Visibility = Visibility.Collapsed;
 
 				//TextBlock control = sender as TextBlock;
@@ -518,6 +590,41 @@ namespace FIFAModdingUI.Pages.Common
 
 
 
+						}
+						else if (ebxEntry.Type == "SkinnedMeshAsset")
+						{
+							if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
+							{
+								return;
+							}
+							var ebx = ProjectManagement.Instance.FrostyProject.AssetManager.GetEbx(ebxEntry);
+							if (ebx != null)
+							{
+								MainEditorWindow.Log("Loading 3D Model " + ebxEntry.Filename);
+								var skinnedMeshEbx = AssetManager.Instance.GetEbx(ebxEntry);
+								if (skinnedMeshEbx != null)
+								{
+									var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+									var res = AssetManager.Instance.GetRes(resentry);
+									MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+
+									var exporter = new MeshToFbxExporter();
+									exporter.OnlyFirstLOD = true;
+									exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.obj", "2016", "Meters", true, null, "*.obj", meshSet);
+									Thread.Sleep(1000);
+
+									//var import = new Importer();
+									//var scene = import.Load("test_noSkel.obj", new ImporterConfiguration() { GlobalScale = 100, FlipWindingOrder = true, CullMode = SharpDX.Direct3D11.CullMode.None, });
+									var m = new MainViewModel();
+									this.ModelViewer.DataContext = m;
+									this.ModelViewer.Visibility = Visibility.Visible;
+									
+									this.btnExport.IsEnabled = true;
+									this.btnImport.IsEnabled = true;
+								}
+
+									
+							}
 						}
 						else
 						{
@@ -592,7 +699,7 @@ namespace FIFAModdingUI.Pages.Common
 									//    ImageViewer.Source = oldImage.GetWPFBitmap();
 									//}
 									//var t = TextureImporter.CreateLegacyTexture(legacyFileEntry);
-									
+
 									BuildTextureViewerFromStream(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry), legacyFileEntry);
 
 
@@ -620,9 +727,9 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 			}
-			catch
+			catch (Exception e)
 			{
-				MainEditorWindow.Log("Failed to load file");
+				MainEditorWindow.Log($"Failed to load file with message {e.Message}");
 
 			}
 		}
@@ -631,9 +738,9 @@ namespace FIFAModdingUI.Pages.Common
         {
 			using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(res))
 			{
-				using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager))
-				{
-					try
+                using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager))
+                {
+                    try
 					{
 						ImageViewer.Source = null;
 
@@ -641,11 +748,10 @@ namespace FIFAModdingUI.Pages.Common
 
 						TextureExporter textureExporter = new TextureExporter();
 						MemoryStream memoryStream = new MemoryStream();
-						var textureBytes = new NativeReader(textureExporter.ExportToStream(textureAsset)).ReadToEnd();
+						//var d = new NativeReader(textureAsset.Data).ReadToEnd();
 
-						//var newImage = new CSharpImageLibrary.ImageEngineImage(textureBytes);
-
-						//var bImage = newImage.GetWPFBitmap();//  new CSharpImageLibrary. //LoadImage(textureBytes);
+						using var nr = new NativeReader(textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG));
+						var textureBytes = nr.ReadToEnd();
 
 						ImageViewer.Source = LoadImage(textureBytes);
 						ImageViewerScreen.Visibility = Visibility.Visible;
@@ -663,7 +769,10 @@ namespace FIFAModdingUI.Pages.Common
 						btnRevert.IsEnabled = true;
 
 					}
-					catch { ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed; }
+					catch (Exception e) {
+						MainEditorWindow.LogError($"Error loading texture with message :: {e.Message}");
+						MainEditorWindow.LogError(e.ToString());
+						ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed; }
 				}
 			}
 		}
@@ -724,7 +833,7 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnRevert_Click(object sender, RoutedEventArgs e)
         {
-			if(SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture")
+			if(SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture" || SelectedEntry.Type == "SkinnedMeshAsset")
             {
 				AssetManager.Instance.RevertAsset(SelectedEntry);
 			}

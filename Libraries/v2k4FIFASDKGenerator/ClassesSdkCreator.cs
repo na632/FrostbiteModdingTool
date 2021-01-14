@@ -111,46 +111,7 @@ namespace v2k4FIFASDKGenerator
             else
             {
                 throw new Exception("Havent found Shared Type Descriptors .EBX!");
-                //uint ebxCount = AssetManager.GetEbxCount();
-                //uint num = 0u;
-                //foreach (EbxAssetEntry item3 in AssetManager.EnumerateEbx())
-                //{
-                //    Stream ebxStream = AssetManager.GetEbxStream(item3);
-                //    if (ebxStream != null)
-                //    {
-                //        task.StatusMessage = $"{(float)(double)(++num) / (float)(double)ebxCount * 100f:0}%";
-                //        using (EbxReader ebxReader = new EbxReader(ebxStream))
-                //        {
-                //            List<EbxClass> classTypes = ebxReader.ClassTypes;
-                //            List<EbxField> fieldTypes = ebxReader.FieldTypes;
-                //            foreach (EbxClass item4 in classTypes)
-                //            {
-                //                if (item4.Name != "array" && !mapping.ContainsKey(item4.Name))
-                //                {
-                //                    DbObject item = null;
-                //                    int num2 = 0;
-                //                    foreach (DbObject @class in classList)
-                //                    {
-                //                        if (@class.GetValue<string>("name") == item4.Name)
-                //                        {
-                //                            item = @class;
-                //                            classList.RemoveAt(num2);
-                //                            break;
-                //                        }
-                //                        num2++;
-                //                    }
-                //                    mapping.Add(item4.Name, new Tuple<EbxClass, DbObject>(item4, item));
-                //                    fieldMapping.Add(item4.Name, new List<EbxField>());
-                //                    for (int i = 0; i < item4.FieldCount; i++)
-                //                    {
-                //                        EbxField item2 = fieldTypes[item4.FieldIndex + i];
-                //                        fieldMapping[item4.Name].Add(item2);
-                //                    }
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
+             
             }
             return true;
         }
@@ -399,7 +360,7 @@ namespace v2k4FIFASDKGenerator
                                     }
                                     if (!flag)
                                     {
-                                        uint num8 = (ProfilesLibrary.DataVersion == 20190905 || ProfilesLibrary.IsFIFA21DataVersion()) ? 3301947476u : 3109710567u;
+                                        uint num8 = 3109710567u;
                                         if (field.NameHash != num8)
                                         {
                                             field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
@@ -526,9 +487,9 @@ namespace v2k4FIFASDKGenerator
                         }
                         else if (field.DebugType == EbxFieldType.Enum)
                         {
-                            //throw new InvalidDataException();
+                            throw new InvalidDataException();
                         }
-                        if (field.DebugType == EbxFieldType.Struct)
+                        if (index2 != -1 && field.DebugType == EbxFieldType.Struct)
                         {
                             foreach (EbxField field2 in fields)
                             {
@@ -728,6 +689,7 @@ namespace v2k4FIFASDKGenerator
             }
             else if (ProfilesLibrary.IsFIFA21DataVersion())
             {
+                //typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
                 typeStr = "v2k4FIFASDKGenerator.FIFA21.ClassInfo";
             }
             else if (ProfilesLibrary.IsMaddenDataVersion())
@@ -861,7 +823,7 @@ namespace v2k4FIFASDKGenerator
                         dbObject3.AddValue("name", field.name);
                         dbObject3.AddValue("value", (int)field.typeOffset);
                     }
-                    else
+                    else if(offsetClassInfoMapping.ContainsKey(field.typeOffset))
                     {
                         ClassInfo classInfo3 = offsetClassInfoMapping[field.typeOffset];
                         dbObject3.AddValue("name", field.name);

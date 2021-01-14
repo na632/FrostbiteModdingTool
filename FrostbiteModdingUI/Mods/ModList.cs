@@ -1,4 +1,5 @@
-﻿using FrostySdk.Frosty;
+﻿using FrostySdk;
+using FrostySdk.Frosty;
 using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections;
@@ -88,12 +89,14 @@ namespace FIFAModdingUI.Mods
                 }
             }
 
-            public IFrostbiteMod FrostbiteMod
+            public IFrostbiteMod GetFrostbiteMod()
             {
-                get
+                switch (ModType)
                 {
-                    return null;
+                    case "Frostbite":
+                        return new FrostbiteMod(Path);
                 }
+                return null;
             }
 
             public ModItem(string p)
@@ -120,6 +123,14 @@ namespace FIFAModdingUI.Mods
                 FileInfo fileInfo = new FileInfo(Path);
                 if (fileInfo.Exists)
                 {
+                    var fbm = GetFrostbiteMod();
+                    if(fbm != null)
+                    {
+                        if (fbm.ModDetails != null)
+                        {
+                            return fbm.ModDetails.Title + "(" + fbm.ModDetails.Version + ")";
+                        }
+                    }
                     return fileInfo.Name;
                 }
                 return base.ToString();

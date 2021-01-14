@@ -7,6 +7,7 @@
               xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
             xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
             xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+             xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
              mc:Ignorable="d" 
              d:DesignHeight="720" d:DesignWidth="1280">
     <Grid>
@@ -19,12 +20,12 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <GridSplitter Grid.Column="0"></GridSplitter>
-        <Grid MaxHeight="400"  Grid.Column="0" Grid.Row="0">
+        <Grid MaxHeight="300"  Grid.Column="0" Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <Grid Background="White" Grid.Row="0">
+            <Grid MaxHeight="300" Background="White" Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="75*" ></ColumnDefinition>
                     <ColumnDefinition Width="312*" ></ColumnDefinition>
@@ -53,10 +54,9 @@
                 </TreeView.ItemTemplate>
             </TreeView>
         </Grid>
-        <StackPanel  Grid.Column="0" Grid.Row="1">
-            <ListView x:Name="assetListView" 
+            <ListView Grid.Column="0" Grid.Row="1" x:Name="assetListView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible" 
-                      Height="200" 
+                      Height="200" MaxHeight="200"
                       BorderBrush="LightGray" 
                       BorderThickness="1" 
                       HorizontalAlignment="Stretch" 
@@ -144,7 +144,6 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-        </StackPanel>
         <Grid VerticalAlignment="Top" Grid.Column="1" Grid.RowSpan="2"  Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <Grid.RowDefinitions>
                 <RowDefinition MaxHeight="30"></RowDefinition>
@@ -214,6 +213,61 @@
             <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
                 <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
             </StackPanel>
+
+            <hx:Viewport3DX
+            x:Name="ModelViewer"
+            Grid.Row="1"
+            Camera="{Binding Camera}"
+            EffectsManager="{Binding EffectsManager}"
+            EnableSSAO="True"
+            FXAALevel="Medium"
+            Visibility="Hidden"    
+            ShowFrameDetails="True"
+                 EnableDeferredRendering="True">
+                <hx:Viewport3DX.InputBindings>
+                    <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
+                    <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
+                    <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
+                    <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
+                    <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
+                    <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
+                    <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                    <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+                    <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                    <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
+                </hx:Viewport3DX.InputBindings>
+                <hx:DirectionalLight3D Direction="-1, -1, 0" Color="#9A9A9A" />
+                <hx:AmbientLight3D Color="#B0B0B0" />
+                <hx:MeshGeometryModel3D
+                CullMode="None"
+                Geometry="{Binding FloorModel}"
+                Material="{Binding FloorMaterial}" />
+                <hx:MeshGeometryModel3D
+                CullMode="None"
+                Geometry="{Binding BunnyModel}"
+                Instances="{Binding BunnyInstances}"
+                Material="{Binding BunnyMaterial}"
+                    
+                    />
+                <hx:MeshGeometryModel3D
+                CullMode="None"
+                Geometry="{Binding BunnyModel_1}"
+                Instances="{Binding BunnyInstances_1}"
+                Material="{Binding BunnyMaterial_1}" />
+                <hx:MeshGeometryModel3D
+                CullMode="None"
+                Geometry="{Binding BunnyModel_2}"
+                Instances="{Binding BunnyInstances_2}"
+                Material="{Binding BunnyMaterial_2}" />
+                <hx:MeshGeometryModel3D
+                CullMode="None"
+                Geometry="{Binding BunnyModel_3}"
+                Instances="{Binding BunnyInstances_3}"
+                Material="{Binding BunnyMaterial_3}"
+                    />
+            </hx:Viewport3DX>
+
+
         </Grid>
     </Grid>
 </UserControl>

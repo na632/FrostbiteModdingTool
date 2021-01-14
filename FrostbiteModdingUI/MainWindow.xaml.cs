@@ -36,7 +36,9 @@ namespace FIFAModdingUI
         {
             //new EditorLoginWindow().Show();
             App.MainEditorWindow = new FIFA21Editor();
-            App.MainEditorWindow.Show();
+            if(App.MainEditorWindow != null)
+                App.MainEditorWindow.Show();
+
             this.Close();
         }
 
