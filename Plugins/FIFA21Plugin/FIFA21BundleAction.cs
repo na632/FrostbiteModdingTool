@@ -265,7 +265,7 @@ namespace FIFA21Plugin
                         Debug.WriteLine($"Modifying CAS file - {casPath}");
                         parent.Logger.Log($"Modifying CAS file - {casPath}");
 
-                        Dictionary<AssetEntry, (long,int)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int)>();
+                        Dictionary<AssetEntry, (long,int,int,Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
 
                         using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
                         {
@@ -308,8 +308,10 @@ namespace FIFA21Plugin
                                 }
 
                                 if (data.Length == 0)
+                                {
+                                    parent.Logger.LogError($"Unable to find any data for {modItem.Item1}");
                                     continue;
-
+                                }
 
                                 if (data.Length > 0)
                                 {
@@ -317,9 +319,14 @@ namespace FIFA21Plugin
                                     // write the new data to end of the file (this should be fine)
                                     nwCas.Write(data);
 
-                                    parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
-                                    Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
-                                    EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length));
+                                    var origSize = 0;
+                                    var out_data = new CasReader(new MemoryStream(data)).Read();
+                                    origSize = out_data.Length;
+
+
+                                    //parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
+                                    //Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
+                                    EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Item1));
 
                                     bool patchedInSb = false;
                                     //patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
@@ -337,6 +344,12 @@ namespace FIFA21Plugin
                             
                         }
 
+                        //if(EntriesToNewPosition.Count != item.Value.Count)
+                        //{
+                        //    parent.Logger.LogError($"Entry data does not match the count that was inputted by Mod");
+                        //    return false;
+                        //}
+
                         var groupedBySB = EntriesToNewPosition.GroupBy(x =>
                                     !string.IsNullOrEmpty(x.Key.SBFileLocation)
                                     ? x.Key.SBFileLocation
@@ -344,15 +357,14 @@ namespace FIFA21Plugin
                                     )
                             .ToDictionary(gdc => gdc.Key, gdc => gdc.ToList());
 
-
                         foreach (var sbGroup in groupedBySB)
                         {
                             var sbpath = sbGroup.Key;
                             sbpath = parent.fs.ResolvePath(sbpath).ToLower();
-                            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
-                            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
+                            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
+                            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
 
-                            if (!sbpath.ToLower().Contains("moddata"))
+                            if (!sbpath.ToLower().Contains("moddata", StringComparison.OrdinalIgnoreCase))
                             {
                                 throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
                             }
@@ -362,12 +374,26 @@ namespace FIFA21Plugin
                                 {
                                     var positionOfNewData = assetBundle.Value.Item1;
                                     var sizeOfData = assetBundle.Value.Item2;
+                                    var originalSizeOfData = assetBundle.Value.Item3;
+                                    var sha = assetBundle.Value.Item4;
 
                                     var sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
                                     var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
                                     nw_sb.BaseStream.Position = sb_cas_offset_position;
                                     nw_sb.Write((uint)positionOfNewData, Endian.Big);
                                     nw_sb.Write((uint)sizeOfData, Endian.Big);
+
+                                    if(assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
+                                    {
+                                        nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
+                                        nw_sb.Write((uint)originalSizeOfData, Endian.Little);
+                                    }
+
+                                    if (assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
+                                    {
+                                        nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
+                                        nw_sb.Write(sha);
+                                    }
                                 }
                             }
                         }

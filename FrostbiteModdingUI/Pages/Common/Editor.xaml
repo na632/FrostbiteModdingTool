@@ -6,10 +6,20 @@
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-
+    <UserControl.Resources>
+        <DataTemplate x:Key="Syste">
+            
+        </DataTemplate>
+    </UserControl.Resources>
     <StackPanel>
+        <TextBlock Text="{Binding Name}"></TextBlock>
         <CheckBox x:Name="chkImportFromFiles" Content="Import from raw file" Unchecked="chkImportFromFiles_Checked" Checked="chkImportFromFiles_Checked"></CheckBox>
         <TreeView x:Name="TreeView1" Height="400" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible">
+            <HierarchicalDataTemplate>
+                <StackPanel>
+                    <TextBlock Text="{Binding}"></TextBlock>
+                </StackPanel>
+            </HierarchicalDataTemplate>
         </TreeView>
     </StackPanel>
 

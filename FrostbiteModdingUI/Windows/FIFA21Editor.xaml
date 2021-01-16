@@ -118,11 +118,15 @@
                         <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
                     </TabItem>
 
-                    <TabItem x:Name="TabPlayers" Header="Players">
+                    <TabItem x:Name="TabPlayers" Header="Players" Visibility="Collapsed">
                         <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
                     </TabItem>
 
-                    <TabItem x:Name="TabTeams" Header="Teams" Visibility="Hidden">
+                    <TabItem x:Name="TabTeams" Header="Teams" Visibility="Collapsed">
+                    </TabItem>
+
+                    <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">
+                        <StackPanel x:Name="TestEbxViewer"></StackPanel>
                     </TabItem>
 
                 </TabControl>

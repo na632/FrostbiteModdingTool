@@ -226,6 +226,12 @@ std::string encrypt(std::string& msg, std::string& key) {
     return vigenere_msg;
 }
 
+std::string encrypt2(std::string& msg, std::string& key) {
+    std::string b64_str = base64_encode(msg);
+    std::string vigenere_msg = encrypt_vigenere(b64_str, key);
+    // std::cout << vigenere_msg << std::endl;
+    return vigenere_msg;
+}
 
 std::string decrypt(std::string& encrypted_msg, std::string& key) {
     std::string newKey = extend_key(encrypted_msg, key);
@@ -239,20 +245,6 @@ bool is_file_encrypted(const char* filepath) {
     if (std::string(filepath).ends_with(".mod"))
         return true;
 
-    //ifstream myfile(filepath, ios::in | ios::binary);
-    ////myfile.ignore(99999, '\n');
-    //if (myfile.is_open())
-    //{
-    //    char* encrypted_check_buffer = new char[10];
-    //    myfile.get(encrypted_check_buffer, 10);
-    //    if (std::string(encrypted_check_buffer).find("ENCRYPTED") != -1)
-    //    {
-    //        OutputDebugStringA("ENCRYPTED FILE FOUND");
-    //        myfile.close();
-    //        return true;
-    //    }
-    //    myfile.close();
-    //}
     return false;
 }
 
@@ -302,8 +294,6 @@ std::string read_mod_file_from_file_system(const char* filepath) {
         }
 
         return ent;
-       /* char* c = const_cast<char*>(ent.c_str());
-        return c;*/
     }
 
     return NULL;
@@ -311,13 +301,9 @@ std::string read_mod_file_from_file_system(const char* filepath) {
 
 void encrypt_decrypt_file(const char* filepath, const char* to_path, bool to_decrypt) {
 
-    /*if (!is_file_encrypted(filepath) && to_decrypt)
-        return;*/
-
     string line;
     string entirefile;
     ifstream myfile(filepath, ios::in | ios::binary);
-    //myfile.ignore(99999, '\n');
     if (myfile.is_open())
     {
         myfile.seekg(0, myfile.end);
@@ -369,23 +355,93 @@ void encrypt_decrypt_file(const char* filepath, const char* to_path, bool to_dec
     else cout << "Unable to open file";
 
 
-    //auto rTest = std::string(read_mod_file_from_file_system(filepath));
-    //if (rTest.length() > 0) {
-    //    // https://www.techiedelight.com/convert-std-string-char-cpp/ There are many other options for this
-    //    char* c = const_cast<char*>(rTest.c_str());
-    //    if (c) {
-    //        OutputDebugStringA("");
-    //    }
-    //}
+  
+}
+
+
+void encrypt_file2(const char* filepath, const char* to_path, bool to_decrypt) {
+
+    string line;
+    string entirefile;
+    ifstream myfile(filepath, ios::in | ios::binary);
+    if (myfile.is_open())
+    {
+        myfile.seekg(0, myfile.end);
+        int length = myfile.tellg();
+        myfile.seekg(0, myfile.beg);
+
+        char* buffer = new char[length];
+
+        std::cout << "Reading " << length << " characters... ";
+        std::string ent;
+
+        char my_character;
+        if (myfile) {
+            while (!myfile.eof()) {
+                myfile.get(my_character);
+                if (!myfile)
+                    break;
+                ent += my_character;
+            }
+
+        }
+        else {
+            std::cout << "file does not exist!\n";
+        }
+
+        if (myfile)
+            OutputDebugStringA("all characters read successfully. \n");
+        else {
+        }
+
+        myfile.close();
+
+        std::string magic = "";
+        std::string key = "FIFERISACUNT";
+        if (to_decrypt)
+            magic = decrypt(ent, key);
+        else
+            magic = encrypt2(ent, key);
+
+        ofstream ofile(to_path);
+        if (ofile.is_open())
+        {
+            ofile << magic;
+            ofile.close();
+        }
+        else cout << "Unable to open file";
+
+    }
+    else cout << "Unable to open file";
+
+
 
 }
 
+uint32_t reverse_bytes(uint32_t bytes)
+{
+    uint32_t aux = 0;
+    uint8_t byte;
+    int i;
+
+    for (i = 0; i < 32; i += 8)
+    {
+        byte = (bytes >> i) & 0xff;
+        aux |= byte << (32 - 8 - i);
+    }
+    return aux;
+}
 
 extern "C" {
 
     __declspec(dllexport) void encryptFile(const char* filepath, const char* to_path) 
     {
         encrypt_decrypt_file(filepath, to_path, false);
+    }
+
+    __declspec(dllexport) void encryptFile2(const char* filepath, const char* to_path)
+    {
+        encrypt_file2(filepath, to_path, false);
     }
 
     __declspec(dllexport) void decryptFile(const char* filepath, const char* to_path)

@@ -313,11 +313,15 @@ namespace FIFAModdingUI.Pages.Common
 								robj.Hotspots[i].Bounds.x = (float)fhs2[i].Bounds.x;
 								robj.Hotspots[i].Bounds.y = (float)fhs2[i].Bounds.y;
 								robj.Hotspots[i].Bounds.z = (float)fhs2[i].Bounds.z;
+								robj.Hotspots[i].Bounds.w = (float)fhs2[i].Bounds.w;
+								robj.Hotspots[i].Rotation = (float)fhs2[i].Rotation;
 							}
 							AssetManager.Instance.ModifyEbx(SelectedEntry.Name, ebx);
-							UpdateAssetListView();
 
-							EBXViewer.Visibility = Visibility.Collapsed;
+							// Update the Viewers
+							UpdateAssetListView();
+							EBXViewer.Children.Clear();
+							EBXViewer.Children.Add(new Editor(SelectedEntry, ebx, ProjectManagement.Instance.FrostyProject, MainEditorWindow));
 						}
 					}
 				}
@@ -345,6 +349,8 @@ namespace FIFAModdingUI.Pages.Common
 									SkeletonAsset = "content/character/rig/skeleton/player/skeleton_player"
 								});
 								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
+
+								UpdateAssetListView();
 							}
 							catch(Exception ImportException)
                             {

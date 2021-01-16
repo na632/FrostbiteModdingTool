@@ -102,37 +102,41 @@
                 </StackPanel>
             </Grid>
             </StackPanel>
-            <Grid Margin="5" x:Name="pnlModDescription" Visibility="Collapsed">
-                <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                </Grid.RowDefinitions>
-                <TextBlock x:Name="txtModTitle" Background="AliceBlue" Foreground="Black" FontSize="18"  Grid.Row="0">
-                </TextBlock>
-                <StackPanel Grid.Row="1">
-                    <TextBlock  FontSize="16" >Description</TextBlock>
-                    <TextBox IsReadOnly="True" x:Name="txtModDescription" Height="200" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                        ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow" />
-                </StackPanel>
-                <StackPanel Grid.Row="2">
-                    <TextBlock  FontSize="16" >Version</TextBlock>
-                    <TextBox IsReadOnly="True" x:Name="txtModVersion"></TextBox>
-                </StackPanel>
-                <StackPanel Grid.Row="3">
-                    <TextBlock  FontSize="16" >Author / Creator</TextBlock>
-                    <TextBox IsReadOnly="True" x:Name="txtModAuthor"></TextBox>
-                </StackPanel>
-                    
-            </Grid>
-            <StackPanel>
-            <Label>Launcher Log:</Label>
-            <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <TabControl x:Name="TabCont">
+                <Controls:MetroTabItem x:Name="tabLog" Header="Log">
+                    <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
 
-            </TextBox>
-            </StackPanel>
+                    </TextBox>
+                </Controls:MetroTabItem>
+                <Controls:MetroTabItem x:Name="tabModDetails" Header="Mod Details">
+                    <Grid Margin="5" x:Name="pnlModDescription">
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="txtModTitle" Background="AliceBlue" Foreground="Black" FontSize="18"  Grid.Row="0">
+                        </TextBlock>
+                        <StackPanel Grid.Row="1">
+                            <TextBlock  FontSize="16" >Description</TextBlock>
+                            <TextBox IsReadOnly="True" x:Name="txtModDescription" Height="200" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="2">
+                            <TextBlock  FontSize="16" >Version</TextBlock>
+                            <TextBox IsReadOnly="True" x:Name="txtModVersion"></TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="3">
+                            <TextBlock  FontSize="16" >Author / Creator</TextBlock>
+                            <TextBox IsReadOnly="True" x:Name="txtModAuthor"></TextBox>
+                        </StackPanel>
+
+                    </Grid>
+
+                </Controls:MetroTabItem>
+            </TabControl>
         </StackPanel>
        
 

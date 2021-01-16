@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="FrostbiteModdingUI.Pages.Common.EbxEditor2"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FrostbiteModdingUI.Pages.Common"
+             mc:Ignorable="d" 
+             xmlns:frostysdkebx="clr-namespace:FrostySdk.Ebx;assembly=FrostySdk"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <DataTemplate x:Key="HotspotEntry">
+            
+        </DataTemplate>
+       
+    </UserControl.Resources>
+    <TreeView HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <HierarchicalDataTemplate>
+            <StackPanel>
+                
+            </StackPanel>
+        </HierarchicalDataTemplate>
+    </TreeView>
+</UserControl>

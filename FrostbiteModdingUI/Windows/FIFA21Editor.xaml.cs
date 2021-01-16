@@ -1,9 +1,11 @@
 ﻿using FIFAModdingUI.Models;
+using FIFAModdingUI.Pages.Common;
 using FolderBrowserEx;
 using Frostbite.Textures;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
+using FrostySdk.Ebx;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -15,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -47,6 +50,9 @@ namespace FIFAModdingUI.Windows
             InitializeComponent();
             this.DataContext = this;
             Closing += FIFA21Editor_Closing;
+
+            CreateTestEditor();
+            
 
             if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {
@@ -374,7 +380,7 @@ namespace FIFAModdingUI.Windows
                 if (encrypt)
                 {
                     Log("Encrypting " + file);
-                    v2k4Encryption.encryptFile(file, sbFinalResult.ToString());
+                    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
                     File.Delete(file);
                 }
 
@@ -439,6 +445,9 @@ namespace FIFAModdingUI.Windows
         {
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = false; });
 
+            if(File.Exists("test.fbmod"))
+                File.Delete("test.fbmod");
+
             ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
@@ -464,7 +473,6 @@ namespace FIFAModdingUI.Windows
                 });
             await Task.Run(() =>
             {
-
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
                 frostyModExecutor.UseSymbolicLinks = true;
                 frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test.fbmod" }.ToArray()).Wait();
@@ -575,7 +583,7 @@ namespace FIFAModdingUI.Windows
                                         fI.Delete();
                                     }
                                     Log("Encrypting " + file);
-                                    v2k4Encryption.encryptFile(file, sbFinalResult.ToString());
+                                    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
                                 }
 
                                 listOfCompilableFiles.Add(sbFinalResult.ToString());
@@ -699,5 +707,42 @@ namespace FIFAModdingUI.Windows
             var mdw = new ModDetailsWindow();
             mdw.Show();
         }
+
+#if DEBUG
+        #region Tests 
+        
+        void CreateTestEditor()
+        {
+            dynamic dHotspotObject = new ExpandoObject { };
+            List<dynamic> testDList = new List<dynamic>();
+            for (System.Single i = 0; i < 20; i++)
+            {
+                testDList.Add(new
+                {
+                    Bounds = new { x = 0, y = 0, z = 0, w = i }
+                    , Group = new CString("Test G " + i.ToString())
+                    , Name = new CString("Test N " + i.ToString())
+                    , Rotation = (float)1.45 + i
+                });
+            }
+            dHotspotObject.Name = "Test Obj";
+            dHotspotObject.Hotspots = testDList;
+            EbxAsset testEbxAsset = new EbxAsset();
+            testEbxAsset.SetRootObject(dHotspotObject);
+
+            TestEbxViewer.Children.Add(
+                new Editor(testEbxAsset));
+
+        }
+
+
+
+
+        #endregion
+
+#endif
+
+
+
     }
 }

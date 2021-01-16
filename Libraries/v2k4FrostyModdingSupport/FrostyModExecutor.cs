@@ -5459,13 +5459,11 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         FrostyModsFound = true;
 
                         FileInfo fileInfo2 = new FileInfo(rootPath + f);
+                        
                         Logger.Log("Loading mod " + fileInfo2.Name);
-                        var ms = new MemoryStream();
-                        using (var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read))
-                        {
-                            fs.CopyTo(ms);
-                            frostyMods.Add(new MemoryStream(ms.ToArray()), new FrostbiteMod(new MemoryStream(ms.ToArray())));
-                        }
+
+                        var fbmod = new FrostbiteMod(new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read));
+                        frostyMods.Add(new MemoryStream(fbmod.ModBytes.ToArray()), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
                     }
 
                     if(f.Contains(".fifamod"))
@@ -5642,7 +5640,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             {
                                 ChunkAssetEntry chunkAssetEntry = null;
                                 HandlerExtraData handlerExtraData2 = null;
-                                byte[] resourceData4 = frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                                byte[] resourceData4 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 if (modifiedChunks.ContainsKey(guid))
                                 {
                                     chunkAssetEntry = modifiedChunks[guid];
@@ -5685,7 +5683,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                     modifiedChunks.Remove(guid);
                                     numArchiveEntries--;
                                 }
-                                byte[] resourceData5 = frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                                byte[] resourceData5 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
                                 resource.FillAssetEntry(chunkAssetEntry3);
                                 chunkAssetEntry3.Size = resourceData5.Length;

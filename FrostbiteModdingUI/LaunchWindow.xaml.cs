@@ -281,6 +281,7 @@ namespace FIFAModdingUI
         {
             if (!string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION) && !string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
             {
+                TabCont.SelectedIndex = 0;
                 DoLegacyModSetup();
 
                 // Copy the Locale.ini if checked
@@ -442,13 +443,10 @@ namespace FIFAModdingUI
             var dialog = new OpenFileDialog();
             dialog.Title = "Browse for your mod";
             dialog.Multiselect = false;
-            dialog.Filter = "Mod files (*.zip, *.lmod, *.fbmod)|*.zip;*.lmod;*.fbmod";
+            dialog.Filter = "Mod files (*.zip, *.lmod, *.fbmod, *.fifamod)|*.zip;*.lmod;*.fbmod;*.fifamod";
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
-            //var filePathSplit = filePath.Split('\\');
-            //var filename = filePathSplit[filePathSplit.Length-1];
-            //File.Copy(filePath, "Mods\\" + filename);
             if (!string.IsNullOrEmpty(filePath))
             {
                 var mL = new Mods.ModList();

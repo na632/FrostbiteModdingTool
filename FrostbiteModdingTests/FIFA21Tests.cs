@@ -1,3 +1,4 @@
+using FIFAModdingUI;
 using FrostbiteSdk.Import;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
@@ -29,6 +30,11 @@ namespace FrostbiteModdingTests
 
         public void LogError(string text, params object[] vars)
         {
+            if (prevText != text)
+            {
+                Debug.WriteLine("[LOGGER] [ERROR] " + text);
+                prevText = text;
+            }
         }
 
         public void LogWarning(string text, params object[] vars)
@@ -139,6 +145,38 @@ namespace FrostbiteModdingTests
                     Debug.WriteLine($"Injected: {dllpath}");
                 }
             }
+        }
+
+        [TestMethod]
+        public void TestFETFIFAMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", 
+                new System.Collections.Generic.List<string>() {
+                    //@"C:\Users\paula\Downloads\Villalibre Molina.fifamod"
+                    //@"E:\Origin Games\FIFA 21\fet gp change.fifamod"
+                    @"C:\Users\paula\Downloads\FCB17 [FIFA 21] FACEPACK #3 FIX\FCB17 [FIFA 21] FACEPACK #3 FIX\FCB17 Facepack #3 (fix).fifamod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestGPMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            projectManagement.FrostyProject = new FrostySdk.FrostbiteProject();
+            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbproject");
+            projectManagement.FrostyProject.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+            
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+                new System.Collections.Generic.List<string>() {
+                    //@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
         }
     }
 }

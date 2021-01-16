@@ -124,7 +124,7 @@ namespace FIFAModdingUI.Windows
                             Dispatcher.Invoke(() => {
                                 txtSaveFileStatus.Text = "Encrypting " + file;
                             });
-                            v2k4Encryption.encryptFile(file, sbFinalResult.ToString());
+                            v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
                             File.Delete(file);
                         }
 
