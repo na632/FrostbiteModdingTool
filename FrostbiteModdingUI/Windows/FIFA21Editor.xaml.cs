@@ -50,9 +50,9 @@ namespace FIFAModdingUI.Windows
             InitializeComponent();
             this.DataContext = this;
             Closing += FIFA21Editor_Closing;
-
+#if DEBUG
             CreateTestEditor();
-            
+#endif            
 
             if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {

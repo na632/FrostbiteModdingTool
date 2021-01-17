@@ -4,6 +4,7 @@ using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -81,11 +82,47 @@ namespace FIFAModdingUI.Mods
                 }
             }
 
+            public Color IconColor
+            {
+                get
+                {
+                    var pik = Color.FromArgb(255, 0, 0, 0);
+                    switch (ModType)
+                    {
+                        case "Frostbite":
+                            break;
+                        case "Legacy":
+                            break;
+                        case "Bundle":
+                            break;
+                        case "FIFA (FET)":
+                            pik = Color.Red;
+                            break;
+                    }
+                    return pik;
+                }
+            }
+
             public bool HasIssues
             {
                 get
                 {
                     return ModType == "FIFA (FET)";
+                }
+            }
+
+            public string Warning
+            {
+                get
+                {
+                    if (HasIssues)
+                    {
+                        return "This mod type may have problems or missing features on this launcher.";
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
                 }
             }
 
@@ -95,6 +132,8 @@ namespace FIFAModdingUI.Mods
                 {
                     case "Frostbite":
                         return new FrostbiteMod(Path);
+                    case "FIFA (FET)":
+                        return new FIFAMod(string.Empty, Path);
                 }
                 return null;
             }
@@ -128,7 +167,7 @@ namespace FIFAModdingUI.Mods
                     {
                         if (fbm.ModDetails != null)
                         {
-                            return fbm.ModDetails.Title + "(" + fbm.ModDetails.Version + ")";
+                            return fbm.ModDetails.Title + " (" + fbm.ModDetails.Version + ")";
                         }
                     }
                     return fileInfo.Name;

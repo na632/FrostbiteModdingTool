@@ -507,8 +507,6 @@ namespace FIFAModdingUI
                     txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
                     chkUseSymbolicLink.Visibility = Visibility.Collapsed;
                     chkUseSymbolicLink.IsChecked = false;
-                    btnLaunchOtherTool.Visibility = Visibility.Visible;
-                    btnLaunchOtherTool.IsEnabled = true;
                 }
 
                 if(GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())

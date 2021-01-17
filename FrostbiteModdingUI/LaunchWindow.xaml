@@ -60,13 +60,13 @@
                                                 <ColumnDefinition></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock FontSize="9" Grid.Column="0" Text="{Binding Path}"></TextBlock>
+                                            <TextBlock FontSize="9" Grid.Column="1" Text="{Binding Warning}"></TextBlock>
                                         </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                     </ListBox>
                         <Button x:Name="btnLaunch" Click="btnLaunch_Click" IsEnabled="False">Launch</Button>
-                        <Button x:Name="btnLaunchOtherTool" Click="btnLaunchOtherTool_Click" Visibility="Hidden" IsEnabled="False">Launch lmods with Other Tool</Button>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Margin="5">
                     <Button x:Name="btnUp" Click="up_click">
