@@ -76,6 +76,9 @@ namespace FIFAModdingUI.Windows
 
         private void FIFA21Editor_Closing(object sender, CancelEventArgs e)
         {
+            ProjectManagement.Instance = null;
+            AssetManager.Instance = null;
+
             new MainWindow().Show();
         }
 
@@ -298,7 +301,7 @@ namespace FIFAModdingUI.Windows
                         Log("Saved mod successfully to " + saveFileDialog.FileName);
                     }
                 }
-
+                /*
                 if (ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true).Count() > 0)
                 {
                     saveFileDialog.Filter = "Legacy Mod files|*.lmod";
@@ -335,6 +338,7 @@ namespace FIFAModdingUI.Windows
                         });
                     }
                 }
+                */
             }
             catch(Exception SaveException)
             {

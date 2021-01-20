@@ -52,7 +52,6 @@ namespace FIFAModExtractor
             if (FIFAModFilePath.Contains("paulv2k4", StringComparison.OrdinalIgnoreCase))
                 return false;
 
-
             return true;
         }
 
@@ -81,6 +80,7 @@ namespace FIFAModExtractor
             if (!CanReadFIFAModFile(filePath) || !FIFAModFileInfo.Exists)
                 return new ObservableCollection<BaseModResource>(items);
 
+
             switch (FIFAModFileInfo.Extension)
             {
                 case ".fifamod":
@@ -91,7 +91,16 @@ namespace FIFAModExtractor
                     break;
             }
 
-            items = ModFile.Resources.ToList();
+            if (ModFile != null)
+            {
+                if(ModFile is FrostbiteMod)
+                {
+                    if(((FrostbiteMod)ModFile).IsEncrypted)
+                        return new ObservableCollection<BaseModResource>(items);
+                }
+
+                items = ModFile.Resources.ToList();
+            }
             return new ObservableCollection<BaseModResource>(items);
         }
 

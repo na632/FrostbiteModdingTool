@@ -208,8 +208,9 @@ namespace FIFA21Plugin
             var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
             var dataFileCount = dataFiles.Count();
             var indexOfDataFile = 0;
-            ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
-            Parallel.ForEach(dataFiles, (f) =>
+            //ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+            //Parallel.ForEach(dataFiles, (f) =>
+            foreach (var f in dataFiles)
             {
                 var finalDestination = f.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
 
@@ -233,7 +234,7 @@ namespace FIFA21Plugin
 
                 if (fIDest.Exists && finalDestination.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                 {
-                   
+
                     if (
                         fIDest.Length != fIOrig.Length
                         || fIDest.LastWriteTime.Ticks != fIOrig.LastWriteTime.Ticks
@@ -242,7 +243,7 @@ namespace FIFA21Plugin
                         File.Delete(finalDestination);
                     }
                 }
-                
+
                 if (!File.Exists(finalDestination))
                 {
                     // Quick Copy
@@ -265,7 +266,8 @@ namespace FIFA21Plugin
 
                 if (Copied)
                     logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
-            });
+                //});
+            }
         }
 
         public static void CopyFile(string inputFilePath, string outputFilePath)

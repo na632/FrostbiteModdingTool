@@ -10,17 +10,17 @@
              xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
              mc:Ignorable="d" 
              d:DesignHeight="720" d:DesignWidth="1280">
-    <Grid>
+    <Grid VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <GridSplitter Grid.Column="0"></GridSplitter>
-        <Grid MaxHeight="300"  Grid.Column="0" Grid.Row="0">
+        <Grid VerticalAlignment="Stretch" MaxHeight="300"  Grid.Column="0" Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition></RowDefinition>
@@ -54,7 +54,7 @@
                 </TreeView.ItemTemplate>
             </TreeView>
         </Grid>
-            <ListView Grid.Column="0" Grid.Row="1" x:Name="assetListView" 
+            <ListView VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Column="0" Grid.Row="1" x:Name="assetListView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible" 
                       Height="200" MaxHeight="200"
                       BorderBrush="LightGray" 
@@ -64,7 +64,7 @@
                       SelectionChanged="assetListView_SelectionChanged"
                       >
                 <ListView.View>
-                    <GridView >
+                    <GridView  >
                         <GridViewColumn Width="200" Header="Name">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
