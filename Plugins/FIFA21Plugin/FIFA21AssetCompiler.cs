@@ -223,7 +223,7 @@ namespace FIFA21Plugin
                 }
 
 
-                if (!finalDestination.Contains("moddata"))
+                if (!finalDestination.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new Exception("Incorrect Copy of Files to ModData");
                 }
@@ -231,7 +231,7 @@ namespace FIFA21Plugin
                 var fIDest = new FileInfo(finalDestination);
                 var fIOrig = new FileInfo(f);
 
-                if (fIDest.Exists && finalDestination.Contains("moddata"))
+                if (fIDest.Exists && finalDestination.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                 {
                    
                     if (
@@ -256,7 +256,8 @@ namespace FIFA21Plugin
                     }
                     else
                     {
-                        File.Copy(f, finalDestination);
+                        //File.Copy(f, finalDestination);
+                        CopyFile(f, finalDestination);
                     }
                     Copied = true;
                 }
@@ -265,6 +266,26 @@ namespace FIFA21Plugin
                 if (Copied)
                     logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
             });
+        }
+
+        public static void CopyFile(string inputFilePath, string outputFilePath)
+        {
+            using (var inStream = new FileStream(inputFilePath, FileMode.Open))
+            {
+                int bufferSize = 1024 * 1024;
+
+                using (FileStream fileStream = new FileStream(outputFilePath, FileMode.OpenOrCreate, FileAccess.Write))
+                {
+                    fileStream.SetLength(inStream.Length);
+                    int bytesRead = -1;
+                    byte[] bytes = new byte[bufferSize];
+
+                    while ((bytesRead = inStream.Read(bytes, 0, bufferSize)) > 0)
+                    {
+                        fileStream.Write(bytes, 0, bytesRead);
+                    }
+                }
+            }
         }
     }
 }

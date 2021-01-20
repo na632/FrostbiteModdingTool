@@ -686,7 +686,10 @@ namespace FIFAModdingUI.Pages.Common
 								{
 									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
+									btnImport.IsEnabled = true;
 									btnExport.IsEnabled = true;
+									btnRevert.IsEnabled = true;
+
 									TextViewer.Visibility = Visibility.Visible;
 									using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
 									{
@@ -839,18 +842,25 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnRevert_Click(object sender, RoutedEventArgs e)
         {
-			if(SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture" || SelectedEntry.Type == "SkinnedMeshAsset")
-            {
-				AssetManager.Instance.RevertAsset(SelectedEntry);
-			}
-			else if (EBXViewer.Children.Count > 0)
+			if (SelectedEntry != null)
 			{
-				var ebxviewer = EBXViewer.Children[0] as Editor;
-				if (ebxviewer != null)
+				if (SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture" || SelectedEntry.Type == "SkinnedMeshAsset")
 				{
-					ebxviewer.RevertAsset();
+					AssetManager.Instance.RevertAsset(SelectedEntry);
+				}
+				else if (EBXViewer.Children.Count > 0)
+				{
+					var ebxviewer = EBXViewer.Children[0] as Editor;
+					if (ebxviewer != null)
+					{
+						ebxviewer.RevertAsset();
+					}
 				}
 			}
+			else if (SelectedLegacyEntry != null)
+            {
+				AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
+            }
 			
 
         }
@@ -880,11 +890,15 @@ namespace FIFAModdingUI.Pages.Common
 
         private void TextViewer_LostFocus(object sender, RoutedEventArgs e)
         {
-			var bytes = ASCIIEncoding.ASCII.GetBytes(TextViewer.Text);
+			var bytes = ASCIIEncoding.UTF8.GetBytes(TextViewer.Text);
 
-			AssetManager.Instance.ModifyCustomAsset("legacy"
-						, SelectedLegacyEntry.Name
-						, bytes);
+			if (SelectedLegacyEntry != null)
+			{
+				AssetManager.Instance.ModifyCustomAsset("legacy"
+							, SelectedLegacyEntry.Name
+							, bytes);
+				UpdateAssetListView();
+			}
 		}
 
         private void TextBlock_PreviewKeyUp(object sender, KeyEventArgs e)

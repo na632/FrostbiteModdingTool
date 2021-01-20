@@ -275,8 +275,6 @@ namespace FIFA21Plugin
                     CachedBundle.LastCatalogId = catalog;
                 }
 
-
-
             }
 
             for (int indexRes = 0; indexRes < dbObject.GetValue<DbObject>("res").Count; indexRes++)

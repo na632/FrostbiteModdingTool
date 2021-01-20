@@ -3,11 +3,13 @@ using FrostbiteSdk.Import;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Interfaces;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
@@ -174,6 +176,42 @@ namespace FrostbiteModdingTests
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
                 new System.Collections.Generic.List<string>() {
                     //@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestLegacyMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            projectManagement.FrostyProject = new FrostySdk.FrostbiteProject();
+            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\test legacy.fbproject");
+
+            var allPlayerLua = AssetManager.Instance.EnumerateCustomAssets("legacy").Where(x => x.Filename.Contains("player", System.StringComparison.OrdinalIgnoreCase));
+            var ca = AssetManager.Instance.GetCustomAsset("legacy", AssetManager.Instance.GetCustomAssetEntry("legacy", "data/fifarna/lua/boot.lua"));
+            byte[] data = null;
+            using (NativeReader nr = new NativeReader(ca))
+            {
+                nr.Position = 0;
+                data = nr.ReadToEnd();
+            }
+
+            var editedStream = new MemoryStream();
+            using (NativeWriter nw = new NativeWriter(editedStream, leaveOpen: true))
+            {
+                nw.Write(data);
+                nw.Write(Encoding.UTF8.GetBytes("HELLO_WORLD = true"));
+                nw.Position = 0;
+            }
+
+            AssetManager.Instance.ModifyCustomAsset("legacy", "data/fifarna/lua/boot.lua", new NativeReader(editedStream).ReadToEnd());
+
+            projectManagement.FrostyProject.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+                new System.Collections.Generic.List<string>() {
                     "test.fbmod"
                 }.ToArray()).Wait();
 

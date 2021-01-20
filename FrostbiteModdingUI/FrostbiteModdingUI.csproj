@@ -42,9 +42,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="..\Libraries\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json" />
     <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

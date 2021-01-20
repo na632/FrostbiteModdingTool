@@ -94,7 +94,7 @@ namespace v2k4FIFAModdingCL
 
         public static void InjectDLL(string dllpath)
         {
-            Thread.Sleep(5000);
+            Thread.Sleep(1500);
 
             dllpath = dllpath.Replace(@"\\\\", @"\");
             dllpath = dllpath.Replace(@"\\", @"\");
@@ -104,16 +104,30 @@ namespace v2k4FIFAModdingCL
                 while (!proc.HasValue || proc == 0)
                 {
                     Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
+                    Thread.Sleep(500);
                     proc = GetProcIDFromName(GAMEVERSION);
-                    Thread.Sleep(5000);
                 }
                 if (proc.HasValue)
                 {
                     Debug.WriteLine($"About to inject: {dllpath}");
-                    Thread.Sleep(1000);
-                    var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
-                    bl.InjectDll();
-                    Debug.WriteLine($"Injected: {dllpath}");
+                    Thread.Sleep(100);
+                    bool alreadyExists = false;
+
+                    var dll_File = dllpath.Split('\\')[dllpath.Split('\\').Length - 1];
+                    dll_File = dll_File.Replace(".dll", "");
+                    foreach (ProcessModule m in Process.GetProcessById(proc.Value).Modules)
+                    {
+                        if (m.FileName.Contains(dll_File, StringComparison.OrdinalIgnoreCase))
+                        {
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyExists) {
+                        var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
+                        bl.InjectDll();
+                        Debug.WriteLine($"Injected: {dllpath}");
+                    }
                 }
             }
             else

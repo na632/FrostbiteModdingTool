@@ -185,7 +185,7 @@
                     <Label>Image Size:</Label>
                     <Label x:Name="lblImageSize"></Label>
                 </StackPanel>
-                <Image Grid.Row="1" x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="512" MaxHeight="512">
+                <Image Grid.Row="1" x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="256" MaxHeight="256">
 
                 </Image>
                 <StackPanel  Grid.Row="2" Background="White" Orientation="Horizontal">
@@ -198,10 +198,16 @@
                 </StackPanel>
             </Grid>
 
-            <TextBox Grid.Row="1" x:Name="TextViewer" MaxHeight="400" MaxLines="999999" 
+            <TextBox Grid.Row="1" x:Name="TextViewer" MaxLines="999999" 
                      Visibility="Collapsed"
+                      AcceptsReturn="True"
+                     AcceptsTab="True"
                      ScrollViewer.VerticalScrollBarVisibility="Visible"
                       LostFocus="TextViewer_LostFocus"
+                     VerticalContentAlignment="Stretch"
+                     VerticalAlignment="Stretch"
+                     HorizontalAlignment="Stretch"
+                     HorizontalContentAlignment="Stretch"
                      >
 
             </TextBox>

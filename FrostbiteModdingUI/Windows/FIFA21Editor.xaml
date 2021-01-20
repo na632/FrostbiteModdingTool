@@ -86,6 +86,7 @@
                             <Label Content="Browse for Game" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>-->
+                    <CheckBox x:Name="chkEnableLegacyInjection" Content="Enable Legacy Injection" IsChecked="False"></CheckBox>
                     <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
                         <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
@@ -111,10 +112,10 @@
                     <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible">
                         <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
                     </TabItem>
-                    <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
+                    <TabItem x:Name="TabGameplay" Header="Gameplay">
                         <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
                     </TabItem>
-                    <TabItem x:Name="TabLegacy" Header="Legacy">
+                    <TabItem x:Name="TabLegacy" Header="Legacy" Selector.IsSelected="True">
                         <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
                     </TabItem>
 

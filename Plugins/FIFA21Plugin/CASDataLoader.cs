@@ -199,10 +199,7 @@ namespace FIFA21Plugin
 
                             dbObject.AddValue("SB_Guid_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                             Guid guid = inner_reader.ReadGuid(Endian.Little);
-                            if (guid.ToString() == "c03a15a9-6747-22dd-c760-af2e149e6223") // Juventus Test
-                            {
-
-                            }
+                            
                             dbObject.AddValue("SB_LogicalOffset_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                             uint logicalOffset = inner_reader.ReadUInt(Endian.Little);
                             dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));

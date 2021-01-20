@@ -5461,8 +5461,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         FileInfo fileInfo2 = new FileInfo(rootPath + f);
                         
                         Logger.Log("Loading mod " + fileInfo2.Name);
-
-                        var fbmod = new FrostbiteMod(new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read));
+                        using var fsFBMod = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
+                        var fbmod = new FrostbiteMod(fsFBMod);
                         frostyMods.Add(new MemoryStream(fbmod.ModBytes.ToArray()), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
                     }
 

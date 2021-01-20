@@ -451,26 +451,41 @@ namespace FIFAModdingUI.Windows
             ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
-            var modifiedLegacy = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true).ToList();
-            
-            modifiedLegacy.ForEach(
-                entry => 
-                {
+            if (chkEnableLegacyInjection.IsChecked.HasValue && chkEnableLegacyInjection.IsChecked.Value)
+            {
+                var modifiedLegacy = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true).ToList();
 
-                    var extractPath = AssetManager.Instance.fs.BasePath + "/LegacyMods/Legacy/" + entry.Path;
-                    if(!string.IsNullOrEmpty(extractPath))
+                modifiedLegacy.ForEach(
+                    entry =>
                     {
-                        if(!Directory.Exists(extractPath))
-                            Directory.CreateDirectory(extractPath);
 
-                        if (File.Exists(extractPath + "/" + entry.Filename + ".mod"))
+                        var extractPath = AssetManager.Instance.fs.BasePath + "/LegacyMods/Legacy/" + entry.Path;
+                        if (!string.IsNullOrEmpty(extractPath))
                         {
+                            if (!Directory.Exists(extractPath))
+                                Directory.CreateDirectory(extractPath);
 
+
+                            if (File.Exists(extractPath + "/" + entry.Filename + ".mod"))
+                            {
+                                File.Delete(extractPath + "/" + entry.Filename + ".mod");
+                            }
+
+                            var aE = AssetManager.Instance.GetCustomAssetEntry("legacy", "");
+                            if (aE != null)
+                            {
+                                var streamAsset = AssetManager.Instance.GetCustomAsset("legacy", aE);
+                                if (streamAsset != null)
+                                {
+                                    var bytes = new NativeReader(streamAsset).ReadToEnd();
+                                    File.WriteAllBytes(extractPath + "/" + entry.Filename + "." + entry.Type, bytes);
+                                }
+                            }
                         }
-                    }
 
-                
-                });
+
+                    });
+            }
             await Task.Run(() =>
             {
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
@@ -486,26 +501,37 @@ namespace FIFAModdingUI.Windows
 
         private void InjectLegacyDLL()
         {
-            string legacyModSupportFile = null;
-            if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
+            if (chkEnableLegacyInjection.IsChecked.HasValue && chkEnableLegacyInjection.IsChecked.Value)
             {
-                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
-            }
-            else if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
-            {
-                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
-            }
-
-            if (!string.IsNullOrEmpty(legacyModSupportFile))
-            {
-
-                if (File.Exists(legacyModSupportFile))
+                string legacyModSupportFile = null;
+                if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
                 {
-                    File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
+                    legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                }
+                else if (ProfilesLibrary.IsFIFA21DataVersion())
+                {
+                    legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
                 }
 
-                var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
-                GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                if (!string.IsNullOrEmpty(legacyModSupportFile))
+                {
+
+                    if (File.Exists(legacyModSupportFile))
+                    {
+                        if (File.Exists(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll"))
+                            File.Delete(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
+
+                        File.Copy(legacyModSupportFile, GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
+
+                        if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll"))
+                        {
+                            var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                            GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                        }
+                    }
+
+
+                }
             }
         }
 
