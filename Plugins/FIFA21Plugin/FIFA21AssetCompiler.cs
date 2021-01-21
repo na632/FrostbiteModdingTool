@@ -63,142 +63,21 @@ namespace FIFA21Plugin
                 return false;
             }
 
-            // ------------------------------------------------------------------------------------------
-            // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
-            //if (ProfilesLibrary.IsFIFA21DataVersion())
-            //{
-                DbObject layoutToc = null;
+            // Notify the Bundle Action of the Cas File Count
+            FIFA21BundleAction.CasFileCount = fs.CasFileCount;
 
-                // Read the original Layout TOC into a DB Object
-                //using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + PatchDirectory + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                //{
-                //    layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
-                //}
-
-                // Notify the Bundle Action of the Cas File Count
-                FIFA21BundleAction.CasFileCount = fs.CasFileCount;
-                List<FIFA21BundleAction> madden21BundleActions = new List<FIFA21BundleAction>();
-
-                var numberOfCatalogs = fs.Catalogs.Count();
-                var numberOfCatalogsCompleted = 0;
-
-            //if (!((FrostyModExecutor)frostyModExecuter).UseSymbolicLinks)
-            //{
-            //logger.Log("No Symbolic Link - Copying files from Data to ModData");
-            //CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
-
-            //Task.WaitAll(tasks);
-            //}
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-            //if (Directory.Exists(fs.BasePath + ModDirectory + "\\Data"))
-            //    {
-            //        logger.Log("Deleting TOC/SB files from ModData/Data");
-            //        foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.sb", SearchOption.AllDirectories))
-            //        {
-            //            File.Delete(sbFileLocation);
-            //        }
-            //        foreach (string tocFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\Data\\", "*.toc", SearchOption.AllDirectories))
-            //        {
-            //            File.Delete(tocFileLocation);
-            //        }
-
-            //    }
-
-            //    if (Directory.Exists(fs.BasePath + ModDirectory + "\\" + PatchDirectory))
-            //    {
-            //        logger.Log("Deleting CAS files from ModData/Patch");
-            //        //foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.cas", SearchOption.AllDirectories))
-            //        //{
-            //        //    File.Delete(casFileLocation);
-            //        //}
-            //        foreach (string sbFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.sb", SearchOption.AllDirectories))
-            //        {
-            //            File.Delete(sbFileLocation);
-            //        }
-            //        foreach (string tocFileLocation in Directory.EnumerateFiles(fs.BasePath + ModDirectory + "\\" + PatchDirectory, "*.toc", SearchOption.AllDirectories))
-            //        {
-            //            File.Delete(tocFileLocation);
-            //        }
-
-            //    }
-                // Copied Patch CAS files from Patch to Mod Data Patch
-                //DirectoryCopy(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "//" + PatchDirectory, true);
+            var fme = (FrostyModExecutor)frostyModExecuter;
+            
             logger.Log("Copying files from Data to ModData/Data");
             CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
             logger.Log("Copying files from Patch to ModData/Patch");
             CopyDataFolder(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "\\" + PatchDirectory, logger);
 
-            //foreach (CatalogInfo catalogItem in fs.EnumerateCatalogInfos())
-            //{
-            var fme = (FrostyModExecutor)frostyModExecuter;
-
             FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction(fme);
             return fifaBundleAction.Run();
-
-            //Plugin2.Execution.Plugin2Executer plugin2Executer = new Plugin2.Execution.Plugin2Executer(AssetManager.Instance.fs, KeyManager.Instance, "ModData");
-            //plugin2Executer.Logger = logger;
-            //plugin2Executer.modifiedEbx = fme.modifiedEbx;
-            //plugin2Executer.modifiedRes = fme.modifiedRes;
-            //plugin2Executer.modifiedChunks = fme.modifiedChunks;
-            //plugin2Executer.archiveData = fme.archiveData;
-            //return plugin2Executer.BuildFIFA21Mods("Patch", "ModData").Result;
-
-                //FIFA21ContentPatchBuilder contentPatchBuilder = new FIFA21ContentPatchBuilder((FrostyModExecutor)frostyModExecuter);
-                //contentPatchBuilder.TransferDataToPatch();
-
-                //numberOfCatalogsCompleted++;
-                //logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
-                //}
-                // --------------------------------------------------------------------------------------
-
-
-                // --------------------------------------------------------------------------------------
-                // From the new bundles that have been created that has generated new CAS files, add these new CAS files to the Layout TOC
-                //foreach (FIFA21BundleAction bundleAction in madden21BundleActions)
-                //{
-                //    if (bundleAction.HasErrored)
-                //    {
-                //        throw bundleAction.Exception;
-                //    }
-                //    if (bundleAction.CasFiles.Count > 0)
-                //    {
-                //        var installManifest = layoutToc.GetValue<DbObject>("installManifest");
-                //        var installChunks = installManifest.GetValue<DbObject>("installChunks");
-                //        foreach (DbObject installChunk in installChunks)
-                //        {
-                //            if (bundleAction.CatalogInfo.Name.Equals("win32/" + installChunk.GetValue<string>("name")))
-                //            {
-                //                foreach (int key in bundleAction.CasFiles.Keys)
-                //                {
-                //                    DbObject newFile = DbObject.CreateObject();
-                //                    newFile.SetValue("id", key);
-                //                    newFile.SetValue("path", bundleAction.CasFiles[key]);
-
-                //                    var installChunkFiles = installChunk.GetValue<DbObject>("files");
-                //                    installChunkFiles.Add(newFile);
-
-
-                //                }
-                //                break;
-                //            }
-                //        }
-                //    }
-                //}
-
-
-                // --------------------------------------------------------------------------------------
-                // Write a new Layout file
-                //logger.Log("Writing new Layout file to Game");
-                //using (DbWriter dbWriter = new DbWriter(new FileStream(ModDirectory + PatchDirectory + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                //{
-                //    dbWriter.Write(layoutToc);
-                //}
-                // --------------------------------------------------------------------------------------
-
-            //}
-            //return false;
         }
 
         private static void CopyDataFolder(string from_datafolderpath, string to_datafolderpath, ILogger logger)
@@ -210,47 +89,66 @@ namespace FIFA21Plugin
             var indexOfDataFile = 0;
             //ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
             //Parallel.ForEach(dataFiles, (f) =>
-            foreach (var f in dataFiles)
+            foreach (var originalFilePath in dataFiles)
             {
-                var finalDestination = f.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
+                var finalDestinationPath = originalFilePath.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
 
                 bool Copied = false;
 
-                var lastIndexOf = finalDestination.LastIndexOf("\\");
-                var newDirectory = finalDestination.Substring(0, lastIndexOf) + "\\";
+                var lastIndexOf = finalDestinationPath.LastIndexOf("\\");
+                var newDirectory = finalDestinationPath.Substring(0, lastIndexOf) + "\\";
                 if (!Directory.Exists(newDirectory))
                 {
                     Directory.CreateDirectory(newDirectory);
                 }
 
 
-                if (!finalDestination.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                if (!finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new Exception("Incorrect Copy of Files to ModData");
                 }
 
-                var fIDest = new FileInfo(finalDestination);
-                var fIOrig = new FileInfo(f);
+                var fIDest = new FileInfo(finalDestinationPath);
+                var fIOrig = new FileInfo(originalFilePath);
 
-                if (fIDest.Exists && finalDestination.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                if (fIDest.Exists && finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                 {
+                    var isCas = fIDest.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase);
 
                     if (
-                        fIDest.Length != fIOrig.Length
-                        || fIDest.LastWriteTime.Ticks != fIOrig.LastWriteTime.Ticks
+                        isCas
+                        && fIDest.Length != fIOrig.Length
                         )
                     {
-                        File.Delete(finalDestination);
+                        fIDest.Delete();
+                    }
+                    else if 
+                        (
+                            !isCas
+                            && 
+                            (
+                                fIDest.Length != fIOrig.Length
+                                || 
+                                    (
+                                        //fIDest.LastWriteTime.Day != fIOrig.LastWriteTime.Day
+                                        //&& fIDest.LastWriteTime.Hour != fIOrig.LastWriteTime.Hour
+                                        //&& fIDest.LastWriteTime.Minute != fIOrig.LastWriteTime.Minute
+                                        !File.ReadAllBytes(finalDestinationPath).SequenceEqual(File.ReadAllBytes(originalFilePath))
+                                    )
+                            )
+                        )
+                    {
+                        File.Delete(finalDestinationPath);
                     }
                 }
 
-                if (!File.Exists(finalDestination))
+                if (!File.Exists(finalDestinationPath))
                 {
                     // Quick Copy
                     if (fIOrig.Length < 1024 * 100)
                     {
-                        using (var inputStream = new NativeReader(File.Open(f, FileMode.Open)))
-                        using (var outputStream = new NativeWriter(File.Open(finalDestination, FileMode.Create)))
+                        using (var inputStream = new NativeReader(File.Open(originalFilePath, FileMode.Open)))
+                        using (var outputStream = new NativeWriter(File.Open(finalDestinationPath, FileMode.Create)))
                         {
                             outputStream.Write(inputStream.ReadToEnd());
                         }
@@ -258,14 +156,14 @@ namespace FIFA21Plugin
                     else
                     {
                         //File.Copy(f, finalDestination);
-                        CopyFile(f, finalDestination);
+                        CopyFile(originalFilePath, finalDestinationPath);
                     }
                     Copied = true;
                 }
                 indexOfDataFile++;
 
                 if (Copied)
-                    logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {f}");
+                    logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {originalFilePath}");
                 //});
             }
         }
