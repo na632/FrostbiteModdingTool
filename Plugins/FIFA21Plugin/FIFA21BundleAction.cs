@@ -323,10 +323,28 @@ namespace FIFA21Plugin
                                     var out_data = new CasReader(new MemoryStream(data)).Read();
                                     origSize = out_data.Length;
 
+                                    var useCas = false;// string.IsNullOrEmpty(originalEntry.SBFileLocation);
+                                    //if (useCas) 
+                                    //{
+                                    //    if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
+                                    //    {
+                                    //        nwCas.Position = originalEntry.SB_OriginalSize_Position;
+                                    //        nwCas.Write((uint)origSize, Endian.Little);
+                                    //    }
+
+                                    //    if (originalEntry.SB_Sha1_Position != 0 && modItem.Item1 != Sha1.Zero)
+                                    //    {
+                                    //        nwCas.Position = originalEntry.SB_Sha1_Position;
+                                    //        nwCas.Write(modItem.Item1);
+                                    //    }
+                                    //}
+
 
                                     //parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
                                     //Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
+                                    //EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, !useCas ? origSize : 0, !useCas ? modItem.Item1 : Sha1.Zero));
                                     EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Item1));
+
 
                                     bool patchedInSb = false;
                                     //patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
@@ -383,17 +401,22 @@ namespace FIFA21Plugin
                                     nw_sb.Write((uint)positionOfNewData, Endian.Big);
                                     nw_sb.Write((uint)sizeOfData, Endian.Big);
 
-                                    if(assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
-                                    {
-                                        nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
-                                        nw_sb.Write((uint)originalSizeOfData, Endian.Little);
-                                    }
 
-                                    if (assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
-                                    {
-                                        nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
-                                        nw_sb.Write(sha);
-                                    }
+                                    //if(nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                    //    &&
+                                    //    assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
+                                    //{
+                                    //    nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
+                                    //    nw_sb.Write((uint)originalSizeOfData, Endian.Little);
+                                    //}
+
+                                    //if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                    //    &&
+                                    //    assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
+                                    //{
+                                    //    nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
+                                    //    nw_sb.Write(sha);
+                                    //}
                                 }
                             }
                         }

@@ -8,10 +8,22 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 Modding Tool 2021 Launcher" Height="800" Width="1000" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
-    <DockPanel>
-        <StackPanel DockPanel.Dock="Top" VerticalAlignment="Top">
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+        Title="paulv2k4 Modding Tool 2021 Launcher"
+        Height="800"
+        Width="1000"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        HorizontalContentAlignment="Stretch"
+        VerticalContentAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" HorizontalAlignment="Right" Orientation="Horizontal">
                 <Label Height="30">Profiles: </Label>
                 <ComboBox Width="150" x:Name="cbProfiles" SelectionChanged="cbProfiles_SelectionChanged" Margin="0,10,10,10" IsEnabled="False">
                     
@@ -33,114 +45,153 @@
                     <MaterialDesign:PackIcon Kind="Power" />
                 </Button>
             </StackPanel>
-            <StackPanel>
-                <TextBlock x:Name="txtWarningAboutPersonalSettings" Visibility="Hidden"  Background="LightYellow">WARNING: This launcher causes FIFA 21 to delete its "Personal Settings" on first load. I'm sorry about that and I have no fix!</TextBlock>
-                <Grid Margin="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="700"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Margin="5">
-                    <Label FontSize="14" FontWeight="Bold">Your mod list</Label>
-                    <ListBox x:Name="listMods" BorderThickness="1" Height="200" SelectionChanged="listMods_SelectionChanged">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition></RowDefinition>
-                                            <RowDefinition></RowDefinition>
-                                        </Grid.RowDefinitions>
-                                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                            <MaterialDesign:PackIcon Kind="{Binding MaterialDesignKindIcon}" VerticalAlignment="Center" />
-                                            <TextBlock FontWeight="Bold" Text="{Binding}"  VerticalAlignment="Center"></TextBlock>
-                                        </StackPanel>
-                                        <Grid Grid.Row="1">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition></ColumnDefinition>
-                                                <ColumnDefinition></ColumnDefinition>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock FontSize="9" Grid.Column="0" Text="{Binding Path}"></TextBlock>
-                                            <TextBlock FontSize="9" Grid.Column="1" Text="{Binding Warning}"></TextBlock>
-                                        </Grid>
+        <TextBlock Grid.Row="1" x:Name="txtWarningAboutPersonalSettings" Visibility="Hidden"  Background="LightYellow">WARNING: This launcher causes FIFA 21 to delete its "Personal Settings" on first load. I'm sorry about that and I have no fix!</TextBlock>
+
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="700"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="5">
+                <Label FontSize="14" FontWeight="Bold">Your mod list</Label>
+                <ListBox x:Name="listMods" BorderThickness="1" Height="200" SelectionChanged="listMods_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                        <MaterialDesign:PackIcon Kind="{Binding MaterialDesignKindIcon}" VerticalAlignment="Center" />
+                                        <TextBlock FontWeight="Bold" Text="{Binding}"  VerticalAlignment="Center"></TextBlock>
+                                    </StackPanel>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="9" Grid.Column="0" Text="{Binding Path}"></TextBlock>
+                                        <TextBlock FontSize="9" Grid.Column="1" Text="{Binding Warning}"></TextBlock>
                                     </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                    </ListBox>
-                        <Button x:Name="btnLaunch" Click="btnLaunch_Click" IsEnabled="False">Launch</Button>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="5">
-                    <Button x:Name="btnUp" Click="up_click">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ArrowUpCircleOutline" VerticalAlignment="Center" />
-                            <Label Content="Up" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnDown" Click="down_click">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ArrowDownCircleOutline" VerticalAlignment="Center" />
-                            <Label Content="Down" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnRemove" Click="btnRemove_Click">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="RemoveCircleOutline" VerticalAlignment="Center" />
-                            <Label Content="Remove" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnAdd" Click="btnAdd_Click">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
-                            <Label Content="Import" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <CheckBox x:Name="chkInstallLocale" IsChecked="False">Install locale.ini from gameplay mods</CheckBox>
-                    <CheckBox x:Name="chkUseFileSystem" IsEnabled="False" Visibility="Hidden">Use Original Frosty Launcher</CheckBox>
-                    <CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu's Live Editor (if present)</CheckBox>
-                    <CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>
-                    <CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>
-                    <CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>
-                </StackPanel>
-            </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                </ListBox>
+                    <Button x:Name="btnLaunch" Click="btnLaunch_Click" IsEnabled="False">Launch</Button>
             </StackPanel>
-            <TabControl x:Name="TabCont">
-                <Controls:MetroTabItem x:Name="tabLog" Header="Log">
-                    <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <StackPanel Grid.Column="1" Margin="5">
+                <Button x:Name="btnUp" Click="up_click">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="ArrowUpCircleOutline" VerticalAlignment="Center" />
+                        <Label Content="Up" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnDown" Click="down_click">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="ArrowDownCircleOutline" VerticalAlignment="Center" />
+                        <Label Content="Down" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnRemove" Click="btnRemove_Click">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="RemoveCircleOutline" VerticalAlignment="Center" />
+                        <Label Content="Remove" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnAdd" Click="btnAdd_Click">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
+                        <Label Content="Import" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <CheckBox x:Name="chkInstallLocale" IsChecked="False">Install locale.ini from gameplay mods</CheckBox>
+                <CheckBox x:Name="chkUseFileSystem" IsEnabled="False" Visibility="Hidden">Use Original Frosty Launcher</CheckBox>
+                <CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu's Live Editor (if present)</CheckBox>
+                <CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>
+                <CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>
+                <CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>
+            </StackPanel>
+        </Grid>
+        <TabControl Grid.Row="3"
+                    VerticalContentAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    Margin="10"
+                    x:Name="TabCont">
+            <Controls:MetroTabItem x:Name="tabLog" Header="Log">
+                <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
 
-                    </TextBox>
-                </Controls:MetroTabItem>
-                <Controls:MetroTabItem x:Name="tabModDetails" Header="Mod Details">
-                    <Grid Margin="5" x:Name="pnlModDescription">
-                        <Grid.RowDefinitions>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <TextBlock x:Name="txtModTitle" Background="AliceBlue" Foreground="Black" FontSize="18"  Grid.Row="0">
-                        </TextBlock>
-                        <StackPanel Grid.Row="1">
-                            <TextBlock  FontSize="16" >Description</TextBlock>
-                            <TextBox IsReadOnly="True" x:Name="txtModDescription" Height="200" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                        ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow" />
-                        </StackPanel>
-                        <StackPanel Grid.Row="2">
-                            <TextBlock  FontSize="16" >Version</TextBlock>
-                            <TextBox IsReadOnly="True" x:Name="txtModVersion"></TextBox>
-                        </StackPanel>
-                        <StackPanel Grid.Row="3">
-                            <TextBlock  FontSize="16" >Author / Creator</TextBlock>
-                            <TextBox IsReadOnly="True" x:Name="txtModAuthor"></TextBox>
-                        </StackPanel>
+                </TextBox>
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem x:Name="tabModDetails" Header="Mod Details">
+                <Grid  x:Name="pnlModDescription">
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="txtModTitle" Background="AliceBlue" Foreground="Black" FontSize="18"  Grid.Row="0">
+                    </TextBlock>
+                    <StackPanel Grid.Row="1">
+                        <TextBlock  FontSize="16" >Description</TextBlock>
+                        <TextBox IsReadOnly="True" x:Name="txtModDescription" Height="200" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="2">
+                        <TextBlock  FontSize="16" >Version</TextBlock>
+                        <TextBox IsReadOnly="True" x:Name="txtModVersion"></TextBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="3">
+                        <TextBlock  FontSize="16" >Author / Creator</TextBlock>
+                        <TextBox IsReadOnly="True" x:Name="txtModAuthor"></TextBox>
+                    </StackPanel>
 
-                    </Grid>
+                </Grid>
 
-                </Controls:MetroTabItem>
-            </TabControl>
-        </StackPanel>
-       
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem VerticalAlignment="Stretch" 
+                                   VerticalContentAlignment="Stretch" 
+                                   x:Name="tabModFiles" 
+                                   Header="Mod Files" MaxHeight="500">
+                <Grid VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBlock FontWeight="Bold" Text="{Binding SelectedModListItem}"></TextBlock>
+                    <ListView Grid.Row="1" ItemsSource="{Binding SelectedModListItem.ModResources}" 
+                              VerticalContentAlignment="Stretch" VerticalAlignment="Stretch"
+                               ScrollViewer.VerticalScrollBarVisibility="Visible"
+                              Height="300"
+                              MaxHeight="300"
+                              >
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Width="auto" Header="Name">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="auto" Header="Size">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Size}" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Controls:MetroTabItem>
+        </TabControl>
 
-        
-        
-    </DockPanel>
+
+
+
+    </Grid>
 </Window>

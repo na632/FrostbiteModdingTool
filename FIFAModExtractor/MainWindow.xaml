@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModExtractor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Frostbite Mod Extractor" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -39,19 +39,25 @@
                 <Button IsEnabled="{Binding GamePathFound}" Grid.Column="1" x:Name="btnBrowseFIFAMod" Click="btnBrowseFIFAMod_Click">Browse *.FIFAMod</Button>
             </Grid>
             <Grid Grid.Row="1" IsEnabled="{Binding FIFAModFilePathReadable}">
-                <ListView ItemsSource="{Binding ItemsInFile}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Name}" HorizontalAlignment="Left"></TextBlock>
-                                <TextBlock Grid.Column="1" Text="{Binding Type}"  HorizontalAlignment="Center"></TextBlock>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
+                <ListView x:Name="lstModItems" ItemsSource="{Binding ItemsInFile}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" HorizontalAlignment="Left"></TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Type">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Grid.Column="1" Text="{Binding Type}"  HorizontalAlignment="Center"></TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
                 </ListView>
             </Grid>
         </Grid>

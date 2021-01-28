@@ -153,7 +153,12 @@ namespace FIFAModdingUI.Windows
                     btnProjectOpen.IsEnabled = true;
                     btnProjectSave.IsEnabled = true;
                     btnProjectWriteToMod.IsEnabled = true;
+                    btnProjectWriteToFIFAMod.IsEnabled = true;
+                    btnOpenModDetailsPanel.IsEnabled = true;
                     var wt = WindowTitle;
+                    WindowTitle = "New Project";
+                    this.DataContext = null;
+                    this.DataContext = this;
                 });
 
             });
@@ -301,46 +306,32 @@ namespace FIFAModdingUI.Windows
                         Log("Saved mod successfully to " + saveFileDialog.FileName);
                     }
                 }
-                /*
-                if (ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true).Count() > 0)
-                {
-                    saveFileDialog.Filter = "Legacy Mod files|*.lmod";
-                    resultValue = saveFileDialog.ShowDialog();
-                    saveFileDialog.FileName = saveFileDialog.FileName.Replace(".fbmod", "");
-                    if (resultValue.HasValue && resultValue.Value)
-                    {
-                        if (Directory.Exists("Temp"))
-                        {
-                            Directory.Delete("Temp", true);
-                        }
-                        Directory.CreateDirectory("Temp");
-                        foreach (var entry in ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true))
-                        {
-                            var compilePath = "Temp/" + entry.Path;
-                            if (!Directory.Exists(compilePath))
-                            {
-                                Directory.CreateDirectory(compilePath);
-                            }
-
-                            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(compilePath + "/" + entry.Filename + "." + entry.Type, FileMode.Create)))
-                            {
-                                nativeWriter.Write(new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", entry)).ReadToEnd());
-                            }
-                        }
-
-                        Task.Run(() =>
-                        {
-                            CompileLMOD(saveFileDialog.FileName);
-                        }).ContinueWith((i) => {
-                        
-
-
-                        });
-                    }
-                }
-                */
+             
             }
             catch(Exception SaveException)
+            {
+                LogError(SaveException.ToString());
+            }
+        }
+
+        private void btnProjectWriteToFIFAMod_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "FET files|*.fifamod";
+                var resultValue = saveFileDialog.ShowDialog();
+                if (resultValue.HasValue && resultValue.Value)
+                {
+                    ProjectManagement.FrostyProject.WriteToFIFAMod(saveFileDialog.FileName, ProjectManagement.FrostyProject.ModSettings);
+                    using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
+                    {
+                        Log("Saved mod successfully to " + saveFileDialog.FileName);
+                    }
+                }
+
+            }
+            catch (Exception SaveException)
             {
                 LogError(SaveException.ToString());
             }
@@ -764,6 +755,8 @@ namespace FIFAModdingUI.Windows
                 new Editor(testEbxAsset));
 
         }
+
+     
 
 
 

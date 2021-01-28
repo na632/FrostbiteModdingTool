@@ -322,7 +322,7 @@ namespace FrostbiteModdingUI.Pages.Player
                             {
                                 var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
                                 var res = AssetManager.Instance.GetRes(resentry);
-                                MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+                                MeshSet meshSet = new MeshSet(res);
 
                                 Task.Run(() =>
                                 {

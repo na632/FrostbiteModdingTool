@@ -62,7 +62,13 @@
                     <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                            <Label Content="Write to Mod" VerticalAlignment="Center" />
+                            <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="btnProjectWriteToFIFAMod"  Height="30" Click="btnProjectWriteToFIFAMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="ContentSaveAlert" VerticalAlignment="Center" />
+                            <Label Content="Save FIFA Mod (*.fifamod)" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="True">
@@ -71,7 +77,7 @@
                             <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="True">
+                    <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
                             <Label Content="Open Mod Details" VerticalAlignment="Center" />

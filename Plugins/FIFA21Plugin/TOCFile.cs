@@ -271,8 +271,8 @@ namespace FIFA21Plugin
 
 								//ParentReader.AssetManager.logger.Log($"Found {MetaData.ChunkCount} Chunks in TOC");
 
-								if (NativeFileLocation.Contains("matchcinematicssba.toc"))
-									return;
+								//if (NativeFileLocation.Contains("matchcinematicssba.toc"))
+								//	return;
 
 								for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 								{

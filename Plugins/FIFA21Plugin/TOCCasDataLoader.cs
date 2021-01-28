@@ -131,20 +131,20 @@ namespace FIFA21Plugin
 			{
 
 			
-				if (
-                    //true
-                    TOCFile.NativeFileLocation.Contains(@"win32/contentlaunchsb")
-                    || TOCFile.NativeFileLocation.Contains(@"win32/contentsb")
-                    || TOCFile.NativeFileLocation.Contains(@"win32/globalsfull")
+				//if (
+    //                //true
+    //                TOCFile.NativeFileLocation.Contains(@"win32/contentlaunchsb")
+    //                || TOCFile.NativeFileLocation.Contains(@"win32/contentsb")
+    //                || TOCFile.NativeFileLocation.Contains(@"win32/globalsfull")
 
-                    // not neccessary
-                    //|| TOCFile.NativeFileLocation.Contains(@"win32/careersba")
-                    || TOCFile.NativeFileLocation.Contains(@"win32/ui")
-                    // adboards and stadiums
-                    || TOCFile.NativeFileLocation.Contains(@"win32/worldssb")
+    //                // not neccessary
+    //                //|| TOCFile.NativeFileLocation.Contains(@"win32/careersba")
+    //                || TOCFile.NativeFileLocation.Contains(@"win32/ui")
+    //                // adboards and stadiums
+    //                || TOCFile.NativeFileLocation.Contains(@"win32/worldssb")
 
-                    || TOCFile.NativeFileLocation.Contains(@"win32/globals")
-                    )
+    //                || TOCFile.NativeFileLocation.Contains(@"win32/globals")
+    //                )
 				{
 					List<CASBundle> bundles = new List<CASBundle>();
 

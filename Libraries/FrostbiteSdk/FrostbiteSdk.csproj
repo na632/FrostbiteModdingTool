@@ -19,9 +19,4 @@
     <PackageReference Include="Vortice.Mathematics" Version="1.2.6" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Ebx\IO\" />
-    <Folder Include="IO\" />
-  </ItemGroup>
-
 </Project>

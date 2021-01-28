@@ -338,7 +338,7 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							var resentry = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
 							var res = AssetManager.Instance.GetRes(resentry);
-							MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+							MeshSet meshSet = new MeshSet(res);
 
 							try
 							{
@@ -447,7 +447,7 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							var resentry = AssetManager.Instance.GetResEntry(skinnedMeshEntry.Name);
 							var res = AssetManager.Instance.GetRes(resentry);
-							MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+							MeshSet meshSet = new MeshSet(res);
 
 							SaveFileDialog saveFileDialog = new SaveFileDialog();
 							var filt = "*.fbx";
@@ -612,7 +612,7 @@ namespace FIFAModdingUI.Pages.Common
 								{
 									var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
 									var res = AssetManager.Instance.GetRes(resentry);
-									MeshSet meshSet = new MeshSet(res, AssetManager.Instance);
+									MeshSet meshSet = new MeshSet(res);
 
 									var exporter = new MeshToFbxExporter();
 									exporter.OnlyFirstLOD = true;

@@ -143,6 +143,14 @@ namespace FIFAModdingUI.Mods
                 Path = p;
             }
 
+            public IEnumerable<BaseModResource> ModResources
+            {
+                get
+                {
+                    return GetFrostbiteMod().Resources.Where(x => x.Type != ModResourceType.Embedded);
+                }
+            }
+
             public override bool Equals(object obj)
             {
                 if(obj is ModItem)
@@ -154,7 +162,7 @@ namespace FIFAModdingUI.Mods
 
             public override int GetHashCode()
             {
-                return base.GetHashCode();
+                return Path.GetHashCode();
             }
 
             public override string ToString()

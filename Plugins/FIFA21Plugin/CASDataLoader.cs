@@ -132,6 +132,9 @@ namespace FIFA21Plugin
                             dbObject.AddValue("StringOffsetPos", num);
 
                             dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + baseBundleInfo.Offset);
+                            if (inner_reader.Position + baseBundleInfo.Offset == 0)
+                                throw new Exception("Cannot set SB_OriginalSize_Position");
+
                             uint originalSize = inner_reader.ReadUInt(Endian.Little);
                             dbObject.AddValue("originalSize", originalSize);
                             //dbObject.AddValue("size", originalSize);
@@ -335,6 +338,7 @@ namespace FIFA21Plugin
                             //ebxAssetEntry.Guid = Guid.NewGuid(); // this is not right!
 
                             ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                            ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                             ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
@@ -370,6 +374,7 @@ namespace FIFA21Plugin
 
                             resAssetEntry.CASFileLocation = NativeFileLocation;
                             resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                            resAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                             resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
@@ -402,6 +407,7 @@ namespace FIFA21Plugin
                             chunkAssetEntry.CASFileLocation = NativeFileLocation;
                             chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
+                            chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                             chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);

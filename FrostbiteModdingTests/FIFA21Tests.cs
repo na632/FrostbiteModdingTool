@@ -84,7 +84,7 @@ namespace FrostbiteModdingTests
                 {
                     var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
                     var res = project.AssetManager.GetRes(resentry);
-                    MeshSet meshSet = new MeshSet(res, project.AssetManager);
+                    MeshSet meshSet = new MeshSet(res);
 
                     var exporter = new MeshToFbxExporter();
 
@@ -110,7 +110,7 @@ namespace FrostbiteModdingTests
                 {
                     var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
                     var res = project.AssetManager.GetRes(resentry);
-                    MeshSet meshSet = new MeshSet(res, project.AssetManager);
+                    MeshSet meshSet = new MeshSet(res);
 
                     FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
                     var exporter = new MeshToFbxExporter();

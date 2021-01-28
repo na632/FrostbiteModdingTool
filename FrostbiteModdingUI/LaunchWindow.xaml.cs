@@ -3,6 +3,7 @@ using FIFAModdingUI.Windows.Profile;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
+using FrostySdk.Frosty;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Microsoft.Win32;
@@ -485,6 +486,7 @@ namespace FIFAModdingUI
 
             if (!string.IsNullOrEmpty(filePath))
             {
+                this.DataContext = this;
                 AppSettings.Settings.GameInstallEXEPath = filePath;
                 //AppSettings.Settings.Save();
 
@@ -525,6 +527,8 @@ namespace FIFAModdingUI
                     new Mods.ModList();
                 }
             }
+
+
         }
 
         public void Log(string text, params object[] vars)
@@ -547,26 +551,45 @@ namespace FIFAModdingUI
             File.WriteAllText("ErrorLog.txt", DateTime.Now.ToString() + " \n" + text);
         }
 
+        public ModList.ModItem SelectedModListItem { get; set; }
+
         private void listMods_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (this.listMods != null && this.listMods.SelectedIndex != -1 && this.listMods.SelectedItem != null) {
                 var selectedIndex = this.listMods.SelectedIndex;
-                var selectedModListItem = this.listMods.SelectedItem as ModList.ModItem;
-                if (selectedModListItem == null)
+                SelectedModListItem = this.listMods.SelectedItem as ModList.ModItem;
+                if (SelectedModListItem == null)
                     return;
 
-                var selectedMod = selectedModListItem.Path;
-                if (selectedMod.Contains(".fbmod")) {
-                        var fm = new FrostbiteMod(selectedMod);
-                        if (fm.ModDetails != null)
-                        {
-                            txtModAuthor.Text = fm.ModDetails.Author;
-                            txtModDescription.Text = fm.ModDetails.Description;
-                            txtModTitle.Text = fm.ModDetails.Title;
-                            txtModVersion.Text = fm.ModDetails.Version;
-                        }
+                this.DataContext = null;
+                this.DataContext = this;
+
+
+                var selectedMod = SelectedModListItem.Path;
+                if (selectedMod.Contains(".fbmod")) 
+                {
+                    var fm = new FrostbiteMod(selectedMod);
+                    if (fm.ModDetails != null)
+                    {
+                        txtModAuthor.Text = fm.ModDetails.Author;
+                        txtModDescription.Text = fm.ModDetails.Description;
+                        txtModTitle.Text = fm.ModDetails.Title;
+                        txtModVersion.Text = fm.ModDetails.Version;
                     }
-                    else if (selectedMod.Contains(".zip"))
+                }
+                else if (selectedMod.Contains(".fifamod"))
+                {
+                    var fm = new FIFAMod(string.Empty, selectedMod);
+                    if (fm.ModDetails != null)
+                    {
+                        txtModAuthor.Text = fm.ModDetails.Author;
+                        txtModDescription.Text = fm.ModDetails.Description;
+                        txtModTitle.Text = fm.ModDetails.Title;
+                        txtModVersion.Text = fm.ModDetails.Version;
+                    }
+
+                }
+                else if (selectedMod.Contains(".zip"))
                     {
                         txtModDescription.Text = "Includes the following mods: \n";
                         using (FileStream fsModZipped = new FileStream(selectedMod, FileMode.Open))
