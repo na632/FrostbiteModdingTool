@@ -81,20 +81,19 @@ namespace FIFA21Plugin
             List<DbObject> dbObjects = new List<DbObject>();
 
             var startOffset = nativeReader.Position;
-#if DEBUG
-            if (File.Exists("debugSB.dat"))
-                File.Delete("debugSB.dat");
-            using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
-            {
-                writer.Write(nativeReader.ReadToEnd());
-            }
-#endif
+//#if DEBUG
+//            if (File.Exists("debugSB.dat"))
+//                File.Delete("debugSB.dat");
+//            using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
+//            {
+//                writer.Write(nativeReader.ReadToEnd());
+//            }
+//#endif
             nativeReader.Position = startOffset;
             var index = 0;
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
-
 
                 BundleEntry bundleEntry = new BundleEntry
                 {
@@ -179,8 +178,8 @@ namespace FIFA21Plugin
             uint casFileForGroupOffset = binarySbReader2.ReadUInt(Endian.Big);
             dbObject.SetValue("CasFileForGroupOffset", casFileForGroupOffset);
 
-
             var unk2 = binarySbReader2.ReadUInt(Endian.Big);
+
             uint CatalogAndCASOffset = binarySbReader2.ReadUInt(Endian.Big);
             dbObject.SetValue("CatalogAndCASOffset", CatalogAndCASOffset);
 
@@ -246,8 +245,10 @@ namespace FIFA21Plugin
             {
                 if (booleanChangeOfCas[flagIndex++])
                 {
+                    //ushort byteAndBool = binarySbReader2.ReadUShort();
                     unkInBatch1 = binarySbReader2.ReadByte();
                     patchFlag = binarySbReader2.ReadBoolean();
+                    //patchFlag = Convert.ToBoolean(byteAndBool);
                     catalog = binarySbReader2.ReadByte();
                     cas = binarySbReader2.ReadByte();
                 }
@@ -262,6 +263,8 @@ namespace FIFA21Plugin
 
                 ebxObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
                 int size = binarySbReader2.ReadInt(Endian.Big);
+
+
 
                 ebxObject.SetValue("catalog", catalog);
                 ebxObject.SetValue("cas", cas);

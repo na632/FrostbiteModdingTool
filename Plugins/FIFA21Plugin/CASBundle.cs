@@ -25,16 +25,21 @@ namespace FIFA21Plugin
                 }
 
                 //return Sizes.Where(x => x < 10095655).Sum() + Offsets.Where(x => x < int.MaxValue).Sum() + DataOffset;
-                return Sizes.Where(x => x < 10095655).Sum() + BundleSize;
+                return Sizes.Sum() + BundleSize;
             } 
         }
 
         public bool Patch { get; internal set; }
 
         public List<long> TOCOffsets = new List<long>();
-        public Dictionary<long,int> TOCOffsetsToCAS = new Dictionary<long, int>();
-        public Dictionary<long,int> TOCOffsetsToCatalog = new Dictionary<long, int>();
+        //public Dictionary<long, int> TOCOffsetsToCAS = new Dictionary<long, int>();
+        //public Dictionary<long, int> TOCOffsetsToCatalog = new Dictionary<long, int>();
+        //public Dictionary<long, bool> TOCOffsetsToPatch = new Dictionary<long, bool>();
 
         public List<long> TOCSizes = new List<long>();
+
+        public List<int> TOCCas = new List<int>();
+        public List<int> TOCCatalog = new List<int>();
+        public List<bool> TOCPatch = new List<bool>();
     }
 }

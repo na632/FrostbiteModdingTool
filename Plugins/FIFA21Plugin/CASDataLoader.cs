@@ -27,17 +27,17 @@ namespace FIFA21Plugin
             AssociatedTOCFile = inTOC;
         }
 
-        public void Load(AssetManager parent, int catalog, int cas, List<CASBundle> casBundles)
+        public void Load(int catalog, int cas, List<CASBundle> casBundles)
         {
-            NativeFileLocation = parent.fs.GetFilePath(catalog, cas, false);
-            var path = parent.fs.ResolvePath(NativeFileLocation);// @"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
-            Load(parent, path, casBundles);
+            NativeFileLocation = AssetManager.Instance.fs.GetFilePath(catalog, cas, false);
+            var path = AssetManager.Instance.fs.ResolvePath(NativeFileLocation);// @"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
+            Load(path, casBundles);
         }
 
-        public void Load(AssetManager parent, string path, List<CASBundle> casBundles)
+        public void Load(string path, List<CASBundle> casBundles)
         {
             NativeFileLocation = path;
-            path = parent.fs.ResolvePath(NativeFileLocation);
+            path = AssetManager.Instance.fs.ResolvePath(NativeFileLocation);
 
             using (NativeReader nr_cas = new NativeReader(
                 new FileStream(path, FileMode.Open, FileAccess.Read)
@@ -138,7 +138,7 @@ namespace FIFA21Plugin
                             uint originalSize = inner_reader.ReadUInt(Endian.Little);
                             dbObject.AddValue("originalSize", originalSize);
                             //dbObject.AddValue("size", originalSize);
-                            
+
                             dbObject.AddValue("cas", casBundle.Cas);
                             dbObject.AddValue("catalog", casBundle.Catalog);
 
@@ -160,7 +160,7 @@ namespace FIFA21Plugin
                             dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
                             uint originalSize = inner_reader.ReadUInt(Endian.Little);
                             dbObject.AddValue("originalSize", originalSize);
-                            dbObject.AddValue("size", originalSize);
+                            //dbObject.AddValue("size", originalSize);
 
                             dbObject.AddValue("cas", casBundle.Cas);
                             dbObject.AddValue("catalog", casBundle.Catalog);
@@ -274,6 +274,14 @@ namespace FIFA21Plugin
                             EbxObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[i]);
                             EbxObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[i]);
 
+                            EbxObjectList[i].SetValue("cas", casBundle.TOCCas[i]);
+                            EbxObjectList[i].SetValue("catalog", casBundle.TOCCatalog[i]);
+                            EbxObjectList[i].SetValue("patch", casBundle.TOCPatch[i]);
+
+                            //EbxObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[i]]);
+                            //EbxObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[i]]);
+                            //EbxObjectList[i].SetValue("patch", casBundle.TOCOffsetsToPatch[casBundle.Offsets[i]]);
+
                             var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
                             bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
 
@@ -303,7 +311,15 @@ namespace FIFA21Plugin
                             ResObjectList[i].SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                             ResObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + i]);
                             ResObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + i]);
-                           
+
+                            ResObjectList[i].SetValue("cas", casBundle.TOCCas[ebxCount + i]);
+                            ResObjectList[i].SetValue("catalog", casBundle.TOCCatalog[ebxCount + i]);
+                            ResObjectList[i].SetValue("patch", casBundle.TOCPatch[ebxCount + i]);
+
+                            //ResObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + i]]);
+                            //ResObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + i]]);
+                            //ResObjectList[i].SetValue("patch", casBundle.TOCOffsetsToPatch[casBundle.Offsets[ebxCount + i]]);
+
                         }
 
                         for (var i = 0; i < chunkCount; i++)
@@ -315,8 +331,13 @@ namespace FIFA21Plugin
                             ChunkObjectList[i].SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
                             ChunkObjectList[i].SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + resCount + i]);
 
-                            ChunkObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + resCount + i]]);
-                            ChunkObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + resCount + i]]);
+                            ChunkObjectList[i].SetValue("cas", casBundle.TOCCas[ebxCount + resCount + i]);
+                            ChunkObjectList[i].SetValue("catalog", casBundle.TOCCatalog[ebxCount + resCount + i]);
+                            ChunkObjectList[i].SetValue("patch", casBundle.TOCPatch[ebxCount + resCount + i]);
+
+                            //ChunkObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + resCount + i]]);
+                            //ChunkObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + resCount + i]]);
+                            //ChunkObjectList[i].SetValue("patch", casBundle.TOCOffsetsToPatch[casBundle.Offsets[ebxCount + resCount + i]]);
                         }
 
                         FullObjectList.AddValue("ebx", EbxObjectList);
@@ -328,14 +349,17 @@ namespace FIFA21Plugin
                             EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
                             ebxAssetEntry.Name = item.GetValue<string>("name");
                             ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                            ebxAssetEntry.BaseSha1 = parent.rm.GetBaseSha1(ebxAssetEntry.Sha1);
+                            ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
                             ebxAssetEntry.Size = item.GetValue("size", 0L);
                             ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                             ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                             ebxAssetEntry.ExtraData = new AssetExtraData();
                             ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-                            ebxAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? parent.fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : parent.fs.GetFilePath(item.GetValue("cas", 0)));
-                            //ebxAssetEntry.Guid = Guid.NewGuid(); // this is not right!
+
+                            int cas = item.GetValue("cas", 0);
+                            int catalog = item.GetValue("catalog", 0);
+                            bool patch = item.GetValue("patch", false);
+                            ebxAssetEntry.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog, cas, patch);
 
                             ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                             ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
@@ -347,8 +371,8 @@ namespace FIFA21Plugin
 
                             //if (item.GetValue<int>("loaded", 0) == 1)
                             //{
-                                if(!parent.ebxList.ContainsKey(ebxAssetEntry.Name))
-                                    parent.AddEbx(ebxAssetEntry);
+                            //if(!parent.ebxList.ContainsKey(ebxAssetEntry.Name))
+                            AssetManager.Instance.AddEbx(ebxAssetEntry);
 
                                 CASEBXEntries.Add(ebxAssetEntry);
                             //}
@@ -360,13 +384,18 @@ namespace FIFA21Plugin
                             ResAssetEntry resAssetEntry = new ResAssetEntry();
                             resAssetEntry.Name = item.GetValue<string>("name");
                             resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                            resAssetEntry.BaseSha1 = parent.rm.GetBaseSha1(resAssetEntry.Sha1);
+                            resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
                             resAssetEntry.Size = item.GetValue("size", 0L);
                             resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                             resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                             resAssetEntry.ExtraData = new AssetExtraData();
                             resAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-                            resAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? parent.fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : parent.fs.GetFilePath(item.GetValue("cas", 0)));
+
+                            int cas = item.GetValue("cas", 0);
+                            int catalog = item.GetValue("catalog", 0);
+                            bool patch = item.GetValue("patch", false);
+                            resAssetEntry.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog, cas, patch);
+                            
                             var resRid = ResIdList[iRes];
                             resAssetEntry.ResRid = resRid;
                             resAssetEntry.ResType = (uint)item.GetValue<int>("resType", 0);
@@ -379,26 +408,33 @@ namespace FIFA21Plugin
                             resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                             resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                                if (!parent.resList.ContainsKey(resAssetEntry.Name) && !parent.resRidList.ContainsKey(resAssetEntry.ResRid))
-                                    parent.AddRes(resAssetEntry);
+                            if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
+                                AssetManager.Instance.AddRes(resAssetEntry);
 
                                 CASRESEntries.Add(resAssetEntry);
 
                             iRes++;
                         }
 
+                        var iChunk = 0;
                         foreach (var item in ChunkObjectList)
                         {
                             ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                            chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                            chunkAssetEntry.BaseSha1 = parent.rm.GetBaseSha1(chunkAssetEntry.Sha1);
+                            chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1", sha1[ebxCount + resCount + iChunk]);
+                            if (chunkAssetEntry.Sha1 == Sha1.Zero)
+                                chunkAssetEntry.Sha1 = sha1[ebxCount + resCount + iChunk];
+
+                            chunkAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(chunkAssetEntry.Sha1);
                             chunkAssetEntry.Size = item.GetValue("size", 0L);
                             chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                             chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
                             chunkAssetEntry.ExtraData = new AssetExtraData();
                             chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-                            
-                            chunkAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? parent.fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : parent.fs.GetFilePath(item.GetValue("cas", 0)));
+
+                            int cas = item.GetValue("cas", 0);
+                            int catalog = item.GetValue("catalog", 0);
+                            bool patch = item.GetValue("patch", false);
+                            chunkAssetEntry.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog, cas, patch);
 
                             chunkAssetEntry.Id = item.GetValue<Guid>("id");
                             chunkAssetEntry.LogicalOffset = item.GetValue<uint>("logicalOffset");
@@ -410,13 +446,13 @@ namespace FIFA21Plugin
                             chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                             chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                             chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                            chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+                            chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", (int)Sha1Positions[ebxCount + resCount + iChunk]);
 
-                            parent.AddChunk(chunkAssetEntry);
+                            AssetManager.Instance.AddChunk(chunkAssetEntry);
 
                             CASCHUNKEntries.Add(chunkAssetEntry);
 
-
+                            iChunk++;
                         }
 
                     }

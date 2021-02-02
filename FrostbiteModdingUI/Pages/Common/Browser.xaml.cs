@@ -589,9 +589,9 @@ namespace FIFAModdingUI.Pages.Common
 									}
 								}
 							}
-							catch (Exception)
+							catch (Exception e)
 							{
-								MainEditorWindow.Log("Failed to load texture");
+								MainEditorWindow.Log($"Failed to load texture with the message :: {e.Message}");
 							}
 
 
@@ -747,7 +747,8 @@ namespace FIFAModdingUI.Pages.Common
         {
 			using (var resStream = ProjectManagement.Instance.FrostyProject.AssetManager.GetRes(res))
 			{
-                using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager))
+				// {3e0a186b-c286-1dff-455b-7eb097c3e8f9} Splashscreen Guid
+				using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.FrostyProject.AssetManager))
                 {
                     try
 					{
@@ -757,7 +758,6 @@ namespace FIFAModdingUI.Pages.Common
 
 						TextureExporter textureExporter = new TextureExporter();
 						MemoryStream memoryStream = new MemoryStream();
-						//var d = new NativeReader(textureAsset.Data).ReadToEnd();
 
 						using var nr = new NativeReader(textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG));
 						var textureBytes = nr.ReadToEnd();

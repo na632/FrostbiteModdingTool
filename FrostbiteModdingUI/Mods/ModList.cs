@@ -192,10 +192,6 @@ namespace FIFAModdingUI.Mods
         public ModList(ModListProfile profile = null)
         {
             Load();
-            //else
-            //{
-            //    CreateAModListJsonFile();
-            //}
         }
 
         public string ModListLocation { get
@@ -210,43 +206,25 @@ namespace FIFAModdingUI.Mods
                 return v;
             } }
 
-        //private void CreateAModListJsonFile()
-        //{
-        //    ModListItems = System.IO.Directory.GetFiles("Mods\\", "*.fbmod").ToList();
-        //    var newModListItems = new List<string>();
-        //    foreach (var i in ModListItems)
-        //    {
-        //        var newI = i.Replace("fbmod", "");
-        //        newModListItems.Add(newI);
-        //        if (newI != i)
-        //        {
-        //            var fi = new System.IO.FileInfo(i);
-        //            if (!System.IO.File.Exists(newI))
-        //            {
-        //                fi.CopyTo(newI);
-        //                fi.Delete();
-        //            }
-        //        }
-        //    }
-        //    ModListItems = newModListItems;
-        //    System.IO.File.WriteAllText("Mods\\ModList.json", Newtonsoft.Json.JsonConvert.SerializeObject(ModListItems));
-        //}
-
         public void Load()
         {
             if (System.IO.File.Exists(ModListLocation))
             {
-                ModListItems = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ModItem>>(System.IO.File.ReadAllText(ModListLocation));
+                var allTextRaw = System.IO.File.ReadAllText(ModListLocation);
+                var items = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(allTextRaw);
                 var oldCount = ModListItems.Count;
-                foreach (var i in ModListItems.Select(x=>x.Path))
+                foreach (var i in items)
                 {
                     if (!File.Exists(i))
                     {
                         ModListItemErrors.Add($"Mod file {i} no longer exists");
                     }
+                    else
+                    {
+                        ModListItems.Add(new ModItem(i));
+                    }
                 }
 
-                ModListItems = ModListItems.Where(x => File.Exists(x.Path)).ToList();
                 if (oldCount != ModListItems.Count)
                     Save();
             }
@@ -254,7 +232,7 @@ namespace FIFAModdingUI.Mods
 
         public void Save()
         {
-            System.IO.File.WriteAllText(ModListLocation, Newtonsoft.Json.JsonConvert.SerializeObject(ModListItems));
+            System.IO.File.WriteAllText(ModListLocation, Newtonsoft.Json.JsonConvert.SerializeObject(ModListItems.Select(x=>x.Path)));
         }
     }
 

@@ -299,7 +299,7 @@ namespace FIFA21Plugin
 									chunkAssetEntry2.ExtraData = new AssetExtraData();
 									chunkAssetEntry2.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog2, cas2, patch2);
 									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
-									
+
 									chunks.Add(chunkAssetEntry2);
 								}
 
@@ -308,10 +308,6 @@ namespace FIFA21Plugin
 								{
 									
 									var chunkAssetEntry = chunks[chunkIndex];
-									//chunkAssetEntry.SB_Sha1_Position = (int)nativeReader.Position;
-									//var sha1 = nativeReader.ReadSha1();
-									//chunkAssetEntry.Sha1 = sha1;
-									//chunkAssetEntry.BaseSha1 = sha1;
 									AssetManager.Instance.AddChunk(chunkAssetEntry);
 
 								}

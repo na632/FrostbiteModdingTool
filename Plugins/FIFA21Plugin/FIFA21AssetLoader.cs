@@ -94,10 +94,10 @@ namespace FIFA21Plugin
 								}
 							}
 						}
-						else
-						{
-							parent.logger.LogError($"Unable to find {tocFileLocation}");
-						}
+						//else
+						//{
+						//	parent.logger.LogError($"Unable to find {tocFileLocation}");
+						//}
 					}
 				}
 			}
@@ -164,7 +164,9 @@ namespace FIFA21Plugin
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			LoadData(parent, helper);
+			if(!AssetManager.CacheUpdate)
+				LoadData(parent, helper);
+
 			LoadPatch(parent, helper);
 		}
 

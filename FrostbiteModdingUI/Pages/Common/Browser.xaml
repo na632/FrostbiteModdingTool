@@ -56,7 +56,6 @@
         </Grid>
             <ListView VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Column="0" Grid.Row="1" x:Name="assetListView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible" 
-                      Height="200" MaxHeight="200"
                       BorderBrush="LightGray" 
                       BorderThickness="1" 
                       HorizontalAlignment="Stretch" 

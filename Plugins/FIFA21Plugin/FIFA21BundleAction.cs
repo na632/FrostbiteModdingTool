@@ -94,13 +94,6 @@ namespace FIFA21Plugin
             parent = inParent;
         }
 
-        private bool CheckTocCasReadCorrectly(string tocPath)
-        {
-            //TocCasReader_M21 tocCasReader_M21 = new TocCasReader_M21();
-            //tocCasReader_M21.Read(tocPath, 0, new BinarySbDataHelper(AssetManager.Instance));
-            return true;
-        }
-
         public enum ModType
         {
             EBX,
@@ -108,13 +101,42 @@ namespace FIFA21Plugin
             CHUNK
         }
 
+        public struct ModdedFile
+        {
+            public Sha1 Sha1 { get; set; }
+            public string NamePath { get; set; }
+            public ModType ModType { get; set; }
+            public bool IsAdded { get; set; }
+            public AssetEntry OriginalEntry { get; set; }
+
+            public ModdedFile(Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded)
+            {
+                Sha1 = inSha1;
+                NamePath = inNamePath;
+                ModType = inModType;
+                IsAdded = inAdded;
+                OriginalEntry = null;
+            }
+
+            public ModdedFile(Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded, AssetEntry inOrigEntry)
+            {
+                Sha1 = inSha1;
+                NamePath = inNamePath;
+                ModType = inModType;
+                IsAdded = inAdded;
+                OriginalEntry = inOrigEntry;
+            }
+
+            
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns>cas to Tuple of Sha1, Name, Type, IsAdded</returns>
-        private Dictionary<string, List<Tuple<Sha1, string, ModType, bool>>> GetModdedCasFiles()
+        private Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
         {
-            Dictionary<string, List<Tuple<Sha1, string, ModType, bool>>> casToMods = new Dictionary<string, List<Tuple<Sha1, string, ModType, bool>>>();
+            Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
             foreach (var modEBX in parent.modifiedEbx)
             {
                 var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
@@ -125,11 +147,11 @@ namespace FIFA21Plugin
                         var casPath = originalEntry.ExtraData.CasPath;
                         if (!casToMods.ContainsKey(casPath))
                         {
-                            casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false) });
+                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry) });
                         }
                         else
                         {
-                            casToMods[casPath].Add(new Tuple<Sha1, string, ModType, bool>(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false));
+                            casToMods[casPath].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry));
                         }
                     }
                     // Is Added
@@ -137,18 +159,18 @@ namespace FIFA21Plugin
                     {
                         if (!casToMods.ContainsKey(string.Empty))
                         {
-                            casToMods.Add(string.Empty, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true) });
+                            casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true) });
                         }
                         else
                         {
-                            casToMods[string.Empty].Add(new Tuple<Sha1, string, ModType, bool>(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true));
+                            casToMods[string.Empty].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true));
                         }
                     }
                 }
             }
             foreach (var modRES in parent.modifiedRes)
             {
-                var originalEntry = AssetManager.Instance.GetEbxEntry(modRES.Value.Name);
+                var originalEntry = AssetManager.Instance.GetResEntry(modRES.Value.Name);
                 if (originalEntry != null)
                 {
                     if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
@@ -157,25 +179,25 @@ namespace FIFA21Plugin
                         var casPath = originalEntry.ExtraData.CasPath;
                         if (!casToMods.ContainsKey(casPath))
                         {
-                            casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false) });
+                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry) });
                         }
                         else
                         {
-                            casToMods[casPath].Add(new Tuple<Sha1, string, ModType, bool>(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false));
+                            casToMods[casPath].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry));
                         }
                     }
-                    // Is Added
-                    else
-                    {
-                        if (!casToMods.ContainsKey(string.Empty))
-                        {
-                            casToMods.Add(string.Empty, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true) });
-                        }
-                        else
-                        {
-                            casToMods[string.Empty].Add(new Tuple<Sha1, string, ModType, bool>(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true));
-                        }
-                    }
+                    //// Is Added
+                    //else
+                    //{
+                    //    if (!casToMods.ContainsKey(string.Empty))
+                    //    {
+                    //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true) });
+                    //    }
+                    //    else
+                    //    {
+                    //        casToMods[string.Empty].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true));
+                    //    }
+                    //}
                 }
             }
             foreach (var modChunks in parent.modifiedChunks)
@@ -183,13 +205,13 @@ namespace FIFA21Plugin
                 //var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
                 var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
 
-                // Find other chunk and use it
-                var otherChunks = new List<ChunkAssetEntry>();
-                otherChunks.AddRange(
-                    AssetManager.Instance.GetChunkEntries(modChunks.Key)
-                    .Where(x => x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
-                if (otherChunks.Count > 0)
-                    originalEntry = otherChunks.Last();
+                //// Find other chunk and use it
+                //var otherChunks = new List<ChunkAssetEntry>();
+                //otherChunks.AddRange(
+                //    AssetManager.Instance.GetChunkEntries(modChunks.Key)
+                //    .Where(x => x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
+                //if (otherChunks.Count > 0)
+                //    originalEntry = otherChunks.Last();
 
                 if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                 {
@@ -198,26 +220,31 @@ namespace FIFA21Plugin
                         var casPath = originalEntry.ExtraData.CasPath;
                         if (!casToMods.ContainsKey(casPath))
                         {
-                            casToMods.Add(casPath, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false) });
+                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry) });
                         }
                         else
                         {
-                            casToMods[casPath].Add(new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false));
+                            casToMods[casPath].Add(new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry));
                         }
                     }
                     // Is Added
-                    else
-                    {
-                        if (!casToMods.ContainsKey(string.Empty))
-                        {
-                            casToMods.Add(string.Empty, new List<Tuple<Sha1, string, ModType, bool>>() { new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Value.Name, ModType.EBX, true) });
-                        }
-                        else
-                        {
-                            casToMods[string.Empty].Add(new Tuple<Sha1, string, ModType, bool>(modChunks.Value.Sha1, modChunks.Value.Name, ModType.EBX, true));
-                        }
-                    }
+                    //else
+                    //{
+                    //    if (!casToMods.ContainsKey(string.Empty))
+                    //    {
+                    //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modChunks.Value.Sha1, modChunks.Value.Name, ModType.EBX, true) });
+                    //    }
+                    //    else
+                    //    {
+                    //        casToMods[string.Empty].Add(new ModdedFile(modChunks.Value.Sha1, modChunks.Value.Name, ModType.EBX, true));
+                    //    }
+                    //}
 
+                }
+                else
+                {
+                    //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
+                    parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
                 }
             }
 
@@ -273,45 +300,36 @@ namespace FIFA21Plugin
                             {
                                 nwCas.Position = nwCas.Length;
                                 byte[] data = new byte[0];
-                                AssetEntry originalEntry = null;
-                                switch(modItem.Item3)
-                                {
-                                    case ModType.EBX:
-                                        originalEntry = AssetManager.Instance.GetEbxEntry(modItem.Item2);
-                                        break;
-                                    case ModType.RES:
-                                        originalEntry = AssetManager.Instance.GetResEntry(modItem.Item2);
-                                        break;
-                                    case ModType.CHUNK:
-                                        originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(modItem.Item2));
-
-                                        ChunkDups.Clear();
-                                        ChunkDups.AddRange(
-                                            AssetManager.Instance.GetChunkEntries(Guid.Parse(modItem.Item2))
-                                            .Where(x=>x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
-
-                                        if(ChunkDups.Count > 0)
-                                        {
-                                            originalEntry = ChunkDups.Last();
-                                        }
-                                        break;
-                                }
+                                AssetEntry originalEntry = modItem.OriginalEntry;
+                                
                                 if (originalEntry != null)
                                 {
-                                    data = parent.archiveData[modItem.Item1].Data;
+                                    data = parent.archiveData[modItem.Sha1].Data;
                                 }
                                 else
                                 {
-                                    parent.Logger.LogError($"Unable to find original archive data for {modItem.Item1}");
+                                    parent.Logger.LogError($"Unable to find original archive data for {modItem.NamePath}");
                                     continue;
                                     //throw new Exception()
                                 }
 
                                 if (data.Length == 0)
                                 {
-                                    parent.Logger.LogError($"Unable to find any data for {modItem.Item1}");
+                                    parent.Logger.LogError($"Unable to find any data for {modItem.NamePath}");
                                     continue;
                                 }
+
+                                if (modItem.NamePath.Contains("tattoo", StringComparison.OrdinalIgnoreCase))
+                                    continue;
+
+                                //if (modItem.NamePath.Contains("face", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                                //    continue;
+
+                                if (modItem.NamePath.Contains("hair", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                                    continue;
+
+                                //if (modItem.NamePath.Contains("head", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                                //    continue;
 
                                 if (data.Length > 0)
                                 {
@@ -323,27 +341,27 @@ namespace FIFA21Plugin
                                     var out_data = new CasReader(new MemoryStream(data)).Read();
                                     origSize = out_data.Length;
 
-                                    var useCas = false;// string.IsNullOrEmpty(originalEntry.SBFileLocation);
-                                    //if (useCas) 
-                                    //{
-                                    //    if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
-                                    //    {
-                                    //        nwCas.Position = originalEntry.SB_OriginalSize_Position;
-                                    //        nwCas.Write((uint)origSize, Endian.Little);
-                                    //    }
+                                    var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
+                                    if (useCas)
+                                    {
+                                        if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
+                                        {
+                                            nwCas.Position = originalEntry.SB_OriginalSize_Position;
+                                            nwCas.Write((uint)origSize, Endian.Little);
+                                        }
 
-                                    //    if (originalEntry.SB_Sha1_Position != 0 && modItem.Item1 != Sha1.Zero)
-                                    //    {
-                                    //        nwCas.Position = originalEntry.SB_Sha1_Position;
-                                    //        nwCas.Write(modItem.Item1);
-                                    //    }
-                                    //}
+                                        if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
+                                        {
+                                            nwCas.Position = originalEntry.SB_Sha1_Position;
+                                            nwCas.Write(modItem.Sha1);
+                                        }
+                                    }
 
 
                                     //parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
                                     //Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
                                     //EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, !useCas ? origSize : 0, !useCas ? modItem.Item1 : Sha1.Zero));
-                                    EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Item1));
+                                    EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
 
 
                                     bool patchedInSb = false;
@@ -401,22 +419,24 @@ namespace FIFA21Plugin
                                     nw_sb.Write((uint)positionOfNewData, Endian.Big);
                                     nw_sb.Write((uint)sizeOfData, Endian.Big);
 
+                                    if (!sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                            &&
+                                            assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
+                                        {
+                                            nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
+                                            nw_sb.Write((uint)originalSizeOfData, Endian.Little);
+                                        }
 
-                                    //if(nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
-                                    //    &&
-                                    //    assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
-                                    //{
-                                    //    nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
-                                    //    nw_sb.Write((uint)originalSizeOfData, Endian.Little);
-                                    //}
-
-                                    //if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
-                                    //    &&
-                                    //    assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
-                                    //{
-                                    //    nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
-                                    //    nw_sb.Write(sha);
-                                    //}
+                                        if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                            &&
+                                            assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
+                                        {
+                                            nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
+                                            nw_sb.Write(sha);
+                                        }
+                                    }
                                 }
                             }
                         }

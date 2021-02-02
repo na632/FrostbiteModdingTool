@@ -156,20 +156,16 @@ namespace FIFA21Plugin
 						nativeReader.ReadInt32BigEndian();
 						int flagsOffset = nativeReader.ReadInt32BigEndian();
 						int entriesCount = nativeReader.ReadInt32BigEndian();
-						int c = nativeReader.ReadInt32BigEndian();
+						int entriesOffset = nativeReader.ReadInt32BigEndian();
 						int num = nativeReader.ReadInt32BigEndian();
 						int e = nativeReader.ReadInt32BigEndian();
 						int f = nativeReader.ReadInt32BigEndian();
-						bool IsInPatch = false;
+						bool isInPatch = false;
 						byte catalog = 0;
 						byte cas = 0;
-						if (num == c)
-						{
-						}
 						nativeReader.Position = startPosition + flagsOffset;
 						byte[] flags = nativeReader.ReadBytes(entriesCount);
-						nativeReader.Position = startPosition + c;
-						List<(bool, int, int, bool, int, int)> entries = new List<(bool, int, int, bool, int, int)>(entriesCount - 1);
+						nativeReader.Position = startPosition + entriesOffset;
 						CASBundle bundle = new CASBundle();
 						for (int j2 = 0; j2 < entriesCount; j2++)
 						{
@@ -177,7 +173,7 @@ namespace FIFA21Plugin
 							if (hasCasIdentifier)
 							{
 								nativeReader.ReadByte();
-								IsInPatch = nativeReader.ReadBoolean();
+								isInPatch = nativeReader.ReadBoolean();
 								catalog = nativeReader.ReadByte();
 								cas = nativeReader.ReadByte();
 							}
@@ -191,23 +187,43 @@ namespace FIFA21Plugin
 								bundle.BundleSize = bundleSizeInCas;
 								bundle.Cas = cas;
 								bundle.Catalog = catalog;
-								bundle.Patch = IsInPatch;
+								bundle.Patch = isInPatch;
 							}
 							else
 							{
+								if(cas != bundle.Cas)
+								{ 
+								}
+								if (catalog != bundle.Catalog)
+								{
+								}
+								if(isInPatch != bundle.Patch)
+                                {
+                                }
 								bundle.TOCOffsets.Add(locationOfOffset);
 								bundle.Offsets.Add(bundleOffsetInCas);
-								if (!bundle.TOCOffsetsToCAS.ContainsKey(bundleOffsetInCas))
-								{
-									bundle.TOCOffsetsToCAS.Add(bundleOffsetInCas, cas);
-								}
-								if (!bundle.TOCOffsetsToCatalog.ContainsKey(bundleOffsetInCas))
-								{
-									bundle.TOCOffsetsToCatalog.Add(bundleOffsetInCas, catalog);
-								}
+								//if (!bundle.TOCOffsetsToCAS.ContainsKey(bundleOffsetInCas))
+								//{
+								//	bundle.TOCOffsetsToCAS.Add(bundleOffsetInCas, cas);
+								//}
+								//if (!bundle.TOCOffsetsToCatalog.ContainsKey(bundleOffsetInCas))
+								//{
+								//	bundle.TOCOffsetsToCatalog.Add(bundleOffsetInCas, catalog);
+								//}
+								//if (!bundle.TOCOffsetsToPatch.ContainsKey(bundleOffsetInCas))
+								//{
+								//	bundle.TOCOffsetsToPatch.Add(bundleOffsetInCas, IsInPatch);
+								//}
 								bundle.TOCSizes.Add(locationOfSize);
 								bundle.Sizes.Add(bundleSizeInCas);
-							}
+
+                                bundle.TOCCas.Add(cas);
+                                bundle.TOCCatalog.Add(catalog);
+                                bundle.TOCPatch.Add(isInPatch);
+                            }
+							//bundle.TOCCas.Add(cas);
+							//bundle.TOCCatalog.Add(catalog);
+							//bundle.TOCPatch.Add(isInPatch);
 						}
 						bundles.Add(bundle);
 						nativeReader.Position = startPosition + flagsOffset + entriesCount;
@@ -245,7 +261,7 @@ namespace FIFA21Plugin
 						foreach (var ctb in CASToBundles)
 						{
 							CASDataLoader casDataLoader = new CASDataLoader(TOCFile);
-							casDataLoader.Load(AssetManager.Instance, ctb.Key, ctb.Value);
+							casDataLoader.Load(ctb.Key, ctb.Value);
 						}
 					}
 				}

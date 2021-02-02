@@ -21,6 +21,9 @@ namespace FrostbiteModdingTests
     public class FIFA21Tests : ILogger
     {
         private string prevText = string.Empty;
+
+        public const string GamePath = @"F:\Origin Games\FIFA 21";
+        public const string GamePathEXE = @"F:\Origin Games\FIFA 21\FIFA21.exe";
         public void Log(string text, params object[] vars)
         {
             if (prevText != text)
@@ -48,7 +51,7 @@ namespace FrostbiteModdingTests
         {
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
-            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, true);
+            buildCache.LoadData("FIFA21", GamePath, this, true);
         }
 
         [TestMethod]
@@ -56,7 +59,7 @@ namespace FrostbiteModdingTests
         {
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
-            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+            buildCache.LoadData("FIFA21", GamePath, this, false);
             //AssetManager.Instance.ebxGuidList.Clear();
             AssetManager.Instance.DoEbxIndexing();
         }
@@ -65,7 +68,7 @@ namespace FrostbiteModdingTests
         public void TestBuildSDK()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
+            buildCache.LoadData("FIFA21", GamePath, this, false);
 
             var buildSDK = new BuildSDK();
             buildSDK.Build().Wait();
@@ -74,7 +77,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestExportFaceMesh()
         {
-            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             var project = projectManagement.StartNewProject();
             var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_10264_0_0_mesh")).FirstOrDefault();
             if (skinnedMeshEntry != null)
@@ -100,7 +103,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestImportFaceMesh()
         {
-            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             var project = projectManagement.StartNewProject();
             var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_212118_0_0_mesh")).FirstOrDefault();
             if (skinnedMeshEntry != null)
