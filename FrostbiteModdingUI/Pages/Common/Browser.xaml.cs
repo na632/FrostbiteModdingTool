@@ -57,6 +57,8 @@ namespace FIFAModdingUI.Pages.Common
 			DataContext = this;
 		}
 
+		public int HalfMainWindowWidth { get { return MainEditorWindow != null ? (int)Math.Round(((Window)MainEditorWindow).ActualWidth / 2) : 400; } }
+
 
 		private List<IAssetEntry> allAssets;
 

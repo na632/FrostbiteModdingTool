@@ -263,25 +263,25 @@ namespace FIFAModdingUI.Windows
             LogAsync("[ERROR] " + text);
         }
 
-        private AssetEntry CurrentLegacySelection;
+        //private AssetEntry CurrentLegacySelection;
 
-        private void btnExportLegacy_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentLegacySelection != null)
-            {
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                var filt = "*." + CurrentLegacySelection.Type;
-                saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-                saveFileDialog.FileName = CurrentLegacySelection.Filename;
-                if (saveFileDialog.ShowDialog().Value)
-                {
-                    using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
-                    {
-                        nativeWriter.Write(new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)).ReadToEnd());
-                    }
-                }
-            }
-        }
+        //private void btnExportLegacy_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (CurrentLegacySelection != null)
+        //    {
+        //        SaveFileDialog saveFileDialog = new SaveFileDialog();
+        //        var filt = "*." + CurrentLegacySelection.Type;
+        //        saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+        //        saveFileDialog.FileName = CurrentLegacySelection.Filename;
+        //        if (saveFileDialog.ShowDialog().Value)
+        //        {
+        //            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+        //            {
+        //                nativeWriter.Write(new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)).ReadToEnd());
+        //            }
+        //        }
+        //    }
+        //}
 
         private void btnImportLegacy_Click(object sender, RoutedEventArgs e)
         {

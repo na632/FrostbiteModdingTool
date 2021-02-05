@@ -261,7 +261,7 @@ namespace FIFA21Plugin
                 parent.Logger.Log("Loading files to know what to change.");
 
                 BuildCache buildCache = new BuildCache();
-                buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true); ;
+                buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true);
 
                 parent.Logger.Log("Loading Cached Super Bundles.");
 
@@ -325,7 +325,10 @@ namespace FIFA21Plugin
                                 //if (modItem.NamePath.Contains("face", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
                                 //    continue;
 
-                                if (modItem.NamePath.Contains("hair", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                                if (modItem.NamePath.Contains("haircap_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                                    continue;
+
+                                if (modItem.NamePath.Contains("hair_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
                                     continue;
 
                                 //if (modItem.NamePath.Contains("head", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)

@@ -385,9 +385,6 @@ namespace FIFAModdingUI
                                 }
 
                                 var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
-                                //var actualsupportdllpath = @"E:\Origin Games\FIFA 20\v2k4LegacyModSupport.dll";
-                                //Debug.WriteLine(legmodsupportdllpath);
-                                //Debug.WriteLine(actualsupportdllpath);
                                 try
                                 {
                                     Log("Injecting Live Legacy Mod Support");
@@ -409,9 +406,11 @@ namespace FIFAModdingUI
                                 GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                         }
 
-                        //ProjectManagement.Instance = null;
-                        //AssetManager.Instance = null;
-                        //GC.Collect();
+                        // Do Cleanup of Resources - Saving Memory
+                        ProjectManagement.Instance = null;
+                        AssetManager.Instance.Dispose();
+                        AssetManager.Instance = null;
+                        GC.Collect();
                     }
                     //});
                     await Task.Delay(1000);

@@ -146,6 +146,7 @@ namespace FrostbiteModdingTests
                 {
                     Debug.WriteLine($"Injecting: {dllpath}");
                     var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, dllpath, false);
+                    //var bl = new Bleak.Injector(proc.Value, dllpath, Bleak.InjectionMethod.CreateThread);
                     bl.InjectDll();
                     Debug.WriteLine($"Injected: {dllpath}");
                 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Lunar;
 
 namespace v2k4FIFAModdingCL
 {
@@ -115,17 +116,22 @@ namespace v2k4FIFAModdingCL
 
                     var dll_File = dllpath.Split('\\')[dllpath.Split('\\').Length - 1];
                     dll_File = dll_File.Replace(".dll", "");
-                    foreach (ProcessModule m in Process.GetProcessById(proc.Value).Modules)
-                    {
-                        if (m.FileName.Contains(dll_File, StringComparison.OrdinalIgnoreCase))
-                        {
-                            alreadyExists = true;
-                            break;
-                        }
-                    }
+                    // Seems to be breaking for some users
+                    //foreach (ProcessModule m in Process.GetProcessById(proc.Value).Modules)
+                    //{
+                    //    if (m.FileName.Contains(dll_File, StringComparison.OrdinalIgnoreCase))
+                    //    {
+                    //        alreadyExists = true;
+                    //        break;
+                    //    }
+                    //}
                     if (!alreadyExists) {
                         var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
                         bl.InjectDll();
+
+                        //var mapper = new LibraryMapper(Process.GetProcessById(proc.Value), dllpath);
+                        //mapper.MapLibrary();
+
                         Debug.WriteLine($"Injected: {dllpath}");
                     }
                 }
