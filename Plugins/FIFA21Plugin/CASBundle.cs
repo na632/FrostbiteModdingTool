@@ -41,5 +41,22 @@ namespace FIFA21Plugin
         public List<int> TOCCas = new List<int>();
         public List<int> TOCCatalog = new List<int>();
         public List<bool> TOCPatch = new List<bool>();
+
+        public byte[] Flags;
+
+        public override string ToString()
+        {
+            return $"Cas:{Cas}-Catalog:{Catalog}-BundleOffset:{BundleOffset}-Size:{TotalSize}";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

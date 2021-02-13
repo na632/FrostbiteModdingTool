@@ -5636,37 +5636,37 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         else if (resource.Type == ModResourceType.Chunk)
                         {
                             Guid guid = new Guid(resource.Name);
-                            if (resource.HasHandler)
-                            {
-                                ChunkAssetEntry chunkAssetEntry = null;
-                                HandlerExtraData handlerExtraData2 = null;
-                                byte[] resourceData4 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                                if (modifiedChunks.ContainsKey(guid))
-                                {
-                                    chunkAssetEntry = modifiedChunks[guid];
-                                    handlerExtraData2 = (HandlerExtraData)chunkAssetEntry.ExtraData;
-                                }
-                                else
-                                {
-                                    chunkAssetEntry = new ChunkAssetEntry();
-                                    handlerExtraData2 = new HandlerExtraData();
-                                    chunkAssetEntry.Id = guid;
-                                    chunkAssetEntry.IsTocChunk = resource.IsTocChunk;
-                                    Type[] types = Assembly.GetExecutingAssembly().GetTypes();
-                                    foreach (Type type in types)
-                                    {
-                                        if (type.GetInterface(typeof(Frosty.ModSupport.Handlers.ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
-                                        {
-                                            handlerExtraData2.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(type);
-                                            break;
-                                        }
-                                    }
-                                    chunkAssetEntry.ExtraData = handlerExtraData2;
-                                    modifiedChunks.Add(guid, chunkAssetEntry);
-                                }
-                                handlerExtraData2.Data = handlerExtraData2.Handler.Load(handlerExtraData2.Data, resourceData4);
-                            }
-                            else
+                            //if (resource.HasHandler)
+                            //{
+                            //    ChunkAssetEntry chunkAssetEntry = null;
+                            //    HandlerExtraData handlerExtraData2 = null;
+                            //    byte[] resourceData4 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                            //    if (modifiedChunks.ContainsKey(guid))
+                            //    {
+                            //        chunkAssetEntry = modifiedChunks[guid];
+                            //        handlerExtraData2 = (HandlerExtraData)chunkAssetEntry.ExtraData;
+                            //    }
+                            //    else
+                            //    {
+                            //        chunkAssetEntry = new ChunkAssetEntry();
+                            //        handlerExtraData2 = new HandlerExtraData();
+                            //        chunkAssetEntry.Id = guid;
+                            //        chunkAssetEntry.IsTocChunk = resource.IsTocChunk;
+                            //        Type[] types = Assembly.GetExecutingAssembly().GetTypes();
+                            //        foreach (Type type in types)
+                            //        {
+                            //            if (type.GetInterface(typeof(Frosty.ModSupport.Handlers.ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
+                            //            {
+                            //                handlerExtraData2.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(type);
+                            //                break;
+                            //            }
+                            //        }
+                            //        chunkAssetEntry.ExtraData = handlerExtraData2;
+                            //        modifiedChunks.Add(guid, chunkAssetEntry);
+                            //    }
+                            //    handlerExtraData2.Data = handlerExtraData2.Handler.Load(handlerExtraData2.Data, resourceData4);
+                            //}
+                            //else
                             {
                                 if (modifiedChunks.ContainsKey(guid))
                                 {

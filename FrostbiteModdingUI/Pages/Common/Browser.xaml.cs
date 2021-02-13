@@ -761,7 +761,24 @@ namespace FIFAModdingUI.Pages.Common
 						TextureExporter textureExporter = new TextureExporter();
 						MemoryStream memoryStream = new MemoryStream();
 
-						using var nr = new NativeReader(textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG));
+						Stream expToStream = null;
+						try
+						{
+							expToStream = textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG);
+						}
+						catch (Exception exception_ToStream)
+                        {
+							MainEditorWindow.LogError($"Error loading texture with message :: {exception_ToStream.Message}");
+							MainEditorWindow.LogError(exception_ToStream.ToString());
+							ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
+
+							textureExporter.Export(textureAsset, res.Filename + ".DDS", "*.DDS");
+							MainEditorWindow.LogError($"As the viewer failed. The image has been exported to {res.Filename}.dds instead.");
+							return;
+						}
+
+						using var nr = new NativeReader(expToStream);
+						nr.Position = 0;
 						var textureBytes = nr.ReadToEnd();
 
 						ImageViewer.Source = LoadImage(textureBytes);

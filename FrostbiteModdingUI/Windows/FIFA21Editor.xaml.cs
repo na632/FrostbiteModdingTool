@@ -221,11 +221,6 @@ namespace FIFAModdingUI.Windows
 
         public void Log(string text, params object[] vars)
         {
-            //Dispatcher.InvokeAsync(() =>
-            //{
-                //lblProgressText.Text = string.Format(text, vars);
-            //});
-
             LogAsync(text);
         }
 
@@ -256,10 +251,13 @@ namespace FIFAModdingUI.Windows
 
         public void LogWarning(string text, params object[] vars)
         {
+            Debug.WriteLine("[WARNING] " + text);
+            LogAsync("[WARNING] " + text);
         }
 
         public void LogError(string text, params object[] vars)
         {
+            Debug.WriteLine("[ERROR] " + text);
             LogAsync("[ERROR] " + text);
         }
 

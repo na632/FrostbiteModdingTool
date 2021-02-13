@@ -151,9 +151,11 @@ namespace FIFA21Plugin
 					AssetManager.Instance.logger.Log("Searching for CAS Data from " + TOCFile.FileLocation);
 					for (int i = 0; i < TOCFile.MetaData.BundleCount; i++)
 					{
+						CASBundle bundle = new CASBundle();
+
 						long startPosition = nativeReader.Position;
-						nativeReader.ReadInt32BigEndian();
-						nativeReader.ReadInt32BigEndian();
+						int a = nativeReader.ReadInt32BigEndian();
+						int b = nativeReader.ReadInt32BigEndian();
 						int flagsOffset = nativeReader.ReadInt32BigEndian();
 						int entriesCount = nativeReader.ReadInt32BigEndian();
 						int entriesOffset = nativeReader.ReadInt32BigEndian();
@@ -164,12 +166,11 @@ namespace FIFA21Plugin
 						byte catalog = 0;
 						byte cas = 0;
 						nativeReader.Position = startPosition + flagsOffset;
-						byte[] flags = nativeReader.ReadBytes(entriesCount);
+						bundle.Flags = nativeReader.ReadBytes(entriesCount);
 						nativeReader.Position = startPosition + entriesOffset;
-						CASBundle bundle = new CASBundle();
 						for (int j2 = 0; j2 < entriesCount; j2++)
 						{
-							bool hasCasIdentifier = flags[j2] == 1;
+							bool hasCasIdentifier = bundle.Flags[j2] == 1;
 							if (hasCasIdentifier)
 							{
 								nativeReader.ReadByte();
@@ -217,9 +218,9 @@ namespace FIFA21Plugin
 								bundle.TOCSizes.Add(locationOfSize);
 								bundle.Sizes.Add(bundleSizeInCas);
 
-                                bundle.TOCCas.Add(cas);
-                                bundle.TOCCatalog.Add(catalog);
-                                bundle.TOCPatch.Add(isInPatch);
+                                //bundle.TOCCas.Add(cas);
+                                //bundle.TOCCatalog.Add(catalog);
+                                //bundle.TOCPatch.Add(isInPatch);
                             }
 							//bundle.TOCCas.Add(cas);
 							//bundle.TOCCatalog.Add(catalog);

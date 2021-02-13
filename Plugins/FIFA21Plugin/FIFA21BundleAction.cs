@@ -4,6 +4,7 @@ using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.Resources;
 using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
@@ -83,15 +84,18 @@ namespace FIFA21Plugin
         /// <param name="inCatalogInfo"></param>
         /// <param name="inDoneEvent"></param>
         /// <param name="inParent"></param>
-        public FIFA21BundleAction(Catalog inCatalogInfo, FrostyModExecutor inParent)
-        {
-            catalogInfo = inCatalogInfo;
-            parent = inParent;
-        }
+        //public FIFA21BundleAction(Catalog inCatalogInfo, FrostyModExecutor inParent)
+        //{
+        //    catalogInfo = inCatalogInfo;
+        //    parent = inParent;
+        //}
 
         public FIFA21BundleAction(FrostyModExecutor inParent)
         {
             parent = inParent;
+            ErrorCounts.Add(ModType.EBX, 0);
+            ErrorCounts.Add(ModType.RES, 0);
+            ErrorCounts.Add(ModType.CHUNK, 0);
         }
 
         public enum ModType
@@ -130,6 +134,8 @@ namespace FIFA21Plugin
             
         }
 
+        public Dictionary<ModType, int> ErrorCounts = new Dictionary<ModType, int>();
+
         /// <summary>
         /// 
         /// </summary>
@@ -140,32 +146,38 @@ namespace FIFA21Plugin
             foreach (var modEBX in parent.modifiedEbx)
             {
                 var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
-                if (originalEntry != null)
+                if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                 {
-                    if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+                    var casPath = originalEntry.ExtraData.CasPath;
+                    if(casPath.Contains("native_patch"))
                     {
-                        var casPath = originalEntry.ExtraData.CasPath;
-                        if (!casToMods.ContainsKey(casPath))
-                        {
-                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry) });
-                        }
-                        else
-                        {
-                            casToMods[casPath].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry));
-                        }
+
                     }
-                    // Is Added
+
+                    if (!casToMods.ContainsKey(casPath))
+                    {
+                        casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry) });
+                    }
                     else
                     {
-                        if (!casToMods.ContainsKey(string.Empty))
-                        {
-                            casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true) });
-                        }
-                        else
-                        {
-                            casToMods[string.Empty].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true));
-                        }
+                        casToMods[casPath].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry));
                     }
+                    //// Is Added
+                    //else
+                    //{
+                    //    if (!casToMods.ContainsKey(string.Empty))
+                    //    {
+                    //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true) });
+                    //    }
+                    //    else
+                    //    {
+                    //        casToMods[string.Empty].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true));
+                    //    }
+                    //}
+                }
+                else
+                {
+                    ErrorCounts[ModType.EBX]++;
                 }
             }
             foreach (var modRES in parent.modifiedRes)
@@ -199,11 +211,34 @@ namespace FIFA21Plugin
                     //    }
                     //}
                 }
+                else
+                {
+                    ErrorCounts[ModType.RES]++;
+                }
             }
+
             foreach (var modChunks in parent.modifiedChunks)
             {
-                //var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
+                var originalEntry1 = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
                 var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
+
+
+                //if (originalEntry == null) // Unable to find original entry because of patching
+                //{
+                //    foreach (var c in casToMods.Values)
+                //    {
+                //        foreach (var m in c.Where(x=>x.ModType == ModType.RES))
+                //        {
+                //            if(Texture.TryParse(new MemoryStream(parent.archiveData[m.Sha1].Data), AssetManager.Instance, out Texture texture))
+                //            {
+                //                if(texture.ChunkId == modChunks.Key)
+                //                {
+
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
 
                 //// Find other chunk and use it
                 //var otherChunks = new List<ChunkAssetEntry>();
@@ -244,7 +279,9 @@ namespace FIFA21Plugin
                 else
                 {
                     //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
-                    parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
+                    parent.Logger.LogWarning($"Unable to find CAS file to edit for Chunk {modChunks.Key}");
+                    //parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
+                    ErrorCounts[ModType.CHUNK]++;
                 }
             }
 
@@ -272,6 +309,16 @@ namespace FIFA21Plugin
                 var dictOfModsToCas = GetModdedCasFiles();
                 if(dictOfModsToCas != null && dictOfModsToCas.Count > 0)
                 {
+                    if (ErrorCounts.Count > 0)
+                    {
+                        if (ErrorCounts[ModType.EBX] > 0)
+                            parent.Logger.Log("EBX ERRORS:: " + ErrorCounts[ModType.EBX]);
+                        if (ErrorCounts[ModType.RES] > 0)
+                            parent.Logger.Log("RES ERRORS:: " + ErrorCounts[ModType.RES]);
+                        if (ErrorCounts[ModType.CHUNK] > 0)
+                            parent.Logger.Log("Chunk ERRORS:: " + ErrorCounts[ModType.CHUNK]);
+                    }
+
                     foreach (var item in dictOfModsToCas) 
                     {
                         var casPath = string.Empty;
