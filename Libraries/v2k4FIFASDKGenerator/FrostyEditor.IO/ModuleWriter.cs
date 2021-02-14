@@ -218,10 +218,10 @@ namespace FrostyEditor
 			//MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
 			//MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
 			//MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.9\netstandard.dll"),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.9\System.Runtime.dll"),
+			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.11\netstandard.dll"),
+			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.11\System.Runtime.dll"),
             MetadataReference.CreateFromFile("FrostySdk.dll"),
-			MetadataReference.CreateFromFile("FrostbiteSdk.dll")
+			//MetadataReference.CreateFromFile("FrostbiteSdk.dll")
 			};
 
 			if (File.Exists("EbxClasses.dll"))
@@ -362,8 +362,9 @@ namespace FrostyEditor
 						string value2 = item.GetValue<string>("name");
 						stringBuilder.AppendLine("protected virtual CString GetId()\r\n{");
 						stringBuilder.AppendLine("if (__id != \"\") return __id;");
-						stringBuilder.AppendLine("if (_" + value2 + " != \"\") return _" + value2 + "." + name3 + "();");
-						stringBuilder.AppendLine("if (" + typeof(GlobalAttributes).Name + "." + name2 + ")\r\n{\r\n" + typeof(EbxClassMetaAttribute).Name + " attr = GetType().GetCustomAttribute<" + typeof(EbxClassMetaAttribute).Name + ">();\r\nif (attr != null && attr." + name + " != \"\")\r\nreturn attr." + name + " + \".\" + GetType().Name;\r\n}\r\nreturn GetType().Name;");
+                        //stringBuilder.AppendLine("if (_" + value2 + " != \"\") return _" + value2 + "." + name3 + "();");
+                        stringBuilder.AppendLine("if (_" + value2 + " != \"\") return _" + value2 + ".ToString();");
+                        stringBuilder.AppendLine("if (" + typeof(GlobalAttributes).Name + "." + name2 + ")\r\n{\r\n" + typeof(EbxClassMetaAttribute).Name + " attr = GetType().GetCustomAttribute<" + typeof(EbxClassMetaAttribute).Name + ">();\r\nif (attr != null && attr." + name + " != \"\")\r\nreturn attr." + name + " + \".\" + GetType().Name;\r\n}\r\nreturn GetType().Name;");
 						stringBuilder.AppendLine("}");
 						flag2 = true;
 					}
@@ -372,7 +373,8 @@ namespace FrostyEditor
 						string value3 = item.GetValue<string>("name");
 						stringBuilder.AppendLine("protected override CString GetId()\r\n{");
 						stringBuilder.AppendLine("if (__id != \"\") return __id;");
-						stringBuilder.AppendLine("if (_" + value3 + " != \"\") return _" + value3 + "." + name3 + "();\r\nreturn base.GetId();");
+						//stringBuilder.AppendLine("if (_" + value3 + " != \"\") return _" + value3 + "." + name3 + "();\r\nreturn base.GetId();");
+						stringBuilder.AppendLine("if (_" + value3 + " != \"\") return _" + value3 + ".ToString();\r\nreturn base.GetId();");
 						stringBuilder.AppendLine("}");
 					}
 				}

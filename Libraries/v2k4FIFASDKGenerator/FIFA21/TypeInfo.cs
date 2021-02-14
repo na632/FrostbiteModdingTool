@@ -1,5 +1,6 @@
 using FrostyEditor.IO;
 using FrostySdk;
+using System.Text.RegularExpressions;
 
 namespace v2k4FIFASDKGenerator.FIFA21
 {
@@ -13,7 +14,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
 		public override void Read(MemoryReader reader)
 		{
 			name = reader.ReadNullTerminatedString();
-            
+            if(name.Contains("AttribSchema_gp_positioning_defe"))
+            {
+
+            }
 			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			flags >>= 1;
@@ -24,14 +28,26 @@ namespace v2k4FIFASDKGenerator.FIFA21
             //size = reader.ReadUShort();
             //_ = reader.ReadUShort();
 
-            guid = reader.ReadGuid();
+            //_ = reader.ReadUInt();
+            //size = reader.ReadUShort();
 
-			long position = reader.ReadLong();
+            guid = reader.ReadGuid();
+			if(!Regex.IsMatch(guid.ToString(), @"^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$"))
+            {
+				throw new System.FormatException("Guid is not valid");
+            }
+
+			// Module 
+			long namespaceNamePosition = reader.ReadLong();
+			
+			// Unknown
 			_ = reader.ReadLong();
 
+			// 
 			alignment = reader.ReadUShort();
 			fieldCount = reader.ReadUShort();
 
+			// Padding
 			padding3 = reader.ReadUInt();
 			
 			array = new long[7];
@@ -39,7 +55,7 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			{
 				array[i] = reader.ReadLong();
 			}
-			reader.Position = position;
+			reader.Position = namespaceNamePosition;
 			nameSpace = reader.ReadNullTerminatedString();
 			bool flag = false;
 

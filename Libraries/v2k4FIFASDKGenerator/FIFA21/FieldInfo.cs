@@ -39,8 +39,8 @@ namespace v2k4FIFASDKGenerator.FIFA21
 
 				if (string.IsNullOrEmpty(name))
 				{
-					name = "Unk" + RandomEmpty.Next().ToString();
-					Debug.WriteLine($"[ERROR] {parentTypeInfo.name} (Type:{parentTypeInfo.Type.ToString()}) has unknown field with name {name}");
+					//name = "Unk" + RandomEmpty.Next().ToString();
+					//Debug.WriteLine($"[ERROR] {parentTypeInfo.name} (Type:{parentTypeInfo.Type.ToString()}) has unknown field with name {name}");
 				}
 			}
 

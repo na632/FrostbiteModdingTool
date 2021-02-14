@@ -91,7 +91,7 @@ namespace FIFA21Plugin.Textures
 				nativeReader.Read(textureArray, 0, (int)(nativeReader.Length - nativeReader.Position));
 				AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray, textureAsset);
 				AssetManager.Instance.ModifyRes(resRid, textureAsset.ToBytes());
-                //AssetManager.Instance.ModifyEbx(assetEntry.Name, ebxAsset);
+                AssetManager.Instance.ModifyEbx(assetEntry.Name, ebxAsset);
                 resEntry.LinkAsset(chunkEntry);
 				assetEntry.LinkAsset(resEntry);
 			}

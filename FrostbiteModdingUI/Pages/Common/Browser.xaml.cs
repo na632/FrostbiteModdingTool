@@ -35,6 +35,7 @@ using HelixToolkit.SharpDX.Core.Assimp;
 using FrostbiteModdingUI.Models;
 using System.Threading;
 using FrostySdk.Frostbite.IO.Output;
+using System.Diagnostics;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -741,6 +742,7 @@ namespace FIFAModdingUI.Pages.Common
 			catch (Exception e)
 			{
 				MainEditorWindow.Log($"Failed to load file with message {e.Message}");
+				Debug.WriteLine(e.ToString());
 
 			}
 		}

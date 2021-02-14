@@ -664,7 +664,8 @@ namespace v2k4FIFASDKGenerator
         {
             MemoryReader memoryReader = null;
             //string typeStr = "v2k4FIFASDKGenerator.ClassesSdkCreator+ClassInfo";
-            string typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
+            //string typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
+            string typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
 
             //if (ProfilesLibrary.DataVersion == 20181207)
             //{
@@ -691,6 +692,7 @@ namespace v2k4FIFASDKGenerator
             {
                 //typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
                 typeStr = "v2k4FIFASDKGenerator.FIFA21.ClassInfo";
+
             }
             else if (ProfilesLibrary.IsMaddenDataVersion())
             {

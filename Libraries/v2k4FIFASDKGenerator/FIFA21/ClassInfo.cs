@@ -9,9 +9,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
 		public override void Read(MemoryReader reader)
 		{
 			long position = reader.Position;
-			long position2 = reader.ReadLong();
-			reader.ReadLong();
-			ClassesSdkCreator.offset = reader.ReadLong();
+
+			long typePosition = reader.ReadLong();
+			var previousOffset = reader.ReadLong();
+			long nextOffset = reader.ReadLong();
 
 			id = reader.ReadUShort();
 			//
@@ -24,8 +25,10 @@ namespace v2k4FIFASDKGenerator.FIFA21
 				reader.ReadByte(),
 				reader.ReadByte()
 			};
+
 			parentClass = reader.ReadLong();
-			reader.Position = position2;
+
+			reader.Position = typePosition;
 			typeInfo = new TypeInfo();
 			typeInfo.Read(reader);
 			if (typeInfo.parentClass != 0L)
@@ -36,6 +39,8 @@ namespace v2k4FIFASDKGenerator.FIFA21
 			{
 				parentClass = 0L;
 			}
+
+			ClassesSdkCreator.offset = nextOffset;
 		}
 
         public override string ToString()

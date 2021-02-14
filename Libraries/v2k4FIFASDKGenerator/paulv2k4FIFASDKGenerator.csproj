@@ -36,4 +36,8 @@
     <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+  </ItemGroup>
+
 </Project>
