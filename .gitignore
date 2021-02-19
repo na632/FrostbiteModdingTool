@@ -3,8 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Ignore Mods
 # fbmods
 *.fbmod
+*.lmod
+
+# Ignore Boost
+[Bb]oost/
 
 # User-specific files
 *.rsuser

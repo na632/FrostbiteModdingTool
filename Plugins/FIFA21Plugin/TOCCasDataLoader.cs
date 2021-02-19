@@ -218,9 +218,9 @@ namespace FIFA21Plugin
 								bundle.TOCSizes.Add(locationOfSize);
 								bundle.Sizes.Add(bundleSizeInCas);
 
-                                //bundle.TOCCas.Add(cas);
-                                //bundle.TOCCatalog.Add(catalog);
-                                //bundle.TOCPatch.Add(isInPatch);
+                                bundle.TOCCas.Add(cas);
+                                bundle.TOCCatalog.Add(catalog);
+                                bundle.TOCPatch.Add(isInPatch);
                             }
 							//bundle.TOCCas.Add(cas);
 							//bundle.TOCCatalog.Add(catalog);

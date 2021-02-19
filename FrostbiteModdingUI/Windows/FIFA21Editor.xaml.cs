@@ -50,7 +50,11 @@ namespace FIFAModdingUI.Windows
             InitializeComponent();
             this.DataContext = this;
             Closing += FIFA21Editor_Closing;
+            Loaded += FIFA21Editor_Loaded;
+        }
 
+        private void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
+        {
             if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {
                 InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
@@ -94,6 +98,9 @@ namespace FIFAModdingUI.Windows
             set
             {
                 _windowTitle = WindowFIFAEditorTitle + " - [" + value + "]";
+                this.DataContext = null;
+                this.DataContext = this;
+                this.UpdateLayout();
             }
         }
 
@@ -560,13 +567,14 @@ namespace FIFAModdingUI.Windows
                             var index = 0;
                             foreach (var file in allFiles)
                             {
-
+                                var fIFile = new FileInfo(file);
                                 //tasks[index] = Task.Run(() =>
                                 //{
                                 StringBuilder sbFinalResult = new StringBuilder();
 
-                                var encrypt = !file.Contains(".dds")
-                                    && !file.Contains(".db");
+                                var encrypt = fIFile.Extension != ".dds"
+                                    && fIFile.Extension != ".db"
+                                    && fIFile.Extension != ".loc";
 
                                 if (encrypt)
                                 {

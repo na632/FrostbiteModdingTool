@@ -31,17 +31,29 @@ namespace FIFA21Plugin
 
         public bool Patch { get; internal set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public List<long> TOCOffsets = new List<long>();
-        //public Dictionary<long, int> TOCOffsetsToCAS = new Dictionary<long, int>();
-        //public Dictionary<long, int> TOCOffsetsToCatalog = new Dictionary<long, int>();
-        //public Dictionary<long, bool> TOCOffsetsToPatch = new Dictionary<long, bool>();
-
+        /// <summary>
+        /// 
+        /// </summary>
         public List<long> TOCSizes = new List<long>();
-
+        /// <summary>
+        /// 
+        /// </summary>
         public List<int> TOCCas = new List<int>();
+        /// <summary>
+        /// 
+        /// </summary>
         public List<int> TOCCatalog = new List<int>();
+        /// <summary>
+        /// 
+        /// </summary>
         public List<bool> TOCPatch = new List<bool>();
-
+        /// <summary>
+        /// 
+        /// </summary>
         public byte[] Flags;
 
         public override string ToString()

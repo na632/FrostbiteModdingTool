@@ -121,6 +121,7 @@ namespace FIFA21Plugin
                 var type = reader.ReadUInt(Endian.Little);
                 var resType = (ResourceType)type;
                 item.AddValue("resType", type);
+                item.SetValue("actualResType", resType);
             }
             foreach (DbObject item2 in list)
             {
@@ -129,8 +130,9 @@ namespace FIFA21Plugin
             }
             foreach (DbObject item3 in list)
             {
-                var resRid = reader.ReadLong(Endian.Little);
-                item3.AddValue("resRid", resRid);
+               // var resRid = reader.ReadLong(Endian.Little);
+                var resRid = reader.ReadULong(Endian.Little);
+                item3.SetValue("resRid", resRid);
             }
             return list;
         }

@@ -11,7 +11,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-        Title="{Binding Path=WindowTitle, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
+        Title="{Binding Path=WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
          SizeToContent="Manual" MinHeight="720" MinWidth="1280"
         ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Visible"
          WindowStartupLocation="CenterScreen" WindowState="Normal" WindowStyle="SingleBorderWindow"
