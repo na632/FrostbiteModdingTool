@@ -300,6 +300,8 @@ namespace FIFA21Plugin
 									{
 
 									}
+									// Generate a Sha1 since we dont have one.
+									chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
 
 									chunkAssetEntry2.LogicalOffset = 0;
 									chunkAssetEntry2.OriginalSize = (chunkAssetEntry2.LogicalOffset & 0xFFFF) | chunkSize;

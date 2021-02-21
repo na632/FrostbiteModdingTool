@@ -43,6 +43,8 @@ namespace paulv2k4ModdingExecuter
 
                 public List<Guid> Chunks = new List<Guid>();
 
+                public List<string> Legacy = new List<string>();
+
                 public void AddEbx(string name)
                 {
                     if (!Ebx.Contains(name))
@@ -64,6 +66,14 @@ namespace paulv2k4ModdingExecuter
                     if (!Chunks.Contains(guid))
                     {
                         Chunks.Add(guid);
+                    }
+                }
+
+                public void AddLegacy(string name)
+                {
+                    if (!Legacy.Contains(name))
+                    {
+                        Legacy.Add(name);
                     }
                 }
             }
@@ -4244,6 +4254,8 @@ namespace paulv2k4ModdingExecuter
 
         public Dictionary<Guid, ChunkAssetEntry> modifiedChunks = new Dictionary<Guid, ChunkAssetEntry>();
 
+        public Dictionary<string, LegacyFileEntry> modifiedLegacy = new Dictionary<string, LegacyFileEntry>();
+
         public Dictionary<Sha1, ArchiveInfo> archiveData = new Dictionary<Sha1, ArchiveInfo>();
 
         public int numArchiveEntries;
@@ -5505,6 +5517,9 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                 case ModResourceType.Chunk:
                                     modBundleInfo.Modify.AddChunk(new Guid(resource.Name));
                                     break;
+                                case ModResourceType.Legacy:
+                                    modBundleInfo.Modify.AddLegacy(resource.Name);
+                                    break;
                             }
                         }
                         foreach (int addedBundle in resource.AddedBundles)
@@ -5530,6 +5545,12 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                     break;
                             }
                         }
+
+
+                        // Get the Resource Data out of the mod
+                        byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+
+
                         if (resource.Type == ModResourceType.Ebx)
                         {
                             if (modifiedEbx.ContainsKey(resource.Name))
@@ -5547,7 +5568,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                 modifiedEbx.Remove(resource.Name);
                                 numArchiveEntries--;
                             }
-                            byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                            //byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                             EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
                             resource.FillAssetEntry(ebxAssetEntry2);
                             ebxAssetEntry2.Size = resourceData.Length;
@@ -5636,37 +5657,6 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         else if (resource.Type == ModResourceType.Chunk)
                         {
                             Guid guid = new Guid(resource.Name);
-                            //if (resource.HasHandler)
-                            //{
-                            //    ChunkAssetEntry chunkAssetEntry = null;
-                            //    HandlerExtraData handlerExtraData2 = null;
-                            //    byte[] resourceData4 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                            //    if (modifiedChunks.ContainsKey(guid))
-                            //    {
-                            //        chunkAssetEntry = modifiedChunks[guid];
-                            //        handlerExtraData2 = (HandlerExtraData)chunkAssetEntry.ExtraData;
-                            //    }
-                            //    else
-                            //    {
-                            //        chunkAssetEntry = new ChunkAssetEntry();
-                            //        handlerExtraData2 = new HandlerExtraData();
-                            //        chunkAssetEntry.Id = guid;
-                            //        chunkAssetEntry.IsTocChunk = resource.IsTocChunk;
-                            //        Type[] types = Assembly.GetExecutingAssembly().GetTypes();
-                            //        foreach (Type type in types)
-                            //        {
-                            //            if (type.GetInterface(typeof(Frosty.ModSupport.Handlers.ICustomActionHandler).Name) != null && type.GetCustomAttribute<ActionHandlerAttribute>().Hash == (uint)resource.Handler)
-                            //            {
-                            //                handlerExtraData2.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(type);
-                            //                break;
-                            //            }
-                            //        }
-                            //        chunkAssetEntry.ExtraData = handlerExtraData2;
-                            //        modifiedChunks.Add(guid, chunkAssetEntry);
-                            //    }
-                            //    handlerExtraData2.Data = handlerExtraData2.Handler.Load(handlerExtraData2.Data, resourceData4);
-                            //}
-                            //else
                             {
                                 if (modifiedChunks.ContainsKey(guid))
                                 {
@@ -5702,6 +5692,31 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                 }
                                 numArchiveEntries++;
                             }
+                        }
+
+                        else if (resource.Type == ModResourceType.Legacy)
+                        {
+                            //byte[] resourceData3 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                            LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
+                            resource.FillAssetEntry(legacyAssetEntry);
+                            legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = resourceData };
+                            legacyAssetEntry.Size = resourceData.Length;
+                            modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
+                            if (!archiveData.ContainsKey(legacyAssetEntry.Sha1))
+                            {
+                                archiveData.Add(legacyAssetEntry.Sha1, new ArchiveInfo
+                                {
+                                    Data = resourceData,
+                                    RefCount = 1
+                                });
+                            }
+                            else
+                            {
+                                //archiveData[legacyAssetEntry.Sha1].RefCount++;
+                                archiveData[legacyAssetEntry.Sha1].Data = resourceData;
+                                archiveData[legacyAssetEntry.Sha1].RefCount++;
+                            }
+                            numArchiveEntries++;
                         }
                     }
 

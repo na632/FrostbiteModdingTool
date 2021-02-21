@@ -340,13 +340,13 @@ namespace FIFA21Plugin
                             resobjectinlist.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + i]);
                             resobjectinlist.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + i]);
 
-                            //ResObjectList[i].SetValue("cas", casBundle.TOCCas[ebxCount + i]);
-                            //ResObjectList[i].SetValue("catalog", casBundle.TOCCatalog[ebxCount + i]);
-                            //ResObjectList[i].SetValue("patch", casBundle.TOCPatch[ebxCount + i]);
+                            resobjectinlist.SetValue("cas", casBundle.TOCCas[ebxCount + i]);
+                            resobjectinlist.SetValue("catalog", casBundle.TOCCatalog[ebxCount + i]);
+                            resobjectinlist.SetValue("patch", casBundle.TOCPatch[ebxCount + i]);
 
-                            resobjectinlist.SetValue("cas", casBundle.Cas);
-                            resobjectinlist.SetValue("catalog", casBundle.Catalog);
-                            resobjectinlist.SetValue("patch", casBundle.Patch);
+                            //resobjectinlist.SetValue("cas", casBundle.Cas);
+                            //resobjectinlist.SetValue("catalog", casBundle.Catalog);
+                            //resobjectinlist.SetValue("patch", casBundle.Patch);
 
                             //ResObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + i]]);
                             //ResObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + i]]);

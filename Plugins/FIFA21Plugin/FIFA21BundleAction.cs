@@ -142,6 +142,35 @@ namespace FIFA21Plugin
         /// <returns>cas to Tuple of Sha1, Name, Type, IsAdded</returns>
         private Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
         {
+            // Handle Legacy first to generate modified chunks
+            if (parent.modifiedLegacy.Count > 0)
+            {
+                parent.Logger.Log($"Legacy :: {parent.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
+                var countLegacyChunksModified = 0;
+                foreach (var modLegacy in parent.modifiedLegacy)
+                {
+                    var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
+                    var data = parent.archiveData[modLegacy.Value.Sha1].Data;
+                    AssetManager.Instance.ModifyCustomAsset("legacy", modLegacy.Key, data);
+                    var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
+                    foreach (var modLegChunk in modifiedLegacyChunks)
+                    {
+                        modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+                        if (!parent.modifiedChunks.ContainsKey(modLegChunk.Id))
+                        {
+                            parent.modifiedChunks.Add(modLegChunk.Id, modLegChunk);
+                        }
+                        else
+                        {
+                            parent.modifiedChunks[modLegChunk.Id] = modLegChunk;
+                        }
+                        countLegacyChunksModified++;
+                    }
+                }
+                parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
+            }
+            // ------ End of handling Legacy files ---------
+
             Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
             foreach (var modEBX in parent.modifiedEbx)
             {
@@ -219,34 +248,7 @@ namespace FIFA21Plugin
 
             foreach (var modChunks in parent.modifiedChunks)
             {
-                var originalEntry1 = AssetManager.Instance.GetChunkEntry(modChunks.Value.Id);
                 var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
-
-
-                //if (originalEntry == null) // Unable to find original entry because of patching
-                //{
-                //    foreach (var c in casToMods.Values)
-                //    {
-                //        foreach (var m in c.Where(x=>x.ModType == ModType.RES))
-                //        {
-                //            if(Texture.TryParse(new MemoryStream(parent.archiveData[m.Sha1].Data), AssetManager.Instance, out Texture texture))
-                //            {
-                //                if(texture.ChunkId == modChunks.Key)
-                //                {
-
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
-
-                //// Find other chunk and use it
-                //var otherChunks = new List<ChunkAssetEntry>();
-                //otherChunks.AddRange(
-                //    AssetManager.Instance.GetChunkEntries(modChunks.Key)
-                //    .Where(x => x.SB_CAS_Offset_Position != originalEntry.SB_CAS_Offset_Position));
-                //if (otherChunks.Count > 0)
-                //    originalEntry = otherChunks.Last();
 
                 if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                 {
@@ -262,19 +264,6 @@ namespace FIFA21Plugin
                             casToMods[casPath].Add(new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry));
                         }
                     }
-                    // Is Added
-                    //else
-                    //{
-                    //    if (!casToMods.ContainsKey(string.Empty))
-                    //    {
-                    //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modChunks.Value.Sha1, modChunks.Value.Name, ModType.EBX, true) });
-                    //    }
-                    //    else
-                    //    {
-                    //        casToMods[string.Empty].Add(new ModdedFile(modChunks.Value.Sha1, modChunks.Value.Name, ModType.EBX, true));
-                    //    }
-                    //}
-
                 }
                 else
                 {
@@ -284,6 +273,8 @@ namespace FIFA21Plugin
                     ErrorCounts[ModType.CHUNK]++;
                 }
             }
+
+            
 
             return casToMods;
         }
