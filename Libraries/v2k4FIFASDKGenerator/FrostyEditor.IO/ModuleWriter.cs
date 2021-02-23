@@ -218,8 +218,8 @@ namespace FrostyEditor
 			//MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
 			//MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
 			//MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.11\netstandard.dll"),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.11\System.Runtime.dll"),
+			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.12\netstandard.dll"),
+			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.12\System.Runtime.dll"),
             MetadataReference.CreateFromFile("FrostySdk.dll"),
 			//MetadataReference.CreateFromFile("FrostbiteSdk.dll")
 			};
@@ -520,7 +520,7 @@ namespace FrostyEditor
 			}
 			if (classObj.HasValue("nameHash"))
 			{
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0ul) + ")]");
 			}
 			if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsFIFA21DataVersion())
 			{
@@ -593,7 +593,7 @@ namespace FrostyEditor
 			int value3 = fieldObj.GetValue("index", 0);
 			if (fieldObj.HasValue("nameHash"))
 			{
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");
 			}
 			stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(" + num2 + ", " + fieldObj.GetValue("offset", 0) + ", " + text + ", " + (ebxFieldType == EbxFieldType.Array).ToString().ToLower() + ", " + num + ")]");
 			if (value != null)

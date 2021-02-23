@@ -157,7 +157,7 @@ namespace FIFAModdingUI.Windows
                     btnProjectOpen.IsEnabled = true;
                     btnProjectSave.IsEnabled = true;
                     btnProjectWriteToMod.IsEnabled = true;
-                    btnProjectWriteToFIFAMod.IsEnabled = true;
+                    //btnProjectWriteToFIFAMod.IsEnabled = true;
                     btnOpenModDetailsPanel.IsEnabled = true;
                     var wt = WindowTitle;
                     WindowTitle = "New Project";

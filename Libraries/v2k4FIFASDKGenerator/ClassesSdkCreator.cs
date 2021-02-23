@@ -174,7 +174,8 @@ namespace v2k4FIFASDKGenerator
                         EbxField ebxField = default(EbxField);
                         ebxField.Name = fieldInList.GetValue<string>("name");
                         ebxField.Type = (ushort)fieldInList.GetValue("flags", 0);
-                        ebxField.NameHash = (uint)fieldInList.GetValue("nameHash",0);
+                        //ebxField.NameHash = (uint)fieldInList.GetValue("nameHash",0);
+                        ebxField.NameHash = (ulong)fieldInList.GetValue("nameHash",0ul);
                         fieldList.Add(ebxField);
                     }
                     if(ebxClass.Name.ToLower().Contains("attribschema"))
@@ -227,18 +228,18 @@ namespace v2k4FIFASDKGenerator
             byte[] fileFromMemoryFs = FileSystem.GetFileFromMemoryFs(name);
             if (fileFromMemoryFs != null)
             {
-                Dictionary<uint, DbObject> dictionary = new Dictionary<uint, DbObject>();
-                Dictionary<uint, string> dictionary2 = new Dictionary<uint, string>();
+                Dictionary<ulong, DbObject> classDictionaryToHash = new Dictionary<ulong, DbObject>();
+                Dictionary<ulong, string> fieldDictionaryToHash = new Dictionary<ulong, string>();
                 foreach (DbObject @class in classList)
                 {
                     if (!@class.HasValue("basic"))
                     {
-                        dictionary.Add((uint)@class.GetValue("nameHash", 0), @class);
+                        classDictionaryToHash.Add((ulong)@class.GetValue("nameHash", 0ul), @class);
                         foreach (DbObject item4 in @class.GetValue<DbObject>("fields"))
                         {
-                            if (!dictionary2.ContainsKey((uint)item4.GetValue("nameHash", 0)))
+                            if (!fieldDictionaryToHash.ContainsKey((ulong)item4.GetValue("nameHash", 0ul)))
                             {
-                                dictionary2.Add((uint)item4.GetValue("nameHash", 0), item4.GetValue("name", ""));
+                                fieldDictionaryToHash.Add((ulong)item4.GetValue("nameHash", 0ul), item4.GetValue("name", ""));
                             }
                         }
                     }
@@ -253,7 +254,7 @@ namespace v2k4FIFASDKGenerator
                     {
                         uint num3 = nativeReader.ReadUInt();
                         EbxField field = default(EbxField);
-                        field.Name = (dictionary2.ContainsKey(num3) ? dictionary2[num3] : "");
+                        field.Name = (fieldDictionaryToHash.ContainsKey(num3) ? fieldDictionaryToHash[num3] : "");
                         field.NameHash = num3;
                         field.Type = (ushort)(nativeReader.ReadUShort() >> 1);
                         field.ClassRef = nativeReader.ReadUShort();
@@ -307,9 +308,9 @@ namespace v2k4FIFASDKGenerator
                         {
                             EbxClass value2 = list2[k].Value;
                             Guid guid = list3[k];
-                            if (dictionary.ContainsKey(value2.NameHash))
+                            if (classDictionaryToHash.ContainsKey(value2.NameHash))
                             {
-                                DbObject dbObject3 = dictionary[value2.NameHash];
+                                DbObject dbObject3 = classDictionaryToHash[value2.NameHash];
                                 if (mapping.ContainsKey(dbObject3.GetValue("name", "")))
                                 {
                                     mapping.Remove(dbObject3.GetValue("name", ""));
@@ -341,8 +342,8 @@ namespace v2k4FIFASDKGenerator
                                     bool flag = false;
                                     foreach (DbObject dbObjField in dbObjectFields)
                                     {
-                                        var dbObjNameHash = dbObjField.GetValue("nameHash", 0);
-                                        if (dbObjNameHash == (int)field.NameHash)
+                                        var dbObjNameHash = dbObjField.GetValue("nameHash", 0ul);
+                                        if (dbObjNameHash == field.NameHash)
                                         {
                                             dbObjField.SetValue("type", field.Type);
                                             dbObjField.SetValue("offset", field.DataOffset);
@@ -366,7 +367,7 @@ namespace v2k4FIFASDKGenerator
                                             field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
                                             DbObject dbObject6 = DbObject.CreateObject();
                                             dbObject6.SetValue("name", field.Name);
-                                            dbObject6.SetValue("nameHash", (int)field.NameHash);
+                                            dbObject6.SetValue("nameHash", field.NameHash);
                                             dbObject6.SetValue("type", field.Type);
                                             dbObject6.SetValue("flags", (ushort)0);
                                             dbObject6.SetValue("offset", field.DataOffset);
@@ -437,7 +438,8 @@ namespace v2k4FIFASDKGenerator
                         Name = dbObject7.GetValue<string>("name"),
                         Type = (ushort)dbObject7.GetValue<int>("flags"),
                         DataOffset = (uint)dbObject7.GetValue<int>("offset"),
-                        NameHash = (uint)dbObject7.GetValue<int>("nameHash")
+                        //NameHash = (uint)dbObject7.GetValue<int>("nameHash")
+                        NameHash = dbObject7.GetValue<ulong>("nameHash")
                     });
                 }
                 ebxFieldList.Sort((EbxField a, EbxField b) => a.DataOffset.CompareTo(b.DataOffset));
