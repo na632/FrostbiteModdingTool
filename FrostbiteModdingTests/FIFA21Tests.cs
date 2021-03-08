@@ -172,9 +172,9 @@ namespace FrostbiteModdingTests
         public void TestGPMod()
         {
             ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
-            projectManagement.FrostyProject = new FrostySdk.FrostbiteProject();
-            projectManagement.FrostyProject.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbproject");
-            projectManagement.FrostyProject.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbproject");
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
             
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
@@ -185,14 +185,14 @@ namespace FrostbiteModdingTests
 
         }
 
+
+
         [TestMethod]
         public void TestLegacyMod()
         {
-            ProjectManagement projectManagement = new ProjectManagement(@"E:\Origin Games\FIFA 21\FIFA21.exe");
-            projectManagement.FrostyProject = new FrostySdk.FrostbiteProject();
-            projectManagement.FrostyProject.Load(@"E:\Origin Games\FIFA 21\test legacy.fbproject");
+            ProjectManagement projectManagement = new ProjectManagement(@"F:\Origin Games\FIFA 21\FIFA21.exe");
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
 
-            var allPlayerLua = AssetManager.Instance.EnumerateCustomAssets("legacy").Where(x => x.Filename.Contains("player", System.StringComparison.OrdinalIgnoreCase));
             var ca = AssetManager.Instance.GetCustomAsset("legacy", AssetManager.Instance.GetCustomAssetEntry("legacy", "data/fifarna/lua/boot.lua"));
             byte[] data = null;
             using (NativeReader nr = new NativeReader(ca))
@@ -204,14 +204,71 @@ namespace FrostbiteModdingTests
             var editedStream = new MemoryStream();
             using (NativeWriter nw = new NativeWriter(editedStream, leaveOpen: true))
             {
+                //nw.Write(Encoding.UTF8.GetBytes("HELLO_WORLD = true"));
                 nw.Write(data);
-                nw.Write(Encoding.UTF8.GetBytes("HELLO_WORLD = true"));
                 nw.Position = 0;
             }
 
-            AssetManager.Instance.ModifyCustomAsset("legacy", "data/fifarna/lua/boot.lua", new NativeReader(editedStream).ReadToEnd());
+            AssetManager.Instance.ModifyLegacyAsset("data/fifarna/lua/boot.lua", new NativeReader(editedStream).ReadToEnd(), false);
 
-            projectManagement.FrostyProject.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        /// <summary>
+        /// This tests a more complex "compressed" asset
+        /// </summary>
+        [TestMethod]
+        public void TestLegacyMod_CompressedAsset()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"F:\Origin Games\FIFA 21\FIFA21.exe");
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+
+            var ca = AssetManager.Instance.GetCustomAsset("legacy", AssetManager.Instance.GetCustomAssetEntry("legacy", @"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/Finance/ProfCWRelation.csv"));
+            byte[] data = null;
+            using (NativeReader nr = new NativeReader(ca))
+            {
+                nr.Position = 0;
+                data = nr.ReadToEnd();
+            }
+
+            AssetManager.Instance.ModifyLegacyAsset(@"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/Finance/ProfCWRelation.csv"
+                , new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\Finance\ProfCWRelation.csv", FileMode.Open)).ReadToEnd()
+                , false
+                );
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        /// <summary>
+        /// This tests a more complex "compressed" asset
+        /// </summary>
+        [TestMethod]
+        public void TestLegacyMod_PlayerValues()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(@"F:\Origin Games\FIFA 21\FIFA21.exe");
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+
+            
+            AssetManager.Instance.ModifyLegacyAsset(@"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/playervalues.ini"
+                , new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\playervalues_crazy.ini", FileMode.Open)).ReadToEnd()
+                , false
+                );
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",

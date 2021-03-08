@@ -19,6 +19,7 @@ using Frosty.ModSupport;
 using System.IO.Compression;
 using FrostySdk.FrostySdk.Deobfuscators;
 using FrostySdk.Frosty;
+using Newtonsoft.Json;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -5928,6 +5929,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
         public async Task<bool> Run(FileSystem inFs, ILogger inLogger, string rootPath, string additionalArgs, params string[] modPaths)
         {
+            Logger = inLogger;
             fs = inFs;
             string modPath = fs.BasePath + modDirName + "\\";
 
@@ -5947,9 +5949,87 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             //if(UseLegacyLauncher)
             //    BuildModData_FrostyVersion(inFs, inLogger, rootPath, additionalArgs, modPaths);
             //else
-            var foundFrostyMods = await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
+            var foundFrostyMods = false;
+            var lastModPaths = new Dictionary<string, DateTime>();
+            if (File.Exists("LastLaunchedMods.json")) {
+                var LastLaunchedModsData = File.ReadAllText("LastLaunchedMods.json");
+                lastModPaths = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(LastLaunchedModsData);
+            }
+            var sameCountAsLast = lastModPaths.Count == modPaths.Count();
+            var sameAsLast = false;
+            if (sameCountAsLast) 
+            {
+                foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
+                {
+                    if (lastModPaths.ContainsKey(f.FullName)) 
+                    {
+                        sameAsLast = (f.LastWriteTime == lastModPaths[f.FullName]);
+                        if (!sameAsLast)
+                            break;
+                    }
+                }
+            }
 
-            if (foundFrostyMods)
+            // ---------------------------------------------
+            // Load Last Patched Version
+            uint? lastHead = null;
+            var LastHeadData = new Dictionary<string, uint>();
+            if (File.Exists("LastPatchedVersion.json"))
+            {
+                LastHeadData = JsonConvert.DeserializeObject<Dictionary<string, uint>>(File.ReadAllText("LastPatchedVersion.json"));
+                if (LastHeadData.ContainsKey(fs.BasePath)) 
+                {
+                    lastHead = LastHeadData[fs.BasePath];
+                }
+            }
+
+            // Notify if new Patch detected
+            if (fs.Head != lastHead)
+            {
+                Logger.Log("Detected New Version of " + ProfilesLibrary.ProfileName + ".exe, rebuilding mods");
+                // If new patch detected, force rebuild of mods
+                sameAsLast = false;
+                await Task.Delay(1000);
+            }
+
+            // Notify if NO changes are made to mods
+            if (sameAsLast)
+            {
+                Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
+                await Task.Delay(1000);
+            }
+            // Rebuild mods
+            else
+            {
+                foundFrostyMods = await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
+                lastModPaths.Clear();
+                foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
+                {
+                    lastModPaths.Add(f.FullName, f.LastWriteTime);
+                }
+
+                // Save Last Launched Mods
+                File.WriteAllText("LastLaunchedMods.json", JsonConvert.SerializeObject(lastModPaths));
+                // ----------
+
+                // ---------------------------------------------
+                // Save Last Patched Version
+                lastHead = fs.Head;
+
+                if (LastHeadData.ContainsKey(fs.BasePath))
+                    LastHeadData[fs.BasePath] = lastHead.Value;
+                else
+                    LastHeadData.Add(fs.BasePath, lastHead.Value);
+
+                File.WriteAllText("LastPatchedVersion.json", JsonConvert.SerializeObject(LastHeadData));
+                //
+                // ---------------------------------------------
+
+            }
+
+            
+
+            if (foundFrostyMods || sameAsLast)
             {
                 Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + additionalArgs);

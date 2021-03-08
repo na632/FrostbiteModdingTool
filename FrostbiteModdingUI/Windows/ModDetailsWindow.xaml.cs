@@ -21,12 +21,12 @@ namespace FrostbiteModdingUI.Windows
         public ModDetailsWindow()
         {
             InitializeComponent();
-            this.DataContext = ProjectManagement.Instance.FrostyProject.ModSettings;
+            this.DataContext = ProjectManagement.Instance.Project.ModSettings;
         }
 
         private void SaveAndClose_Click(object sender, RoutedEventArgs e)
         {
-            ProjectManagement.Instance.FrostyProject.Save();
+            ProjectManagement.Instance.Project.Save();
             this.Close();
         }
     }

@@ -497,6 +497,8 @@ namespace FIFAModdingUI
                     }
                     txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
                     btnLaunch.IsEnabled = true;
+                    GameInstanceSingleton.Logger = this;
+
                 }
                 else
                 {

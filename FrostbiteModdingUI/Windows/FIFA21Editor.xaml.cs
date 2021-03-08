@@ -77,7 +77,9 @@ namespace FIFAModdingUI.Windows
 
         private void FIFA21Editor_Closing(object sender, CancelEventArgs e)
         {
+            ProjectManagement = null;
             ProjectManagement.Instance = null;
+            AssetManager.Instance.Dispose();
             AssetManager.Instance = null;
 
             new MainWindow().Show();
@@ -92,12 +94,12 @@ namespace FIFAModdingUI.Windows
             {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.Append(WindowFIFAEditorTitle);
-                _windowTitle = stringBuilder.ToString();
-                return _windowTitle;
+                stringBuilder.Append(_windowTitle);
+                return stringBuilder.ToString();
             }
             set
             {
-                _windowTitle = WindowFIFAEditorTitle + " - [" + value + "]";
+                _windowTitle = " - [" + value + "]";
                 this.DataContext = null;
                 this.DataContext = this;
                 this.UpdateLayout();
@@ -109,22 +111,25 @@ namespace FIFAModdingUI.Windows
         public void InitialiseOfSelectedGame(string filePath)
         {
             GameInstanceSingleton.InitializeSingleton(filePath);
+            GameInstanceSingleton.Logger = this;
+            lstProjectFiles.Items.Clear();
+            lstProjectFiles.ItemsSource = null;
 
             Task.Run(() =>
             {
-
+               
                 ProjectManagement = new ProjectManagement(filePath, this);
                 ProjectManagement.StartNewProject();
 
                 Log("Initialize Data Browser");
-                dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx()
                                    .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
 
                 // Kit Browser
                 Log("Initialize Kit Browser");
-                var kitList = ProjectManagement.FrostyProject.AssetManager
+                var kitList = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
                 kitList = kitList.OrderBy(x => x.Name).ToList();
                 var citykits = kitList.Where(x => x.Name.ToLower().Contains("manchester_city"));
@@ -132,18 +137,18 @@ namespace FIFAModdingUI.Windows
 
 
                 Log("Initialize Gameplay Browser");
-                gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                   .EnumerateEbx()
                                   .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
 
-                var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+                var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
 
                 Log("Initialize Legacy Browser");
                 legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
                 Log("Initialize Texture Browser");
-                List<IAssetEntry> textureAssets = ProjectManagement.FrostyProject.AssetManager
+                List<IAssetEntry> textureAssets = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
                 textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.ToUpper().Contains(".DDS")));
 
@@ -151,7 +156,7 @@ namespace FIFAModdingUI.Windows
 
                 //playerEditor.InitPlayerSearch();
 
-                Dispatcher.InvokeAsync(() => {
+                Dispatcher.Invoke(() => {
 
                     btnProjectNew.IsEnabled = true;
                     btnProjectOpen.IsEnabled = true;
@@ -161,8 +166,11 @@ namespace FIFAModdingUI.Windows
                     btnOpenModDetailsPanel.IsEnabled = true;
                     var wt = WindowTitle;
                     WindowTitle = "New Project";
+                    ProjectManagement.Project.ModifiedAssetEntries = null;
                     this.DataContext = null;
                     this.DataContext = this;
+                    this.UpdateLayout();
+                    
                 });
 
             });
@@ -302,7 +310,7 @@ namespace FIFAModdingUI.Windows
                 var resultValue = saveFileDialog.ShowDialog();
                 if (resultValue.HasValue && resultValue.Value)
                 {
-                    ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName, ProjectManagement.FrostyProject.ModSettings);
+                    ProjectManagement.Project.WriteToMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
                     using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
                     {
                         Log("Saved mod successfully to " + saveFileDialog.FileName);
@@ -325,7 +333,7 @@ namespace FIFAModdingUI.Windows
                 var resultValue = saveFileDialog.ShowDialog();
                 if (resultValue.HasValue && resultValue.Value)
                 {
-                    ProjectManagement.FrostyProject.WriteToFIFAMod(saveFileDialog.FileName, ProjectManagement.FrostyProject.ModSettings);
+                    ProjectManagement.Project.WriteToFIFAMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
                     using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
                     {
                         Log("Saved mod successfully to " + saveFileDialog.FileName);
@@ -411,7 +419,7 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
-                    ProjectManagement.FrostyProject.Save(saveFileDialog.FileName, true);
+                    ProjectManagement.Project.Save(saveFileDialog.FileName, true);
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
 
@@ -428,7 +436,10 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
-                    ProjectManagement.FrostyProject.Load(openFileDialog.FileName);
+                    ProjectManagement.Project.ModifiedAssetEntries = null;
+                    ProjectManagement.Project.Load(openFileDialog.FileName);
+                    lstProjectFiles.ItemsSource = null;
+                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
@@ -438,19 +449,26 @@ namespace FIFAModdingUI.Windows
             }
         }
 
+        public Random RandomSaver = new Random();
+
         private async void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
         {
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = false; });
 
-            if(File.Exists("test.fbmod"))
-                File.Delete("test.fbmod");
+            //if(File.Exists("test.fbmod"))
+            //    File.Delete("test.fbmod");
 
-            ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
+            ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString());
+
+            foreach (var tFile in Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod")) { File.Delete(tFile); };
+
+            var testmodname = "test-" + RandomSaver.Next().ToString() + ".fbmod";
+            ProjectManagement.Project.WriteToMod(testmodname
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
             if (chkEnableLegacyInjection.IsChecked.HasValue && chkEnableLegacyInjection.IsChecked.Value)
             {
-                var modifiedLegacy = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy", true).ToList();
+                var modifiedLegacy = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true).ToList();
 
                 modifiedLegacy.ForEach(
                     entry =>
@@ -487,7 +505,7 @@ namespace FIFAModdingUI.Windows
             {
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
                 frostyModExecutor.UseSymbolicLinks = true;
-                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test.fbmod" }.ToArray()).Wait();
+                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
             });
 
             InjectLegacyDLL();
@@ -536,7 +554,10 @@ namespace FIFAModdingUI.Windows
         {
             AssetManager.Instance.Reset();
             Log("Asset Manager Reset");
-            ProjectManagement.FrostyProject = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
+            ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
+            ProjectManagement.Project.ModifiedAssetEntries = null;
+            lstProjectFiles.ItemsSource = null;
+            WindowTitle = "New Project";
             Log("New Project Created");
         }
 
@@ -732,9 +753,20 @@ namespace FIFAModdingUI.Windows
             mdw.Show();
         }
 
+        private void btnRevertAsset_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            AssetEntry assetEntry = button.Tag as AssetEntry;
+            AssetManager.Instance.RevertAsset(assetEntry);
+            lstProjectFiles.ItemsSource = null;
+            lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
+            Log("Reverted Asset " + assetEntry.Name);
+        }
+
+
 #if DEBUG
         #region Tests 
-        
+
         void CreateTestEditor()
         {
             dynamic dHotspotObject = new ExpandoObject { };
@@ -759,10 +791,7 @@ namespace FIFAModdingUI.Windows
 
         }
 
-     
-
-
-
+   
 
         #endregion
 

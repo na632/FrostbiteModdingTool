@@ -70,22 +70,22 @@ namespace FrostbiteModdingUI.Windows
 
 
                     // Kit Browser
-                    var legacyFiles = ProjectManagement.FrostyProject.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+                    var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
 
                     Log("Initialise Legacy Browser");
                     legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
                     Log("Initialise Texture Browser");
-                    textureBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                    textureBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                        .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
                     Log("Initialise Data Browser");
-                    dataBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                    dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                        .EnumerateEbx()
                                        .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
                     Log("Initialise Gameplay Browser");
-                    gameplayBrowser.AllAssetEntries = ProjectManagement.FrostyProject.AssetManager
+                    gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                       .EnumerateEbx()
                                       .Where(x => x.Path.ToLower().Contains("attrib")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
@@ -111,7 +111,7 @@ namespace FrostbiteModdingUI.Windows
             var resultValue = saveFileDialog.ShowDialog();
             if (resultValue.HasValue && resultValue.Value)
             {
-                ProjectManagement.FrostyProject.WriteToMod(saveFileDialog.FileName
+                ProjectManagement.Project.WriteToMod(saveFileDialog.FileName
                     , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool GP Mod", Version = "1.00" });
                 using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
                 {
@@ -137,7 +137,7 @@ namespace FrostbiteModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
-                    ProjectManagement.FrostyProject.Save(saveFileDialog.FileName, true);
+                    ProjectManagement.Project.Save(saveFileDialog.FileName, true);
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
 
@@ -154,7 +154,7 @@ namespace FrostbiteModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
-                    ProjectManagement.FrostyProject.Load(openFileDialog.FileName);
+                    ProjectManagement.Project.Load(openFileDialog.FileName);
 
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
@@ -224,7 +224,7 @@ namespace FrostbiteModdingUI.Windows
         {
             await Dispatcher.InvokeAsync(() => { btnLaunchGameInEditor.IsEnabled = false; });
 
-            ProjectManagement.FrostyProject.WriteToMod("test.fbmod"
+            ProjectManagement.Project.WriteToMod("test.fbmod"
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
             await Task.Run(() =>
@@ -243,7 +243,7 @@ namespace FrostbiteModdingUI.Windows
         {
             AssetManager.Instance.Reset();
             Log("Asset Manager Reset");
-            ProjectManagement.FrostyProject = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
+            ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             Log("New Project Created");
         }
     }

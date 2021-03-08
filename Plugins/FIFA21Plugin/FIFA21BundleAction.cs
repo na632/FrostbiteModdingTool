@@ -151,7 +151,7 @@ namespace FIFA21Plugin
                 {
                     var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
                     var data = parent.archiveData[modLegacy.Value.Sha1].Data;
-                    AssetManager.Instance.ModifyCustomAsset("legacy", modLegacy.Key, data);
+                    AssetManager.Instance.ModifyLegacyAsset(modLegacy.Key, data, true);
                     var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
                     foreach (var modLegChunk in modifiedLegacyChunks)
                     {
@@ -166,6 +166,15 @@ namespace FIFA21Plugin
                         }
                         countLegacyChunksModified++;
                     }
+                }
+
+                var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
+                foreach(var chunk in modifiedChunks)
+                {
+                    if (parent.archiveData.ContainsKey(chunk.Sha1))
+                        parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
+                    else
+                        parent.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                 }
                 parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
             }
@@ -340,7 +349,7 @@ namespace FIFA21Plugin
                                 byte[] data = new byte[0];
                                 AssetEntry originalEntry = modItem.OriginalEntry;
                                 
-                                if (originalEntry != null)
+                                if (originalEntry != null && parent.archiveData.ContainsKey(modItem.Sha1))
                                 {
                                     data = parent.archiveData[modItem.Sha1].Data;
                                 }

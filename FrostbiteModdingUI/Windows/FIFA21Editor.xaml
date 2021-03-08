@@ -107,8 +107,11 @@
                         <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
                     </TabItem>
             <TabItem x:Name="TabLegacy" Header="Legacy"   VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
-                        <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
-                    </TabItem>
+                <StackPanel>
+                    <Label Background="Yellow" Content="WARNING: Legacy editing is very unstable. Use with caution." Margin="5"></Label>
+                    <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
+                </StackPanel>
+            </TabItem>
 
                     <TabItem x:Name="TabPlayers" Header="Players" Visibility="Collapsed">
                         <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
@@ -121,7 +124,50 @@
                         <StackPanel x:Name="TestEbxViewer"></StackPanel>
                     </TabItem>
 
-                </TabControl>
+            <TabItem x:Name="TabProjectFiles" Header="Advanced">
+                <ListView x:Name="lstProjectFiles" Grid.Row="1"
+                         ItemsSource="{Binding Path=ProjectManagement.FrostyProject.ModifiedAssetEntries, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              VerticalContentAlignment="Stretch" VerticalAlignment="Stretch"
+                               ScrollViewer.VerticalScrollBarVisibility="Visible"
+                              Height="300"
+                              MaxHeight="300"
+                              >
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="auto" Header="Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="auto" Header="Size">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Size}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="auto" Header="Type">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Type}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="auto" Header="Revert">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Click="btnRevertAsset_Click" Tag="{Binding}">Revert</Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+
+        </TabControl>
         <DockPanel DockPanel.Dock="Top" LastChildFill="True">
             <TextBox
                  x:Name="txtLog"

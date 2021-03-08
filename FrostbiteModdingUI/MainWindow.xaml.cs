@@ -35,6 +35,8 @@ namespace FIFAModdingUI
         {
             InitializeComponent();
 
+            Closing += MainWindow_Closing;
+
             // ------------------------------------------
             // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
 
@@ -45,8 +47,8 @@ namespace FIFAModdingUI
                     var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(profile.EditorScreen, StringComparison.OrdinalIgnoreCase));
                     if (t != null)
                     {
-                        var ew = (Window)Activator.CreateInstance(t);
-                        EditorWindows.Add(ew);
+                        //var ew = (Window)Activator.CreateInstance(t);
+                        //EditorWindows.Add(ew);
                         ProfilesWithEditorScreen.Add(profile);
                     }
                 }
@@ -56,6 +58,30 @@ namespace FIFAModdingUI
             DataContext = this;
 
             // ------------------------------------------
+
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //foreach(var w in EditorWindows)
+            //{
+            //    w.Close();
+            //}
+
+            EditorWindows.Clear();
+
+            foreach(var pr in ProfilesWithEditorScreen)
+            {
+            }
+
+            ProfilesWithEditorScreen.Clear();
+
+            if(AssetManager.Instance != null)
+            {
+                AssetManager.Instance.Dispose();
+                AssetManager.Instance = null;
+            }
+
 
         }
 

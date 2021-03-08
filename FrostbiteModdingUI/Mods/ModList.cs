@@ -147,7 +147,10 @@ namespace FIFAModdingUI.Mods
             {
                 get
                 {
-                    return GetFrostbiteMod().Resources.Where(x => x.Type != ModResourceType.Embedded);
+                    var fmod = GetFrostbiteMod();
+                    if(fmod != null)
+                        return fmod.Resources.Where(x => x.Type != ModResourceType.Embedded);
+                    return null;
                 }
             }
 

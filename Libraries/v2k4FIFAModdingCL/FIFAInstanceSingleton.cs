@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Lunar;
+using FrostySdk.Interfaces;
 
 namespace v2k4FIFAModdingCL
 {
@@ -77,6 +78,8 @@ namespace v2k4FIFAModdingCL
             return CompatibleGameLegacyModVersions.Any(x => x.Contains(GAMEVERSION));
         }
 
+        public static ILogger Logger;
+
         public static int? GetProcIDFromName(string name) //new 1.0.2 function
         {
             Process[] processlist = Process.GetProcesses();
@@ -126,13 +129,28 @@ namespace v2k4FIFAModdingCL
                     //    }
                     //}
                     if (!alreadyExists) {
-                        var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
-                        bl.InjectDll();
 
-                        //var mapper = new LibraryMapper(Process.GetProcessById(proc.Value), dllpath);
-                        //mapper.MapLibrary();
+                        try
+                        {
+                            var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
+                            bl.InjectDll();
 
-                        Debug.WriteLine($"Injected: {dllpath}");
+                            //var mapper = new LibraryMapper(Process.GetProcessById(proc.Value), dllpath);
+                            //mapper.MapLibrary();
+
+                            Debug.WriteLine($"Injected: {dllpath}");
+                        }
+                        catch(Exception ex)
+                        {
+                            if(Logger != null)
+                            {
+                                Logger.LogError($"DLL Injector Failed with Exception: {ex.ToString()}");
+                            }
+                            else
+                            {
+                                Debug.WriteLine($"DLL Injector Failed with Exception: {ex.ToString()}");
+                            }
+                        }
                     }
                 }
             }
