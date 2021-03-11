@@ -147,13 +147,13 @@ namespace v2k4FIFASDKGenerator
 					task.State = SdkUpdateTaskState.CompletedFail;
 					return false;
 				}
-				if (process.ProcessName.ToUpper() == "MADDEN21")
-                {
-					//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
-					// "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10" // Madden 21
-					sdkUpdateState.TypeInfoOffset = 0x1483E1760;
+				//if (process.ProcessName.ToUpper() == "MADDEN21")
+    //            {
+				//	//sdkUpdateState.TypeInfoOffset = 0x14854BDF0;
+				//	// "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10" // Madden 21
+				//	sdkUpdateState.TypeInfoOffset = 0x1483E1760;
 
-				}
+				//}
                 //else
                 //if (process.ProcessName.ToUpper() == "FIFA21")
                 //{

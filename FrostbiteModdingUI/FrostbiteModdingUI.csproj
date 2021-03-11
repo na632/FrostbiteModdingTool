@@ -169,6 +169,9 @@
     <None Update="SDK\FIFA21SDK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SDK\MADDEN21SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -185,7 +188,13 @@
     <None Include="..\Libraries\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\Plugins\BFVPlugin\bin\Debug\netstandard2.1\BFVPlugin.dll" Link="Plugins\BFVPlugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

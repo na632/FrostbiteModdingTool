@@ -46,7 +46,10 @@
     <None Include="..\Libraries\FrostySdk\madden21.key" Link="madden21.key">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+	  <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+		  <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

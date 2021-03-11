@@ -421,7 +421,13 @@ namespace FIFAModdingUI.Windows
                 {
                     ProjectManagement.Project.Save(saveFileDialog.FileName, true);
 
+
+                    lstProjectFiles.ItemsSource = null;
+                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
+
                     Log("Saved project successfully to " + saveFileDialog.FileName);
+
+                    WindowTitle = saveFileDialog.FileName;
 
                 }
             }

@@ -129,7 +129,7 @@ namespace FIFA21Plugin
 						}
 						parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
-						if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
+						if (parent.fs.ResolvePath("native_patch/" + tocFile + ".toc") == "")
 						{
 							tocFile = sbName;
 						}

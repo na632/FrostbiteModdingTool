@@ -597,6 +597,10 @@ namespace FIFAModdingUI.Pages.Common
 									{
 										BuildTextureViewerFromAssetEntry(res);
 									}
+									else
+                                    {
+										throw new Exception("Unable to find RES Entry for " + ebxEntry.Name);
+                                    }
 								}
 							}
 							catch (Exception e)

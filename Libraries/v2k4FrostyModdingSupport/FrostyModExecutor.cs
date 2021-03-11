@@ -5791,8 +5791,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         {
                             if (t.GetInterface("IAssetCompiler") != null)
                             {
-                                try
-                                {
+                                //try
+                                //{
                                     if (t.Name == ProfilesLibrary.AssetCompilerName)
                                     {
                                         Logger.Log("Attempting to load Compiler for " + GameEXEPath);
@@ -5803,12 +5803,12 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                             return false;
                                         }
                                     }
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.LogError($"Error in Compiler :: {e.Message}");
+                                //}
+                                //catch (Exception e)
+                                //{
+                                //    Logger.LogError($"Error in Compiler :: {e.Message}");
 
-                                }
+                                //}
                             }
                         }
                     }
@@ -5907,7 +5907,14 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     }
 
                     logger.Log("Copying initfs_win32");
-                    CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+                    if (ProfilesLibrary.IsMaddenDataVersion())
+                    {
+                        CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_Win32", modPath + patchPath + "/initfs_Win32");
+                    }
+                    else
+                    {
+                        CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+                    }
                 }
 
             }
@@ -5956,7 +5963,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 lastModPaths = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(LastLaunchedModsData);
             }
             var sameCountAsLast = lastModPaths.Count == modPaths.Count();
-            var sameAsLast = false;
+            var sameAsLast = sameCountAsLast;
             if (sameCountAsLast) 
             {
                 foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
@@ -5968,6 +5975,10 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             break;
                     }
                 }
+            }
+            else
+            {
+                sameAsLast = false;
             }
 
             // ---------------------------------------------
@@ -5993,13 +6004,13 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             }
 
             // Notify if NO changes are made to mods
-            if (sameAsLast)
-            {
-                Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
-                await Task.Delay(1000);
-            }
-            // Rebuild mods
-            else
+            //if (sameAsLast)
+            //{
+            //    Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
+            //    await Task.Delay(1000);
+            //}
+            //// Rebuild mods
+            //else
             {
                 foundFrostyMods = await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
                 lastModPaths.Clear();

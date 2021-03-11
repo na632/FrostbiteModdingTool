@@ -698,7 +698,8 @@ namespace v2k4FIFASDKGenerator
             }
             else if (ProfilesLibrary.IsMaddenDataVersion())
             {
-                typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
+                //typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
+                typeStr = "v2k4FIFASDKGenerator.FIFA21.ClassInfo";
             }
             //else if (ProfilesLibrary.DataVersion == 20191101)
             //{
