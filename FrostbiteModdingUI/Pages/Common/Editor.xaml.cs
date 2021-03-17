@@ -205,8 +205,8 @@ namespace FIFAModdingUI.Pages.Common
 			FrostyProject = frostyProject;
 			logger = inLogger;
 
-			if (FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
-				chkImportFromFiles.IsChecked = true;
+			//if (FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
+			//	chkImportFromFiles.IsChecked = true;
 
 			this.DataContext = this;
 
@@ -341,12 +341,28 @@ namespace FIFAModdingUI.Pages.Common
 									PointsTreeViewParent.Name = "Points";
 									PointsTreeViewParent.Header = "Points";
 									propTreeViewParent.Items.Add(PointsTreeViewParent);
+
+									// Number of Points
+									var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = FloatCurve.Points.Count.ToString() };
+									txtNumberOfPoints.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
+									{
+										AssetHasChanged(sender as TextBox, p.PropertyName);
+									};
+									PointsTreeViewParent.Items.Add(txtNumberOfPoints);
+
 									for (var i = 0; i < FloatCurve.Points.Count; i++)
 									{
 										var point = FloatCurve.Points[i];
 										if (point != null)
 										{
-											TreeViewItem Child1Item = new TreeViewItem();
+                                            //var xSingle = new System_Single();
+                                            //xSingle.DataContext = point.X;
+                                            //var ySingle = new System_Single();
+                                            //ySingle.DataContext = point.Y;
+                                            //PointsTreeViewParent.Items.Add(xSingle);
+                                            //PointsTreeViewParent.Items.Add(ySingle);
+
+                                            TreeViewItem Child1Item = new TreeViewItem();
 											Child1Item.Header = "[" + i.ToString() + "]";
 
 											TreeViewItem SubChild1ItemX = new TreeViewItem();
@@ -568,7 +584,15 @@ namespace FIFAModdingUI.Pages.Common
 					var rootProp = RootObjectProperties.Find(x => x.PropertyName == propName);
 					if (rootProp != null)
 					{
-						if (!txtboxName.StartsWith("_") && !txtboxName.StartsWith("ATTR_") && txtboxName.Contains("_"))
+						if (txtboxName.EndsWith("_NumberOfPoints"))
+                        {
+							//if(rootProp.PropertyExists("Internal"))
+       //                     {
+							//	var FloatCurve = rootProp.PropertyValue.GetPropertyValue("Internal");
+							//	var Points = FloatCurve.GetPropertyValue("Points");
+							//}
+						}
+						else if (!txtboxName.StartsWith("_") && !txtboxName.StartsWith("ATTR_") && txtboxName.Contains("_"))
 						{
 							// format should be 
 							// PROPNAME _ ITEM

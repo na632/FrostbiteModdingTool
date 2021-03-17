@@ -25,6 +25,9 @@ namespace v2k4FIFAModding
 
         public static bool PropertyExists(this object obj, string propName)
         {
+            if (obj is ExpandoObject)
+                return ((IDictionary<string, object>)obj).ContainsKey(propName);
+
             return obj.GetProperty(propName) != null;
         }
 

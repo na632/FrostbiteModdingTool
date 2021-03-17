@@ -5702,7 +5702,12 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             resource.FillAssetEntry(legacyAssetEntry);
                             legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = resourceData };
                             legacyAssetEntry.Size = resourceData.Length;
-                            modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
+
+                            if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
+                                modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
+                            else
+                                modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
+
                             if (!archiveData.ContainsKey(legacyAssetEntry.Sha1))
                             {
                                 archiveData.Add(legacyAssetEntry.Sha1, new ArchiveInfo

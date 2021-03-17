@@ -60,6 +60,8 @@ namespace FrostbiteModdingTests
 
             projectManagement.Project.WriteToMod(testfbmodname, new FrostySdk.ModSettings());
 
+            
+
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
                 new System.Collections.Generic.List<string>() {

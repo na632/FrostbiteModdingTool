@@ -146,26 +146,32 @@ namespace FIFA21Plugin
             if (parent.modifiedLegacy.Count > 0)
             {
                 parent.Logger.Log($"Legacy :: {parent.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
+
+                Dictionary<string, byte[]> legacyData = new Dictionary<string, byte[]>();
                 var countLegacyChunksModified = 0;
                 foreach (var modLegacy in parent.modifiedLegacy)
                 {
                     var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
                     var data = parent.archiveData[modLegacy.Value.Sha1].Data;
-                    AssetManager.Instance.ModifyLegacyAsset(modLegacy.Key, data, true);
-                    var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
-                    foreach (var modLegChunk in modifiedLegacyChunks)
+                    legacyData.Add(modLegacy.Key, data);
+                    
+                }
+
+                AssetManager.Instance.ModifyLegacyAssets(legacyData, true);
+
+                var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
+                foreach (var modLegChunk in modifiedLegacyChunks)
+                {
+                    modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+                    if (!parent.modifiedChunks.ContainsKey(modLegChunk.Id))
                     {
-                        modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
-                        if (!parent.modifiedChunks.ContainsKey(modLegChunk.Id))
-                        {
-                            parent.modifiedChunks.Add(modLegChunk.Id, modLegChunk);
-                        }
-                        else
-                        {
-                            parent.modifiedChunks[modLegChunk.Id] = modLegChunk;
-                        }
-                        countLegacyChunksModified++;
+                        parent.modifiedChunks.Add(modLegChunk.Id, modLegChunk);
                     }
+                    else
+                    {
+                        parent.modifiedChunks[modLegChunk.Id] = modLegChunk;
+                    }
+                    countLegacyChunksModified++;
                 }
 
                 var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
@@ -254,7 +260,6 @@ namespace FIFA21Plugin
                     ErrorCounts[ModType.RES]++;
                 }
             }
-
             foreach (var modChunks in parent.modifiedChunks)
             {
                 var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
@@ -287,9 +292,6 @@ namespace FIFA21Plugin
 
             return casToMods;
         }
-
-        CachingSBData CachingSBData = new CachingSBData();
-        List<ChunkAssetEntry> ChunkDups = new List<ChunkAssetEntry>();
 
         public bool Run()
         {
