@@ -3,7 +3,7 @@ using FrostySdk;
 using System;
 using System.Diagnostics;
 
-namespace v2k4FIFASDKGenerator.FIFA21
+namespace SdkGenerator.FIFA21
 {
 	public class FieldInfo : BaseInfo.FieldInfo
 	{

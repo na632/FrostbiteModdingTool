@@ -1,9 +1,8 @@
 using FrostyEditor.IO;
 using FrostySdk;
 using System;
-using v2k4FIFASDKGenerator;
 
-namespace v2k4FIFASDKGenerator.BaseInfo
+namespace SdkGenerator.BaseInfo
 {
 
     public class ClassInfo

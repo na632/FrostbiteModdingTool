@@ -1,7 +1,7 @@
 using FrostyEditor.IO;
 using FrostySdk;
 
-namespace v2k4FIFASDKGenerator.FIFA18
+namespace SdkGenerator.FIFA18
 {
 	public class FieldInfo : BaseInfo.FieldInfo
 	{

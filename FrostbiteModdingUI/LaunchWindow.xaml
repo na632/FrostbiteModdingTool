@@ -8,7 +8,7 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 Modding Tool 2021 Launcher"
+        Title="{Binding WindowTitle}"
         Height="800"
         Width="1000"
         ResizeMode="NoResize"
@@ -22,30 +22,7 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
-
-        <StackPanel Grid.Row="0" HorizontalAlignment="Right" Orientation="Horizontal">
-                <Label Height="30">Profiles: </Label>
-                <ComboBox Width="150" x:Name="cbProfiles" SelectionChanged="cbProfiles_SelectionChanged" Margin="0,10,10,10" IsEnabled="False">
-                    
-                </ComboBox>
-                <Button Name="btnLegacyModSupportSettings" IsEnabled="False"  Height="30" Click="btnLegacyModSupportSettings_Click" Background="Transparent" BorderBrush="{x:Null}">
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" />
-                        <Label Content="Legacy Mod Settings" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game EXE >>>>" VerticalAlignment="Center" />
-                <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
-                        <Label Content="Browse for Game" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" x:Name="btnCloseModdingTool" Click="btnCloseModdingTool_Click">
-                    <MaterialDesign:PackIcon Kind="Power" />
-                </Button>
-            </StackPanel>
-        <TextBlock Grid.Row="1" x:Name="txtWarningAboutPersonalSettings" Visibility="Hidden"  Background="LightYellow">WARNING: This launcher causes FIFA 21 to delete its "Personal Settings" on first load. I'm sorry about that and I have no fix!</TextBlock>
+ <TextBlock Grid.Row="1" x:Name="txtWarningAboutPersonalSettings" Visibility="Hidden"  Background="LightYellow">WARNING: This launcher causes FIFA 21 to delete its "Personal Settings" on first load. I'm sorry about that and I have no fix!</TextBlock>
 
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Margin="5">
             <Grid.ColumnDefinitions>

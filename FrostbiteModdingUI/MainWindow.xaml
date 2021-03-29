@@ -8,7 +8,7 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="paulv2k4 Modding Tool 2021" Height="320" Width="570" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="{Binding WindowTitle}" Height="320" Width="570" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="110"></RowDefinition>

@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI;
+using FrostbiteModdingUI.Models;
 using FrostySdk;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
@@ -6,8 +7,10 @@ using FrostySdk.Managers;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,10 +33,72 @@ namespace FrostbiteModdingUI.Windows
     {
         public ProjectManagement ProjectManagement { get; private set; }
 
+        private string WindowEditorTitle = $"Madden 21 Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
+
+        private string _windowTitle;
+        public string WindowTitle
+        {
+            get
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.Append(WindowEditorTitle);
+                stringBuilder.Append(_windowTitle);
+                return stringBuilder.ToString();
+            }
+            set
+            {
+                _windowTitle = "[" + value + "]";
+                this.DataContext = null;
+                this.DataContext = this;
+                this.UpdateLayout();
+            }
+        }
+
+
         public Madden21Editor()
         {
             InitializeComponent();
             this.Closing += Madden21Editor_Closing;
+            this.Loaded += Madden21Editor_Loaded;
+        }
+
+        public string LastFIFA21Location => "MADDEN21LastLocation.json";
+
+        private void Madden21Editor_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (File.Exists(LastFIFA21Location))
+            {
+                var tmpLoc = File.ReadAllText(LastFIFA21Location);
+                if (File.Exists(tmpLoc))
+                {
+                    AppSettings.Settings.GameInstallEXEPath = tmpLoc;
+                }
+                else
+                {
+                    File.Delete(LastFIFA21Location);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+            {
+                InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+            }
+            else
+            {
+                var findGameEXEWindow = new FindGameEXEWindow();
+                var result = findGameEXEWindow.ShowDialog();
+                if (result.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+                {
+                    InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                }
+                else
+                {
+                    findGameEXEWindow.Close();
+                    this.Close();
+                }
+            }
+
+            File.WriteAllText(LastFIFA21Location, AppSettings.Settings.GameInstallEXEPath);
         }
 
         private void Madden21Editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -42,66 +107,58 @@ namespace FrostbiteModdingUI.Windows
             new MainWindow().Show();
         }
 
-        private void btnBrowseGameDirectory_Click(object sender, RoutedEventArgs e)
+        public void InitialiseOfSelectedGame(string filePath)
         {
-            var dialog = new OpenFileDialog();
-            dialog.Title = "Find your Game exe";
-            dialog.Multiselect = false;
-            dialog.Filter = "exe files (*.exe)|*.exe";
-            dialog.FilterIndex = 0;
-            dialog.ShowDialog(this);
-            var filePath = dialog.FileName;
-            if (!string.IsNullOrEmpty(filePath))
+            if (!filePath.ToLower().Contains("madden"))
             {
-                if (!filePath.ToLower().Contains("madden"))
-                {
-                    LogError("Wrong EXE chosen for Editor");
-                    return;
-                }
-
-                GameInstanceSingleton.InitializeSingleton(filePath);
-                txtGameDirectory.Text = GameInstanceSingleton.GAMERootPath;
-
-                Task.Run(() =>
-                {
-
-                    ProjectManagement = new ProjectManagement(filePath, this);
-                    ProjectManagement.StartNewProject();
-
-
-                    // Kit Browser
-                    var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
-
-                    Log("Initialise Legacy Browser");
-                    legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
-
-                    Log("Initialise Texture Browser");
-                    textureBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
-                                       .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
-                    Log("Initialise Data Browser");
-                    dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
-                                       .EnumerateEbx()
-                                       .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
-                    Log("Initialise Gameplay Browser");
-                    gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
-                                      .EnumerateEbx()
-                                      .Where(x => x.Path.ToLower().Contains("attrib")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
-
-                    Dispatcher.InvokeAsync(() =>
-                    {
-
-                        btnProjectNew.IsEnabled = true;
-                        btnProjectOpen.IsEnabled = true;
-                        btnProjectSave.IsEnabled = true;
-                        //btnProjectWriteToMod.IsEnabled = true;
-                        //var wt = WindowTitle;
-                    });
-
-                });
+                LogError("Wrong EXE chosen for Editor");
+                return;
             }
+
+            GameInstanceSingleton.InitializeSingleton(filePath);
+            GameInstanceSingleton.Logger = this;
+
+
+            Task.Run(() =>
+            {
+
+                ProjectManagement = new ProjectManagement(filePath, null);
+                ProjectManagement.StartNewProject();
+
+
+                // Kit Browser
+                var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
+
+                Log("Initialise Legacy Browser");
+                legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
+
+                Log("Initialise Texture Browser");
+                textureBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+                Log("Initialise Data Browser");
+                dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx()
+                                   .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+                Log("Initialise Gameplay Browser");
+                gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
+                                  .EnumerateEbx()
+                                  .Where(x => x.Path.ToLower().Contains("attrib")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
+                Dispatcher.InvokeAsync(() =>
+                {
+
+                    btnProjectNew.IsEnabled = true;
+                    btnProjectOpen.IsEnabled = true;
+                    btnProjectSave.IsEnabled = true;
+
+                    this.DataContext = null;
+                    this.DataContext = this;
+                });
+
+            });
         }
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
@@ -141,6 +198,9 @@ namespace FrostbiteModdingUI.Windows
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
 
+
+                    WindowTitle = saveFileDialog.FileName;
+
                 }
             }
         }
@@ -158,24 +218,16 @@ namespace FrostbiteModdingUI.Windows
 
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
+                    WindowTitle = openFileDialog.FileName;
+
                 }
             }
-        }
-
-        private async void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
-        {
-         
         }
 
         public string LogText = string.Empty;
 
         public void Log(string text, params object[] vars)
         {
-            //Dispatcher.InvokeAsync(() =>
-            //{
-            //lblProgressText.Text = string.Format(text, vars);
-            //});
-
             LogAsync(text);
         }
 
@@ -206,13 +258,17 @@ namespace FrostbiteModdingUI.Windows
 
         public void LogWarning(string text, params object[] vars)
         {
+            Debug.WriteLine("[WARNING] " + text);
             LogAsync("[WARNING] " + text);
         }
 
         public void LogError(string text, params object[] vars)
         {
+            Debug.WriteLine("[ERROR] " + text);
             LogAsync("[ERROR] " + text);
         }
+
+
 
         private void btnBuildSDK_Click(object sender, RoutedEventArgs e)
         {
@@ -224,7 +280,13 @@ namespace FrostbiteModdingUI.Windows
         {
             await Dispatcher.InvokeAsync(() => { btnLaunchGameInEditor.IsEnabled = false; });
 
-            ProjectManagement.Project.WriteToMod("test.fbmod"
+
+            var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
+            foreach (var oFile in oldFiles) File.Delete(oFile);
+            var testfbmodname = "test-" + new Random().Next().ToString() + ".fbmod";
+
+
+            ProjectManagement.Project.WriteToMod(testfbmodname
                 , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
             await Task.Run(() =>
@@ -232,7 +294,7 @@ namespace FrostbiteModdingUI.Windows
 
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
                 frostyModExecutor.UseSymbolicLinks = false;
-                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { @"test.fbmod" }.ToArray()).Wait();
+                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { testfbmodname }.ToArray()).Wait();
             });
 
             await Dispatcher.InvokeAsync(() => { btnLaunchGameInEditor.IsEnabled = true; });

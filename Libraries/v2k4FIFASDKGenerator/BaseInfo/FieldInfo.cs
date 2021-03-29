@@ -1,7 +1,7 @@
 using FrostyEditor.IO;
 using FrostySdk;
 
-namespace v2k4FIFASDKGenerator.BaseInfo
+namespace SdkGenerator.BaseInfo
 {
     public class FieldInfo
     {

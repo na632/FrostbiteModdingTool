@@ -1,7 +1,7 @@
 using FrostyEditor.IO;
 using FrostySdk;
 
-namespace v2k4FIFASDKGenerator.Madden21
+namespace SdkGenerator.Madden21
 {
 	public class FieldInfo : BaseInfo.FieldInfo
 	{

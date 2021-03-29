@@ -1,7 +1,6 @@
 using System.Diagnostics;
-using v2k4FIFASDKGenerator;
 
-namespace FrostyEditor.Windows
+namespace SdkGenerator
 {
 	public class SdkUpdateState
 	{

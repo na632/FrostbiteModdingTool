@@ -16,7 +16,7 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 
-namespace FrostyEditor
+namespace SdkGenerator
 {
 	public class ModuleWriter : IDisposable
 	{
@@ -522,7 +522,7 @@ namespace FrostyEditor
 			{
 				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0ul) + ")]");
 			}
-			if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsFIFA21DataVersion())
+			if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
 			{
 				stringBuilder.AppendLine("[" + typeof(RuntimeSizeAttribute).Name + "(" + classObj.GetValue("runtimeSize", 0) + ")]");
 			}

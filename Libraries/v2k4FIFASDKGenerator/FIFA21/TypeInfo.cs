@@ -2,7 +2,7 @@ using FrostyEditor.IO;
 using FrostySdk;
 using System.Text.RegularExpressions;
 
-namespace v2k4FIFASDKGenerator.FIFA21
+namespace SdkGenerator.FIFA21
 {
 	public class TypeInfo : BaseInfo.TypeInfo
 	{

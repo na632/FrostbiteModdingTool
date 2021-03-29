@@ -1,17 +1,21 @@
 ﻿using FIFAModdingUI.Models;
 using FIFAModdingUI.Pages.Common;
 using FolderBrowserEx;
+using Frostbite.FileManagers;
 using Frostbite.Textures;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
+using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Ebx;
+using FrostySdk.Frosty.FET;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -36,7 +40,6 @@ using System.Windows.Shapes;
 using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
-using v2k4FIFASDKGenerator;
 
 namespace FIFAModdingUI.Windows
 {
@@ -53,8 +56,23 @@ namespace FIFAModdingUI.Windows
             Loaded += FIFA21Editor_Loaded;
         }
 
+        public string LastFIFA21Location => "FIFA21LastLocation.json";
+
         private void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {
+            if (File.Exists(LastFIFA21Location))
+            {
+                var tmpLoc = File.ReadAllText(LastFIFA21Location);
+                if (File.Exists(tmpLoc))
+                {
+                    AppSettings.Settings.GameInstallEXEPath = tmpLoc;
+                }
+                else
+                {
+                    File.Delete(LastFIFA21Location);
+                }
+            }
+
             if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {
                 InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
@@ -73,6 +91,8 @@ namespace FIFAModdingUI.Windows
                     this.Close();
                 }
             }
+
+            File.WriteAllText(LastFIFA21Location, AppSettings.Settings.GameInstallEXEPath);
         }
 
         private void FIFA21Editor_Closing(object sender, CancelEventArgs e)
@@ -85,7 +105,7 @@ namespace FIFAModdingUI.Windows
             new MainWindow().Show();
         }
 
-        private string WindowFIFAEditorTitle = "FIFA 21 Editor - Early Alpha";
+        private string WindowFIFAEditorTitle = $"FIFA 21 Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
 
         private string _windowTitle;
         public string WindowTitle 
@@ -99,7 +119,7 @@ namespace FIFAModdingUI.Windows
             }
             set
             {
-                _windowTitle = " - [" + value + "]";
+                _windowTitle = "[" + value + "]";
                 this.DataContext = null;
                 this.DataContext = this;
                 this.UpdateLayout();
@@ -303,6 +323,10 @@ namespace FIFAModdingUI.Windows
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
         {
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
             try
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -326,6 +350,10 @@ namespace FIFAModdingUI.Windows
 
         private void btnProjectWriteToFIFAMod_Click(object sender, RoutedEventArgs e)
         {
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
             try
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -412,6 +440,10 @@ namespace FIFAModdingUI.Windows
 
         private void btnProjectSave_Click(object sender, RoutedEventArgs e)
         {
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Project files|*.fbproject";
             var result = saveFileDialog.ShowDialog();
@@ -469,9 +501,21 @@ namespace FIFAModdingUI.Windows
             foreach (var tFile in Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod")) { File.Delete(tFile); };
 
             var testmodname = "test-" + RandomSaver.Next().ToString() + ".fbmod";
-            ProjectManagement.Project.WriteToMod(testmodname
-                , new ModSettings() { Author = "test", Category = "test", Description = "test", Title = "test", Version = "1.00" });
 
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
+            var author = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
+            var category = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
+            var desc = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
+            var title = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
+            var version = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
+            ProjectManagement.Project.WriteToMod(testmodname
+                , new ModSettings() { Author = author, Category = category, Description = desc, Title = title, Version = version });
+
+            
+            /*
             if (chkEnableLegacyInjection.IsChecked.HasValue && chkEnableLegacyInjection.IsChecked.Value)
             {
                 var modifiedLegacy = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true).ToList();
@@ -507,12 +551,15 @@ namespace FIFAModdingUI.Windows
 
                     });
             }
+            */
             await Task.Run(() =>
             {
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
                 frostyModExecutor.UseSymbolicLinks = true;
                 frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
             });
+
+            
 
             InjectLegacyDLL();
 
@@ -770,9 +817,6 @@ namespace FIFAModdingUI.Windows
         }
 
 
-#if DEBUG
-        #region Tests 
-
         void CreateTestEditor()
         {
             dynamic dHotspotObject = new ExpandoObject { };
@@ -797,12 +841,30 @@ namespace FIFAModdingUI.Windows
 
         }
 
-   
+        private void btnProjectSaveToFIFAProject_Click(object sender, RoutedEventArgs e)
+        {
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
 
-        #endregion
 
-#endif
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "FIFA Project files|*.fifaproject";
+            var result = saveFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                if (!string.IsNullOrEmpty(saveFileDialog.FileName))
+                {
+                    FIFAEditorProject project = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+                    project.Save(saveFileDialog.FileName);
 
+                    lstProjectFiles.ItemsSource = null;
+                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
+
+                    Log("Saved project successfully to " + saveFileDialog.FileName);
+                }
+            }
+        }
 
 
     }

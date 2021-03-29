@@ -38,6 +38,8 @@ namespace FIFAModdingUI
     /// </summary>
     public partial class LaunchWindow : Window, ILogger
     {
+        public string WindowTitle { get; set; }
+
         ModListProfile Profile = new ModListProfile(null);
         public LaunchWindow()
         {
@@ -45,6 +47,10 @@ namespace FIFAModdingUI
             this.Closing += LaunchWindow_Closing;
 
             GetListOfModsAndOrderThem();
+
+            var assembly = Assembly.GetExecutingAssembly();
+            WindowTitle = "FMT Launcher - " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+            DataContext = this;
 
             try
             {
@@ -55,7 +61,7 @@ namespace FIFAModdingUI
 
                 if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
                 {
-                    txtFIFADirectory.Text = AppSettings.Settings.GameInstallEXEPath;
+                    //txtFIFADirectory.Text = AppSettings.Settings.GameInstallEXEPath;
                     InitializeOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
                 }
                 else
@@ -73,7 +79,7 @@ namespace FIFAModdingUI
             }
             catch (Exception e)
             {
-                txtFIFADirectory.Text = "";
+                //txtFIFADirectory.Text = "";
                 Trace.WriteLine(e.ToString());
             }
         }
@@ -133,12 +139,12 @@ namespace FIFAModdingUI
             {
                 var profButton = new Button() { Content = i };
                 profButton.Click += (object sender, RoutedEventArgs e) => { };
-                cbProfiles.Items.Add(profButton);
+                //cbProfiles.Items.Add(profButton);
 
             }
             var addnewprofilebutton = new Button() { Content = "Add new profile" };
             addnewprofilebutton.Click += Addnewprofilebutton_Click;
-            cbProfiles.Items.Add(addnewprofilebutton);
+            //cbProfiles.Items.Add(addnewprofilebutton);
 
             // load list of mods
             var modItems = new ModList(Profile).ModListItems;
@@ -250,12 +256,12 @@ namespace FIFAModdingUI
                             ZipArchive zipLMod = new ZipArchive(zipEntry.Open());
                             foreach (var zipEntLMOD in zipA.Entries)
                             {
-                                if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName))
+                                if (File.Exists(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName))
                                 {
-                                    File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName);
+                                    File.Delete(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\Legacy\\" + zipEntLMOD.FullName);
                                 }
                             }
-                            zipLMod.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
+                            zipLMod.ExtractToDirectory(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\Legacy\\");
                         }
                     }
                 }
@@ -266,12 +272,12 @@ namespace FIFAModdingUI
                         ZipArchive zipA = new ZipArchive(fs);
                         foreach (var ent in zipA.Entries)
                         {
-                            if (File.Exists(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName))
+                            if (File.Exists(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\Legacy\\" + ent.FullName))
                             {
-                                File.Delete(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\" + ent.FullName);
+                                File.Delete(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\Legacy\\" + ent.FullName);
                             }
                         }
-                        zipA.ExtractToDirectory(txtFIFADirectory.Text + "\\LegacyMods\\Legacy\\");
+                        zipA.ExtractToDirectory(GameInstanceSingleton.GAMERootPath + "\\LegacyMods\\Legacy\\");
                     }
                 }
             }
@@ -297,7 +303,7 @@ namespace FIFAModdingUI
                             {
                                 if (ent.Name.Contains("locale.ini"))
                                 {
-                                    ent.ExtractToFile(GameInstanceSingleton.FIFALocaleINIPath);
+                                    ent.ExtractToFile(GameInstanceSingleton.FIFALocaleINIPath, true);
                                 }
                             }
                         }
@@ -379,10 +385,7 @@ namespace FIFAModdingUI
                             if (!string.IsNullOrEmpty(legacyModSupportFile))
                             {
 
-                                if (File.Exists(legacyModSupportFile))
-                                {
-                                    File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
-                                }
+                                File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
 
                                 var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
                                 try
@@ -406,11 +409,14 @@ namespace FIFAModdingUI
                                 GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                         }
 
+                        AssetManager.Instance.Reset();
                         // Do Cleanup of Resources - Saving Memory
                         ProjectManagement.Instance = null;
                         AssetManager.Instance.Dispose();
                         AssetManager.Instance = null;
                         GC.Collect();
+                        GC.WaitForPendingFinalizers();
+
                     }
                     //});
                     await Task.Delay(1000);
@@ -495,7 +501,6 @@ namespace FIFAModdingUI
                     {
                         throw new Exception("Unable to Initialize Profile");
                     }
-                    txtFIFADirectory.Text = GameInstanceSingleton.GAMERootPath;
                     btnLaunch.IsEnabled = true;
                     GameInstanceSingleton.Logger = this;
 
@@ -529,7 +534,7 @@ namespace FIFAModdingUI
                 }
             }
 
-
+            
         }
 
         public void Log(string text, params object[] vars)

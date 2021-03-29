@@ -2,12 +2,14 @@
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SdkGenerator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using v2k4FIFAModding.Frosty;
-using v2k4FIFASDKGenerator;
 
 namespace FrostbiteModdingTests
 {
@@ -16,6 +18,7 @@ namespace FrostbiteModdingTests
     {
 
         public const string GamePath = @"F:\Origin Games\Madden NFL 21\";
+        public const string GamePathExe = GamePath + "\\Madden21.exe";
 
         public void Log(string text, params object[] vars)
         {
@@ -56,6 +59,8 @@ namespace FrostbiteModdingTests
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             projectManagement.Project.Load(@"G:\\MaddenSplashProject.fbproject");
 
+            var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
+            foreach (var oFile in oldFiles) File.Delete(oFile);
             var testfbmodname = "test-" + new Random().Next().ToString() + ".fbmod";
 
             projectManagement.Project.WriteToMod(testfbmodname, new FrostySdk.ModSettings());
@@ -75,8 +80,31 @@ namespace FrostbiteModdingTests
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\\MaddenGPProject.fbproject");
+            projectManagement.Project.Load(@"G:\\MaddenGPProject2.fbproject");
 
+            var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
+            foreach (var oFile in oldFiles) File.Delete(oFile);
+            var testfbmodname = "test-" + new Random().Next().ToString() + ".fbmod";
+
+            projectManagement.Project.WriteToMod(testfbmodname, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+                new System.Collections.Generic.List<string>() {
+                    testfbmodname
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestLegacyMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathExe);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\\MaddenLegacyProject.fbproject");
+
+            var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
+            foreach (var oFile in oldFiles) File.Delete(oFile);
             var testfbmodname = "test-" + new Random().Next().ToString() + ".fbmod";
 
             projectManagement.Project.WriteToMod(testfbmodname, new FrostySdk.ModSettings());

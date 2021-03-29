@@ -29,48 +29,68 @@
 
             <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
-                            <Label Content="New Project" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
-                            <Label Content="Open Project" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                            <Label Content="Save Project" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                            <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
+                    <Menu DockPanel.Dock="Top">
+                        <MenuItem Header="Project">
+                            <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}">
+                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
+                                    <Label Content="New Project" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}">
+                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
+                                    <Label Content="Open Project" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                <Label Content="Save Project" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
+                                <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
+                                <Label Content="Open Mod Details" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </MenuItem>
+                    <MenuItem Header="Mod">
+                        <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                                <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </MenuItem>
+                    <MenuItem Header="Experimental">
+                        <Button x:Name="btnProjectSaveToFIFAProject"  Height="30" Click="btnProjectSaveToFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                <Label Content="Save *.fifaproject" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </MenuItem>
+
+                </Menu>
+                    
+                    
+                    
+                    
                     <!--<Button x:Name="btnProjectWriteToFIFAMod"  Height="30" Click="btnProjectWriteToFIFAMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="ContentSaveAlert" VerticalAlignment="Center" />
                             <Label Content="Save FIFA Mod (*.fifamod)" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>-->
-                    <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="True">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
-                            <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
-                            <Label Content="Open Mod Details" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
+                    
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
                     <!--<TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="?? Game.EXE ??" VerticalAlignment="Center" />

@@ -1,8 +1,7 @@
 using FrostyEditor.IO;
 using System;
-using v2k4FIFASDKGenerator;
 
-namespace v2k4FIFASDKGenerator.FIFA21
+namespace SdkGenerator.FIFA21
 {
 	public class ClassInfo : BaseInfo.ClassInfo
 	{

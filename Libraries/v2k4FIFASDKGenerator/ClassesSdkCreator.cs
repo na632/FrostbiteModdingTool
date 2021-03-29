@@ -5,17 +5,17 @@ using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using SdkGenerator.BaseInfo;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using v2k4FIFASDKGenerator.BaseInfo;
 using static Frosty.OpenFrostyFiles;
-using FieldInfo = v2k4FIFASDKGenerator.BaseInfo.FieldInfo;
+using FieldInfo = SdkGenerator.BaseInfo.FieldInfo;
 
-namespace v2k4FIFASDKGenerator
+namespace SdkGenerator
 {
     public class ClassesSdkCreator
     {
@@ -667,13 +667,13 @@ namespace v2k4FIFASDKGenerator
             MemoryReader memoryReader = null;
             //string typeStr = "v2k4FIFASDKGenerator.ClassesSdkCreator+ClassInfo";
             //string typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
-            string typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
+            string typeStr = "SdkGenerator.Madden20.ClassInfo";
 
             //if (ProfilesLibrary.DataVersion == 20181207)
             //{
             //    str = "FrostyEditor.Anthem.";
             //}
-            //else if (ProfilesLibrary.DataVersion == 20190729)
+            //else if (ProfilesLibrary.IsMadden20DataVersion())
             //{
             //    str = "FrostyEditor.Madden20.";
             //}
@@ -684,22 +684,23 @@ namespace v2k4FIFASDKGenerator
             //else 
             if (ProfilesLibrary.DataVersion == 20190911)
             {
-                typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
+                typeStr = "SdkGenerator.Madden20.ClassInfo";
             }
             else if (ProfilesLibrary.DisplayName.Contains("18"))
             {
-                typeStr = "v2k4FIFASDKGenerator.FIFA18.ClassInfo";
+                typeStr = "SdkGenerator.FIFA18.ClassInfo";
             }
             else if (ProfilesLibrary.IsFIFA21DataVersion())
             {
-                //typeStr = "v2k4FIFASDKGenerator.Madden20.ClassInfo";
-                typeStr = "v2k4FIFASDKGenerator.FIFA21.ClassInfo";
+                //typeStr = "SdkGenerator.Madden20.ClassInfo";
+                typeStr = "SdkGenerator.FIFA21.ClassInfo";
 
             }
-            else if (ProfilesLibrary.IsMaddenDataVersion())
+            else if (ProfilesLibrary.IsMadden21DataVersion())
             {
-                //typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
-                typeStr = "v2k4FIFASDKGenerator.FIFA21.ClassInfo";
+                //typeStr = "SdkGenerator.Madden21.ClassInfo";
+                typeStr = "SdkGenerator.FIFA21.ClassInfo";
+                //typeStr = "SdkGenerator.Madden20.ClassInfo";
             }
             //else if (ProfilesLibrary.DataVersion == 20191101)
             //{
@@ -734,7 +735,6 @@ namespace v2k4FIFASDKGenerator
                 var t = Type.GetType(typeStr);
                 ClassInfo classInfo = (ClassInfo)Activator.CreateInstance(t);
                 classInfo.Read(memoryReader);
-                //Debug.WriteLine(classInfo.typeInfo.name);
                 classInfos.Add(classInfo);
                 offsetClassInfoMapping.Add(typeInfoOffset, classInfo);
                 if (offset != 0L)

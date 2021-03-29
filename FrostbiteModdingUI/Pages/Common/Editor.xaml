@@ -5,20 +5,30 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             >
     <UserControl.Resources>
-       
+        <DataTemplate DataType="{x:Type DataObject}"></DataTemplate>
     </UserControl.Resources>
-    <StackPanel>
-        <TextBlock Text="{Binding Name}"></TextBlock>
-        <TreeView x:Name="TreeView1" Height="400" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Visible">
-            <HierarchicalDataTemplate>
-                <StackPanel>
-                    <TextBlock Text="{Binding}"></TextBlock>
-                </StackPanel>
-            </HierarchicalDataTemplate>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Label Content="Modded" Background="AliceBlue" FontWeight="Bold"></Label>
+        <TreeView x:Name="TreeView1" Grid.Column="0" Grid.Row="1" Height="425" 
+                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                  >
         </TreeView>
-    </StackPanel>
+        <Label Content="Vanilla (Do not edit)" Grid.Column="1"  Background="AliceBlue" FontWeight="Bold" ></Label>
+        <TreeView x:Name="TreeViewOriginal" Grid.Column="1" Grid.Row="1" Height="425" 
+                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible"></TreeView>
+    </Grid>
 
 
 </UserControl>

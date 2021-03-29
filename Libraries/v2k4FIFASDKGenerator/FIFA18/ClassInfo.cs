@@ -1,10 +1,9 @@
 using FrostyEditor.IO;
 using FrostySdk;
 using System;
-using v2k4FIFASDKGenerator;
 
 
-namespace v2k4FIFASDKGenerator.FIFA18
+namespace SdkGenerator.FIFA18
 {
 	public class ClassInfo : BaseInfo.ClassInfo
 	{

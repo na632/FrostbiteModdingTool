@@ -22,7 +22,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using v2k4FIFAModdingCL;
-using v2k4FIFASDKGenerator;
+using SdkGenerator;
 using static Frosty.OpenFrostyFiles;
 
 namespace FIFAModdingUI.Windows

@@ -4935,7 +4935,7 @@ namespace paulv2k4ModdingExecuter
                 {
                     list2.Add(new SymLinkStruct(modPath + "Update", fs.BasePath + "Update", inFolder: true));
                 }
-                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911)
+                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20190911)
                 {
                     foreach (string item4 in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
                     {
@@ -4998,7 +4998,7 @@ namespace paulv2k4ModdingExecuter
             ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
             Logger.Log("Applying mods");
             list2.Clear();
-            if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911)
+            if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20190911)
             {
                 DbObject dbObject4 = null;
                 using (DbReader dbReader3 = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
@@ -5395,7 +5395,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             string modPath = fs.BasePath + modDirName + "\\";
             string patchPath = "Patch";
            
-            if (ProfilesLibrary.IsMaddenDataVersion())
+            if (ProfilesLibrary.IsMadden21DataVersion())
             {
                 string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
                 if (Directory.Exists(path))
@@ -5759,7 +5759,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     //    SymbolicLinkList.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
                     //}
 
-                    if (!ProfilesLibrary.IsFIFA21DataVersion() && !ProfilesLibrary.IsMaddenDataVersion())
+                    if (!ProfilesLibrary.IsFIFA21DataVersion() && !ProfilesLibrary.IsMadden21DataVersion())
                     {
                         foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
                         {
@@ -5912,7 +5912,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                     }
 
                     logger.Log("Copying initfs_win32");
-                    if (ProfilesLibrary.IsMaddenDataVersion())
+                    if (ProfilesLibrary.IsMadden21DataVersion())
                     {
                         CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_Win32", modPath + patchPath + "/initfs_Win32");
                     }
@@ -5962,51 +5962,51 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             //    BuildModData_FrostyVersion(inFs, inLogger, rootPath, additionalArgs, modPaths);
             //else
             var foundFrostyMods = false;
-            var lastModPaths = new Dictionary<string, DateTime>();
-            if (File.Exists("LastLaunchedMods.json")) {
-                var LastLaunchedModsData = File.ReadAllText("LastLaunchedMods.json");
-                lastModPaths = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(LastLaunchedModsData);
-            }
-            var sameCountAsLast = lastModPaths.Count == modPaths.Count();
-            var sameAsLast = sameCountAsLast;
-            if (sameCountAsLast) 
-            {
-                foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
-                {
-                    if (lastModPaths.ContainsKey(f.FullName)) 
-                    {
-                        sameAsLast = (f.LastWriteTime == lastModPaths[f.FullName]);
-                        if (!sameAsLast)
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                sameAsLast = false;
-            }
+            //var lastModPaths = new Dictionary<string, DateTime>();
+            //if (File.Exists("LastLaunchedMods.json")) {
+            //    var LastLaunchedModsData = File.ReadAllText("LastLaunchedMods.json");
+            //    lastModPaths = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(LastLaunchedModsData);
+            //}
+            //var sameCountAsLast = lastModPaths.Count == modPaths.Count();
+            //var sameAsLast = sameCountAsLast;
+            //if (sameCountAsLast) 
+            //{
+            //    foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
+            //    {
+            //        if (lastModPaths.ContainsKey(f.FullName)) 
+            //        {
+            //            sameAsLast = (f.LastWriteTime == lastModPaths[f.FullName]);
+            //            if (!sameAsLast)
+            //                break;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    sameAsLast = false;
+            //}
 
-            // ---------------------------------------------
-            // Load Last Patched Version
-            uint? lastHead = null;
-            var LastHeadData = new Dictionary<string, uint>();
-            if (File.Exists("LastPatchedVersion.json"))
-            {
-                LastHeadData = JsonConvert.DeserializeObject<Dictionary<string, uint>>(File.ReadAllText("LastPatchedVersion.json"));
-                if (LastHeadData.ContainsKey(fs.BasePath)) 
-                {
-                    lastHead = LastHeadData[fs.BasePath];
-                }
-            }
+            //// ---------------------------------------------
+            //// Load Last Patched Version
+            //uint? lastHead = null;
+            //var LastHeadData = new Dictionary<string, uint>();
+            //if (File.Exists("LastPatchedVersion.json"))
+            //{
+            //    LastHeadData = JsonConvert.DeserializeObject<Dictionary<string, uint>>(File.ReadAllText("LastPatchedVersion.json"));
+            //    if (LastHeadData.ContainsKey(fs.BasePath)) 
+            //    {
+            //        lastHead = LastHeadData[fs.BasePath];
+            //    }
+            //}
 
-            // Notify if new Patch detected
-            if (fs.Head != lastHead)
-            {
-                Logger.Log("Detected New Version of " + ProfilesLibrary.ProfileName + ".exe, rebuilding mods");
-                // If new patch detected, force rebuild of mods
-                sameAsLast = false;
-                await Task.Delay(1000);
-            }
+            //// Notify if new Patch detected
+            //if (fs.Head != lastHead)
+            //{
+            //    Logger.Log("Detected New Version of " + ProfilesLibrary.ProfileName + ".exe, rebuilding mods");
+            //    // If new patch detected, force rebuild of mods
+            //    sameAsLast = false;
+            //    await Task.Delay(1000);
+            //}
 
             // Notify if NO changes are made to mods
             //if (sameAsLast)
@@ -6018,26 +6018,26 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             //else
             {
                 foundFrostyMods = await BuildModData(inFs, inLogger, rootPath, additionalArgs, modPaths);
-                lastModPaths.Clear();
-                foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
-                {
-                    lastModPaths.Add(f.FullName, f.LastWriteTime);
-                }
+                //lastModPaths.Clear();
+                //foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
+                //{
+                //    lastModPaths.Add(f.FullName, f.LastWriteTime);
+                //}
 
-                // Save Last Launched Mods
-                File.WriteAllText("LastLaunchedMods.json", JsonConvert.SerializeObject(lastModPaths));
-                // ----------
+                //// Save Last Launched Mods
+                //File.WriteAllText("LastLaunchedMods.json", JsonConvert.SerializeObject(lastModPaths));
+                //// ----------
 
-                // ---------------------------------------------
-                // Save Last Patched Version
-                lastHead = fs.Head;
+                //// ---------------------------------------------
+                //// Save Last Patched Version
+                //lastHead = fs.Head;
 
-                if (LastHeadData.ContainsKey(fs.BasePath))
-                    LastHeadData[fs.BasePath] = lastHead.Value;
-                else
-                    LastHeadData.Add(fs.BasePath, lastHead.Value);
+                //if (LastHeadData.ContainsKey(fs.BasePath))
+                //    LastHeadData[fs.BasePath] = lastHead.Value;
+                //else
+                //    LastHeadData.Add(fs.BasePath, lastHead.Value);
 
-                File.WriteAllText("LastPatchedVersion.json", JsonConvert.SerializeObject(LastHeadData));
+                //File.WriteAllText("LastPatchedVersion.json", JsonConvert.SerializeObject(LastHeadData));
                 //
                 // ---------------------------------------------
 
@@ -6045,7 +6045,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
             
 
-            if (foundFrostyMods || sameAsLast)
+            if (foundFrostyMods)// || sameAsLast)
             {
                 Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + additionalArgs);

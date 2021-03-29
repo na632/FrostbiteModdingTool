@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static Frosty.OpenFrostyFiles;
 
-namespace v2k4FIFASDKGenerator
+namespace SdkGenerator
 {
     public class BuildSDK
     {
@@ -264,7 +264,7 @@ namespace v2k4FIFASDKGenerator
 			Debug.WriteLine("OnGatherTypesFromMemory");
 
 			SdkUpdateState obj = state as SdkUpdateState;
-			obj.Creator = new v2k4FIFASDKGenerator.ClassesSdkCreator(obj);
+			obj.Creator = new SdkGenerator.ClassesSdkCreator(obj);
 
 			bool flag = obj.Creator.GatherTypeInfos(task);
 			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);

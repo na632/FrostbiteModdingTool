@@ -1,8 +1,7 @@
 using FrostyEditor.IO;
 using System;
-using v2k4FIFASDKGenerator;
 
-namespace v2k4FIFASDKGenerator.Madden20
+namespace SdkGenerator.Madden20
 {
 	public class ClassInfo : BaseInfo.ClassInfo
 	{

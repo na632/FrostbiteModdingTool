@@ -146,7 +146,30 @@ namespace FIFAModdingUI.Pages.Common
 			}
         }
 
-        private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		private List<ModdableProperty> _VanillaRootProps;
+
+		public List<ModdableProperty> VanillaRootObjectProperties
+		{
+			get
+			{
+				if (_VanillaRootProps == null)
+				{
+					_VanillaRootProps = new List<ModdableProperty>();
+
+					var vanillaEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false);
+
+					foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
+					{
+						var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
+						_VanillaRootProps.Add(modprop);
+					}
+					return _VanillaRootProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
+				}
+				return _VanillaRootProps;
+			}
+		}
+
+		private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
 			var index = _rootObjProps.FindIndex(x => x.PropertyName == ((ModdableProperty)sender).PropertyName);
 			var o = _rootObjProps[index];
@@ -187,6 +210,7 @@ namespace FIFAModdingUI.Pages.Common
 			Asset = ebx;
 			this.DataContext = ebx;
 			this.TreeView1.DataContext = RootObject;
+			this.TreeViewOriginal.DataContext = RootObject;
 		}
 
 		public static Editor CurrentEditorInstance { get; set; }
@@ -205,21 +229,20 @@ namespace FIFAModdingUI.Pages.Common
 			FrostyProject = frostyProject;
 			logger = inLogger;
 
-			//if (FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse.Contains(AssetEntry.Filename))
-			//	chkImportFromFiles.IsChecked = true;
-
 			this.DataContext = this;
 
 			this.TreeView1.DataContext = RootObject;
+			this.TreeViewOriginal.DataContext = RootObject;
 
-			CreateEditor(RootObjectProperties);
+			CreateEditor(RootObjectProperties, TreeView1);
+			CreateEditor(VanillaRootObjectProperties, TreeViewOriginal);
 		}
 
         private void Editor_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
         }
 
-        public bool CreateEditor(object d)
+        public bool CreateEditor(object d, TreeView treeView)
 		{
 			var propertyNSearch = ((Type)d.GetType()).ToString().ToLower().Replace(".", "_", StringComparison.OrdinalIgnoreCase);
 
@@ -234,12 +257,12 @@ namespace FIFAModdingUI.Pages.Common
 					var lst = mp.PropertyValue as IList;
 					foreach (var item in lst)
 					{
-						CreateEditor(item);
+						CreateEditor(item, treeView);
 					}
 				}
 				else
                 {
-					CreateEditor(d);
+					CreateEditor(d, treeView);
 				}
 			}
             if (ty != null)
@@ -248,17 +271,11 @@ namespace FIFAModdingUI.Pages.Common
 				if (control != null)
 				{
 					control.DataContext = d;
-					TreeView1.Items.Add(control);
+					treeView.Items.Add(control);
 					return true;
 				}
 			}
-			//else
-   //         {
-			//	foreach(var p in d.GetProperties())
-   //             {
-			//		CreateEditor(p.GetValue(d));
-   //             }
-   //         }
+		
 			return false;
 		}
 
@@ -276,9 +293,9 @@ namespace FIFAModdingUI.Pages.Common
 			   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<object, object>));
 		}
 
-		public void CreateEditor(List<ModdableProperty> moddableProperties)
+		public void CreateEditor(List<ModdableProperty> moddableProperties, TreeView treeView)
         {
-			this.TreeView1.Items.Clear();
+			treeView.Items.Clear();
 			foreach (var p in moddableProperties)
 			{
 				TreeViewItem propTreeViewParent = new TreeViewItem();
@@ -296,7 +313,7 @@ namespace FIFAModdingUI.Pages.Common
                     {
                         control.DataContext = p;
                         AddToPropTreeViewParent = false;
-                        TreeView1.Items.Add(control);
+						treeView.Items.Add(control);
                         continue;
                     }
                 }
@@ -433,7 +450,7 @@ namespace FIFAModdingUI.Pages.Common
 						
 						case "System.Collections.Generic.List`1[FrostySdk.Ebx.HotspotEntry]":
 							var d = (dynamic)p.PropertyValue;
-							CreateEditor(p);
+							CreateEditor(p, treeView);
 
                             TreeViewItem lstHSDynamicTreeViewParent = new TreeViewItem();
                             lstHSDynamicTreeViewParent.Header = "Values";
@@ -564,7 +581,7 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 				if (AddToPropTreeViewParent)
-					TreeView1.Items.Add(propTreeViewParent);
+					treeView.Items.Add(propTreeViewParent);
 
 			}
 

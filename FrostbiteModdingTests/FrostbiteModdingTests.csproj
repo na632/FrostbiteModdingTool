@@ -37,6 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\Libraries\FrostySdk\fifa20.key" Link="fifa20.key">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

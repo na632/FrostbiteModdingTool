@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using v2k4FIFAModdingCL;
-using v2k4FIFASDKGenerator;
 
 namespace v2k4FIFAModding.Frosty
 {
@@ -177,7 +176,7 @@ namespace v2k4FIFAModding.Frosty
 				App.ResourceManager.SetLogger(logger);
 				App.ResourceManager.Initialize();
 				App.AssetManager = new AssetManager(App.FileSystem, App.ResourceManager);
-				if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20190729 || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905)
+				if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905)
 				{
 					App.AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
 				}

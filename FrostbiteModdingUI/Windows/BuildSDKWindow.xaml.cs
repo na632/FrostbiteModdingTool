@@ -71,7 +71,7 @@ namespace FrostbiteModdingUI.Windows
             var buildCache = new BuildCache();
             buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, false);
 
-            var buildSDK = new v2k4FIFASDKGenerator.BuildSDK();
+            var buildSDK = new SdkGenerator.BuildSDK();
             buildSDK.Logger = this;
             await buildSDK.Build();
             await Dispatcher.InvokeAsync(() => { btnBuildSDK.IsEnabled = true; });

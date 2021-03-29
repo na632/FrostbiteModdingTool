@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace v2k4FIFASDKGenerator.Frostbite21
+namespace SdkGenerator.Frostbite21
 {
     public enum BasicTypesEnum
     {

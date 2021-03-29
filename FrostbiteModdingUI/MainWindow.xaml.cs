@@ -31,16 +31,22 @@ namespace FIFAModdingUI
 
         public List<Profile> ProfilesWithEditorScreen = new List<Profile>();
 
+        public string WindowTitle { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
 
             Closing += MainWindow_Closing;
 
+
+            var assembly = Assembly.GetExecutingAssembly();
+            WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+
             // ------------------------------------------
             // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
 
-            foreach(var profile in ProfilesLibrary.AvailableProfiles.Where(x=>x.EditorScreen != null))
+            foreach (var profile in ProfilesLibrary.AvailableProfiles.Where(x=>x.EditorScreen != null))
             {
                 foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                 {

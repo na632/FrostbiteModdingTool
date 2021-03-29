@@ -11,7 +11,7 @@
          xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-        Title="Madden 21 Editor" Height="720" Width="1280"
+        Title="{Binding WindowTitle}" Height="720" Width="1280"
          SizeToContent="WidthAndHeight" MinHeight="720" MinWidth="1280"
         ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
          WindowStartupLocation="CenterScreen"
@@ -30,7 +30,7 @@
             </Grid.ColumnDefinitions>
             <GridSplitter></GridSplitter>
 
-            <StackPanel Grid.Row="0"  Orientation="Horizontal">
+            <StackPanel Grid.Row="0"  Orientation="Horizontal" Background="White">
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -58,18 +58,11 @@
                     </Button>-->
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
-                    <TextBox x:Name="txtGameDirectory" Width="300" FontSize="12" IsEnabled="False" Text="Browse for Game >>>>" VerticalAlignment="Center" />
-                    <Button Name="btnBrowseGameDirectory"  Height="30" Click="btnBrowseGameDirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
-                            <Label Content="Browse for Game" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
                     <Button x:Name="btnLaunchGameInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch Game (Edited)" Click="btnLaunchGameInEditor_Click">
                         <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                            <Label Content="Launch Game (Does not work!)" VerticalAlignment="Center" />
+                            <Label Content="Launch Game" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                     <!--<Button x:Name="btnBuildSDK" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
@@ -103,9 +96,12 @@
                 </TabControl>
             </DockPanel>
             <DockPanel Grid.Row="2" >
-                <TextBox x:Name="txtLog" DockPanel.Dock="Top" IsReadOnly="True" Text="{Binding LogText}" ScrollViewer.VerticalScrollBarVisibility="Visible">
-
-                </TextBox>
+                <TextBox
+                 x:Name="txtLog"
+                 IsReadOnly="True"
+                 Text="{Binding LogText}"
+                 ScrollViewer.VerticalScrollBarVisibility="Visible" DockPanel.Dock="Top"
+                 />
             </DockPanel>
 
         </Grid>
