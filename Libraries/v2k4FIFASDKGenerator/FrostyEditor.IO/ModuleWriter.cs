@@ -95,10 +95,10 @@ namespace SdkGenerator
 
 		public void Write(uint version)
 		{
-			if (File.Exists("temp.cs")) { 
-				WriteFromTempCS(version);
-				return;
-			}
+			//if (File.Exists("temp.cs")) { 
+			//	WriteFromTempCS(version);
+			//	return;
+			//}
 
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.AppendLine("using System;");
@@ -212,9 +212,13 @@ namespace SdkGenerator
 
 			var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, options);
 
+			var objectAssemblyLocation = typeof(object).Assembly.Location;
+			var systemRuntimeAssemblyLocation = typeof(System.Runtime.Serialization.DataContractSerializer).Assembly.Location;
+
+
 			var references = new MetadataReference[]
 			{
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(objectAssemblyLocation),
 			//MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
 			//MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
 			//MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),
@@ -243,6 +247,11 @@ namespace SdkGenerator
 				{
 					throw new Exception(result.Diagnostics.Length + " errors");
 				}
+				else
+                {
+					if(File.Exists("temp.cs"))
+						File.Delete("temp.cs");
+                }
 				stream.Flush();
 			}
 
@@ -297,18 +306,6 @@ namespace SdkGenerator
 			DbObject value = classObj.GetValue<DbObject>("meta");
 			string className = classObj.GetValue<string>("name").Replace(':', '_');
 			stringBuilder.Append(WriteClassAttributes(classObj));
-			if(className.Contains("gp_") || className == "AttribGroupRuntime")
-			{
-
-            }
-            if (className.Contains("AttribGroupRuntime_gp_actor"))
-            {
-
-            }
-			if (className.Contains("gp_actor_movement"))
-			{
-
-			}
 
 			stringBuilder.AppendLine("public class " + className + ((parentClassName != "") ? (" : " + parentClassName) : ""));
 			stringBuilder.AppendLine("{");
@@ -345,6 +342,10 @@ namespace SdkGenerator
 			}
 			bool flag = classObj.GetValue<string>("name").Equals("Asset");
 			bool flag2 = false;
+
+			if (classObj.GetValue<string>("name") == "blocking")
+			{
+			}
 
 			var class_fields = classObj.GetValue<DbObject>("fields").list.OrderBy(x => ((DbObject)x).GetValue<int>("offset"));
 			foreach (DbObject item in class_fields)
@@ -522,7 +523,7 @@ namespace SdkGenerator
 			{
 				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0ul) + ")]");
 			}
-			if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+			if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsFIFA21DataVersion())// || ProfilesLibrary.IsMadden21DataVersion())
 			{
 				stringBuilder.AppendLine("[" + typeof(RuntimeSizeAttribute).Name + "(" + classObj.GetValue("runtimeSize", 0) + ")]");
 			}

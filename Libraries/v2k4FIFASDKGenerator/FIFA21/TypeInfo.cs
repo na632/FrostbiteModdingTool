@@ -41,7 +41,7 @@ namespace SdkGenerator.FIFA21
 			long namespaceNamePosition = reader.ReadLong();
 			
 			// Unknown
-			_ = reader.ReadLong();
+			long nextTypeInfo = reader.ReadLong();
 
 			// 
 			alignment = reader.ReadUShort();
@@ -60,6 +60,7 @@ namespace SdkGenerator.FIFA21
 			bool flag = false;
 
 			parentClass = array[0];
+			reader.Position = nextTypeInfo;
 
 			if (base.Type == 2)
 			{
@@ -88,8 +89,8 @@ namespace SdkGenerator.FIFA21
 					flag = true;
 			}
 
-			if (flag)
-			{
+			//if (flag)
+			//{
 				for (int j = 0; j < fieldCount; j++)
 				{
 					FieldInfo fieldInfo = new FieldInfo(this);
@@ -97,7 +98,7 @@ namespace SdkGenerator.FIFA21
 					fieldInfo.index = j;
 					fields.Add(fieldInfo);
 				}
-			}
+			//}
 		}
 		
 

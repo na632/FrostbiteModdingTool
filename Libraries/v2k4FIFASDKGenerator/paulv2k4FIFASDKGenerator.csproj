@@ -19,9 +19,13 @@
 
   <ItemGroup>
     <None Remove="FIFA20.Classes.txt" />
+    <None Remove="M21.Classes.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="M21.Classes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="FIFA20.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

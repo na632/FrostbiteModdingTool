@@ -31,48 +31,64 @@ namespace SdkGenerator
             set { logger = value; }
         }
 
+		public BuildSDK(ILogger inLogger = null)
+        {
+			if(inLogger != null)
+            {
+				logger = inLogger;
+            }
+        }
 
-        Process process = null;
+		public Process GetProcess()
+        {
+			var allProcesses = Process.GetProcesses();
+			var process = allProcesses.FirstOrDefault(x =>
+					x.ProcessName.Contains("FIFA18")
+					|| x.ProcessName.Contains("FIFA19")
+					|| x.ProcessName.Contains("FIFA20")
+					|| x.ProcessName.Contains("FIFA21")
+					|| x.ProcessName.ToUpper().Contains("MADDEN21")
+					|| x.ProcessName.Contains("bf4")
+					);
+			return process;
+		}
+
+		public bool WaitForMainMenu = false;
+
+        Process SdkProcess = null;
 		bool ResultState = false;
 		public async Task<bool> Build()
         {
 			int attemptToFindProcess = 0;
 			do
 			{
-				var allProcesses = Process.GetProcesses();
-				process = allProcesses.FirstOrDefault(x =>
-						x.ProcessName.Contains("FIFA18")
-						|| x.ProcessName.Contains("FIFA19")
-						|| x.ProcessName.Contains("FIFA20")
-						|| x.ProcessName.Contains("FIFA21")
-						|| x.ProcessName.ToUpper().Contains("MADDEN21")
-						|| x.ProcessName.Contains("bf4")
-						);
-				//if (process.ProcessName.ToUpper() == "MADDEN21")
-				//{
-				//    var result = await new BuildSDK2().Build();
-				//    return result;
-				//}
-				if (process != null)
+				SdkProcess = GetProcess();
+			
+				if (SdkProcess != null)
 				{
-					string text = process.MainModule?.ModuleName;
+					string text = SdkProcess.MainModule?.ModuleName;
 				}
 				attemptToFindProcess++;
-				Thread.Sleep(100);
-				if (attemptToFindProcess > 5)
+				await Task.Delay(1000);
+				if (attemptToFindProcess > 60)
 				{
 					break;
 				}
 			}
-			while (process == null);
+			while (SdkProcess == null);
 
-			if (process != null)
+			if (SdkProcess != null)
 			{
-				ProfilesLibrary.Initialize(process.ProcessName);
+				ProfilesLibrary.Initialize(SdkProcess.ProcessName);
 
-				Debug.WriteLine($"Process Found {process.ProcessName}");
-				Trace.WriteLine($"Process Found {process.ProcessName}");
-				Console.WriteLine($"Process Found {process.ProcessName}");
+				Debug.WriteLine($"Process Found {SdkProcess.ProcessName}");
+				Trace.WriteLine($"Process Found {SdkProcess.ProcessName}");
+				Console.WriteLine($"Process Found {SdkProcess.ProcessName}");
+
+				Logger.Log($"Process Found {SdkProcess.ProcessName}");
+
+				if(WaitForMainMenu)
+					await Task.Delay(5000);
 			}
 			else
 			{
@@ -80,6 +96,9 @@ namespace SdkGenerator
 				Debug.WriteLine("Process Not Found");
 				Trace.WriteLine("Process Not Found");
 				Console.WriteLine("Process Not Found");
+
+				Logger.LogError($"Process Not Found");
+
 
 				ResultState = false;
 				return false;
@@ -131,17 +150,18 @@ namespace SdkGenerator
 			Debug.WriteLine("Finished");
 			Trace.WriteLine("Finished");
 			Console.WriteLine("Finished");
+			Logger.Log("Finished SDK Build");
 			return ResultState;
 		}
 
 		private bool OnFindTypeInfoOffset(SdkUpdateTask task, object state)
 		{
 			SdkUpdateState sdkUpdateState = state as SdkUpdateState;
-			if (process != null)
+			if (SdkProcess != null)
 			{
-				long baseAddress = process.MainModule.BaseAddress.ToInt64();
-				MemoryReader memoryReader = new MemoryReader(process, baseAddress);
-				sdkUpdateState.Process = process;
+				long baseAddress = SdkProcess.MainModule.BaseAddress.ToInt64();
+				MemoryReader memoryReader = new MemoryReader(SdkProcess, baseAddress);
+				sdkUpdateState.Process = SdkProcess;
 				if (memoryReader == null)
 				{
 					task.State = SdkUpdateTaskState.CompletedFail;

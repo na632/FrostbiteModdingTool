@@ -25,7 +25,7 @@ namespace v2k4FIFAModdingCL
 
         public static string GAMERootPath = "";
 
-        public static string FIFADataPath { get { return GAMERootPath + "\\Data\\"; } }
+        public static string GameDataPath { get { return GAMERootPath + "\\Data\\"; } }
 
         public static string FIFALocaleINIPath { get { return GAMERootPath + "\\Data\\locale.ini"; } }
         public static string FIFAPatchPath { get { return GAMERootPath + "\\Patch\\"; } }
@@ -33,31 +33,34 @@ namespace v2k4FIFAModdingCL
 
         public static string LegacyModsPath { get { return GAMERootPath + "\\LegacyMods\\Legacy\\"; } }
 
+        public static string GameEXE { get { return GAMERootPath + "\\" + GAMEVERSION + ".exe"; } }
+
         public static bool InitializeSingleton(string filePath)
         {
             if(!string.IsNullOrEmpty(filePath))
             {
-                var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                GAMERootPath = FIFADirectory;
+                var GameDirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
+                GAMERootPath = GameDirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
                 if (!string.IsNullOrEmpty(fileName) && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
                 {
                     GAMEVERSION = fileName.Replace(".exe", "");
-                    return true;
+                    INITIALIZED = true;
                 }
             }
 
-            return false;
+            return INITIALIZED;
         }
 
         public static List<string> CompatibleGameVersions = new List<string>()
         {
             //"FIFA19.exe",
             //"FIFA20_demo.exe",
-            "FIFA20.exe",
+            //"FIFA20.exe",
             "FIFA21.exe",
-            "MADDEN20.exe",
+            //"MADDEN20.exe",
             "MADDEN21.exe",
+            "Madden21.exe",
         };
 
         public static List<string> CompatibleGameFBModVersions = new List<string>()

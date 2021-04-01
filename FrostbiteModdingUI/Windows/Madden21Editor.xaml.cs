@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI;
+using FIFAModdingUI.Windows;
 using FrostbiteModdingUI.Models;
 using FrostySdk;
 using FrostySdk.FrostySdk.Managers;
@@ -118,6 +119,13 @@ namespace FrostbiteModdingUI.Windows
             GameInstanceSingleton.InitializeSingleton(filePath);
             GameInstanceSingleton.Logger = this;
 
+            bool? result = false;
+            BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
+            if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
+            {
+                result = buildSDKAndCacheWindow.ShowDialog();
+            }
+
 
             Task.Run(() =>
             {
@@ -153,6 +161,7 @@ namespace FrostbiteModdingUI.Windows
                     btnProjectNew.IsEnabled = true;
                     btnProjectOpen.IsEnabled = true;
                     btnProjectSave.IsEnabled = true;
+                    btnProjectWriteToMod.IsEnabled = true;
 
                     this.DataContext = null;
                     this.DataContext = this;
@@ -172,15 +181,7 @@ namespace FrostbiteModdingUI.Windows
                     , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool GP Mod", Version = "1.00" });
                 using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
                 {
-                    if (fs.Length > 10)
-                    {
-                        Log("Saved mod successfully to " + saveFileDialog.FileName);
-                    }
-                    else
-                    {
-                        Log("An error has occurred Saving mod to " + saveFileDialog.FileName + " file seems too small");
-
-                    }
+                    Log("Saved mod successfully to " + saveFileDialog.FileName);
                 }
             }
         }

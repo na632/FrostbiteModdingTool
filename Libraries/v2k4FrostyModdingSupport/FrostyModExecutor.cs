@@ -5388,7 +5388,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
             fs = inFs;
             Logger = inLogger;
 
-            if (!AssetManager.InitializePlugins())
+            if (!AssetManager.InitialisePlugins())
             {
                 throw new Exception("Unable to initialize Plugins");
             }

@@ -229,7 +229,7 @@ namespace FIFAModdingUI.Pages.Common
 			FrostyProject = frostyProject;
 			logger = inLogger;
 
-			this.DataContext = this;
+			this.DataContext = Asset;
 
 			this.TreeView1.DataContext = RootObject;
 			this.TreeViewOriginal.DataContext = RootObject;

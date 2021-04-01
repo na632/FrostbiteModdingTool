@@ -69,10 +69,7 @@ namespace FIFA21Plugin
         /// <returns></returns>
         public List<DbObject> Read(NativeReader nativeReader)
         {
-            if (NativeFileLocation.Contains("contentsb"))
-            {
-
-            }
+            AssetManager.Instance.logger.Log($"Loading data from {FileLocation}");
 
             CachingSBData cachingSBData = new CachingSBData();
             cachingSBData.SBFile = NativeFileLocation;
@@ -243,6 +240,8 @@ namespace FIFA21Plugin
             var ebxCount = dbObject.GetValue<DbObject>("ebx").Count;
             for (int ebxIndex = 0; ebxIndex < ebxCount; ebxIndex++)
             {
+                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {ebxIndex}/{ebxCount}");
+
                 if (booleanChangeOfCas[flagIndex++])
                 {
                     //ushort byteAndBool = binarySbReader2.ReadUShort();
@@ -280,8 +279,11 @@ namespace FIFA21Plugin
 
             }
 
-            for (int indexRes = 0; indexRes < dbObject.GetValue<DbObject>("res").Count; indexRes++)
+            var resCount = dbObject.GetValue<DbObject>("res").Count;
+            for (int indexRes = 0; indexRes < resCount; indexRes++)
             {
+                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {indexRes}/{resCount}");
+
                 if (booleanChangeOfCas[flagIndex++])
                 {
                     var b = binarySbReader2.ReadByte();
@@ -315,8 +317,12 @@ namespace FIFA21Plugin
                 }
             }
 
-            for (int indexChunk = 0; indexChunk < dbObject.GetValue<DbObject>("chunks").Count; indexChunk++)
+            var chunkCount = dbObject.GetValue<DbObject>("chunks").Count;
+            for (int indexChunk = 0; indexChunk < chunkCount; indexChunk++)
             {
+
+                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {indexChunk}/{chunkCount}");
+
                 if (booleanChangeOfCas[flagIndex++])
                 {
                     var b = binarySbReader2.ReadByte();

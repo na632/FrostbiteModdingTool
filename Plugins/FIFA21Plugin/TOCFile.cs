@@ -140,26 +140,20 @@ namespace FIFA21Plugin
 			if (File.Exists("debugToc.dat"))
 				File.Delete("debugToc.dat");
 
-			nativeReader.Position = 0;
-			using (NativeWriter writer = new NativeWriter(new FileStream("debugToc.dat", FileMode.OpenOrCreate)))
-			{
-				writer.Write(nativeReader.ReadToEnd());
-			}
-			nativeReader.Position = 0;
-
-   //         if (FileLocation.Contains("contentlaunchsb"))
-   //         {
-			//	// Manchester City CAS location is 1aa28887 (1A A2 88 87 in Endian.BIG)
-			//	// Found this in Data / ContentLaunchSb TOC at Offset 2605292 / 27 c0 ec 00  ( 27c0ec00 in Endian.BIG | 00 EC C0 27 Endian.Little)
+			//nativeReader.Position = 0;
+			//using (NativeWriter writer = new NativeWriter(new FileStream("debugToc.dat", FileMode.OpenOrCreate)))
+			//{
+			//	writer.Write(nativeReader.ReadToEnd());
 			//}
+			nativeReader.Position = 0;
 
-			//ParentReader.AssetManager.logger.Log("Seaching for Internal TOC Bundles");
-			AssetManager.Instance.logger.Log("Seaching for Internal TOC Bundles");
-			//var findInternalPatterns = FIFA21AssetLoader.SearchBytePattern(new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3C }, nativeReader.ReadToEnd());
+			//AssetManager.Instance.logger.Log("Seaching for Internal TOC Bundles");
+
 			BoyerMoore boyerMoore = new BoyerMoore(new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3C });
 			var findInternalPatterns = boyerMoore.SearchAll(nativeReader.ReadToEnd());
 			nativeReader.Position = startPosition;
-			AssetManager.Instance.logger.Log($"{findInternalPatterns.Count} Internal TOC Bundles found");
+
+			//AssetManager.Instance.logger.Log($"{findInternalPatterns.Count} Internal TOC Bundles found");
 
 			foreach (var internalPos in findInternalPatterns)
 			{
@@ -223,6 +217,8 @@ namespace FIFA21Plugin
 						{
 							if (MetaData.ChunkCount > 0)
 							{
+								AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
+
 								nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffset;
 								List<int> list7 = new List<int>();
 								for (int num13 = 0; num13 < MetaData.ChunkCount; num13++)

@@ -8,10 +8,10 @@ namespace SdkGenerator.Madden21
 		public override void Read(MemoryReader reader)
 		{
 			long position = reader.Position;
-			long position2 = reader.ReadLong();
-			ClassesSdkCreator.offset = reader.ReadLong();
-			//if(ClassesSdkCreator.offset == 0)
-				ClassesSdkCreator.offset = reader.ReadLong();
+
+			long typePosition = reader.ReadLong();
+			var previousOffset = reader.ReadLong();
+			long nextOffset = reader.ReadLong();
 
 			id = reader.ReadUShort();
 			//
@@ -24,8 +24,10 @@ namespace SdkGenerator.Madden21
 				reader.ReadByte(),
 				reader.ReadByte()
 			};
+
 			parentClass = reader.ReadLong();
-			reader.Position = position2;
+
+			reader.Position = typePosition;
 			typeInfo = new TypeInfo();
 			typeInfo.Read(reader);
 			if (typeInfo.parentClass != 0L)
@@ -36,9 +38,12 @@ namespace SdkGenerator.Madden21
 			{
 				parentClass = 0L;
 			}
+
+			ClassesSdkCreator.offset = nextOffset;
+
 		}
 
-        public override string ToString()
+		public override string ToString()
         {
 			if(typeInfo!=null && !string.IsNullOrEmpty(typeInfo.name))
 				return typeInfo.name;

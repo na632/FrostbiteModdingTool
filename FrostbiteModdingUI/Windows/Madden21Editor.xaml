@@ -50,12 +50,12 @@
                             <Label Content="Save Project" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <!--<Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+                    <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
                             <Label Content="Write to Mod" VerticalAlignment="Center" />
                         </StackPanel>
-                    </Button>-->
+                    </Button>
                 </StackPanel>
                 <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button x:Name="btnLaunchGameInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"

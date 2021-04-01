@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI.Mods;
+using FIFAModdingUI.Windows;
 using FIFAModdingUI.Windows.Profile;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
@@ -81,6 +82,13 @@ namespace FIFAModdingUI
             {
                 //txtFIFADirectory.Text = "";
                 Trace.WriteLine(e.ToString());
+            }
+
+            bool? result = false;
+            BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
+            if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
+            {
+                result = buildSDKAndCacheWindow.ShowDialog();
             }
         }
 
@@ -468,18 +476,18 @@ namespace FIFAModdingUI
             this.Close();
         }
 
-        private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new OpenFileDialog();
-            dialog.Title = "Find your FIFA exe";
-            dialog.Multiselect = false;
-            dialog.Filter = "exe files (*.exe)|*.exe";
-            dialog.FilterIndex = 0;
-            dialog.ShowDialog(this);
-            var filePath = dialog.FileName;
-            InitializeOfSelectedGame(filePath);
+        //private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var dialog = new OpenFileDialog();
+        //    dialog.Title = "Find your FIFA exe";
+        //    dialog.Multiselect = false;
+        //    dialog.Filter = "exe files (*.exe)|*.exe";
+        //    dialog.FilterIndex = 0;
+        //    dialog.ShowDialog(this);
+        //    var filePath = dialog.FileName;
+        //    InitializeOfSelectedGame(filePath);
 
-        }
+        //}
 
         private void InitializeOfSelectedGame(string filePath)
         {

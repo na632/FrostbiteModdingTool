@@ -135,6 +135,13 @@ namespace FIFAModdingUI.Windows
             lstProjectFiles.Items.Clear();
             lstProjectFiles.ItemsSource = null;
 
+            bool? result = false;
+            BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
+            if(buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
+            {
+                result = buildSDKAndCacheWindow.ShowDialog();
+            }
+
             Task.Run(() =>
             {
                
