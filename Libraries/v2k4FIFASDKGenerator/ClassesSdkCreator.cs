@@ -69,8 +69,8 @@ namespace SdkGenerator
             var names = executingAssembly.GetManifestResourceNames();
             //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.Classes.txt"))
             //using (Stream stream = executingAssembly.GetManifestResourceStream("v2k4FIFASDKGenerator.Classes.txt"))
-            if (ProfilesLibrary.IsMadden21DataVersion())
-            {
+            //if (ProfilesLibrary.IsMadden21DataVersion())
+            //{
                 using (FileStream stream = new FileStream("M21.Classes.txt", FileMode.Open))
                 {
                     if (stream != null)
@@ -78,17 +78,17 @@ namespace SdkGenerator
                         classMetaList = TypeLibrary.LoadClassesSDK(stream);
                     }
                 }
-            }
-            else
-            {
-                using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
-                {
-                    if (stream != null)
-                    {
-                        classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                    }
-                }
-            }
+            //}
+            //else
+            //{
+            //    using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
+            //    {
+            //        if (stream != null)
+            //        {
+            //            classMetaList = TypeLibrary.LoadClassesSDK(stream);
+            //        }
+            //    }
+            //}
             
             classList = DumpClasses(task);
             if (classList != null)
@@ -324,17 +324,23 @@ namespace SdkGenerator
                                     mapping.Remove(dbObject3.GetValue("name", ""));
                                     fieldMapping.Remove(dbObject3.GetValue("name", ""));
                                 }
-                                //if (!dbObject3.HasValue("typeInfoGuid"))
-                                //{
-                                //    dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
-                                //}
-                                //if (dbObject3.GetValue<DbObject>("typeInfoGuid").FindIndex((object a) => (Guid)a == guid) == -1)
+                                if (!dbObject3.HasValue("typeInfoGuid"))
+                                {
+                                    dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
+                                }
+                                if (dbObject3.GetValue<DbObject>("typeInfoGuid").FindIndex((object a) => (Guid)a == guid) == -1)
+                                {
+                                    dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+                                }
+
+                                //if (!dbObject3.GetValue<DbObject>("typeInfoGuid").List.Any())
                                 //{
                                 //    dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
                                 //}
                                 // PG: Change it to just overwrite the last one? 
-                                dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
-                                dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+                                //dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
+                                // dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+
 
                                 EbxClass item2 = default(EbxClass);
                                 item2.Name = dbObject3.GetValue("name", "");

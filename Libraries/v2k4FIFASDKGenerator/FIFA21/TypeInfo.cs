@@ -59,47 +59,46 @@ namespace SdkGenerator.FIFA21
 			nameSpace = reader.ReadNullTerminatedString();
 			bool flag = false;
 
-			parentClass = array[0];
-			reader.Position = nextTypeInfo;
+            parentClass = array[0];
+			//parentClass = 0L;
+            reader.Position = nextTypeInfo;
 
 			if (base.Type == 2)
 			{
-				reader.Position = array[6];
-				flag = true;
+                reader.Position = array[6];
+				flag = fieldCount > 0;
 			}
 			else if (base.Type == 3)
 			{
-				reader.Position = array[1];
-                ////reader.Position = array[3];
-                ////reader.Position = array[4];
-                //if (reader.Position == 0)
-                //    reader.Position = array[3];
-
-                if (reader.Position != 0)
+				//parentClass = 0L;
+				if(fieldCount > 0)
+				{
+					reader.Position = array[1];
 					flag = true;
-			}
-			else if (Type == 4)
-			{
-			}
+				}
+				//reader.Position = array[1];
+				//if (reader.Position != 0)
+    //                flag = true;
+            }
 			else if (base.Type == 8)
 			{
 				parentClass = 0L;
-				reader.Position = array[0];
-				if (reader.Position != 0)
-					flag = true;
+                reader.Position = array[0];
+     //           if (reader.Position != 0)
+				flag = fieldCount > 0;
 			}
 
-			//if (flag)
-			//{
-				for (int j = 0; j < fieldCount; j++)
+            if (flag)
+            {
+                for (int j = 0; j < fieldCount; j++)
 				{
 					FieldInfo fieldInfo = new FieldInfo(this);
 					fieldInfo.Read(reader);
 					fieldInfo.index = j;
 					fields.Add(fieldInfo);
 				}
-			//}
-		}
+            }
+        }
 		
 
 		public override void Modify(DbObject classObj)

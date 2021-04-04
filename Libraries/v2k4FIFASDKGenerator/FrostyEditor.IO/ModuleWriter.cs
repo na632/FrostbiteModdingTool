@@ -523,7 +523,7 @@ namespace SdkGenerator
 			{
 				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0ul) + ")]");
 			}
-			if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsFIFA21DataVersion())// || ProfilesLibrary.IsMadden21DataVersion())
+			if (ProfilesLibrary.DataVersion == 20171117)// || ProfilesLibrary.IsFIFA21DataVersion())// || ProfilesLibrary.IsMadden21DataVersion())
 			{
 				stringBuilder.AppendLine("[" + typeof(RuntimeSizeAttribute).Name + "(" + classObj.GetValue("runtimeSize", 0) + ")]");
 			}

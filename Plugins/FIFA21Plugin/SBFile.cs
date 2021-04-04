@@ -69,7 +69,7 @@ namespace FIFA21Plugin
         /// <returns></returns>
         public List<DbObject> Read(NativeReader nativeReader)
         {
-            AssetManager.Instance.logger.Log($"Loading data from {FileLocation}");
+            //AssetManager.Instance.logger.Log($"Loading data from {FileLocation}");
 
             CachingSBData cachingSBData = new CachingSBData();
             cachingSBData.SBFile = NativeFileLocation;
@@ -90,6 +90,11 @@ namespace FIFA21Plugin
             var index = 0;
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)
             {
+
+                var percentDone = Math.Round(((double)index / AssociatedTOCFile.Bundles.Count) * 100).ToString();
+                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} {percentDone}%");
+
+
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
 
                 BundleEntry bundleEntry = new BundleEntry
@@ -240,7 +245,8 @@ namespace FIFA21Plugin
             var ebxCount = dbObject.GetValue<DbObject>("ebx").Count;
             for (int ebxIndex = 0; ebxIndex < ebxCount; ebxIndex++)
             {
-                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {ebxIndex}/{ebxCount}");
+                //var percentDone = Math.Round(((double)ebxIndex / ebxCount) * 100).ToString();
+                //AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {percentDone}%");
 
                 if (booleanChangeOfCas[flagIndex++])
                 {
@@ -282,7 +288,9 @@ namespace FIFA21Plugin
             var resCount = dbObject.GetValue<DbObject>("res").Count;
             for (int indexRes = 0; indexRes < resCount; indexRes++)
             {
-                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {indexRes}/{resCount}");
+                //var percentDone = Math.Round(((double)indexRes / resCount) * 100).ToString();
+
+                //AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {percentDone}%");
 
                 if (booleanChangeOfCas[flagIndex++])
                 {
@@ -321,7 +329,9 @@ namespace FIFA21Plugin
             for (int indexChunk = 0; indexChunk < chunkCount; indexChunk++)
             {
 
-                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {indexChunk}/{chunkCount}");
+                //var percentDone = Math.Round(((double)indexChunk / chunkCount) * 100).ToString();
+
+                //AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {percentDone}%");
 
                 if (booleanChangeOfCas[flagIndex++])
                 {

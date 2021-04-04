@@ -26,48 +26,38 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="download.png" />
-    <None Remove="FrostySdk.Profiles.bin" />
-    <None Remove="ini\AIObjectiveSystem_FIFA19.ini" />
-    <None Remove="ini\AIObjectiveSystem_FIFA20.ini" />
-    <None Remove="ini\AnimationGameplay.ini" />
-    <None Remove="ini\ATTRIBUTE_WEIGHTS.ini" />
-    <None Remove="ini\ContextEffect_FIFA19.ini" />
-    <None Remove="ini\ContextEffect_FIFA20.ini" />
-    <None Remove="ini\Goalkeeping.ini" />
-    <None Remove="ini\UnlockBootsAndCelebrations.ini" />
-    <None Remove="ini\_FIFA19_base.ini" />
-    <None Remove="ini\_FIFA20_base.ini" />
-    <None Remove="Resources\Classes.txt" />
-    <None Remove="Resources\images\PAULV2K4MODDINGTOOL.png" />
-    <None Remove="Resources\images\PAULV2K4MODDINGTOOL2.png" />
-    <None Remove="Resources\images\PAULV2K4MODDINGTOOL3.png" />
-    <None Remove="Resources\images\PAULV2K4MODDINGTOOL4.png" />
-  </ItemGroup>
-
-  <ItemGroup>
+   <ItemGroup>
     <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
     <Content Include="..\Libraries\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json" />
     <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </Content>
     <Content Include="..\Libraries\FrostySdk\Madden20Profile.json" Link="Madden20Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </Content>
     <Content Include="..\Libraries\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </Content>
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="FrostySdk.Profiles.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -145,15 +135,23 @@
   <ItemGroup>
     <None Update="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Update="FIFA20Legacy.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Update="fifa20_demo.key">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Update="FIFA20_demoProfile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -164,18 +162,26 @@
     </None>
     <None Update="Resources\FIFA21DBMeta.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Update="Resources\images\PAUL-TOOL-COVER.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SDK\FIFA20SDK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Update="SDK\FIFA21SDK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Update="SDK\MADDEN21SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
   </ItemGroup>
 
@@ -189,21 +195,33 @@
   <ItemGroup>
     <None Include="..\Libraries\FrostySdk\fifa21.key" Link="fifa21.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Include="..\Libraries\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Include="..\Plugins\BFVPlugin\bin\Debug\netstandard2.1\BFVPlugin.dll" Link="Plugins\BFVPlugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Include="..\Plugins\FIFA20Plugin\bin\Debug\netstandard2.1\FIFA20Plugin.dll" Link="Plugins\FIFA20Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
     <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
     </None>
   </ItemGroup>
 

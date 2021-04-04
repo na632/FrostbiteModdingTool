@@ -31,7 +31,8 @@
     <None Include="..\Libraries\v2k4FrostyModdingSupport\ThirdParty\liblz4.so.1.8.0.dll" Link="ThirdParty\liblz4.so.1.8.0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\Libraries\v2k4FrostyModdingSupport\ThirdParty\libzstd.0.0.6.dll" Link="ThirdParty\libzstd.0.0.6.dll">
+    <None Include="..\Libraries\v2k4FrostyModdingSupport\ThirdParty\lib
+		  .0.0.6.dll" Link="ThirdParty\libzstd.0.0.6.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\Libraries\v2k4FrostyModdingSupport\ThirdParty\libzstd.1.1.5.dll" Link="ThirdParty\libzstd.1.1.5.dll">

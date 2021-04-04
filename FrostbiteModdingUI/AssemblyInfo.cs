@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Frostbite Modding Tool")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Paulv2k4")]
-[assembly: AssemblyProduct("Frostbite Modding Tool Alpha 8")]
+[assembly: AssemblyProduct("Frostbite Modding Tool")]
 [assembly: AssemblyCopyright("Copyright © Paulv2k4 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("9.1.*")]
+[assembly: AssemblyVersion("9.2.*")]
