@@ -589,79 +589,79 @@ namespace paulv2k4ModdingExecuter
                                                     int count = dbObject.GetValue<DbObject>("ebx").Count;
                                                     int count2 = dbObject.GetValue<DbObject>("res").Count;
                                                     int count3 = dbObject.GetValue<DbObject>("chunks").Count;
-                                                    using (NativeWriter nativeWriter3 = new NativeWriter(new MemoryStream()))
+                                                    using (NativeWriter nwCas2 = new NativeWriter(new MemoryStream()))
                                                     {
-                                                        nativeWriter3.Write(3735927486u, Endian.Big);
-                                                        nativeWriter3.Write(3018715229u, Endian.Big);
-                                                        nativeWriter3.Write(count + count2 + count3, Endian.Big);
-                                                        nativeWriter3.Write(count, Endian.Big);
-                                                        nativeWriter3.Write(count2, Endian.Big);
-                                                        nativeWriter3.Write(count3, Endian.Big);
-                                                        nativeWriter3.Write(3735927486u, Endian.Big);
-                                                        nativeWriter3.Write(3735927486u, Endian.Big);
-                                                        nativeWriter3.Write(3735927486u, Endian.Big);
+                                                        nwCas2.Write(3735927486u, Endian.Big);
+                                                        nwCas2.Write(3018715229u, Endian.Big);
+                                                        nwCas2.Write(count + count2 + count3, Endian.Big);
+                                                        nwCas2.Write(count, Endian.Big);
+                                                        nwCas2.Write(count2, Endian.Big);
+                                                        nwCas2.Write(count3, Endian.Big);
+                                                        nwCas2.Write(3735927486u, Endian.Big);
+                                                        nwCas2.Write(3735927486u, Endian.Big);
+                                                        nwCas2.Write(3735927486u, Endian.Big);
                                                         long num17 = 0L;
                                                         new Dictionary<uint, long>();
                                                         List<string> list4 = new List<string>();
                                                         foreach (DbObject item12 in dbObject.GetValue<DbObject>("ebx"))
                                                         {
                                                             Fnv1.HashString(item12.GetValue<string>("name"));
-                                                            nativeWriter3.Write((uint)num17, Endian.Big);
+                                                            nwCas2.Write((uint)num17, Endian.Big);
                                                             list4.Add(item12.GetValue<string>("name"));
                                                             num17 += item12.GetValue<string>("name").Length + 1;
-                                                            nativeWriter3.Write(item12.GetValue("originalSize", 0), Endian.Big);
+                                                            nwCas2.Write(item12.GetValue("originalSize", 0), Endian.Big);
                                                         }
                                                         foreach (DbObject item13 in dbObject.GetValue<DbObject>("res"))
                                                         {
                                                             Fnv1.HashString(item13.GetValue<string>("name"));
-                                                            nativeWriter3.Write((uint)num17, Endian.Big);
+                                                            nwCas2.Write((uint)num17, Endian.Big);
                                                             list4.Add(item13.GetValue<string>("name"));
                                                             num17 += item13.GetValue<string>("name").Length + 1;
-                                                            nativeWriter3.Write(item13.GetValue("originalSize", 0), Endian.Big);
+                                                            nwCas2.Write(item13.GetValue("originalSize", 0), Endian.Big);
                                                         }
                                                         foreach (DbObject item14 in dbObject.GetValue<DbObject>("res"))
                                                         {
-                                                            nativeWriter3.Write((uint)item14.GetValue("resType", 0L), Endian.Big);
+                                                            nwCas2.Write((uint)item14.GetValue("resType", 0L), Endian.Big);
                                                         }
                                                         foreach (DbObject item15 in dbObject.GetValue<DbObject>("res"))
                                                         {
-                                                            nativeWriter3.Write(item15.GetValue<byte[]>("resMeta"));
+                                                            nwCas2.Write(item15.GetValue<byte[]>("resMeta"));
                                                         }
                                                         foreach (DbObject item16 in dbObject.GetValue<DbObject>("res"))
                                                         {
-                                                            nativeWriter3.Write(item16.GetValue("resRid", 0L), Endian.Big);
+                                                            nwCas2.Write(item16.GetValue("resRid", 0L), Endian.Big);
                                                         }
                                                         foreach (DbObject item17 in dbObject.GetValue<DbObject>("chunks"))
                                                         {
-                                                            nativeWriter3.Write(item17.GetValue<Guid>("id"), Endian.Big);
-                                                            nativeWriter3.Write(item17.GetValue("logicalOffset", 0), Endian.Big);
-                                                            nativeWriter3.Write(item17.GetValue("logicalSize", 0), Endian.Big);
+                                                            nwCas2.Write(item17.GetValue<Guid>("id"), Endian.Big);
+                                                            nwCas2.Write(item17.GetValue("logicalOffset", 0), Endian.Big);
+                                                            nwCas2.Write(item17.GetValue("logicalSize", 0), Endian.Big);
                                                         }
-                                                        long position3 = nativeWriter3.BaseStream.Position;
+                                                        long position3 = nwCas2.BaseStream.Position;
                                                         foreach (string item18 in list4)
                                                         {
-                                                            nativeWriter3.WriteNullTerminatedString(item18);
+                                                            nwCas2.WriteNullTerminatedString(item18);
                                                         }
                                                         long num18 = 0L;
                                                         long num19 = 0L;
                                                         if (dbObject.GetValue<DbObject>("chunks").Count > 0)
                                                         {
                                                             DbObject value4 = dbObject.GetValue<DbObject>("chunkMeta");
-                                                            num18 = nativeWriter3.BaseStream.Position;
+                                                            num18 = nwCas2.BaseStream.Position;
                                                             using (DbWriter dbWriter = new DbWriter(new MemoryStream()))
                                                             {
-                                                                nativeWriter3.Write(dbWriter.WriteDbObject("chunkMeta", value4));
+                                                                nwCas2.Write(dbWriter.WriteDbObject("chunkMeta", value4));
                                                             }
-                                                            num19 = nativeWriter3.BaseStream.Position - num18;
+                                                            num19 = nwCas2.BaseStream.Position - num18;
                                                         }
-                                                        long num20 = nativeWriter3.BaseStream.Position - 4;
-                                                        nativeWriter3.BaseStream.Position = 24L;
-                                                        nativeWriter3.Write((uint)(position3 - 4), Endian.Big);
-                                                        nativeWriter3.Write((uint)(num18 - 4), Endian.Big);
-                                                        nativeWriter3.Write((uint)num19, Endian.Big);
-                                                        nativeWriter3.BaseStream.Position = 0L;
-                                                        nativeWriter3.Write((uint)num20, Endian.Big);
-                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + nativeWriter3.BaseStream.Length > 1073741824)
+                                                        long num20 = nwCas2.BaseStream.Position - 4;
+                                                        nwCas2.BaseStream.Position = 24L;
+                                                        nwCas2.Write((uint)(position3 - 4), Endian.Big);
+                                                        nwCas2.Write((uint)(num18 - 4), Endian.Big);
+                                                        nwCas2.Write((uint)num19, Endian.Big);
+                                                        nwCas2.BaseStream.Position = 0L;
+                                                        nwCas2.Write((uint)num20, Endian.Big);
+                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + nwCas2.BaseStream.Length > 1073741824)
                                                         {
                                                             writer_new_cas_file?.Close();
                                                             writer_new_cas_file = GetNextCas(out casFileIndex);
@@ -669,7 +669,7 @@ namespace paulv2k4ModdingExecuter
                                                         bundleFileEntry.CasIndex = casFileIndex;
                                                         bundleFileEntry.Offset = (int)writer_new_cas_file.BaseStream.Position;
                                                         bundleFileEntry.Size = (int)(num20 + 4);
-                                                        writer_new_cas_file.Write(((MemoryStream)nativeWriter3.BaseStream).ToArray());
+                                                        writer_new_cas_file.Write(((MemoryStream)nwCas2.BaseStream).ToArray());
                                                     }
                                                 }
                                                 list2.Add((int)(writer_new_toc_file_mod_data.BaseStream.Position - position));

@@ -645,7 +645,6 @@ namespace FIFAModdingUI.Windows
 
                             var allFiles = Directory.GetFiles("TEMP", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
                             Task[] tasks = new Task[allFiles.Count()];
-                            var index = 0;
                             foreach (var file in allFiles)
                             {
                                 var fIFile = new FileInfo(file);
@@ -722,9 +721,15 @@ namespace FIFAModdingUI.Windows
                                         fI.Delete();
                                     }
                                 }
-                                Log("Legacy Compiler :: Cleaned up encrypted files");
 
                             }
+
+                            if (directoryInfoTemp.Exists)
+                            {
+                                RecursiveDelete(directoryInfoTemp);
+                                Log("Legacy Compiler :: Cleaned up encrypted files");
+                            }
+
 
                         });
                     }
@@ -862,8 +867,10 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
-                    FIFAEditorProject project = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
-                    project.Save(saveFileDialog.FileName);
+                    FIFAEditorProject.ConvertFromFbProject(ProjectManagement.Project, saveFileDialog.FileName);
+
+                    //FIFAEditorProject project = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+                    //project.Save(saveFileDialog.FileName);
 
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;

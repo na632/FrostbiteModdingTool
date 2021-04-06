@@ -178,11 +178,12 @@ namespace FrostbiteModdingTests
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Alpha 11.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Final.fbproject");
 
-            FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
-            editorProject.Save(@"G:\testgpfromfbproject.fifaproject");
-            editorProject.Load(@"G:\testgpfromfbproject.fifaproject");
+            FIFAEditorProject editorProject = FIFAEditorProject.ConvertFromFbProject(projectManagement.Project, @"G:\testgpfromfbproject.fifaproject");
+            //FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+            //editorProject.Save(@"G:\testgpfromfbproject.fifaproject");
+            //editorProject.Load(@"G:\testgpfromfbproject.fifaproject");
 
 
         }

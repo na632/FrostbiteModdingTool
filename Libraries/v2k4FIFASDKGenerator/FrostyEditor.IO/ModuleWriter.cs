@@ -346,6 +346,9 @@ namespace SdkGenerator
 			if (classObj.GetValue<string>("name") == "blocking")
 			{
 			}
+			if (classObj.GetValue<string>("name") == "blocking")
+			{
+			}
 
 			var class_fields = classObj.GetValue<DbObject>("fields").list.OrderBy(x => ((DbObject)x).GetValue<int>("offset"));
 			foreach (DbObject item in class_fields)
