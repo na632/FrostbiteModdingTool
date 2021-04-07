@@ -880,6 +880,12 @@ namespace FIFAModdingUI.Windows
             }
         }
 
-
+        public void UpdateAllBrowsers()
+        {
+            dataBrowser.UpdateAssetListView();
+            textureBrowser.UpdateAssetListView();
+            gameplayBrowser.UpdateAssetListView();
+            legacyBrowser.UpdateAssetListView();
+        }
     }
 }

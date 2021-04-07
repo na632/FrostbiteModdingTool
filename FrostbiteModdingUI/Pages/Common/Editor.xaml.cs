@@ -1,4 +1,5 @@
 ﻿using FrostbiteModdingUI.Pages.Common.EBX;
+using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.FrostySdk.Ebx;
 using FrostySdk.Interfaces;
@@ -97,7 +98,7 @@ namespace FIFAModdingUI.Pages.Common
 
 		public static readonly DependencyProperty AssetModifiedProperty;
 
-		protected ILogger logger;
+		protected IEditorWindow EditorWindow;
 
 		protected List<object> objects;
 
@@ -177,6 +178,9 @@ namespace FIFAModdingUI.Pages.Common
 			var robjs = RootObjectProperties;
 			robjs[index] = o;
 			RootObjectProperties = robjs;
+
+			if(EditorWindow != null)
+				EditorWindow.UpdateAllBrowsers();
 		}
 
 		public void RevertAsset() {
@@ -218,7 +222,7 @@ namespace FIFAModdingUI.Pages.Common
 		public Editor(AssetEntry inAssetEntry
 			, EbxAsset inAsset
 			, FrostbiteProject frostyProject
-			, ILogger inLogger)
+			, IEditorWindow inEditorWindow)
 		{
 			InitializeComponent();
 			CurrentEditorInstance = this;
@@ -227,7 +231,7 @@ namespace FIFAModdingUI.Pages.Common
 			AssetEntry = inAssetEntry;
 			Asset = inAsset;
 			FrostyProject = frostyProject;
-			logger = inLogger;
+			EditorWindow = inEditorWindow;
 
 			this.DataContext = Asset;
 
@@ -574,7 +578,7 @@ namespace FIFAModdingUI.Pages.Common
                             break;
 
 						default:
-							logger.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
+							EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
 							break;
 
 

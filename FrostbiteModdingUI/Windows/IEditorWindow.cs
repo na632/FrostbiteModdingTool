@@ -9,5 +9,6 @@ namespace FrostbiteModdingUI.Windows
 {
     public interface IEditorWindow : ILogger
     {
+        public void UpdateAllBrowsers();
     }
 }

@@ -309,5 +309,12 @@ namespace FrostbiteModdingUI.Windows
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             Log("New Project Created");
         }
+
+        public void UpdateAllBrowsers()
+        {
+            dataBrowser.UpdateAssetListView();
+            gameplayBrowser.UpdateAssetListView();
+            legacyBrowser.UpdateAssetListView();
+        }
     }
 }

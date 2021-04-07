@@ -218,10 +218,18 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
+    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\netstandard2.1\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
     <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
+    </None>
+    <None Include="..\Plugins\Madden22Plugin\bin\Debug\netstandard2.1\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
 

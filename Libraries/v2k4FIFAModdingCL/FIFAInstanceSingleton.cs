@@ -102,7 +102,7 @@ namespace v2k4FIFAModdingCL
             return null; //if we fail to find it
         }
 
-        public static void InjectDLL(string dllpath)
+        public static bool InjectDLL(string dllpath)
         {
             Thread.Sleep(3000);
 
@@ -138,14 +138,19 @@ namespace v2k4FIFAModdingCL
 
                         try
                         {
-                            InjectDLLIntoProcessFromPath(dllpath, proc.Value);
-                            //var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
-                            //bl.InjectDll();
+                            if (!InjectDLLIntoProcessFromPath(dllpath, proc.Value))
+                            {
+                                var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
+                                var ptr = bl.InjectDll();
+                                Debug.WriteLine($"Injected: {dllpath}");
+                                return (ptr != null);
+                            }
 
                             //var mapper = new LibraryMapper(Process.GetProcessById(proc.Value), dllpath);
                             //mapper.MapLibrary();
-
                             Debug.WriteLine($"Injected: {dllpath}");
+
+                            return true;
                         }
                         catch(Exception ex)
                         {
@@ -165,20 +170,22 @@ namespace v2k4FIFAModdingCL
             {
                 Debug.WriteLine("[ERROR] InjectDLL :: " + dllpath + " not found");
             }
+
+            return false;
         }
 
-        public static async void InjectDLLAsync(string dllpath)
+        public static async Task<bool> InjectDLLAsync(string dllpath)
         {
-            await Task.Run(() =>
+            return await Task.Run(() =>
             {
-                InjectDLL(dllpath);
+                return InjectDLL(dllpath);
             });
         }
 
 
         /**/
 
-        private static void InjectDLLIntoProcessFromPath(string DllPath, int ProcId)
+        private static bool InjectDLLIntoProcessFromPath(string DllPath, int ProcId)
         {
             // Open handle to the target process
             IntPtr ProcHandle = OpenProcess(
@@ -191,7 +198,8 @@ namespace v2k4FIFAModdingCL
                 Console.WriteLine("[!] Handle to target process could not be obtained!");
                 Logger.LogError("[!] Handle to target process could not be obtained!");
                 Console.ForegroundColor = ConsoleColor.White;
-                System.Environment.Exit(1);
+
+                return false;
             }
             else
             {
@@ -217,7 +225,7 @@ namespace v2k4FIFAModdingCL
                 Console.WriteLine("[!] DLL space allocation failed.");
                 Logger.LogError("[!] DLL space allocation failed.");
                 Console.ForegroundColor = ConsoleColor.White;
-                System.Environment.Exit(1);
+                return false;
             }
             else
             {
@@ -242,7 +250,7 @@ namespace v2k4FIFAModdingCL
                 Console.WriteLine("[!] Writing DLL content to target process failed.");
                 Logger.LogError("[!] Writing DLL content to target process failed.");
                 Console.ForegroundColor = ConsoleColor.White;
-                System.Environment.Exit(1);
+                return false;
             }
             else
             {
@@ -262,7 +270,7 @@ namespace v2k4FIFAModdingCL
                 Logger.LogError("[!] Obtaining an addess to LoadLibraryA function has failed.");
 
                 Console.ForegroundColor = ConsoleColor.White;
-                System.Environment.Exit(1);
+                return false;
             }
             else
             {
@@ -288,7 +296,7 @@ namespace v2k4FIFAModdingCL
                 Console.WriteLine("[!] Obtaining a handle to remote thread in target process failed.");
                 Logger.LogError("[!] Obtaining a handle to remote thread in target process failed.");
                 Console.ForegroundColor = ConsoleColor.White;
-                System.Environment.Exit(1);
+                return false;
             }
             else
             {
@@ -296,6 +304,9 @@ namespace v2k4FIFAModdingCL
                 Console.WriteLine("[+] Obtaining a handle to remote thread (0x" + RemoteThreadHandle + ") in target process is successful.");
                 Console.ForegroundColor = ConsoleColor.White;
             }
+
+            return true;
+
         }
 
 

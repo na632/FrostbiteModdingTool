@@ -205,8 +205,11 @@ namespace FIFAModdingUI.Pages.Common
 
 		private void btnImport_Click(object sender, RoutedEventArgs e)
 		{
+			LoadingDialog loadingDialog = null;
 			try
 			{
+				
+
 				//var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 				var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 				if (SelectedLegacyEntry != null)
@@ -265,7 +268,6 @@ namespace FIFAModdingUI.Pages.Common
 							var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(SelectedEntry.Name);
 							if (resEntry != null)
 							{
-
 								using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(resEntry))
 								{
 
@@ -273,14 +275,18 @@ namespace FIFAModdingUI.Pages.Common
 									TextureImporter textureImporter = new TextureImporter();
 									EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
 
+
+
 									if (ebxAssetEntry != null)
 										textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
+
 
 									var res = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
 									if (res != null)
 									{
 										BuildTextureViewerFromAssetEntry(res);
 									}
+
 
 									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
 								}
@@ -363,6 +369,11 @@ namespace FIFAModdingUI.Pages.Common
 				MainEditorWindow.LogError(ex.Message);
             }
 			UpdateAssetListView();
+
+			if(loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
+            {
+				loadingDialog.Close();
+            }
 		}
 
 		private void btnExport_Click(object sender, RoutedEventArgs e)

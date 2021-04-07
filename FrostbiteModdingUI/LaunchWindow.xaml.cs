@@ -237,6 +237,16 @@ namespace FIFAModdingUI
 
         }
 
+        public void LogSync(string in_text)
+        {
+            Dispatcher.Invoke(() => {
+                var stringBuilder = new StringBuilder();
+                stringBuilder.Append(txtLog.Text);
+                stringBuilder.AppendLine(in_text);
+                txtLog.Text = stringBuilder.ToString();
+            });
+        }
+
         /// <summary>
         /// Setup and Extract lmods to the LegacyMods folder
         /// </summary>
@@ -398,9 +408,12 @@ namespace FIFAModdingUI
                                 var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
                                 try
                                 {
-                                    Log("Injecting Live Legacy Mod Support");
-                                    GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
-                                    Log("Injected Live Legacy Mod Support");
+                                    LogSync("Injecting Live Legacy Mod Support");
+                                    bool InjectionSuccess = await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                                    if (InjectionSuccess)
+                                        LogSync("Injected Live Legacy Mod Support");
+                                    else
+                                        LogError("Launcher could not inject Live Legacy File Support");
 
                                 }
                                 catch (Exception InjectDLLException)
@@ -457,7 +470,9 @@ namespace FIFAModdingUI
             var dialog = new OpenFileDialog();
             dialog.Title = "Browse for your mod";
             dialog.Multiselect = false;
-            dialog.Filter = "Mod files (*.zip, *.lmod, *.fbmod, *.fifamod)|*.zip;*.lmod;*.fbmod;*.fifamod";
+            // remove zip as not compatible with *.fifamod / FIFA 21
+            //dialog.Filter = "Mod files (*.zip, *.lmod, *.fbmod, *.fifamod)|*.zip;*.lmod;*.fbmod;*.fifamod";
+            dialog.Filter = "Mod files (*.lmod, *.fbmod, *.fifamod)|*.lmod;*.fbmod;*.fifamod";
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;
@@ -557,7 +572,8 @@ namespace FIFAModdingUI
 
         public void LogError(string text, params object[] vars)
         {
-            LogAsync("[ERROR] " + text);
+            //LogAsync("[ERROR] " + text);
+            LogSync("[ERROR] " + text);
 
             if (File.Exists("ErrorLog.txt"))
                 File.Delete("ErrorLog.txt");
