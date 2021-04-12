@@ -306,6 +306,11 @@ namespace FIFAModdingUI
         {
             if (!string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION) && !string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
             {
+                // -------------------------------------
+                // Ensure this is the logger
+                //
+                GameInstanceSingleton.Logger = this;
+
                 TabCont.SelectedIndex = 0;
                 DoLegacyModSetup();
 
@@ -390,25 +395,41 @@ namespace FIFAModdingUI
 
                         if (useLegacyMods)
                         {
+                            var runningLocation = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                            LogSync("Legacy Injection - Tool running location is " + runningLocation);
+
                             string legacyModSupportFile = null;
                             if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
                             {
-                                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                                LogSync("Legacy Injection - FIFA 20 found. Using FIFA20Legacy.DLL.");
+
+                                //legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                                legacyModSupportFile = runningLocation + @"\FIFA20Legacy.dll";
                             }
-                            else if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
+                            else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.GAMEVERSION == "FIFA21")
                             {
-                                legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
+                                LogSync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
+                                //legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
+                                legacyModSupportFile = runningLocation + @"\FIFA.dll";
                             }
 
-                            if (!string.IsNullOrEmpty(legacyModSupportFile))
+                            if (!File.Exists(legacyModSupportFile))
                             {
-
-                                File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
-
+                                LogError($"Legacy Injection - Unable to find Legacy Injection DLL {legacyModSupportFile}");
+                            }
+                            else
+                            {
                                 var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+
+                                LogSync("Copying " + legacyModSupportFile + " to " + legmodsupportdllpath);
+                                await Task.Delay(500);
+                                File.Copy(legacyModSupportFile, legmodsupportdllpath, true);
+                                await Task.Delay(500);
+
                                 try
                                 {
                                     LogSync("Injecting Live Legacy Mod Support");
+                                    await Task.Delay(500);
                                     bool InjectionSuccess = await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
                                     if (InjectionSuccess)
                                         LogSync("Injected Live Legacy Mod Support");
@@ -427,7 +448,7 @@ namespace FIFAModdingUI
                         if (useLiveEditor)
                         {
                             if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
-                                GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
+                                await GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                         }
 
                         AssetManager.Instance.Reset();

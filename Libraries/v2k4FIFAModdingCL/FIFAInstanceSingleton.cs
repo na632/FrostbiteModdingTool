@@ -1,17 +1,16 @@
-﻿using Memory;
+﻿using FrostySdk.Interfaces;
+using Lunar;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Lunar;
-using FrostySdk.Interfaces;
-using System.Runtime.InteropServices;
-using System.Runtime.ConstrainedExecution;
-using System.Security;
 
 namespace v2k4FIFAModdingCL
 {
@@ -86,6 +85,8 @@ namespace v2k4FIFAModdingCL
 
         public static ILogger Logger;
 
+        public static bool LegacyInjectionExtraAssertions = true;
+
         public static int? GetProcIDFromName(string name) //new 1.0.2 function
         {
             Process[] processlist = Process.GetProcesses();
@@ -102,67 +103,126 @@ namespace v2k4FIFAModdingCL
             return null; //if we fail to find it
         }
 
-        public static bool InjectDLL(string dllpath)
+        public static int InjectDLL_GetProcess()
         {
-            Thread.Sleep(3000);
+            int attempts = 0;
 
+            bool ModuleLoaded = !LegacyInjectionExtraAssertions;
+            int? proc = GetProcIDFromName(GAMEVERSION);
+            while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 60)
+            {
+                Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
+                Thread.Sleep(1000);
+                proc = GetProcIDFromName(GAMEVERSION);
+                if (proc.HasValue)
+                {
+                    if (LegacyInjectionExtraAssertions)
+                    {
+                        Process actualProcess = null;
+                        try
+                        {
+                            //var processes = Process.GetProcessesByName(GAMEVERSION);
+                            actualProcess = Process.GetProcessById(proc.Value);
+                            foreach (ProcessModule m in actualProcess.Modules)
+                            {
+                                if (m.FileName.Contains("powdll_Win64_retail", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    ModuleLoaded = true;
+                                }
+                                if (m.FileName.Contains("sysdll_Win64_retail", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    ModuleLoaded = true;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            throw new Exception("Injector: Unable to access process");
+                        }
+                    }
+
+                    if(ModuleLoaded)
+                        return proc.Value;
+                }
+                attempts++;
+            }
+
+            throw new Exception("Injector has failed to inject");
+
+        }
+
+        public static bool InjectDLL_Bleak(int proc, string dllpath)
+        {
+            using (var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc, @dllpath, false))
+            {
+                var ptr = bl.InjectDll();
+                return (ptr != null); // Bleak Injected
+            }
+        }
+
+        public static bool InjectDLL_Lunar(int proc, string dllpath)
+        {
+            try
+            {
+                LibraryMapper libraryMapper = new LibraryMapper(Process.GetProcessById(proc), dllpath);
+                libraryMapper.MapLibrary();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool InjectDLL_Own(int proc, string dllpath)
+        {
+            return InjectDLLIntoProcessFromPath(dllpath, proc);
+        }
+
+        public static async Task<bool> InjectDLL(string dllpath)
+        {
             dllpath = dllpath.Replace(@"\\\\", @"\");
             dllpath = dllpath.Replace(@"\\", @"\");
             if (File.Exists(dllpath))
             {
-                int? proc = GetProcIDFromName(GAMEVERSION);
-                while (!proc.HasValue || proc == 0)
+                int proc = InjectDLL_GetProcess();
+                if (!LegacyInjectionExtraAssertions)
                 {
-                    Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
-                    Thread.Sleep(1000);
-                    proc = GetProcIDFromName(GAMEVERSION);
+                    // Waiting for process to fully awake
+                    //Thread.Sleep(2750);
+                    await Task.Delay(2750);
                 }
-                if (proc.HasValue)
+
+                
+
+                var dll_File = dllpath.Split('\\')[dllpath.Split('\\').Length - 1];
+                dll_File = dll_File.Replace(".dll", "");
+                try
                 {
-                    //Logger.Log($"About to inject: {dllpath}");
-                    Thread.Sleep(100);
-                    bool alreadyExists = false;
-
-                    var dll_File = dllpath.Split('\\')[dllpath.Split('\\').Length - 1];
-                    dll_File = dll_File.Replace(".dll", "");
-                    // Seems to be breaking for some users
-                    //foreach (ProcessModule m in Process.GetProcessById(proc.Value).Modules)
-                    //{
-                    //    if (m.FileName.Contains(dll_File, StringComparison.OrdinalIgnoreCase))
-                    //    {
-                    //        alreadyExists = true;
-                    //        break;
-                    //    }
-                    //}
-                    if (!alreadyExists) {
-
-                        try
+                    // Use Bleak first
+                    bool injected = InjectDLL_Bleak(proc, dllpath);
+                    if (!injected)
+                    {
+                        // Own second
+                        injected = InjectDLL_Own(proc, dllpath);
+                        if (!injected)
                         {
-                            if (!InjectDLLIntoProcessFromPath(dllpath, proc.Value))
-                            {
-                                var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc.Value, @dllpath, false);
-                                var ptr = bl.InjectDll();
-                                Debug.WriteLine($"Injected: {dllpath}");
-                                return (ptr != null);
-                            }
-
-                            //var mapper = new LibraryMapper(Process.GetProcessById(proc.Value), dllpath);
-                            //mapper.MapLibrary();
-                            Debug.WriteLine($"Injected: {dllpath}");
-
-                            return true;
+                            // Last resort Lunar
+                            injected = InjectDLL_Lunar(proc, dllpath);
                         }
-                        catch(Exception ex)
-                        {
-                            if(Logger != null)
-                            {
-                                Logger.LogError($"DLL Injector Failed with Exception: {ex.ToString()}");
-                            }
-                            else
-                            {
-                                Debug.WriteLine($"DLL Injector Failed with Exception: {ex.ToString()}");
-                            }
-                        }
+                    }
+
+                    return injected;
+                }
+                catch (Exception ex)
+                {
+                    if (Logger != null)
+                    {
+                        Logger.LogError($"DLL Injector Failed with Exception: {ex.ToString()}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"DLL Injector Failed with Exception: {ex.ToString()}");
                     }
                 }
             }
@@ -176,15 +236,20 @@ namespace v2k4FIFAModdingCL
 
         public static async Task<bool> InjectDLLAsync(string dllpath)
         {
-            return await Task.Run(() =>
-            {
-                return InjectDLL(dllpath);
-            });
+            return await InjectDLL(dllpath);
         }
 
+        public static bool InjectDLLSync(string dllpath)
+        {
+            return InjectDLL(dllpath).Result;
+        }
 
-        /**/
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="DllPath"></param>
+        /// <param name="ProcId"></param>
+        /// <returns></returns>
         private static bool InjectDLLIntoProcessFromPath(string DllPath, int ProcId)
         {
             // Open handle to the target process
@@ -194,19 +259,12 @@ namespace v2k4FIFAModdingCL
                 ProcId);
             if (ProcHandle == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[!] Handle to target process could not be obtained!");
                 Logger.LogError("[!] Handle to target process could not be obtained!");
-                Console.ForegroundColor = ConsoleColor.White;
-
                 return false;
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("[+] Handle (0x" + ProcHandle + ") to target process has been be obtained.");
-
-                Console.ForegroundColor = ConsoleColor.White;
+                Debug.WriteLine("[+] Handle (0x" + ProcHandle + ") to target process has been be obtained.");
             }
 
             IntPtr Size = (IntPtr)DllPath.Length;
@@ -221,17 +279,12 @@ namespace v2k4FIFAModdingCL
 
             if (DllSpace == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[!] DLL space allocation failed.");
                 Logger.LogError("[!] DLL space allocation failed.");
-                Console.ForegroundColor = ConsoleColor.White;
                 return false;
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("[+] DLL space (0x" + DllSpace + ") allocation is successful.");
-                Console.ForegroundColor = ConsoleColor.White;
+                Debug.WriteLine("[+] DLL space (0x" + DllSpace + ") allocation is successful.");
             }
 
             // Write DLL content to VAS of target process
@@ -246,17 +299,12 @@ namespace v2k4FIFAModdingCL
 
             if (DllWrite == false)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[!] Writing DLL content to target process failed.");
                 Logger.LogError("[!] Writing DLL content to target process failed.");
-                Console.ForegroundColor = ConsoleColor.White;
                 return false;
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("[+] Writing DLL content to target process is successful.");
-                Console.ForegroundColor = ConsoleColor.White;
+                Debug.WriteLine("[+] Writing DLL content to target process is successful.");
             }
 
             // Get handle to Kernel32.dll and get address for LoadLibraryA
@@ -265,18 +313,12 @@ namespace v2k4FIFAModdingCL
 
             if (LoadLibraryAAddress == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[!] Obtaining an addess to LoadLibraryA function has failed.");
                 Logger.LogError("[!] Obtaining an addess to LoadLibraryA function has failed.");
-
-                Console.ForegroundColor = ConsoleColor.White;
                 return false;
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("[+] LoadLibraryA function address (0x" + LoadLibraryAAddress + ") has been obtained.");
-                Console.ForegroundColor = ConsoleColor.White;
+                Debug.WriteLine("[+] LoadLibraryA function address (0x" + LoadLibraryAAddress + ") has been obtained.");
             }
 
             // Create remote thread in the target process
@@ -292,17 +334,12 @@ namespace v2k4FIFAModdingCL
 
             if (RemoteThreadHandle == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[!] Obtaining a handle to remote thread in target process failed.");
                 Logger.LogError("[!] Obtaining a handle to remote thread in target process failed.");
-                Console.ForegroundColor = ConsoleColor.White;
                 return false;
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("[+] Obtaining a handle to remote thread (0x" + RemoteThreadHandle + ") in target process is successful.");
-                Console.ForegroundColor = ConsoleColor.White;
+                Debug.WriteLine("[+] Obtaining a handle to remote thread (0x" + RemoteThreadHandle + ") in target process is successful.");
             }
 
             return true;

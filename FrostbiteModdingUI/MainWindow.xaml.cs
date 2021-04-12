@@ -46,19 +46,19 @@ namespace FIFAModdingUI
             // ------------------------------------------
             // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
 
-            foreach (var profile in ProfilesLibrary.AvailableProfiles.Where(x=>x.EditorScreen != null))
-            {
-                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(profile.EditorScreen, StringComparison.OrdinalIgnoreCase));
-                    if (t != null)
-                    {
-                        //var ew = (Window)Activator.CreateInstance(t);
-                        //EditorWindows.Add(ew);
-                        ProfilesWithEditorScreen.Add(profile);
-                    }
-                }
-            }
+            //foreach (var profile in ProfilesLibrary.AvailableProfiles.Where(x=>x.EditorScreen != null))
+            //{
+            //    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            //    {
+            //        var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(profile.EditorScreen, StringComparison.OrdinalIgnoreCase));
+            //        if (t != null)
+            //        {
+            //            //var ew = (Window)Activator.CreateInstance(t);
+            //            //EditorWindows.Add(ew);
+            //            ProfilesWithEditorScreen.Add(profile);
+            //        }
+            //    }
+            //}
 
             // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
             DataContext = this;
@@ -78,6 +78,7 @@ namespace FIFAModdingUI
 
             foreach(var pr in ProfilesWithEditorScreen)
             {
+
             }
 
             ProfilesWithEditorScreen.Clear();
