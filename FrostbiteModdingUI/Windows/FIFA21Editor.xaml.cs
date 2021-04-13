@@ -48,12 +48,19 @@ namespace FIFAModdingUI.Windows
     /// </summary>
     public partial class FIFA21Editor : Window, IEditorWindow
     {
+        public Window OwnerWindow { get; set; }
+
         public FIFA21Editor()
+        {
+            throw new Exception("Incorrect usage of Editor Windows");
+        }
+
+        public FIFA21Editor(Window owner)
         {
             InitializeComponent();
             this.DataContext = this;
-            Closing += FIFA21Editor_Closing;
             Loaded += FIFA21Editor_Loaded;
+            Owner = owner;
         }
 
         public string LastFIFA21Location => "FIFA21LastLocation.json";
@@ -95,14 +102,21 @@ namespace FIFAModdingUI.Windows
             File.WriteAllText(LastFIFA21Location, AppSettings.Settings.GameInstallEXEPath);
         }
 
-        private void FIFA21Editor_Closing(object sender, CancelEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
+            base.OnClosed(e);
+
             ProjectManagement = null;
             ProjectManagement.Instance = null;
-            AssetManager.Instance.Dispose();
-            AssetManager.Instance = null;
+            if (AssetManager.Instance != null)
+            {
+                AssetManager.Instance.Dispose();
+                AssetManager.Instance = null;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
 
-            new MainWindow().Show();
+            Owner.Visibility = Visibility.Visible;
         }
 
         private string WindowFIFAEditorTitle = $"FIFA 21 Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";

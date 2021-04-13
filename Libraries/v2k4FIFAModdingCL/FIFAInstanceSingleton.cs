@@ -51,25 +51,27 @@ namespace v2k4FIFAModdingCL
             return INITIALIZED;
         }
 
-        public static List<string> CompatibleGameVersions = new List<string>()
+        public static IEnumerable<string> CompatibleGameVersions
         {
-            //"FIFA19.exe",
-            //"FIFA20_demo.exe",
-            //"FIFA20.exe",
-            "FIFA21.exe",
-            //"MADDEN20.exe",
-            "MADDEN21.exe",
-            "Madden21.exe",
-        };
+            get
+            {
+                var lstOfComp = new List<string>();
+                lstOfComp.AddRange(CompatibleGameFBModVersions);
+                lstOfComp.AddRange(CompatibleGameLegacyModVersions);
+                return lstOfComp.Distinct();
+            }
+        }
 
         public static List<string> CompatibleGameFBModVersions = new List<string>()
         {
-            "FIFA20.exe"
+            //"FIFA20.exe",
+            "FIFA21.exe",
+            "Madden21.exe"
         };
 
         public static bool IsCompatibleWithFbMod()
         {
-            return CompatibleGameFBModVersions.Any(x => x.Contains(GAMEVERSION));
+            return CompatibleGameFBModVersions.Any(x => x.Contains(GAMEVERSION, StringComparison.OrdinalIgnoreCase));
         }
 
         public static List<string> CompatibleGameLegacyModVersions = new List<string>()
@@ -80,7 +82,7 @@ namespace v2k4FIFAModdingCL
 
         public static bool IsCompatibleWithLegacyMod()
         {
-            return CompatibleGameLegacyModVersions.Any(x => x.Contains(GAMEVERSION));
+            return CompatibleGameLegacyModVersions.Any(x => x.Contains(GAMEVERSION, StringComparison.OrdinalIgnoreCase));
         }
 
         public static ILogger Logger;

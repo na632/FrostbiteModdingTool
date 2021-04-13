@@ -22,16 +22,18 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
- <TextBlock Grid.Row="1" x:Name="txtWarningAboutPersonalSettings" Visibility="Hidden"  Background="LightYellow">WARNING: This launcher causes FIFA 21 to delete its "Personal Settings" on first load. I'm sorry about that and I have no fix!</TextBlock>
-
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="700"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Margin="5">
-                <Label FontSize="14" FontWeight="Bold">Your mod list</Label>
-                <ListBox x:Name="listMods" BorderThickness="1" Height="200" SelectionChanged="listMods_SelectionChanged">
+            <StackPanel Grid.Column="0" Margin="5" >
+                <StackPanel Orientation="Horizontal">
+                    <Label FontSize="14" FontWeight="Bold">Profile:</Label>
+                    <Label FontSize="14" FontWeight="Bold" Content="{Binding Profile.ProfileName}"></Label>
+                </StackPanel>
+                <Label FontSize="14" FontWeight="Bold">Mod List</Label>
+                <ListBox x:Name="listMods" BorderThickness="1" Height="250" SelectionChanged="listMods_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -55,7 +57,6 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                 </ListBox>
-                    <Button x:Name="btnLaunch" Click="btnLaunch_Click" IsEnabled="False">Launch</Button>
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="5">
                 <Button x:Name="btnUp" Click="up_click">
@@ -83,11 +84,25 @@
                     </StackPanel>
                 </Button>
                 <CheckBox x:Name="chkInstallLocale" IsChecked="False">Install locale.ini from gameplay mods</CheckBox>
-                <CheckBox x:Name="chkUseFileSystem" IsEnabled="False" Visibility="Hidden">Use Original Frosty Launcher</CheckBox>
                 <CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu's Live Editor (if present)</CheckBox>
                 <CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>
                 <CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>
                 <CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>
+
+                <Separator></Separator>
+                <Button x:Name="btnLaunch" Height="30" Click="btnLaunch_Click" IsEnabled="False" Background="Transparent" >
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                        <Label Content="Launch" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnLaunchOtherTool" Height="30" Click="btnLaunchOtherTool_Click" Visibility="Collapsed" Background="Transparent" >
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                        <Label Content="Legacy Inject Other Tool" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
             </StackPanel>
         </Grid>
         <TabControl Grid.Row="3"

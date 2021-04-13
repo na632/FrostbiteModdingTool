@@ -14,9 +14,26 @@ using v2k4FIFAModdingCL;
 
 namespace v2k4FIFAModding.Frosty
 {
+
+    /// <summary>
+    /// Project Management
+    /// !Is a singleton class! Cannot create 2 instances of this class.
+    /// </summary>
     public class ProjectManagement : ILogger
     {
         public static ProjectManagement Instance;
+
+        public FrostbiteProject Project { get; set; }
+        public string FilePath { get; set; }
+
+        public ILogger Logger = null;
+
+        string lastMessage = null;
+
+        /// <summary>
+        /// Sets up all the Singleton Paths
+        /// </summary>
+        /// <param name="filePath"></param>
         private static void InitializeOfSelectedGame(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath))
@@ -43,8 +60,15 @@ namespace v2k4FIFAModding.Frosty
 
         public ProjectManagement()
         {
-            Initialize();
-            Instance = this;
+            if (Instance == null)
+            {
+                Initialize();
+                Instance = this;
+            }
+            else
+            {
+                throw new OverflowException("Cannot create 2 instances of ProjectManagement");
+            }
         }
 
         private void Initialize()
@@ -68,26 +92,33 @@ namespace v2k4FIFAModding.Frosty
 
         public ProjectManagement(string gamePath)
         {
-            InitializeOfSelectedGame(gamePath);
-            Initialize();
-            Instance = this;
+            if (Instance == null)
+            {
+                InitializeOfSelectedGame(gamePath);
+                Initialize();
+                Instance = this;
+            }
+            else
+            {
+                throw new OverflowException("Cannot create 2 instances of ProjectManagement");
+            }
         }
 
         public ProjectManagement(string gamePath, ILogger logger)
-            //: this(gamePath)
+        //: this(gamePath)
         {
-            Logger = logger;
-            InitializeOfSelectedGame(gamePath);
-            Initialize();
-            Instance = this;
+            if (Instance == null)
+            {
+                Logger = logger;
+                InitializeOfSelectedGame(gamePath);
+                Initialize();
+                Instance = this;
+            }
+            else
+            {
+                throw new OverflowException("Cannot create 2 instances of ProjectManagement");
+            }
         }
-
-        public FrostbiteProject Project { get; set; }
-        public string FilePath { get; set; }
-
-        public ILogger Logger = null;
-
-        string lastMessage = null;
 
         public static void ClearCurrentConsoleLine()
         {

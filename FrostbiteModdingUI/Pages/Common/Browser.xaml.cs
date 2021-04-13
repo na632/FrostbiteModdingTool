@@ -253,6 +253,7 @@ namespace FIFAModdingUI.Pages.Common
 							, bytes
 							, false);
 
+						MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedLegacyEntry.Filename}");
 
 					}
 				}

@@ -32,6 +32,8 @@ namespace FrostbiteModdingUI.Windows
     /// </summary>
     public partial class Madden21Editor : Window, IEditorWindow
     {
+        public Window OwnerWindow { get; set; }
+
         public ProjectManagement ProjectManagement { get; private set; }
 
         private string WindowEditorTitle = $"Madden 21 Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
@@ -55,28 +57,34 @@ namespace FrostbiteModdingUI.Windows
             }
         }
 
-
         public Madden21Editor()
+        {
+            throw new Exception("Incorrect usage of Editor Windows");
+        }
+
+        public Madden21Editor(Window owner)
         {
             InitializeComponent();
             this.Closing += Madden21Editor_Closing;
             this.Loaded += Madden21Editor_Loaded;
+            OwnerWindow = owner;
+            Owner = owner;
         }
 
-        public string LastFIFA21Location => "MADDEN21LastLocation.json";
+        public string LastM21Location => "MADDEN21LastLocation.json";
 
         private void Madden21Editor_Loaded(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(LastFIFA21Location))
+            if (File.Exists(LastM21Location))
             {
-                var tmpLoc = File.ReadAllText(LastFIFA21Location);
+                var tmpLoc = File.ReadAllText(LastM21Location);
                 if (File.Exists(tmpLoc))
                 {
                     AppSettings.Settings.GameInstallEXEPath = tmpLoc;
                 }
                 else
                 {
-                    File.Delete(LastFIFA21Location);
+                    File.Delete(LastM21Location);
                 }
             }
 
@@ -99,13 +107,21 @@ namespace FrostbiteModdingUI.Windows
                 }
             }
 
-            File.WriteAllText(LastFIFA21Location, AppSettings.Settings.GameInstallEXEPath);
+            File.WriteAllText(LastM21Location, AppSettings.Settings.GameInstallEXEPath);
         }
 
         private void Madden21Editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            App.MainEditorWindow = null;
-            new MainWindow().Show();
+            ProjectManagement.Instance = null;
+            if (AssetManager.Instance != null)
+            {
+                AssetManager.Instance.Dispose();
+                AssetManager.Instance = null;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+
+            Owner.Visibility = Visibility.Visible;
         }
 
         public void InitialiseOfSelectedGame(string filePath)

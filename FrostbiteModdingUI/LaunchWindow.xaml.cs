@@ -41,13 +41,12 @@ namespace FIFAModdingUI
     {
         public string WindowTitle { get; set; }
 
-        ModListProfile Profile = new ModListProfile(null);
-        public LaunchWindow()
-        {
-            InitializeComponent();
-            this.Closing += LaunchWindow_Closing;
+        public ModListProfile Profile { get; set; }
 
-            GetListOfModsAndOrderThem();
+        public LaunchWindow(Window owner)
+        {
+            Owner = owner;
+            InitializeComponent();
 
             var assembly = Assembly.GetExecutingAssembly();
             WindowTitle = "FMT Launcher - " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
@@ -90,11 +89,24 @@ namespace FIFAModdingUI
             {
                 result = buildSDKAndCacheWindow.ShowDialog();
             }
+
+
         }
 
-        private void LaunchWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
-            new MainWindow().Show();
+            base.OnClosed(e);
+
+            ProjectManagement.Instance = null;
+            if (AssetManager.Instance != null)
+            {
+                AssetManager.Instance.Dispose();
+                AssetManager.Instance = null;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            AppSettings.Settings.GameInstallEXEPath = null;
+            Owner.Visibility = Visibility.Visible;
         }
 
         private ObservableCollection<ModList.ModItem> ListOfMods = new ObservableCollection<ModList.ModItem>();
@@ -112,7 +124,7 @@ namespace FIFAModdingUI
                 this.ListOfMods.Insert(selectedIndex - 1, itemToMoveUp);
                 this.listMods.SelectedIndex = selectedIndex - 1;
 
-                var mL = new Mods.ModList();
+                var mL = new Mods.ModList(Profile);
                 mL.ModListItems.Swap(selectedIndex -1, selectedIndex);
                 mL.Save();
             }
@@ -130,7 +142,7 @@ namespace FIFAModdingUI
                 this.listMods.SelectedIndex = selectedIndex + 1;
 
 
-                var mL = new Mods.ModList();
+                var mL = new Mods.ModList(Profile);
                 mL.ModListItems.Swap(selectedIndex, selectedIndex + 1);
                 mL.Save();
             }
@@ -333,7 +345,7 @@ namespace FIFAModdingUI
                     }
                 }
 
-                var k = chkUseFileSystem.IsChecked.Value;
+                //var k = chkUseFileSystem.IsChecked.Value;
                 var useLegacyMods = chkUseLegacyModSupport.IsChecked.Value;
                 var useLiveEditor = chkUseLiveEditor.IsChecked.Value;
                 var useSymbolicLink = chkUseSymbolicLink.IsChecked.Value;
@@ -344,6 +356,7 @@ namespace FIFAModdingUI
                 Dispatcher.Invoke(() =>
                 {
                     btnLaunch.IsEnabled = false;
+                    btnLaunchOtherTool.IsEnabled = false;
                 });
                 await Task.Delay(1000);
 
@@ -465,6 +478,7 @@ namespace FIFAModdingUI
                     Dispatcher.Invoke(() =>
                     {
                         btnLaunch.IsEnabled = true;
+                        btnLaunchOtherTool.IsEnabled = true;
                     });
 
                 });
@@ -476,7 +490,7 @@ namespace FIFAModdingUI
             var selectedIndex = this.listMods.SelectedIndex;
             if (selectedIndex > -1)
             {
-                var mL = new Mods.ModList();
+                var mL = new Mods.ModList(Profile);
                 mL.ModListItems.Remove(this.ListOfMods[selectedIndex]);
                 mL.Save();
                 this.ListOfMods.RemoveAt(selectedIndex);
@@ -499,7 +513,7 @@ namespace FIFAModdingUI
             var filePath = dialog.FileName;
             if (!string.IsNullOrEmpty(filePath))
             {
-                var mL = new Mods.ModList();
+                var mL = new Mods.ModList(Profile);
                 mL.ModListItems.Add(new ModList.ModItem(filePath));
                 mL.Save();
                 GetListOfModsAndOrderThem();
@@ -556,15 +570,20 @@ namespace FIFAModdingUI
 
                 if(GameInstanceSingleton.GAMEVERSION == "FIFA21")
                 {
-                    txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
+                    //txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
                     chkUseSymbolicLink.Visibility = Visibility.Collapsed;
                     chkUseSymbolicLink.IsChecked = false;
+
+                    btnLaunchOtherTool.Visibility = Visibility.Visible;
+
                 }
 
                 if(GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
                 {
                     listMods.IsEnabled = true;
-                    
+
+                    Profile = new ModListProfile(GameInstanceSingleton.GAMEVERSION);
+                    GetListOfModsAndOrderThem();
                 }
                 else
                 {
@@ -578,7 +597,8 @@ namespace FIFAModdingUI
                 }
             }
 
-            
+            DataContext = null;
+            DataContext = this;
         }
 
         public void Log(string text, params object[] vars)
@@ -677,7 +697,11 @@ namespace FIFAModdingUI
             FindOtherLauncherEXEWindow findOtherLauncherEXEWindow = new FindOtherLauncherEXEWindow();
             findOtherLauncherEXEWindow.InjectLegacyModSupport = chkUseLegacyModSupport.IsChecked.Value;
             findOtherLauncherEXEWindow.InjectLiveEditorSupport = chkUseLiveEditor.IsChecked.Value;
+
+            btnLaunchOtherTool.IsEnabled = false;
             findOtherLauncherEXEWindow.ShowDialog();
+            btnLaunchOtherTool.IsEnabled = true;
+
         }
     }
 

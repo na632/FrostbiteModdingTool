@@ -5,6 +5,7 @@ using FrostySdk.Managers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -37,9 +38,6 @@ namespace FIFAModdingUI
         {
             InitializeComponent();
 
-            Closing += MainWindow_Closing;
-
-
             var assembly = Assembly.GetExecutingAssembly();
             WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
 
@@ -65,31 +63,46 @@ namespace FIFAModdingUI
 
             // ------------------------------------------
 
+
         }
 
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            //foreach(var w in EditorWindows)
-            //{
-            //    w.Close();
-            //}
+            foreach (var w in EditorWindows)
+            {
+                if (w != null)
+                    w.Close();
+            }
 
             EditorWindows.Clear();
 
-            foreach(var pr in ProfilesWithEditorScreen)
+            foreach (var pr in ProfilesWithEditorScreen)
             {
 
             }
 
             ProfilesWithEditorScreen.Clear();
 
-            if(AssetManager.Instance != null)
-            {
-                AssetManager.Instance.Dispose();
-                AssetManager.Instance = null;
-            }
+            if (App.MainEditorWindow != null)
+                App.MainEditorWindow.Close();
+        }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
 
+            if (App.MainEditorWindow != null)
+                App.MainEditorWindow.Close();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            if (App.MainEditorWindow != null)
+                App.MainEditorWindow.Close();
+
+            Application.Current.Shutdown();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -100,31 +113,26 @@ namespace FIFAModdingUI
         private void btnEditor_Click(object sender, RoutedEventArgs e)
         {
             //new EditorLoginWindow().Show();
-            App.MainEditorWindow = new FIFA21Editor();
+            App.MainEditorWindow = new FIFA21Editor(this);
             if(App.MainEditorWindow != null)
                 App.MainEditorWindow.Show();
 
-            this.Close();
-        }
-
-        private void btnLegacyEditor_Click(object sender, RoutedEventArgs e)
-        {
-            new LegacyModEditor().Show();
-            this.Close();
-        }
-
-        private void btnLauncher_Click(object sender, RoutedEventArgs e)
-        {
-            new LaunchWindow().Show();
-            this.Close();
+            this.Visibility = Visibility.Hidden;
         }
 
         private void btnMadden21Editor_Click(object sender, RoutedEventArgs e)
         {
-            App.MainEditorWindow = new Madden21Editor();
+            App.MainEditorWindow = new Madden21Editor(this);
             App.MainEditorWindow.Show();
-            this.Close();
-
+            this.Visibility = Visibility.Hidden;
         }
+
+        private void btnLauncher_Click(object sender, RoutedEventArgs e)
+        {
+            new LaunchWindow(this).Show();
+            this.Visibility = Visibility.Hidden;
+        }
+
+      
     }
 }

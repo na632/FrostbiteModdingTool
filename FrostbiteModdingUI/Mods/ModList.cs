@@ -148,7 +148,7 @@ namespace FIFAModdingUI.Mods
                 get
                 {
                     var fmod = GetFrostbiteMod();
-                    if(fmod != null)
+                    if(fmod != null && fmod.Resources != null)
                         return fmod.Resources.Where(x => x.Type != ModResourceType.Embedded);
                     return null;
                 }
@@ -194,6 +194,13 @@ namespace FIFAModdingUI.Mods
 
         public ModList(ModListProfile profile = null)
         {
+            ModListProfile = profile;
+            if (!File.Exists(ModListLocation))
+            {
+                Save();
+            }
+
+
             Load();
         }
 
@@ -247,25 +254,43 @@ namespace FIFAModdingUI.Mods
 
         public bool InstallLocaleFile { get; set; }
 
+        public string DirectoryLocation 
+        { 
+            get 
+            {
+                return "Mods\\Profiles\\" + ProfileName;
+            } 
+        }
+
+        private ModList ModList;
+
         public ModListProfile(string name)
         {
             if (name == "Default" || name == null)
                 ProfileName = null;
             else
                 ProfileName = name;
+
+            Directory.CreateDirectory(DirectoryLocation);
+
+            ModList = new ModList(this);
         }
 
-        private string ModListProfileLocation { get
+        private string ModListProfileLocation 
+        { 
+            get
             {
-                return "Mods\\Profiles\\" + ProfileName + "\\Profile.json";
-            } }
+                return DirectoryLocation + "\\Profile.json";
+            } 
+        }
 
         public void Load()
         {
             if (System.IO.File.Exists(ModListProfileLocation))
             {
                 var r = Newtonsoft.Json.JsonConvert.DeserializeObject<ModListProfile> (System.IO.File.ReadAllText(ModListProfileLocation));
-               if(r!=null)
+               
+                if(r != null)
                 {
                     this.ProfileName = r.ProfileName;
                     this.InstallLocaleFile = r.InstallLocaleFile;

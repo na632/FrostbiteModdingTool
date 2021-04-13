@@ -1,7 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using FrostySdk;
+using Microsoft.Win32;
 using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -46,39 +48,50 @@ namespace FrostbiteModdingUI.Windows
                 btnLaunchOtherTool.IsEnabled = true;
             }
         }
-        private void btnLaunchOtherTool_Click(object sender, RoutedEventArgs e)
+        private async void btnLaunchOtherTool_Click(object sender, RoutedEventArgs e)
         {
             FrostyModExecutor frostyModExecutor = new FrostyModExecutor();
             frostyModExecutor.ExecuteProcess(OtherToolPath, "");
 
-            Task.Run(() =>
-            {
                 if (InjectLegacyModSupport)
                 {
+                    var runningLocation = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                    LogAsync("Legacy Injection - Tool running location is " + runningLocation);
+
                     string legacyModSupportFile = null;
                     if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
                     {
-                        legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                        LogAsync("Legacy Injection - FIFA 20 found. Using FIFA20Legacy.DLL.");
+                        legacyModSupportFile = runningLocation + @"\FIFA20Legacy.dll";
                     }
-                    else if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
+                    else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.GAMEVERSION == "FIFA21")
                     {
-                        legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
+                        LogAsync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
+                        legacyModSupportFile = runningLocation + @"\FIFA.dll";
                     }
 
-                    if (!string.IsNullOrEmpty(legacyModSupportFile))
+                    if (!File.Exists(legacyModSupportFile))
                     {
-
-                        if (File.Exists(legacyModSupportFile))
-                        {
-                            File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
-                        }
-
+                        LogAsync($"Legacy Injection - Unable to find Legacy Injection DLL {legacyModSupportFile}");
+                    }
+                    else
+                    {
                         var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+
+                        LogAsync("Copying " + legacyModSupportFile + " to " + legmodsupportdllpath);
+                        await Task.Delay(500);
+                        File.Copy(legacyModSupportFile, legmodsupportdllpath, true);
+                        await Task.Delay(500);
+
                         try
                         {
                             LogAsync("Injecting Live Legacy Mod Support");
-                            GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
-                            LogAsync("Injected Live Legacy Mod Support");
+                            await Task.Delay(500);
+                            bool InjectionSuccess = await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                            if (InjectionSuccess)
+                                LogAsync("Injected Live Legacy Mod Support");
+                            else
+                                LogAsync("Launcher could not inject Live Legacy File Support");
 
                         }
                         catch (Exception InjectDLLException)
@@ -87,22 +100,13 @@ namespace FrostbiteModdingUI.Windows
                             LogAsync(InjectDLLException.ToString());
                         }
                     }
-
-                    if (InjectLiveEditorSupport)
-                    {
-                        LogAsync("Injecting Aranaktu's Live Editor");
-                        if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
-                        {
-                            GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
-                            LogAsync("Injected Aranaktu's Live Editor");
-                        }
-                    }
                 }
-            });
 
 
 
         }
+
+
         public async void LogAsync(string in_text)
         {
             var txt = string.Empty;
