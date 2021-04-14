@@ -48,6 +48,11 @@ namespace FrostbiteModdingTests
 
         public void LogWarning(string text, params object[] vars)
         {
+            if (prevText != text)
+            {
+                Debug.WriteLine("[LOGGER] [WARNING] " + text);
+                prevText = text;
+            }
         }
 
         [TestMethod]
@@ -198,7 +203,9 @@ namespace FrostbiteModdingTests
                 new System.Collections.Generic.List<string>() {
                     //@"C:\Users\paula\Downloads\Villalibre Molina.fifamod"
                     //@"E:\Origin Games\FIFA 21\fet gp change.fifamod"
-                    @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Patch 1 FET.fifamod"
+                    //@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Patch 1 FET.fifamod"
+                    @"G:\Work\FIFA Modding\Sky_Sports_Football_TV_Logo_for_the_English_Premier_League.fifamod"
+
                 }.ToArray()).Wait();
 
         }

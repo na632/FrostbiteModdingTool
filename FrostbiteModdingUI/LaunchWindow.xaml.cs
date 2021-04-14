@@ -62,14 +62,14 @@ namespace FIFAModdingUI
                 if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
                 {
                     //txtFIFADirectory.Text = AppSettings.Settings.GameInstallEXEPath;
-                    InitializeOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                    InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
                 }
                 else
                 {
                     var bS = new FindGameEXEWindow().ShowDialog();
                     if (bS.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
                     {
-                        InitializeOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                        InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
                     }
                     else
                     {
@@ -395,7 +395,7 @@ namespace FIFAModdingUI
                     var launchSuccess = false;
                     try
                     {
-                        var launchTask = LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList().ModListItems.Select(x=>x.Path).ToList(), this, GameInstanceSingleton.GAMEVERSION, true, useSymbolicLink);
+                        var launchTask = LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList(Profile).ModListItems.Select(x=>x.Path).ToList(), this, GameInstanceSingleton.GAMEVERSION, true, useSymbolicLink);
                         launchSuccess = await launchTask;
                     }
                     catch(Exception launchException)
@@ -558,7 +558,7 @@ namespace FIFAModdingUI
 
         //}
 
-        private void InitializeOfSelectedGame(string filePath)
+        private void InitialiseSelectedGame(string filePath)
         {
             if(!File.Exists(filePath))
             {
@@ -587,17 +587,31 @@ namespace FIFAModdingUI
                     throw new Exception("Unsupported Game EXE Selected");
                 }
 
-                if(GameInstanceSingleton.GAMEVERSION == "FIFA21")
+                if(ProfilesLibrary.IsFIFA21DataVersion())
                 {
                     //txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
                     chkUseSymbolicLink.Visibility = Visibility.Collapsed;
                     chkUseSymbolicLink.IsChecked = false;
-
                     btnLaunchOtherTool.Visibility = Visibility.Visible;
-
                 }
 
-                if(GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
+                if (ProfilesLibrary.IsMadden21DataVersion())
+                {
+                    chkUseSymbolicLink.Visibility = Visibility.Collapsed;
+                    chkUseSymbolicLink.IsChecked = false;
+                }
+
+                chkCleanLegacyModDirectory.IsChecked = false;
+                chkCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
+
+                chkUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
+                if (!GameInstanceSingleton.IsCompatibleWithLegacyMod())
+                    chkUseLegacyModSupport.IsChecked = false;
+
+                chkInstallLocale.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+                chkUseLiveEditor.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+
+                if (GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
                 {
                     listMods.IsEnabled = true;
 

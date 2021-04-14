@@ -1,5 +1,6 @@
 ﻿using FIFAModdingUI;
 using FIFAModdingUI.Windows;
+using Frostbite.FileManagers;
 using FrostbiteModdingUI.Models;
 using FrostySdk;
 using FrostySdk.FrostySdk.Managers;
@@ -188,17 +189,28 @@ namespace FrostbiteModdingUI.Windows
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Mod files|*.fbmod";
-            var resultValue = saveFileDialog.ShowDialog();
-            if (resultValue.HasValue && resultValue.Value)
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
+            try
             {
-                ProjectManagement.Project.WriteToMod(saveFileDialog.FileName
-                    , new FrostySdk.ModSettings() { Author = "paulv2k4 Mod Tool", Description = "", Category = "", Title = "paulv2k4 Mod Tool GP Mod", Version = "1.00" });
-                using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Mod files|*.fbmod";
+                var resultValue = saveFileDialog.ShowDialog();
+                if (resultValue.HasValue && resultValue.Value)
                 {
-                    Log("Saved mod successfully to " + saveFileDialog.FileName);
+                    ProjectManagement.Project.WriteToMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
+                    using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
+                    {
+                        Log("Saved mod successfully to " + saveFileDialog.FileName);
+                    }
                 }
+
+            }
+            catch (Exception SaveException)
+            {
+                LogError(SaveException.ToString());
             }
         }
 
@@ -331,6 +343,12 @@ namespace FrostbiteModdingUI.Windows
             dataBrowser.UpdateAssetListView();
             gameplayBrowser.UpdateAssetListView();
             legacyBrowser.UpdateAssetListView();
+        }
+
+        private void btnOpenModDetailsPanel_Click(object sender, RoutedEventArgs e)
+        {
+            var mdw = new ModDetailsWindow();
+            mdw.Show();
         }
     }
 }

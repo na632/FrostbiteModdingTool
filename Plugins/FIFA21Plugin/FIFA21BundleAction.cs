@@ -136,6 +136,8 @@ namespace FIFA21Plugin
 
         public Dictionary<ModType, int> ErrorCounts = new Dictionary<ModType, int>();
 
+        public List<ChunkAssetEntry> AddedChunks = new List<ChunkAssetEntry>();
+
         /// <summary>
         /// 
         /// </summary>
@@ -281,10 +283,13 @@ namespace FIFA21Plugin
                 }
                 else
                 {
-                    //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
-                    parent.Logger.LogWarning($"Unable to find CAS file to edit for Chunk {modChunks.Key}");
-                    //parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
+                    AddedChunks.Add(modChunks.Value);
+                    parent.Logger.LogWarning($"This mod compiler cannot handle Added Chunks. {modChunks.Key} will be ignored.");
                     ErrorCounts[ModType.CHUNK]++;
+
+                    //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
+                    //parent.Logger.LogWarning($"Unable to find CAS file to edit for Chunk {modChunks.Key}");
+                    //parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
                 }
             }
 

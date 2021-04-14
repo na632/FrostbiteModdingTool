@@ -50,6 +50,12 @@
                             <Label Content="Save Project" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
+                            <Label Content="Open Mod Details" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                     <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
