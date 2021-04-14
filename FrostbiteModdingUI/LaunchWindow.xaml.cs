@@ -507,7 +507,26 @@ namespace FIFAModdingUI
             dialog.Multiselect = false;
             // remove zip as not compatible with *.fifamod / FIFA 21
             //dialog.Filter = "Mod files (*.zip, *.lmod, *.fbmod, *.fifamod)|*.zip;*.lmod;*.fbmod;*.fifamod";
-            dialog.Filter = "Mod files (*.lmod, *.fbmod, *.fifamod)|*.lmod;*.fbmod;*.fifamod";
+            var supportedFiles = ProfilesLibrary.SupportedLauncherFileTypes;
+            var filter = "Mod files (*.fbmod)|*.fbmod";
+            if (supportedFiles != null && supportedFiles.Count > 0)
+            {
+                filter = "Mod files (";
+                for (var i = 0; i < supportedFiles.Count; i++)
+                {
+                    filter += "*." + supportedFiles[i];
+                    if (i < supportedFiles.Count - 1)
+                        filter += ",";
+                }
+                filter += ")|";
+                for (var i = 0; i < supportedFiles.Count; i++)
+                {
+                    filter += "*." + supportedFiles[i];
+                    if (i < supportedFiles.Count - 1)
+                        filter += ";";
+                }
+            }
+            dialog.Filter = filter;//"Mod files (*.lmod, *.fbmod, *.fifamod)|*.lmod;*.fbmod;*.fifamod";
             dialog.FilterIndex = 0;
             dialog.ShowDialog(this);
             var filePath = dialog.FileName;

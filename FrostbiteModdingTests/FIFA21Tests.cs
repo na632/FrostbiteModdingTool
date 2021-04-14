@@ -198,7 +198,7 @@ namespace FrostbiteModdingTests
                 new System.Collections.Generic.List<string>() {
                     //@"C:\Users\paula\Downloads\Villalibre Molina.fifamod"
                     //@"E:\Origin Games\FIFA 21\fet gp change.fifamod"
-                    @"C:\Users\paula\Downloads\FCB17 [FIFA 21] FACEPACK #3 FIX\FCB17 [FIFA 21] FACEPACK #3 FIX\FCB17 Facepack #3 (fix).fifamod"
+                    @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Patch 1 FET.fifamod"
                 }.ToArray()).Wait();
 
         }
