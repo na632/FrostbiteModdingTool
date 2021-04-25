@@ -4,6 +4,7 @@ using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -196,18 +197,21 @@ namespace FIFA21Plugin
 
                             int offset1 = nativeReader.ReadInt(Endian.Big);
 
+
+							var tocsizeposition = nativeReader.Position;
                             int size = nativeReader.ReadInt(Endian.Big);
 
                             nativeReader.ReadInt(Endian.Big); // unknown
 
                             int dataOffset = nativeReader.ReadInt(Endian.Big);
 
-                            BaseBundleInfo newBundleInfo = new BaseBundleInfo
-                            {
-                                TocOffset = offset1,
-                                Offset = dataOffset,
-                                Size = size
-                            };
+							BaseBundleInfo newBundleInfo = new BaseBundleInfo
+							{
+								TocOffset = offset1,
+								Offset = dataOffset,
+								Size = size,
+								TOCSizePosition = tocsizeposition
+							};
                             Bundles.Add(newBundleInfo);
                         }
 

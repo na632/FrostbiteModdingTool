@@ -4,6 +4,7 @@ using FrostySdk;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,6 +61,10 @@ namespace FrostbiteModdingUI.Windows
                     {
                         throw new Exception("Unable to Initialize Profile");
                     }
+                }
+                else
+                {
+                    throw new FileNotFoundException($"Unable to initialise against {filePath}");
                 }
             }
         }

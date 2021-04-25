@@ -35,15 +35,18 @@ namespace FIFA21Plugin
 
 		public class BaseBundleInfo
 		{
-			public string Name;
+			public string Name { get; set; }
 
-			public long Offset;
+			public long Offset { get; set; }
 
-			public long Size;
+			public long TOCSizePosition { get; set; }
 
-			public long TocOffset;
+			public long Size { get; set; }
 
-            public int CasIndex { get; internal set; }
+			public long TocOffset { get; set; }
+
+			public int CasIndex { get; internal set; }
+
         }
 
 		public void LoadData(AssetManager parent, BinarySbDataHelper helper)
@@ -164,9 +167,7 @@ namespace FIFA21Plugin
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			if(!AssetManager.CacheUpdate)
-				LoadData(parent, helper);
-
+			//LoadData(parent, helper);
 			LoadPatch(parent, helper);
 		}
 

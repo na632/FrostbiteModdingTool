@@ -133,6 +133,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="CEM\Data\fifa_ng_db-meta.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

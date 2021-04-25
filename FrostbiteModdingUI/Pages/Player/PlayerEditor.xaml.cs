@@ -326,8 +326,8 @@ namespace FrostbiteModdingUI.Pages.Player
 
                                 Task.Run(() =>
                                 {
-                                    var exporter = new MeshToFbxExporter();
-                                    exporter.OnlyFirstLOD = true;
+                                    var exporter = new MeshSetToFbxExport();
+                                    //exporter.OnlyFirstLOD = true;
                                     if (ebxEntry.Name.Contains("head_"))
                                         exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "Renderer/FaceModel.obj", "2016", "Millimeters", true, null, "*.obj", meshSet);
                                     else if (ebxEntry.Name.Contains("hair_"))

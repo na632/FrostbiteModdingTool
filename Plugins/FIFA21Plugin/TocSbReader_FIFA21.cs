@@ -46,6 +46,7 @@ namespace FIFA21Plugin
                     
                     // TOC File 
                     TOCFile = new TOCFile(this);
+                    TOCFile.SuperBundleName = SBName;
                     TOCFile.NativeFileLocation = nativePath;
                     TOCFile.FileLocation = tocPath;
                     TOCFile.SuperBundleName = Guid.NewGuid().ToString();

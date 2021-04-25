@@ -66,6 +66,9 @@ namespace FIFA21Plugin
             // Notify the Bundle Action of the Cas File Count
             FIFA21BundleAction.CasFileCount = fs.CasFileCount;
 
+            if (!Directory.Exists(fs.BasePath))
+                throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
+
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 

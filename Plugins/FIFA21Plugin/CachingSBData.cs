@@ -61,7 +61,33 @@ namespace FIFA21Plugin
             public int LastCAS { get; set; }
             public long BinaryDataOffsetEnd { get; set; }
             public long CatalogCasGroupOffsetEnd { get; set; }
+            public FIFA21AssetLoader.BaseBundleInfo BaseBundleItem { get; internal set; }
+
+            private Dictionary<string, List<string>> listOfItems;
+
+            public Dictionary<string, List<string>> ListOfItems 
+            {
+                get
+                {
+                    if(listOfItems == null)
+                    {
+                        listOfItems = new Dictionary<string, List<string>>();
+                        listOfItems.Add("ebx", new List<string>());
+                        listOfItems.Add("res", new List<string>());
+                        listOfItems.Add("chunk", new List<string>());
+                    }
+
+                    return listOfItems;
+                }
+                set
+                {
+                    listOfItems = value;
+                }
+            }
+
         }
+
+
 
         public List<Bundle> Bundles = new List<Bundle>();
 

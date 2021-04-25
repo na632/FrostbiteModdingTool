@@ -478,7 +478,7 @@ namespace FIFAModdingUI.Pages.Common
 							var dialogAnswer = saveFileDialog.ShowDialog();
 							if (dialogAnswer.HasValue && dialogAnswer.Value)
 							{
-								var exporter = new MeshToFbxExporter();
+								var exporter = new MeshSetToFbxExport();
 								exporter.Export(AssetManager.Instance
 									, skinnedMeshEbx.RootObject
 									, saveFileDialog.FileName, "2016", "Millimeters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
@@ -608,6 +608,8 @@ namespace FIFAModdingUI.Pages.Common
 									var res = AssetManager.Instance.GetResEntry(ebxEntry.Name);
 									if (res != null)
 									{
+										MainEditorWindow.Log("Loading RES " + ebxEntry.Filename);
+
 										BuildTextureViewerFromAssetEntry(res);
 									}
 									else
@@ -641,8 +643,8 @@ namespace FIFAModdingUI.Pages.Common
 									var res = AssetManager.Instance.GetRes(resentry);
 									MeshSet meshSet = new MeshSet(res);
 
-									var exporter = new MeshToFbxExporter();
-									exporter.OnlyFirstLOD = true;
+									var exporter = new MeshSetToFbxExport();
+									//exporter.OnlyFirstLOD = true;
 									exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.obj", "2016", "Meters", true, null, "*.obj", meshSet);
 									Thread.Sleep(1000);
 

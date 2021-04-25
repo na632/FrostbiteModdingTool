@@ -1,4 +1,5 @@
-﻿using FIFAModdingUI.Mods;
+﻿using CareerExpansionMod.CEM;
+using FIFAModdingUI.Mods;
 using FIFAModdingUI.Windows;
 using FIFAModdingUI.Windows.Profile;
 using FrostbiteModdingUI.Models;
@@ -475,6 +476,11 @@ namespace FIFAModdingUI
                     }
                     //});
                     await Task.Delay(1000);
+
+                    //if(ProfilesLibrary.IsFIFA21DataVersion())
+                    //    await CEMCore.InitialStartupOfCEM();
+
+                    //
                     Dispatcher.Invoke(() =>
                     {
                         btnLaunch.IsEnabled = true;

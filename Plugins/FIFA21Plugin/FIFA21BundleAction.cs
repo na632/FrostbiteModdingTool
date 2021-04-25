@@ -373,8 +373,8 @@ namespace FIFA21Plugin
                                     continue;
                                 }
 
-                                if (modItem.NamePath.Contains("tattoo", StringComparison.OrdinalIgnoreCase))
-                                    continue;
+                                //if (modItem.NamePath.Contains("tattoo", StringComparison.OrdinalIgnoreCase))
+                                //    continue;
 
                                 //if (modItem.NamePath.Contains("face", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
                                 //    continue;
@@ -395,8 +395,24 @@ namespace FIFA21Plugin
                                     nwCas.Write(data);
 
                                     var origSize = 0;
-                                    var out_data = new CasReader(new MemoryStream(data)).Read();
-                                    origSize = out_data.Length;
+                                    switch(modItem.ModType)
+                                    {
+                                        case ModType.EBX:
+                                            origSize = Convert.ToInt32(parent.modifiedEbx[modItem.NamePath].OriginalSize);
+                                            break;
+                                        case ModType.RES:
+                                            origSize = Convert.ToInt32(parent.modifiedRes[modItem.NamePath].OriginalSize);
+                                            break;
+                                        case ModType.CHUNK:
+                                            origSize = Convert.ToInt32(parent.modifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
+                                            break;
+                                    }
+                                    if (origSize == 0 
+                                        || origSize == data.Length)
+                                    {
+                                        var out_data = new CasReader(new MemoryStream(data)).Read();
+                                        origSize = out_data.Length;
+                                    }
 
                                     var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
                                     if (useCas)

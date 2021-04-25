@@ -112,11 +112,12 @@ namespace FrostbiteModdingTests
                 {
                     var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
                     var res = project.AssetManager.GetRes(resentry);
-                    MeshSet meshSet = new MeshSet(res);
 
-                    var exporter = new MeshToFbxExporter();
+                    var exporter = new MeshSetToFbxExport();
+                    MeshSet meshSet = exporter.LoadMeshSet(skinnedMeshEntry);
 
-                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+                    //meshToFbxExporter.Export(base.AssetManager, base.Asset, outputFile, "2020", "Meters", false, skeleton, "obj", meshSet);
                     //exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.fbx", "FBX_2012", "Centimeters", true, null, "*.fbx", meshSet);
 
                     //exporter.OnlyFirstLOD = true;
@@ -141,7 +142,7 @@ namespace FrostbiteModdingTests
                     MeshSet meshSet = new MeshSet(res);
 
                     FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
-                    var exporter = new MeshToFbxExporter();
+                    var exporter = new MeshSetToFbxExport();
                     exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Centimeters", false, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
                     importer.ImportFBX("test.fbx", meshSet, skinnedMeshEbx, skinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
                     {
@@ -204,7 +205,8 @@ namespace FrostbiteModdingTests
                     //@"C:\Users\paula\Downloads\Villalibre Molina.fifamod"
                     //@"E:\Origin Games\FIFA 21\fet gp change.fifamod"
                     //@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Patch 1 FET.fifamod"
-                    @"G:\Work\FIFA Modding\Sky_Sports_Football_TV_Logo_for_the_English_Premier_League.fifamod"
+                    //@"G:\Work\FIFA Modding\Sky_Sports_Football_TV_Logo_for_the_English_Premier_League.fifamod"
+                    @"G:\Work\FIFA Modding\GraphicMod\FIFA 21\FCB17 Facepack #5.fifamod"
 
                 }.ToArray()).Wait();
 

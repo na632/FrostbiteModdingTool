@@ -1886,7 +1886,15 @@ namespace Memory
         /// <param name="writable">Include writable addresses in scan</param>
         /// <param name="executable">Include executable addresses in scan</param>
         /// <returns>IEnumerable of all addresses found.</returns>
-        public Task<IEnumerable<long>> AoBScan(long start, long end, string search, bool readable, bool writable, bool executable, string file = "")
+        public Task<IEnumerable<long>> AoBScan(
+            long start
+            , long end
+            , string search
+            , bool readable
+            , bool writable
+            , bool executable
+            , string file = ""
+            , bool findFirst = false)
         {
             return Task.Run(() =>
             {

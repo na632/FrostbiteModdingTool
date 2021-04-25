@@ -102,10 +102,11 @@ namespace FIFA21Plugin
                     Name = Guid.NewGuid().ToString(),
                     SuperBundleId = SuperBundleIndex
                 };
-                using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
+                //using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
+                using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, BaseBundleItem.Size)))
                 {
                     CachingSBData.Bundle cachingSBDataBundle = ReadInternalBundle((int)BaseBundleItem.Offset, ref dbObject, binarySbReader2);
-
+                    cachingSBDataBundle.BaseBundleItem = BaseBundleItem;
                     cachingSBData.Bundles.Add(cachingSBDataBundle);
 
                 }
@@ -200,9 +201,9 @@ namespace FIFA21Plugin
             };
 
             // read 3 unknowns 
-            _ = binarySbReader2.ReadInt(Endian.Big);
-            _ = binarySbReader2.ReadInt(Endian.Big);
-            _ = binarySbReader2.ReadInt(Endian.Big);
+            CachedBundle.BundleHeader.unk3 = binarySbReader2.ReadUInt(Endian.Big);
+            CachedBundle.BundleHeader.unk4 = binarySbReader2.ReadUInt(Endian.Big);
+            CachedBundle.BundleHeader.unk5 = binarySbReader2.ReadUInt(Endian.Big);
 
             // ---------------------------------------------------------------------------------------------------------------------
             // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
@@ -212,7 +213,7 @@ namespace FIFA21Plugin
             SBHeaderInformation SBHeaderInformation = new BinaryReader_FIFA21().BinaryRead_FIFA21(bundleOffset, ref dbObject, binarySbReader2, true);
             CachedBundle.BinaryDataOffsetEnd = (int)binarySbReader2.Position;
 
-            binarySbReader2.Position = CachedBundle.BinaryDataOffset;
+            //binarySbReader2.Position = CachedBundle.BinaryDataOffset;
             //cachingSBDataBundle.BinaryDataData = binarySbReader2.ReadBytes((int)cachingSBDataBundle.BinaryDataOffsetEnd - (int)cachingSBDataBundle.BinaryDataOffset);
 
             // END OF BINARY READER
@@ -230,7 +231,6 @@ namespace FIFA21Plugin
             }
             dbObject.SetValue("BoolChangeOfCasData", boolChangeOfCasData);
 
-            //cachingSBDataBundle.BooleanOfCasGroupData = boolChangeOfCasData;
             CachedBundle.BooleanOfCasGroupOffsetEnd = binarySbReader2.Position;
 
             binarySbReader2.Position = CatalogAndCASOffset;
@@ -245,39 +245,32 @@ namespace FIFA21Plugin
             var ebxCount = dbObject.GetValue<DbObject>("ebx").Count;
             for (int ebxIndex = 0; ebxIndex < ebxCount; ebxIndex++)
             {
-                //var percentDone = Math.Round(((double)ebxIndex / ebxCount) * 100).ToString();
-                //AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {percentDone}%");
-
                 if (booleanChangeOfCas[flagIndex++])
                 {
-                    //ushort byteAndBool = binarySbReader2.ReadUShort();
                     unkInBatch1 = binarySbReader2.ReadByte();
                     patchFlag = binarySbReader2.ReadBoolean();
-                    //patchFlag = Convert.ToBoolean(byteAndBool);
                     catalog = binarySbReader2.ReadByte();
                     cas = binarySbReader2.ReadByte();
                 }
-                DbObject ebxObject = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
+                DbObject o = dbObject.GetValue<DbObject>("ebx")[ebxIndex] as DbObject;
 
-                ebxObject.SetValue("SBFileLocation", NativeFileLocation);
+                o.SetValue("SBFileLocation", NativeFileLocation);
                 if(AssociatedTOCFile != null)
-                    ebxObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                    o.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
-                ebxObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
+                o.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
                 int offset = binarySbReader2.ReadInt(Endian.Big);
 
-                ebxObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
+                o.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
                 int size = binarySbReader2.ReadInt(Endian.Big);
 
-
-
-                ebxObject.SetValue("catalog", catalog);
-                ebxObject.SetValue("cas", cas);
-                ebxObject.SetValue("offset", offset);
-                ebxObject.SetValue("size", size);
+                o.SetValue("catalog", catalog);
+                o.SetValue("cas", cas);
+                o.SetValue("offset", offset);
+                o.SetValue("size", size);
                 if (patchFlag)
                 {
-                    ebxObject.SetValue("patch", true);
+                    o.SetValue("patch", true);
 
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
@@ -288,9 +281,6 @@ namespace FIFA21Plugin
             var resCount = dbObject.GetValue<DbObject>("res").Count;
             for (int indexRes = 0; indexRes < resCount; indexRes++)
             {
-                //var percentDone = Math.Round(((double)indexRes / resCount) * 100).ToString();
-
-                //AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {percentDone}%");
 
                 if (booleanChangeOfCas[flagIndex++])
                 {
@@ -299,26 +289,23 @@ namespace FIFA21Plugin
                     catalog = binarySbReader2.ReadByte();
                     cas = binarySbReader2.ReadByte();
                 }
-                DbObject resObject = dbObject.GetValue<DbObject>("res")[indexRes] as DbObject;
-                resObject.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
+                DbObject o = dbObject.GetValue<DbObject>("res")[indexRes] as DbObject;
+                o.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
                 int offset = binarySbReader2.ReadInt(Endian.Big);
-                resObject.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
+                o.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
                 int size = binarySbReader2.ReadInt(Endian.Big);
 
-                resObject.SetValue("SBFileLocation", NativeFileLocation);
+                o.SetValue("SBFileLocation", NativeFileLocation);
                 if (AssociatedTOCFile != null)
-                    resObject.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                    o.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
 
-                //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
-                resObject.SetValue("catalog", catalog);
-                //if(cas > 0)
-                resObject.SetValue("cas", cas);
-                resObject.SetValue("offset", offset);
-
-                resObject.SetValue("size", size);
+                o.SetValue("catalog", catalog);
+                o.SetValue("cas", cas);
+                o.SetValue("offset", offset);
+                o.SetValue("size", size);
                 if (patchFlag)
                 {
-                    resObject.SetValue("patch", true);
+                    o.SetValue("patch", true);
 
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
@@ -328,54 +315,51 @@ namespace FIFA21Plugin
             var chunkCount = dbObject.GetValue<DbObject>("chunks").Count;
             for (int indexChunk = 0; indexChunk < chunkCount; indexChunk++)
             {
-
-                //var percentDone = Math.Round(((double)indexChunk / chunkCount) * 100).ToString();
-
-                //AssetManager.Instance.logger.Log($"Loading data from {FileLocation} EBX {percentDone}%");
-
                 if (booleanChangeOfCas[flagIndex++])
                 {
                     var b = binarySbReader2.ReadByte();
                     patchFlag = binarySbReader2.ReadBoolean();
                     catalog = binarySbReader2.ReadByte();
                     cas = binarySbReader2.ReadByte();
-
-
                 }
-                DbObject chnkObj = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
+                DbObject o = dbObject.GetValue<DbObject>("chunks")[indexChunk] as DbObject;
 
-                chnkObj.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
+                o.SetValue("SB_CAS_Offset_Position", binarySbReader2.Position + bundleOffset);
                 int offset = binarySbReader2.ReadInt(Endian.Big);
-                chnkObj.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
+                o.SetValue("SB_CAS_Size_Position", binarySbReader2.Position + bundleOffset);
                 int size = binarySbReader2.ReadInt(Endian.Big);
 
-                //if (catalog < 0 || catalog > AssetManager.Instance.fs.CatalogCount - 1)
-                //{
-
-                //}
-                chnkObj.SetValue("SBFileLocation", NativeFileLocation);
+                o.SetValue("SBFileLocation", NativeFileLocation);
                 if (AssociatedTOCFile != null)
-                    chnkObj.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
-                //if (catalog >= 0 && catalog < AssetManager.Instance.fs.CatalogCount - 1)
-                chnkObj.SetValue("catalog", catalog);
-                //if(cas > 0)
-                chnkObj.SetValue("cas", cas);
-
-                chnkObj.SetValue("offset", offset);
-
-                chnkObj.SetValue("size", size);
+                    o.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
+                o.SetValue("catalog", catalog);
+                o.SetValue("cas", cas);
+                o.SetValue("offset", offset);
+                o.SetValue("size", size);
                 if (patchFlag)
                 {
-                    chnkObj.SetValue("patch", true);
+                    o.SetValue("patch", true);
 
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
                 }
             }
 
-            // 
-            //cachingSBDataBundle.LastCAS = cas;
-            //cachingSBDataBundle.LastCatalogId = catalog;
+            for (int i = 0; i < ebxCount; i++)
+            {
+                DbObject obj = dbObject.GetValue<DbObject>("ebx")[i] as DbObject;
+                CachedBundle.ListOfItems["ebx"].Add(obj["name"].ToString());
+            }
+            for (int i = 0; i < resCount; i++)
+            {
+                DbObject obj = dbObject.GetValue<DbObject>("res")[i] as DbObject;
+                CachedBundle.ListOfItems["res"].Add(obj["name"].ToString());
+            }
+            for (int i = 0; i < chunkCount; i++)
+            {
+                DbObject obj = dbObject.GetValue<DbObject>("chunks")[i] as DbObject;
+                CachedBundle.ListOfItems["chunk"].Add(obj["id"].ToString());
+            }
 
             CachedBundle.CatalogCasGroupOffsetEnd = (int)binarySbReader2.Position;
             if(CachedBundle.CatalogCasGroupOffsetEnd == 0)
