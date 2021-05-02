@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using FrostySdk;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,8 +25,13 @@ namespace CareerExpansionMod.CEM.FIFA
 
             var pnames = new List<FIFAPlayerName>();
 
-            var dlllocation = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
+            var dlllocation = CEMCore.GetApplicationDirectory();
+            
             var fulllocation = dlllocation + "\\CEM\\Data\\playernames.csv";
+            if(ProfilesLibrary.IsFIFA21DataVersion())
+                fulllocation = dlllocation + "\\CEM\\Data\\playernames_f21.csv";
+
+
             using (var reader = new StreamReader(fulllocation))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {

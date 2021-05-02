@@ -7,6 +7,7 @@ using CareerExpansionMod.CEM.FIFA;
 using System.Security.Cryptography;
 using System.Diagnostics;
 using v2k4FIFAModding.Career.CME.FIFA;
+using System.Data;
 
 namespace CareerExpansionMod.CEM.FIFA
 {
@@ -136,7 +137,7 @@ namespace CareerExpansionMod.CEM.FIFA
             }
 
             sw.Stop();
-            Debug.WriteLine($"GetPlayers() took :: {sw.Elapsed.TotalSeconds}s");
+            //Debug.WriteLine($"GetPlayers() took :: {sw.Elapsed.TotalSeconds}s");
 
             return CachedPlayers;
         }
@@ -247,10 +248,11 @@ namespace CareerExpansionMod.CEM.FIFA
         {
             if(CareerDB2.Current != null && CareerDB2.Current.teams != null)
             {
-
+                foreach(DataRow dr in CareerDB2.Current.teams.Rows)
+                {
+                    yield return CEMUtilities.CreateItemFromRow<FIFATeam>(dr);
+                }
             }
-
-            return null;
         }
 
     }

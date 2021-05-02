@@ -2,8 +2,10 @@
 using FrostbiteModdingUI.Models;
 using FrostySdk;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,6 +30,15 @@ namespace FrostbiteModdingUI.Windows
         public FindGameEXEWindow()
         {
             InitializeComponent();
+
+            var runningLocation = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            var lastLocations = Directory.GetFiles(runningLocation).Where(x => x.Contains("LastLocation.json", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var lstOfLocations = lastLocations.Select(x 
+                => 
+                new FileInfo(File.ReadAllText(x))
+                ).Where(x=>x.Exists).ToList();
+            lv.ItemsSource = lstOfLocations;
         }
 
         private void btnFindGameEXE_Click(object sender, RoutedEventArgs e)
@@ -53,7 +64,6 @@ namespace FrostbiteModdingUI.Windows
             if (!string.IsNullOrEmpty(filePath))
             {
                 AppSettings.Settings.GameInstallEXEPath = filePath;
-                //AppSettings.Settings.Save();
 
                 if (GameInstanceSingleton.InitializeSingleton(filePath))
                 {
@@ -67,6 +77,15 @@ namespace FrostbiteModdingUI.Windows
                     throw new FileNotFoundException($"Unable to initialise against {filePath}");
                 }
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            var fi = btn.Tag as FileInfo;
+
+            InitializeOfSelectedGame(fi.FullName);
+            this.Close();
         }
     }
 }

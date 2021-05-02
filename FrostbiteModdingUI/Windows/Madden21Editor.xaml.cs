@@ -70,6 +70,9 @@ namespace FrostbiteModdingUI.Windows
             this.Loaded += Madden21Editor_Loaded;
             OwnerWindow = owner;
             Owner = owner;
+
+            App.AppInsightClient.TrackRequest("Madden21Editor Window", DateTimeOffset.Now,
+                    TimeSpan.FromMilliseconds(230), "200", true);
         }
 
         public string LastM21Location => "MADDEN21LastLocation.json";
@@ -113,6 +116,11 @@ namespace FrostbiteModdingUI.Windows
 
         private void Madden21Editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (App.AppInsightClient != null)
+            {
+                App.AppInsightClient.Flush();
+            }
+
             ProjectManagement.Instance = null;
             if (AssetManager.Instance != null)
             {
@@ -185,6 +193,11 @@ namespace FrostbiteModdingUI.Windows
                 });
 
             });
+
+            var presence = new DiscordRPC.RichPresence();
+            presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
+            App.DiscordRpcClient.SetPresence(presence);
+            App.DiscordRpcClient.Invoke();
         }
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
@@ -323,7 +336,8 @@ namespace FrostbiteModdingUI.Windows
 
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
                 frostyModExecutor.UseSymbolicLinks = false;
-                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { testfbmodname }.ToArray()).Wait();
+                frostyModExecutor.ForceRebuildOfMods = true;
+                frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "", new System.Collections.Generic.List<string>() { testfbmodname }.ToArray()).Wait();
             });
 
             await Dispatcher.InvokeAsync(() => { btnLaunchGameInEditor.IsEnabled = true; });

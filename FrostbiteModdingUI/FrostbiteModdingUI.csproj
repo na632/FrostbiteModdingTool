@@ -98,6 +98,7 @@
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
+    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
 	  <PackageReference Include="HelixToolkit" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.Core.WPF" Version="2.10.0" />
@@ -106,6 +107,8 @@
 	  <PackageReference Include="HelixToolkit.SharpDX.Assimp" Version="2.10.0" />
     <PackageReference Include="MahApps.Metro" Version="2.4.3" />
     <PackageReference Include="MaterialDesignThemes" Version="3.0.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.17.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.17.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.1.0" />
@@ -133,7 +136,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="CEM\Data\dcplayernames.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="CEM\Data\fifa_ng_db-meta.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CEM\Data\leagues.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CEM\Data\nations.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CEM\Data\playernames.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="CEM\Data\playernames_f21.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="fifa20.key">

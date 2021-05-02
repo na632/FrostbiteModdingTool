@@ -14,6 +14,9 @@ using CareerExpansionMod.CEM;
 using System.IO;
 using Newtonsoft.Json;
 using System.Linq;
+using v2k4FIFAModding.Career.CME.FIFA;
+using CareerExpansionMod.CEM.FIFA;
+using FrostySdk.IO;
 
 /// <summary>
 /// This must have properties (not fields) for Json to work!
@@ -27,75 +30,100 @@ public class FIFAPlayerStat
 	public byte  ID { get; set; } //0x0009
 	public short  MinutesPlayed { get; set; } //0x000A
 	
-	public int Rating; //0x000C
+	public int Rating { get; set; } //0x000C
 	public int Goals { get; set; } //0x000E -- is byte really
 	public byte Appereances { get; set; } //0x0012
+
+	public byte Apps { get { return Appereances;  } }
+
 	public byte Assists { get; set; } //0x0013
 	//public byte N000000AF { get; set; } //0x0014
 	//public byte N000000AB { get; set; } //0x0015
 	//public byte N000000B5 { get; set; } //0x0016
 	public byte CleanSheets { get; set; } //0x0017
-	//public int ContractedUntil { get; set; } //0x0018
-	//public byte N000000B9 { get; set; } //0x001C
-	//public byte N000000BF { get; set; } //0x001D
-	//public byte N000000BE { get; set; } //0x001E
-	//public byte N000000BC { get; set; } //0x001F
-	//public byte N0000008A { get; set; } //0x0020
-	//public byte N000000CA { get; set; } //0x0021
-	//public byte N000000CE { get; set; } //0x0022
-	//public byte N000000D1 { get; set; } //0x0023
-	//public byte N000000CF { get; set; } //0x0024
-	//public byte N000000CB { get; set; } //0x0025
-	//public byte N000000D4 { get; set; } //0x0026
-	//public byte N000000CC { get; set; } //0x0027
-	//public byte N0000008B { get; set; } //0x0028
-	//public byte N000000D7 { get; set; } //0x0029
-	//public byte N000000ED { get; set; } //0x002A
-	//public byte N0000010B { get; set; } //0x002B
-	//public byte N000000EE { get; set; } //0x002C
-	//public byte N000000D8 { get; set; } //0x002D
-	//public byte N000000F0 { get; set; } //0x002E
-	//public byte N000000D9 { get; set; } //0x002F
-	//public byte N0000008C { get; set; } //0x0030
-	//public byte N000000DB { get; set; } //0x0031
-	//public byte N000000F3 { get; set; } //0x0032
-	//public byte N0000010F { get; set; } //0x0033
-	//public byte N000000F4 { get; set; } //0x0034
-	//public byte N000000DC { get; set; } //0x0035
-	//public byte N000000F6 { get; set; } //0x0036
-	//public byte N000000DD { get; set; } //0x0037
-	//public byte N0000008D { get; set; } //0x0038
-	//public byte N000000DF { get; set; } //0x0039
-	//public byte N000000F9 { get; set; } //0x003A
-	//public byte N00000113 { get; set; } //0x003B
-	//public byte N000000FA { get; set; } //0x003C
-	//public byte N000000E0 { get; set; } //0x003D
-	//public byte N000000FC { get; set; } //0x003E
-	//public byte N000000E1 { get; set; } //0x003F
-	//public byte N0000008E { get; set; } //0x0040
-	//public byte N000000E3 { get; set; } //0x0041
-	//public byte N000000FF { get; set; } //0x0042
-	//public byte N00000117 { get; set; } //0x0043
-	//public byte N00000100 { get; set; } //0x0044
-	//public byte N000000E4 { get; set; } //0x0045
-	//public byte N00000102 { get; set; } //0x0046
-	//public byte N000000E5 { get; set; } //0x0047
-	//public byte N0000008F { get; set; } //0x0048
-	//public byte N000000E7 { get; set; } //0x0049
-	//public byte N00000105 { get; set; } //0x004A
-	//public byte N0000011B { get; set; } //0x004B
-	//public byte N00000106 { get; set; } //0x004C
-	//public byte N000000E8 { get; set; } //0x004D
-	//public byte N00000108 { get; set; } //0x004E
-	//public byte N000000E9 { get; set; } //0x004F
-	//public byte N00000090 { get; set; } //0x0050
-	//public byte N00000124 { get; set; } //0x0051
-	//public byte N00000128 { get; set; } //0x0052
-	//public byte N0000012B { get; set; } //0x0053
-	//public byte N00000129 { get; set; } //0x0054
-	//public byte N00000125 { get; set; } //0x0055
-	//public byte N0000012F { get; set; } //0x0056
-	//public byte N00000126 { get; set; } //0x0057
+										  //public int ContractedUntil { get; set; } //0x0018
+										  //public byte N000000B9 { get; set; } //0x001C
+										  //public byte N000000BF { get; set; } //0x001D
+										  //public byte N000000BE { get; set; } //0x001E
+										  //public byte N000000BC { get; set; } //0x001F
+										  //public byte N0000008A { get; set; } //0x0020
+										  //public byte N000000CA { get; set; } //0x0021
+										  //public byte N000000CE { get; set; } //0x0022
+										  //public byte N000000D1 { get; set; } //0x0023
+										  //public byte N000000CF { get; set; } //0x0024
+										  //public byte N000000CB { get; set; } //0x0025
+										  //public byte N000000D4 { get; set; } //0x0026
+										  //public byte N000000CC { get; set; } //0x0027
+										  //public byte N0000008B { get; set; } //0x0028
+										  //public byte N000000D7 { get; set; } //0x0029
+										  //public byte N000000ED { get; set; } //0x002A
+										  //public byte N0000010B { get; set; } //0x002B
+										  //public byte N000000EE { get; set; } //0x002C
+										  //public byte N000000D8 { get; set; } //0x002D
+										  //public byte N000000F0 { get; set; } //0x002E
+										  //public byte N000000D9 { get; set; } //0x002F
+										  //public byte N0000008C { get; set; } //0x0030
+										  //public byte N000000DB { get; set; } //0x0031
+										  //public byte N000000F3 { get; set; } //0x0032
+										  //public byte N0000010F { get; set; } //0x0033
+										  //public byte N000000F4 { get; set; } //0x0034
+										  //public byte N000000DC { get; set; } //0x0035
+										  //public byte N000000F6 { get; set; } //0x0036
+										  //public byte N000000DD { get; set; } //0x0037
+										  //public byte N0000008D { get; set; } //0x0038
+										  //public byte N000000DF { get; set; } //0x0039
+										  //public byte N000000F9 { get; set; } //0x003A
+										  //public byte N00000113 { get; set; } //0x003B
+										  //public byte N000000FA { get; set; } //0x003C
+										  //public byte N000000E0 { get; set; } //0x003D
+										  //public byte N000000FC { get; set; } //0x003E
+										  //public byte N000000E1 { get; set; } //0x003F
+										  //public byte N0000008E { get; set; } //0x0040
+										  //public byte N000000E3 { get; set; } //0x0041
+										  //public byte N000000FF { get; set; } //0x0042
+										  //public byte N00000117 { get; set; } //0x0043
+										  //public byte N00000100 { get; set; } //0x0044
+										  //public byte N000000E4 { get; set; } //0x0045
+										  //public byte N00000102 { get; set; } //0x0046
+										  //public byte N000000E5 { get; set; } //0x0047
+										  //public byte N0000008F { get; set; } //0x0048
+										  //public byte N000000E7 { get; set; } //0x0049
+										  //public byte N00000105 { get; set; } //0x004A
+										  //public byte N0000011B { get; set; } //0x004B
+										  //public byte N00000106 { get; set; } //0x004C
+										  //public byte N000000E8 { get; set; } //0x004D
+										  //public byte N00000108 { get; set; } //0x004E
+										  //public byte N000000E9 { get; set; } //0x004F
+										  //public byte N00000090 { get; set; } //0x0050
+										  //public byte N00000124 { get; set; } //0x0051
+										  //public byte N00000128 { get; set; } //0x0052
+										  //public byte N0000012B { get; set; } //0x0053
+										  //public byte N00000129 { get; set; } //0x0054
+										  //public byte N00000125 { get; set; } //0x0055
+										  //public byte N0000012F { get; set; } //0x0056
+										  //public byte N00000126 { get; set; } //0x0057
+
+	private double ar;
+	public double AverageRating
+	{
+		get
+		{
+			if (Rating > 100)
+			{
+				ar = Math.Round(((double)Rating / Appereances) / 10, 2);
+			}
+
+			else if (Rating > 0)
+			{
+				ar = Math.Round((double)Rating / 10, 2);
+			}
+			return ar;
+		}
+		set
+		{
+			ar = value;
+		}
+	}
 
 
 	private int? _seasonYear;
@@ -110,9 +138,9 @@ public class FIFAPlayerStat
 			}
 
 			var ingamedate = new DateTime(2019, 1, 1);
-			//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
+			if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
 			//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
-			//	ingamedate = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value;
+				ingamedate = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value;
 			//else
 			//{
 			//	CEMCore.CEMCoreInstance = new CEMCore(new CoreHack());
@@ -134,7 +162,52 @@ public class FIFAPlayerStat
         }
 	}
 
-	public double GoalsPerGame 
+    private int calenderYear;
+
+    public int CalenderYear
+    {
+        get {
+
+			calenderYear = 2019;
+			if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
+				//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
+				calenderYear = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value.Year;
+
+
+			return calenderYear; }
+        set { calenderYear = value; }
+    }
+
+	public string PlayerName
+    {
+		get
+        {
+			var pn = string.Empty;
+			//if(CEMCore.CEMCoreInstance != null)
+   //         {
+				if(
+				//CEMCore.CEMCoreInstance.CareerFile != null
+					//&& 
+					CareerDB1.Current != null
+					&& CareerDB2.Current != null
+					&& CareerDB1.UserTeam.GetPlayers().Count > 0
+					&& PlayerId > 0)
+                {
+
+					var userPlayers = CareerDB1.UserPlayers;
+					var player = userPlayers.FirstOrDefault(z => z.playerid == PlayerId);
+					return player != null ? player.Name : null;
+					//CareerDB2.Current.players.Where(x=>x.ItemArray["firstname"])
+
+				}
+            //}
+
+			return pn;
+        }
+    }
+
+
+    public double GoalsPerGame 
 	{ 
 		get
         {
@@ -190,12 +263,16 @@ public class FIFAPlayerStat
 					return "Carabao Cup";
 				case 108:
 					return "Champions League";
+				case 140:
+					return "FA Cup";
 				case 145:
 					return "Community Shield";
 				case 148:
 					return "FA Cup";
 				case 192:
 					return "Europa League";
+				case 194:
+					return "EFL Trophy";
 				default:
 					return "N/A";
             }
@@ -285,6 +362,11 @@ public class FIFAPlayerStat
 			}
 	}
 
+	/// <summary>
+	/// Works pretty quick but can be unreliable
+	/// </summary>
+	/// <param name="TeamId"></param>
+	/// <returns></returns>
 	public static IEnumerable<FIFAPlayerStat> GetTeamPlayerStats(int TeamId)
     {
 		List<long> addresses;
@@ -292,12 +374,15 @@ public class FIFAPlayerStat
 		var tidX8 = TeamId.ToString("X8");
 		tidX8 = tidX8.Substring(6, 2) + " " + tidX8.Substring(4, 2) + " " + tidX8.Substring(2, 2) + " " + tidX8.Substring(0, 2);
 
-		var aob = "{teamid} ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? FF";
+		// missing league games
+		//var aob = "{teamid} ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? 00 ? ? ? 00 ? ? FF ?";
+		var aob = "{teamid} ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? 00 ? ? ? ? ? ? FF";
 		aob = aob.Replace("{teamid}", tidX8);
 
-		addresses = CoreHack.AOBScanList(aob, "PLAYER_STAT");
+		addresses = CoreHack.AOBScanList(aob, "TEAM_PLAYER_STATS_" + TeamId.ToString());
 		if (addresses.Count > 9)
 		{
+			Debug.WriteLine("Scanned " + aob + " and found " + addresses.Count + " addresses");
             addresses = addresses.Skip(9).ToList();
             //addresses = addresses.ToList();
 
@@ -307,7 +392,72 @@ public class FIFAPlayerStat
             }
         }
 
-		yield return null;
+		//yield return null;
+	}
+
+
+	/// <summary>
+	/// This is incredibly slow!!!
+	/// </summary>
+	/// <param name="TeamId"></param>
+	/// <returns></returns>
+	public static IEnumerable<FIFAPlayerStat> GetTeamPlayerStatsByCareerSave(int TeamId)
+	{
+		var Team = FIFATeam.GetFIFATeams().FirstOrDefault(z => z.teamid == TeamId);
+		var ListOfStats = new List<FIFAPlayerStat>(1000);
+		foreach(var p in Team.GetPlayers())
+        {
+			foreach(var ps in GetPlayerStats(p.playerid, TeamId))
+            {
+				yield return ps;
+            }
+
+		}
+	}
+
+	public static FIFAPlayerStat ConvertBytesToStats(byte[] bytes)
+	{
+		using (NativeReader nr = new NativeReader(new MemoryStream(bytes)))
+		{
+			FIFAPlayerStat playerStat = new FIFAPlayerStat();
+			{
+				playerStat.TeamId = nr.ReadInt();
+				playerStat.PlayerId = nr.ReadInt();
+				playerStat.Competition = nr.ReadByte();
+				playerStat.ID = nr.ReadByte();
+				playerStat.MinutesPlayed = nr.ReadShort();
+				playerStat.Rating = nr.ReadShort();
+				playerStat.Goals = nr.ReadByte();
+				nr.ReadByte();
+				nr.ReadByte();
+				nr.ReadByte();
+				playerStat.Appereances = nr.ReadByte();
+				playerStat.Assists = nr.ReadByte();
+				nr.ReadByte();
+				nr.ReadByte();
+				nr.ReadByte();
+				playerStat.CleanSheets = nr.ReadByte();
+				nr.ReadInt(); // some kind of date
+			};
+
+			if (playerStat.PlayerId > 0)
+			{
+
+				var savedplayerstats = FIFAPlayerStat.Load();
+				var indexofstat = savedplayerstats.FindIndex(x => x.PlayerId == playerStat.PlayerId && x.SeasonYear == playerStat.SeasonYear && x.CompName == playerStat.CompName);
+
+				if (indexofstat == -1)
+					savedplayerstats.Add(playerStat);
+				else
+					savedplayerstats[indexofstat] = playerStat;
+
+				Save(savedplayerstats);
+
+				return playerStat;
+			}
+
+			return playerStat;
+		}
 	}
 
 	public static FIFAPlayerStat ConvertAddressToStats(long addr)
@@ -330,19 +480,23 @@ public class FIFAPlayerStat
 				CleanSheets = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x17).ToString("X8"))),
 			};
 
-			var savedplayerstats = FIFAPlayerStat.Load();
-			var indexofstat = savedplayerstats.FindIndex(x => x.PlayerId == playerStat.PlayerId && x.SeasonYear == playerStat.SeasonYear && x.CompName == playerStat.CompName);
+			if (playerStat.PlayerId > 0)
+			{
 
-			//playerStat.SeasonYear = new CoreHack().GameDate.Value;
+				var savedplayerstats = FIFAPlayerStat.Load();
+				var indexofstat = savedplayerstats.FindIndex(x => x.PlayerId == playerStat.PlayerId && x.SeasonYear == playerStat.SeasonYear && x.CompName == playerStat.CompName);
 
-			if (indexofstat == -1)
-				savedplayerstats.Add(playerStat);
-			else
-				savedplayerstats[indexofstat] = playerStat;
+				//playerStat.SeasonYear = new CoreHack().GameDate.Value;
 
-			Save(savedplayerstats);
+				if (indexofstat == -1)
+					savedplayerstats.Add(playerStat);
+				else
+					savedplayerstats[indexofstat] = playerStat;
 
-			return playerStat;
+				Save(savedplayerstats);
+
+				return playerStat;
+			}
 		}
 		return null;
 	}
@@ -364,28 +518,7 @@ public class FIFAPlayerStat
 					  ).ToList();
 		return results;
 	}
-	private double ar;
-	public double AverageRating
-    {
-        get
-        {
-			if(Rating > 100)
-            {
-				ar = Math.Round(((double)Rating / Appereances)/10, 2);
-            }
-
-            else if (Rating > 0)
-            {
-                ar = Math.Round((double)Rating / 10, 2);
-            }
-            return ar;
-		}
-        set
-        {
-			ar = value;
-        }
-    }
-
+	
 
 
 	public static string CEMPlayerStatsDirectory

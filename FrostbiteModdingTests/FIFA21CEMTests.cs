@@ -1,9 +1,13 @@
 ﻿using CareerExpansionMod.CEM;
+using CareerExpansionMod.CEM.FIFA;
+using FrostbiteModdingUI.CEM;
 using FrostySdk.Interfaces;
+using FrostySdk.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,24 +34,36 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
-        public void TestInitialise()
+        public void TestLoadStatsFromLatestCareerSave()
         {
-
-            bool success = CEMCore.InitialStartupOfCEM().Result;
-
-            var saveName = CEMCore.CEMCoreInstance.CoreHack.GetSaveName();
-
-            var pid1 = 258406;
-            var tid1 = 1960;
-
-            var bytesOfPlayerId = BitConverter.GetBytes(258406);
-            var bytesOfTeamIdd = BitConverter.GetBytes(112254);
-            Debug.WriteLine(pid1.ToString("X8"));
-            Debug.WriteLine(tid1.ToString("X8"));
-
-            //List<FIFAPlayerStat> playerStats = FIFAPlayerStat.GetPlayerStats(258406, 112254).ToList();//.Where(x => x.Appereances > 0).ToList();
-            //List<FIFAPlayerStat> playerStats2 = FIFAPlayerStat.GetPlayerStats(258460, 112254).ToList();//.Where(x => x.Appereances > 0).ToList();
-            List<FIFAPlayerStat> playerStats = FIFAPlayerStat.GetTeamPlayerStats(112254).ToList();
+            var cem = new CEMCore2("FIFA21");
+            var playerStats = cem.GetPlayerStats();
         }
+
+        public byte[] HexStringToByte(string param1, string param2)
+        {
+            return new byte[] { 
+                Convert.ToByte("0x" + param1.Substring(6, 2))
+                , Convert.ToByte("0x" + param1.Substring(4, 2))
+                , Convert.ToByte("0x" + param1.Substring(2, 2))
+                , Convert.ToByte("0x" + param1.Substring(0, 2))
+                , Convert.ToByte("0x" + param2.Substring(6, 2))
+                , Convert.ToByte("0x" + param2.Substring(4, 2))
+                , Convert.ToByte("0x" + param2.Substring(2, 2))
+                , Convert.ToByte("0x" + param2.Substring(0, 2))
+            };
+        }
+
+        public string FlipHexString(string innerHex)
+        {
+            return innerHex.Substring(6, 2) + innerHex.Substring(4, 2) + innerHex.Substring(2, 2) + innerHex.Substring(0, 2);
+        }
+
+        public string HexStringLittleEndian(int number)
+        {
+            return FlipHexString(number.ToString("X8"));
+        }
+
+
     }
 }

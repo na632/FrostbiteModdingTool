@@ -8,6 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.Identity.Client;
 
 namespace FIFAModdingUI
@@ -28,6 +31,19 @@ namespace FIFAModdingUI
 
         public static Window MainEditorWindow;
 
+        public static DiscordRPC.DiscordRpcClient DiscordRpcClient;
+
+        public static TelemetryClient AppInsightClient = new TelemetryClient();
+
+        public static string ApplicationDirectory
+        {
+            get
+            {
+                return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            }
+        }
+
+
         protected override void OnStartup(StartupEventArgs e)
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;
@@ -40,9 +56,62 @@ namespace FIFAModdingUI
             // .Build();
 
 
+            // --------------------------------------------------------------
+            // Run the Powershell DLL
             UnblockAllDLL();
 
+            // --------------------------------------------------------------
+            // Discord Startup
+            StartDiscordRPC();
+
+            // --------------------------------------------------------------
+            // Application Insights
+            StartApplicationInsights();
+
+
             base.OnStartup(e);
+        }
+
+        private async void StartDiscordRPC()
+        {
+            DiscordRpcClient = new DiscordRPC.DiscordRpcClient("836520037208686652");
+            DiscordRpcClient.Initialize();
+            var presence = new DiscordRPC.RichPresence();
+            presence.State = "In Main Menu";
+            DiscordRpcClient.SetPresence(presence);
+            DiscordRpcClient.Invoke();
+
+            await Task.Delay(1000);
+        }
+
+        private async void StartApplicationInsights()
+        {
+            // Create a TelemetryConfiguration instance.
+            TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
+            config.InstrumentationKey = "92c621ff-61c0-43a2-a2d6-e539b359f053";
+            QuickPulseTelemetryProcessor quickPulseProcessor = null;
+            config.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+                .Use((next) =>
+                {
+                    quickPulseProcessor = new QuickPulseTelemetryProcessor(next);
+                    return quickPulseProcessor;
+                })
+                .Build();
+
+            var quickPulseModule = new QuickPulseTelemetryModule();
+
+            // Secure the control channel.
+            // This is optional, but recommended.
+            //quickPulseModule.AuthenticationApiKey = "YOUR-API-KEY-HERE";
+            quickPulseModule.Initialize(config);
+            quickPulseModule.RegisterTelemetryProcessor(quickPulseProcessor);
+
+            // Create a TelemetryClient instance. It is important
+            // to use the same TelemetryConfiguration here as the one
+            // used to setup Live Metrics.
+            AppInsightClient = new TelemetryClient(config);
+
+            await Task.Delay(1000);
         }
 
         private async void UnblockAllDLL()
@@ -61,14 +130,15 @@ namespace FIFAModdingUI
             startInfo.Verb = "runAs";
             Process.Start(startInfo);
 
-            await Task.Delay(10000);
+            await Task.Delay(9000);
 
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            foreach(var file in Directory.GetParent(Assembly.GetExecutingAssembly().Location).GetFiles())
+
+            foreach (var file in new DirectoryInfo(ApplicationDirectory).GetFiles())
             {
                 if(file.Name.Contains("temp_") && file.Name.Contains(".DDS"))
                 {
@@ -79,6 +149,14 @@ namespace FIFAModdingUI
                     catch
                     {
 
+                    }
+                }
+
+                if(file.Name.Contains("autosave", StringComparison.OrdinalIgnoreCase))
+                {
+                    if(file.CreationTime < DateTime.Now.AddDays(-2))
+                    {
+                        file.Delete();
                     }
                 }
             }

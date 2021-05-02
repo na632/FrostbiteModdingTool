@@ -87,6 +87,7 @@
                 <CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu's Live Editor (if present)</CheckBox>
                 <CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>
                 <CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>
+                <CheckBox x:Name="chkUseCEM" IsEnabled="False" IsChecked="False">Use CEM (Career Stats Saver)</CheckBox>
                 <CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>
 
                 <Separator></Separator>
@@ -100,6 +101,12 @@
                     <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
                         <Label Content="Legacy Inject Other Tool" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnOpenCEMWindow" Height="30" Click="btnOpenCEMWindow_Click" Visibility="Collapsed" Background="Transparent" >
+                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                        <Label Content="Open CEM Window" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 

@@ -10,6 +10,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using v2k4FIFAModding.Frosty;
+using v2k4FIFAModdingCL;
 
 namespace FrostbiteModdingTests
 {
@@ -68,7 +69,7 @@ namespace FrostbiteModdingTests
             
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testfbmodname
                 }.ToArray()).Wait();
@@ -89,7 +90,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testfbmodname, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testfbmodname
                 }.ToArray()).Wait();
@@ -110,7 +111,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testfbmodname, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testfbmodname
                 }.ToArray()).Wait();

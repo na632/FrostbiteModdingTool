@@ -5,11 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
-        Title="Find your Game EXE" WindowStartupLocation="CenterScreen" Height="200" Width="300">
+        Title="Find your Game EXE" WindowStartupLocation="CenterScreen" Height="400" Width="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Button x:Name="btnFindGameEXE" Click="btnFindGameEXE_Click">Find your Game EXE</Button>
+        <ListView x:Name="lv">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Button Click="Button_Click" Tag="{Binding}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Label Content="{Binding Name}"></Label>
+                            <Label Grid.Row="1" Content="{Binding FullName}"></Label>
+                        </Grid>
+                    </Button>
+
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button x:Name="btnFindGameEXE" Grid.Row="1" Click="btnFindGameEXE_Click">Find your Game EXE</Button>
     </Grid>
 </Window>

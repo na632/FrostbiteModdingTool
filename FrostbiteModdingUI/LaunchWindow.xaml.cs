@@ -53,6 +53,9 @@ namespace FIFAModdingUI
             WindowTitle = "FMT Launcher - " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
             DataContext = this;
 
+            App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle, DateTimeOffset.Now,
+                   TimeSpan.FromMilliseconds(0), "200", true);
+
             try
             {
                 //if (!File.Exists(AppSettings.Settings.FIFAInstallEXEPath))
@@ -317,6 +320,7 @@ namespace FIFAModdingUI
 
         private async void btnLaunch_Click(object sender, RoutedEventArgs e)
         {
+            var launchStartTime = DateTimeOffset.Now;
             if (!string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION) && !string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
             {
                 // -------------------------------------
@@ -361,33 +365,33 @@ namespace FIFAModdingUI
                 });
                 await Task.Delay(1000);
 
-                    try
-                    {
-                        if (AssetManager.Instance == null)
-                        {
-                            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
-                                throw new Exception("Game path has not been selected or initialized");
+                    //try
+                    //{
+                    //    if (AssetManager.Instance == null)
+                    //    {
+                    //        if (string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
+                    //            throw new Exception("Game path has not been selected or initialized");
 
-                            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION))
-                                throw new Exception("Game EXE has not been selected or initialized");
+                    //        if (string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION))
+                    //            throw new Exception("Game EXE has not been selected or initialized");
 
-                            Log("Asset Manager is not initialised - Starting");
-                            ProjectManagement projectManagement = new ProjectManagement(
-                                GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe"
-                                , this);
+                    //        Log("Asset Manager is not initialised - Starting");
+                    //        ProjectManagement projectManagement = new ProjectManagement(
+                    //            GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe"
+                    //            , this);
 
-                            if(AssetManager.Instance == null)
-                            {
-                                throw new Exception("Asset Manager has not been loaded against " + GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
-                            }
-                            Log("Asset Manager loading complete");
-                        }
-                    }
-                    catch(Exception AssetManagerException)
-                    {
-                        LogError(AssetManagerException.ToString());
-                        return;
-                    }
+                    //        if(AssetManager.Instance == null)
+                    //        {
+                    //            throw new Exception("Asset Manager has not been loaded against " + GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
+                    //        }
+                    //        Log("Asset Manager loading complete");
+                    //    }
+                    //}
+                    //catch(Exception AssetManagerException)
+                    //{
+                    //    LogError(AssetManagerException.ToString());
+                    //    return;
+                    //}
                     //Dispatcher.Invoke(() =>
                     //{
 
@@ -396,13 +400,29 @@ namespace FIFAModdingUI
                     var launchSuccess = false;
                     try
                     {
-                        var launchTask = LaunchFIFA.LaunchAsync(GameInstanceSingleton.GAMERootPath, "", new Mods.ModList(Profile).ModListItems.Select(x=>x.Path).ToList(), this, GameInstanceSingleton.GAMEVERSION, true, useSymbolicLink);
+                        var launchTask = LaunchFIFA.LaunchAsync(
+                            GameInstanceSingleton.GAMERootPath
+                            , ""
+                            , new Mods.ModList(Profile).ModListItems.Select(x=>x.Path).ToList()
+                            , this
+                            , GameInstanceSingleton.GAMEVERSION
+                            , true
+                            , useSymbolicLink);
                         launchSuccess = await launchTask;
+
+                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle, launchStartTime,
+                            TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
                     }
                     catch(Exception launchException)
                     {
                         Log("[ERROR] Error caught in Launch Task. You must fix the error before using this Launcher.");
                         LogError(launchException.ToString());
+
+                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle, launchStartTime,
+                           TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", false);
+
+                        App.AppInsightClient.TrackException(launchException);
+
                     }
                     if (launchSuccess)
                     {
@@ -455,6 +475,9 @@ namespace FIFAModdingUI
                                 {
                                     LogError("Launcher could not inject Live Legacy File Support");
                                     LogError(InjectDLLException.ToString());
+
+                                    App.AppInsightClient.TrackException(InjectDLLException);
+
                                 }
                             }
                         }
@@ -465,11 +488,23 @@ namespace FIFAModdingUI
                                 await GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                         }
 
-                        AssetManager.Instance.Reset();
-                        // Do Cleanup of Resources - Saving Memory
+                        Dispatcher.Invoke(() => {
+                            var presence = new DiscordRPC.RichPresence();
+                            presence.Details = "Playing " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods";
+                            presence.State = "Playing Solo";
+                            App.DiscordRpcClient.SetPresence(presence);
+                            App.DiscordRpcClient.Invoke();
+                        });
+
+                        if (AssetManager.Instance != null)
+                        {
+                            AssetManager.Instance.Reset();
+                            // Do Cleanup of Resources - Saving Memory
+                            AssetManager.Instance.Dispose();
+                            AssetManager.Instance = null;
+                        }
                         ProjectManagement.Instance = null;
-                        AssetManager.Instance.Dispose();
-                        AssetManager.Instance = null;
+
                         GC.Collect();
                         GC.WaitForPendingFinalizers();
 
@@ -477,19 +512,30 @@ namespace FIFAModdingUI
                     //});
                     await Task.Delay(1000);
 
-                    //if(ProfilesLibrary.IsFIFA21DataVersion())
-                    //    await CEMCore.InitialStartupOfCEM();
 
-                    //
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (chkUseCEM.IsChecked.HasValue && chkUseCEM.IsChecked.Value && ProfilesLibrary.IsFIFA21DataVersion())
+                        {
+                            CEMWindow = new CEMWindow();
+                            CEMWindow.Show();
+                        }
+                    });
+
+
                     Dispatcher.Invoke(() =>
                     {
                         btnLaunch.IsEnabled = true;
                         btnLaunchOtherTool.IsEnabled = true;
                     });
 
+
+
                 });
             }
         }
+
+        private CEMWindow CEMWindow;
 
         private void btnRemove_Click(object sender, RoutedEventArgs e)
         {
@@ -593,12 +639,21 @@ namespace FIFAModdingUI
                     throw new Exception("Unsupported Game EXE Selected");
                 }
 
-                if(ProfilesLibrary.IsFIFA21DataVersion())
+                var presence = new DiscordRPC.RichPresence();
+                presence.State = "In Launcher - " + GameInstanceSingleton.GAMEVERSION;
+                App.DiscordRpcClient.SetPresence(presence);
+                App.DiscordRpcClient.Invoke();
+
+                if (ProfilesLibrary.IsFIFA21DataVersion())
                 {
                     //txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
                     chkUseSymbolicLink.Visibility = Visibility.Collapsed;
                     chkUseSymbolicLink.IsChecked = false;
                     btnLaunchOtherTool.Visibility = Visibility.Visible;
+
+                    btnOpenCEMWindow.Visibility = Visibility.Visible;
+
+                    chkUseCEM.IsEnabled = true;
                 }
 
                 if (ProfilesLibrary.IsMadden21DataVersion())
@@ -741,6 +796,17 @@ namespace FIFAModdingUI
             findOtherLauncherEXEWindow.ShowDialog();
             btnLaunchOtherTool.IsEnabled = true;
 
+        }
+
+        private void btnOpenCEMWindow_Click(object sender, RoutedEventArgs e)
+        {
+            if(CEMWindow != null)
+            {
+                CEMWindow.Close();
+                CEMWindow = null;
+            }
+            CEMWindow = new CEMWindow();
+            CEMWindow.ShowDialog();
         }
     }
 

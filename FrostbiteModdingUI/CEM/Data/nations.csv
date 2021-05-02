@@ -1,0 +1,220 @@
+﻿isocountrycode,nationname,confederation,top_tier,nationstartingfirstletter,groupid,nationid
+AL,Albania,2,0,1,13,1
+AD,Andorra,2,0,1,28,2
+AM,Armenia,2,0,1,14,3
+AT,Austria,2,0,1,15,4
+AZ,Azerbaijan,2,0,1,16,5
+BY,Belarus,2,0,1,4,6
+BE,Belgium,2,0,1,18,7
+BA,Bosnia and Herzegovina,2,0,1,19,8
+BG,Bulgaria,2,0,1,21,9
+HR,Croatia,2,0,1,0,10
+CY,Cyprus,2,0,1,2,11
+CZ,Czech Republic,2,0,1,32,12
+DK,Denmark,2,0,1,33,13
+GB,England,2,1,1,38,14
+ME,Montenegro,2,0,1,0,15
+FO,Faroe Islands,2,0,1,49,16
+FI,Finland,2,0,1,1,17
+FR,France,2,1,1,41,18
+MK,North Macedonia,2,0,1,21,19
+GE,Georgia,2,0,1,46,20
+DE,Germany,2,1,1,48,21
+GR,Greece,2,0,1,2,22
+HU,Hungary,2,0,1,52,23
+IS,Iceland,2,0,1,53,24
+IE,Republic of Ireland,2,0,1,102,25
+IL,Israel,2,0,1,57,26
+IT,Italy,2,1,1,58,27
+LV,Latvia,2,0,1,35,28
+LI,Liechtenstein,2,0,1,47,29
+LT,Lithuania,2,0,1,98,30
+LU,Luxembourg,2,0,1,63,31
+MT,Malta,2,0,1,68,32
+MD,Moldova,2,0,1,3,33
+NL,Holland,2,1,1,34,34
+GB,Northern Ireland,2,0,1,56,35
+NO,Norway,2,0,1,75,36
+PL,Poland,2,0,1,78,37
+PT,Portugal,2,1,1,6,38
+RO,Romania,2,0,1,3,39
+RU,Russia,2,0,1,4,40
+SM,San Marino,2,0,1,58,41
+GB,Scotland,2,0,1,80,42
+SK,Slovakia,2,0,1,32,43
+SI,Slovenia,2,0,1,82,44
+ES,Spain,2,1,1,5,45
+SE,Sweden,2,0,1,87,46
+CH,Switzerland,2,0,1,88,47
+TR,Turkey,2,0,1,91,48
+UA,Ukraine,2,0,1,93,49
+GB,Wales,2,0,1,95,50
+RS,Serbia,2,0,1,0,51
+AR,Argentina,4,1,1,96,52
+BO,Bolivia,4,0,1,96,53
+BR,Brazil,4,1,1,20,54
+CL,Chile,4,0,1,96,55
+CO,Colombia,4,0,1,96,56
+EC,Ecuador,4,0,1,96,57
+PY,Paraguay,4,0,1,96,58
+PE,Peru,4,0,1,96,59
+UY,Uruguay,4,0,1,96,60
+VE,Venezuela,4,0,1,96,61
+AI,Anguilla,7,0,1,25,62
+AG,Antigua and Barbuda,7,0,1,25,63
+AW,Aruba,7,0,1,26,64
+BS,Bahamas,7,0,1,25,65
+BB,Barbados,7,0,1,25,66
+BZ,Belize,7,0,1,97,67
+BM,Bermuda,7,0,1,25,68
+VG,British Virgin Islands,7,0,1,25,69
+CA,Canada,7,0,1,74,70
+KY,Cayman Islands,7,0,1,25,71
+CR,Costa Rica,7,0,1,96,72
+CU,Cuba,7,0,1,96,73
+DM,Dominica,7,0,1,25,74
+,International,1,0,1,38,75
+SV,El Salvador,7,0,1,96,76
+GD,Grenada,7,0,1,25,77
+GT,Guatemala,7,0,1,96,78
+GY,Guyana,7,0,1,25,79
+HT,Haiti,7,0,1,27,80
+HN,Honduras,7,0,1,96,81
+JM,Jamaica,7,0,1,25,82
+MX,Mexico,7,0,1,96,83
+MS,Montserrat,7,0,1,25,84
+AN,Curaçao,7,0,1,24,85
+NI,Nicaragua,7,0,1,96,86
+PA,Panama,7,0,1,96,87
+PR,Puerto Rico,7,0,1,96,88
+KN,St. Kitts and Nevis,7,0,1,25,89
+LC,St. Lucia,7,0,1,25,90
+VC,St. Vincent and the Grenadines,7,0,1,25,91
+SR,Suriname,7,0,1,34,92
+TT,Trinidad and Tobago,7,0,1,25,93
+TC,Turks and Caicos Islands,7,0,1,25,94
+US,United States,7,0,1,74,95
+VI,US Virgin Islands,7,0,1,25,96
+DZ,Algeria,3,0,1,65,97
+AO,Angola,3,0,1,12,98
+BJ,Benin,3,0,1,42,99
+BW,Botswana,3,0,1,11,100
+BF,Burkina Faso,3,0,1,42,101
+BI,Burundi,3,0,1,29,102
+CM,Cameroon,3,0,1,42,103
+CV,Cape Verde Islands,3,0,1,12,104
+CF,Central African Republic,3,0,1,30,105
+TD,Chad,3,0,1,43,106
+CG,Congo,3,0,1,29,107
+CI,Côte d'Ivoire,3,0,1,31,108
+DJ,Djibouti,3,0,1,51,109
+CD,Congo DR,3,0,1,42,110
+EG,Egypt,3,0,1,37,111
+GQ,Equatorial Guinea,3,0,1,5,112
+ER,Eritrea,3,0,1,51,113
+ET,Ethiopia,3,0,1,40,114
+GA,Gabon,3,0,1,42,115
+GM,Gambia,3,0,1,45,116
+GH,Ghana,3,0,1,7,117
+GN,Guinea,3,0,1,42,118
+GW,Guinea-Bissau,3,0,1,12,119
+KE,Kenya,3,0,1,36,120
+LS,Lesotho,3,0,1,85,121
+LR,Liberia,3,0,1,7,122
+LY,Libya,3,0,1,65,123
+MG,Madagascar,3,0,1,64,124
+MW,Malawi,3,0,1,99,125
+ML,Mali,3,0,1,43,126
+MR,Mauritania,3,0,1,43,127
+MU,Mauritius,3,0,1,42,128
+MA,Morocco,3,0,1,65,129
+MZ,Mozambique,3,0,1,12,130
+NA,Namibia,3,0,1,71,131
+NE,Niger,3,0,1,43,132
+NG,Nigeria,3,0,1,73,133
+RW,Rwanda,3,0,1,29,134
+ST,São Tomé e Príncipe,3,0,1,12,135
+SN,Senegal,3,0,1,42,136
+SC,Seychelles,3,0,1,7,137
+SL,Sierra Leone,3,0,1,7,138
+SO,Somalia,3,0,1,51,139
+ZA,South Africa,3,0,1,84,140
+SD,Sudan,3,0,1,37,141
+SZ,Eswatini,3,0,1,83,142
+TZ,Tanzania,3,0,1,36,143
+TG,Togo,3,0,1,42,144
+TN,Tunisia,3,0,1,65,145
+UG,Uganda,3,0,1,36,146
+ZM,Zambia,3,0,1,100,147
+ZW,Zimbabwe,3,0,1,101,148
+AF,Afghanistan,5,0,1,76,149
+BH,Bahrain,5,0,1,8,150
+BD,Bangladesh,5,0,1,17,151
+BT,Bhutan,5,0,1,72,152
+BN,Brunei Darussalam,5,0,1,66,153
+KH,Cambodia,5,0,1,23,154
+CN,China PR,5,0,1,9,155
+GU,Guam,5,0,1,25,157
+HK,Hong Kong,5,0,1,9,158
+IN,India,5,0,1,54,159
+ID,Indonesia,5,0,1,55,160
+IR,Iran,5,0,1,8,161
+IQ,Iraq,5,0,1,8,162
+JP,Japan,5,0,1,10,163
+JO,Jordan,5,0,1,8,164
+KZ,Kazakhstan,2,0,1,59,165
+KP,Korea DPR,5,0,1,60,166
+KR,Korea Republic,5,0,1,60,167
+KW,Kuwait,5,0,1,8,168
+KG,Kyrgyzstan,5,0,1,61,169
+LA,Laos,5,0,1,62,170
+LB,Lebanon,5,0,1,8,171
+MO,Macau,5,0,1,9,172
+MY,Malaysia,5,0,1,66,173
+MV,Maldives,5,0,1,67,174
+MN,Mongolia,5,0,1,70,175
+MM,Myanmar,5,0,1,22,176
+NP,Nepal,5,0,1,72,177
+OM,Oman,5,0,1,8,178
+PK,Pakistan,5,0,1,76,179
+PS,Palestine,5,0,1,8,180
+PH,Philippines,5,0,1,77,181
+QA,Qatar,5,0,1,8,182
+SA,Saudi Arabia,5,0,1,8,183
+SG,Singapore,5,0,1,81,184
+LK,Sri Lanka,5,0,1,86,185
+SY,Syria,5,0,1,8,186
+TJ,Tajikistan,5,0,1,89,187
+TH,Thailand,5,0,1,90,188
+TM,Turkmenistan,5,0,1,92,189
+AE,United Arab Emirates,5,0,1,8,190
+UZ,Uzbekistan,5,0,1,4,191
+VN,Vietnam,5,0,1,94,192
+YE,Yemen,5,0,1,8,193
+AS,American Samoa,6,0,1,79,194
+AU,Australia,5,0,1,38,195
+CK,Cook Islands,6,0,1,79,196
+FJ,Fiji,6,0,1,69,197
+NZ,New Zealand,6,0,1,38,198
+PG,Papua New Guinea,6,0,1,69,199
+WS,Samoa,6,0,1,79,200
+SB,Solomon Islands,6,0,1,69,201
+PF,Tahiti,6,0,1,44,202
+TO,Tonga,6,0,1,79,203
+VU,Vanuatu,6,0,1,69,204
+GI,Gibraltar,1,0,1,38,205
+GL,Greenland,1,0,1,33,206
+DO,Dominican Republic,7,0,1,96,207
+EE,Estonia,2,0,1,39,208
+,Created Players Country,1,0,1,38,209
+,Free Agents Country,1,0,1,38,210
+,Rest of World,1,0,1,38,211
+TL,Timor-Leste,5,0,1,6,212
+TW,Chinese Taipei,5,0,1,9,213
+KM,Comoros,3,0,1,43,214
+NC,New Caledonia,6,0,1,44,215
+,Creation Zone,1,0,1,38,216
+SS,South Sudan,3,0,1,37,218
+,Kosovo,1,0,1,13,219
+,International Women,1,0,1,38,222
+,Potato Cup,4,0,1,38,225

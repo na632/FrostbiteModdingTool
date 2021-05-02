@@ -48,14 +48,16 @@ namespace v2k4FIFAModdingCL.MemHack.Core
             return false;
         }
 
-        // you need to add 32 to this address
-        public static string GAME_DATE_AOB = "?? ?? ?? ?? 00 00 00 00 D0 41 ?? 77 00 00 00 00 01 00 00 00 ?? ?? ?? ?? 58 04 E7 45 01 00 00 00";
-
+        // you need to add 24 to this address
+        //public static string GAME_DATE_AOB =  "60 8C 88 65 00 00 00 00 01 00 00 00 ?? 00 00 ?? C0 47 18 47 01 00 00 00 ?? ?? ?? 01 00 00 00 00";
+        public static string GAME_DATE_AOB =    "60 8C 88 65 00 00 00 00 01 00 00 00 ?? ?? ?? ?? C0 47 18 47 01 00 00 00 ?? ?? ?? 01 00 00 00 00";
+                                            //  "60 8C 89 65 00 00 00 00 01 00 00 00 36 6D D3 36 C0 47 18 47 01 00 00 00 CE 3D 34 01 00 00 00 00"
         // you need to add 40 to this address
         public static string SEASON_START_DATE_AOB = "?? ?? ?? ?? 00 00 00 00 D0 41 ?? 77 00 00 00 00 01 00 00 00 ?? ?? ?? ?? 58 04 E7 45 01 00 00 00";
 
 
         private static string _GAME_DATE_ADDR_20 = "FIFA20.exe+072F6D08,0x8,0x3C0";
+        private static string _GAME_DATE_ADDR_21 = null;
         public static string GAME_DATE_ADDR
         {
             get
@@ -72,6 +74,19 @@ namespace v2k4FIFAModdingCL.MemHack.Core
                         _GAME_DATE_ADDR_20 = CoreHack.ResolveOffset(aobAddy.Value, 32).ToString("X8");
 
                         return _GAME_DATE_ADDR_20;
+                    }
+                }
+                if (FIFAProcessName.Contains("FIFA21", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!string.IsNullOrEmpty(_GAME_DATE_ADDR_21))
+                        return _GAME_DATE_ADDR_21;
+
+                    var aobAddy = CoreHack.AOBScan(GAME_DATE_AOB, "GAME_DATE");
+                    if (aobAddy.HasValue && aobAddy != 0)
+                    {
+                        _GAME_DATE_ADDR_21 = CoreHack.ResolveOffset(aobAddy.Value, 24).ToString("X8");
+
+                        return _GAME_DATE_ADDR_21;
                     }
                 }
                 return null;
@@ -234,35 +249,39 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
         public static bool SaveNameChanged;
         public event EventHandler GameSaveNameChanged;
+
+        private object SaveNameLocker = new object();
         public string GetSaveName()
         {
             if (GetProcess().HasValue)
             {
-                CEMCore.CEMCoreInstance.Logger.Log("Getting Save Name...");
-                var addr = AOBScan(GAME_SAVE_NAME_AOB_F21, "GAME_SAVE_NAME");
-                addr -= 64;
-                if (addr.HasValue)
+                lock (SaveNameLocker)
                 {
-                    var addrX8 = addr.Value.ToString("X8");
-                    _saveName = MemLib.readString(addrX8);
-
-                    SaveNameChanged = false;
-
-                    //if (!string.IsNullOrEmpty(LastSaveName) && LastSaveName != _saveName)
-                    if (!string.IsNullOrEmpty(_saveName) && LastSaveName != _saveName)
+                    var addr = AOBScan(GAME_SAVE_NAME_AOB_F21, "GAME_SAVE_NAME");
+                    addr -= 64;
+                    if (addr.HasValue)
                     {
-                        CEMCore.CEMCoreInstance.Logger.Log("Save Name found - " + _saveName);
+                        var addrX8 = addr.Value.ToString("X8");
+                        _saveName = MemLib.readString(addrX8);
 
-                        // Reinitialise Core
-                        //var cemcore = new CEMCore(this);
-                        SaveNameChanged = true;
-                        GameSaveNameChanged?.Invoke(this, null);
+                        SaveNameChanged = false;
+
+                        //if (!string.IsNullOrEmpty(LastSaveName) && LastSaveName != _saveName)
+                        if (!string.IsNullOrEmpty(_saveName) && LastSaveName != _saveName)
+                        {
+                            CEMCore.CEMCoreInstance.Logger.Log("Save Name found - " + _saveName);
+
+                            // Reinitialise Core
+                            //var cemcore = new CEMCore(this);
+                            SaveNameChanged = true;
+                            GameSaveNameChanged?.Invoke(this, null);
+                        }
+
+                        if (_saveName.ToLower().Contains("autosave"))
+                            _saveName = LastSaveName;
+
+                        LastSaveName = _saveName;
                     }
-
-                    if (_saveName.ToLower().Contains("autosave"))
-                        _saveName = LastSaveName;
-
-                    LastSaveName = _saveName;
                 }
 
             }
@@ -415,16 +434,21 @@ namespace v2k4FIFAModdingCL.MemHack.Core
 
                 
                 long baseAddress = MemLib.theProc.MainModule.BaseAddress.ToInt64();
-                //long baseSize = MemLib.theProc.Modules[0].ModuleMemorySize;
+                long baseSize = MemLib.theProc.MainModule.ModuleMemorySize;
 
-                //long lastAddress = MemLib.theProc.Modules[MemLib.theProc.Modules.Count - 1].BaseAddress.ToInt64();
-                //long lastSize = MemLib.theProc.Modules[MemLib.theProc.Modules.Count - 1].ModuleMemorySize;
-                
-                var longAddr = MemLib.AoBScan(0, baseAddress, aob, true, true).Result.FirstOrDefault();
-                AOBtoAddress.Add(aob, longAddr);
-                SCANNING_FOR = null;
-                SCANNING_FOR_LIST.Remove(FRIENDLY_SCAN_NAME);
-                return longAddr;
+                long lastAddress = MemLib.theProc.Modules[MemLib.theProc.Modules.Count - 1].BaseAddress.ToInt64();
+                long lastSize = MemLib.theProc.Modules[MemLib.theProc.Modules.Count - 1].ModuleMemorySize;
+
+                var longAddr = MemLib.AoBScan(0, lastAddress + lastSize, aob, true, true).Result.FirstOrDefault();
+                if (longAddr != 0)
+                {
+                    AOBtoAddress.Add(aob, longAddr);
+                    SCANNING_FOR = null;
+                    SCANNING_FOR_LIST.Remove(FRIENDLY_SCAN_NAME);
+                }
+
+                if (longAddr != 0)
+                    return longAddr;
             }
             return null;
         }

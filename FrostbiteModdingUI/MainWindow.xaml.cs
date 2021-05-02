@@ -2,6 +2,8 @@
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.Managers;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -34,12 +36,15 @@ namespace FIFAModdingUI
 
         public string WindowTitle { get; set; }
 
+
         public MainWindow()
         {
             InitializeComponent();
 
             var assembly = Assembly.GetExecutingAssembly();
             WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+
+            App.AppInsightClient.TrackPageView("MainWindow");
 
             // ------------------------------------------
             // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically

@@ -40,6 +40,7 @@ using System.Windows.Shapes;
 using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
+using Windows.Foundation.Metadata;
 
 namespace FIFAModdingUI.Windows
 {
@@ -50,6 +51,7 @@ namespace FIFAModdingUI.Windows
     {
         public Window OwnerWindow { get; set; }
 
+        [Deprecated("Incorrect usage of Editor Windows", DeprecationType.Remove, 0)]
         public FIFA21Editor()
         {
             throw new Exception("Incorrect usage of Editor Windows");
@@ -61,6 +63,9 @@ namespace FIFAModdingUI.Windows
             this.DataContext = this;
             Loaded += FIFA21Editor_Loaded;
             Owner = owner;
+
+            
+
         }
 
         public string LastFIFA21Location => "FIFA21LastLocation.json";
@@ -105,6 +110,10 @@ namespace FIFAModdingUI.Windows
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+            if (App.AppInsightClient != null)
+            {
+                App.AppInsightClient.Flush();
+            }
 
             ProjectManagement = null;
             ProjectManagement.Instance = null;
@@ -215,6 +224,11 @@ namespace FIFAModdingUI.Windows
                 });
 
             });
+
+            var presence = new DiscordRPC.RichPresence();
+            presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
+            App.DiscordRpcClient.SetPresence(presence);
+            App.DiscordRpcClient.Invoke();
         }
 
         private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
@@ -514,12 +528,14 @@ namespace FIFAModdingUI.Windows
         {
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = false; });
 
-            //if(File.Exists("test.fbmod"))
-            //    File.Delete("test.fbmod");
+            Log("Autosaving Project");
+            await Task.Run(() =>
+            {
+                ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString() + ".fbproject");
+            });
 
-            ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString());
-
-            foreach (var tFile in Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod")) { File.Delete(tFile); };
+            //Log("Deleting old test mods");
+            foreach (var tFile in Directory.GetFiles(App.ApplicationDirectory, "*.fbmod")) { File.Delete(tFile); };
 
             var testmodname = "test-" + RandomSaver.Next().ToString() + ".fbmod";
 
@@ -576,8 +592,9 @@ namespace FIFAModdingUI.Windows
             await Task.Run(() =>
             {
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-                frostyModExecutor.UseSymbolicLinks = true;
-                frostyModExecutor.Run(AssetManager.Instance.fs, this, "", "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
+                frostyModExecutor.UseSymbolicLinks = false;
+                frostyModExecutor.ForceRebuildOfMods = true;
+                frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
             });
 
             

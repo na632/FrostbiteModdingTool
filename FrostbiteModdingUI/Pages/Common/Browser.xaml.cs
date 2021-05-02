@@ -205,6 +205,8 @@ namespace FIFAModdingUI.Pages.Common
 
 		private void btnImport_Click(object sender, RoutedEventArgs e)
 		{
+			var importStartTime = DateTime.Now;
+
 			LoadingDialog loadingDialog = null;
 			try
 			{
@@ -254,7 +256,7 @@ namespace FIFAModdingUI.Pages.Common
 							, false);
 
 						MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedLegacyEntry.Filename}");
-
+						App.AppInsightClient.TrackRequest("Import Legacy Asset", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
 					}
 				}
 				else if (SelectedEntry != null)
@@ -290,6 +292,8 @@ namespace FIFAModdingUI.Pages.Common
 
 
 									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
+									App.AppInsightClient.TrackRequest("Import Texture", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
+
 								}
 							}
 						}
@@ -324,6 +328,8 @@ namespace FIFAModdingUI.Pages.Common
 								UpdateAssetListView();
 								EBXViewer.Children.Clear();
 								EBXViewer.Children.Add(new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow));
+								App.AppInsightClient.TrackRequest("Import Hotspots", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
+
 							}
 						}
 					}
@@ -353,10 +359,14 @@ namespace FIFAModdingUI.Pages.Common
 									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
 
 									UpdateAssetListView();
+									App.AppInsightClient.TrackRequest("Import Skinned Mesh", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
+
 								}
 								catch (Exception ImportException)
 								{
 									MainEditorWindow.LogError(ImportException.Message);
+									App.AppInsightClient.TrackException(ImportException);
+
 								}
 
 							}
@@ -368,7 +378,10 @@ namespace FIFAModdingUI.Pages.Common
 			catch(Exception ex)
             {
 				MainEditorWindow.LogError(ex.Message);
-            }
+
+				App.AppInsightClient.TrackException(ex);
+
+			}
 			UpdateAssetListView();
 
 			if(loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
