@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using v2k4FIFAModding.Career.CME.FIFA;
 
 namespace FrostbiteModdingUI.CEM
@@ -64,7 +65,13 @@ namespace FrostbiteModdingUI.CEM
             CEMCoreInstance = this;
             Game = inGame;
             MonitorSaveDirectory();
-            Setup();
+            InitialSetup();
+        }
+
+        public static async Task<CareerFile> SetupCareerFileAsync(string inCareerFilePath)
+        {
+            return await Task.Run(() => { return SetupCareerFile(inCareerFilePath); });
+
         }
 
         public static CareerFile SetupCareerFile(string inCareerFilePath)
@@ -84,24 +91,24 @@ namespace FrostbiteModdingUI.CEM
             {
 
 
-                if (CareerDB1.FIFAUser == null)
-                {
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
+                //if (CareerDB1.FIFAUser == null)
+                //{
+                    //Stopwatch swTeams = new Stopwatch();
+                    //swTeams.Start();
 
                     var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
                     // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
                     CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
 
-                    swTeams.Stop();
-                    Debug.WriteLine("User took: " + swTeams.Elapsed + " to build");
-                    Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
-                }
+                    //swTeams.Stop();
+                    //Debug.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                    //Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                //}
 
-                if (CareerDB2.Current != null && (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null))
-                {
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
+                //if (CareerDB2.Current != null && (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null))
+                //{
+                    //Stopwatch swTeams = new Stopwatch();
+                    //swTeams.Start();
 
                     var dbTeams = CareerFile.Databases[1].GetTable("teams");
                     CareerDB2.Current.teams = dbTeams.ConvertToDataTable();
@@ -113,15 +120,15 @@ namespace FrostbiteModdingUI.CEM
                     if (team != null)
                         CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
 
-                    swTeams.Stop();
-                    Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
-                }
+                    //swTeams.Stop();
+                    //Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
+                //}
 
-                if (CareerDB2.Current.players == null)
-                {
+                //if (CareerDB2.Current.players == null)
+                //{
 
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
+                    //Stopwatch swTeams = new Stopwatch();
+                    //swTeams.Start();
 
                     CareerDB2.Current.players = CareerFile.Databases[1].GetTable("players").ConvertToDataTable().AsEnumerable();
                     CareerDB2.Current.teamplayerlinks = CareerFile.Databases[1].GetTable("teamplayerlinks").ConvertToDataTable().AsEnumerable();
@@ -131,20 +138,25 @@ namespace FrostbiteModdingUI.CEM
                     CareerDB2.Current.teamsEnumerable = CareerFile.Databases[1].GetTable("teams").ConvertToDataTable().AsEnumerable();
 
 
-                    swTeams.Stop();
-                    Debug.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
-                }
+                    //swTeams.Stop();
+                    //Debug.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
+                //}
 
-                if (CareerDB2.Current.leagueteamlinks == null)
-                {
+                //if (CareerDB2.Current.leagueteamlinks == null)
+                //{
                     CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
-                }
+                //}
 
             }
             return CareerFile;
         }
 
         public CareerFile CurrentCareerFile;
+
+        public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync()
+        {
+            return await Task.Run(() => { return GetPlayerStats(); });
+        }
 
         public List<FIFAPlayerStat> GetPlayerStats()
         {
@@ -176,7 +188,8 @@ namespace FrostbiteModdingUI.CEM
                     {
                         nr.Position = pos;
                         var ps = FIFAPlayerStat.ConvertBytesToStats(nr.ReadBytes(100));
-                        stats.Add(ps);
+                        if(ps.Apps > 0)
+                            stats.Add(ps);
                     }
                 }
             }
@@ -186,17 +199,47 @@ namespace FrostbiteModdingUI.CEM
 
         public List<FIFAPlayerStat> UserTeamPlayerStats = new List<FIFAPlayerStat>(30000);
 
-        private void Setup()
+        public IEnumerable<FileInfo> CareerFileInfos
         {
-            var fi = new DirectoryInfo(GetFIFAMyDocumentsSaveDirectory()).GetFiles()
+            get
+            {
+                return new DirectoryInfo(GetFIFAMyDocumentsSaveDirectory())
+                    .GetFiles()
                 .Where(x => x.Name.StartsWith("Career"))
-                //.OrderBy(x => x.LastAccessTime)
-                .OrderByDescending(x => x.LastAccessTime)
-                .FirstOrDefault();
+                .OrderByDescending(x => x.LastAccessTime);
+            }
+        }
+
+        public IDictionary<string, string> CareerFileNames
+        {
+            get
+            {
+                return new DirectoryInfo(GetFIFAMyDocumentsSaveDirectory())
+                    .GetFiles()
+                .Where(x => x.Name.StartsWith("Career"))
+                .OrderByDescending(x => x.LastAccessTime).ToDictionary(x => x.FullName, x => new NativeReader(File.ReadAllBytes(x.FullName)).Skip(18).ReadNullTerminatedString());
+            }
+        }
+
+        public IEnumerable<CareerFile> CareerFiles 
+        { 
+            get
+            {
+                return CareerFileInfos.Select(x => new CareerFile(x.FullName, CEMInternalDataDirectory + "fifa_ng_db-meta.XML"));
+            } 
+        }
+
+        private void InitialSetup()
+        {
+            var fi = CareerFileInfos.FirstOrDefault();
 
             CurrentCareerFile = SetupCareerFile(fi.FullName);
 
-            
+        }
+
+        private void UpdateSetup(string fullPath)
+        {
+            CurrentCareerFile = SetupCareerFile(fullPath);
         }
 
         public void MonitorSaveDirectory()
@@ -208,12 +251,12 @@ namespace FrostbiteModdingUI.CEM
 
         private void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
         {
-            Setup();
+            InitialSetup();
         }
 
         private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
         {
-            Setup();
+            InitialSetup();
         }
 
         public byte[] HexStringToByte(string param1, string param2)

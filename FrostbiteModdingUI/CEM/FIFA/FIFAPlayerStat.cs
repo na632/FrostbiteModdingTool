@@ -17,6 +17,8 @@ using System.Linq;
 using v2k4FIFAModding.Career.CME.FIFA;
 using CareerExpansionMod.CEM.FIFA;
 using FrostySdk.IO;
+using FrostbiteModdingUI.CEM;
+using v2k4FIFAModdingCL;
 
 /// <summary>
 /// This must have properties (not fields) for Json to work!
@@ -137,10 +139,30 @@ public class FIFAPlayerStat
 				return _seasonYear.Value;
 			}
 
+
 			var ingamedate = new DateTime(2019, 1, 1);
+			switch(GameInstanceSingleton.GAMEVERSION)
+            {
+				case "FIFA20":
+					break;
+				case "FIFA21":
+					ingamedate = ingamedate.AddYears(1);
+					break;
+				case "FIFA22":
+					ingamedate = ingamedate.AddYears(2);
+					break;
+				case "FIFA23":
+					ingamedate = ingamedate.AddYears(3);
+					break;
+			}
+
 			if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
 			//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
 				ingamedate = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value;
+
+			if (CEMCore2.CEMCoreInstance != null && CareerDB1.FIFAUser != null && CareerDB1.FIFAUser.seasoncount > 0)
+				ingamedate = ingamedate.AddYears(CareerDB1.FIFAUser.seasoncount - 1);
+
 			//else
 			//{
 			//	CEMCore.CEMCoreInstance = new CEMCore(new CoreHack());
@@ -149,9 +171,10 @@ public class FIFAPlayerStat
 			//		ingamedate = d.Value;
 			//}
 			// Very rigid this and FIXME
-			if (ingamedate.Month >= 1 && ingamedate.Month <= 6)
-				_seasonYear = ingamedate.Year - 1;
-			else
+
+			//if (ingamedate.Month >= 1 && ingamedate.Month <= 6)
+			//	_seasonYear = ingamedate.Year - 1;
+			//else
 				_seasonYear = ingamedate.Year;
 
 			return _seasonYear;
@@ -166,15 +189,20 @@ public class FIFAPlayerStat
 
     public int CalenderYear
     {
-        get {
+        get 
+		{
 
 			calenderYear = 2019;
 			if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
 				//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
 				calenderYear = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value.Year;
 
+			if (CEMCore2.CEMCoreInstance != null && CareerDB1.FIFAUser != null && CareerDB1.FIFAUser.seasoncount > 0)
+				calenderYear = 2019 + CareerDB1.FIFAUser.seasoncount - 1;
 
-			return calenderYear; }
+
+			return calenderYear; 
+		}
         set { calenderYear = value; }
     }
 
@@ -251,10 +279,12 @@ public class FIFAPlayerStat
         {
 			switch(Competition)
             {
-				case 26:
-					return "Premier League";
+				case 13:
+					return "EFL Championship";
 				case 19:
 					return "EFL League 2";
+				case 26:
+					return "Premier League";
 				case 35:
 					return "EFL League 2";
 				case 80:
@@ -274,7 +304,7 @@ public class FIFAPlayerStat
 				case 194:
 					return "EFL Trophy";
 				default:
-					return "N/A";
+					return "N/A - Unhandled in this Version";
             }
         } 
 	}

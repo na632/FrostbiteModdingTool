@@ -1,7 +1,10 @@
 ﻿using CareerExpansionMod.CEM;
 using CareerExpansionMod.CEM.FIFA;
+using CsvHelper;
 using FrostbiteModdingUI.CEM;
 using FrostySdk.Interfaces;
+using FrostySdk.IO;
+using Microsoft.Win32;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -72,13 +76,14 @@ namespace FrostbiteModdingUI.Windows
         #region Constructor
         public CEMWindow()
         {
-            InitializeComponent();
 
             //
             ContentRendered += CEMWindow_ContentRendered;
             Closing += CEMWindow_Closing;
 
             DataContext = this;
+            LoadingDialog loadingDialog = new LoadingDialog("CEM Initialising", "Loading CEM Core");
+            loadingDialog.Show();
 
             Task.Run(() =>
             {
@@ -86,15 +91,29 @@ namespace FrostbiteModdingUI.Windows
                 CEMCore.FileSystemWatcher.Created += FileSystemWatcher_Created;
                 CEMCore.FileSystemWatcher.Changed += FileSystemWatcher_Changed;
                 SaveGameName = CEMCore.CurrentCareerFile.InGameName;
-                var ps = CEMCore.GetPlayerStats();
-                Dispatcher.InvokeAsync(() =>
+                Dispatcher.Invoke(() => { 
+                    lblSaveName.Text = SaveGameName;
+                    cbGameSaves.ItemsSource = null;
+                    cbGameSaves.ItemsSource = CEMCore.CareerFileNames;
+
+                    cbGameSaves.SelectedItem = SaveGameName;
+                });
+
+                Dispatcher.Invoke(async() =>
                 {
+                    var ps = await CEMCore.GetPlayerStatsAsync();
                     Stats.Execute(items => { items.Clear(); items.AddRange(ps.Where(x => x != null)); });
                     lvPlayerStats.ItemsSource = null;
                     lvPlayerStats.ItemsSource = Stats;
+
+                    loadingDialog.Close();
+
                 });
 
             });
+
+            InitializeComponent();
+
         }
 
         private void FileSystemWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
@@ -117,6 +136,12 @@ namespace FrostbiteModdingUI.Windows
 
             try
             {
+                if(CEMCore2.CEMCoreInstance != null)
+                {
+                    CEMCore2.CEMCoreInstance.Dispose();
+                    CEMCore2.CEMCoreInstance = null;
+                    CEMCore = null;
+                }
                 await Task.WhenAll(WindowTasks.ToArray());
             }
             catch (OperationCanceledException)
@@ -358,11 +383,92 @@ namespace FrostbiteModdingUI.Windows
             SaveGameName = newSaveName;
         }
 
-        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        private async void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            UpdateTeamStats();
+            LoadingDialog loadingDialog = new LoadingDialog("Career file", "Loading Career File");
+            loadingDialog.Show();
+
+            var ps = await CEMCore.GetPlayerStatsAsync();
+            loadingDialog.Update("Career file", "Updating career stats", 50);
+
+            Dispatcher.Invoke(() =>
+            {
+                Stats.Execute(items => { items.Clear(); items.AddRange(ps.Where(x => x != null)); });
+                lvPlayerStats.ItemsSource = null;
+                lvPlayerStats.ItemsSource = Stats;
+                lblSaveName.Text = CEMCore.CurrentCareerFile.InGameName;
+
+            });
+
+            loadingDialog.Close();
+        }
+
+        private async void SelectGameSave_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button != null) 
+            {
+                string file = button.Tag.ToString();
+                LoadingDialog loadingDialog = new LoadingDialog("Career file", "Loading Career File");
+                loadingDialog.Show();
+                CEMCore.CurrentCareerFile = await CEMCore2.SetupCareerFileAsync(file);
+                loadingDialog.Update("Career file", "Loading career stats", 50);
+
+
+                var ps = await CEMCore.GetPlayerStatsAsync();
+                loadingDialog.Update("Career file", "Updating career stats", 100);
+
+                Dispatcher.Invoke(() =>
+                {
+                    Stats.Execute(items => { items.Clear(); items.AddRange(ps.Where(x => x != null)); });
+                    lvPlayerStats.ItemsSource = null;
+                    lvPlayerStats.ItemsSource = Stats;
+                    lblSaveName.Text = CEMCore.CurrentCareerFile.InGameName;
+
+                });
+
+                loadingDialog.Close();
+
+            }
+        }
+
+        private async void btnSaveToCSV_Click(object sender, RoutedEventArgs e)
+        {
+            LoadingDialog loadingDialog = new LoadingDialog("Getting Player Stats", "");
+            loadingDialog.Show();
+            var ps = await CEMCore.GetPlayerStatsAsync();
+            loadingDialog.Close();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "CSV files|*.csv";
+            var result = saveFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                if (!string.IsNullOrEmpty(saveFileDialog.FileName))
+                {
+
+                    using (var nw = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+                    {
+                        nw.WriteLine("Player Id,Player Name,Season Year,Competition,Appereances,Goals,Assists,Average Rating");
+                        for (var i = 0; i < ps.Count; i++)
+                        {
+                            nw.WriteLine(
+                                ps[i].PlayerId 
+                                + "," + ps[i].PlayerName 
+                                + "," + ps[i].SeasonYear 
+                                + "," + ps[i].CompName
+                                + "," + ps[i].Apps
+                                + "," + ps[i].Goals
+                                + "," + ps[i].Assists 
+                                + "," + ps[i].AverageRating);
+                        }
+                    }
+
+                }
+            }
         }
     }
+
 
     public static class LinqExtensions
     {

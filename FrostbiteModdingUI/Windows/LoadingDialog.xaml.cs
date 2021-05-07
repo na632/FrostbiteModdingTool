@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,18 +18,24 @@ namespace FrostbiteModdingUI.Windows
     /// </summary>
     public partial class LoadingDialog : Window
     {
-        public LoadingDialog()
+        public LoadingDialog() : base()
         {
             InitializeComponent();
-            pbar.Value = 0;
+
         }
 
-        public LoadingDialog(string loadingSubTitle, string loadingCurrentMessage)
+        public LoadingDialog(string loadingSubTitle, string loadingCurrentMessage) : base()
         {
             InitializeComponent();
-            lblLoadingSubtitle.Content = loadingSubTitle;
-            lblProgress.Content = loadingCurrentMessage;
-            pbar.Value = 0;
+            Task.Run(() =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    lblLoadingSubtitle.Content = loadingSubTitle;
+                    lblProgress.Content = loadingCurrentMessage;
+                });
+            });
+
         }
 
         public void Update(int progress)

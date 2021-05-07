@@ -10,16 +10,31 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="CEMWindow" Height="450" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="Save Game Stats Explorer" Height="450" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock x:Name="lblSaveName" Text="{Binding SaveName, Mode=OneWay}"></TextBlock>
-            <TextBlock x:Name="lblGameDate" Text="{Binding GameDate, Mode=OneWay}"></TextBlock>
+        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+            <Label>Selected Save: </Label>
+            <ComboBox x:Name="cbGameSaves" ItemsSource="{Binding AvailableSaves}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button Tag="{Binding Key}" Content="{Binding Value}" Click="SelectGameSave_Click"></Button>
+                        </Grid>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBox IsReadOnly="True" x:Name="lblSaveName" Text="{Binding SaveName}"></TextBox>
         </StackPanel>
         <Controls:MetroTabControl Grid.Row="1" MaxHeight="400" ScrollViewer.VerticalScrollBarVisibility="Visible">
             <Controls:MetroTabItem Header="My Team Stats">
@@ -29,7 +44,10 @@
                         <RowDefinition Height="*"></RowDefinition>
                         <RowDefinition Height="30"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnRefresh" Grid.Row="0" Click="btnRefresh_Click">Refresh</Button>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="btnRefresh" Grid.Row="0" Click="btnRefresh_Click">Refresh</Button>
+                        <Button x:Name="btnSaveToCSV" Grid.Row="0" Click="btnSaveToCSV_Click">Save to CSV</Button>
+                    </StackPanel>
                     <DataGrid x:Name="lvPlayerStats" Grid.Row="1" AutoGenerateColumns="False" ScrollViewer.VerticalScrollBarVisibility="Visible" ItemsSource="{Binding Stats}">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Id" Width="80" IsReadOnly="True">
