@@ -10,7 +10,7 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
-        Title="Save Game Stats Explorer" Height="450" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        Title="Save Game Stats Explorer" Height="720" Width="1000" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         >
     <Grid>
@@ -36,9 +36,10 @@
             </ComboBox>
             <TextBox IsReadOnly="True" x:Name="lblSaveName" Text="{Binding SaveName}"></TextBox>
         </StackPanel>
-        <Controls:MetroTabControl Grid.Row="1" MaxHeight="400" ScrollViewer.VerticalScrollBarVisibility="Visible">
-            <Controls:MetroTabItem Header="My Team Stats">
-                <Grid>
+        <Controls:MetroTabControl Grid.Row="1" MaxHeight="400" ScrollViewer.VerticalScrollBarVisibility="Visible" VerticalContentAlignment="Top" VerticalAlignment="Top">
+            <Controls:MetroTabItem Header="My Team Stats" VerticalContentAlignment="Top">
+                
+                <Grid VerticalAlignment="Top">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
@@ -117,7 +118,29 @@
                     </DataGrid>
                 </Grid>
             </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Test" Visibility="Hidden">
+                <DockingManager>
+                    <LayoutRoot>
+                        <LayoutPanel>
+                            <LayoutAnchorablePane DockWidth="200">
+                                <LayoutAnchorable CanClose="False" CanHide="False">
+                                    <TextBlock>Bla bla bla bla</TextBlock>
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                            <LayoutDocumentPane>
+                                <LayoutDocument Title="title2" CanClose="False">
+                                    <TextBlock>Bla bla bla</TextBlock>
+                                </LayoutDocument>
+                            </LayoutDocumentPane>
+                            <LayoutAnchorablePane DockWidth="200">
+                                <LayoutAnchorable Title="title3" />
+                            </LayoutAnchorablePane>
+                        </LayoutPanel>
+                    </LayoutRoot>
+                </DockingManager>
+            </Controls:MetroTabItem>
         </Controls:MetroTabControl>
+        
         <StatusBar Grid.Row="2">
             <Label x:Name="lblLastLogMessage" Content="{Binding LastLogMessage}"></Label>
         </StatusBar>

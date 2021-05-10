@@ -25,24 +25,27 @@
        
 
     </Window.Resources>
-    <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="5,0,5,5">
-
-            <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
-                <StackPanel Orientation="Horizontal">
-                    <Menu DockPanel.Dock="Top">
-                        <MenuItem Header="Project">
-                            <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}">
-                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                    <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
-                                    <Label Content="New Project" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}">
-                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                    <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
-                                    <Label Content="Open Project" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition MaxHeight="30" Height="30"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
+            <StackPanel Orientation="Horizontal">
+                <Menu DockPanel.Dock="Top">
+                    <MenuItem Header="Project">
+                        <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
+                                <Label Content="New Project" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
+                                <Label Content="Open Project" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                         <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
@@ -80,125 +83,130 @@
                     </MenuItem>
 
                 </Menu>
-                    
-                    
-                    
-                    
-                    <!--<Button x:Name="btnProjectWriteToFIFAMod"  Height="30" Click="btnProjectWriteToFIFAMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
+
+
+
+
+                <!--<Button x:Name="btnProjectWriteToFIFAMod"  Height="30" Click="btnProjectWriteToFIFAMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                             <MaterialDesign:PackIcon Kind="ContentSaveAlert" VerticalAlignment="Center" />
                             <Label Content="Save FIFA Mod (*.fifamod)" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>-->
-                    
-                </StackPanel>
-                <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
-                    <!--<TextBox x:Name="txtFIFADirectory" Width="300" FontSize="12" IsEnabled="False" Text="?? Game.EXE ??" VerticalAlignment="Center" />
-                    <Button Name="btnBrowseFIFADirectory"  Height="30" Click="btnBrowseFIFADirectory_Click" Background="Transparent" BorderBrush="{x:Null}">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="OpenInBrowser" VerticalAlignment="Center" />
-                            <Label Content="Browse for Game" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>-->
-                    <CheckBox x:Name="chkEnableLegacyInjection" Content="Enable Legacy Injection" IsChecked="False"></CheckBox>
-                    <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
+
+            </StackPanel>
+            <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
+                <CheckBox x:Name="chkEnableLegacyInjection" Content="Enable Legacy Injection" IsChecked="False"></CheckBox>
+                <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
-                        <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
-                            <Label Content="Launch Game" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                  
-                </StackPanel>
+                    <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
+                        <MaterialDesign:PackIcon Kind="Launch" VerticalAlignment="Center" />
+                        <Label Content="Launch Game" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
 
-            </Grid>
+            </StackPanel>
 
-        <TabControl DockPanel.Dock="Top" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Top" VerticalContentAlignment="Stretch" >
-            <TabItem x:Name="TabDataBrowser" Header="Data" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
-                        <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
-                    </TabItem>
-                    <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
-                        <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
-                    </TabItem>
-            <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
-                        <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
-                    </TabItem>
-            <TabItem x:Name="TabGameplay" Header="Gameplay"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
-                        <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
-                    </TabItem>
-            <TabItem x:Name="TabLegacy" Header="Legacy"   VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
-                <StackPanel>
-                    <Label Background="Yellow" Content="WARNING: Legacy editing is very unstable. Use with caution." Margin="5"></Label>
-                    <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
-                </StackPanel>
-            </TabItem>
+        </Grid>
 
-                    <TabItem x:Name="TabPlayers" Header="Players" Visibility="Collapsed">
-                        <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
-                    </TabItem>
+        <DockingManager Grid.Row="1" AnchorableContextMenu="{Binding NULL}" ContextMenu="{Binding NULL}">
+            <LayoutRoot>
+                <LayoutPanel Orientation="Vertical">
+                    <LayoutAnchorablePane DockMinHeight="450" DockHeight="450" >
+                        <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False" CanFloat="False" CanMove="False" CanDockAsTabbedDocument="False">
+                            <TabControl DockPanel.Dock="Top" Margin="0,-20,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                                <TabItem x:Name="TabDataBrowser" Header="Data" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
+                                </TabItem>
+                                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
+                                </TabItem>
+                                <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
+                                </TabItem>
+                                <TabItem x:Name="TabGameplay" Header="Gameplay"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
+                                </TabItem>
+                                <TabItem x:Name="TabLegacy" Header="Legacy"   VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="35" MaxHeight="35" MinHeight="35"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" Background="Yellow" Content="WARNING: Legacy editing is very unstable. Use with caution." Margin="5"></Label>
+                                        <localControls:Browser Grid.Row="1" x:Name="legacyBrowser"></localControls:Browser>
+                                    </Grid>
+                                </TabItem>
 
-                    <TabItem x:Name="TabTeams" Header="Teams" Visibility="Collapsed">
-                    </TabItem>
+                                <TabItem x:Name="TabPlayers" Header="Players" Visibility="Collapsed">
+                                    <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
+                                </TabItem>
 
-                    <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">
-                        <StackPanel x:Name="TestEbxViewer"></StackPanel>
-                    </TabItem>
+                                <TabItem x:Name="TabTeams" Header="Teams" Visibility="Collapsed">
+                                </TabItem>
 
-            <TabItem x:Name="TabProjectFiles" Header="Advanced">
-                <ListView x:Name="lstProjectFiles" Grid.Row="1"
+                                <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">
+                                    <StackPanel x:Name="TestEbxViewer"></StackPanel>
+                                </TabItem>
+
+                                <TabItem x:Name="TabProjectFiles" Header="Advanced">
+                                    <ListView x:Name="lstProjectFiles" Grid.Row="1"
                          ItemsSource="{Binding Path=ProjectManagement.FrostyProject.ModifiedAssetEntries, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               VerticalContentAlignment="Stretch" VerticalAlignment="Stretch"
                                ScrollViewer.VerticalScrollBarVisibility="Visible"
-                              Height="300"
-                              MaxHeight="300"
                               >
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Width="auto" Header="Name">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="auto" Header="Size">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Size}" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="auto" Header="Type">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Type}" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="auto" Header="Revert">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Click="btnRevertAsset_Click" Tag="{Binding}">Revert</Button>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </TabItem>
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Width="auto" Header="Name">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding Name}" />
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Width="auto" Header="Size">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding Size}" />
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Width="auto" Header="Type">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding Type}" />
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Width="auto" Header="Revert">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Button Click="btnRevertAsset_Click" Tag="{Binding}">Revert</Button>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </TabItem>
 
-        </TabControl>
-        <DockPanel DockPanel.Dock="Top" LastChildFill="True">
-            <TextBox
-                 x:Name="txtLog"
-                 IsReadOnly="True"
-                 Text="{Binding LogText}"
-                 ScrollViewer.VerticalScrollBarVisibility="Visible" DockPanel.Dock="Top"
-                 />
-        </DockPanel>
-        
-         
-    </DockPanel>
-       
+                            </TabControl>
+                        </LayoutAnchorable>
+                    </LayoutAnchorablePane>
+                    <LayoutAnchorablePane DockMinHeight="100" DockHeight="100" ResizableAbsoluteDockHeight="100">
+                        <LayoutAnchorable Title="Log" CanAutoHide="False" CanClose="False" CanHide="False" CanFloat="False" CanMove="False" CanDockAsTabbedDocument="False">
+                            <TextBox
+                         x:Name="txtLog"
+                         IsReadOnly="True"
+                         Text="{Binding LogText}"
+                         ScrollViewer.VerticalScrollBarVisibility="Visible" DockPanel.Dock="Top"
+                         /> 
+                        </LayoutAnchorable>
+                    </LayoutAnchorablePane>
 
+                </LayoutPanel>
+            </LayoutRoot>
+        </DockingManager>
+
+    </Grid>
 </Window>

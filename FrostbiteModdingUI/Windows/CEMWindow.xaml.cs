@@ -1,6 +1,7 @@
 ﻿using CareerExpansionMod.CEM;
 using CareerExpansionMod.CEM.FIFA;
 using CsvHelper;
+using FIFAModdingUI;
 using FrostbiteModdingUI.CEM;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -77,9 +78,11 @@ namespace FrostbiteModdingUI.Windows
         public CEMWindow()
         {
 
+            App.AppInsightClient.TrackEvent("CEMWindow Opened");
             //
             ContentRendered += CEMWindow_ContentRendered;
             Closing += CEMWindow_Closing;
+            PropertyChanged += CEMWindow_PropertyChanged;
 
             DataContext = this;
             LoadingDialog loadingDialog = new LoadingDialog("CEM Initialising", "Loading CEM Core");
@@ -114,6 +117,16 @@ namespace FrostbiteModdingUI.Windows
 
             InitializeComponent();
 
+        }
+
+        private void CEMWindow_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.DataContext = null;
+                this.DataContext = this;
+                this.UpdateLayout();
+            });
         }
 
         private void FileSystemWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
@@ -385,6 +398,8 @@ namespace FrostbiteModdingUI.Windows
 
         private async void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
+            App.AppInsightClient.TrackEvent("CEM Stats Refreshed");
+
             LoadingDialog loadingDialog = new LoadingDialog("Career file", "Loading Career File");
             loadingDialog.Show();
 
@@ -434,6 +449,8 @@ namespace FrostbiteModdingUI.Windows
 
         private async void btnSaveToCSV_Click(object sender, RoutedEventArgs e)
         {
+            App.AppInsightClient.TrackEvent("CEM Stats Saved to CSV");
+
             LoadingDialog loadingDialog = new LoadingDialog("Getting Player Stats", "");
             loadingDialog.Show();
             var ps = await CEMCore.GetPlayerStatsAsync();

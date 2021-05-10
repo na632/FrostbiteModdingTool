@@ -9,185 +9,208 @@
             xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
              xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
              mc:Ignorable="d" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-    <DockPanel Width="{Binding Width, 
-              RelativeSource = {RelativeSource AncestorType = {x:Type TabItem}}}" 
-      Height="{Binding Width, 
-              RelativeSource ={RelativeSource AncestorType = {x:Type TabItem}}}">
-        <DockPanel DockPanel.Dock="Left" MinWidth="200" Width="400" MaxWidth="400">
-            <Grid DockPanel.Dock="Top" Background="White" Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75*" ></ColumnDefinition>
-                    <ColumnDefinition Width="312*" ></ColumnDefinition>
-                    <ColumnDefinition Width="253*" ></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Label Grid.Column="0">Filter:</Label>
-                <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+    <DockingManager>
+        <LayoutRoot>
+            <LayoutPanel>
+                <LayoutPanel Orientation="Horizontal">
+                    <LayoutPanel Orientation="Horizontal">
+                        <LayoutAnchorablePane DockWidth="200">
+                            <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False">
+                                <Grid Background="White" Grid.Row="0" VerticalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="75*" ></ColumnDefinition>
+                                        <ColumnDefinition Width="312*" ></ColumnDefinition>
+                                        <ColumnDefinition Width="253*" ></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition MinHeight="30" Height="30" MaxHeight="30"></RowDefinition>
+                                        <RowDefinition MinHeight="100" Height="*"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Column="0">Filter:</Label>
+                                    <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                     KeyUp="txtFilter_KeyUp"  />
-                <CheckBox Grid.Column="2" x:Name="chkShowOnlyModified" 
+                                    <CheckBox Grid.Column="2" x:Name="chkShowOnlyModified" 
                            Checked="chkShowOnlyModified_Checked" Unchecked="chkShowOnlyModified_Unchecked"
                            Content="Show Only Modified" HorizontalAlignment="Stretch"  />
-            </Grid>
-
-            <TreeView DockPanel.Dock="Top" VerticalAlignment="Top" Grid.Row="1" x:Name="assetTreeView" 
+                                
+                                
+                                <TreeView VerticalAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="3" x:Name="assetTreeView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible"  
                       BorderBrush="LightGray" BorderThickness="1" Background="White"
                       SelectedItemChanged="assetTreeView_SelectedItemChanged"
-                      Height="200"
                       >
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                        <TextBlock Text="{Binding PathName}"
+                                    <TreeView.ItemTemplate>
+                                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                            <TextBlock Text="{Binding PathName}"
                                    Tag="{Binding}"></TextBlock>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-            <ListView DockPanel.Dock="Bottom" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="2" x:Name="assetListView" 
+                                        </HierarchicalDataTemplate>
+                                    </TreeView.ItemTemplate>
+                                </TreeView>
+                                </Grid>
+
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable  CanAutoHide="False" CanClose="False" CanHide="False">
+
+                                <ListView VerticalAlignment="Stretch"  Grid.Column="0" Grid.Row="2" x:Name="assetListView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible" 
                       ScrollViewer.HorizontalScrollBarVisibility="Visible" 
                       BorderBrush="LightGray" 
                       BorderThickness="1" 
                       HorizontalAlignment="Stretch" 
                       SelectionChanged="assetListView_SelectionChanged"
-                      Height="200"
+                      
                       >
-                <ListView.View>
-                    <GridView  >
-                        <GridViewColumn Width="200" Header="Name">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding DisplayName}" Tag="{Binding}" 
+                                    <ListView.View>
+                                        <GridView  >
+                                            <GridViewColumn Width="200" Header="Name">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding DisplayName}" Tag="{Binding}" 
                                                >
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsModified}"
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsModified}"
                                                         Value="True">
-                                                        <Setter Property="FontWeight" Value="Bold"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Asset Type">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding AssetType}" Tag="{Binding}"
+                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Asset Type">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding AssetType}" Tag="{Binding}"
                                                >
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsModified}"
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsModified}"
                                                         Value="True">
-                                                        <Setter Property="FontWeight" Value="Bold"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Type">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Type}" Tag="{Binding}"
+                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Type">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Type}" Tag="{Binding}"
                                                >
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsModified}"
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsModified}"
                                                         Value="True">
-                                                        <Setter Property="FontWeight" Value="Bold"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="CAS">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding CASFileLocation}" Tag="{Binding}"
+                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="CAS">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding CASFileLocation}" Tag="{Binding}"
                                                 >
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsModified}"
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsModified}"
                                                         Value="True">
-                                                        <Setter Property="FontWeight" Value="Bold"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </DockPanel>
-           
-        <Grid DockPanel.Dock="Right" VerticalAlignment="Top" Grid.Column="1" Grid.RowSpan="2"  Height="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-            <Grid.RowDefinitions>
-                <RowDefinition MaxHeight="30"></RowDefinition>
-                <RowDefinition></RowDefinition>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <Button x:Name="btnImport" IsEnabled="False" Click="btnImport_Click" Height="30" Background="Transparent">
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
-                        <Label Content="Import" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnExport" IsEnabled="False" Click="btnExport_Click" Height="30" Background="Transparent">
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Export" VerticalAlignment="Center" />
-                        <Label Content="Export" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnRevert" IsEnabled="False" Click="btnRevert_Click" Height="30" Background="Transparent">
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Reverse" VerticalAlignment="Center" />
-                        <Label Content="Revert" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-            <Grid Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"></RowDefinition>
-                    <RowDefinition Height="512"></RowDefinition>
-                    <RowDefinition Height="30"></RowDefinition>
-                </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
-                    <Label>Name:</Label>
-                    <Label x:Name="lblImageName"></Label>
-                    <Label>DDS Type:</Label>
-                    <Label x:Name="lblImageDDSType"></Label>
-                    <Label>RES Image Type:</Label>
-                    <Label x:Name="lblImageRESType"></Label>
-                    <Label>Image Size:</Label>
-                    <Label x:Name="lblImageSize"></Label>
-                </StackPanel>
-                <Image Grid.Row="1" x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="256" MaxHeight="256">
+                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
+                    </LayoutPanel>
+                    <LayoutPanel Orientation="Vertical">
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable  CanAutoHide="False" CanClose="False" CanHide="False">
+                                
+                            
+                        <Grid VerticalAlignment="Stretch" Grid.Column="1" Grid.RowSpan="2" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                            <Grid.RowDefinitions>
+                                <RowDefinition MaxHeight="30"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" x:Name="btnImport" IsEnabled="False" Click="btnImport_Click" Height="30" Background="Transparent">
+                                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                        <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
+                                        <Label Content="Import" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="1" x:Name="btnExport" IsEnabled="False" Click="btnExport_Click" Height="30" Background="Transparent">
+                                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                        <MaterialDesign:PackIcon Kind="Export" VerticalAlignment="Center" />
+                                        <Label Content="Export" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="2" x:Name="btnRevert" IsEnabled="False" Click="btnRevert_Click" Height="30" Background="Transparent">
+                                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                        <MaterialDesign:PackIcon Kind="Reverse" VerticalAlignment="Center" />
+                                        <Label Content="Revert" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <Grid Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"></RowDefinition>
+                                    <RowDefinition Height="512"></RowDefinition>
+                                    <RowDefinition Height="30"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
+                                    <Label>Name:</Label>
+                                    <Label x:Name="lblImageName"></Label>
+                                    <Label>DDS Type:</Label>
+                                    <Label x:Name="lblImageDDSType"></Label>
+                                    <Label>RES Image Type:</Label>
+                                    <Label x:Name="lblImageRESType"></Label>
+                                    <Label>Image Size:</Label>
+                                    <Label x:Name="lblImageSize"></Label>
+                                </StackPanel>
+                                <Image Grid.Row="1" x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="256" MaxHeight="256">
 
-                </Image>
-                <StackPanel  Grid.Row="2" Background="White" Orientation="Horizontal">
-                    <Label>CAS File:</Label>
-                    <Label x:Name="lblImageCASFile"></Label>
-                    <Label>CAS Offset:</Label>
-                    <Label x:Name="lblImageCASOffset"></Label>
-                    <Label>Bundle File:</Label>
-                    <Label x:Name="lblImageBundleFile"></Label>
-                </StackPanel>
-            </Grid>
+                                </Image>
+                                <StackPanel  Grid.Row="2" Background="White" Orientation="Horizontal">
+                                    <Label>CAS File:</Label>
+                                    <Label x:Name="lblImageCASFile"></Label>
+                                    <Label>CAS Offset:</Label>
+                                    <Label x:Name="lblImageCASOffset"></Label>
+                                    <Label>Bundle File:</Label>
+                                    <Label x:Name="lblImageBundleFile"></Label>
+                                </StackPanel>
+                            </Grid>
 
-            <TextBox Grid.Row="1" x:Name="TextViewer" MaxLines="999999" 
+                            <TextBox Grid.Row="1" x:Name="TextViewer" MaxLines="999999" 
                      Visibility="Collapsed"
                       AcceptsReturn="True"
                      AcceptsTab="True"
@@ -199,17 +222,17 @@
                      HorizontalContentAlignment="Stretch"
                      >
 
-            </TextBox>
-            <StackPanel Grid.Row="1" x:Name="EBXViewer" Visibility="Collapsed">
+                            </TextBox>
+                            <StackPanel Grid.Row="1" x:Name="EBXViewer" Visibility="Collapsed">
 
-            </StackPanel>
+                            </StackPanel>
 
-            
-            <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
-                <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
-            </StackPanel>
 
-            <hx:Viewport3DX
+                            <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
+                                <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
+                            </StackPanel>
+
+                            <hx:Viewport3DX
             x:Name="ModelViewer"
             Grid.Row="1"
             Camera="{Binding Camera}"
@@ -219,50 +242,56 @@
             Visibility="Hidden"    
             ShowFrameDetails="True"
                  EnableDeferredRendering="True">
-                <hx:Viewport3DX.InputBindings>
-                    <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                    <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                    <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                    <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                    <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                    <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                    <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                    <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                    <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                    <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-                </hx:Viewport3DX.InputBindings>
-                <hx:DirectionalLight3D Direction="-1, -1, 0" Color="#9A9A9A" />
-                <hx:AmbientLight3D Color="#B0B0B0" />
-                <hx:MeshGeometryModel3D
+                                <hx:Viewport3DX.InputBindings>
+                                    <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
+                                    <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
+                                    <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
+                                    <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
+                                    <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
+                                    <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
+                                    <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                                    <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+                                    <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                                    <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
+                                </hx:Viewport3DX.InputBindings>
+                                <hx:DirectionalLight3D Direction="-1, -1, 0" Color="#9A9A9A" />
+                                <hx:AmbientLight3D Color="#B0B0B0" />
+                                <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding FloorModel}"
                 Material="{Binding FloorMaterial}" />
-                <hx:MeshGeometryModel3D
+                                <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding BunnyModel}"
                 Instances="{Binding BunnyInstances}"
                 Material="{Binding BunnyMaterial}"
                     
                     />
-                <hx:MeshGeometryModel3D
+                                <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding BunnyModel_1}"
                 Instances="{Binding BunnyInstances_1}"
                 Material="{Binding BunnyMaterial_1}" />
-                <hx:MeshGeometryModel3D
+                                <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding BunnyModel_2}"
                 Instances="{Binding BunnyInstances_2}"
                 Material="{Binding BunnyMaterial_2}" />
-                <hx:MeshGeometryModel3D
+                                <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding BunnyModel_3}"
                 Instances="{Binding BunnyInstances_3}"
                 Material="{Binding BunnyMaterial_3}"
                     />
-            </hx:Viewport3DX>
+                            </hx:Viewport3DX>
 
 
-        </Grid>
-    </DockPanel>
+                        </Grid>
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
+                    </LayoutPanel>
+                </LayoutPanel>
+            </LayoutPanel>
+        </LayoutRoot>
+    </DockingManager>
 </UserControl>

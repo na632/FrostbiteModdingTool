@@ -27,8 +27,8 @@ namespace v2k4FIFAModdingCL
         public static string GameDataPath { get { return GAMERootPath + "\\Data\\"; } }
 
         public static string FIFALocaleINIPath { get { return GAMERootPath + "\\Data\\locale.ini"; } }
-        public static string FIFAPatchPath { get { return GAMERootPath + "\\Patch\\"; } }
-        public static string FIFA_INITFS_Win32 { get { return FIFAPatchPath + "\\initfs_Win32"; } }
+        public static string GamePatchPath { get { return GAMERootPath + "\\Patch\\"; } }
+        public static string FIFA_INITFS_Win32 { get { return GamePatchPath + "\\initfs_Win32"; } }
 
         public static string LegacyModsPath { get { return GAMERootPath + "\\LegacyMods\\Legacy\\"; } }
 
@@ -91,18 +91,30 @@ namespace v2k4FIFAModdingCL
 
         public static int? GetProcIDFromName(string name) //new 1.0.2 function
         {
-            Process[] processlist = Process.GetProcesses();
 
             if (name.Contains(".exe"))
                 name = name.Replace(".exe", "");
 
-            foreach (Process theprocess in processlist)
+            int? id = null;
+            int attempts = 0;
+            while (!id.HasValue && attempts < 120)
             {
-                if (theprocess.ProcessName.Equals(name, StringComparison.CurrentCultureIgnoreCase)) //find (name).exe in the process list (use task manager to find the name)
-                    return theprocess.Id;
+                Process[] processlist = Process.GetProcesses();
+
+                Thread.Sleep(500);
+                foreach (Process theprocess in processlist)
+                {
+                    if (theprocess.ProcessName.Equals(name, StringComparison.CurrentCultureIgnoreCase)) //find (name).exe in the process list (use task manager to find the name)
+                        id = theprocess.Id;
+                }
+
+                attempts++;
             }
 
-            return null; //if we fail to find it
+            if (id.HasValue)
+                return id;
+
+            throw new ArgumentException($"Unable to find Process {name} running on your PC");
         }
 
         public static int InjectDLL_GetProcess()

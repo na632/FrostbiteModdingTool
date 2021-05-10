@@ -98,6 +98,7 @@
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
 	  <PackageReference Include="HelixToolkit" Version="2.10.0" />

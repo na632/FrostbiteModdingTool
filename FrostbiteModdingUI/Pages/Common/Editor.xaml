@@ -10,24 +10,28 @@
         <DataTemplate DataType="{x:Type DataObject}"></DataTemplate>
     </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-        </Grid.RowDefinitions>
-        <Label Content="Modded" Background="AliceBlue" FontWeight="Bold"></Label>
-        <TreeView x:Name="TreeView1" Grid.Column="0" Grid.Row="1" Height="425" 
-                  ScrollViewer.VerticalScrollBarVisibility="Visible"
-                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                  >
-        </TreeView>
-        <Label Content="Vanilla (Do not edit)" Grid.Column="1"  Background="AliceBlue" FontWeight="Bold" ></Label>
-        <TreeView x:Name="TreeViewOriginal" Grid.Column="1" Grid.Row="1" Height="425" 
-                  ScrollViewer.VerticalScrollBarVisibility="Visible"
-                  ScrollViewer.HorizontalScrollBarVisibility="Visible"></TreeView>
+        <DockingManager>
+            <LayoutRoot>
+                <LayoutPanel>
+                    <LayoutAnchorablePane>
+                        <LayoutAnchorable Title="Modded" CanClose="False" CanHide="False">
+                            <TreeView x:Name="TreeView1" Grid.Column="0" Grid.Row="1" Height="425" 
+                                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                  >         
+                            </TreeView>
+                        </LayoutAnchorable>
+                    </LayoutAnchorablePane>
+                    <LayoutAnchorablePane>
+                        <LayoutAnchorable Title="Vanilla" CanClose="False" CanHide="False">
+                            <TreeView x:Name="TreeViewOriginal" Grid.Column="1" Grid.Row="1" Height="425" 
+                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                      ScrollViewer.HorizontalScrollBarVisibility="Visible"></TreeView>  
+                        </LayoutAnchorable>
+                    </LayoutAnchorablePane>
+                </LayoutPanel>
+            </LayoutRoot>
+        </DockingManager>
     </Grid>
 
 
