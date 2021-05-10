@@ -22,6 +22,26 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="btnLaunch" Height="30" Width="150" Click="btnLaunch_Click" IsEnabled="False" Background="Transparent" >
+                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                    <Label Content="Launch" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="btnLaunchOtherTool" Height="30" Width="150" Click="btnLaunchOtherTool_Click" Visibility="Collapsed" Background="Transparent" >
+                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                    <Label Content="Legacy Inject Other Tool" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="btnOpenCEMWindow" Height="30" Width="150" Click="btnOpenCEMWindow_Click" Visibility="Collapsed" Background="Transparent" >
+                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                    <Label Content="Open CEM Window" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="700"></ColumnDefinition>
@@ -83,32 +103,27 @@
                         <Label Content="Import" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <CheckBox x:Name="chkInstallLocale" IsChecked="False">Install locale.ini from gameplay mods</CheckBox>
-                <CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu's Live Editor (if present)</CheckBox>
-                <CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>
-                <CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>
-                <CheckBox x:Name="chkUseCEM" IsEnabled="False" IsChecked="False">Use CEM (Career Stats Saver)</CheckBox>
-                <CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>
+                <Controls:ToggleSwitch x:Name="switchInstallLocale" Content="Install locale.ini"  />
+                <Controls:ToggleSwitch x:Name="switchUseLiveEditor" Content="Use Aranaktu's Live Editor"  />
+                <Controls:ToggleSwitch x:Name="switchUseLegacyModSupport" Content="Install Legacy Mods (*.lmod)"  />
+                <Controls:ToggleSwitch x:Name="switchCleanLegacyModDirectory" Content="Clean Legacy Mods (*.lmod)"  />
+                
+                <!--<CheckBox x:Name="chkInstallLocale" IsChecked="False">Install locale.ini from gameplay mods</CheckBox>-->
+                <!--<CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu's Live Editor (if present)</CheckBox>-->
+                <!--<CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>-->
+                <!--<CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>-->
+                <!--<CheckBox x:Name="chkUseCEM" IsEnabled="False" IsChecked="False">Use CEM (Career Stats Saver)</CheckBox>-->
+
+                <!--<Controls:ToggleSwitch x:Name="switchUseCEM" Content="Use Career Stats Saver"  />-->
+
+                <Controls:ToggleSwitch x:Name="switchUseSymbolicLink" Content="Use Symbolic Link"  />
+
+                <Controls:ToggleSwitch x:Name="switchForceReinstallMods" Content="Force Reinstall Mods"  />
+
+                <!--<CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>-->
 
                 <Separator></Separator>
-                <Button x:Name="btnLaunch" Height="30" Click="btnLaunch_Click" IsEnabled="False" Background="Transparent" >
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
-                        <Label Content="Launch" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnLaunchOtherTool" Height="30" Click="btnLaunchOtherTool_Click" Visibility="Collapsed" Background="Transparent" >
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
-                        <Label Content="Legacy Inject Other Tool" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnOpenCEMWindow" Height="30" Click="btnOpenCEMWindow_Click" Visibility="Collapsed" Background="Transparent" >
-                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                        <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
-                        <Label Content="Open CEM Window" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
+                
 
             </StackPanel>
         </Grid>

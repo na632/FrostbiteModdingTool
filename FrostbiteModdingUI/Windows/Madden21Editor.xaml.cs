@@ -75,7 +75,7 @@ namespace FrostbiteModdingUI.Windows
                     TimeSpan.FromMilliseconds(230), "200", true);
         }
 
-        public string LastM21Location => "MADDEN21LastLocation.json";
+        public string LastM21Location => App.ApplicationDirectory + "MADDEN21LastLocation.json";
 
         private void Madden21Editor_Loaded(object sender, RoutedEventArgs e)
         {

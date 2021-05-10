@@ -68,7 +68,7 @@ namespace FIFAModdingUI.Windows
 
         }
 
-        public string LastFIFA21Location => "FIFA21LastLocation.json";
+        public string LastFIFA21Location => App.ApplicationDirectory + "FIFA21LastLocation.json";
 
         private void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {

@@ -3,31 +3,44 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
         Title="Find your Game EXE" WindowStartupLocation="CenterScreen" Height="400" Width="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <ListView x:Name="lv">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Button Click="Button_Click" Tag="{Binding}">
-                        <Grid>
+                    <Button Click="Button_Click" Tag="{Binding}" HorizontalContentAlignment="Left">
+                        <Grid HorizontalAlignment="Left">
                             <Grid.RowDefinitions>
                                 <RowDefinition></RowDefinition>
                                 <RowDefinition></RowDefinition>
                             </Grid.RowDefinitions>
-                            <Label Content="{Binding Name}"></Label>
-                            <Label Grid.Row="1" Content="{Binding FullName}"></Label>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <MaterialDesign:PackIcon Kind="Application" VerticalAlignment="Center" />
+                            <Label Grid.Column="1" FontSize="18" FontWeight="Bold" Content="{Binding Name}"></Label>
+                            <Label Grid.Column="1" Grid.Row="1" Content="{Binding FullName}"></Label>
                         </Grid>
                     </Button>
 
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button x:Name="btnFindGameEXE" Grid.Row="1" Click="btnFindGameEXE_Click">Find your Game EXE</Button>
+        <Button x:Name="btnFindGameEXE" Grid.Row="1" Click="btnFindGameEXE_Click">
+            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                <MaterialDesign:PackIcon Kind="Search" VerticalAlignment="Center" />
+                <Label Content="Find your Game" VerticalAlignment="Center" />
+            </StackPanel>
+        </Button>
     </Grid>
 </Window>

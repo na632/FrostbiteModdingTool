@@ -31,8 +31,7 @@ namespace FrostbiteModdingUI.Windows
         {
             InitializeComponent();
 
-            var runningLocation = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-            var lastLocations = Directory.GetFiles(runningLocation).Where(x => x.Contains("LastLocation.json", StringComparison.OrdinalIgnoreCase)).ToList();
+            var lastLocations = Directory.GetFiles(App.ApplicationDirectory).Where(x => x.Contains("LastLocation.json", StringComparison.OrdinalIgnoreCase)).ToList();
 
             var lstOfLocations = lastLocations.Select(x 
                 => 

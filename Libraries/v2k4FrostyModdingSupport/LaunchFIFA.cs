@@ -17,7 +17,7 @@ namespace FIFAModdingUI
             LaunchAsync(FIFARootPath, ModDirectory, OrderedListOfMods, logger, FIFAVERSION, buildMods).Wait();
         }
 
-        public static async Task<bool> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true, bool useSymbolicLink = true)
+        public static async Task<bool> LaunchAsync(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool forceReinstallMods = false, bool useSymbolicLink = true)
         {
             if (logger == null)
             {
@@ -32,6 +32,7 @@ namespace FIFAModdingUI
 
             logger.Log("Running Mod Executer");
             var fme = new FrostyModExecutor();
+            fme.ForceRebuildOfMods = forceReinstallMods;
             fme.UseSymbolicLinks = useSymbolicLink;
 
 

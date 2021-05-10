@@ -268,7 +268,7 @@ namespace FIFAModdingUI
         /// </summary>
         private void DoLegacyModSetup()
         {
-            if (chkCleanLegacyModDirectory.IsChecked.HasValue && chkCleanLegacyModDirectory.IsChecked.Value)
+            if (switchCleanLegacyModDirectory.IsOn)
             {
                 RecursiveDelete(new DirectoryInfo(GameInstanceSingleton.LegacyModsPath));
             }
@@ -278,7 +278,7 @@ namespace FIFAModdingUI
             if (!Directory.Exists(GameInstanceSingleton.LegacyModsPath))
                 Directory.CreateDirectory(GameInstanceSingleton.LegacyModsPath);
 
-            if (chkUseLegacyModSupport.IsChecked.HasValue && chkUseLegacyModSupport.IsChecked.Value)
+            if (switchUseLegacyModSupport.IsOn)
             {
                 foreach (var lmodZipped in ListOfMods.Select(x=>x.Path).Where(x => x.Contains(".zip")))
                 {
@@ -332,7 +332,7 @@ namespace FIFAModdingUI
                 DoLegacyModSetup();
 
                 // Copy the Locale.ini if checked
-                if (chkInstallLocale.IsChecked.Value)
+                if (switchInstallLocale.IsOn)
                 {
                     foreach (var z in ListOfMods.Select(x => x.Path).Where(x => x.Contains(".zip")))
                     {
@@ -351,9 +351,10 @@ namespace FIFAModdingUI
                 }
 
                 //var k = chkUseFileSystem.IsChecked.Value;
-                var useLegacyMods = chkUseLegacyModSupport.IsChecked.Value;
-                var useLiveEditor = chkUseLiveEditor.IsChecked.Value;
-                var useSymbolicLink = chkUseSymbolicLink.IsChecked.Value;
+                var useLegacyMods = switchUseLegacyModSupport.IsOn;
+                var useLiveEditor = switchUseLiveEditor.IsOn;
+                var useSymbolicLink = switchUseSymbolicLink.IsOn;
+                var forceReinstallOfMods = switchForceReinstallMods.IsOn;
                 // Start the game with mods
                 await new TaskFactory().StartNew(async () =>
                 {
@@ -406,7 +407,7 @@ namespace FIFAModdingUI
                             , new Mods.ModList(Profile).ModListItems.Select(x=>x.Path).ToList()
                             , this
                             , GameInstanceSingleton.GAMEVERSION
-                            , true
+                            , forceReinstallOfMods
                             , useSymbolicLink);
                         launchSuccess = await launchTask;
 
@@ -487,7 +488,11 @@ namespace FIFAModdingUI
                             if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
                                 await GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
                         }
-
+                        Dispatcher.Invoke(() =>
+                        {
+                            switchForceReinstallMods.IsOn = false;
+                            switchForceReinstallMods.IsEnabled = true;
+                        });
                         Dispatcher.Invoke(() => {
                             var presence = new DiscordRPC.RichPresence();
                             presence.Details = "Playing " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods";
@@ -513,14 +518,14 @@ namespace FIFAModdingUI
                     await Task.Delay(1000);
 
 
-                    Dispatcher.Invoke(() =>
-                    {
-                        if (chkUseCEM.IsChecked.HasValue && chkUseCEM.IsChecked.Value && ProfilesLibrary.IsFIFA21DataVersion())
-                        {
-                            CEMWindow = new CEMWindow();
-                            CEMWindow.Show();
-                        }
-                    });
+                    //Dispatcher.Invoke(() =>
+                    //{
+                    //    if (switchUseCEM.IsOn && ProfilesLibrary.IsFIFA21DataVersion())
+                    //    {
+                    //        CEMWindow = new CEMWindow();
+                    //        CEMWindow.Show();
+                    //    }
+                    //});
 
 
                     Dispatcher.Invoke(() =>
@@ -548,6 +553,9 @@ namespace FIFAModdingUI
                 this.ListOfMods.RemoveAt(selectedIndex);
 
                 GetListOfModsAndOrderThem();
+
+                switchForceReinstallMods.IsEnabled = false;
+                switchForceReinstallMods.IsOn = true;
             }
 
         }
@@ -588,6 +596,9 @@ namespace FIFAModdingUI
                 mL.ModListItems.Add(new ModList.ModItem(filePath));
                 mL.Save();
                 GetListOfModsAndOrderThem();
+
+                switchForceReinstallMods.IsEnabled = false;
+                switchForceReinstallMods.IsOn = true;
             }
 
         }
@@ -610,6 +621,9 @@ namespace FIFAModdingUI
 
         //}
 
+        public string LastGamePathLocation => App.ApplicationDirectory + "\\" + GameInstanceSingleton.GAMEVERSION + "LastLocation.json";
+
+
         private void InitialiseSelectedGame(string filePath)
         {
             if(!File.Exists(filePath))
@@ -622,9 +636,12 @@ namespace FIFAModdingUI
             {
                 this.DataContext = this;
                 AppSettings.Settings.GameInstallEXEPath = filePath;
+
+                File.WriteAllText(LastGamePathLocation, AppSettings.Settings.GameInstallEXEPath);
+
                 //AppSettings.Settings.Save();
 
-                if(GameInstanceSingleton.InitializeSingleton(filePath))
+                if (GameInstanceSingleton.InitializeSingleton(filePath))
                 {
                     if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
                     {
@@ -647,30 +664,27 @@ namespace FIFAModdingUI
                 if (ProfilesLibrary.IsFIFA21DataVersion())
                 {
                     //txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
-                    chkUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    chkUseSymbolicLink.IsChecked = false;
+                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
+                    switchUseSymbolicLink.IsOn = false;
                     btnLaunchOtherTool.Visibility = Visibility.Visible;
 
                     btnOpenCEMWindow.Visibility = Visibility.Visible;
-
-                    chkUseCEM.IsEnabled = true;
                 }
 
                 if (ProfilesLibrary.IsMadden21DataVersion())
                 {
-                    chkUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    chkUseSymbolicLink.IsChecked = false;
+                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
+                    switchUseSymbolicLink.IsOn = false;
                 }
 
-                chkCleanLegacyModDirectory.IsChecked = false;
-                chkCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
+                switchCleanLegacyModDirectory.IsOn = false;
+                switchCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
 
-                chkUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
-                if (!GameInstanceSingleton.IsCompatibleWithLegacyMod())
-                    chkUseLegacyModSupport.IsChecked = false;
+                switchUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
+                switchUseLegacyModSupport.IsOn = GameInstanceSingleton.IsCompatibleWithLegacyMod();
 
-                chkInstallLocale.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
-                chkUseLiveEditor.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+                switchInstallLocale.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+                switchUseLiveEditor.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
 
                 if (GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
                 {
@@ -789,8 +803,8 @@ namespace FIFAModdingUI
             DoLegacyModSetup();
 
             FindOtherLauncherEXEWindow findOtherLauncherEXEWindow = new FindOtherLauncherEXEWindow();
-            findOtherLauncherEXEWindow.InjectLegacyModSupport = chkUseLegacyModSupport.IsChecked.Value;
-            findOtherLauncherEXEWindow.InjectLiveEditorSupport = chkUseLiveEditor.IsChecked.Value;
+            findOtherLauncherEXEWindow.InjectLegacyModSupport = switchUseLegacyModSupport.IsOn;
+            findOtherLauncherEXEWindow.InjectLiveEditorSupport = switchUseLiveEditor.IsOn;
 
             btnLaunchOtherTool.IsEnabled = false;
             findOtherLauncherEXEWindow.ShowDialog();

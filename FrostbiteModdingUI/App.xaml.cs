@@ -39,7 +39,7 @@ namespace FIFAModdingUI
         {
             get
             {
-                return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\";
             }
         }
 
