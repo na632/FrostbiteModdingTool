@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowState="Normal" Topmost="True"
-        Title="" Height="200" Width="450">
+        Title="App is busy" Height="200" Width="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>

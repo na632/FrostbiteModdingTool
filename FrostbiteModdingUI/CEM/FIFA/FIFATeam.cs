@@ -101,45 +101,51 @@ namespace CareerExpansionMod.CEM.FIFA
         public int trait1vstrong { get; set; }
         public int matchdayattackrating { get; set; }
 
-        private static List<FIFAPlayer> CachedPlayers = new List<FIFAPlayer>();
+        private static Dictionary<int, FIFAPlayer> CachedPlayers = new Dictionary<int, FIFAPlayer>();
         private static DateTime CachedPlayersDate = DateTime.Now;
+
+        public static void ClearCache()
+        {
+            CachedPlayers.Clear();
+            CachedPlayersDate = DateTime.Now;
+        }
 
         public List<FIFAPlayer> GetPlayers()
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            if(CachedPlayers.Count == 0 || CachedPlayersDate.AddMinutes(1) < DateTime.Now)
+            if(CachedPlayers.Count == 0)
             {
-                CachedPlayers = new List<FIFAPlayer>();
+                CachedPlayers = new Dictionary<int, FIFAPlayer>();
 
                 var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == CareerDB1.FIFAUser.clubteamid.ToString());
                 var ps = (from tpl in tplinks
                           join p in CareerDB2.Current.players on tpl["playerid"].ToString() equals p["playerid"].ToString()
                           select p) ;
-            
-                foreach(var i in ps)
-                {
 
-                    var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == i["playerid"].ToString());
-                    if(pl != null)
+                foreach (var i in ps)
+                {
+                    var playerId = int.Parse(i["playerid"].ToString()); 
+                    if (!CachedPlayers.ContainsKey(playerId))
                     {
-                        var plItem = CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl);
-                        if (!CachedPlayers.Contains(plItem))
+                        var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == i["playerid"].ToString());
+                        if (pl != null)
                         {
-                            CachedPlayers.Add(plItem);
+                            var plItem = CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl);
+
+                            CachedPlayers.Add(playerId, plItem);
                         }
                     }
-
-
                 }
+
                 CachedPlayersDate = DateTime.Now;
             }
 
             sw.Stop();
             //Debug.WriteLine($"GetPlayers() took :: {sw.Elapsed.TotalSeconds}s");
 
-            return CachedPlayers;
+            return CachedPlayers.Values.ToList();
         }
 
         public static double InfluenceCalculation(FIFAPlayer p)

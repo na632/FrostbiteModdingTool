@@ -107,6 +107,24 @@ namespace FIFAModdingUI.Windows
             File.WriteAllText(LastFIFA21Location, AppSettings.Settings.GameInstallEXEPath);
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if(ProjectManagement != null)
+            {
+                if (ProjectManagement.Project != null && ProjectManagement.Project.IsDirty)
+                {
+                    if(MessageBox.Show("Your project has been changed. Would you like to save it now?", "Project has not been saved", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        e.Cancel = true;
+                        SaveProjectWithDialog();
+                    }
+                }
+            }
+
+
+            base.OnClosing(e);
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
@@ -473,11 +491,21 @@ namespace FIFAModdingUI.Windows
 
         }
 
-        private void btnProjectSave_Click(object sender, RoutedEventArgs e)
+        private async void btnProjectSave_Click(object sender, RoutedEventArgs e)
         {
+            SaveProjectWithDialog();
+        }
+
+        private async void SaveProjectWithDialog()
+        {
+            LoadingDialog loadingDialog = new LoadingDialog("Saving Project", "Cleaning loose Legacy Files");
+            loadingDialog.Show();
+            await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
             LegacyFileManager_M21.CleanUpChunks();
+
+            loadingDialog.Close();
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Project files|*.fbproject";
@@ -486,21 +514,29 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
-                    ProjectManagement.Project.Save(saveFileDialog.FileName, true);
-
+                    loadingDialog = new LoadingDialog("Saving Project", "Saving project to file");
+                    loadingDialog.Show();
+                    loadingDialog.UpdateAsync(50);
+                    await ProjectManagement.Project.SaveAsync(saveFileDialog.FileName, true);
+                    loadingDialog.UpdateAsync(75);
 
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
+                    loadingDialog.UpdateAsync(100);
 
                     WindowTitle = saveFileDialog.FileName;
 
+                    loadingDialog.Close();
+
                 }
             }
+
+            loadingDialog = null;
         }
 
-        private void btnProjectOpen_Click(object sender, RoutedEventArgs e)
+        private async void btnProjectOpen_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Project files|*.fbproject";

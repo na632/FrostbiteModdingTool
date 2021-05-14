@@ -104,6 +104,18 @@ public class FIFAPlayerStat
 										  //public byte N00000125 { get; set; } //0x0055
 										  //public byte N0000012F { get; set; } //0x0056
 										  //public byte N00000126 { get; set; } //0x0057
+	public byte Unk1 { get; set; }
+	public byte Unk2 { get; set; }
+	public byte Unk3 { get; set; }
+	public byte Unk4 { get; set; }
+	public byte Unk5 { get; set; }
+	public byte Unk6 { get; set; }
+	public byte Unk7 { get; set; }
+	public byte AvgMinutesPlayed2 { get; set; }
+	public byte Unk9 { get; set; }
+	public ushort TotalPasses { get; set; }
+	public ushort TotalShots { get; set; }
+	public ushort TotalTackles { get; set; }
 
 	private double ar;
 	public double AverageRating
@@ -274,37 +286,54 @@ public class FIFAPlayerStat
         }
     }
 
+	private static Dictionary<int, string> CompetitionNameToIds
+	{
+		get 
+		{
+			Dictionary<int, string> objs = new Dictionary<int, string>();
+			objs.Add(10, "Premier League");
+			objs.Add(26, "Premier League");
+
+			return objs;
+		}
+	}
     public string CompName { 
 		get
         {
 			switch(Competition)
             {
-				case 13:
-					return "EFL Championship";
-				case 19:
-					return "EFL League 2";
+				case 10:
 				case 26:
 					return "Premier League";
+				case 13:
+					return "EFL Championship";
+				case 16:
+					return "EFL League 1";
+				case 19:
 				case 35:
 					return "EFL League 2";
+				case 55:
+					return "La Liga";
+				case 61:
+					return "Bundesliga";
 				case 80:
-					return "Carabao Cup";
 				case 88:
 					return "Carabao Cup";
 				case 108:
 					return "Champions League";
 				case 140:
+				case 148:
 					return "FA Cup";
 				case 145:
 					return "Community Shield";
-				case 148:
-					return "FA Cup";
 				case 192:
 					return "Europa League";
 				case 194:
 					return "EFL Trophy";
+				case 203:
+					return "Supercopa";
 				default:
-					return "N/A - Unhandled in this Version";
+					return null;
             }
         } 
 	}
@@ -450,27 +479,77 @@ public class FIFAPlayerStat
 		using (NativeReader nr = new NativeReader(new MemoryStream(bytes)))
 		{
 			FIFAPlayerStat playerStat = new FIFAPlayerStat();
-			{
-				playerStat.TeamId = nr.ReadInt();
-				playerStat.PlayerId = nr.ReadInt();
-				playerStat.Competition = nr.ReadByte();
-				playerStat.ID = nr.ReadByte();
-				playerStat.MinutesPlayed = nr.ReadShort();
-				playerStat.Rating = nr.ReadShort();
-				playerStat.Goals = nr.ReadByte();
-				nr.ReadByte();
-				nr.ReadByte();
-				nr.ReadByte();
-				playerStat.Appereances = nr.ReadByte();
-				playerStat.Assists = nr.ReadByte();
-				nr.ReadByte();
-				nr.ReadByte();
-				nr.ReadByte();
-				playerStat.CleanSheets = nr.ReadByte();
-				nr.ReadInt(); // some kind of date
-			};
+			playerStat.TeamId = nr.ReadInt();
+			playerStat.PlayerId = nr.ReadInt();
+			playerStat.Competition = nr.ReadByte();
+			playerStat.ID = nr.ReadByte();
+			playerStat.MinutesPlayed = nr.ReadShort();
+			playerStat.Rating = nr.ReadShort();
+			playerStat.Goals = nr.ReadByte();
+			playerStat.Unk1 = nr.ReadByte();
+			playerStat.Unk2 = nr.ReadByte();
+			playerStat.Unk3 = nr.ReadByte();
+			playerStat.Appereances = nr.ReadByte();
+			playerStat.Assists = nr.ReadByte();
+			playerStat.Unk4 = nr.ReadByte();
+			playerStat.Unk5 = nr.ReadByte();
+			playerStat.Unk6 = nr.ReadByte();
+			playerStat.CleanSheets = nr.ReadByte();
+			var randomDate1 = nr.ReadInt(); // some kind of date
+			playerStat.Unk7 = nr.ReadByte();
+			playerStat.AvgMinutesPlayed2 = nr.ReadByte();
+			playerStat.Unk9 = nr.ReadByte();
+			var unk10 = nr.ReadByte();
+			var unk11 = nr.ReadByte();
+			var unk12 = nr.ReadByte();
+			var unk13 = nr.ReadByte();
+			var unk14 = nr.ReadByte();
+			var randomDate2 = nr.ReadInt();
+			var unk15 = nr.ReadByte();
+			var unk16 = nr.ReadByte();
+			playerStat.TotalPasses = nr.ReadUShort();
+			//var unk18 = nr.ReadByte();
+			var unk19 = nr.ReadByte();
+			var unk20 = nr.ReadByte();
+			var unk21 = nr.ReadByte();
+			var unk22 = nr.ReadByte();
+			var randomDate4 = nr.ReadInt();
+			var unk27 = nr.ReadByte();
+			var unk28 = nr.ReadByte();
+			var unk29 = nr.ReadByte();
+			var unk30 = nr.ReadByte();
+			var unk31 = nr.ReadByte();
+			var unk32 = nr.ReadByte();
+			var unk33 = nr.ReadByte();
+			var unk34 = nr.ReadByte();
+			var randomDate5 = nr.ReadInt();
+			var unk39 = nr.ReadByte();
+			var unk40 = nr.ReadByte();
+			var unk41 = nr.ReadByte();
+			var unk42 = nr.ReadByte();
+			var unk43 = nr.ReadByte();
+			var unk44 = nr.ReadByte();
+			var unk45 = nr.ReadByte();
+			var unk46 = nr.ReadByte();
+			var randomDate3 = nr.ReadInt();
+			var unk47 = nr.ReadShort();
+			playerStat.TotalShots = nr.ReadUShort();
+			var unk48 = nr.ReadShort();
+			var unk49 = nr.ReadShort();
+			var unk50 = nr.ReadByte();
+			var unk51 = nr.ReadByte();
+			var unk52 = nr.ReadByte();
 
-			if (playerStat.PlayerId > 0)
+
+			//if (playerStat.PlayerId == 258406)
+   //         {
+			//	using(NativeWriter nwTest = new NativeWriter(new FileStream("playerStatDebug.dat", FileMode.OpenOrCreate)))
+   //             {
+			//		nwTest.Write(bytes);
+   //             }
+   //         }
+
+			if (playerStat.PlayerId > 0 && playerStat.CompName != null)
 			{
 
 				var savedplayerstats = FIFAPlayerStat.Load();
@@ -485,8 +564,12 @@ public class FIFAPlayerStat
 
 				return playerStat;
 			}
+			else
+            {
 
-			return playerStat;
+            }
+
+			return null;
 		}
 	}
 

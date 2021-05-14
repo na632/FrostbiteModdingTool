@@ -47,6 +47,11 @@ namespace FrostbiteModdingUI.Windows
             });
         }
 
+        public async void UpdateAsync(int progress)
+        {
+            await Task.Run(() => { Update(progress); });
+        }
+
         public void Update(string loadingSubTitle, string loadingCurrentMessage, int progress)
         {
             Dispatcher.Invoke(() => {
@@ -56,6 +61,11 @@ namespace FrostbiteModdingUI.Windows
                 pbar.Value = progress;
 
             });
+        }
+
+        public async void UpdateAsync(string loadingSubTitle, string loadingCurrentMessage, int progress)
+        {
+            await Task.Run(() => { Update(loadingSubTitle, loadingCurrentMessage, progress); });
         }
     }
 }

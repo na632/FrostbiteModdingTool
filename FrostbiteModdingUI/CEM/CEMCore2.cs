@@ -117,8 +117,11 @@ namespace FrostbiteModdingUI.CEM
                                  where myRow.Field<int>("teamid") == CareerDB1.FIFAUser.clubteamid
                                  select myRow);
                     var team = teams.FirstOrDefault();
-                    if (team != null)
-                        CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
+                if (team != null)
+                {
+                    CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
+                    FIFATeam.ClearCache();
+                }
 
                     //swTeams.Stop();
                     //Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
@@ -187,8 +190,8 @@ namespace FrostbiteModdingUI.CEM
                     foreach (var pos in found2)
                     {
                         nr.Position = pos;
-                        var ps = FIFAPlayerStat.ConvertBytesToStats(nr.ReadBytes(100));
-                        if(ps.Apps > 0)
+                        var ps = FIFAPlayerStat.ConvertBytesToStats(nr.ReadBytes(87));
+                        if(ps != null && ps.PlayerId > 0 && ps.Apps > 0)
                             stats.Add(ps);
                     }
                 }

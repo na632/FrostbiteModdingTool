@@ -464,9 +464,9 @@ namespace FrostbiteModdingUI.Windows
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
 
-                    using (var nw = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
+                    using (var nw = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create), wide: true))
                     {
-                        nw.WriteLine("Player Id,Player Name,Season Year,Competition,Appereances,Goals,Assists,Average Rating");
+                        nw.WriteLine("Player Id,Player Name,Season Year,Competition,Appereances,Goals,Assists,Clean Sheets,Average Rating");
                         for (var i = 0; i < ps.Count; i++)
                         {
                             nw.WriteLine(
@@ -477,6 +477,7 @@ namespace FrostbiteModdingUI.Windows
                                 + "," + ps[i].Apps
                                 + "," + ps[i].Goals
                                 + "," + ps[i].Assists 
+                                + "," + ps[i].CleanSheets
                                 + "," + ps[i].AverageRating);
                         }
                     }

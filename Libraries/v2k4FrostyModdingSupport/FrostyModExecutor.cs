@@ -284,13 +284,13 @@ namespace paulv2k4ModdingExecuter
                         if (location_toc_file != "")
                         {
                             uint orig_toc_file_num1 = 0u;
-                            uint num2 = 0u;
+                            uint tocchunkposition = 0u;
                             byte[] byte_array_of_original_toc_file = null;
                             using (NativeReader reader_original_toc_file = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
                             {
                                 uint orig_toc_file_num = reader_original_toc_file.ReadUInt();
                                 orig_toc_file_num1 = reader_original_toc_file.ReadUInt();
-                                num2 = reader_original_toc_file.ReadUInt();
+                                tocchunkposition = reader_original_toc_file.ReadUInt();
                                 byte_array_of_original_toc_file = reader_original_toc_file.ReadToEnd();
                                 if (orig_toc_file_num == 3286619587u)
                                 {
@@ -333,14 +333,14 @@ namespace paulv2k4ModdingExecuter
                                         if (orig_toc_file_num1 != uint.MaxValue)
                                         {
                                             reader_of_original_toc_file_array.Position = orig_toc_file_num1 - 12;
-                                            int original_toc_file_item_count = reader_of_original_toc_file_array.ReadInt();
+                                            int bundleCount = reader_of_original_toc_file_array.ReadInt();
                                             List<int> list = new List<int>();
-                                            for (int i = 0; i < original_toc_file_item_count; i++)
+                                            for (int i = 0; i < bundleCount; i++)
                                             {
                                                 list.Add(reader_of_original_toc_file_array.ReadInt());
                                             }
                                             List<int> list2 = new List<int>();
-                                            for (int j = 0; j < original_toc_file_item_count; j++)
+                                            for (int j = 0; j < bundleCount; j++)
                                             {
                                                 int num7 = reader_of_original_toc_file_array.ReadInt() - 12;
                                                 long position2 = reader_of_original_toc_file_array.Position;
@@ -695,7 +695,7 @@ namespace paulv2k4ModdingExecuter
                                                 }
                                             }
                                             num4 = writer_new_toc_file_mod_data.BaseStream.Position - position;
-                                            writer_new_toc_file_mod_data.Write(original_toc_file_item_count);
+                                            writer_new_toc_file_mod_data.Write(bundleCount);
                                             foreach (int item19 in list)
                                             {
                                                 writer_new_toc_file_mod_data.Write(item19);
@@ -710,11 +710,11 @@ namespace paulv2k4ModdingExecuter
                                         List<Guid> list7 = new List<Guid>();
                                         List<List<Tuple<Guid, int>>> list8 = new List<List<Tuple<Guid, int>>>();
                                         int num23 = 0;
-                                        if (num2 != uint.MaxValue)
+                                        if (tocchunkposition != uint.MaxValue)
                                         {
                                             _ = writer_new_toc_file_mod_data.BaseStream.Position;
                                             _ = reader_of_original_toc_file_array.Position;
-                                            reader_of_original_toc_file_array.Position = num2 - 12;
+                                            reader_of_original_toc_file_array.Position = tocchunkposition - 12;
                                             num23 = reader_of_original_toc_file_array.ReadInt();
                                             for (int m = 0; m < num23; m++)
                                             {
@@ -5988,7 +5988,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 lastModPaths = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(LastLaunchedModsData);
             }
             var sameCountAsLast = lastModPaths.Count == modPaths.Count();
-            var sameAsLast = sameCountAsLast;
+            var sameAsLast = sameCountAsLast;// && lastModPaths.Equals(modPaths);
             if (sameCountAsLast)
             {
                 foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
@@ -6003,6 +6003,10 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             sameAsLast = (f.LastWriteTime == lastModPaths[f.FullName]);
                             if (!sameAsLast)
                                 break;
+                        }
+                        else
+                        {
+                            sameAsLast = false;
                         }
                     }
                     else

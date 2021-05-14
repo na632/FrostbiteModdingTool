@@ -142,6 +142,11 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
+    <None Update="CEM\Data\dcplayernames_f21.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
+    </None>
     <None Update="CEM\Data\fifa_ng_db-meta.XML">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

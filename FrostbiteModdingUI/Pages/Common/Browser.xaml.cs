@@ -825,8 +825,11 @@ namespace FIFAModdingUI.Pages.Common
 						lblImageDDSType.Content = textureAsset.PixelFormat;
 						lblImageRESType.Content = textureAsset.Type;
 						lblImageSize.Content = textureAsset.Width + "x" + textureAsset.Height;
-						lblImageCASFile.Content = res.ExtraData.CasPath;
-						lblImageCASOffset.Content = res.ExtraData.DataOffset;
+						if (res.ExtraData != null)
+						{
+							lblImageCASFile.Content = res.ExtraData.CasPath;
+							lblImageCASOffset.Content = res.ExtraData.DataOffset;
+						}
 						lblImageBundleFile.Content = !string.IsNullOrEmpty(res.SBFileLocation) ? res.SBFileLocation : res.TOCFileLocation;
 
 						btnExport.IsEnabled = true;
