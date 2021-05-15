@@ -42,6 +42,8 @@ namespace FrostbiteModdingUI.Windows
         {
             Dispatcher.Invoke(() => {
 
+                pring.Visibility = Visibility.Collapsed;
+                pbar.Visibility = Visibility.Visible;
                 pbar.Value = progress;
 
             });

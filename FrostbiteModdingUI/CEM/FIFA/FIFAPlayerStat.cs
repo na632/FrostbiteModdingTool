@@ -43,75 +43,84 @@ public class FIFAPlayerStat
 	//public byte N000000AB { get; set; } //0x0015
 	//public byte N000000B5 { get; set; } //0x0016
 	public byte CleanSheets { get; set; } //0x0017
-										  //public int ContractedUntil { get; set; } //0x0018
-										  //public byte N000000B9 { get; set; } //0x001C
-										  //public byte N000000BF { get; set; } //0x001D
-										  //public byte N000000BE { get; set; } //0x001E
-										  //public byte N000000BC { get; set; } //0x001F
-										  //public byte N0000008A { get; set; } //0x0020
-										  //public byte N000000CA { get; set; } //0x0021
-										  //public byte N000000CE { get; set; } //0x0022
-										  //public byte N000000D1 { get; set; } //0x0023
-										  //public byte N000000CF { get; set; } //0x0024
-										  //public byte N000000CB { get; set; } //0x0025
-										  //public byte N000000D4 { get; set; } //0x0026
-										  //public byte N000000CC { get; set; } //0x0027
-										  //public byte N0000008B { get; set; } //0x0028
-										  //public byte N000000D7 { get; set; } //0x0029
-										  //public byte N000000ED { get; set; } //0x002A
-										  //public byte N0000010B { get; set; } //0x002B
-										  //public byte N000000EE { get; set; } //0x002C
-										  //public byte N000000D8 { get; set; } //0x002D
-										  //public byte N000000F0 { get; set; } //0x002E
-										  //public byte N000000D9 { get; set; } //0x002F
-										  //public byte N0000008C { get; set; } //0x0030
-										  //public byte N000000DB { get; set; } //0x0031
-										  //public byte N000000F3 { get; set; } //0x0032
-										  //public byte N0000010F { get; set; } //0x0033
-										  //public byte N000000F4 { get; set; } //0x0034
-										  //public byte N000000DC { get; set; } //0x0035
-										  //public byte N000000F6 { get; set; } //0x0036
-										  //public byte N000000DD { get; set; } //0x0037
-										  //public byte N0000008D { get; set; } //0x0038
-										  //public byte N000000DF { get; set; } //0x0039
-										  //public byte N000000F9 { get; set; } //0x003A
-										  //public byte N00000113 { get; set; } //0x003B
-										  //public byte N000000FA { get; set; } //0x003C
-										  //public byte N000000E0 { get; set; } //0x003D
-										  //public byte N000000FC { get; set; } //0x003E
-										  //public byte N000000E1 { get; set; } //0x003F
-										  //public byte N0000008E { get; set; } //0x0040
-										  //public byte N000000E3 { get; set; } //0x0041
-										  //public byte N000000FF { get; set; } //0x0042
-										  //public byte N00000117 { get; set; } //0x0043
-										  //public byte N00000100 { get; set; } //0x0044
-										  //public byte N000000E4 { get; set; } //0x0045
-										  //public byte N00000102 { get; set; } //0x0046
-										  //public byte N000000E5 { get; set; } //0x0047
-										  //public byte N0000008F { get; set; } //0x0048
-										  //public byte N000000E7 { get; set; } //0x0049
-										  //public byte N00000105 { get; set; } //0x004A
-										  //public byte N0000011B { get; set; } //0x004B
-										  //public byte N00000106 { get; set; } //0x004C
-										  //public byte N000000E8 { get; set; } //0x004D
-										  //public byte N00000108 { get; set; } //0x004E
-										  //public byte N000000E9 { get; set; } //0x004F
-										  //public byte N00000090 { get; set; } //0x0050
-										  //public byte N00000124 { get; set; } //0x0051
-										  //public byte N00000128 { get; set; } //0x0052
-										  //public byte N0000012B { get; set; } //0x0053
-										  //public byte N00000129 { get; set; } //0x0054
-										  //public byte N00000125 { get; set; } //0x0055
-										  //public byte N0000012F { get; set; } //0x0056
-										  //public byte N00000126 { get; set; } //0x0057
-	public byte Unk1 { get; set; }
+    public int GameDate1 { get; private set; }
+
+    //public int ContractedUntil { get; set; } //0x0018
+    //public byte N000000B9 { get; set; } //0x001C
+    //public byte N000000BF { get; set; } //0x001D
+    //public byte N000000BE { get; set; } //0x001E
+    //public byte N000000BC { get; set; } //0x001F
+    //public byte N0000008A { get; set; } //0x0020
+    //public byte N000000CA { get; set; } //0x0021
+    //public byte N000000CE { get; set; } //0x0022
+    //public byte N000000D1 { get; set; } //0x0023
+    //public byte N000000CF { get; set; } //0x0024
+    //public byte N000000CB { get; set; } //0x0025
+    //public byte N000000D4 { get; set; } //0x0026
+    //public byte N000000CC { get; set; } //0x0027
+    //public byte N0000008B { get; set; } //0x0028
+    //public byte N000000D7 { get; set; } //0x0029
+    //public byte N000000ED { get; set; } //0x002A
+    //public byte N0000010B { get; set; } //0x002B
+    //public byte N000000EE { get; set; } //0x002C
+    //public byte N000000D8 { get; set; } //0x002D
+    //public byte N000000F0 { get; set; } //0x002E
+    //public byte N000000D9 { get; set; } //0x002F
+    //public byte N0000008C { get; set; } //0x0030
+    //public byte N000000DB { get; set; } //0x0031
+    //public byte N000000F3 { get; set; } //0x0032
+    //public byte N0000010F { get; set; } //0x0033
+    //public byte N000000F4 { get; set; } //0x0034
+    //public byte N000000DC { get; set; } //0x0035
+    //public byte N000000F6 { get; set; } //0x0036
+    //public byte N000000DD { get; set; } //0x0037
+    //public byte N0000008D { get; set; } //0x0038
+    //public byte N000000DF { get; set; } //0x0039
+    //public byte N000000F9 { get; set; } //0x003A
+    //public byte N00000113 { get; set; } //0x003B
+    //public byte N000000FA { get; set; } //0x003C
+    //public byte N000000E0 { get; set; } //0x003D
+    //public byte N000000FC { get; set; } //0x003E
+    //public byte N000000E1 { get; set; } //0x003F
+    //public byte N0000008E { get; set; } //0x0040
+    //public byte N000000E3 { get; set; } //0x0041
+    //public byte N000000FF { get; set; } //0x0042
+    //public byte N00000117 { get; set; } //0x0043
+    //public byte N00000100 { get; set; } //0x0044
+    //public byte N000000E4 { get; set; } //0x0045
+    //public byte N00000102 { get; set; } //0x0046
+    //public byte N000000E5 { get; set; } //0x0047
+    //public byte N0000008F { get; set; } //0x0048
+    //public byte N000000E7 { get; set; } //0x0049
+    //public byte N00000105 { get; set; } //0x004A
+    //public byte N0000011B { get; set; } //0x004B
+    //public byte N00000106 { get; set; } //0x004C
+    //public byte N000000E8 { get; set; } //0x004D
+    //public byte N00000108 { get; set; } //0x004E
+    //public byte N000000E9 { get; set; } //0x004F
+    //public byte N00000090 { get; set; } //0x0050
+    //public byte N00000124 { get; set; } //0x0051
+    //public byte N00000128 { get; set; } //0x0052
+    //public byte N0000012B { get; set; } //0x0053
+    //public byte N00000129 { get; set; } //0x0054
+    //public byte N00000125 { get; set; } //0x0055
+    //public byte N0000012F { get; set; } //0x0056
+    //public byte N00000126 { get; set; } //0x0057
+    public byte Unk1 { get; set; }
 	public byte Unk2 { get; set; }
 	public byte Unk3 { get; set; }
 	public byte Unk4 { get; set; }
 	public byte Unk5 { get; set; }
 	public byte Unk6 { get; set; }
-	public byte Unk7 { get; set; }
-	public byte AvgMinutesPlayed2 { get; set; }
+	public byte GD1_ID { get; set; }
+    public byte GD1_B2 { get; private set; }
+    public byte GD1_B3 { get; private set; }
+    public byte GD1_B4 { get; private set; }
+    public byte GD1_B5 { get; private set; }
+    public byte GD1_B6 { get; private set; }
+    public byte GD1_B7 { get; private set; }
+    public byte GD1_B8 { get; private set; }
+    public byte AvgMinutesPlayed2 { get; set; }
 	public byte Unk9 { get; set; }
 	public ushort TotalPasses { get; set; }
 	public ushort TotalShots { get; set; }
@@ -217,6 +226,15 @@ public class FIFAPlayerStat
 		}
         set { calenderYear = value; }
     }
+
+	/// <summary>
+	/// Generated Elsewhere
+	/// </summary>
+	public int OVR { get; set; }
+	/// <summary>
+	/// Generated Elsewhere
+	/// </summary>
+	public int OVRGrowth { get; set; }
 
 	public string PlayerName
     {
@@ -495,17 +513,17 @@ public class FIFAPlayerStat
 			playerStat.Unk5 = nr.ReadByte();
 			playerStat.Unk6 = nr.ReadByte();
 			playerStat.CleanSheets = nr.ReadByte();
-			var randomDate1 = nr.ReadInt(); // some kind of date
-			playerStat.Unk7 = nr.ReadByte();
-			playerStat.AvgMinutesPlayed2 = nr.ReadByte();
-			playerStat.Unk9 = nr.ReadByte();
-			var unk10 = nr.ReadByte();
-			var unk11 = nr.ReadByte();
-			var unk12 = nr.ReadByte();
-			var unk13 = nr.ReadByte();
-			var unk14 = nr.ReadByte();
-			var randomDate2 = nr.ReadInt();
-			var unk15 = nr.ReadByte();
+			playerStat.GameDate1 = nr.ReadInt(); // some kind of date
+			playerStat.GD1_ID = nr.ReadByte();
+			playerStat.GD1_B2 = nr.ReadByte();
+			playerStat.GD1_B3 = nr.ReadByte();
+			playerStat.GD1_B4 = nr.ReadByte();
+			playerStat.GD1_B5 = nr.ReadByte();
+			playerStat.GD1_B6 = nr.ReadByte();
+			playerStat.GD1_B7 = nr.ReadByte();
+			playerStat.GD1_B8 = nr.ReadByte();
+			playerStat.GameDate2 = nr.ReadInt();
+			playerStat.GD2_ID = nr.ReadByte();
 			var unk16 = nr.ReadByte();
 			playerStat.TotalPasses = nr.ReadUShort();
 			//var unk18 = nr.ReadByte();
@@ -513,8 +531,8 @@ public class FIFAPlayerStat
 			var unk20 = nr.ReadByte();
 			var unk21 = nr.ReadByte();
 			var unk22 = nr.ReadByte();
-			var randomDate4 = nr.ReadInt();
-			var unk27 = nr.ReadByte();
+			playerStat.GameDate3 = nr.ReadInt();
+			playerStat.GD3_ID = nr.ReadByte();
 			var unk28 = nr.ReadByte();
 			var unk29 = nr.ReadByte();
 			var unk30 = nr.ReadByte();
@@ -522,7 +540,7 @@ public class FIFAPlayerStat
 			var unk32 = nr.ReadByte();
 			var unk33 = nr.ReadByte();
 			var unk34 = nr.ReadByte();
-			var randomDate5 = nr.ReadInt();
+			playerStat.GameDate4 = nr.ReadInt();
 			var unk39 = nr.ReadByte();
 			var unk40 = nr.ReadByte();
 			var unk41 = nr.ReadByte();
@@ -531,7 +549,7 @@ public class FIFAPlayerStat
 			var unk44 = nr.ReadByte();
 			var unk45 = nr.ReadByte();
 			var unk46 = nr.ReadByte();
-			var randomDate3 = nr.ReadInt();
+			playerStat.GameDate5 = nr.ReadInt();
 			var unk47 = nr.ReadShort();
 			playerStat.TotalShots = nr.ReadUShort();
 			var unk48 = nr.ReadShort();
@@ -656,7 +674,14 @@ public class FIFAPlayerStat
 		}
 	}
 
-	public static List<FIFAPlayerStat> FIFAPlayerStatsInstance;
+    public int GameDate3 { get; private set; }
+    public byte GD3_ID { get; private set; }
+    public int GameDate4 { get; private set; }
+    public int GameDate5 { get; private set; }
+    public int GameDate2 { get; private set; }
+    public byte GD2_ID { get; private set; }
+
+    public static List<FIFAPlayerStat> FIFAPlayerStatsInstance;
 
 	public static List<FIFAPlayerStat> Load()
 	{

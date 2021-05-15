@@ -1,9 +1,11 @@
 ﻿using CareerExpansionMod.CEM;
 using CareerExpansionMod.CEM.FIFA;
+using FrostbiteSdk;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -311,6 +313,25 @@ Selfish = 1,
                 }
                 return 18;
             }
+        }
+
+        public int GetPlayerGrowth()
+        {
+            int playerGrowth = 0;
+            if(CareerDB1.Current != null && CareerFile.Current != null)
+            {
+                var gTable = CareerFile.Current.Databases[0].GetTable("career_playergrowthuserseason");
+                if (gTable != null) 
+                {
+                    var growthTable = gTable.ConvertToDataTable().AsEnumerable();
+                    var playerOVRRow = growthTable.Where(x => (int)x["playerid"] == playerid).OrderBy(x => x["overall"]).FirstOrDefault();
+                    if (playerOVRRow != null) 
+                    {
+                        playerGrowth = overallrating - (int)playerOVRRow["overall"];
+                    }
+                }
+            }
+            return playerGrowth;
         }
 
         public static List<FIFAPlayer> GetPlayersById(int id)

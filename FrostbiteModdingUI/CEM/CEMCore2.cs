@@ -179,10 +179,10 @@ namespace FrostbiteModdingUI.CEM
             using (NativeReader nr = new NativeReader(new FileStream(CurrentCareerFile.FileName, FileMode.Open)))
             {
                 var rBytes = nr.ReadToEnd();
-                foreach (var p in userTeamPlayers)
+                foreach (var player in userTeamPlayers)
                 {
                     var searchByte = BitConverter.GetBytes(tid1).ToList();
-                    var playerIdByte = BitConverter.GetBytes(p.playerid).ToArray();
+                    var playerIdByte = BitConverter.GetBytes(player.playerid).ToArray();
                     searchByte.AddRange(playerIdByte);
 
                     BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
@@ -190,9 +190,13 @@ namespace FrostbiteModdingUI.CEM
                     foreach (var pos in found2)
                     {
                         nr.Position = pos;
-                        var ps = FIFAPlayerStat.ConvertBytesToStats(nr.ReadBytes(87));
-                        if(ps != null && ps.PlayerId > 0 && ps.Apps > 0)
-                            stats.Add(ps);
+                        var playerStat = FIFAPlayerStat.ConvertBytesToStats(nr.ReadBytes(87));
+                        if (playerStat != null && playerStat.PlayerId > 0 && playerStat.Apps > 0)
+                        {
+                            playerStat.OVR = player.overallrating;
+                            playerStat.OVRGrowth = player.GetPlayerGrowth();
+                            stats.Add(playerStat);
+                        }
                     }
                 }
             }

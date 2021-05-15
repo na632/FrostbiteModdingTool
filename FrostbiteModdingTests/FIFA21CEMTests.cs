@@ -47,19 +47,23 @@ namespace FrostbiteModdingTests
             var ps = cem.GetPlayerStats();
             using (var nw = new NativeWriter(new FileStream("_TestExportCSV.csv", FileMode.Create), wide: true))
             {
-                nw.WriteLine("Player Id,Player Name,Season Year,Competition,Appereances,Goals,Assists,Clean Sheets,Average Rating");
+                nw.WriteLine("Player Id,Player Name,Season Year,Competition,Appereances,Goals,Assists,Clean Sheets,Average Rating,Minutes Per Game,OVR,Growth");
                 for (var i = 0; i < ps.Count; i++)
                 {
                     nw.WriteLine(
                         ps[i].PlayerId
-                        + ",\"" + ps[i].PlayerName + "\""
+                        + "," + ps[i].PlayerName
                         + "," + ps[i].SeasonYear
-                        + ",\"" + ps[i].CompName + "\""
+                        + "," + ps[i].CompName
                         + "," + ps[i].Apps
                         + "," + ps[i].Goals
                         + "," + ps[i].Assists
                         + "," + ps[i].CleanSheets
-                        + "," + ps[i].AverageRating);
+                        + "," + ps[i].AverageRating
+                        + "," + ps[i].MinutesPerGame
+                        + "," + ps[i].OVR
+                        + "," + ps[i].OVRGrowth
+                        );
                 }
             }
         }
