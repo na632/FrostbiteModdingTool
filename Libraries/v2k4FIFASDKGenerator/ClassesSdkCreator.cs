@@ -12,8 +12,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using static Frosty.OpenFrostyFiles;
-using FieldInfo = SdkGenerator.BaseInfo.FieldInfo;
 
 namespace SdkGenerator
 {
@@ -339,7 +337,7 @@ namespace SdkGenerator
                                 //}
                                 // PG: Change it to just overwrite the last one? 
                                 //dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
-                                // dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+                                //dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
 
 
                                 EbxClass item2 = default(EbxClass);
@@ -385,24 +383,24 @@ namespace SdkGenerator
                                                 break;
                                             }
                                         }
-                                        //if (!flag)
-                                        //{
+                                        if (!flag)
+                                        {
 
 
-                                        //    uint num8 = 3109710567u;
-                                        //    if (field.NameHash != num8)
-                                        //    {
-                                        //        field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
-                                        //        DbObject dbObject6 = DbObject.CreateObject();
-                                        //        dbObject6.SetValue("name", field.Name);
-                                        //        dbObject6.SetValue("nameHash", field.NameHash);
-                                        //        dbObject6.SetValue("type", field.Type);
-                                        //        dbObject6.SetValue("flags", (ushort)0);
-                                        //        dbObject6.SetValue("offset", field.DataOffset);
-                                        //        dbObject6.SetValue("value", (int)field.DataOffset);
-                                        //        dbObject4.Add(dbObject6);
+                                            //    uint num8 = 3109710567u;
+                                            //    if (field.NameHash != num8)
+                                            //    {
+                                            field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
+                                        DbObject dbObject6 = DbObject.CreateObject();
+                                        dbObject6.SetValue("name", field.Name);
+                                        dbObject6.SetValue("nameHash", field.NameHash);
+                                        dbObject6.SetValue("type", field.Type);
+                                        dbObject6.SetValue("flags", (ushort)0);
+                                        dbObject6.SetValue("offset", field.DataOffset);
+                                        dbObject6.SetValue("value", (int)field.DataOffset);
+                                        dbObject4.Add(dbObject6);
                                         //    }
-                                        //}
+                                        }
                                         fieldMapping[item2.Name].Add(field);
                                         num4++;
                                     }
@@ -855,7 +853,7 @@ namespace SdkGenerator
                 }
                 classInfo.typeInfo.Modify(dbObject);
                 DbObject dbObject2 = new DbObject(bObject: false);
-                foreach (FieldInfo field in classInfo.typeInfo.fields)
+                foreach (BaseInfo.FieldInfo field in classInfo.typeInfo.fields)
                 {
                     DbObject dbObject3 = new DbObject();
                     if (classInfo.typeInfo.Type == 8)
@@ -893,4 +891,36 @@ namespace SdkGenerator
             }
         }
     }
+    
+
+	public static class NeededExtension
+    {
+		public static int FindIndex<T>(this IList<T> source, int startIndex,
+							   Predicate<T> match)
+		{
+			// TODO: Validation
+			for (int i = startIndex; i < source.Count; i++)
+			{
+				if (match(source[i]))
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		public static int FindIndex<T>(this IList<T> source,
+							   Predicate<T> match)
+		{
+			// TODO: Validation
+			for (int i = 0; i < source.Count; i++)
+			{
+				if (match(source[i]))
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+	}
 }

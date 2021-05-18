@@ -61,6 +61,7 @@ namespace FIFA21Plugin
                     baseBundleInfo.Offset = actualPos;
                     //baseBundleInfo.Size = nextActualPos;
                     baseBundleInfo.Size = casBundle.TotalSize;
+                    BaseBundleInfo.BundleItemIndex++;
 
                     //var inner_reader = nr_cas;
                     using (
@@ -283,16 +284,6 @@ namespace FIFA21Plugin
                         {
                             var ebxobjectinlist = EbxObjectList[i] as DbObject;
 
-                            if (ebxobjectinlist.GetValue<string>("name").Contains("defaultstaticenvmap", StringComparison.OrdinalIgnoreCase))
-                            {
-
-                            }
-
-                            if (ebxobjectinlist.GetValue<string>("name").Contains("jersey_110581_0_0_normal", StringComparison.OrdinalIgnoreCase))
-                            {
-
-                            }
-
                             ebxobjectinlist.SetValue("offset", casBundle.Offsets[i]);
                             ebxobjectinlist.SetValue("size", casBundle.Sizes[i]);
 
@@ -303,10 +294,6 @@ namespace FIFA21Plugin
                             ebxobjectinlist.SetValue("cas", casBundle.TOCCas[i]);
                             ebxobjectinlist.SetValue("catalog", casBundle.TOCCatalog[i]);
                             ebxobjectinlist.SetValue("patch", casBundle.TOCPatch[i]);
-
-                            //ebxobjectinlist.SetValue("cas", casBundle.Cas);
-                            //ebxobjectinlist.SetValue("catalog", casBundle.Catalog);
-                            //ebxobjectinlist.SetValue("patch", casBundle.Patch);
 
                             var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
                             bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
@@ -327,6 +314,8 @@ namespace FIFA21Plugin
                                     }
                                 }
                             }
+                            ebxobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
+
                         }
                         for (var i = 0; i < resCount; i++)
                         {
@@ -343,6 +332,8 @@ namespace FIFA21Plugin
                             resobjectinlist.SetValue("cas", casBundle.TOCCas[ebxCount + i]);
                             resobjectinlist.SetValue("catalog", casBundle.TOCCatalog[ebxCount + i]);
                             resobjectinlist.SetValue("patch", casBundle.TOCPatch[ebxCount + i]);
+
+                            resobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
                             //resobjectinlist.SetValue("cas", casBundle.Cas);
                             //resobjectinlist.SetValue("catalog", casBundle.Catalog);
@@ -400,12 +391,14 @@ namespace FIFA21Plugin
                             chunkObjectInList.SetValue("catalog", casBundle.TOCCatalog[ebxCount + resCount + i]);
                             chunkObjectInList.SetValue("patch", casBundle.TOCPatch[ebxCount + resCount + i]);
 
+                            chunkObjectInList.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
+
                             //ChunkObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + resCount + i]]);
                             //ChunkObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + resCount + i]]);
                             //ChunkObjectList[i].SetValue("patch", casBundle.TOCOffsetsToPatch[casBundle.Offsets[ebxCount + resCount + i]]);
                         }
 
-                       
+
                         foreach (DbObject item in EbxObjectList)
                         {
                             EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();

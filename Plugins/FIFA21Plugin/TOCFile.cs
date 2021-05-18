@@ -69,9 +69,11 @@ namespace FIFA21Plugin
         public string FileLocation { get; internal set; }
         public string NativeFileLocation { get; internal set; }
 
-        //public int[] ArrayOfInitialHeaderData = new int[12];
+		public bool DoLogging = true;
 
-        public ContainerMetaData MetaData = new ContainerMetaData();
+		//public int[] ArrayOfInitialHeaderData = new int[12];
+
+		public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
 
 		public string SuperBundleName;
@@ -221,7 +223,8 @@ namespace FIFA21Plugin
 						{
 							if (MetaData.ChunkCount > 0)
 							{
-								AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
+								if(DoLogging)
+									AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
 
 								nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffset;
 								List<int> list7 = new List<int>();

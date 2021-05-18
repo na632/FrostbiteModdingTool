@@ -67,6 +67,25 @@ namespace FrostbiteModdingTests
                 }
             }
         }
+        [TestMethod]
+        public void LoadUserFinancesFromLatestCareerSave()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+
+            var cem = new CEMCore2("FIFA21");
+            var uf = cem.GetUserFinances().Result;
+        }
+
+        [TestMethod]
+        public void SaveUserFinancesFromLatestCareerSave()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+
+            var cem = new CEMCore2("FIFA21");
+            var uf = cem.GetUserFinances().Result;
+            uf.TransferBudget = 999999999;
+            cem.UpdateUserFinancesInFile();
+        }
 
         [TestMethod]
         public void LoadStatsFromJaysArsenalSave()

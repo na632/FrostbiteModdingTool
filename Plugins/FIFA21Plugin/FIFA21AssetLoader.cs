@@ -35,6 +35,8 @@ namespace FIFA21Plugin
 
 		public class BaseBundleInfo
 		{
+			public static int BundleItemIndex = 0;
+
 			public string Name { get; set; }
 
 			public long Offset { get; set; }

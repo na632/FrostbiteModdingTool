@@ -1,6 +1,7 @@
 ﻿using CareerExpansionMod.CEM.FIFA;
 using FrostbiteModdingUI.CEM;
 using FrostbiteSdk;
+using Frosty;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using System;
@@ -17,7 +18,6 @@ using System.Xml.Linq;
 using v2k4FIFAModding.Career.CME.FIFA;
 using v2k4FIFAModdingCL.CGFE;
 using v2k4FIFAModdingCL.MemHack.Core;
-using static Frosty.OpenFrostyFiles;
 
 namespace CareerExpansionMod.CEM
 {

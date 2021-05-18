@@ -1,7 +1,9 @@
-﻿using FrostyEditor.IO;
+﻿using Frosty;
+using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
 using FrostySdk.Interfaces;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +11,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static Frosty.OpenFrostyFiles;
 
 namespace SdkGenerator
 {
@@ -194,70 +195,77 @@ namespace SdkGenerator
     //            "488b05???????? 48894108 48890d???????? 48???? C3",
     //            "488b05???????? 48894108 48890d????????",
     //            "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
-                "48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08",
-				"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10", // Madden 21
+
+                //"48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08", // FIFA 21
+				"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10", // Madden 21 & FIFA 21
+
+
                 //"30 40 96 49 01 00 00 00 48 70 12 48 01 00 00 00 D0 6F 12 48 01"
 
 				//"488B05???????? 48894108 ?? 488D05???????? 483905???????????? 488B05???????? 488905????????",
-			"488B05???????? 48894108 C3 488D05????C5?? 483905???????????? 488B05???????? 488905????????",
-			"488B05F6?????? 48894108 C3 488D05????C5?? 483905d3?????????? 488B05????C5?? 488905????????",
-			"488b05???????? 48894108 48890d???????? 48???? C3",
-			"488b05???????? 48894108 48890d????????",
-			"488b05???????? 488905???????? 488d05???????? 488905???????? E9"
+			//"488B05???????? 48894108 C3 488D05????C5?? 483905???????????? 488B05???????? 488905????????",
+			//"488B05F6?????? 48894108 C3 488D05????C5?? 483905d3?????????? 488B05????C5?? 488905????????",
+			//"488b05???????? 48894108 48890d???????? 48???? C3",
+			//"488b05???????? 48894108 48890d????????",
+			//"488b05???????? 488905???????? 488d05???????? 488905???????? E9"
 
 					};
-					List<long> list = null;
+
+					List<long> listOfOffsets = null;
+
 					foreach (string pattern in patterns)
 					{
 						memoryReader.Position = baseAddress;
-						list = memoryReader.scan(pattern).ToList();
-						if (list.Count != 0)
+						listOfOffsets = memoryReader.scan(pattern).ToList();
+						if (listOfOffsets.Count != 0)
 						{
 							break;
 						}
 					}
-					if (list.Count == 0)
-					{
-						task.State = SdkUpdateTaskState.CompletedFail;
-						task.FailMessage = "Unable to find the first type info offset";
-						Debug.WriteLine(task.FailMessage);
-						Trace.WriteLine(task.FailMessage);
-						Console.WriteLine(task.FailMessage);
-						return false;
-					}
-					list.Sort();
-					//var startOffset = list.First();
-					//// __int32 offset = *reinterpret_cast<__int32*>( address + 3 );
-					//// pointer to actual figure, goto address and read the casted value
-					//memoryReader.Position = startOffset + 3;
-					//int offset = memoryReader.ReadInt();
-					//long extended = 0;
-					//extended |= 0xFFFFFFFF;
-					//extended <<= 32;
-					//extended |= offset;
-					////long neOffset = startOffset + extended + 7 + 0x100000000;
-					//long neOffset = startOffset + offset + 7;
+					//if (longList == null || longList.Count == 0)
+					//{
+					//	offset = 0L;
+					//	return false;
+					//}
+					listOfOffsets = listOfOffsets.OrderByDescending(x => x).ToList();
+					memoryReader.Position = listOfOffsets[0] + 3;
+					int num = memoryReader.ReadInt();
+					memoryReader.Position = listOfOffsets[0] + 3 + num + 4;
+					sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
+
+					//List<long> list = null;
+					//foreach (string pattern in patterns)
+					//{
+					//	memoryReader.Position = baseAddress;
+					//	list = memoryReader.scan(pattern).ToList();
+					//	if (list.Count != 0)
+					//	{
+					//		break;
+					//	}
+					//}
+					//if (list.Count == 0)
+					//{
+					//	task.State = SdkUpdateTaskState.CompletedFail;
+					//	task.FailMessage = "Unable to find the first type info offset";
+					//	Debug.WriteLine(task.FailMessage);
+					//	Trace.WriteLine(task.FailMessage);
+					//	Console.WriteLine(task.FailMessage);
+					//	return false;
+					//}
+					//list.Sort();
 
 
+					//               memoryReader.Position = list.First() + 3;
+					//               int off = memoryReader.ReadInt();
+					//               memoryReader.Position = list.First() + off + 7;
 
 
-                    //Debug.WriteLine(memoryReader.Position.ToString("X2"));
+					//               long neOffset = memoryReader.ReadLong();
+
+					//               Debug.WriteLine(neOffset.ToString("X2"));
 
 
-                    memoryReader.Position = list.First() + 3;
-                    int off = memoryReader.ReadInt();
-                    memoryReader.Position = list.First() + off + 7;
-
-
-
-                    //Debug.WriteLine(memoryReader.Position.ToString("X2"));
-
-                    long neOffset = memoryReader.ReadLong();
-                    //neOffset = memoryReader.ReadInt();
-                    Debug.WriteLine(neOffset.ToString("X2"));
-
-
-					sdkUpdateState.TypeInfoOffset = neOffset;
+					//sdkUpdateState.TypeInfoOffset = neOffset;
 				}
 
 
@@ -284,10 +292,11 @@ namespace SdkGenerator
 			Debug.WriteLine("OnGatherTypesFromMemory");
 
 			SdkUpdateState obj = state as SdkUpdateState;
-			obj.Creator = new SdkGenerator.ClassesSdkCreator(obj);
+            obj.Creator = new SdkGenerator.ClassesSdkCreator(obj);
+            //obj.Creator = new SdkGenerator.ClassesSdkCreator(SdkProcess, obj.TypeInfoOffset);
 
-			bool flag = obj.Creator.GatherTypeInfos(task);
-			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
+            bool flag = obj.Creator.GatherTypeInfos(task);
+            task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
 			Debug.WriteLine("OnGatherTypesFromMemory:: " + flag);
 
@@ -302,8 +311,8 @@ namespace SdkGenerator
 
 			Debug.WriteLine("OnCrossReferenceAssets");
 
-			bool flag = (state as SdkUpdateState).Creator.CrossReferenceAssets(task);
-			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
+            bool flag = (state as SdkUpdateState).Creator.CrossReferenceAssets(task);
+            task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
 			Debug.WriteLine("OnCrossReferenceAssets:: " + flag);
 
@@ -315,8 +324,9 @@ namespace SdkGenerator
 		{
 			Debug.WriteLine("OnCreateSdk");
 
-			bool flag = (state as SdkUpdateState).Creator.CreateSDK();
-			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
+            bool flag = (state as SdkUpdateState).Creator.CreateSDK();
+            //bool flag = (state as SdkUpdateState).Creator.CreateSDK((int)AssetManager.Instance.fs.Head, ProfilesLibrary.SDKFilename, AssetManager.Instance.fs);
+            task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
 			Debug.WriteLine("OnCreateSdk:: " + flag);
 			ResultState = flag;

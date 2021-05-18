@@ -5,6 +5,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using paulv2k4ModdingExecuter;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -62,6 +63,8 @@ namespace FIFA21Plugin
 
         }
 
+        public bool DoLogging = true;
+
         /// <summary>
         /// Reads the entire SBFile from the Associated TOC Bundles
         /// </summary>
@@ -91,9 +94,11 @@ namespace FIFA21Plugin
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)
             {
 
-                var percentDone = Math.Round(((double)index / AssociatedTOCFile.Bundles.Count) * 100).ToString();
-                AssetManager.Instance.logger.Log($"Loading data from {FileLocation} {percentDone}%");
-
+                if (DoLogging)
+                {
+                    var percentDone = Math.Round(((double)index / AssociatedTOCFile.Bundles.Count) * 100).ToString();
+                    AssetManager.Instance.logger.Log($"Loading data from {FileLocation} {percentDone}%");
+                }
 
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
 
@@ -114,6 +119,7 @@ namespace FIFA21Plugin
                 AssetManager.Instance.bundles.Add(bundleEntry);
                 dbObjects.Add(dbObject);
                 index++;
+                FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex++;
             }
 
             CachingSB.CachingSBs.Add(cachingSBData);
@@ -276,6 +282,9 @@ namespace FIFA21Plugin
                     CachedBundle.LastCatalogId = catalog;
                 }
 
+
+                o.SetValue("BundleIndex", FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex);
+
             }
 
             var resCount = dbObject.GetValue<DbObject>("res").Count;
@@ -310,6 +319,7 @@ namespace FIFA21Plugin
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
                 }
+                o.SetValue("BundleIndex", FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex);
             }
 
             var chunkCount = dbObject.GetValue<DbObject>("chunks").Count;
@@ -343,6 +353,7 @@ namespace FIFA21Plugin
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
                 }
+                o.SetValue("BundleIndex", FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex);
             }
 
             for (int i = 0; i < ebxCount; i++)
@@ -373,131 +384,233 @@ namespace FIFA21Plugin
             return CachedBundle;
         }
 
-        public byte[] WriteInternalBundle(
-            DbObject dboBundle
-            , Tuple<Sha1, string, FIFA21BundleAction.ModType, bool> modItem
-            , FrostyModExecutor parent
-            )
+
+        public void WriteBundleFETWay(Stream stream, DbObject bundle)
         {
-            DbObject additionalDboObject = new DbObject(new Dictionary<string, object>());
-            switch (modItem.Item3)
+            long sbStartingPosition = stream.Position;
+            NativeWriter writer = new NativeWriter(stream);
+            int entriesCount = checked(bundle.GetValue<DbObject>("ebx").List.Count + bundle.GetValue<DbObject>("res").List.Count + bundle.GetValue<DbObject>("chunks").List.Count);
+            writer.WriteInt32BigEndian(32);
+            long headerStartPosition = stream.Position;
+            writer.WriteInt32BigEndian(0);
+            writer.WriteInt32BigEndian(0);
+            writer.WriteInt32BigEndian(entriesCount);
+            writer.WriteInt32BigEndian(0);
+            writer.WriteInt32BigEndian(0);
+            writer.WriteInt32BigEndian(0);
+            writer.WriteInt32BigEndian(0);
+            writer.WriteInt32BigEndian(0);
+            long bundleEndPosition = new BundleWriter_F21().Write(stream, bundle);
+            byte[] flags = ArrayPool<byte>.Shared.Rent(entriesCount);
+            int currentCasIdentifier = -1;
+            long startOfEntryDataOffset = writer.Position - 32 - sbStartingPosition;
+            int entryIndex = 0;
+            foreach (DbObject entry in bundle.GetValue<DbObject>("ebx").List.Concat(bundle.GetValue<DbObject>("res").List).Concat(bundle.GetValue<DbObject>("chunks").List))
             {
-                case FIFA21BundleAction.ModType.EBX:
-                    additionalDboObject.AddValue("sha1", modItem.Item1);
-                    additionalDboObject.AddValue("name", modItem.Item2);
-
-                    dboBundle.GetValue<DbObject>("ebx").Add(additionalDboObject);
-
-                    break;
-                case FIFA21BundleAction.ModType.RES:
-                    additionalDboObject.AddValue("sha1", modItem.Item1);
-                    additionalDboObject.AddValue("name", modItem.Item2);
-
-                    dboBundle.GetValue<DbObject>("res").Add(additionalDboObject);
-                    break;
-                case FIFA21BundleAction.ModType.CHUNK:
-                    additionalDboObject.AddValue("sha1", modItem.Item1);
-
-                    dboBundle.GetValue<DbObject>("chunks").Add(additionalDboObject);
-
-                    break;
+                int entryCasIdentifier = CreateCasIdentifier(entry.GetValue<byte>("unk"), entry.HasValue("patch"), entry.GetValue<byte>("catalog"), entry.GetValue<byte>("cas"));
+                _ = 0;
+                if (entryCasIdentifier != currentCasIdentifier)
+                {
+                    writer.WriteInt32BigEndian(entryCasIdentifier);
+                    flags[entryIndex] = 1;
+                    currentCasIdentifier = entryCasIdentifier;
+                }
+                else
+                {
+                    flags[entryIndex] = 0;
+                }
+                writer.WriteUInt32BigEndian(entry.GetValue<uint>("offset"));
+                writer.WriteInt32BigEndian(entry.GetValue<int>("size"));
+                entryIndex++;
             }
-
-            var ms_data = new MemoryStream();
-            using (NativeWriter writer = new NativeWriter(ms_data))
+            long startOfFlagsOffset = writer.Position - sbStartingPosition;
+            //writer.WriteBytes(flags, 0, entriesCount);
+            writer.WriteBytes(flags);
+            ArrayPool<byte>.Shared.Return(flags);
+            long endPosition = writer.Position;
+            writer.Position = headerStartPosition;
+            if (startOfEntryDataOffset <= int.MaxValue && startOfFlagsOffset <= int.MaxValue && startOfEntryDataOffset + 32 <= int.MaxValue)
             {
-                long startPosition = writer.Position;
+                _ = bundleEndPosition - 36;
+                _ = int.MaxValue;
+            }
+            writer.WriteInt32BigEndian((int)startOfEntryDataOffset);
+            writer.WriteInt32BigEndian((int)startOfFlagsOffset);
+            writer.WriteInt32BigEndian(entriesCount);
+            writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
+            writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
+            writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
+            writer.WriteInt32BigEndian(0);
+            writer.WriteInt32BigEndian((int)bundleEndPosition - 36);
+            writer.Position = endPosition;
+        }
 
-                // Catalog Offset
-                writer.Write((int)0);
+        public static int CreateCasIdentifier(byte unk, bool isPatch, byte packageIndex, byte casIndex)
+        {
+            return (unk << 24) | ((isPatch ? 1 : 0) << 16) | (packageIndex << 8) | casIndex;
+        }
 
-                // Length Of Meta + 4
-                writer.Write((int)0);
-
-                // casFileForGroupOffset
-                writer.Write((int)0);
-
-                // Unk2
-                writer.Write((int)0);
-
-                // CatalogAndCASOffset
-                writer.Write((int)0);
-
-
-                //
-                writer.Write((int)0);
-                writer.Write((int)0);
-                writer.Write((int)0);
+    }
 
 
-                // Binary Writer ---------
 
-                long bundleStartOffset = writer.Position;
-                int ebxCount = dboBundle.GetValue<DbObject>("ebx").List.Count;
-                int resCount = dboBundle.GetValue<DbObject>("res").List.Count;
-                int chunkCount = dboBundle.GetValue<DbObject>("chunks").List.Count;
-                int totalCount = ebxCount + resCount + chunkCount;
-                writer.Write(3599661469u, Endian.Big);
-                writer.Write((int)totalCount);
-                writer.Write((int)ebxCount);
-                writer.Write((int)resCount);
-                writer.Write((int)chunkCount);
-                long placeholderPosition = writer.Position;
-                writer.Write((int)0);
-                writer.Write((int)0);
-                writer.Write((int)0);
-                foreach (DbObject item in dboBundle.GetValue<DbObject>("ebx").List
-                    .Concat(dboBundle.GetValue<DbObject>("res").List)
-                    .Concat(dboBundle.GetValue<DbObject>("chunks").List))
-                {
-                    Sha1 hash = item.GetValue<Sha1>("sha1");
-                    writer.Write(hash);
-                }
-                //writer.Write(modItem.Item1); // mod item sha1
-                // -- TODO --
-                //WriteInternalEbx(writer, dboBundle.GetValue<DbObject>("ebx").List.Cast<DbObject>(), ref entryNamesOffset);
-                //WriteInternalRes(writer, dboBundle.GetValue<DbObject>("res").List.Cast<DbObject>(), ref entryNamesOffset);
-                //WriteInternalChunks(writer, dboBundle.GetValue<DbObject>("chunks").List.Cast<DbObject>());
-                long stringsOffset = writer.Position - bundleStartOffset;
-                foreach (DbObject entry in dboBundle.GetValue<DbObject>("ebx"))
-                {
-                    writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
-                }
-                foreach (DbObject entry in dboBundle.GetValue<DbObject>("res"))
-                {
-                    writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
-                }
-                long chunkMetaOffset = 0L;
-                long chunkMetaSize = 0L;
-                if (chunkCount > 0)
-                {
-                    chunkMetaOffset = writer.Position - bundleStartOffset;
-                    //writer.Write(new DbWriter(writer.BaseStream).WriteDbObject("chunkMeta", dboBundle.GetValue<DbObject>("chunkMeta")));
-                }
+    public class BundleWriter_F21
+    {
+        public long Write(Stream stream, DbObject bundle, bool padEnd = true)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (!stream.CanWrite)
+            {
+                throw new ArgumentException("Stream must support writing.", "stream");
+            }
+            if (!stream.CanSeek)
+            {
+                throw new ArgumentException("Stream must support seeking.", "stream");
+            }
+            if (bundle == null)
+            {
+                throw new ArgumentNullException("bundle");
+            }
+            NativeWriter writer = new NativeWriter(stream);
+            long bundleStartOffset = writer.Position;
+            int ebxEntries = bundle.GetValue<DbObject>("ebx").List.Count;
+            int resEntries = bundle.GetValue<DbObject>("res").List.Count;
+            int chunkEntries = bundle.GetValue<DbObject>("chunks").List.Count;
+            int totalEntries = checked(ebxEntries + resEntries + chunkEntries);
+            writer.WriteUInt32BigEndian(3599661469u);
+            writer.WriteInt32LittleEndian(totalEntries);
+            writer.WriteInt32LittleEndian(ebxEntries);
+            writer.WriteInt32LittleEndian(resEntries);
+            writer.WriteInt32LittleEndian(chunkEntries);
+            long placeholderPosition = writer.Position;
+            writer.WriteUInt32LittleEndian(0u);
+            writer.WriteUInt32LittleEndian(0u);
+            writer.WriteUInt32LittleEndian(0u);
+            foreach (DbObject item in bundle.GetValue<DbObject>("ebx").List.Concat(bundle.GetValue<DbObject>("res").List).Concat(bundle.GetValue<DbObject>("chunks").List))
+            {
+                Sha1 hash = item.GetValue<Sha1>("sha1");
+                writer.Write(hash);
+            }
+            uint entryNamesOffset = 0u;
+            WriteEbx(writer, bundle.GetValue<DbObject>("ebx").List.Cast<DbObject>(), ref entryNamesOffset);
+            WriteRes(writer, bundle.GetValue<DbObject>("res").List.Cast<DbObject>(), ref entryNamesOffset);
+            WriteChunks(writer, bundle.GetValue<DbObject>("chunks").List.Cast<DbObject>());
+            long stringsOffset = writer.Position - bundleStartOffset;
+            foreach (DbObject entry in bundle.GetValue<DbObject>("ebx").List.Concat(bundle.GetValue<DbObject>("res").List))
+            {
+                writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
+            }
+            long chunkMetaOffset = 0L;
+            long chunkMetaSize = 0L;
+            if (chunkEntries > 0)
+            {
+                chunkMetaOffset = writer.Position - bundleStartOffset;
+                var chunkMetaBytes = new DbWriter(stream).WriteDbObject("chunkMeta", bundle.GetValue<DbObject>("chunkMeta"));
+                writer.WriteBytes(chunkMetaBytes);
                 chunkMetaSize = writer.Position - bundleStartOffset - chunkMetaOffset;
-
-                long bundleEndPosition = 0;
-                // --- End of Binary Writer
-                long startOfEntryDataOffset = writer.Position - 32;
-                long startOfFlagsOffset = writer.Position;
-
-                long endPosition = writer.Position;
-                writer.Position = startPosition;
-                writer.WriteInt32BigEndian((int)startOfEntryDataOffset);
-                writer.WriteInt32BigEndian((int)startOfFlagsOffset);
-                writer.WriteInt32BigEndian(totalCount);
-                writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
-                writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
-                writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
-                writer.WriteInt32BigEndian(0);
-                writer.WriteInt32BigEndian((int)bundleEndPosition - 36);
-                writer.Position = endPosition;
             }
+            long endPosition = writer.Position;
+            writer.Position = placeholderPosition;
+            _ = uint.MaxValue;
+            writer.WriteUInt32LittleEndian((uint)stringsOffset);
+            if (chunkMetaOffset != 0L)
+            {
+                if (chunkMetaOffset <= uint.MaxValue)
+                {
+                    _ = uint.MaxValue;
+                }
+                writer.WriteUInt32LittleEndian((uint)chunkMetaOffset);
+                writer.WriteUInt32LittleEndian((uint)chunkMetaSize);
+            }
+            else
+            {
+                writer.WriteUInt64LittleEndian(0uL);
+            }
+            writer.Position = endPosition;
+            if (padEnd)
+            {
+                writer.WritePadding(4);
+            }
+            return endPosition;
+        }
 
-            return ms_data.ToArray();
+        private void WriteEbx(NativeWriter writer, IEnumerable<DbObject> ebxEntries, ref uint stringsOffset)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+            if (ebxEntries == null)
+            {
+                throw new ArgumentNullException("ebxEntries");
+            }
+            checked
+            {
+                foreach (DbObject ebxEntry in ebxEntries)
+                {
+                    writer.WriteUInt32LittleEndian(stringsOffset);
+                    stringsOffset += (uint)Encoding.ASCII.GetByteCount(ebxEntry.GetValue<string>("name")) + 1u;
+                    writer.WriteUInt32LittleEndian(ebxEntry.GetValue<uint>("originalSize"));
+                }
+            }
+        }
+
+        private void WriteRes(NativeWriter writer, IEnumerable<DbObject> resEntries, ref uint stringsOffset)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+            if (resEntries == null)
+            {
+                throw new ArgumentNullException("resEntries");
+            }
+            checked
+            {
+                foreach (DbObject resEntry4 in resEntries)
+                {
+                    writer.WriteUInt32LittleEndian(stringsOffset);
+                    stringsOffset += (uint)Encoding.ASCII.GetByteCount(resEntry4.GetValue<string>("name")) + 1u;
+                    writer.WriteUInt32LittleEndian(resEntry4.GetValue<uint>("originalSize"));
+                }
+            }
+            foreach (DbObject resEntry3 in resEntries)
+            {
+                writer.WriteUInt32LittleEndian((uint)resEntry3.GetValue<long>("resType"));
+            }
+            foreach (DbObject resEntry2 in resEntries)
+            {
+                writer.WriteBytes(resEntry2.GetValue<byte[]>("resMeta"));
+            }
+            foreach (DbObject resEntry in resEntries)
+            {
+                writer.WriteInt64LittleEndian(resEntry.GetValue<long>("resRid"));
+            }
+        }
+
+        private void WriteChunks(NativeWriter writer, IEnumerable<DbObject> chunkEntries)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+            if (chunkEntries == null)
+            {
+                throw new ArgumentNullException("chunkEntries");
+            }
+            foreach (DbObject chunkEntry in chunkEntries)
+            {
+                writer.WriteGuid(chunkEntry.GetValue<Guid>("id"));
+                writer.WriteUInt32LittleEndian(chunkEntry.GetValue<uint>("logicalOffset"));
+                writer.WriteUInt32LittleEndian(chunkEntry.GetValue<uint>("logicalSize"));
+            }
         }
     }
 
-   
+
+
 
 }

@@ -57,6 +57,38 @@ namespace FrostbiteModdingUI.CEM
 
         public static CEMCore2 CEMCoreInstance = null;
 
+        public class Finances
+        {
+            public long ClubWorth { get; set; }
+            private int startingBudget;
+
+            public int StartingBudget
+            {
+                get { return startingBudget; }
+                set { startingBudget = value; }
+            }
+
+
+            private int transferBudget;
+
+            public int TransferBudget
+            {
+                get { return transferBudget; }
+                set { transferBudget = value;  }
+            }
+
+        }
+
+        private Finances userFinances;
+
+        public Finances UserFinances
+        {
+            get { return userFinances; }
+            set { userFinances = value; }
+        }
+
+
+
         public CEMCore2(string inGame)
         {
             if (CEMCoreInstance != null)
@@ -205,6 +237,49 @@ namespace FrostbiteModdingUI.CEM
         }
 
         public List<FIFAPlayerStat> UserTeamPlayerStats = new List<FIFAPlayerStat>(30000);
+
+
+        public async Task<Finances> GetUserFinances()
+        {
+            userFinances = new Finances();
+            using (NativeReader nr = new NativeReader(new FileStream(CurrentCareerFile.FileName, FileMode.Open)))
+            {
+                var rBytes = nr.ReadToEnd();
+                var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
+                BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
+                var found2 = boyerMoore2.Search(rBytes);
+                nr.Position = found2;
+                var nameOfUserFinances = nr.ReadNullTerminatedString();
+                userFinances.ClubWorth = nr.ReadLong();
+                userFinances.StartingBudget = nr.ReadInt();
+                nr.Position += 16;
+                userFinances.TransferBudget = nr.ReadInt();
+            }
+            return userFinances;
+        }
+
+        public void UpdateUserFinancesInFile()
+        {
+            var userFinanceLocation = 0;
+            using (NativeReader nr = new NativeReader(new FileStream(CurrentCareerFile.FileName, FileMode.Open)))
+            {
+                var rBytes = nr.ReadToEnd();
+                var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
+                BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
+                userFinanceLocation = boyerMoore2.Search(rBytes);
+                
+            }
+
+            using (NativeWriter nw = new NativeWriter(new FileStream(CurrentCareerFile.FileName, FileMode.Open)))
+            {
+                nw.Position = userFinanceLocation;
+                nw.Position += 6;
+                nw.Position += 8;
+                nw.Write(userFinances.StartingBudget);
+                nw.Position += 16;
+                nw.Write(userFinances.TransferBudget);
+            }
+        }
 
         public IEnumerable<FileInfo> CareerFileInfos
         {

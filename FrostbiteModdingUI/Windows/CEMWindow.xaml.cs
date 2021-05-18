@@ -94,7 +94,8 @@ namespace FrostbiteModdingUI.Windows
                 CEMCore.FileSystemWatcher.Created += FileSystemWatcher_Created;
                 CEMCore.FileSystemWatcher.Changed += FileSystemWatcher_Changed;
                 SaveGameName = CEMCore.CurrentCareerFile.InGameName;
-                Dispatcher.Invoke(() => { 
+                Dispatcher.Invoke(() =>
+                {
                     lblSaveName.Text = SaveGameName;
                     cbGameSaves.ItemsSource = null;
                     cbGameSaves.ItemsSource = CEMCore.CareerFileNames;
@@ -102,7 +103,7 @@ namespace FrostbiteModdingUI.Windows
                     cbGameSaves.SelectedItem = SaveGameName;
                 });
 
-                Dispatcher.Invoke(async() =>
+                Dispatcher.Invoke(async () =>
                 {
                     var ps = await CEMCore.GetPlayerStatsAsync();
                     Stats.Execute(items => { items.Clear(); items.AddRange(ps.Where(x => x != null)); });
@@ -113,8 +114,16 @@ namespace FrostbiteModdingUI.Windows
 
                 });
 
-            });
+                Dispatcher.Invoke(async () =>
+                {
+                    var uf = await CEMCore.GetUserFinances();
+                    txtStartingBudget.Text = uf.StartingBudget.ToString();
+                    txtTransferBudget.Text = uf.TransferBudget.ToString();
 
+                    //dmTeamFinances.DataContext = null;
+                    //dmTeamFinances.DataContext = CEMCore.UserFinances;
+                });
+            });
             InitializeComponent();
 
         }

@@ -63,19 +63,19 @@ namespace FIFA21Plugin
             for (int i = 0; i < information.ebxCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
-                uint num = reader.ReadUInt(Endian.Little);
+                uint sOffset = reader.ReadUInt(Endian.Little);
 
                 dbObject.AddValue("SB_OriginalSize_Position", reader.Position + baseBundleOffset);
                 uint originalSize = reader.ReadUInt(Endian.Little);
 
                 long position = reader.Position;
-                reader.Position = information.stringOffset + num;
-
-
+                reader.Position = information.stringOffset + sOffset;
                 dbObject.AddValue("SB_StringOffsetPosition", reader.Position + baseBundleOffset);
+                var name = reader.ReadNullTerminatedString();
+
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
                 dbObject.AddValue("sha1", sha1[i]);
-                var name = reader.ReadNullTerminatedString();
+              
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
                 dbObject.AddValue("originalSize", originalSize);
@@ -87,7 +87,7 @@ namespace FIFA21Plugin
         private List<object> ReadRes(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
-            int num = (int)information.ebxCount;
+            int shaCount = (int)information.ebxCount;
             for (int i = 0; i < information.resCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
@@ -100,10 +100,17 @@ namespace FIFA21Plugin
 
                 reader.Position = information.stringOffset + stringPosition;
                 dbObject.AddValue("SB_StringOffsetPosition", reader.Position + baseBundleOffset);
-
-                dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
-                dbObject.AddValue("sha1", sha1[num++]);
                 var name = reader.ReadNullTerminatedString();
+
+                if (name.Contains("hair_227109"))
+                {
+
+                }
+
+                dbObject.AddValue("sha1", sha1[shaCount + i]);
+                //dbObject.AddValue("SB_Sha1_Position", Sha1Positions[information.ebxCount + i]);
+                dbObject.AddValue("SB_Sha1_Position", Sha1Positions[shaCount + i]);
+
                 //System.Diagnostics.Debug.WriteLine("RES:: " + name);
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(name));
@@ -121,6 +128,7 @@ namespace FIFA21Plugin
             }
             foreach (DbObject item2 in list)
             {
+                item2.AddValue("SB_ResMeta_Position", reader.Position + baseBundleOffset);
                 var resMeta = reader.ReadBytes(16);
                 item2.AddValue("resMeta", resMeta);
             }
@@ -135,7 +143,7 @@ namespace FIFA21Plugin
         private List<object> ReadChunks(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
-            int num = (int)(information.ebxCount + information.resCount);
+            int shaCount = (int)(information.ebxCount + information.resCount);
             for (int i = 0; i < information.chunkCount; i++)
             {
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
@@ -147,8 +155,8 @@ namespace FIFA21Plugin
                 uint chunkLogicalSize = reader.ReadUInt(Endian.Little);
                 long chunkOriginalSize = (logicalOffset & 0xFFFF) | chunkLogicalSize;
                 dbObject.AddValue("id", guid);
-                dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
-                dbObject.AddValue("sha1", sha1[num + i]);
+                dbObject.AddValue("SB_Sha1_Position", Sha1Positions[information.ebxCount + information.resCount + i]);
+                dbObject.AddValue("sha1", sha1[shaCount + i]);
                 dbObject.AddValue("logicalOffset", logicalOffset);
                 dbObject.AddValue("logicalSize", chunkLogicalSize);
                 dbObject.AddValue("originalSize", chunkOriginalSize);

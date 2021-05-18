@@ -298,10 +298,12 @@ namespace FIFA21Plugin
             return casToMods;
         }
 
+        Dictionary<string, DbObject> SbToDbObject = new Dictionary<string, DbObject>();
+
         public bool Run()
         {
-            try
-            {
+            //try
+            //{
                 parent.Logger.Log("Loading files to know what to change.");
 
                 BuildCache buildCache = new BuildCache();
@@ -309,470 +311,272 @@ namespace FIFA21Plugin
 
                 parent.Logger.Log("Loading Cached Super Bundles.");
 
-                CachingSB.Load();
+                //CachingSB.Load();
 
                 parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
 
                 var dictOfModsToCas = GetModdedCasFiles();
-                if(dictOfModsToCas != null && dictOfModsToCas.Count > 0)
+            if (dictOfModsToCas != null && dictOfModsToCas.Count > 0)
+            {
+                if (ErrorCounts.Count > 0)
                 {
-                    if (ErrorCounts.Count > 0)
-                    {
-                        if (ErrorCounts[ModType.EBX] > 0)
-                            parent.Logger.Log("EBX ERRORS:: " + ErrorCounts[ModType.EBX]);
-                        if (ErrorCounts[ModType.RES] > 0)
-                            parent.Logger.Log("RES ERRORS:: " + ErrorCounts[ModType.RES]);
-                        if (ErrorCounts[ModType.CHUNK] > 0)
-                            parent.Logger.Log("Chunk ERRORS:: " + ErrorCounts[ModType.CHUNK]);
-                    }
-
-                    foreach (var item in dictOfModsToCas) 
-                    {
-                        var casPath = string.Empty;
-                        if (!string.IsNullOrEmpty(item.Key))
-                        {
-                            casPath = item.Key.Replace("native_data"
-                                , AssetManager.Instance.fs.BasePath + "ModData\\Data");
-                        }
-
-                        casPath = casPath.Replace("native_patch"
-                            , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
-
-                        if (!casPath.Contains("ModData"))
-                        {
-                            throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
-                        }
-
-                        Debug.WriteLine($"Modifying CAS file - {casPath}");
-                        parent.Logger.Log($"Modifying CAS file - {casPath}");
-
-                        Dictionary<AssetEntry, (long,int,int,Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
-
-                        using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
-                        {
-                            foreach (var modItem in item.Value)
-                            {
-                                nwCas.Position = nwCas.Length;
-                                byte[] data = new byte[0];
-                                AssetEntry originalEntry = modItem.OriginalEntry;
-                                
-                                if (originalEntry != null && parent.archiveData.ContainsKey(modItem.Sha1))
-                                {
-                                    data = parent.archiveData[modItem.Sha1].Data;
-                                }
-                                else
-                                {
-                                    parent.Logger.LogError($"Unable to find original archive data for {modItem.NamePath}");
-                                    continue;
-                                    //throw new Exception()
-                                }
-
-                                if (data.Length == 0)
-                                {
-                                    parent.Logger.LogError($"Unable to find any data for {modItem.NamePath}");
-                                    continue;
-                                }
-
-                                //if (modItem.NamePath.Contains("tattoo", StringComparison.OrdinalIgnoreCase))
-                                //    continue;
-
-                                //if (modItem.NamePath.Contains("face", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                                //    continue;
-
-                                if (modItem.NamePath.Contains("haircap_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                                    continue;
-
-                                if (modItem.NamePath.Contains("hair_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                                    continue;
-
-                                //if (modItem.NamePath.Contains("head", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                                //    continue;
-
-                                if (data.Length > 0)
-                                {
-                                    var positionOfData = nwCas.Position;
-                                    // write the new data to end of the file (this should be fine)
-                                    nwCas.Write(data);
-
-                                    var origSize = 0;
-                                    switch(modItem.ModType)
-                                    {
-                                        case ModType.EBX:
-                                            origSize = Convert.ToInt32(parent.modifiedEbx[modItem.NamePath].OriginalSize);
-                                            break;
-                                        case ModType.RES:
-                                            origSize = Convert.ToInt32(parent.modifiedRes[modItem.NamePath].OriginalSize);
-                                            break;
-                                        case ModType.CHUNK:
-                                            origSize = Convert.ToInt32(parent.modifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
-                                            break;
-                                    }
-                                    if (origSize == 0 
-                                        || origSize == data.Length)
-                                    {
-                                        var out_data = new CasReader(new MemoryStream(data)).Read();
-                                        origSize = out_data.Length;
-                                    }
-
-                                    var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
-                                    if (useCas)
-                                    {
-                                        if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
-                                        {
-                                            nwCas.Position = originalEntry.SB_OriginalSize_Position;
-                                            nwCas.Write((uint)origSize, Endian.Little);
-                                        }
-
-                                        if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
-                                        {
-                                            nwCas.Position = originalEntry.SB_Sha1_Position;
-                                            nwCas.Write(modItem.Sha1);
-                                        }
-                                    }
-
-
-                                    //parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
-                                    //Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
-                                    //EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, !useCas ? origSize : 0, !useCas ? modItem.Item1 : Sha1.Zero));
-                                    EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
-
-
-                                    bool patchedInSb = false;
-                                    //patchedInSb = PatchInSb(modItem, data, originalEntry, nwCas);
-
-                                    if (!patchedInSb)
-                                    {
-                                       
-                                        //ChangeSB((int)positionOfData, modItem, data.Length, originalEntry, nwCas);
-                                       
-                                    }
-
-                                   
-                                }
-                            }
-                            
-                        }
-
-                        //if(EntriesToNewPosition.Count != item.Value.Count)
-                        //{
-                        //    parent.Logger.LogError($"Entry data does not match the count that was inputted by Mod");
-                        //    return false;
-                        //}
-
-                        var groupedBySB = EntriesToNewPosition.GroupBy(x =>
-                                    !string.IsNullOrEmpty(x.Key.SBFileLocation)
-                                    ? x.Key.SBFileLocation
-                                    : x.Key.TOCFileLocation
-                                    )
-                            .ToDictionary(gdc => gdc.Key, gdc => gdc.ToList());
-
-                        foreach (var sbGroup in groupedBySB)
-                        {
-                            var sbpath = sbGroup.Key;
-                            sbpath = parent.fs.ResolvePath(sbpath).ToLower();
-                            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
-                            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
-
-                            if (!sbpath.ToLower().Contains("moddata", StringComparison.OrdinalIgnoreCase))
-                            {
-                                throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
-                            }
-                            using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
-                            {
-                                foreach(var assetBundle in sbGroup.Value)
-                                {
-                                    var positionOfNewData = assetBundle.Value.Item1;
-                                    var sizeOfData = assetBundle.Value.Item2;
-                                    var originalSizeOfData = assetBundle.Value.Item3;
-                                    var sha = assetBundle.Value.Item4;
-
-                                    var sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
-                                    var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
-                                    nw_sb.BaseStream.Position = sb_cas_offset_position;
-                                    nw_sb.Write((uint)positionOfNewData, Endian.Big);
-                                    nw_sb.Write((uint)sizeOfData, Endian.Big);
-
-                                    if (!sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
-                                            &&
-                                            assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
-                                        {
-                                            nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
-                                            nw_sb.Write((uint)originalSizeOfData, Endian.Little);
-                                        }
-
-                                        if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
-                                            &&
-                                            assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
-                                        {
-                                            nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
-                                            nw_sb.Write(sha);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                    }
-                }
-                return true;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-
-        }
-
-        NativeWriter CurrentCasFile;
-        int? LastCatalogUsed;
-
-        private bool PatchInSb(Tuple<Sha1, string, ModType, bool> modItem, byte[] data, AssetEntry originalEntry, NativeWriter nwCas)
-        {
-           
-            
-            var sb_cas_size_position = originalEntry.SB_CAS_Size_Position;
-            var sb_cas_offset_position = originalEntry.SB_CAS_Offset_Position;
-            var sb_sha1_position = originalEntry.SB_Sha1_Position;
-
-            var CasSha1 = false;
-            var sbpath = string.Empty;
-            //parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
-            if (!string.IsNullOrEmpty(originalEntry.SBFileLocation))
-                sbpath = originalEntry.SBFileLocation;
-            else if (!string.IsNullOrEmpty(originalEntry.TOCFileLocation))
-            {
-                sbpath = originalEntry.TOCFileLocation;
-                CasSha1 = true;
-            }
-
-            if (sbpath.Contains(".toc"))
-            {
-                var p = sbpath.Replace(".toc", ".sb");
-                p = p.Replace("native_data", "native_patch");
-
-                var csbs = CachingSB.CachingSBs;
-                var fileToAddTo = csbs.FirstOrDefault(x => x.SBFile == p);
-                var lastBundle = fileToAddTo.GetLastBundle();
-
-                var moddata_sbfile = AssetManager.Instance.fs.ResolvePath(fileToAddTo.SBFile).Replace("\\patch\\", "\\moddata\\patch\\");
-                byte[] sbFile_data;
-                using (NativeReader nativeReader = new NativeReader(new FileStream(moddata_sbfile, FileMode.Open)))
-                {
-                    sbFile_data = nativeReader.ReadToEnd();
+                    if (ErrorCounts[ModType.EBX] > 0)
+                        parent.Logger.Log("EBX ERRORS:: " + ErrorCounts[ModType.EBX]);
+                    if (ErrorCounts[ModType.RES] > 0)
+                        parent.Logger.Log("RES ERRORS:: " + ErrorCounts[ModType.RES]);
+                    if (ErrorCounts[ModType.CHUNK] > 0)
+                        parent.Logger.Log("Chunk ERRORS:: " + ErrorCounts[ModType.CHUNK]);
                 }
 
-                if (sbFile_data.Length > 0)
+                foreach (var item in dictOfModsToCas)
                 {
-                    SBFile sbFile = new SBFile();
-                    DbObject dboBundle = new DbObject();
-                    sbFile.ReadInternalBundle((int)lastBundle.StartOffset, ref dboBundle, new NativeReader(new MemoryStream(sbFile_data)));
-                    byte[] new_data = sbFile.WriteInternalBundle(dboBundle, modItem, parent);
-                    if (new_data.Length > 0)
+                    var casPath = string.Empty;
+                    if (!string.IsNullOrEmpty(item.Key))
                     {
+                        casPath = item.Key.Replace("native_data"
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Data");
+                    }
+
+                    casPath = casPath.Replace("native_patch"
+                        , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
+
+                    if (!casPath.Contains("ModData"))
+                    {
+                        throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
+                    }
+
+                    Debug.WriteLine($"Modifying CAS file - {casPath}");
+                    parent.Logger.Log($"Modifying CAS file - {casPath}");
+
+                    Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
+
+                    using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
+                    {
+                        foreach (var modItem in item.Value.OrderBy(x => x.NamePath))
+                        {
+                            nwCas.Position = nwCas.Length;
+                            byte[] data = new byte[0];
+                            AssetEntry originalEntry = modItem.OriginalEntry;
+
+                            if (originalEntry != null && parent.archiveData.ContainsKey(modItem.Sha1))
+                            {
+                                data = parent.archiveData[modItem.Sha1].Data;
+                            }
+                            else
+                            {
+                                parent.Logger.LogError($"Unable to find original archive data for {modItem.NamePath}");
+                                continue;
+                                //throw new Exception()
+                            }
+
+                            if (data.Length == 0)
+                            {
+                                parent.Logger.LogError($"Unable to find any data for {modItem.NamePath}");
+                                continue;
+                            }
+
+                            //if (modItem.NamePath.Contains("tattoo", StringComparison.OrdinalIgnoreCase))
+                            //    continue;
+
+                            //if (modItem.NamePath.Contains("face", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                            //    continue;
+                            var origSize = 0;
+
+                            //if (modItem.NamePath.Contains("haircap_227109", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                            //{
+                            //    MeshSet originalMeshSet = new MeshSet(AssetManager.Instance.GetRes(AssetManager.Instance.GetResEntry(modItem.NamePath)));
+                            //    MeshSet newMeshSet = new MeshSet(new MemoryStream(new CasReader(new MemoryStream(data)).Read()));
+
+                            //    data = originalMeshSet.ToBytes();
+                            //    origSize = data.Length;
+                            //    data = Utils.CompressFile(data, compressionOverride: CompressionType.ZStd);
+                            //}
+                            //else if (modItem.NamePath.Contains("haircap_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                            //    continue;
+
+                            //{
+                            //    var out_data_ms_hair_cap = new CasReader(new MemoryStream(data)).Read();
+                            //    MeshSet meshSet = new MeshSet(new MemoryStream(out_data_ms_hair_cap));
+                            //    //meshSet.Lods.Clear();
+                            //    //var data_o = meshSet.ToBytes();
+                            //    origSize = out_data_ms_hair_cap.Length;
+                            //    //data = Utils.CompressFile(data_o);
+                            //}
+
+                            //if (modItem.NamePath.Contains("haircap_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES && modItem.OriginalEntry.Type == "MeshSet")
+                            //    continue;
+
+                            //if (modItem.NamePath.Contains("hair_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES && modItem.OriginalEntry.Type == "MeshSet")
+                            //    continue;
+
+                            //if (modItem.NamePath.Contains("head", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
+                            //    continue;
+
+                            if (data.Length > 0)
+                            {
+                                var positionOfData = nwCas.Position;
+                                // write the new data to end of the file (this should be fine)
+                                nwCas.Write(data);
+
+                                switch (modItem.ModType)
+                                {
+                                    case ModType.EBX:
+                                        origSize = Convert.ToInt32(parent.modifiedEbx[modItem.NamePath].OriginalSize);
+                                        break;
+                                    case ModType.RES:
+                                        origSize = Convert.ToInt32(parent.modifiedRes[modItem.NamePath].OriginalSize);
+                                        break;
+                                    case ModType.CHUNK:
+                                        origSize = Convert.ToInt32(parent.modifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
+                                        break;
+                                }
+                                if (origSize == 0
+                                    || origSize == data.Length)
+                                {
+                                    var out_data = new CasReader(new MemoryStream(data)).Read();
+                                    origSize = out_data.Length;
+                                }
+
+                                var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
+                                if (useCas && (originalEntry is EbxAssetEntry || originalEntry is ResAssetEntry))
+                                {
+                                    if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
+                                    {
+                                        nwCas.Position = originalEntry.SB_OriginalSize_Position;
+                                        nwCas.Write((uint)origSize, Endian.Little);
+                                    }
+
+                                    if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
+                                    {
+                                        nwCas.Position = originalEntry.SB_Sha1_Position;
+                                        nwCas.Write(modItem.Sha1);
+                                    }
+                                }
+
+
+                                //parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
+                                //Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
+                                //EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, !useCas ? origSize : 0, !useCas ? modItem.Item1 : Sha1.Zero));
+                                EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
+                            }
+                        }
 
                     }
-          
-                    //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(moddata_sbfile, FileMode.Open)))
+
+                    //if(EntriesToNewPosition.Count != item.Value.Count)
                     //{
-                    //    nativeWriter.BaseStream.Position = lastBundle.StartOffset;
-                    //    nativeWriter.BaseStream.Position += lastBundle.BinaryDataOffset;
-                    //    nativeWriter.Write(lastBundle.BinaryDataData);
+                    //    parent.Logger.LogError($"Entry data does not match the count that was inputted by Mod");
+                    //    return false;
                     //}
-                }
-                else
-                {
-                    throw new Exception("Mod Data - SB file data doesn't exist!");
-                }
 
-                //return true;
-            }
-            //sbpath = parent.fs.ResolvePath(sbpath).ToLower();
-            //sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
-            //sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
+                    var groupedBySB = EntriesToNewPosition.GroupBy(x =>
+                                !string.IsNullOrEmpty(x.Key.SBFileLocation)
+                                ? x.Key.SBFileLocation
+                                : x.Key.TOCFileLocation
+                                )
+                        .ToDictionary(gdc => gdc.Key, gdc => gdc.ToList());
 
-            return false;
-        }
-
-        private void ChangeSB(int positionOfNewData, Tuple<Sha1, string, ModType, bool> modItem, int sizeOfData, AssetEntry entry, NativeWriter nwCas)
-        {
-            //if (modItem.Item3 == ModType.RES)
-            //    return;
-
-            var sb_cas_size_position = entry.SB_CAS_Size_Position;
-            var sb_cas_offset_position = entry.SB_CAS_Offset_Position;
-            var sb_sha1_position = entry.SB_Sha1_Position;
-
-            var CasSha1 = false;
-            var sbpath = string.Empty;
-            //parent.fs.ResolvePath(!string.IsNullOrEmpty(originalEntry.SBFileLocation) ?  originalEntry.SBFileLocation : originalEntry.TOCFileLocation);// ebxObject.GetValue<string>("SBFileLocation");
-            if (!string.IsNullOrEmpty(entry.SBFileLocation))
-                sbpath = entry.SBFileLocation;
-            else if (!string.IsNullOrEmpty(entry.TOCFileLocation))
-            {
-                sbpath = entry.TOCFileLocation;
-                CasSha1 = true;
-            }
-
-            sbpath = parent.fs.ResolvePath(sbpath).ToLower();
-            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower());
-            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower());
-
-            if (!sbpath.ToLower().Contains("moddata"))
-            {
-                throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
-            }
-
-            //parent.Logger.Log($"Writing new entry in ({sbpath})");
-            //Debug.WriteLine($"Writing new entry in ({sbpath})");
-
-            if (CasSha1)
-            {
-                if (sb_sha1_position != 0)
-                {
-                    nwCas.BaseStream.Position = sb_sha1_position;
-                    var tempCasCheck = Sha1.Zero;
-
-                    using (NativeReader tempNRCAS = new NativeReader(new FileStream(AssetManager.Instance.fs.ResolvePath(entry.ExtraData.CasPath), FileMode.Open)))
+                    foreach (var sbGroup in groupedBySB)
                     {
-                        tempNRCAS.Position = sb_sha1_position;
-                        tempCasCheck = tempNRCAS.ReadSha1();
+                        var sbpath = sbGroup.Key;
+                        sbpath = parent.fs.ResolvePath(sbpath).ToLower();
+                        sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
+                        sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
+
+                        if (!sbpath.ToLower().Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                        {
+                            throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
+                        }
+
+
+                        DbObject dboOriginal = null;
+                        if (!SbToDbObject.ContainsKey(sbGroup.Key) && !sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var timeStarted = DateTime.Now;
+                            var tocSbReader = new TocSbReader_FIFA21();
+                            tocSbReader.DoLogging = false;
+                            var dboOriginal2 = tocSbReader.Read(sbpath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, new BinarySbDataHelper(AssetManager.Instance), sbpath);
+
+                            SbToDbObject.Add(sbGroup.Key, new DbObject(dboOriginal2));
+                            Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
+                        }
+
+                        if(SbToDbObject.ContainsKey(sbGroup.Key))
+                            dboOriginal = SbToDbObject[sbGroup.Key];
+
+                        using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
+                        {
+                            foreach (var assetBundle in sbGroup.Value)
+                            {
+                                if (dboOriginal != null)
+                                {
+                                    var origResBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("res")).Select(x => ((DbObject)x).GetValue<DbObject>("res")).ToList();
+                                    DbObject origResDbo = null;
+                                    foreach (DbObject dbInBundle in origResBundles)
+                                    {
+                                        origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                        if (origResDbo != null)
+                                            break;
+                                    }
+                                    //var origDboItem = dboOriginal.List.FirstOrDefault(x => ((DbObject)x).GetValue<DbObject>("res").List.FirstOrDefault(y => ((DbObject)y)["name"] == assetBundle.Key.Name));
+                                    //var originalDboItem_Res = dboOriginal.FirstOrDefault(x => x.GetValue<DbObject>("res").GetValue<string>("name") == assetBundle.Key.Name);
+                                    //if (originalDboItem_Res != null)
+                                    //{
+
+                                    //}
+                                    if (origResDbo != null && assetBundle.Key.Type == "MeshSet")
+                                    {
+                                        nw_sb.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
+                                        nw_sb.WriteBytes(parent.modifiedRes[assetBundle.Key.Name].ResMeta);
+
+                                    }
+                                }
+
+                                var positionOfNewData = assetBundle.Value.Item1;
+                                var sizeOfData = assetBundle.Value.Item2;
+                                var originalSizeOfData = assetBundle.Value.Item3;
+                                var sha = assetBundle.Value.Item4;
+
+                                var sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
+                                var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
+                                nw_sb.BaseStream.Position = sb_cas_offset_position;
+                                nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                                nw_sb.Write((uint)sizeOfData, Endian.Big);
+
+                                if (!sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                        &&
+                                        assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
+                                    {
+                                        nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
+                                        nw_sb.Write((uint)originalSizeOfData, Endian.Little);
+                                    }
+
+                                    if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                        &&
+                                        assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
+                                    {
+                                        nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
+                                        nw_sb.Write(sha);
+                                    }
+                                }
+                            }
+                        }
                     }
-                    //nwCas.Write(modItem.Item1);
+
+
                 }
             }
-
-
-            //byte[] arrayOfSB = null;
-            //using (NativeReader nativeReader = new NativeReader(new FileStream(sbpath, FileMode.Open)))
-            //{
-            //    arrayOfSB = nativeReader.ReadToEnd();
-            //    nativeReader.Position = sb_cas_offset_position;
-            //    var originalOffset = nativeReader.ReadInt(Endian.Big);
+            return true;
             //}
-            //File.Delete(sbpath);
-            using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
-            {
-                //nw_sb.Position = 0;
-                //nw_sb.Write(arrayOfSB);
-                nw_sb.BaseStream.Position = sb_cas_offset_position;
-                nw_sb.Write((uint)positionOfNewData, Endian.Big);
-                //nw_sb.Flush();
+            //catch (Exception e)
+            //{
+            //    throw e;
+            //}
 
-                //nw_sb.BaseStream.Position = sb_cas_size_position;
-                nw_sb.Write((uint)sizeOfData, Endian.Big);
-                //nw_sb.Flush();
-
-                if (sb_sha1_position != 0 && !CasSha1)
-                {
-                    nw_sb.BaseStream.Position = sb_sha1_position;
-                    nw_sb.Write(modItem.Item1);
-                    nw_sb.Flush();
-                }
-
-            }
-
-                
         }
-
-        private string GetNewCasPath(
-            KeyValuePair<string, List<Tuple<Sha1, string, ModType, bool>>> item,
-            out string casPath,
-            out string sbFilePath,
-            out CachingSBData cachingSBData,
-            out CachingSBData.Bundle cachingBundle
-            )
-        {
-            casPath = string.Empty;
-            sbFilePath = string.Empty;
-            cachingSBData = null;
-            cachingBundle = null;
-
-            var lastSb = CachingSB.CachingSBs[CachingSB.CachingSBs.Count - 1];
-            if(lastSb != null)
-            {
-                sbFilePath = lastSb.SBFile;
-                cachingSBData = lastSb;
-                var lastBundle = lastSb.Bundles[lastSb.Bundles.Count - 1];
-                if(lastBundle != null)
-                {
-                    cachingBundle = lastBundle;
-                    casPath = AssetManager.Instance.fs.GetFilePath(lastBundle.LastCatalogId, lastBundle.LastCAS, true);
-                }
-
-            }
-            return casPath;
-        }
-
-        private void BuildNewSB(CachingSBData cachingData, CachingSBData.Bundle cachingBundleDataToUse)
-        {
-            byte[] oldSBFileData;
-            var sbPath = AssetManager.Instance.fs.ResolvePath(cachingData.SBFile);
-            using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open)))
-            {
-                oldSBFileData = nativeReader.ReadToEnd();
-            }
-            if(oldSBFileData.Length > 0)
-            {
-
-            }
-        }
-
-        private NativeWriter GetNextCas(string catalogName, out int casFileIndex)
-        {
-            int num = 1;
-            string text = parent.fs.BasePath + "ModData\\patch\\" + catalogName + "\\cas_" + num.ToString("D2") + ".cas";
-            while (File.Exists(text))
-            {
-                num++;
-                text = parent.fs.BasePath + "ModData\\patch\\" + catalogName + "\\cas_" + num.ToString("D2") + ".cas";
-            }
-            lock (locker)
-            {
-                casFiles.Add(++CasFileCount, parent.fs.BasePath + "ModData\\patch\\" + catalogName + "/cas_" + num.ToString("D2") + ".cas");
-                AssetManager.Instance.ModCASFiles.Add(CasFileCount, parent.fs.BasePath + "ModData\\patch\\" + catalogName + "/cas_" + num.ToString("D2") + ".cas");
-                casFileIndex = CasFileCount;
-            }
-            FileInfo fileInfo = new FileInfo(text);
-            if (!Directory.Exists(fileInfo.DirectoryName))
-            {
-                Directory.CreateDirectory(fileInfo.DirectoryName);
-            }
-            return new NativeWriter(new FileStream(text, FileMode.Create));
-        }
-
-        private uint HashString(string strToHash, uint initial = 0u)
-        {
-            uint num = 2166136261u;
-            if (initial != 0)
-            {
-                num = initial;
-            }
-            for (int i = 0; i < strToHash.Length; i++)
-            {
-                num = (strToHash[i] ^ (16777619 * num));
-            }
-            return num;
-        }
-
-        private static uint HashData(byte[] b, uint initial = 0u)
-        {
-            uint num = (uint)((sbyte)b[0] ^ 0x50C5D1F);
-            int num2 = 1;
-            if (initial != 0)
-            {
-                num = initial;
-                num2 = 0;
-            }
-            for (int i = num2; i < b.Length; i++)
-            {
-                num = (uint)((int)(sbyte)b[i] ^ (int)(16777619 * num));
-            }
-            return num;
-        }
-
+       
         public void ThreadPoolCallback(object threadContext)
         {
             Run();

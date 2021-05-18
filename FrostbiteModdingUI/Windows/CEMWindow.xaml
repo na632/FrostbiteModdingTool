@@ -132,22 +132,29 @@
                     </DataGrid>
                 </Grid>
             </Controls:MetroTabItem>
-            <Controls:MetroTabItem Header="Test" Visibility="Hidden">
-                <DockingManager>
+            <Controls:MetroTabItem Header="My Team Finances">
+                <DockingManager x:Name="dmTeamFinances" DataContext="{Binding CEMCore.UserFinances}">
                     <LayoutRoot>
-                        <LayoutPanel>
-                            <LayoutAnchorablePane DockWidth="200">
+                        <LayoutPanel Orientation="Horizontal">
+                            <LayoutAnchorablePane>
                                 <LayoutAnchorable CanClose="False" CanHide="False">
-                                    <TextBlock>Bla bla bla bla</TextBlock>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Label Content="Starting Budget"  />
+                                        <TextBox x:Name="txtStartingBudget" Grid.Column="1" Text="{Binding UserFinances.StartingBudget}" IsReadOnly="True"></TextBox>
+
+                                        <Label Content="Transfer Budget" Grid.Row="1"  />
+                                        <TextBox x:Name="txtTransferBudget"  Grid.Column="1" Grid.Row="1" Text="{Binding UserFinances.StartingBudget}" IsReadOnly="True"></TextBox>
+                                    </Grid>
                                 </LayoutAnchorable>
-                            </LayoutAnchorablePane>
-                            <LayoutDocumentPane>
-                                <LayoutDocument Title="title2" CanClose="False">
-                                    <TextBlock>Bla bla bla</TextBlock>
-                                </LayoutDocument>
-                            </LayoutDocumentPane>
-                            <LayoutAnchorablePane DockWidth="200">
-                                <LayoutAnchorable Title="title3" />
                             </LayoutAnchorablePane>
                         </LayoutPanel>
                     </LayoutRoot>

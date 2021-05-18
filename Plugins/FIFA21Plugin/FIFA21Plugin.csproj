@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SDKGeneration\" />
+  </ItemGroup>
+
 </Project>
