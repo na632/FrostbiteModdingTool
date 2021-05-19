@@ -114,6 +114,25 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestColtKitMod()
+        {
+            //ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");
+            GameInstanceSingleton.InitializeSingleton(GamePathExe);
+
+            var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
+            foreach (var oFile in oldFiles) File.Delete(oFile);
+            var testfbmodname = @"G:\Work\MADDEN Modding\Paulv2k4 Colt kit mod.fbmod";
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GamePath, "",
+                new System.Collections.Generic.List<string>() {
+                    testfbmodname
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void TestGPMod()
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");

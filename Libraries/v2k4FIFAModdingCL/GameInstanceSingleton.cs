@@ -1,4 +1,5 @@
-﻿using FrostySdk.Interfaces;
+﻿using FrostySdk;
+using FrostySdk.Interfaces;
 using Lunar;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,10 @@ namespace v2k4FIFAModdingCL
                 {
                     GAMEVERSION = fileName.Replace(".exe", "");
                     INITIALIZED = true;
+                }
+                if(ProfilesLibrary.ProfileName == null)
+                {
+                    ProfilesLibrary.Initialize(GAMEVERSION);
                 }
             }
 

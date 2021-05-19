@@ -151,28 +151,37 @@ namespace FrostbiteModdingUI.Windows
                 result = buildSDKAndCacheWindow.ShowDialog();
             }
 
+            LoadingDialog loadingDialog = new LoadingDialog("Loading Editor", "Starting up...");
+            loadingDialog.Show();
 
             Task.Run(() =>
             {
-
                 ProjectManagement = new ProjectManagement(filePath, null);
                 ProjectManagement.StartNewProject();
 
-
+                loadingDialog.Update("Loading Editor", "Loading Legacy Files", 50);
                 // Kit Browser
                 var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
 
                 Log("Initialise Legacy Browser");
                 legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
+                loadingDialog.Update("Loading Editor", "Loading Texture Files", 75);
+
                 Log("Initialise Texture Browser");
                 textureBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
+                loadingDialog.Update("Loading Editor", "Loading Data Files", 95);
 
                 Log("Initialise Data Browser");
                 dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx()
                                    .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
+                loadingDialog.Update("Loading Editor", "Loading Data Files", 100);
 
                 Log("Initialise Gameplay Browser");
                 gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
@@ -190,7 +199,11 @@ namespace FrostbiteModdingUI.Windows
 
                     this.DataContext = null;
                     this.DataContext = this;
+
+                    loadingDialog.Close();
+
                 });
+
 
             });
 
