@@ -203,6 +203,93 @@ namespace FIFAModdingUI.Pages.Common
 
 		}
 
+
+		public void DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
+		{
+			
+
+			var extension = "DDS";
+			var spl = importFilePath.Split('.');
+			extension = spl[spl.Length - 1].ToUpper();
+
+			var compatible_extensions = new List<string>() { "DDS", "PNG" };
+			if (!compatible_extensions.Contains(extension))
+			{
+				throw new NotImplementedException("Incorrect file type used in Texture Importer");
+			}
+
+			// -------------------------------- //
+			// Gets Image Format from Extension //
+			TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.DDS;
+			imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
+			if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
+			{
+				MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!");
+			}
+			// -------------------------------- //
+
+			MemoryStream memoryStream = null;
+			TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+			if (imageFormat == TextureUtils.ImageFormat.DDS)
+			{
+				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(importFilePath, FileMode.Open, FileAccess.Read)));
+			}
+			else
+			{
+				DDSImage originalImage = new DDSImage(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
+				TextureUtils.TextureImportOptions options = default(TextureUtils.TextureImportOptions);
+
+				options.type = TextureType.TT_2d;
+                //options.format = TextureUtils.ToShaderFormat(textureAsset.PixelFormat, (textureAsset.Flags & TextureFlags.SrgbGamma) != 0);
+                options.format = TextureUtils.ToShaderFormatFromPfim(originalImage._image.ToString(), originalImage._image.Format.ToString());
+				//options.generateMipmaps = (textureAsset.MipCount > 1);
+				options.generateMipmaps = false;
+				options.mipmapsFilter = 0;
+				options.resizeTexture = true;
+				options.resizeFilter = 0;
+				//options.resizeHeight = textureAsset.Height;
+				//options.resizeWidth = textureAsset.Width;
+				options.resizeHeight = originalImage._image.Height;
+				options.resizeWidth = originalImage._image.Width;
+				byte[] pngarray = NativeReader.ReadInStream(new FileStream(importFilePath, FileMode.Open, FileAccess.Read));
+                TextureUtils.ConvertImageToDDS(pngarray, pngarray.Length, imageFormat, options, ref pOutData);
+            }
+
+			if (imageFormat != TextureUtils.ImageFormat.DDS)
+			{
+				memoryStream = new MemoryStream(pOutData.Data);
+			}
+
+			//if (!Directory.Exists("Debugging"))
+			//	Directory.CreateDirectory("Debugging");
+
+			//if (!Directory.Exists("Debugging\\Other\\"))
+			//	Directory.CreateDirectory("Debugging\\Other\\");
+
+			//using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureImport.dat", FileMode.OpenOrCreate))
+			//{
+			//	memoryStream.CopyTo(fileStream);
+			//	fileStream.Flush();
+			//}
+			memoryStream.Position = 0;
+
+
+			//using (NativeReader nativeReader = new NativeReader(memoryStream))
+			//{
+			//	//TextureUtils.DDSHeader dDSHeader = new TextureUtils.DDSHeader();
+			//	//if (dDSHeader.Read(nativeReader))
+			//	//{
+
+			//	//}
+
+				//byte[] textureArray = new byte[nativeReader.Length - nativeReader.Position];
+				//nativeReader.Read(textureArray, 0, (int)(nativeReader.Length - nativeReader.Position));
+				AssetManager.Instance.ModifyLegacyAsset(lfe.Name, memoryStream.ToArray(), false);
+			//}
+
+		}
+
+
 		private void btnImport_Click(object sender, RoutedEventArgs e)
 		{
 			var importStartTime = DateTime.Now;
@@ -223,7 +310,7 @@ namespace FIFAModdingUI.Pages.Common
 					bool isImage = false;
 					if (SelectedLegacyEntry.Type == "DDS")
 					{
-						//openFileDialog.Filter = imageFilter;
+						openFileDialog.Filter = imageFilter;
 						isImage = true;
 					}
 
@@ -234,26 +321,33 @@ namespace FIFAModdingUI.Pages.Common
 
 						if (isImage)
 						{
-							DDSImage originalImage = new DDSImage(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
-							DDSImage newImage = new DDSImage(bytes);
-							if (originalImage._image.Width != newImage._image.Width)
-							{
-								throw new Exception("Invalid Width of New Image for Legacy Asset");
-							}
+							DoLegacyImageImport(openFileDialog.FileName, SelectedLegacyEntry);
+							//DDSImage originalImage = new DDSImage(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
+							//DDSImage newImage = new DDSImage(bytes);
+							//if (originalImage._image.Width != newImage._image.Width)
+							//{
+							//	throw new Exception("Invalid Width of New Image for Legacy Asset");
+							//}
 
-							var textureBytes = new NativeReader(newImage.SaveToStream()).ReadToEnd();
-							ImageViewer.Source = LoadImage(textureBytes);
-							ImageViewerScreen.Visibility = Visibility.Visible;
+							//var textureBytes = new NativeReader(newImage.SaveToStream()).ReadToEnd();
+							//ImageViewer.Source = LoadImage(textureBytes);
+
+							//var msImage = AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry) as MemoryStream;
+							//ImageViewerScreen.Visibility = Visibility.Collapsed;
+							//ImageViewer.Source = LoadImage(msImage.ToArray());
+							//ImageViewerScreen.Visibility = Visibility.Visible;
+
+							BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
 						}
 						else
 						{
 							TextViewer.Text = ASCIIEncoding.ASCII.GetString(bytes);
-						}
 
-						AssetManager.Instance.ModifyLegacyAsset(
-							SelectedLegacyEntry.Name
-							, bytes
-							, false);
+							AssetManager.Instance.ModifyLegacyAsset(
+								SelectedLegacyEntry.Name
+								, bytes
+								, false);
+						}
 
 						MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedLegacyEntry.Filename}");
 						App.AppInsightClient.TrackRequest("Import Legacy Asset", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
@@ -299,7 +393,7 @@ namespace FIFAModdingUI.Pages.Common
 						}
 					}
 
-					if (SelectedEntry.Type == "HotspotDataAsset")
+					else if (SelectedEntry.Type == "HotspotDataAsset")
 					{
 						OpenFileDialog openFileDialog = new OpenFileDialog();
 						var filt = "*.json";
@@ -326,15 +420,16 @@ namespace FIFAModdingUI.Pages.Common
 
 								// Update the Viewers
 								UpdateAssetListView();
-								EBXViewer.Children.Clear();
-								EBXViewer.Children.Add(new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow));
+								//EBXViewer = new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+								EBXViewer.LoadEbx(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
 								App.AppInsightClient.TrackRequest("Import Hotspots", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
 
 							}
 						}
 					}
 
-					if (SelectedEntry.Type == "SkinnedMeshAsset")
+
+					else if (SelectedEntry.Type == "SkinnedMeshAsset")
 					{
 						OpenFileDialog openFileDialog = new OpenFileDialog();
 						openFileDialog.Filter = "Fbx files (*.fbx)|*.fbx";
@@ -372,6 +467,20 @@ namespace FIFAModdingUI.Pages.Common
 							}
 						}
 					}
+
+					else // Raw data import
+					{
+						OpenFileDialog openFileDialog = new OpenFileDialog();
+						var filt = "*.bin";
+						openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+						openFileDialog.FileName = SelectedEntry.Filename;
+						var dialogResult = openFileDialog.ShowDialog();
+						if (dialogResult.HasValue && dialogResult.Value)
+						{
+							var binaryData = File.ReadAllBytes(openFileDialog.FileName);
+							AssetManager.Instance.ModifyEbxBinary(SelectedEntry.Name, binaryData);
+						}
+					}
 				}
 
 			}
@@ -383,6 +492,11 @@ namespace FIFAModdingUI.Pages.Common
 
 			}
 			UpdateAssetListView();
+
+			if(MainEditorWindow != null)
+            {
+				MainEditorWindow.UpdateAllBrowsers();
+            }
 
 			if(loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
             {
@@ -448,7 +562,7 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 
-				if (SelectedEntry.Type == "HotspotDataAsset")
+				else if (SelectedEntry.Type == "HotspotDataAsset")
 				{
 					var ebx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
 					if (ebx != null)
@@ -471,7 +585,7 @@ namespace FIFAModdingUI.Pages.Common
 					}
 				}
 
-				if (SelectedEntry.Type == "SkinnedMeshAsset")
+				else if (SelectedEntry.Type == "SkinnedMeshAsset")
 				{
 					var skinnedMeshEntry = (EbxAssetEntry)SelectedEntry;
 					if (skinnedMeshEntry != null)
@@ -502,6 +616,28 @@ namespace FIFAModdingUI.Pages.Common
 
 							}
 						}
+					}
+				}
+
+				else
+                {
+					var ebx = AssetManager.Instance.GetEbxStream((EbxAssetEntry)SelectedEntry);
+					if (ebx != null)
+					{
+						SaveFileDialog saveFileDialog = new SaveFileDialog();
+						var filt = "*.bin";
+						saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+						saveFileDialog.FileName = SelectedEntry.Filename;
+						var dialogAnswer = saveFileDialog.ShowDialog();
+						if (dialogAnswer.HasValue && dialogAnswer.Value)
+						{
+							File.WriteAllBytes(saveFileDialog.FileName, ((MemoryStream)ebx).ToArray());
+							MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+						}
+					}
+					else
+					{
+						MainEditorWindow.Log("Failed to export file");
 					}
 				}
 			}
@@ -680,20 +816,20 @@ namespace FIFAModdingUI.Pages.Common
 							{
 								return;
 							}
-							EBXViewer.Children.Clear();
 							var ebx = ProjectManagement.Instance.Project.AssetManager.GetEbx(ebxEntry);
 							if (ebx != null)
 							{
 								MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
-								EBXViewer.Children.Add(new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow));
+								//EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+								EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
 								EBXViewer.Visibility = Visibility.Visible;
 								btnRevert.IsEnabled = true;
-								if (ebxEntry.Type == "HotspotDataAsset")
-								{
+								//if (ebxEntry.Type == "HotspotDataAsset")
+								//{
 									btnImport.IsEnabled = true;
 									btnExport.IsEnabled = true;
-								}
+								//}
 							}
 						}
 					}
@@ -909,21 +1045,22 @@ namespace FIFAModdingUI.Pages.Common
 				{
 					AssetManager.Instance.RevertAsset(SelectedEntry);
 				}
-				else if (EBXViewer.Children.Count > 0)
+				else if (EBXViewer != null && EBXViewer.Visibility == Visibility.Visible)
 				{
-					var ebxviewer = EBXViewer.Children[0] as Editor;
-					if (ebxviewer != null)
-					{
-						ebxviewer.RevertAsset();
-					}
+					EBXViewer.RevertAsset();
 				}
 			}
 			else if (SelectedLegacyEntry != null)
             {
 				AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
+				if(SelectedLegacyEntry.Type == "DDS")
+                {
+					BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+                }
             }
-			
 
+			if(MainEditorWindow != null)
+				MainEditorWindow.UpdateAllBrowsers();
         }
 
         private void txtFilter_TextChanged(object sender, TextChangedEventArgs e)

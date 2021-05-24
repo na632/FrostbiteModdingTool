@@ -80,7 +80,9 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestMainMenuSplashScreenMod()
         {
-            ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");
+            //ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");
+            GameInstanceSingleton.InitializeSingleton(GamePathExe);
+
 
             var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
             foreach (var oFile in oldFiles) File.Delete(oFile);
@@ -98,7 +100,9 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestTeamWipeMod()
         {
-            ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");
+            //ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");
+            GameInstanceSingleton.InitializeSingleton(GamePathExe);
+
 
             var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
             foreach (var oFile in oldFiles) File.Delete(oFile);

@@ -28,12 +28,15 @@ namespace v2k4FIFAModdingCL
         public static string GameDataPath { get { return GAMERootPath + "\\Data\\"; } }
 
         public static string FIFALocaleINIPath { get { return GAMERootPath + "\\Data\\locale.ini"; } }
+        public static string FIFALocaleINIModDataPath { get { return ModDataPath + "\\Data\\locale.ini"; } }
         public static string GamePatchPath { get { return GAMERootPath + "\\Patch\\"; } }
         public static string FIFA_INITFS_Win32 { get { return GamePatchPath + "\\initfs_Win32"; } }
 
         public static string LegacyModsPath { get { return GAMERootPath + "\\LegacyMods\\Legacy\\"; } }
 
         public static string GameEXE { get { return GAMERootPath + "\\" + GAMEVERSION + ".exe"; } }
+
+        public static string ModDataPath { get { return GAMERootPath + "\\ModData\\"; } }
 
         public static bool InitializeSingleton(string filePath)
         {

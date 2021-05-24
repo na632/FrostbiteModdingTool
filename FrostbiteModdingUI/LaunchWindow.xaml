@@ -53,30 +53,38 @@
                     <Label FontSize="14" FontWeight="Bold" Content="{Binding Profile.ProfileName}"></Label>
                 </StackPanel>
                 <Label FontSize="14" FontWeight="Bold">Mod List</Label>
-                <ListBox x:Name="listMods" BorderThickness="1" Height="250" SelectionChanged="listMods_SelectionChanged">
-                        <ListBox.ItemTemplate>
+                <ListView x:Name="listMods" BorderThickness="1" Height="250"
+                         SelectionChanged="listMods_SelectionChanged"
+                          VirtualizingStackPanel.IsVirtualizing="False"
+                         >
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <!--<StackPanel/>
+                    If StackPanel was used, the memory consumed was over 2GB and dead slow.
+                    -->
+                            <VirtualizingStackPanel>
+                                <!--Memory footprint is only 200 mb-->
+                            </VirtualizingStackPanel>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Grid.RowDefinitions>
+                                <Grid Margin="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30" MaxWidth="30"></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
                                         <RowDefinition></RowDefinition>
-                                        <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
                                     </Grid.RowDefinitions>
-                                    <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                        <MaterialDesign:PackIcon Kind="{Binding MaterialDesignKindIcon}" VerticalAlignment="Center" />
-                                        <TextBlock FontWeight="Bold" Text="{Binding}"  VerticalAlignment="Center"></TextBlock>
-                                    </StackPanel>
-                                    <Grid Grid.Row="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition></ColumnDefinition>
-                                            <ColumnDefinition></ColumnDefinition>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock FontSize="9" Grid.Column="0" Text="{Binding Path}"></TextBlock>
-                                        <TextBlock FontSize="9" Grid.Column="1" Text="{Binding Warning}"></TextBlock>
-                                    </Grid>
+                                <MaterialDesign:PackIcon Margin="5" Grid.Row="0" Grid.Column="0" Foreground="{Binding IconColor}"  Kind="{Binding MaterialDesignKindIcon}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" FontWeight="Bold" Text="{Binding}"  VerticalAlignment="Center"></TextBlock>
+                                    <TextBlock FontSize="9" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path}"></TextBlock>
                                 </Grid>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
-                </ListBox>
+                        </ListView.ItemTemplate>
+                </ListView>
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="5">
                 <Button x:Name="btnUp" Click="up_click">

@@ -17,10 +17,7 @@ namespace v2k4FIFAModding
                 yield return row;
         }
 
-        public static bool HasProperty(ExpandoObject obj, string propertyName)
-        {
-            return ((IDictionary<String, object>)obj).ContainsKey(propertyName);
-        }
+        
 
 
         public static bool PropertyExists(this object obj, string propName)
@@ -30,6 +27,15 @@ namespace v2k4FIFAModding
 
             return obj.GetProperty(propName) != null;
         }
+
+        public static bool PropertyExistsDynamic(this ExpandoObject obj, string propName)
+        {
+            if (obj is ExpandoObject)
+                return ((IDictionary<string, object>)obj).ContainsKey(propName);
+
+            return obj.GetProperty(propName) != null;
+        }
+
 
         public static PropertyInfo[] GetProperties(this object obj)
         {
@@ -65,6 +71,16 @@ namespace v2k4FIFAModding
                 if (propName != "BaseField")
                     p.SetValue(obj, value);
             }
+        }
+
+        public static bool HasProperty(object obj, string propName)
+        {
+            return obj.GetType().GetProperty(propName) != null;
+        }
+
+        public static bool HasProperty(ExpandoObject obj, string propertyName)
+        {
+            return ((IDictionary<String, object>)obj).ContainsKey(propertyName);
         }
 
         //public static void SetPropertyValue(this object obj, string propName, dynamic value)

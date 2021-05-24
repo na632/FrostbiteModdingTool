@@ -530,7 +530,7 @@ namespace paulv2k4ModdingExecuter
                                                         int num16 = modBundleInfo.Modify.Chunks.FindIndex((Guid a) => a == chunk.GetValue<Guid>("id"));
                                                         if (num16 != -1)
                                                         {
-                                                            ChunkAssetEntry chunkAssetEntry = parent.modifiedChunks[modBundleInfo.Modify.Chunks[num16]];
+                                                            ChunkAssetEntry chunkAssetEntry = parent.ModifiedChunks[modBundleInfo.Modify.Chunks[num16]];
                                                             if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry.Sha1].Data.Length > 1073741824)
                                                             {
                                                                 writer_new_cas_file?.Close();
@@ -547,7 +547,7 @@ namespace paulv2k4ModdingExecuter
                                                     }
                                                     foreach (Guid chunk2 in modBundleInfo.Add.Chunks)
                                                     {
-                                                        ChunkAssetEntry chunkAssetEntry2 = parent.modifiedChunks[chunk2];
+                                                        ChunkAssetEntry chunkAssetEntry2 = parent.ModifiedChunks[chunk2];
                                                         if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry2.Sha1].Data.Length > 1073741824)
                                                         {
                                                             writer_new_cas_file?.Close();
@@ -738,7 +738,7 @@ namespace paulv2k4ModdingExecuter
                                                     int num28 = modBundleInfo2.Modify.Chunks.FindIndex((Guid g) => g == guid);
                                                     if (num28 != -1)
                                                     {
-                                                        ChunkAssetEntry chunkAssetEntry3 = parent.modifiedChunks[modBundleInfo2.Modify.Chunks[num28]];
+                                                        ChunkAssetEntry chunkAssetEntry3 = parent.ModifiedChunks[modBundleInfo2.Modify.Chunks[num28]];
                                                         byte[] outData = null;
                                                         if (chunkAssetEntry3.ExtraData != null)
                                                         {
@@ -772,7 +772,7 @@ namespace paulv2k4ModdingExecuter
                                         {
                                             foreach (Guid chunk3 in parent.modifiedBundles[chunksBundleHash].Add.Chunks)
                                             {
-                                                ChunkAssetEntry chunkAssetEntry4 = parent.modifiedChunks[chunk3];
+                                                ChunkAssetEntry chunkAssetEntry4 = parent.ModifiedChunks[chunk3];
                                                 if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + parent.archiveData[chunkAssetEntry4.Sha1].Data.Length > 1073741824)
                                                 {
                                                     writer_new_cas_file?.Close();
@@ -2731,7 +2731,7 @@ namespace paulv2k4ModdingExecuter
                             }
                             else if (bundle.Modify.Chunks.Contains(value4))
                             {
-                                ChunkAssetEntry entry = parent.modifiedChunks[value4];
+                                ChunkAssetEntry entry = parent.ModifiedChunks[value4];
                                 DbObject dbObject7 = value3.Find<DbObject>((object a) => (a as DbObject).GetValue("h32", 0) == entry.H32);
                                 item5.SetValue("sha1", entry.Sha1);
                                 item5.SetValue("logicalOffset", entry.LogicalOffset);
@@ -2765,7 +2765,7 @@ namespace paulv2k4ModdingExecuter
                         }
                         foreach (Guid chunk in bundle.Add.Chunks)
                         {
-                            ChunkAssetEntry chunkAssetEntry = parent.modifiedChunks[chunk];
+                            ChunkAssetEntry chunkAssetEntry = parent.ModifiedChunks[chunk];
                             DbObject dbObject8 = new DbObject();
                             dbObject8.SetValue("id", chunk);
                             dbObject8.SetValue("sha1", chunkAssetEntry.Sha1);
@@ -3085,7 +3085,7 @@ namespace paulv2k4ModdingExecuter
                                     {
                                         value.Insert(0, dbObject4);
                                     }
-                                    ChunkAssetEntry chunkAssetEntry = parent.modifiedChunks[value2];
+                                    ChunkAssetEntry chunkAssetEntry = parent.ModifiedChunks[value2];
                                     dbObject4.SetValue("sha1", chunkAssetEntry.Sha1);
                                     dbObject4.SetValue("delta", true);
                                     if (chunkAssetEntry.IsTocChunk && !casRefs.Contains(chunkAssetEntry.Sha1))
@@ -3100,7 +3100,7 @@ namespace paulv2k4ModdingExecuter
                             {
                                 foreach (Guid chunk2 in modBundleInfo.Add.Chunks)
                                 {
-                                    ChunkAssetEntry chunkAssetEntry2 = parent.modifiedChunks[chunk2];
+                                    ChunkAssetEntry chunkAssetEntry2 = parent.ModifiedChunks[chunk2];
                                     DbObject dbObject6 = new DbObject();
                                     dbObject6.SetValue("id", chunkAssetEntry2.Id);
                                     dbObject6.SetValue("sha1", chunkAssetEntry2.Sha1);
@@ -3121,7 +3121,7 @@ namespace paulv2k4ModdingExecuter
                                 Guid value3 = item3.GetValue<Guid>("id");
                                 if (modBundleInfo.Modify.Chunks.Contains(value3))
                                 {
-                                    ChunkAssetEntry chunkAssetEntry3 = parent.modifiedChunks[value3];
+                                    ChunkAssetEntry chunkAssetEntry3 = parent.ModifiedChunks[value3];
                                     if (chunkAssetEntry3.ExtraData != null)
                                     {
                                         HandlerExtraData handlerExtraData = (HandlerExtraData)chunkAssetEntry3.ExtraData;
@@ -3147,7 +3147,7 @@ namespace paulv2k4ModdingExecuter
                             {
                                 foreach (Guid chunk3 in modBundleInfo.Add.Chunks)
                                 {
-                                    ChunkAssetEntry chunkAssetEntry4 = parent.modifiedChunks[chunk3];
+                                    ChunkAssetEntry chunkAssetEntry4 = parent.ModifiedChunks[chunk3];
                                     DbObject dbObject8 = new DbObject();
                                     dbObject8.SetValue("id", chunkAssetEntry4.Id);
                                     dbObject8.SetValue("sha1", chunkAssetEntry4.Sha1);
@@ -3237,7 +3237,7 @@ namespace paulv2k4ModdingExecuter
                             if (modBundleInfo.Modify.Chunks.Contains(value6))
                             {
                                 flag7 = true;
-                                ChunkAssetEntry chunkAssetEntry5 = parent.modifiedChunks[value6];
+                                ChunkAssetEntry chunkAssetEntry5 = parent.ModifiedChunks[value6];
                                 item7.RemoveValue("modified");
                                 item7.SetValue("sha1", chunkAssetEntry5.Sha1);
                                 item7.SetValue("size", chunkAssetEntry5.Size);
@@ -3257,7 +3257,7 @@ namespace paulv2k4ModdingExecuter
                             foreach (Guid chunk4 in modBundleInfo.Add.Chunks)
                             {
                                 flag7 = true;
-                                ChunkAssetEntry chunkAssetEntry6 = parent.modifiedChunks[chunk4];
+                                ChunkAssetEntry chunkAssetEntry6 = parent.ModifiedChunks[chunk4];
                                 DbObject dbObject13 = new DbObject();
                                 dbObject13.SetValue("id", chunkAssetEntry6.Id);
                                 dbObject13.SetValue("sha1", chunkAssetEntry6.Sha1);
@@ -3612,7 +3612,7 @@ namespace paulv2k4ModdingExecuter
                                             {
                                                 if (modBundleInfo2.Modify.Chunks.Contains(item25.Id) && !item25.Removed)
                                                 {
-                                                    ChunkAssetEntry chunkAssetEntry7 = parent.modifiedChunks[item25.Id];
+                                                    ChunkAssetEntry chunkAssetEntry7 = parent.ModifiedChunks[item25.Id];
                                                     DbObject dbObject37 = new DbObject();
                                                     byte[] array3 = parent.archiveData[chunkAssetEntry7.Sha1].Data;
                                                     if (chunkAssetEntry7.LogicalOffset != 0)
@@ -4034,7 +4034,7 @@ namespace paulv2k4ModdingExecuter
                                                 {
                                                     if (modBundleInfo3.Modify.Chunks.Contains(value12))
                                                     {
-                                                        ChunkAssetEntry chunkAssetEntry8 = parent.modifiedChunks[value12];
+                                                        ChunkAssetEntry chunkAssetEntry8 = parent.ModifiedChunks[value12];
                                                         item44.SetValue("sha1", chunkAssetEntry8.Sha1);
                                                         item44.SetValue("size", (int)chunkAssetEntry8.Size);
                                                         if (chunkAssetEntry8.FirstMip != -1)
@@ -4096,7 +4096,7 @@ namespace paulv2k4ModdingExecuter
                                         foreach (Guid chunk5 in modBundleInfo3.Add.Chunks)
                                         {
                                             flag13 = true;
-                                            ChunkAssetEntry chunkAssetEntry9 = parent.modifiedChunks[chunk5];
+                                            ChunkAssetEntry chunkAssetEntry9 = parent.ModifiedChunks[chunk5];
                                             DbObject dbObject48 = new DbObject();
                                             dbObject48.AddValue("h32", chunkAssetEntry9.H32);
                                             dbObject48.AddValue("meta", new DbObject());
@@ -4254,7 +4254,12 @@ namespace paulv2k4ModdingExecuter
 
         public Dictionary<string, ResAssetEntry> modifiedRes = new Dictionary<string, ResAssetEntry>();
 
-        public Dictionary<Guid, ChunkAssetEntry> modifiedChunks = new Dictionary<Guid, ChunkAssetEntry>();
+        public Dictionary<Guid, ChunkAssetEntry> ModifiedChunks = new Dictionary<Guid, ChunkAssetEntry>();
+
+        /// <summary>
+        /// Added by PG 24 May 2021 to add (not modify) TOC Chunks
+        /// </summary>
+        public Dictionary<Guid, ChunkAssetEntry> AddedChunks = new Dictionary<Guid, ChunkAssetEntry>();
 
         public Dictionary<string, LegacyFileEntry> modifiedLegacy = new Dictionary<string, LegacyFileEntry>();
 
@@ -4518,9 +4523,9 @@ namespace paulv2k4ModdingExecuter
                                 ChunkAssetEntry chunkAssetEntry = null;
                                 HandlerExtraData handlerExtraData2 = null;
                                 byte[] resourceData4 = frostyMod2.GetResourceData(resource);
-                                if (modifiedChunks.ContainsKey(guid))
+                                if (ModifiedChunks.ContainsKey(guid))
                                 {
-                                    chunkAssetEntry = modifiedChunks[guid];
+                                    chunkAssetEntry = ModifiedChunks[guid];
                                     handlerExtraData2 = (HandlerExtraData)chunkAssetEntry.ExtraData;
                                 }
                                 else
@@ -4539,15 +4544,15 @@ namespace paulv2k4ModdingExecuter
                                         }
                                     }
                                     chunkAssetEntry.ExtraData = handlerExtraData2;
-                                    modifiedChunks.Add(guid, chunkAssetEntry);
+                                    ModifiedChunks.Add(guid, chunkAssetEntry);
                                 }
                                 handlerExtraData2.Data = handlerExtraData2.Handler.Load(handlerExtraData2.Data, resourceData4);
                             }
                             else
                             {
-                                if (modifiedChunks.ContainsKey(guid))
+                                if (ModifiedChunks.ContainsKey(guid))
                                 {
-                                    ChunkAssetEntry chunkAssetEntry2 = modifiedChunks[guid];
+                                    ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
                                     if (chunkAssetEntry2.Sha1 == resource.Sha1)
                                     {
                                         continue;
@@ -4557,14 +4562,14 @@ namespace paulv2k4ModdingExecuter
                                     {
                                         archiveData.Remove(chunkAssetEntry2.Sha1);
                                     }
-                                    modifiedChunks.Remove(guid);
+                                    ModifiedChunks.Remove(guid);
                                     numArchiveEntries--;
                                 }
                                 byte[] resourceData5 = frostyMod2.GetResourceData(resource);
                                 ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
                                 resource.FillAssetEntry(chunkAssetEntry3);
                                 chunkAssetEntry3.Size = resourceData5.Length;
-                                modifiedChunks.Add(guid, chunkAssetEntry3);
+                                ModifiedChunks.Add(guid, chunkAssetEntry3);
                                 if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
                                 {
                                     archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo
@@ -4794,9 +4799,9 @@ namespace paulv2k4ModdingExecuter
                             case "chunk":
                                 {
                                     Guid guid2 = new Guid(item2.GetValue<string>("name"));
-                                    if (modifiedChunks.ContainsKey(guid2))
+                                    if (ModifiedChunks.ContainsKey(guid2))
                                     {
-                                        ChunkAssetEntry chunkAssetEntry4 = modifiedChunks[guid2];
+                                        ChunkAssetEntry chunkAssetEntry4 = ModifiedChunks[guid2];
                                         if (chunkAssetEntry4.Sha1 == item2.GetValue<Sha1>("sha1"))
                                         {
                                             break;
@@ -4806,7 +4811,7 @@ namespace paulv2k4ModdingExecuter
                                         {
                                             archiveData.Remove(chunkAssetEntry4.Sha1);
                                         }
-                                        modifiedChunks.Remove(guid2);
+                                        ModifiedChunks.Remove(guid2);
                                         numArchiveEntries--;
                                     }
                                     ChunkAssetEntry chunkAssetEntry5 = new ChunkAssetEntry
@@ -4860,7 +4865,7 @@ namespace paulv2k4ModdingExecuter
                                         }
                                     }
                                     chunkAssetEntry5.Sha1 = Utils.GenerateSha1(array3);
-                                    modifiedChunks.Add(chunkAssetEntry5.Id, chunkAssetEntry5);
+                                    ModifiedChunks.Add(chunkAssetEntry5.Id, chunkAssetEntry5);
                                     if (!archiveData.ContainsKey(chunkAssetEntry5.Sha1))
                                     {
                                         archiveData.Add(chunkAssetEntry5.Sha1, new ArchiveInfo
@@ -5122,7 +5127,7 @@ namespace paulv2k4ModdingExecuter
                 {
                     foreach (Guid chunk in modifiedBundles[chunksBundleHash].Modify.Chunks)
                     {
-                        ChunkAssetEntry chunkAssetEntry6 = modifiedChunks[chunk];
+                        ChunkAssetEntry chunkAssetEntry6 = ModifiedChunks[chunk];
                         ManifestChunkInfo manifestChunk = fs.GetManifestChunk(chunkAssetEntry6.Id);
                         if (manifestChunk != null)
                         {
@@ -5131,7 +5136,7 @@ namespace paulv2k4ModdingExecuter
                     }
                     foreach (Guid chunk2 in modifiedBundles[chunksBundleHash].Add.Chunks)
                     {
-                        ChunkAssetEntry chunkAssetEntry7 = modifiedChunks[chunk2];
+                        ChunkAssetEntry chunkAssetEntry7 = ModifiedChunks[chunk2];
                         ManifestChunkInfo manifestChunkInfo = new ManifestChunkInfo();
                         manifestChunkInfo.guid = chunkAssetEntry7.Id;
                         manifestChunkInfo.file = new ManifestFileInfo();
@@ -5443,7 +5448,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
                 foreach (var f in allModPaths)
                 {
-                    if (f.Contains(".zip"))
+                    if (f.Contains(".zip", StringComparison.OrdinalIgnoreCase))
                     {
                         var z = f;
 
@@ -5455,8 +5460,8 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                             ZipArchive zipArchive = new ZipArchive(fsModZipped);
                             foreach (var zaentr in zipArchive.Entries
                                 .Where(x => 
-                                x.FullName.Contains(".fbmod") 
-                                || x.FullName.Contains(".fifamod") ))
+                                x.FullName.Contains(".fbmod", StringComparison.OrdinalIgnoreCase) 
+                                || x.FullName.Contains(".fifamod", StringComparison.OrdinalIgnoreCase) ))
                             {
                                 Logger.Log("Loading mod " + zaentr.Name);
                                 FrostyModsFound = true;
@@ -5468,7 +5473,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         }
                     }
                     //    else 
-                    if (f.Contains(".fbmod"))
+                    if (f.Contains(".fbmod", StringComparison.OrdinalIgnoreCase))
                     {
                         FrostyModsFound = true;
 
@@ -5480,7 +5485,7 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         frostyMods.Add(new MemoryStream(fbmod.ModBytes.ToArray()), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
                     }
 
-                    if(f.Contains(".fifamod"))
+                    if(f.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
                     {
                         FrostyModsFound = true;
 
@@ -5493,11 +5498,15 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
 
                 foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
                 {
-                    Logger.Log("Compiling mod " + kvpMods.Value.Filename);
+                    //Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
                     var frostbiteMod = kvpMods.Value;
                     foreach (BaseModResource resource in frostbiteMod.Resources)
                     {
+                        if(resource is BaseModReader.ChunkResource)
+                        {
+
+                        }
                         foreach (int modifiedBundle in resource.ModifiedBundles)
                         {
                             if (!modifiedBundles.ContainsKey(modifiedBundle))
@@ -5660,9 +5669,9 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                         {
                             Guid guid = new Guid(resource.Name);
                             {
-                                if (modifiedChunks.ContainsKey(guid))
+                                if (ModifiedChunks.ContainsKey(guid))
                                 {
-                                    ChunkAssetEntry chunkAssetEntry2 = modifiedChunks[guid];
+                                    ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
                                     if (chunkAssetEntry2.Sha1 == resource.Sha1)
                                     {
                                         continue;
@@ -5672,14 +5681,14 @@ fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                                     {
                                         archiveData.Remove(chunkAssetEntry2.Sha1);
                                     }
-                                    modifiedChunks.Remove(guid);
+                                    ModifiedChunks.Remove(guid);
                                     numArchiveEntries--;
                                 }
                                 byte[] resourceData5 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
                                 resource.FillAssetEntry(chunkAssetEntry3);
                                 chunkAssetEntry3.Size = resourceData5.Length;
-                                modifiedChunks.Add(guid, chunkAssetEntry3);
+                                ModifiedChunks.Add(guid, chunkAssetEntry3);
                                 if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
                                 {
                                     archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo

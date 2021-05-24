@@ -223,12 +223,12 @@
                      >
 
                             </TextBox>
-                            <StackPanel Grid.Row="1" x:Name="EBXViewer" Visibility="Collapsed">
+                                    <local:Editor Grid.Row="1" x:Name="EBXViewer" Visibility="Collapsed">
 
-                            </StackPanel>
+                                    </local:Editor>
 
 
-                            <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
+                                    <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
                                 <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
                             </StackPanel>
 

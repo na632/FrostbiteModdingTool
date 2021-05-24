@@ -954,5 +954,11 @@ namespace FIFAModdingUI.Windows
             gameplayBrowser.UpdateAssetListView();
             legacyBrowser.UpdateAssetListView();
         }
+
+        private void btnOpenModBundler_Click(object sender, RoutedEventArgs e)
+        {
+            FrostbiteModBundler frostbiteModBundler = new FrostbiteModBundler();
+            frostbiteModBundler.ShowDialog();
+        }
     }
 }

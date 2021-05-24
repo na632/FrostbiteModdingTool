@@ -350,7 +350,19 @@ namespace FIFAModdingUI
                     }
                 }
 
-                //var k = chkUseFileSystem.IsChecked.Value;
+                // -------------------------------------------------------------------------
+                // Ensure the latest locale.ini is installing into the ModData
+                if (ProfilesLibrary.IsFIFA21DataVersion())
+                {
+                    FileInfo localeIni = new FileInfo(GameInstanceSingleton.FIFALocaleINIPath);
+                    if (localeIni.Exists)
+                    {
+                        FileInfo localeIniModData = new FileInfo(GameInstanceSingleton.FIFALocaleINIModDataPath);
+
+                        File.Copy(localeIni.FullName, localeIniModData.FullName, true);
+                    }
+                }
+
                 var useLegacyMods = switchUseLegacyModSupport.IsOn;
                 var useLiveEditor = switchUseLiveEditor.IsOn;
                 var useSymbolicLink = switchUseSymbolicLink.IsOn;
@@ -366,35 +378,6 @@ namespace FIFAModdingUI
                 });
                 await Task.Delay(1000);
 
-                    //try
-                    //{
-                    //    if (AssetManager.Instance == null)
-                    //    {
-                    //        if (string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
-                    //            throw new Exception("Game path has not been selected or initialized");
-
-                    //        if (string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION))
-                    //            throw new Exception("Game EXE has not been selected or initialized");
-
-                    //        Log("Asset Manager is not initialised - Starting");
-                    //        ProjectManagement projectManagement = new ProjectManagement(
-                    //            GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe"
-                    //            , this);
-
-                    //        if(AssetManager.Instance == null)
-                    //        {
-                    //            throw new Exception("Asset Manager has not been loaded against " + GameInstanceSingleton.GAMERootPath + "\\" + GameInstanceSingleton.GAMEVERSION + ".exe");
-                    //        }
-                    //        Log("Asset Manager loading complete");
-                    //    }
-                    //}
-                    //catch(Exception AssetManagerException)
-                    //{
-                    //    LogError(AssetManagerException.ToString());
-                    //    return;
-                    //}
-                    //Dispatcher.Invoke(() =>
-                    //{
 
                     Log("Mod Compiler Started for " + GameInstanceSingleton.GAMEVERSION);
 

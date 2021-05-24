@@ -309,7 +309,7 @@ namespace FIFA21Plugin
                                         NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
                                         nativeWriter_ForMS.Write(b);
                                         ms.Position = 0;
-                                        EbxReader_F21 ebxReader_F21 = new EbxReader_F21(ms);
+                                        EbxReader_F21 ebxReader_F21 = new EbxReader_F21(ms, casBundle.TOCPatch[i]);
                                         ebxobjectinlist.SetValue("Type", ebxReader_F21.RootType);
                                     }
                                 }

@@ -165,13 +165,13 @@ namespace FIFA21Plugin
                 foreach (var modLegChunk in modifiedLegacyChunks)
                 {
                     modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
-                    if (!parent.modifiedChunks.ContainsKey(modLegChunk.Id))
+                    if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
                     {
-                        parent.modifiedChunks.Add(modLegChunk.Id, modLegChunk);
+                        parent.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
                     }
                     else
                     {
-                        parent.modifiedChunks[modLegChunk.Id] = modLegChunk;
+                        parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
                     }
                     countLegacyChunksModified++;
                 }
@@ -262,7 +262,7 @@ namespace FIFA21Plugin
                     ErrorCounts[ModType.RES]++;
                 }
             }
-            foreach (var modChunks in parent.modifiedChunks)
+            foreach (var modChunks in parent.ModifiedChunks)
             {
                 var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
 
@@ -427,7 +427,7 @@ namespace FIFA21Plugin
                                         origSize = Convert.ToInt32(parent.modifiedRes[modItem.NamePath].OriginalSize);
                                         break;
                                     case ModType.CHUNK:
-                                        origSize = Convert.ToInt32(parent.modifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
+                                        origSize = Convert.ToInt32(parent.ModifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
                                         break;
                                 }
                                 if (origSize == 0

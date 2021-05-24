@@ -95,12 +95,12 @@ namespace FIFA21Plugin
 
                             var moddedEBXDict = parent.modifiedEbx;
                             var moddedRESDict = parent.modifiedRes;
-                            var moddedChunkDict = parent.modifiedChunks;
+                            var moddedChunkDict = parent.ModifiedChunks;
 
                             var moddedEBX = parent.modifiedEbx.Where(x => ebxObjects.Any(y=>y.Name.ToLower() == x.Key.ToLower())).ToList();
                             //var moddedRES = parent.modifiedRes.Where(x => resObjects.Any(y => y.Name.ToLower() == x.Key.ToLower())).ToList();
                             var moddedRES = new Dictionary<string, ResAssetEntry>().ToList();
-                            var moddedChunk = parent.modifiedChunks.Where(x => chunkObjects.Any(y=>y.Id.ToString() == x.Key.ToString().ToLower())).ToList();
+                            var moddedChunk = parent.ModifiedChunks.Where(x => chunkObjects.Any(y=>y.Id.ToString() == x.Key.ToString().ToLower())).ToList();
 
                             var piemontekitmodRes = parent.modifiedRes;
                             var piemontekitResObj = resObjects.Where(x => x.Name.Contains("piemonte_"));

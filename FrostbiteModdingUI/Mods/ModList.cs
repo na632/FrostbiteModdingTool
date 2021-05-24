@@ -66,37 +66,38 @@ namespace FIFAModdingUI.Mods
                     switch (ModType)
                     {
                         case "Frostbite":
-                            pik = PackIconKind.Cog;
+                            pik = PackIconKind.XboxController;
                             break;
                         case "Legacy":
-                            pik = PackIconKind.Injection;
+                            pik = PackIconKind.ZipBox;
                             break;
                         case "Bundle":
                             pik = PackIconKind.FolderZip;
                             break;
                         case "FIFA (FET)":
-                            pik = PackIconKind.WarningCircle;
+                            pik = PackIconKind.XboxController;
                             break;
                     }
                     return pik ;
                 }
             }
 
-            public Color IconColor
+            public System.Windows.Media.Brush IconColor
             {
                 get
                 {
-                    var pik = Color.FromArgb(255, 0, 0, 0);
+                    var pik = System.Windows.Media.Brushes.DarkSlateBlue; // Color.FromArgb(255, 0, 0, 0);
                     switch (ModType)
                     {
                         case "Frostbite":
                             break;
                         case "Legacy":
+                            pik = System.Windows.Media.Brushes.Green;
                             break;
                         case "Bundle":
                             break;
                         case "FIFA (FET)":
-                            pik = Color.Red;
+                            pik = System.Windows.Media.Brushes.Red;
                             break;
                     }
                     return pik;
@@ -126,16 +127,31 @@ namespace FIFAModdingUI.Mods
                 }
             }
 
+            private static Dictionary<string, IFrostbiteMod> FrostbiteMods = new Dictionary<string, IFrostbiteMod>(100);
+
             public IFrostbiteMod GetFrostbiteMod()
             {
+                if (FrostbiteMods.ContainsKey(Path))
+                    return FrostbiteMods[Path];
+
+                IFrostbiteMod frostbiteMod;
                 switch (ModType)
                 {
                     case "Frostbite":
-                        return new FrostbiteMod(Path);
+                        frostbiteMod = new FrostbiteMod(Path);
+                        break;
                     case "FIFA (FET)":
-                        return new FIFAMod(string.Empty, Path);
+                        frostbiteMod = new FIFAMod(string.Empty, Path);
+                        break;
+                    default:
+                        return null;
+                    //default:
+                    //    throw new ArgumentOutOfRangeException("Unknown Mod Type Given");
                 }
-                return null;
+
+                FrostbiteMods.Add(Path, frostbiteMod);
+
+                return frostbiteMod;
             }
 
             public ModItem(string p)
@@ -174,12 +190,13 @@ namespace FIFAModdingUI.Mods
                 if (fileInfo.Exists)
                 {
                     var fbm = GetFrostbiteMod();
-                    if(fbm != null)
+                    if (fbm != null)
                     {
                         if (fbm.ModDetails != null)
                         {
                             return fbm.ModDetails.Title + " (" + fbm.ModDetails.Version + ")";
                         }
+                        fbm.Dispose();
                     }
                     return fileInfo.Name;
                 }

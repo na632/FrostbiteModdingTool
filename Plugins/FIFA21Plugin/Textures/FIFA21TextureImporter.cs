@@ -61,17 +61,17 @@ namespace FIFA21Plugin.Textures
 				memoryStream = new MemoryStream(pOutData.Data);
             }
 
-			if (!Directory.Exists("Debugging"))
-				Directory.CreateDirectory("Debugging");
+			//if (!Directory.Exists("Debugging"))
+			//	Directory.CreateDirectory("Debugging");
 
-			if (!Directory.Exists("Debugging\\Other\\"))
-				Directory.CreateDirectory("Debugging\\Other\\");
+			//if (!Directory.Exists("Debugging\\Other\\"))
+			//	Directory.CreateDirectory("Debugging\\Other\\");
 
-			using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureImport.dat", FileMode.OpenOrCreate))
-			{
-				memoryStream.CopyTo(fileStream);
-				fileStream.Flush();
-			}
+			//using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureImport.dat", FileMode.OpenOrCreate))
+			//{
+			//	memoryStream.CopyTo(fileStream);
+			//	fileStream.Flush();
+			//}
 			memoryStream.Position = 0;
 			
 

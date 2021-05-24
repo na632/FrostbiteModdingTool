@@ -72,6 +72,12 @@
                                 <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
+                        <!--<Button x:Name="btnOpenModBundler"  Height="30" Click="btnOpenModBundler_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                                <Label Content="Open Mod Bundler" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>-->
                     </MenuItem>
                     <MenuItem Header="Experimental">
                         <Button x:Name="btnProjectSaveToFIFAProject"  Height="30" Click="btnProjectSaveToFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
@@ -109,7 +115,7 @@
 
         </Grid>
 
-        <DockingManager Grid.Row="1" AnchorableContextMenu="{Binding NULL}" ContextMenu="{Binding NULL}">
+        <DockingManager Grid.Row="1">
             <LayoutRoot>
                 <LayoutPanel Orientation="Vertical">
                     <LayoutAnchorablePane DockMinHeight="450" DockHeight="450" >

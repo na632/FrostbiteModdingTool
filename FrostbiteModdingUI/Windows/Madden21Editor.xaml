@@ -17,18 +17,15 @@
          WindowStartupLocation="CenterScreen"
         >
 
-    <DockPanel>
 
-        <Grid DockPanel.Dock="Top" ShowGridLines="True">
+        <Grid DockPanel.Dock="Top">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition MinHeight="400" Height="*"></RowDefinition>
-                <RowDefinition Height="*" MaxHeight="200"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <GridSplitter></GridSplitter>
 
             <StackPanel Grid.Row="0"  Orientation="Horizontal" Background="White">
                 <StackPanel Orientation="Horizontal">
@@ -82,36 +79,44 @@
                 </StackPanel>
 
             </StackPanel>
-            <DockPanel Grid.Row="1">
+            <DockingManager Grid.Row="1">
+                <LayoutRoot>
+                    <LayoutPanel Orientation="Vertical">
+                        <LayoutDocumentPane  ShowHeader="False">
+                            <LayoutDocument Description="Test" CanClose="False" CanMove="False" CanFloat="False">
+                                <TabControl x:Name="MainViewer">
+                                    <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
+                                        <StackPanel Orientation="Vertical">
+                                            <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
+                                        </StackPanel>
+                                    </TabItem>
+                                    <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
+                                        <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
+                                    </TabItem>
+                                    <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
+                                        <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
+                                    </TabItem>
+                                    <TabItem x:Name="TabLegacy" Header="Legacy">
+                                        <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
+                                    </TabItem>
+                                </TabControl>
+                            </LayoutDocument>
+                        </LayoutDocumentPane>
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable>
+                                <TextBox
+                                     x:Name="txtLog"
+                                     IsReadOnly="True"
+                                     Text="{Binding LogText}"
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible" DockPanel.Dock="Top"
+                                     />
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
 
-                <TabControl x:Name="MainViewer">
-                    <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
-                        <StackPanel Orientation="Vertical">
-                            <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
-                        </StackPanel>
-                    </TabItem>
-                    <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
-                        <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
-                    </TabItem>
-                    <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
-                        <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
-                    </TabItem>
-                    <TabItem x:Name="TabLegacy" Header="Legacy">
-                        <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
-                    </TabItem>
-                </TabControl>
-            </DockPanel>
-            <DockPanel Grid.Row="2" >
-                <TextBox
-                 x:Name="txtLog"
-                 IsReadOnly="True"
-                 Text="{Binding LogText}"
-                 ScrollViewer.VerticalScrollBarVisibility="Visible" DockPanel.Dock="Top"
-                 />
-            </DockPanel>
-
+                    </LayoutPanel>
+                </LayoutRoot>
+            </DockingManager>
         </Grid>
 
 
-    </DockPanel>
 </Window>
