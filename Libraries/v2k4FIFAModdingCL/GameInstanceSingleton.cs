@@ -97,7 +97,7 @@ namespace v2k4FIFAModdingCL
 
         public static bool LegacyInjectionExtraAssertions = true;
 
-        public static int? GetProcIDFromName(string name) //new 1.0.2 function
+        public static int? GetProcIDFromName(string name)
         {
 
             if (name.Contains(".exe"))
@@ -108,11 +108,14 @@ namespace v2k4FIFAModdingCL
             while (!id.HasValue && attempts < 120)
             {
                 Process[] processlist = Process.GetProcesses();
+                if (name.Contains("FIFA", StringComparison.OrdinalIgnoreCase))
+                    name = "FIFA";
 
                 Thread.Sleep(500);
                 foreach (Process theprocess in processlist)
                 {
-                    if (theprocess.ProcessName.Equals(name, StringComparison.CurrentCultureIgnoreCase)) //find (name).exe in the process list (use task manager to find the name)
+                    //find (name).exe in the process list (use task manager to find the name)
+                    if (theprocess.ProcessName.Contains(name, StringComparison.OrdinalIgnoreCase)) 
                         id = theprocess.Id;
                 }
 
@@ -122,6 +125,7 @@ namespace v2k4FIFAModdingCL
             if (id.HasValue)
                 return id;
 
+
             throw new ArgumentException($"Unable to find Process {name} running on your PC");
         }
 
@@ -130,6 +134,8 @@ namespace v2k4FIFAModdingCL
             int attempts = 0;
 
             bool ModuleLoaded = !LegacyInjectionExtraAssertions;
+
+
             int? proc = GetProcIDFromName(GAMEVERSION);
             while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 60)
             {
@@ -205,6 +211,7 @@ namespace v2k4FIFAModdingCL
         {
             dllpath = dllpath.Replace(@"\\\\", @"\");
             dllpath = dllpath.Replace(@"\\", @"\");
+            //dllpath = dllpath.Replace(@"\", @"/");
             if (File.Exists(dllpath))
             {
                 int proc = InjectDLL_GetProcess();
@@ -222,11 +229,13 @@ namespace v2k4FIFAModdingCL
                 try
                 {
                     // Use Bleak first
-                    bool injected = InjectDLL_Bleak(proc, dllpath);
+                    bool injected = InjectDLL_Own(proc, dllpath);
+                    //bool injected = InjectDLL_Bleak(proc, dllpath);
                     if (!injected)
                     {
                         // Own second
-                        injected = InjectDLL_Own(proc, dllpath);
+                        injected = InjectDLL_Bleak(proc, dllpath);
+                        //injected = InjectDLL_Own(proc, dllpath);
                         if (!injected)
                         {
                             // Last resort Lunar
@@ -240,7 +249,7 @@ namespace v2k4FIFAModdingCL
                 {
                     if (Logger != null)
                     {
-                        Logger.LogError($"DLL Injector Failed with Exception: {ex.ToString()}");
+                        Logger.LogError($"DLL Injector for {dll_File} Failed with Exception: {ex.ToString()}");
                     }
                     else
                     {
@@ -319,7 +328,7 @@ namespace v2k4FIFAModdingCL
                 out var bytesread
                 );
 
-            if (DllWrite == false)
+            if (DllWrite == false || bytes.Length == 0)
             {
                 Logger.LogError("[!] Writing DLL content to target process failed.");
                 return false;

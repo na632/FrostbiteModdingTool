@@ -21,9 +21,14 @@ namespace FrostbiteModdingTests
         public const string GamePath = @"F:\Origin Games\Madden NFL 21\";
         public const string GamePathExe = GamePath + "\\Madden21.exe";
 
+        private string lastLog;
         public void Log(string text, params object[] vars)
         {
-            Debug.WriteLine(text);
+            if (lastLog != text)
+            {
+                Debug.WriteLine(text);
+                lastLog = text;
+            }
         }
 
         public void LogError(string text, params object[] vars)

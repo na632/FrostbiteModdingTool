@@ -9,6 +9,7 @@ using FrostySdk.Frosty;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
@@ -53,8 +54,8 @@ namespace FIFAModdingUI
             WindowTitle = "FMT Launcher - " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
             DataContext = this;
 
-            App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle, DateTimeOffset.Now,
-                   TimeSpan.FromMilliseconds(0), "200", true);
+            App.AppInsightClient.TrackPageView("Launcher Window - " + WindowTitle);
+            
 
             try
             {
@@ -357,9 +358,12 @@ namespace FIFAModdingUI
                     FileInfo localeIni = new FileInfo(GameInstanceSingleton.FIFALocaleINIPath);
                     if (localeIni.Exists)
                     {
-                        FileInfo localeIniModData = new FileInfo(GameInstanceSingleton.FIFALocaleINIModDataPath);
-
-                        File.Copy(localeIni.FullName, localeIniModData.FullName, true);
+                        if (Directory.Exists(GameInstanceSingleton.ModDataPath))
+                        {
+                            FileInfo localeIniModData = new FileInfo(GameInstanceSingleton.FIFALocaleINIModDataPath);
+                            if(localeIniModData.Exists)
+                                File.Copy(localeIni.FullName, localeIniModData.FullName, true);
+                        }
                     }
                 }
 
@@ -394,7 +398,7 @@ namespace FIFAModdingUI
                             , useSymbolicLink);
                         launchSuccess = await launchTask;
 
-                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle, launchStartTime,
+                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,
                             TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
                     }
                     catch(Exception launchException)
@@ -402,19 +406,19 @@ namespace FIFAModdingUI
                         Log("[ERROR] Error caught in Launch Task. You must fix the error before using this Launcher.");
                         LogError(launchException.ToString());
 
-                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle, launchStartTime,
-                           TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", false);
+                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Launch Error", launchStartTime,
+                            TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
 
                         App.AppInsightClient.TrackException(launchException);
 
                     }
                     if (launchSuccess)
                     {
+                        var ApplicationRunningLocation = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
                         if (useLegacyMods)
                         {
-                            var runningLocation = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-                            LogSync("Legacy Injection - Tool running location is " + runningLocation);
+                            //LogSync("Legacy Injection - Tool running location is " + runningLocation);
 
                             string legacyModSupportFile = null;
                             if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
@@ -422,13 +426,13 @@ namespace FIFAModdingUI
                                 LogSync("Legacy Injection - FIFA 20 found. Using FIFA20Legacy.DLL.");
 
                                 //legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
-                                legacyModSupportFile = runningLocation + @"\FIFA20Legacy.dll";
+                                legacyModSupportFile = ApplicationRunningLocation + @"\FIFA20Legacy.dll";
                             }
                             else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.GAMEVERSION == "FIFA21")
                             {
                                 LogSync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
                                 //legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
-                                legacyModSupportFile = runningLocation + @"\FIFA.dll";
+                                legacyModSupportFile = ApplicationRunningLocation + @"\FIFA.dll";
                             }
 
                             if (!File.Exists(legacyModSupportFile))
@@ -446,11 +450,11 @@ namespace FIFAModdingUI
 
                                 try
                                 {
-                                    LogSync("Injecting Live Legacy Mod Support");
+                                    LogSync("Live Legacy Mod Support - Injecting");
                                     await Task.Delay(500);
                                     bool InjectionSuccess = await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
                                     if (InjectionSuccess)
-                                        LogSync("Injected Live Legacy Mod Support");
+                                        LogSync("Live Legacy Mod Support - Injected");
                                     else
                                         LogError("Launcher could not inject Live Legacy File Support");
 
@@ -461,16 +465,49 @@ namespace FIFAModdingUI
                                     LogError(InjectDLLException.ToString());
 
                                     App.AppInsightClient.TrackException(InjectDLLException);
-
+                                    App.AppInsightClient.TrackException(new Exception(JsonConvert.SerializeObject(Process.GetProcesses().Select(x => x.ProcessName))));
+                                    LogError("Your Processes are: ");
+                                    foreach(var p in Process.GetProcesses().Select(x => x.ProcessName))
+                                    {
+                                        LogError(p);
+                                    }
+                                    LogError("Please report this to paulv2k4 together with your list above!");
                                 }
                             }
                         }
 
                         if (useLiveEditor)
                         {
+                            Log("Live Editor - Injecting");
+                            var liveEditorResult = false;
                             if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL"))
-                                await GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
+                            {
+                                Log("Live Editor - Using " + @GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
+                                liveEditorResult = await GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"FIFALiveEditor.DLL");
+                            }
+                            else if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"LiveEditor\FIFALiveEditor.DLL"))
+                            {
+                                Log("Live Editor - Using " + @GameInstanceSingleton.GAMERootPath + @"LiveEditor\FIFALiveEditor.DLL");
+                                liveEditorResult = await GameInstanceSingleton.InjectDLLAsync(@GameInstanceSingleton.GAMERootPath + @"LiveEditor\FIFALiveEditor.DLL");
+                            }
+
+                            if (liveEditorResult)
+                            {
+                                Log("Live Editor - Injected");
+                                if(File.Exists(App.ApplicationDirectory + "\\CEM\\Data\\fifa_ng_db-meta.XML"))
+                                {
+                                    if (!Directory.Exists(GameInstanceSingleton.GAMERootPath + @"LiveEditorMods\root\Legacy\data\db"))
+                                        Directory.CreateDirectory(GameInstanceSingleton.GAMERootPath + @"LiveEditorMods\root\Legacy\data\db");
+
+                                    File.Copy(App.ApplicationDirectory + "\\CEM\\Data\\fifa_ng_db-meta.XML", GameInstanceSingleton.GAMERootPath + @"LiveEditorMods\root\Legacy\data\db" + "\\fifa_ng_db-meta.XML", true);
+                                }
+                            }
+                            else
+                            {
+                                LogError("Live Editor - Unable to initialise");
+                            }
                         }
+
                         Dispatcher.Invoke(() =>
                         {
                             switchForceReinstallMods.IsOn = false;
@@ -704,13 +741,9 @@ namespace FIFAModdingUI
 
         public void LogError(string text, params object[] vars)
         {
-            //LogAsync("[ERROR] " + text);
             LogSync("[ERROR] " + text);
 
-            if (File.Exists("ErrorLog.txt"))
-                File.Delete("ErrorLog.txt");
-
-            File.WriteAllText("ErrorLog.txt", DateTime.Now.ToString() + " \n" + text);
+            File.AppendAllText($"ErrorLog-{DateTime.Now.ToString("yyyy-MM-dd")}.txt", DateTime.Now.ToString() + " \n" + text);
         }
 
         public ModList.ModItem SelectedModListItem { get; set; }

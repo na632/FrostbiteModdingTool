@@ -145,47 +145,7 @@ namespace FIFA21Plugin
         private Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
         {
             // Handle Legacy first to generate modified chunks
-            if (parent.modifiedLegacy.Count > 0)
-            {
-                parent.Logger.Log($"Legacy :: {parent.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
-
-                Dictionary<string, byte[]> legacyData = new Dictionary<string, byte[]>();
-                var countLegacyChunksModified = 0;
-                foreach (var modLegacy in parent.modifiedLegacy)
-                {
-                    var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
-                    var data = parent.archiveData[modLegacy.Value.Sha1].Data;
-                    legacyData.Add(modLegacy.Key, data);
-                    
-                }
-
-                AssetManager.Instance.ModifyLegacyAssets(legacyData, true);
-
-                var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
-                foreach (var modLegChunk in modifiedLegacyChunks)
-                {
-                    modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
-                    if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
-                    {
-                        parent.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
-                    }
-                    else
-                    {
-                        parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
-                    }
-                    countLegacyChunksModified++;
-                }
-
-                var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
-                foreach(var chunk in modifiedChunks)
-                {
-                    if (parent.archiveData.ContainsKey(chunk.Sha1))
-                        parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
-                    else
-                        parent.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
-                }
-                parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
-            }
+            ProcessLegacyMods();
             // ------ End of handling Legacy files ---------
 
             Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
@@ -195,7 +155,7 @@ namespace FIFA21Plugin
                 if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                 {
                     var casPath = originalEntry.ExtraData.CasPath;
-                    if(casPath.Contains("native_patch"))
+                    if (casPath.Contains("native_patch"))
                     {
 
                     }
@@ -293,9 +253,54 @@ namespace FIFA21Plugin
                 }
             }
 
-            
+
 
             return casToMods;
+        }
+
+        private void ProcessLegacyMods()
+        {
+            if (parent.modifiedLegacy.Count > 0)
+            {
+                parent.Logger.Log($"Legacy :: {parent.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
+
+                Dictionary<string, byte[]> legacyData = new Dictionary<string, byte[]>();
+                var countLegacyChunksModified = 0;
+                foreach (var modLegacy in parent.modifiedLegacy)
+                {
+                    var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
+                    var data = parent.archiveData[modLegacy.Value.Sha1].Data;
+                    legacyData.Add(modLegacy.Key, data);
+
+                }
+
+                AssetManager.Instance.ModifyLegacyAssets(legacyData, true);
+
+                var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
+                foreach (var modLegChunk in modifiedLegacyChunks)
+                {
+                    modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+                    if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
+                    {
+                        parent.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
+                    }
+                    else
+                    {
+                        parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
+                    }
+                    countLegacyChunksModified++;
+                }
+
+                var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
+                foreach (var chunk in modifiedChunks)
+                {
+                    if (parent.archiveData.ContainsKey(chunk.Sha1))
+                        parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
+                    else
+                        parent.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                }
+                parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
+            }
         }
 
         Dictionary<string, DbObject> SbToDbObject = new Dictionary<string, DbObject>();
@@ -375,99 +380,50 @@ namespace FIFA21Plugin
                                 continue;
                             }
 
-                            //if (modItem.NamePath.Contains("tattoo", StringComparison.OrdinalIgnoreCase))
-                            //    continue;
-
-                            //if (modItem.NamePath.Contains("face", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                            //    continue;
                             var origSize = 0;
+                            var positionOfData = nwCas.Position;
+                            // write the new data to end of the file (this should be fine)
+                            nwCas.Write(data);
 
-                            //if (modItem.NamePath.Contains("haircap_227109", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                            //{
-                            //    MeshSet originalMeshSet = new MeshSet(AssetManager.Instance.GetRes(AssetManager.Instance.GetResEntry(modItem.NamePath)));
-                            //    MeshSet newMeshSet = new MeshSet(new MemoryStream(new CasReader(new MemoryStream(data)).Read()));
-
-                            //    data = originalMeshSet.ToBytes();
-                            //    origSize = data.Length;
-                            //    data = Utils.CompressFile(data, compressionOverride: CompressionType.ZStd);
-                            //}
-                            //else if (modItem.NamePath.Contains("haircap_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                            //    continue;
-
-                            //{
-                            //    var out_data_ms_hair_cap = new CasReader(new MemoryStream(data)).Read();
-                            //    MeshSet meshSet = new MeshSet(new MemoryStream(out_data_ms_hair_cap));
-                            //    //meshSet.Lods.Clear();
-                            //    //var data_o = meshSet.ToBytes();
-                            //    origSize = out_data_ms_hair_cap.Length;
-                            //    //data = Utils.CompressFile(data_o);
-                            //}
-
-                            //if (modItem.NamePath.Contains("haircap_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES && modItem.OriginalEntry.Type == "MeshSet")
-                            //    continue;
-
-                            //if (modItem.NamePath.Contains("hair_", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES && modItem.OriginalEntry.Type == "MeshSet")
-                            //    continue;
-
-                            //if (modItem.NamePath.Contains("head", StringComparison.OrdinalIgnoreCase) && modItem.ModType == ModType.RES)
-                            //    continue;
-
-                            if (data.Length > 0)
+                            switch (modItem.ModType)
                             {
-                                var positionOfData = nwCas.Position;
-                                // write the new data to end of the file (this should be fine)
-                                nwCas.Write(data);
-
-                                switch (modItem.ModType)
-                                {
-                                    case ModType.EBX:
-                                        origSize = Convert.ToInt32(parent.modifiedEbx[modItem.NamePath].OriginalSize);
-                                        break;
-                                    case ModType.RES:
-                                        origSize = Convert.ToInt32(parent.modifiedRes[modItem.NamePath].OriginalSize);
-                                        break;
-                                    case ModType.CHUNK:
-                                        origSize = Convert.ToInt32(parent.ModifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
-                                        break;
-                                }
-                                if (origSize == 0
-                                    || origSize == data.Length)
-                                {
-                                    var out_data = new CasReader(new MemoryStream(data)).Read();
-                                    origSize = out_data.Length;
-                                }
-
-                                var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
-                                if (useCas && (originalEntry is EbxAssetEntry || originalEntry is ResAssetEntry))
-                                {
-                                    if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
-                                    {
-                                        nwCas.Position = originalEntry.SB_OriginalSize_Position;
-                                        nwCas.Write((uint)origSize, Endian.Little);
-                                    }
-
-                                    if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
-                                    {
-                                        nwCas.Position = originalEntry.SB_Sha1_Position;
-                                        nwCas.Write(modItem.Sha1);
-                                    }
-                                }
-
-
-                                //parent.Logger.Log("Writing new asset entry for (" + originalEntry.Name + ")");
-                                //Debug.WriteLine("Writing new asset entry for (" + originalEntry.Name + ")");
-                                //EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, !useCas ? origSize : 0, !useCas ? modItem.Item1 : Sha1.Zero));
-                                EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
+                                case ModType.EBX:
+                                    origSize = Convert.ToInt32(parent.modifiedEbx[modItem.NamePath].OriginalSize);
+                                    break;
+                                case ModType.RES:
+                                    origSize = Convert.ToInt32(parent.modifiedRes[modItem.NamePath].OriginalSize);
+                                    break;
+                                case ModType.CHUNK:
+                                    origSize = Convert.ToInt32(parent.ModifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
+                                    break;
                             }
+                            if (origSize == 0
+                                || origSize == data.Length)
+                            {
+                                var out_data = new CasReader(new MemoryStream(data)).Read();
+                                origSize = out_data.Length;
+                            }
+
+                            var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
+                            if (useCas && (originalEntry is EbxAssetEntry || originalEntry is ResAssetEntry))
+                            {
+                                if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
+                                {
+                                    nwCas.Position = originalEntry.SB_OriginalSize_Position;
+                                    nwCas.Write((uint)origSize, Endian.Little);
+                                }
+
+                                if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
+                                {
+                                    nwCas.Position = originalEntry.SB_Sha1_Position;
+                                    nwCas.Write(modItem.Sha1);
+                                }
+                            }
+
+                            EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
                         }
 
                     }
-
-                    //if(EntriesToNewPosition.Count != item.Value.Count)
-                    //{
-                    //    parent.Logger.LogError($"Entry data does not match the count that was inputted by Mod");
-                    //    return false;
-                    //}
 
                     var groupedBySB = EntriesToNewPosition.GroupBy(x =>
                                 !string.IsNullOrEmpty(x.Key.SBFileLocation)
@@ -510,6 +466,9 @@ namespace FIFA21Plugin
                             {
                                 if (dboOriginal != null)
                                 {
+                                    var origEbxBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("ebx")).Select(x => ((DbObject)x).GetValue<DbObject>("ebx")).ToList();
+
+
                                     var origResBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("res")).Select(x => ((DbObject)x).GetValue<DbObject>("res")).ToList();
                                     DbObject origResDbo = null;
                                     foreach (DbObject dbInBundle in origResBundles)
@@ -518,12 +477,7 @@ namespace FIFA21Plugin
                                         if (origResDbo != null)
                                             break;
                                     }
-                                    //var origDboItem = dboOriginal.List.FirstOrDefault(x => ((DbObject)x).GetValue<DbObject>("res").List.FirstOrDefault(y => ((DbObject)y)["name"] == assetBundle.Key.Name));
-                                    //var originalDboItem_Res = dboOriginal.FirstOrDefault(x => x.GetValue<DbObject>("res").GetValue<string>("name") == assetBundle.Key.Name);
-                                    //if (originalDboItem_Res != null)
-                                    //{
-
-                                    //}
+                                    
                                     if (origResDbo != null && assetBundle.Key.Type == "MeshSet")
                                     {
                                         nw_sb.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
