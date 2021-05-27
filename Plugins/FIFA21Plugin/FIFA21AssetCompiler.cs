@@ -21,33 +21,6 @@ namespace FIFA21Plugin
         public const string ModDirectory = "ModData";
         public const string PatchDirectory = "Patch";
 
-        private static void DirectoryCopy(string sourceBasePath, string destinationBasePath, bool recursive = true)
-        {
-            if (!Directory.Exists(sourceBasePath))
-                throw new DirectoryNotFoundException($"Directory '{sourceBasePath}' not found");
-
-            var directoriesToProcess = new Queue<(string sourcePath, string destinationPath)>();
-            directoriesToProcess.Enqueue((sourcePath: sourceBasePath, destinationPath: destinationBasePath));
-            while (directoriesToProcess.Any())
-            {
-                (string sourcePath, string destinationPath) = directoriesToProcess.Dequeue();
-
-                if (!Directory.Exists(destinationPath))
-                    Directory.CreateDirectory(destinationPath);
-
-                var sourceDirectoryInfo = new DirectoryInfo(sourcePath);
-                    foreach (FileInfo sourceFileInfo in sourceDirectoryInfo.EnumerateFiles())
-                        sourceFileInfo.CopyTo(Path.Combine(destinationPath, sourceFileInfo.Name), true);
-                if (!recursive)
-                    continue;
-
-                foreach (DirectoryInfo sourceSubDirectoryInfo in sourceDirectoryInfo.EnumerateDirectories())
-                    directoriesToProcess.Enqueue((
-                        sourcePath: sourceSubDirectoryInfo.FullName,
-                        destinationPath: Path.Combine(destinationPath, sourceSubDirectoryInfo.Name)));
-            }
-        }
-
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken
         /// </summary>
@@ -63,6 +36,15 @@ namespace FIFA21Plugin
                 return false;
             }
 
+            if(FrostyModExecutor.UseModData)
+            {
+                return RunEADesktopCompiler(fs, logger, frostyModExecuter);
+            }
+            return RunOriginCompiler(fs, logger, frostyModExecuter);
+        }
+
+        private bool RunOriginCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
+        {
             // Notify the Bundle Action of the Cas File Count
             FIFA21BundleAction.CasFileCount = fs.CasFileCount;
 
@@ -73,13 +55,23 @@ namespace FIFA21Plugin
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
             var fme = (FrostyModExecutor)frostyModExecuter;
-            
+
             logger.Log("Copying files from Data to ModData/Data");
             CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
             logger.Log("Copying files from Patch to ModData/Patch");
             CopyDataFolder(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "\\" + PatchDirectory, logger);
 
             FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction(fme);
+            return fifaBundleAction.Run();
+        }
+
+        private bool RunEADesktopCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
+        {
+            if (!Directory.Exists(fs.BasePath))
+                throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
+
+            var fme = (FrostyModExecutor)frostyModExecuter;
+            FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction(fme, false);
             return fifaBundleAction.Run();
         }
 

@@ -90,12 +90,15 @@ namespace FIFA21Plugin
         //    parent = inParent;
         //}
 
-        public FIFA21BundleAction(FrostyModExecutor inParent)
+        private readonly bool UseModData;
+
+        public FIFA21BundleAction(FrostyModExecutor inParent, bool useModData = true)
         {
             parent = inParent;
             ErrorCounts.Add(ModType.EBX, 0);
             ErrorCounts.Add(ModType.RES, 0);
             ErrorCounts.Add(ModType.CHUNK, 0);
+            UseModData = useModData;
         }
 
         public enum ModType
@@ -339,15 +342,20 @@ namespace FIFA21Plugin
                     if (!string.IsNullOrEmpty(item.Key))
                     {
                         casPath = item.Key.Replace("native_data"
-                            , AssetManager.Instance.fs.BasePath + "ModData\\Data");
+                            , AssetManager.Instance.fs.BasePath + "ModData\\Data", StringComparison.OrdinalIgnoreCase);
                     }
 
                     casPath = casPath.Replace("native_patch"
-                        , AssetManager.Instance.fs.BasePath + "ModData\\Patch");
+                        , AssetManager.Instance.fs.BasePath + "ModData\\Patch", StringComparison.OrdinalIgnoreCase);
 
-                    if (!casPath.Contains("ModData"))
+                    if (UseModData && !casPath.Contains("ModData"))
                     {
                         throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
+                    }
+
+                    if(!UseModData)
+                    {
+                        casPath = casPath.Replace("ModData\\", "", StringComparison.OrdinalIgnoreCase);
                     }
 
                     Debug.WriteLine($"Modifying CAS file - {casPath}");
@@ -436,10 +444,12 @@ namespace FIFA21Plugin
                     {
                         var sbpath = sbGroup.Key;
                         sbpath = parent.fs.ResolvePath(sbpath).ToLower();
-                        sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
-                        sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
-
-                        if (!sbpath.ToLower().Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                        if (UseModData)
+                        {
+                            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
+                            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
+                        }
+                        if (UseModData && !sbpath.ToLower().Contains("moddata", StringComparison.OrdinalIgnoreCase))
                         {
                             throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
                         }
