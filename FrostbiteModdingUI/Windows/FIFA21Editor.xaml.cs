@@ -960,5 +960,10 @@ namespace FIFAModdingUI.Windows
             FrostbiteModBundler frostbiteModBundler = new FrostbiteModBundler();
             frostbiteModBundler.ShowDialog();
         }
+
+        private void btnCleanUpLegacyFiles_Click(object sender, RoutedEventArgs e)
+        {
+            LegacyFileManager_M21.CleanUpChunks();
+        }
     }
 }

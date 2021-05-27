@@ -78,6 +78,12 @@
                                 <Label Content="Open Mod Bundler" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>-->
+                        <Button x:Name="btnCleanUpLegacyFiles"  Height="30" Click="btnCleanUpLegacyFiles_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
+                                <Label Content="Clean up Legacy chunks" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </MenuItem>
                     <MenuItem Header="Experimental">
                         <Button x:Name="btnProjectSaveToFIFAProject"  Height="30" Click="btnProjectSaveToFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
