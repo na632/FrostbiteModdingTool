@@ -371,6 +371,7 @@ namespace FIFAModdingUI
                 var useLiveEditor = switchUseLiveEditor.IsOn;
                 var useSymbolicLink = switchUseSymbolicLink.IsOn;
                 var forceReinstallOfMods = switchForceReinstallMods.IsOn;
+                var useModData = switchUseModData.IsOn;
                 // Start the game with mods
                 await new TaskFactory().StartNew(async () =>
                 {
@@ -395,7 +396,8 @@ namespace FIFAModdingUI
                             , this
                             , GameInstanceSingleton.GAMEVERSION
                             , forceReinstallOfMods
-                            , useSymbolicLink);
+                            , useSymbolicLink
+                            , useModData);
                         launchSuccess = await launchTask;
 
                         App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,

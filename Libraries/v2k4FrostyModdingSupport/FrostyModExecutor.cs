@@ -4934,6 +4934,7 @@ namespace paulv2k4ModdingExecuter
             set { useModData = value; }
         }
 
+        public bool GameWasPatched { get; private set; }
 
         public async Task<bool> Run(ILogger inLogger, string gameRootPath, string modsRootPath, params string[] modPaths)
         {
@@ -5007,6 +5008,7 @@ namespace paulv2k4ModdingExecuter
                 Logger.Log("Detected New Version of " + ProfilesLibrary.ProfileName + ".exe, rebuilding mods");
                 // If new patch detected, force rebuild of mods
                 sameAsLast = false;
+                GameWasPatched = true;
                 await Task.Delay(1000);
             }
 

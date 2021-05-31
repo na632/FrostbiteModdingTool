@@ -78,6 +78,8 @@ namespace FIFA21Plugin
 
         public Exception Exception => errorException;
 
+        public bool GameWasPatched => parent.GameWasPatched;
+
         /// <summary>
         /// 
         /// </summary>
@@ -308,6 +310,23 @@ namespace FIFA21Plugin
 
         Dictionary<string, DbObject> SbToDbObject = new Dictionary<string, DbObject>();
 
+        private void DeleteBakFiles(string path)
+        {
+            foreach(var file in Directory.EnumerateFiles(path))
+            {
+                FileInfo fileInfo = new FileInfo(file);
+                if(fileInfo.FullName.Contains(".bak"))
+                {
+                    fileInfo.Delete();
+                }
+            }
+
+            foreach(var dir in Directory.EnumerateDirectories(path))
+            {
+                DeleteBakFiles(dir);   
+            }
+        }
+
         public bool Run()
         {
             //try
@@ -319,10 +338,14 @@ namespace FIFA21Plugin
 
             parent.Logger.Log("Loading Cached Super Bundles.");
 
+            if(!UseModData && GameWasPatched)
+            {
+                DeleteBakFiles(parent.GamePath);
+            }
 
             parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
 
-                var dictOfModsToCas = GetModdedCasFiles();
+            var dictOfModsToCas = GetModdedCasFiles();
             if (dictOfModsToCas != null && dictOfModsToCas.Count > 0)
             {
                 if (ErrorCounts.Count > 0)
@@ -356,6 +379,15 @@ namespace FIFA21Plugin
                     if(!UseModData)
                     {
                         casPath = casPath.Replace("ModData\\", "", StringComparison.OrdinalIgnoreCase);
+
+
+                        // Shouldnt need to do this. 
+                        // Patches will overwrite the cas files
+                        // Mods always write to the end
+                        //if(!File.Exists(casPath + ".bak"))
+                        //    FIFA21AssetCompiler.CopyFile(casPath, casPath + ".bak");
+
+                        //FIFA21AssetCompiler.CopyFile(casPath + ".bak", casPath);
                     }
 
                     Debug.WriteLine($"Modifying CAS file - {casPath}");
@@ -448,6 +480,18 @@ namespace FIFA21Plugin
                         {
                             sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
                             sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
+                        }
+                        else
+                        {
+                            var originalFile = sbpath + ".bak";
+
+                            // First run. Create backup of original file
+                            if (!File.Exists(originalFile))
+                                File.Copy(sbpath, originalFile);
+
+                            // Later runs. Copy back vanilla before changes.
+                            if (File.Exists(originalFile))
+                                File.Copy(originalFile, sbpath, true);
                         }
                         if (UseModData && !sbpath.ToLower().Contains("moddata", StringComparison.OrdinalIgnoreCase))
                         {
