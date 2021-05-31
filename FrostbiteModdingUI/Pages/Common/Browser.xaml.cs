@@ -341,7 +341,7 @@ namespace FIFAModdingUI.Pages.Common
 						}
 						else
 						{
-							TextViewer.Text = ASCIIEncoding.ASCII.GetString(bytes);
+							TextViewer.Text = ASCIIEncoding.UTF8.GetString(bytes);
 
 							AssetManager.Instance.ModifyLegacyAsset(
 								SelectedLegacyEntry.Name

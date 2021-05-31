@@ -1,9 +1,10 @@
+using Frosty.Hash;
 using FrostySdk.FrostySdk.Managers;
 using System.Text;
 
 namespace FrostySdk.Managers
 {
-	public class ResAssetEntry : AssetEntry, IAssetEntry
+	public sealed class ResAssetEntry : AssetEntry, IAssetEntry
 	{
         public ulong ResRid { get; set; }
 
@@ -38,6 +39,15 @@ namespace FrostySdk.Managers
 
         public override bool Equals(object obj)
         {
+			if(obj is ResAssetEntry)
+            {
+				var other = obj as ResAssetEntry;
+				if (Fnv1.HashString(other.Name) == Fnv1.HashString(Name))
+					return true;
+
+				if (other.Name.Equals(Name))
+					return true;
+            }
             return base.Equals(obj);
         }
 

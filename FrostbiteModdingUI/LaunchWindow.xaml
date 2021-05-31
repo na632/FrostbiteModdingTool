@@ -111,7 +111,7 @@
                         <Label Content="Import" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <Controls:ToggleSwitch x:Name="switchInstallLocale" Content="Install locale.ini"  />
+                <Controls:ToggleSwitch x:Name="switchInstallLocale" IsEnabled="False" Content="Install locale.ini"  />
                 <Controls:ToggleSwitch x:Name="switchUseLiveEditor" Content="Use Aranaktu's Live Editor"  />
                 <Controls:ToggleSwitch x:Name="switchUseLegacyModSupport" Content="Install Legacy Mods (*.lmod)"  />
                 <Controls:ToggleSwitch x:Name="switchCleanLegacyModDirectory" Content="Clean Legacy Mods (*.lmod)"  />
@@ -126,7 +126,9 @@
 
                 <Controls:ToggleSwitch x:Name="switchUseSymbolicLink" Content="Use Symbolic Link"  />
 
-                <Controls:ToggleSwitch x:Name="switchForceReinstallMods" Content="Force Reinstall Mods"  />
+                <Controls:ToggleSwitch x:Name="switchForceReinstallMods" Content="Force Reinstall Mods" ToolTip="Useful if you want to force the compiler to reinstall mods or fix a bug"  />
+                
+                <Controls:ToggleSwitch x:Name="switchUseModData" IsOn="True" Content="Use Mod Data" ToolTip="Set to OFF if using EA Desktop"   />
 
                 <!--<CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>-->
 

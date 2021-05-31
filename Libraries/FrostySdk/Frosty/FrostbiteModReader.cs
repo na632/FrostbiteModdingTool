@@ -1,3 +1,4 @@
+using FrostbiteSdk.Frosty.Abstract;
 using FrostySdk;
 using FrostySdk.Attributes;
 using FrostySdk.IO;
@@ -170,7 +171,14 @@ namespace FrostySdk
 
 		public FrostbiteModDetails ReadModDetails()
 		{
-			return new FrostbiteModDetails(ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString());
+			if (Version >= 5)
+            {
+				return new FrostbiteModDetails(ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadInt());
+			}
+			else 
+			{
+				return new FrostbiteModDetails(ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString());
+			}
 		}
 
 		public BaseModResource[] ReadResources()

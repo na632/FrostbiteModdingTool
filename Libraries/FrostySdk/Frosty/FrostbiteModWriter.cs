@@ -382,11 +382,25 @@ namespace FrostySdk
 			WriteNullTerminatedString(modSettings.Category);
 			WriteNullTerminatedString(modSettings.Version);
 			WriteNullTerminatedString(modSettings.Description);
-			AddResource(new EmbeddedResource("Icon", modSettings.Icon, manifest));
+
+			// -----------------------------------------------------
+			// Embedded Files
+			// 5 = Icon and Screenshots
+			// The count of embedded files is added
+			Write(5 + project.AssetManager.EmbeddedFileEntries.Count);
+			AddResource(new EmbeddedResource("Icon;", modSettings.Icon, manifest));
 			for (int i = 0; i < 4; i++)
 			{
-				AddResource(new EmbeddedResource("Screenshot" + i.ToString(), modSettings.GetScreenshot(i), manifest));
+				AddResource(new EmbeddedResource("Screenshot;" + i.ToString(), modSettings.GetScreenshot(i), manifest));
 			}
+			for (int i = 0; i < project.AssetManager.EmbeddedFileEntries.Count; i++)
+			{
+				var efe = project.AssetManager.EmbeddedFileEntries[i];
+				AddResource(new EmbeddedResource("efe;" + efe.ExportedRelativePath, efe.Data, manifest));
+			}
+			// end of embedded
+			// ----------------------------------------------------
+
 			foreach (BundleEntry bundleEntry in AssetManager.Instance.EnumerateBundles(BundleType.None, modifiedOnly: true))
 			{
 				if (bundleEntry.Added)

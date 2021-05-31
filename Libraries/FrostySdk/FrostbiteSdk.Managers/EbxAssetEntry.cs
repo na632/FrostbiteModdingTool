@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FrostySdk.Managers
 {
-	public class EbxAssetEntry : AssetEntry, IAssetEntry
+	public sealed class EbxAssetEntry : AssetEntry, IAssetEntry
 	{
 		public Guid Guid { get; set; }
 

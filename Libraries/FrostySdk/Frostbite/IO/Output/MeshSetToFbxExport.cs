@@ -11,7 +11,6 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 //using SharpDX;
-using static FrostySdk.BaseModReader;
 
 namespace FrostySdk.Frostbite.IO.Output
 {

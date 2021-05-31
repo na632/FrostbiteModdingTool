@@ -97,29 +97,40 @@ namespace v2k4FIFAModdingCL
 
         public static bool LegacyInjectionExtraAssertions = true;
 
-        public static int? GetProcIDFromName(string name)
+        public static async Task<int?> GetProcIDFromName(string name)
         {
-
             if (name.Contains(".exe"))
                 name = name.Replace(".exe", "");
 
             int? id = null;
             int attempts = 0;
-            while (!id.HasValue && attempts < 120)
+            while (!id.HasValue && attempts < 180)
             {
                 Process[] processlist = Process.GetProcesses();
                 if (name.Contains("FIFA", StringComparison.OrdinalIgnoreCase))
                     name = "FIFA";
 
-                Thread.Sleep(500);
+                await Task.Delay(1000);
                 foreach (Process theprocess in processlist)
                 {
                     //find (name).exe in the process list (use task manager to find the name)
-                    if (theprocess.ProcessName.Contains(name, StringComparison.OrdinalIgnoreCase)) 
+                    if (theprocess.ProcessName.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    {
                         id = theprocess.Id;
+                        break;
+                    }
                 }
 
                 attempts++;
+
+                if(attempts == 60)
+                {
+                    Logger.LogError("Still waiting for " + name + " to start...");
+                }
+                else if (attempts == 120)
+                {
+                    Logger.LogError("Still waiting for " + name + " to start...");
+                }
             }
 
             if (id.HasValue)
@@ -129,19 +140,19 @@ namespace v2k4FIFAModdingCL
             throw new ArgumentException($"Unable to find Process {name} running on your PC");
         }
 
-        public static int InjectDLL_GetProcess()
+        public static async Task<int> InjectDLL_GetProcess()
         {
             int attempts = 0;
 
             bool ModuleLoaded = !LegacyInjectionExtraAssertions;
 
 
-            int? proc = GetProcIDFromName(GAMEVERSION);
+            int? proc = await GetProcIDFromName(GAMEVERSION);
             while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 60)
             {
                 Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
-                Thread.Sleep(1000);
-                proc = GetProcIDFromName(GAMEVERSION);
+                await Task.Delay(1000);
+                proc = await GetProcIDFromName(GAMEVERSION);
                 if (proc.HasValue)
                 {
                     if (LegacyInjectionExtraAssertions)
@@ -214,7 +225,7 @@ namespace v2k4FIFAModdingCL
             //dllpath = dllpath.Replace(@"\", @"/");
             if (File.Exists(dllpath))
             {
-                int proc = InjectDLL_GetProcess();
+                int proc = await InjectDLL_GetProcess();
                 if (!LegacyInjectionExtraAssertions)
                 {
                     // Waiting for process to fully awake
@@ -229,13 +240,13 @@ namespace v2k4FIFAModdingCL
                 try
                 {
                     // Use Bleak first
-                    bool injected = InjectDLL_Own(proc, dllpath);
-                    //bool injected = InjectDLL_Bleak(proc, dllpath);
+                    //bool injected = InjectDLL_Own(proc, dllpath);
+                    bool injected = InjectDLL_Bleak(proc, dllpath);
                     if (!injected)
                     {
                         // Own second
-                        injected = InjectDLL_Bleak(proc, dllpath);
-                        //injected = InjectDLL_Own(proc, dllpath);
+                        //injected = InjectDLL_Bleak(proc, dllpath);
+                        injected = InjectDLL_Own(proc, dllpath);
                         if (!injected)
                         {
                             // Last resort Lunar

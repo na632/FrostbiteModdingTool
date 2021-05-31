@@ -1,3 +1,4 @@
+using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frosty;
 using FrostySdk.IO;
@@ -11,10 +12,12 @@ namespace FrostySdk
 {
 	public class FrostbiteMod : IFrostbiteMod
 	{
-		public static ulong Magic = 72155812747760198uL;
+        public static ulong Magic = 72155812747760198uL;
+        public static ulong Magic2 = Convert.ToUInt64(Fnv1.HashString("Paulv2k4FMT"));
 
 		//public static uint Version = 3u;
-		public static uint Version = 4u;
+		//public static uint Version = 4u;
+		public static uint Version = 5u; // Version 5 includes Embedded File Entries
 
 		/// <summary>
 		/// Upgraded to 8u to support FIFA Editor Tool Versioning

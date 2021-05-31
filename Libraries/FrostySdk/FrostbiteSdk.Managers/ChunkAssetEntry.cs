@@ -2,7 +2,7 @@ using System;
 
 namespace FrostySdk.Managers
 {
-	public class ChunkAssetEntry : AssetEntry
+	public sealed class ChunkAssetEntry : AssetEntry
 	{
 		public Guid Id { get; set; }
 

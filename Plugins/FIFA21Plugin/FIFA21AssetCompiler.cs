@@ -36,7 +36,7 @@ namespace FIFA21Plugin
                 return false;
             }
 
-            if(FrostyModExecutor.UseModData)
+            if(!FrostyModExecutor.UseModData)
             {
                 return RunEADesktopCompiler(fs, logger, frostyModExecuter);
             }

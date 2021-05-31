@@ -1,4 +1,5 @@
 using Frostbite.FileManagers;
+using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
 using FrostySdk.Frosty.FET;
 using FrostySdk.IO;
@@ -367,7 +368,8 @@ namespace FrostySdk
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 				position = nativeWriter.BaseStream.Position;
 
-
+				// --------------------
+				// Legacy Files
 				nativeWriter.Write(3735928559u);
 				num = 0;
 				foreach (LegacyFileEntry lfe in AssetManager.EnumerateCustomAssets("legacy", modifiedOnly: true))
@@ -376,23 +378,26 @@ namespace FrostySdk
 					nativeWriter.WriteLengthPrefixedString(serialisedLFE);
 					num++;
 				}
-				//nativeWriter.Write(3735928559u);
-				//num = 0;
-				//Type[] types = Assembly.GetExecutingAssembly().GetTypes();
-				//foreach (Type type in types)
-				//{
-				//	if (type.GetInterface(typeof(ICustomActionHandler).Name) != null)
-				//	{
-				//		ICustomActionHandler customActionHandler = (ICustomActionHandler)Activator.CreateInstance(type);
-				//		if (customActionHandler != null && customActionHandler.SaveToProject(nativeWriter))
-				//		{
-				//			num++;
-				//		}
-				//	}
-				//}
 				nativeWriter.BaseStream.Position = position;
 				nativeWriter.Write(num);
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
+
+				// -----------------------
+				// Embedded files
+				nativeWriter.Write(3735928559u);
+				num = 0;
+				foreach (EmbeddedFileEntry efe in AssetManager.EmbeddedFileEntries)
+				{
+					var serialisedEFE = JsonConvert.SerializeObject(efe);
+					nativeWriter.WriteLengthPrefixedString(serialisedEFE);
+					num++;
+				}
+				nativeWriter.BaseStream.Position = position;
+				nativeWriter.Write(num);
+				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
+
+
+
 				if (updateDirtyState)
 				{
 					modSettings.ClearDirtyFlag();
@@ -933,7 +938,7 @@ namespace FrostySdk
 						//
 
 						// Count of Modified Legacy Files
-						var legacyFileManager = AssetManager.Instance.customAssetManagers["legacy"] as LegacyFileManager_M21;
+						var legacyFileManager = AssetManager.Instance.CustomAssetManagers["legacy"] as LegacyFileManager_M21;
 						if (reader.Length > reader.Position)
 						{
 							count = reader.ReadInt();

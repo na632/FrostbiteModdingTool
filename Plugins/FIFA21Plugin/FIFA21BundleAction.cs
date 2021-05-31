@@ -312,16 +312,15 @@ namespace FIFA21Plugin
         {
             //try
             //{
-                parent.Logger.Log("Loading files to know what to change.");
+            parent.Logger.Log("Loading files to know what to change.");
 
-                BuildCache buildCache = new BuildCache();
-                buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true);
+            BuildCache buildCache = new BuildCache();
+            buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true);
 
-                parent.Logger.Log("Loading Cached Super Bundles.");
+            parent.Logger.Log("Loading Cached Super Bundles.");
 
-                //CachingSB.Load();
 
-                parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
+            parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
 
                 var dictOfModsToCas = GetModdedCasFiles();
             if (dictOfModsToCas != null && dictOfModsToCas.Count > 0)
@@ -339,6 +338,7 @@ namespace FIFA21Plugin
                 foreach (var item in dictOfModsToCas)
                 {
                     var casPath = string.Empty;
+
                     if (!string.IsNullOrEmpty(item.Key))
                     {
                         casPath = item.Key.Replace("native_data"
@@ -348,7 +348,7 @@ namespace FIFA21Plugin
                     casPath = casPath.Replace("native_patch"
                         , AssetManager.Instance.fs.BasePath + "ModData\\Patch", StringComparison.OrdinalIgnoreCase);
 
-                    if (UseModData && !casPath.Contains("ModData"))
+                    if (!casPath.Contains("ModData"))
                     {
                         throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
                     }

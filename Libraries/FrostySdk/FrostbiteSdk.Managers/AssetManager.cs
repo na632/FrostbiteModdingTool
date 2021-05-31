@@ -1,5 +1,6 @@
 using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
+using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Frostbite.PluginInterfaces;
@@ -67,34 +68,34 @@ namespace FrostySdk.Managers
 			chunkDataFiles.Remove(name);
 		}
 
-		public void WriteToCache(AssetManager am)
-		{
-			if (ebxDataFiles.Count + resDataFiles.Count + chunkDataFiles.Count != 0)
-			{
-				using (BinaryWriter binaryWriter = new BinaryWriter(new FileStream(am.fs.CacheName + "_sbdata.cas", FileMode.Create)))
-				{
-					foreach (KeyValuePair<string, byte[]> ebxDataFile in ebxDataFiles)
-					{
-						am.ebxList[ebxDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-						binaryWriter.Write(ebxDataFile.Value);
-					}
-					foreach (KeyValuePair<string, byte[]> resDataFile in resDataFiles)
-					{
-						am.resList[resDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-						binaryWriter.Write(resDataFile.Value);
-					}
-					foreach (KeyValuePair<string, byte[]> chunkDataFile in chunkDataFiles)
-					{
-						Guid key = new Guid(chunkDataFile.Key);
-						am.chunkList[key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
-						binaryWriter.Write(chunkDataFile.Value);
-					}
-				}
-				ebxDataFiles.Clear();
-				resDataFiles.Clear();
-				chunkDataFiles.Clear();
-			}
-		}
+		//public void WriteToCache(AssetManager am)
+		//{
+		//	if (ebxDataFiles.Count + resDataFiles.Count + chunkDataFiles.Count != 0)
+		//	{
+		//		using (BinaryWriter binaryWriter = new BinaryWriter(new FileStream(am.fs.CacheName + "_sbdata.cas", FileMode.Create)))
+		//		{
+		//			foreach (KeyValuePair<string, byte[]> ebxDataFile in ebxDataFiles)
+		//			{
+		//				am.EbxList[ebxDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
+		//				binaryWriter.Write(ebxDataFile.Value);
+		//			}
+		//			foreach (KeyValuePair<string, byte[]> resDataFile in resDataFiles)
+		//			{
+		//				am.resList[resDataFile.Key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
+		//				binaryWriter.Write(resDataFile.Value);
+		//			}
+		//			foreach (KeyValuePair<string, byte[]> chunkDataFile in chunkDataFiles)
+		//			{
+		//				Guid key = new Guid(chunkDataFile.Key);
+		//				am.chunkList[key].ExtraData.DataOffset = (uint)binaryWriter.BaseStream.Position;
+		//				binaryWriter.Write(chunkDataFile.Value);
+		//			}
+		//		}
+		//		ebxDataFiles.Clear();
+		//		resDataFiles.Clear();
+		//		chunkDataFiles.Clear();
+		//	}
+		//}
 
 		private void FilterBinaryBundleData(DbObject baseList, DbObject deltaList, string listName, Dictionary<string, byte[]> dataFiles)
 		{
@@ -418,7 +419,12 @@ namespace FrostySdk.Managers
 
 		public List<BundleEntry> bundles = new List<BundleEntry>(999999);
 
-		public ConcurrentDictionary<string, EbxAssetEntry> ebxList = new ConcurrentDictionary<string, EbxAssetEntry>(8, 999999, StringComparer.OrdinalIgnoreCase);
+		//public ConcurrentDictionary<string, EbxAssetEntry> ebxList = new ConcurrentDictionary<string, EbxAssetEntry>(8, 999999, StringComparer.OrdinalIgnoreCase);
+
+		/// <summary>
+		/// NameHash to EbxAssetEntry
+		/// </summary>
+		public ConcurrentDictionary<int, EbxAssetEntry> EbxList = new ConcurrentDictionary<int, EbxAssetEntry>();
 
 		public Dictionary<string, ResAssetEntry> resList = new Dictionary<string, ResAssetEntry>(999999);
 
@@ -430,7 +436,11 @@ namespace FrostySdk.Managers
 
         public Dictionary<ulong, ResAssetEntry> resRidList = new Dictionary<ulong, ResAssetEntry>(999999);
 
-		public Dictionary<string, ICustomAssetManager> customAssetManagers = new Dictionary<string, ICustomAssetManager>(10);
+		public Dictionary<string, ICustomAssetManager> CustomAssetManagers = new Dictionary<string, ICustomAssetManager>(1);
+
+		public List<EmbeddedFileEntry> EmbeddedFileEntries = new List<EmbeddedFileEntry>();
+
+
 
 		public AssetManager(FileSystem inFs, ResourceManager inRm)
 		{
@@ -465,8 +475,8 @@ namespace FrostySdk.Managers
 			{
 				bundles.Clear();
 				bundles = null;
-				ebxList.Clear();
-				ebxList = null;
+				EbxList.Clear();
+				EbxList = null;
 				resList.Clear();
 				resList = null;
 				resRidList.Clear();
@@ -480,18 +490,18 @@ namespace FrostySdk.Managers
 
 		public void RegisterCustomAssetManager(string type, Type managerType)
 		{
-			customAssetManagers.Add(type, (ICustomAssetManager)Activator.CreateInstance(managerType));
+			CustomAssetManagers.Add(type, (ICustomAssetManager)Activator.CreateInstance(managerType));
 		}
 
         public void RegisterLegacyAssetManager()
         {
 			if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
 			{
-				customAssetManagers.Add("legacy", new LegacyFileManager_M21());
+				CustomAssetManagers.Add("legacy", new LegacyFileManager_M21());
 			}
 			else
 			{
-				customAssetManagers.Add("legacy", new LegacyFileManager(this));
+				CustomAssetManagers.Add("legacy", new LegacyFileManager(this));
 			}
 			
         }
@@ -568,7 +578,7 @@ namespace FrostySdk.Managers
 							((IAssetLoader)Activator.CreateInstance(t)).Load(this, binarySbDataHelper);
 					}
 				}
-				binarySbDataHelper.WriteToCache(this);
+				//binarySbDataHelper.WriteToCache(this);
 				GC.Collect();
 				WriteToCache();
 			}
@@ -596,7 +606,7 @@ namespace FrostySdk.Managers
 					}
 				}
 			}
-			foreach (ICustomAssetManager value in customAssetManagers.Values)
+			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				value.Initialize(logger);
 			}
@@ -633,7 +643,7 @@ namespace FrostySdk.Managers
 			get
 			{
 				if(_EbxItemsWithNoType == null)
-					_EbxItemsWithNoType = ebxList.Values.Where(x => string.IsNullOrEmpty(x.Type)).OrderBy(x=>x.ExtraData.CasPath).ToList();
+					_EbxItemsWithNoType = EbxList.Values.Where(x => string.IsNullOrEmpty(x.Type)).OrderBy(x=>x.ExtraData.CasPath).ToList();
 
 				return _EbxItemsWithNoType;
 			}
@@ -669,7 +679,7 @@ namespace FrostySdk.Managers
 						if (ebxStream != null && ebxStream.Length > 0)
 						{
 							EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
-							ebxList[ebx.Name].Type = ebxReader.RootType;
+							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
 							return;
 						}
 					}
@@ -681,7 +691,7 @@ namespace FrostySdk.Managers
 
 			if (string.IsNullOrEmpty(ebx.Type))
 			{
-				ebxList.TryRemove(ebx.Name, out _);
+				EbxList.TryRemove(Fnv1.HashString(ebx.Name), out _);
 			}
 		}
 
@@ -700,7 +710,7 @@ namespace FrostySdk.Managers
 
 			ResourceManager.UseLastCasPath = true;
 
-			var ebxListValues = ebxList.Values.ToList();
+			var ebxListValues = EbxList.Values.ToList();
             if (ProfilesLibrary.IsMadden21DataVersion()
                 || ProfilesLibrary.IsFIFA21DataVersion()
                 )
@@ -733,11 +743,11 @@ namespace FrostySdk.Managers
 
 		public uint GetModifiedCount()
 		{
-			uint num = (uint)ebxList.Values.Count((EbxAssetEntry entry) => entry.IsModified);
+			uint num = (uint)EbxList.Values.Count((EbxAssetEntry entry) => entry.IsModified);
 			uint num2 = (uint)resList.Values.Count((ResAssetEntry entry) => entry.IsModified);
 			uint num3 = (uint)chunkList.Values.Count((ChunkAssetEntry entry) => entry.IsModified);
 			uint num4 = 0u;
-			foreach (ICustomAssetManager value in customAssetManagers.Values)
+			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				num4 = (uint)((int)num4 + value.EnumerateAssets(modifiedOnly: true).Count());
 			}
@@ -746,11 +756,11 @@ namespace FrostySdk.Managers
 
 		public uint GetDirtyCount()
 		{
-			uint num = (uint)ebxList.Values.Count((EbxAssetEntry entry) => entry.IsDirty);
+			uint num = (uint)EbxList.Values.Count((EbxAssetEntry entry) => entry.IsDirty);
 			uint num2 = (uint)resList.Values.Count((ResAssetEntry entry) => entry.IsDirty);
 			uint num3 = (uint)chunkList.Values.Count((ChunkAssetEntry entry) => entry.IsDirty);
 			uint num4 = 0u;
-			foreach (ICustomAssetManager value in customAssetManagers.Values)
+			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				num4 = (uint)((int)num4 + value.EnumerateAssets(modifiedOnly: true).Count((AssetEntry a) => a.IsDirty));
 			}
@@ -759,12 +769,12 @@ namespace FrostySdk.Managers
 
 		public uint GetEbxCount(string ebxType)
 		{
-			return (uint)ebxList.Values.Count((EbxAssetEntry entry) => entry.Type != null && entry.Type.Equals(ebxType));
+			return (uint)EbxList.Values.Count((EbxAssetEntry entry) => entry.Type != null && entry.Type.Equals(ebxType));
 		}
 
 		public uint GetEbxCount()
 		{
-			return (uint)ebxList.Count;
+			return (uint)EbxList.Count;
 		}
 
 		public uint GetResCount(uint resType)
@@ -774,7 +784,7 @@ namespace FrostySdk.Managers
 
 		public void Reset()
 		{
-			List<EbxAssetEntry> list = ebxList.Values.ToList();
+			List<EbxAssetEntry> list = EbxList.Values.ToList();
 			List<ResAssetEntry> list2 = resList.Values.ToList();
 			List<ChunkAssetEntry> list3 = chunkList.Values.ToList();
 			foreach (EbxAssetEntry item in list)
@@ -789,7 +799,7 @@ namespace FrostySdk.Managers
 			{
 				RevertAsset(item3, dataOnly: false, suppressOnModify: false);
 			}
-			foreach (ICustomAssetManager value in customAssetManagers.Values)
+			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				foreach (AssetEntry item4 in value.EnumerateAssets(modifiedOnly: true))
 				{
@@ -853,7 +863,7 @@ namespace FrostySdk.Managers
 
 		public ICustomAssetManager GetLegacyAssetManager()
         {
-			return customAssetManagers["legacy"];
+			return CustomAssetManagers["legacy"];
         }
 
 		public void AddChunk(ChunkAssetEntry entry)
@@ -890,7 +900,7 @@ namespace FrostySdk.Managers
 		public void AddEbx(EbxAssetEntry entry)
 		{
 			entry.IsAdded = true;
-			ebxList.TryAdd(entry.Name.ToLower(), entry);
+			EbxList.TryAdd(Fnv1.HashString(entry.Name), entry);
 			//ebxGuidList.TryAdd(entry.Guid, entry);
 		}
 
@@ -927,9 +937,9 @@ namespace FrostySdk.Managers
 		public EbxAssetEntry AddEbx(string name, EbxAsset asset, params int[] bundles)
 		{
 			string key = name.ToLower();
-			if (ebxList.ContainsKey(key))
+			if (EbxList.ContainsKey(Fnv1.HashString(key)))
 			{
-				return ebxList[key];
+				return EbxList[Fnv1.HashString(key)];
 			}
 			EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
 			ebxAssetEntry.Name = name;
@@ -948,7 +958,7 @@ namespace FrostySdk.Managers
 			ebxAssetEntry.IsDirty = true;
 			ebxAssetEntry.IsAdded = true;
 			//ebxList.Add(key, ebxAssetEntry);
-			ebxList.TryAdd(ebxAssetEntry.Name.ToLower(), ebxAssetEntry);
+			EbxList.TryAdd(Fnv1.HashString(ebxAssetEntry.Name), ebxAssetEntry);
 
 			//ebxGuidList.TryAdd(ebxAssetEntry.Guid, ebxAssetEntry);
 			return ebxAssetEntry;
@@ -1174,9 +1184,9 @@ namespace FrostySdk.Managers
 		public void ModifyEbx(string name, EbxAsset asset)
 		{
 			name = name.ToLower();
-			if (ebxList.ContainsKey(name))
+			if (EbxList.ContainsKey(Fnv1.HashString(name)))
 			{
-				EbxAssetEntry ebxAssetEntry = ebxList[name];
+				EbxAssetEntry ebxAssetEntry = EbxList[Fnv1.HashString(name)];
 				if (ebxAssetEntry.ModifiedEntry == null)
 				{
 					ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
@@ -1195,9 +1205,9 @@ namespace FrostySdk.Managers
 		public void ModifyEbxBinary(string name, byte[] data)
 		{
 			name = name.ToLower();
-			if (ebxList.ContainsKey(name))
+			if (EbxList.ContainsKey(Fnv1.HashString(name)))
 			{
-				var ebxEntry = ebxList[name];
+				var ebxEntry = EbxList[Fnv1.HashString(name)];
 				var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
 				var ebxAsset = GetEbxAssetFromStream(new MemoryStream(data), patch);
 				ModifyEbx(name, ebxAsset);
@@ -1208,15 +1218,15 @@ namespace FrostySdk.Managers
 
 		public void ModifyLegacyAsset(string name, byte[] data, bool rebuildChunk = true)
 		{
-			if (customAssetManagers.ContainsKey("legacy"))
+			if (CustomAssetManagers.ContainsKey("legacy"))
 			{
-				customAssetManagers["legacy"].ModifyAsset(name, data, rebuildChunk);
+				CustomAssetManagers["legacy"].ModifyAsset(name, data, rebuildChunk);
 			}
 		}
 
 		public void ModifyLegacyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
 		{
-			var lm = customAssetManagers["legacy"] as LegacyFileManager_M21;
+			var lm = CustomAssetManagers["legacy"] as LegacyFileManager_M21;
 			if(lm != null)
             {
 				lm.ModifyAssets(data, true);
@@ -1225,9 +1235,9 @@ namespace FrostySdk.Managers
 
 		public void ModifyCustomAsset(string type, string name, byte[] data)
 		{
-			if (customAssetManagers.ContainsKey(type))
+			if (CustomAssetManagers.ContainsKey(type))
 			{
-				customAssetManagers[type].ModifyAsset(name, data);
+				CustomAssetManagers[type].ModifyAsset(name, data);
 			}
 		}
 
@@ -1279,7 +1289,7 @@ namespace FrostySdk.Managers
 
 		protected IEnumerable<EbxAssetEntry> EnumerateEbx(string type, bool modifiedOnly, bool includeLinked, bool includeHidden, params int[] bundles)
 		{
-			foreach (EbxAssetEntry value in ebxList.Values)
+			foreach (EbxAssetEntry value in EbxList.Values)
 			{
 				if ((!modifiedOnly || (value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified))) && (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
 				{
@@ -1400,9 +1410,9 @@ namespace FrostySdk.Managers
 
 		public IEnumerable<AssetEntry> EnumerateCustomAssets(string type, bool modifiedOnly = false)
 		{
-			if (customAssetManagers.ContainsKey(type))
+			if (CustomAssetManagers.ContainsKey(type))
 			{
-				foreach (AssetEntry item in customAssetManagers[type].EnumerateAssets(modifiedOnly))
+				foreach (AssetEntry item in CustomAssetManagers[type].EnumerateAssets(modifiedOnly))
 				{
 					yield return item;
 				}
@@ -1449,11 +1459,11 @@ namespace FrostySdk.Managers
 
 		public AssetEntry GetCustomAssetEntry(string type, string key)
 		{
-			if (!customAssetManagers.ContainsKey(type))
+			if (!CustomAssetManagers.ContainsKey(type))
 			{
 				return null;
 			}
-			return customAssetManagers[type].GetAssetEntry(key);
+			return CustomAssetManagers[type].GetAssetEntry(key);
 		}
 
 		public T GetCustomAssetEntry<T>(string type, string key) where T : AssetEntry
@@ -1473,11 +1483,11 @@ namespace FrostySdk.Managers
 		public EbxAssetEntry GetEbxEntry(string name)
 		{
 			name = name.ToLower();
-			if (!ebxList.ContainsKey(name))
+			if (!EbxList.ContainsKey(Fnv1.HashString(name)))
 			{
 				return null;
 			}
-			return ebxList[name];
+			return EbxList[Fnv1.HashString(name)];
 		}
 
 		public ResAssetEntry GetResEntry(ulong resRid)
@@ -1531,11 +1541,11 @@ namespace FrostySdk.Managers
 
 		public Stream GetCustomAsset(string type, AssetEntry entry)
 		{
-			if (!customAssetManagers.ContainsKey(type))
+			if (!CustomAssetManagers.ContainsKey(type))
 			{
 				return null;
 			}
-			return customAssetManagers[type].GetAsset(entry);
+			return CustomAssetManagers[type].GetAsset(entry);
 		}
 
 		public EbxAsset GetEbx(EbxAssetEntry entry, bool getModified = true)
@@ -2016,10 +2026,10 @@ namespace FrostySdk.Managers
 		private EbxAssetEntry AddEbx(DbObject ebx)
 		{
 			string text = ebx.GetValue<string>("name").ToLower();
-			if (ebxList.ContainsKey(text))
+			if (EbxList.ContainsKey(Fnv1.HashString(text)))
 			{
 				//ebxList.Remove(text);
-				ebxList.TryRemove(text, out _);
+				EbxList.TryRemove(Fnv1.HashString(text), out _);
 				//return ebxList[text];
 			}
 			EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
@@ -2065,7 +2075,7 @@ namespace FrostySdk.Managers
 
 
 			//ebxList.Add(text, ebxAssetEntry);
-				ebxList.TryAdd(text, ebxAssetEntry);
+				EbxList.TryAdd(Fnv1.HashString(text), ebxAssetEntry);
 			return ebxAssetEntry;
 		}
 
@@ -2189,9 +2199,9 @@ namespace FrostySdk.Managers
 
 		public void SendManagerCommand(string type, string command, params object[] value)
 		{
-			if (customAssetManagers.ContainsKey(type))
+			if (CustomAssetManagers.ContainsKey(type))
 			{
-				customAssetManagers[type].OnCommand(command, value);
+				CustomAssetManagers[type].OnCommand(command, value);
 			}
 		}
 
@@ -2257,6 +2267,7 @@ namespace FrostySdk.Managers
 					}
 				}
 				count = nativeReader.ReadInt();
+				EbxList = new ConcurrentDictionary<int, EbxAssetEntry>(1, count + 100);
 				for (int k = 0; k < count; k++)
 				{
 					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
@@ -2279,17 +2290,17 @@ namespace FrostySdk.Managers
 						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
 						ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 					}
-					int num2 = nativeReader.ReadInt();
-					for (int l = 0; l < num2; l++)
+					int bundleCount = nativeReader.ReadInt();
+					for (int l = 0; l < bundleCount; l++)
 					{
 						ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
-					num2 = nativeReader.ReadInt();
-					for (int m = 0; m < num2; m++)
+					bundleCount = nativeReader.ReadInt();
+					for (int m = 0; m < bundleCount; m++)
 					{
 						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
 					}
-					if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+					if (ProfilesLibrary.IsFIFA21DataVersion())
 					{
 						if (nativeReader.ReadBoolean())
 							ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
@@ -2303,11 +2314,11 @@ namespace FrostySdk.Managers
 						ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
 						ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
 					}
-                    if (ProfilesLibrary.IsMadden21DataVersion())
-                    {
-						ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-						ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-					}
+     //               if (ProfilesLibrary.IsMadden21DataVersion())
+     //               {
+					//	ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
+					//	ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+					//}
 					if (flag)
 					{
 						ebxAssetEntry.Guid = guid;
@@ -2315,7 +2326,7 @@ namespace FrostySdk.Managers
 					}
 					else
 					{
-						ebxList.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
+						EbxList.TryAdd(Fnv1.HashString(ebxAssetEntry.Name), ebxAssetEntry);
 					}
 				}
 				count = nativeReader.ReadInt();
@@ -2529,8 +2540,8 @@ namespace FrostySdk.Managers
 					nativeWriter.WriteNullTerminatedString(bundle.Name);
 					nativeWriter.Write(bundle.SuperBundleId);
 				}
-				nativeWriter.Write(ebxList.Values.Count);
-				foreach (EbxAssetEntry ebxEntry in ebxList.Values)
+				nativeWriter.Write(EbxList.Values.Count);
+				foreach (EbxAssetEntry ebxEntry in EbxList.Values)
 				{
                     //var ebxJson = JsonConvert.SerializeObject(ebxEntry);
                     //nativeWriter.WriteLengthPrefixedString(ebxJson);

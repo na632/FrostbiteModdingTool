@@ -38,6 +38,8 @@ namespace FrostySdk
 			}
 		}
 
+		public int EmbeddedFileCount { get; set; }
+
 		public FrostbiteModDetails(string inTitle, string inAuthor, string inCategory, string inVersion, string inDescription)
 		{
 			title = inTitle;
@@ -45,6 +47,16 @@ namespace FrostySdk
 			version = inVersion;
 			description = inDescription;
 			category = inCategory;
+		}
+
+		public FrostbiteModDetails(string inTitle, string inAuthor, string inCategory, string inVersion, string inDescription, int embeddedFileCount)
+		{
+			title = inTitle;
+			author = inAuthor;
+			version = inVersion;
+			description = inDescription;
+			category = inCategory;
+			EmbeddedFileCount = embeddedFileCount;
 		}
 
 		public void SetIcon(byte[] buffer)

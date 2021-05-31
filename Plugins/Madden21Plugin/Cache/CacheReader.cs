@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿using Frosty.Hash;
+using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -112,7 +113,7 @@ namespace Madden21Plugin.Cache
 					}
 					else
 					{
-						AssetManager.Instance.ebxList.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
+						AssetManager.Instance.EbxList.TryAdd(Fnv1.HashString(ebxAssetEntry.Name), ebxAssetEntry);
 					}
 				}
 				count = nativeReader.ReadInt();

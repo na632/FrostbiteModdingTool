@@ -50,9 +50,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModExtractor", "FIFAMod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFA20Plugin", "Plugins\FIFA20Plugin\FIFA20Plugin.csproj", "{21C84AAA-5D2A-44B9-89E3-06CADDB9B7A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIFA22Plugin", "Plugins\FIFA22Plugin\FIFA22Plugin.csproj", "{79CA8A15-E88C-47C8-8AF7-A6103AED1298}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFA22Plugin", "Plugins\FIFA22Plugin\FIFA22Plugin.csproj", "{79CA8A15-E88C-47C8-8AF7-A6103AED1298}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Madden22Plugin", "Plugins\Madden22Plugin\Madden22Plugin.csproj", "{7043C9F3-9446-42C3-80ED-EA137EC73EF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Madden22Plugin", "Plugins\Madden22Plugin\Madden22Plugin.csproj", "{7043C9F3-9446-42C3-80ED-EA137EC73EF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -29,8 +29,8 @@ namespace Madden21Plugin.Cache
                     nativeWriter.WriteNullTerminatedString(bundle.Name);
                     nativeWriter.Write(bundle.SuperBundleId);
                 }
-                nativeWriter.Write(AssetManager.Instance.ebxList.Values.Count);
-                foreach (EbxAssetEntry ebxEntry in AssetManager.Instance.ebxList.Values)
+                nativeWriter.Write(AssetManager.Instance.EbxList.Values.Count);
+                foreach (EbxAssetEntry ebxEntry in AssetManager.Instance.EbxList.Values)
                 {
                     nativeWriter.WriteLengthPrefixedString(ebxEntry.Name);
                     nativeWriter.Write(ebxEntry.Sha1);
