@@ -79,6 +79,10 @@ namespace FrostySdk.Managers
 
 		public virtual string DisplayName => Filename + (IsDirty ? "*" : "");
 
+
+		/// <summary>
+		/// The Actual FileName?
+		/// </summary>
 		public virtual string Filename
 		{
 			get
@@ -92,6 +96,9 @@ namespace FrostySdk.Managers
 			}
 		}
 
+		/// <summary>
+		/// The Virtual Path to the File
+		/// </summary>
 		public virtual string Path
 		{
 			get

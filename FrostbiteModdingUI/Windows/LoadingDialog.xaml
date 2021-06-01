@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowState="Normal" Topmost="True"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowState="Normal" Topmost="False"
         Title="FMT is busy" Height="300" Width="450">
     <Grid>
         <Grid.RowDefinitions>
@@ -15,9 +15,9 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Label FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0">Loading</Label>
-        <Label FontSize="16" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="lblLoadingSubtitle" Content="Loading subtitle"></Label>
+        <Label FontSize="16" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="lblLoadingSubtitle" Content="Loading"></Label>
         <ProgressBar Visibility="Collapsed" x:Name="pbar" Grid.Row="2"></ProgressBar>
-        <mah:ProgressRing x:Name="pring" Grid.Row="2" />
-        <Label FontSize="12" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="lblProgress" Content="Progress Message"></Label>
+        <mah:ProgressRing x:Name="pring" Grid.Row="2" FontSize="1" />
+        <Label FontSize="12" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="lblProgress" Content=""></Label>
     </Grid>
 </Window>

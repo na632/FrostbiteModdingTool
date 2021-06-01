@@ -104,7 +104,7 @@ namespace v2k4FIFAModdingCL
 
             int? id = null;
             int attempts = 0;
-            while (!id.HasValue && attempts < 240)
+            while (!id.HasValue && attempts < 300)
             {
                 Process[] processlist = Process.GetProcesses();
                 if (name.Contains("FIFA", StringComparison.OrdinalIgnoreCase))
@@ -131,6 +131,10 @@ namespace v2k4FIFAModdingCL
                 {
                     Logger.LogError("Still waiting for " + name + " to start...");
                 }
+                else if (attempts == 240)
+                {
+                    Logger.LogError("Still waiting for " + name + " to start...");
+                }
             }
 
             if (id.HasValue)
@@ -148,7 +152,7 @@ namespace v2k4FIFAModdingCL
 
 
             int? proc = await GetProcIDFromName(GAMEVERSION);
-            while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 240)
+            while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 300)
             {
                 Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
                 await Task.Delay(1000);

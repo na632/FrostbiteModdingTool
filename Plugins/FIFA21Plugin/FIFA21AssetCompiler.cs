@@ -65,12 +65,72 @@ namespace FIFA21Plugin
             return fifaBundleAction.Run();
         }
 
+        private void MakeTOCOriginals(string dir)
+        {
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
+            {
+                if (File.Exists(tFile + ".bak"))
+                    File.Copy(tFile + ".bak", tFile, true);
+            }
+
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
+            {
+                if (File.Exists(tFile + ".bak"))
+                    File.Copy(tFile + ".bak", tFile, true);
+            }
+
+            foreach (var internalDir in Directory.EnumerateDirectories(dir))
+            {
+                MakeTOCOriginals(internalDir);
+            }
+        }
+
+        private void MakeTOCBackups(string dir)
+        {
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
+            {
+                File.Copy(tFile, tFile + ".bak", true);
+            }
+
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
+            {
+                File.Copy(tFile, tFile + ".bak", true);
+            }
+
+            foreach (var internalDir in Directory.EnumerateDirectories(dir))
+            {
+                MakeTOCBackups(internalDir);
+            }
+        }
+
+        FrostyModExecutor ModExecutor;
+
         private bool RunEADesktopCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
+            var fme = (FrostyModExecutor)frostyModExecuter;
+            var parent = fme;
+            ModExecutor = fme;
+
+            fme.Logger.Log("Not using ModData. Starting EA Desktop Compiler.");
+
             if (!Directory.Exists(fs.BasePath))
                 throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
 
-            var fme = (FrostyModExecutor)frostyModExecuter;
+            if (!fme.GameWasPatched)
+            {
+                fme.Logger.Log("Same Game Version detected. Using vanilla backups.");
+
+                MakeTOCOriginals(fme.GamePath + "\\Data\\");
+                MakeTOCOriginals(fme.GamePath + "\\Patch\\");
+
+            }
+            else
+            {
+                fme.Logger.Log("Game was patched. Creating backups.");
+
+                MakeTOCBackups(fme.GamePath + "\\Data\\");
+                MakeTOCBackups(fme.GamePath + "\\Patch\\");
+            }
             FIFA21BundleAction fifaBundleAction = new FIFA21BundleAction(fme, false);
             return fifaBundleAction.Run();
         }

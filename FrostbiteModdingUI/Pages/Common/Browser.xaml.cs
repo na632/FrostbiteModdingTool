@@ -1092,9 +1092,9 @@ namespace FIFAModdingUI.Pages.Common
 
 			if (SelectedLegacyEntry != null)
 			{
-				AssetManager.Instance.ModifyCustomAsset("legacy"
-							, SelectedLegacyEntry.Name
-							, bytes);
+				AssetManager.Instance.ModifyLegacyAsset(SelectedLegacyEntry.Name
+							, bytes
+							, false);
 				UpdateAssetListView();
 			}
 		}

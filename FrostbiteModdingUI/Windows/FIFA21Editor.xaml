@@ -52,18 +52,41 @@
                                 <Label Content="Save Project" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                        <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
-                                <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
                         <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
                                 <Label Content="Open Mod Details" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
+                        <Separator></Separator>
+                        <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
+                                <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="btnCleanUpLegacyFiles"  Height="30" Click="btnCleanUpLegacyFiles_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
+                                <Label Content="Clean up Legacy chunks" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Separator></Separator>
+                        <MenuItem>
+                            <MenuItem.Header>
+                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ClockArrow" VerticalAlignment="Center" />
+                                    <Label FontSize="10" FontWeight="Bold" Content="Recent Files" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                            <ListView ItemsSource="{Binding RecentProjectFiles}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem Header="Mod">
                         <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
@@ -78,12 +101,13 @@
                                 <Label Content="Open Mod Bundler" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>-->
-                        <Button x:Name="btnCleanUpLegacyFiles"  Height="30" Click="btnCleanUpLegacyFiles_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <Button x:Name="btnProjectWriteToLegacyMod"  Height="30" Click="btnProjectWriteToLegacyMod_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
-                                <Label Content="Clean up Legacy chunks" VerticalAlignment="Center" />
+                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                                <Label Content="Save Legacy Mod (*.lmod)" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
+                        
                     </MenuItem>
                     <MenuItem Header="Experimental">
                         <Button x:Name="btnProjectSaveToFIFAProject"  Height="30" Click="btnProjectSaveToFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
@@ -108,7 +132,8 @@
 
             </StackPanel>
             <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
-                <CheckBox x:Name="chkEnableLegacyInjection" Content="Enable Legacy Injection" IsChecked="False"></CheckBox>
+                <Controls:ToggleSwitch x:Name="swUseModData" Content="Use Mod Data" IsOn="True" IsEnabled="True"></Controls:ToggleSwitch>
+                <Controls:ToggleSwitch x:Name="swEnableLegacyInjection" Content="Enable Legacy Injection" IsOn="False"></Controls:ToggleSwitch>
                 <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
                     <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">

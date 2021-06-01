@@ -63,9 +63,9 @@ namespace FrostbiteModdingUI.Windows
             });
         }
 
-        public async void UpdateAsync(string loadingSubTitle, string loadingCurrentMessage)
+        public async Task<bool> UpdateAsync(string loadingSubTitle, string loadingCurrentMessage)
         {
-            await Task.Run(() => { Update(loadingSubTitle, loadingCurrentMessage); });
+            return await Task.Run(() => { Update(loadingSubTitle, loadingCurrentMessage); return true; });
         }
 
         public void Update(string loadingSubTitle, string loadingCurrentMessage, int progress)

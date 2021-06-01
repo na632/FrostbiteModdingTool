@@ -70,6 +70,38 @@ namespace FIFAModdingUI.Windows
 
         public string LastFIFA21Location => App.ApplicationDirectory + "FIFA21LastLocation.json";
 
+        public string FIFA21RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
+
+
+        private Queue<FileInfo> recentProjectFiles;
+
+        public Queue<FileInfo> RecentProjectFiles
+        {
+            get 
+            { 
+                if(recentProjectFiles == null)
+                {
+                    recentProjectFiles = new Queue<FileInfo>();
+                    if(new FileInfo(FIFA21RecentFilesLocation).Exists)
+                    {
+                        recentProjectFiles = JsonConvert.DeserializeObject<Queue<FileInfo>>(File.ReadAllText(FIFA21RecentFilesLocation));
+                    }
+                }
+
+                return recentProjectFiles;
+            }
+            set 
+            {
+                recentProjectFiles = value;
+
+                var str = JsonConvert.SerializeObject(recentProjectFiles);
+                File.WriteAllText(FIFA21RecentFilesLocation, str);
+
+                DataContext = null;
+                DataContext = this;
+            }
+        }
+
         private void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {
             if (File.Exists(LastFIFA21Location))
@@ -218,7 +250,7 @@ namespace FIFAModdingUI.Windows
                 Log("Initialize Texture Browser");
                 List<IAssetEntry> textureAssets = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.ToUpper().Contains(".DDS")));
+                textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
 
                 textureBrowser.AllAssetEntries = textureAssets;
 
@@ -247,7 +279,12 @@ namespace FIFAModdingUI.Windows
             presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
             App.DiscordRpcClient.SetPresence(presence);
             App.DiscordRpcClient.Invoke();
+
+            LauncherOptions = LauncherOptions.LoadAsync().Result;
+            swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
         }
+
+        LauncherOptions LauncherOptions { get; set; }
 
         private void btnBrowseFIFADirectory_Click(object sender, RoutedEventArgs e)
         {
@@ -305,7 +342,7 @@ namespace FIFAModdingUI.Windows
             return image;
         }
 
-        public string LogText = string.Empty;
+        public string LogText { get; set; }
 
         public void Log(string text, params object[] vars)
         {
@@ -347,31 +384,6 @@ namespace FIFAModdingUI.Windows
         {
             Debug.WriteLine("[ERROR] " + text);
             LogAsync("[ERROR] " + text);
-        }
-
-        //private AssetEntry CurrentLegacySelection;
-
-        //private void btnExportLegacy_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (CurrentLegacySelection != null)
-        //    {
-        //        SaveFileDialog saveFileDialog = new SaveFileDialog();
-        //        var filt = "*." + CurrentLegacySelection.Type;
-        //        saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-        //        saveFileDialog.FileName = CurrentLegacySelection.Filename;
-        //        if (saveFileDialog.ShowDialog().Value)
-        //        {
-        //            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.Create)))
-        //            {
-        //                nativeWriter.Write(new NativeReader(ProjectManagement.FrostyProject.AssetManager.GetCustomAsset("legacy", CurrentLegacySelection)).ReadToEnd());
-        //            }
-        //        }
-        //    }
-        //}
-
-        private void btnImportLegacy_Click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
@@ -493,10 +505,10 @@ namespace FIFAModdingUI.Windows
 
         private async void btnProjectSave_Click(object sender, RoutedEventArgs e)
         {
-            SaveProjectWithDialog();
+            await SaveProjectWithDialog();
         }
 
-        private async void SaveProjectWithDialog()
+        private async Task<bool> SaveProjectWithDialog()
         {
             LoadingDialog loadingDialog = new LoadingDialog("Saving Project", "Cleaning loose Legacy Files");
             loadingDialog.Show();
@@ -516,28 +528,32 @@ namespace FIFAModdingUI.Windows
                 {
                     loadingDialog = new LoadingDialog("Saving Project", "Saving project to file");
                     loadingDialog.Show();
-                    loadingDialog.UpdateAsync(50);
                     await ProjectManagement.Project.SaveAsync(saveFileDialog.FileName, true);
-                    loadingDialog.UpdateAsync(75);
 
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
-                    loadingDialog.UpdateAsync(100);
 
                     WindowTitle = saveFileDialog.FileName;
 
-                    loadingDialog.Close();
 
                 }
             }
-
+            loadingDialog.Close();
             loadingDialog = null;
+            return true;
         }
 
         private async void btnProjectOpen_Click(object sender, RoutedEventArgs e)
         {
+            LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "Cleaning loose Legacy Files");
+            loadingDialog.Show();
+            await Task.Delay(100);
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Project files|*.fbproject";
             var result = openFileDialog.ShowDialog();
@@ -545,17 +561,21 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
+                    await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
+
                     ProjectManagement.Project.ModifiedAssetEntries = null;
-                    ProjectManagement.Project.Load(openFileDialog.FileName);
+                    await ProjectManagement.Project.LoadAsync(openFileDialog.FileName);
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
                     WindowTitle = openFileDialog.FileName;
-
+                    
                 }
             }
+            loadingDialog.Close();
+            loadingDialog = null;
         }
 
         public Random RandomSaver = new Random();
@@ -587,7 +607,7 @@ namespace FIFAModdingUI.Windows
             ProjectManagement.Project.WriteToMod(testmodname
                 , new ModSettings() { Author = author, Category = category, Description = desc, Title = title, Version = version });
 
-            
+
             /*
             if (chkEnableLegacyInjection.IsChecked.HasValue && chkEnableLegacyInjection.IsChecked.Value)
             {
@@ -625,9 +645,11 @@ namespace FIFAModdingUI.Windows
                     });
             }
             */
+            var useModData = swUseModData.IsOn;
             await Task.Run(() =>
             {
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+                paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = useModData;
                 frostyModExecutor.UseSymbolicLinks = false;
                 frostyModExecutor.ForceRebuildOfMods = true;
                 frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
@@ -641,9 +663,9 @@ namespace FIFAModdingUI.Windows
 
         }
 
-        private void InjectLegacyDLL()
+        private async void InjectLegacyDLL()
         {
-            if (chkEnableLegacyInjection.IsChecked.HasValue && chkEnableLegacyInjection.IsChecked.Value)
+            if (swEnableLegacyInjection.IsOn)
             {
                 string legacyModSupportFile = null;
                 if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
@@ -668,7 +690,7 @@ namespace FIFAModdingUI.Windows
                         if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll"))
                         {
                             var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
-                            GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                            await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
                         }
                     }
 
@@ -697,111 +719,114 @@ namespace FIFAModdingUI.Windows
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
                     var legacyDirectory = dialog.SelectedFolder;
-                    if (!string.IsNullOrEmpty(legacyDirectory))
-                    {
-                        await Task.Run(() =>
-                        {
-                            DirectoryInfo directoryInfoTemp = new DirectoryInfo("TEMP");
-                            if (directoryInfoTemp.Exists)
-                            {
-                                RecursiveDelete(directoryInfoTemp);
-                            }
-
-                            DirectoryCopy(legacyDirectory, "TEMP", true);
-                            List<string> listOfCompilableFiles = new List<string>();
-
-                            var allFiles = Directory.GetFiles("TEMP", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
-                            Task[] tasks = new Task[allFiles.Count()];
-                            foreach (var file in allFiles)
-                            {
-                                var fIFile = new FileInfo(file);
-                                //tasks[index] = Task.Run(() =>
-                                //{
-                                StringBuilder sbFinalResult = new StringBuilder();
-
-                                var encrypt = fIFile.Extension != ".dds"
-                                    && fIFile.Extension != ".db"
-                                    && fIFile.Extension != ".loc";
-
-                                if (encrypt)
-                                {
-                                    var splitExtension = file.Split('.');
-                                    if (splitExtension[splitExtension.Length - 1] != "mod")
-                                        splitExtension[splitExtension.Length - 1] = "mod";
-
-                                    foreach (var str in splitExtension)
-                                    {
-                                        if (str == "mod")
-                                        {
-                                            sbFinalResult.Append(".mod");
-                                        }
-                                        else
-                                        {
-                                            sbFinalResult.Append(str);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    sbFinalResult.Append(file);
-                                }
-
-                                if (encrypt)
-                                {
-                                    var fI = new FileInfo(file);
-                                    if (fI != null && fI.Extension.Contains("mod"))
-                                    {
-                                        fI.Delete();
-                                    }
-                                    Log("Encrypting " + file);
-                                    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
-                                }
-
-                                listOfCompilableFiles.Add(sbFinalResult.ToString());
-                            }
-
-                            Log("Legacy Compiler :: Compilation Complete");
-
-
-                            SaveFileDialog saveFileDialog = new SaveFileDialog();
-                            saveFileDialog.Filter = "Legacy Mod Files|.lmod";
-                            var saveFileDialogResult = saveFileDialog.ShowDialog();
-                            if (saveFileDialogResult.HasValue && saveFileDialogResult.Value)
-                            {
-                                if (File.Exists(saveFileDialog.FileName))
-                                    File.Delete(saveFileDialog.FileName);
-
-                                using (ZipArchive zipArchive = new ZipArchive(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate), ZipArchiveMode.Create))
-                                {
-                                    foreach (var compatFile in listOfCompilableFiles)
-                                    {
-                                        zipArchive.CreateEntryFromFile(compatFile, compatFile.Replace("TEMP\\", ""));
-                                    }
-                                }
-                                Log("Legacy Compiler :: Legacy Mod file saved");
-
-                                foreach (var f in listOfCompilableFiles.Where(x => x.EndsWith(".mod")))
-                                {
-                                    var fI = new FileInfo(f);
-                                    if (fI != null)
-                                    {
-                                        fI.Delete();
-                                    }
-                                }
-
-                            }
-
-                            if (directoryInfoTemp.Exists)
-                            {
-                                RecursiveDelete(directoryInfoTemp);
-                                Log("Legacy Compiler :: Cleaned up encrypted files");
-                            }
-
-
-                        });
-                    }
+                    await CompileLegacyModFromFolder(legacyDirectory);
                 }
             }
+        }
+
+        private readonly string LegacyProjectExportedFolder = App.ApplicationDirectory + "\\TEMPLEGACYPROJECT";
+        private readonly string LegacyTempFolder = App.ApplicationDirectory + "\\TEMP";
+
+        private async Task<bool> CompileLegacyModFromFolder(string legacyDirectory)
+        {
+            if (string.IsNullOrEmpty(legacyDirectory))
+            {
+                MessageBox.Show("Inputted Legacy Directory is Empty", "Save Failed");
+                return false;
+            }
+
+                await Task.Run(() =>
+                {
+                    DirectoryInfo directoryInfoTemp = new DirectoryInfo(LegacyTempFolder);
+                    if (directoryInfoTemp.Exists)
+                    {
+                        RecursiveDelete(directoryInfoTemp);
+                    }
+
+                    DirectoryCopy(legacyDirectory, LegacyTempFolder, true);
+                    List<string> listOfCompilableFiles = new List<string>();
+
+                    var allFiles = Directory.GetFiles(LegacyTempFolder, "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
+                    Task[] tasks = new Task[allFiles.Count()];
+                    foreach (var file in allFiles)
+                    {
+                        var fIFile = new FileInfo(file);
+                        //tasks[index] = Task.Run(() =>
+                        //{
+                        StringBuilder sbFinalResult = new StringBuilder();
+
+                        var encrypt = !fIFile.Extension.Contains(".dds", StringComparison.OrdinalIgnoreCase)
+                            && !fIFile.Extension.Contains(".db", StringComparison.OrdinalIgnoreCase)
+                            && !fIFile.Extension.Contains(".loc", StringComparison.OrdinalIgnoreCase);
+
+                        if (encrypt)
+                        {
+                            var lastIndexOfDot = fIFile.FullName.LastIndexOf('.');
+                            var newFile = fIFile.FullName.Substring(0, lastIndexOfDot) + ".mod";
+                            sbFinalResult.Append(newFile);
+                        }
+                        else
+                        {
+                            sbFinalResult.Append(file);
+                        }
+
+                        if (encrypt)
+                        {
+                            var fI = new FileInfo(file);
+                            if (fI != null && fI.Extension.Contains("mod"))
+                            {
+                                fI.Delete();
+                            }
+                            Log("Encrypting " + file);
+                            v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
+                        }
+
+                        listOfCompilableFiles.Add(sbFinalResult.ToString());
+                    }
+
+                    Log("Legacy Compiler :: Compilation Complete");
+
+
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    saveFileDialog.Filter = "Legacy Mod Files|.lmod";
+                    var saveFileDialogResult = saveFileDialog.ShowDialog();
+                    if (saveFileDialogResult.HasValue && saveFileDialogResult.Value)
+                    {
+                        if (File.Exists(saveFileDialog.FileName))
+                            File.Delete(saveFileDialog.FileName);
+
+                        using (ZipArchive zipArchive = new ZipArchive(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate), ZipArchiveMode.Create))
+                        {
+                            foreach (var compatFile in listOfCompilableFiles)
+                            {
+                                var indexOfTemp = compatFile.LastIndexOf("TEMP\\");
+                                var newZipLocation = compatFile.Substring(indexOfTemp + 5, compatFile.Length - (indexOfTemp + 5));
+                                zipArchive.CreateEntryFromFile(compatFile, newZipLocation);
+                            }
+                        }
+                        Log("Legacy Compiler :: Legacy Mod file saved");
+
+                        foreach (var f in listOfCompilableFiles.Where(x => x.EndsWith(".mod")))
+                        {
+                            var fI = new FileInfo(f);
+                            if (fI != null)
+                            {
+                                fI.Delete();
+                            }
+                        }
+
+                    }
+
+                    if (directoryInfoTemp.Exists)
+                    {
+                        RecursiveDelete(directoryInfoTemp);
+                        Log("Legacy Compiler :: Cleaned up encrypted files");
+                    }
+
+
+                });
+
+            return true;
         }
 
         public static void RecursiveDelete(DirectoryInfo baseDir)
@@ -964,6 +989,50 @@ namespace FIFAModdingUI.Windows
         private void btnCleanUpLegacyFiles_Click(object sender, RoutedEventArgs e)
         {
             LegacyFileManager_M21.CleanUpChunks();
+            Log("Legacy files have been cleaned");
+        }
+
+        private async void btnProjectWriteToLegacyMod_Click(object sender, RoutedEventArgs e)
+        {
+            if(ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true).Count() == 0)
+            {
+                MessageBox.Show("You do not have any modified legacy items to save!", "Save Failed");
+                return;
+            }
+
+            LoadingDialog loadingDialog = new LoadingDialog("Saving Legacy Mod", "Exporting files");
+            loadingDialog.Show();
+
+            var exportFolder = LegacyProjectExportedFolder;
+            if (!Directory.Exists(exportFolder))
+                Directory.CreateDirectory(exportFolder);
+
+            RecursiveDelete(new DirectoryInfo(exportFolder));
+
+            foreach (var f in ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true))
+            {
+                LegacyFileEntry lfe = f as LegacyFileEntry;
+                if(lfe != null)
+                {
+                    await loadingDialog.UpdateAsync("Saving Legacy Mod", "Exporting " + lfe.Filename);
+                    var lfeStream = (MemoryStream)ProjectManagement.Project.AssetManager.GetCustomAsset("legacy", lfe);
+
+                    if (!Directory.Exists(exportFolder + "\\" + lfe.Path))
+                        Directory.CreateDirectory(exportFolder + "\\" + lfe.Path);
+
+                    using (var nw = new NativeWriter(new FileStream(exportFolder + "\\" + lfe.Path + "\\" + lfe.Filename + "." + lfe.Type, FileMode.Create)))
+                    {
+                        nw.WriteBytes(lfeStream.ToArray());
+                    }
+                }
+            }
+
+            await CompileLegacyModFromFolder(exportFolder);
+
+            loadingDialog.Close();
+            loadingDialog = null;
+
+
         }
     }
 }

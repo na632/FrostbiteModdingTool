@@ -113,6 +113,11 @@ namespace FrostySdk
 			return false;
 		}
 
+		public async Task<bool> LoadAsync(string inFilename)
+        {
+			return await Task.Run(() => { return Load(inFilename); });
+        }
+
 		public static string LastFilePath;
 
 		public IEnumerable<AssetEntry> ModifiedAssetEntries

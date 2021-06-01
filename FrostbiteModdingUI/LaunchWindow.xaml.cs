@@ -329,27 +329,36 @@ namespace FIFAModdingUI
                 //
                 GameInstanceSingleton.Logger = this;
 
+                if (launcherOptions != null)
+                {
+                    launcherOptions.UseModData = switchUseModData.IsOn;
+                    launcherOptions.UseLegacyModSupport = switchUseLegacyModSupport.IsOn;
+                    launcherOptions.UseLiveEditor = switchUseLiveEditor.IsOn;
+                    launcherOptions.InstallEmbeddedFiles = switchInstallEmbeddedFiles.IsOn;
+                    launcherOptions.Save();
+                }
+
                 TabCont.SelectedIndex = 0;
                 DoLegacyModSetup();
 
                 // Copy the Locale.ini if checked
-                if (switchInstallLocale.IsOn)
-                {
-                    foreach (var z in ListOfMods.Select(x => x.Path).Where(x => x.Contains(".zip")))
-                    {
-                        using (FileStream fs = new FileStream(z, FileMode.Open))
-                        {
-                            ZipArchive zipA = new ZipArchive(fs);
-                            foreach (var ent in zipA.Entries)
-                            {
-                                if (ent.Name.Contains("locale.ini"))
-                                {
-                                    ent.ExtractToFile(GameInstanceSingleton.FIFALocaleINIPath, true);
-                                }
-                            }
-                        }
-                    }
-                }
+                //if (switchInstallLocale.IsOn)
+                //{
+                //    foreach (var z in ListOfMods.Select(x => x.Path).Where(x => x.Contains(".zip")))
+                //    {
+                //        using (FileStream fs = new FileStream(z, FileMode.Open))
+                //        {
+                //            ZipArchive zipA = new ZipArchive(fs);
+                //            foreach (var ent in zipA.Entries)
+                //            {
+                //                if (ent.Name.Contains("locale.ini"))
+                //                {
+                //                    ent.ExtractToFile(GameInstanceSingleton.FIFALocaleINIPath, true);
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
 
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
@@ -372,6 +381,20 @@ namespace FIFAModdingUI
                 var useSymbolicLink = switchUseSymbolicLink.IsOn;
                 var forceReinstallOfMods = switchForceReinstallMods.IsOn;
                 var useModData = switchUseModData.IsOn;
+                if(!useModData)
+                {
+                    MessageBoxResult modDataResult = MessageBox.Show("You are NOT using a ModData folder. " + Environment.NewLine +
+                        "This is very risky and shouldn't be used unless all other options don't work! " + Environment.NewLine + 
+                        "Do NOT try and play this ONLINE! You WILL be BANNED! " + Environment.NewLine +
+                        "If your game breaks, it's NOT my fault. " + Environment.NewLine +
+                        "EA Desktop does NOT have a REPAIR option. You will need to REINSTALL if the game breaks."
+                        , "WARNING about not using the ModData folder", MessageBoxButton.OKCancel);
+                    if(modDataResult == MessageBoxResult.Cancel)
+                    {
+                        return;
+                    }
+                }
+
                 // Start the game with mods
                 await new TaskFactory().StartNew(async () =>
                 {
@@ -705,7 +728,7 @@ namespace FIFAModdingUI
                 switchUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchUseLegacyModSupport.IsOn = GameInstanceSingleton.IsCompatibleWithLegacyMod();
 
-                switchInstallLocale.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+                switchInstallEmbeddedFiles.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
                 switchUseLiveEditor.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
 
                 if (GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
@@ -725,11 +748,20 @@ namespace FIFAModdingUI
                     //listMods.Items.Clear();
                     new Mods.ModList();
                 }
+
+                launcherOptions = LauncherOptions.LoadAsync().Result;
+                switchUseModData.IsOn = launcherOptions.UseModData.HasValue ? launcherOptions.UseModData.Value : true;
+                switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue ? launcherOptions.UseLegacyModSupport.Value : true;
+                switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;
+                switchUseLiveEditor.IsOn = launcherOptions.UseLiveEditor.HasValue ? launcherOptions.UseLiveEditor.Value : false;
+                
             }
 
             DataContext = null;
             DataContext = this;
         }
+
+        public LauncherOptions launcherOptions { get; set; }
 
         public void Log(string text, params object[] vars)
         {

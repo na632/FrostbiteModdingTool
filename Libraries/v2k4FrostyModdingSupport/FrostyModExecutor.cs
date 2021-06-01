@@ -22,6 +22,7 @@ using FrostySdk.Frosty;
 using Newtonsoft.Json;
 using Microsoft.ApplicationInsights;
 using FrostbiteSdk.Frosty.Abstract;
+using System.Text;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -4690,7 +4691,7 @@ namespace paulv2k4ModdingExecuter
                 List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
                 fs.ResetManifest();
                 //if (!DeleteSelectFiles(modPath + patchPath))
-                if (FrostyModsFound)
+                //if (FrostyModsFound)
                 {
                     //Directory.Delete(modPath, true);
 
@@ -4870,14 +4871,18 @@ namespace paulv2k4ModdingExecuter
                         RunSymbolicLinkProcess(SymbolicLinkList);
                     }
 
-                    logger.Log("Copying initfs_win32");
-                    if (ProfilesLibrary.IsMadden21DataVersion())
+                    if (UseModData)
                     {
-                        CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_Win32", modPath + patchPath + "/initfs_Win32");
-                    }
-                    else
-                    {
-                        CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+                        logger.Log("Copying initfs_win32");
+
+                        if (ProfilesLibrary.IsMadden21DataVersion())
+                        {
+                            CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_Win32", modPath + patchPath + "/initfs_Win32");
+                        }
+                        else
+                        {
+                            CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+                        }
                     }
                 }
 
@@ -5047,6 +5052,19 @@ namespace paulv2k4ModdingExecuter
 
             }
 
+            if(!UseModData && ProfilesLibrary.IsFIFA21DataVersion())
+            {
+                var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
+                if (configIni.Exists)
+                {
+                    StringBuilder newConfig = new StringBuilder();
+                    newConfig.AppendLine("LAUNCH_EXE = fifa21.exe");
+                    newConfig.AppendLine("SETTING_FOLDER = 'FIFA 21'");
+                    newConfig.AppendLine("AUTO_LAUNCH = 1");
+                    File.WriteAllText(configIni.FullName, newConfig.ToString());
+                }
+
+            }
 
 
             if (foundFrostyMods)// || sameAsLast)
