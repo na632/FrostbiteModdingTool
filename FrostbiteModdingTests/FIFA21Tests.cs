@@ -17,7 +17,7 @@ using System.Threading;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 using SdkGenerator;
-
+using FrostySdk.FrostySdk.Resources.Mesh2;
 
 namespace FrostbiteModdingTests
 {
@@ -113,10 +113,13 @@ namespace FrostbiteModdingTests
                     var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
                     var res = project.AssetManager.GetRes(resentry);
 
-                    var exporter = new MeshSetToFbxExport();
-                    MeshSet meshSet = exporter.LoadMeshSet(skinnedMeshEntry);
+                    var exporter1 = new MeshSetToFbxExport();
+                    var exporter2 = new MeshSetToFbxExport2();
+                    MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
 
-                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+                    exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+
+                    //exporter2.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
                     //meshToFbxExporter.Export(base.AssetManager, base.Asset, outputFile, "2020", "Meters", false, skeleton, "obj", meshSet);
                     //exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.fbx", "FBX_2012", "Centimeters", true, null, "*.fbx", meshSet);
 
@@ -157,12 +160,12 @@ namespace FrostbiteModdingTests
         public void InjectSDKGeneratorIntoFIFA()
         {
 
-            int? proc = GameInstanceSingleton.GetProcIDFromName("FIFA21");
-            proc = GameInstanceSingleton.GetProcIDFromName("FIFA21");
+            int? proc = GameInstanceSingleton.GetProcIDFromName("FIFA21").Result;
+            proc = GameInstanceSingleton.GetProcIDFromName("FIFA21").Result;
             while (!proc.HasValue || proc == 0)
             {
                 Debug.WriteLine($"Waiting for FIFA to appear");
-                proc = GameInstanceSingleton.GetProcIDFromName("FIFA21");
+                proc = GameInstanceSingleton.GetProcIDFromName("FIFA21").Result;
                 Thread.Sleep(1000);
             }
             if (proc.HasValue)
@@ -218,16 +221,18 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestGPMod()
         {
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbproject");
-            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            //projectManagement.Project = new FrostySdk.FrostbiteProject();
+            //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbproject");
+            //projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
             
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
-                    //@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
-                    "test.fbmod"
+                    @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
+                    //"test.fbmod"
                 }.ToArray()).Wait();
 
         }

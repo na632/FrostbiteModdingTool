@@ -32,6 +32,7 @@ namespace FIFA21Plugin
             get; set;
         } = true;
 
+        public bool ProcessData = true;
 
         public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false, string nativePath = null)
         {
@@ -40,7 +41,7 @@ namespace FIFA21Plugin
             if (AssetManager == null)
                 AssetManager = AssetManager.Instance;
 
-            byte[] key = KeyManager.Instance.GetKey("Key2");
+            //byte[] key = KeyManager.Instance.GetKey("Key2");
             if (tocPath != "")
             {
                 var sbPath = tocPath.Replace(".toc", ".sb");
@@ -49,7 +50,7 @@ namespace FIFA21Plugin
                 //if (!tocPath.Contains("globals.toc"))
                 //{
                 List<DbObject> objs = new List<DbObject>();
-                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), AssetManager.fs.CreateDeobfuscator()))
+                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
                 {
                     
                     // TOC File 
@@ -57,8 +58,9 @@ namespace FIFA21Plugin
                     TOCFile.SuperBundleName = SBName;
                     TOCFile.NativeFileLocation = nativePath;
                     TOCFile.FileLocation = tocPath;
-                    TOCFile.SuperBundleName = Guid.NewGuid().ToString();
+                    //TOCFile.SuperBundleName = Guid.NewGuid().ToString();
                     TOCFile.DoLogging = DoLogging;
+                    TOCFile.ProcessData = ProcessData;
                     TOCFile.Read(nativeReader);
 
                     // SB File
@@ -82,15 +84,20 @@ namespace FIFA21Plugin
         public List<DbObject> ReadSB(string sbPath, BinarySbDataHelper helper, string nativeSBPath = null)
         {
             Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
+            if(sbPath.Contains("contentlaunchsb", StringComparison.OrdinalIgnoreCase))
+            {
+
+            }
 
             using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read)))
             {
-                if (nativeReader.Length > 0)
+                if (nativeReader.Length > 1)
                 {
                     SBFile = new SBFile(this, TOCFile, SBIndex);
                     SBFile.NativeFileLocation = nativeSBPath;
                     SBFile.FileLocation = sbPath;
                     SBFile.DoLogging = DoLogging;
+                    //SBFile.ProcessData = ProcessData;
                     return SBFile.Read(nativeReader);
                 }
             }

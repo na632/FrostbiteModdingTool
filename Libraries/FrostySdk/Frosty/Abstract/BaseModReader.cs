@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿using FrostbiteSdk.FrostbiteSdk.Managers;
+using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -20,7 +21,6 @@ namespace FrostbiteSdk.Frosty.Abstract
 		{
 			public override ModResourceType Type => ModResourceType.Embedded;
 		}
-
 
 		public class EbxResource : BaseModResource
 		{
@@ -118,6 +118,29 @@ namespace FrostbiteSdk.Frosty.Abstract
 				base.FillAssetEntry(entry);
 				LegacyFileEntry legAssetEntry = (LegacyFileEntry)entry;
 				legAssetEntry.Name = name;
+			}
+		}
+
+		public class EmbeddedFileResource : BaseModResource
+		{
+			private string name;
+
+			private string exportedLocation;
+
+			public override ModResourceType Type => ModResourceType.EmbeddedFile;
+
+			public override void Read(NativeReader reader)
+			{
+				base.Read(reader);
+				name = reader.ReadLengthPrefixedString();
+			}
+
+			public override void FillAssetEntry(object entry)
+			{
+				base.FillAssetEntry(entry);
+				EmbeddedFileEntry assetEntry = (EmbeddedFileEntry)entry;
+				assetEntry.Name = name;
+				assetEntry.ExportedRelativePath = exportedLocation;
 			}
 		}
 	}

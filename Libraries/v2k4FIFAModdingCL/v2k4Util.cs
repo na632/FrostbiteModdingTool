@@ -58,6 +58,7 @@ namespace v2k4FIFAModding
         public static void SetPropertyValue(object obj, string propName, dynamic value)
         {
             Type t = obj.GetType();
+            Type t2 = value.GetType();
             var p = t.GetProperty(propName);
             var parseMethod = p.PropertyType.GetMethods().FirstOrDefault(x=>x.Name == "Parse");
             if (parseMethod != null && p.PropertyType != value.GetType())

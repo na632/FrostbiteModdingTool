@@ -44,7 +44,7 @@
         </StackPanel>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="700"></ColumnDefinition>
+                <ColumnDefinition Width="650"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="5" >
@@ -115,25 +115,14 @@
                 <Controls:ToggleSwitch x:Name="switchUseLiveEditor" Content="Use Aranaktu's Live Editor"  />
                 <Controls:ToggleSwitch x:Name="switchUseLegacyModSupport" Content="Install Legacy Mods (*.lmod)"  />
                 <Controls:ToggleSwitch x:Name="switchCleanLegacyModDirectory" Content="Clean Legacy Mods (*.lmod)"  />
-                
-                <!--<CheckBox x:Name="chkInstallLocale" IsChecked="False">Install locale.ini from gameplay mods</CheckBox>-->
-                <!--<CheckBox x:Name="chkUseLiveEditor" IsChecked="False">Inject Aranaktu's Live Editor (if present)</CheckBox>-->
-                <!--<CheckBox x:Name="chkUseLegacyModSupport" IsChecked="True">Inject Legacy Mod Support</CheckBox>-->
-                <!--<CheckBox x:Name="chkCleanLegacyModDirectory" IsChecked="False">Clean Legacy Mod Directory</CheckBox>-->
-                <!--<CheckBox x:Name="chkUseCEM" IsEnabled="False" IsChecked="False">Use CEM (Career Stats Saver)</CheckBox>-->
 
-                <!--<Controls:ToggleSwitch x:Name="switchUseCEM" Content="Use Career Stats Saver"  />-->
-
-                <Controls:ToggleSwitch x:Name="switchUseSymbolicLink" Content="Use Symbolic Link"  />
 
                 <Controls:ToggleSwitch x:Name="switchForceReinstallMods" Content="Force Reinstall Mods" ToolTip="Useful if you want to force the compiler to reinstall mods or fix a bug"  />
 
-                <Controls:ToggleSwitch x:Name="switchUseModData" Content="Use Mod Data" ToolTip="Set to OFF if using EA Desktop"   />
+                <Controls:ToggleSwitch x:Name="switchUseModData" Content="Use Mod Data (Origin Only)" Toggled="switchUseModData_Toggled" ToolTip="Set to OFF if using EA Desktop"   />
 
-                <!--<CheckBox x:Name="chkUseSymbolicLink" IsEnabled="True" IsChecked="False" Visibility="Visible" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space">Use Symbolic Link</CheckBox>-->
+                <Controls:ToggleSwitch x:Name="switchUseSymbolicLink" Content="Use Symbolic Link (Reduces Disk Space)" Toggled="switchUseSymbolicLink_Toggled" ToolTip="Disabling this will make a copy of your data folder requiring 30GB+ of disk space"  />
 
-                <Separator></Separator>
-                
 
             </StackPanel>
         </Grid>

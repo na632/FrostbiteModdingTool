@@ -19,32 +19,47 @@ namespace FrostySdk.IO
 
 		public int ClassCount => classes.Count;
 
-		public string GetClassName(uint nameHash)
+		private static Assembly EbxClassesAssembly;
+		private static Type[] EbxClassesTypes;
+
+		public static string GetClassName(uint nameHash)
 		{
-			foreach (Assembly a in AppDomain.CurrentDomain
-									.GetAssemblies().Where(x => x.FullName.Contains("Sdk.Ebx", StringComparison.OrdinalIgnoreCase)))
+			EbxClassesAssembly = AppDomain.CurrentDomain
+									.GetAssemblies().FirstOrDefault(x => x.FullName.Contains("EbxClasses", StringComparison.OrdinalIgnoreCase));
+			if(EbxClassesAssembly != null)
 			{
-				var types = a.GetTypes();
-				for (var i = 0; i < types.Length; i++)
-				{
-					var t = types[i];
-					var hash = t.GetCustomAttribute<HashAttribute>();
-					if(hash != null && (hash.Hash == nameHash || hash.ActualHash == nameHash))
+				if(EbxClassesTypes == null)
+					EbxClassesTypes = EbxClassesAssembly.GetTypes();
+
+				//for (var i = 0; i < EbxClassesTypes.Length; i++)
+				//{
+					var t = EbxClassesTypes.FirstOrDefault(t =>
+							t.GetCustomAttribute<HashAttribute>() != null
+							&& t.GetCustomAttribute<HashAttribute>().Hash == nameHash);
+					if(t != null)
                     {
 						return t.Name;
                     }
-				}
+					//var hash = t.GetCustomAttribute<HashAttribute>();
+					//if(hash != null && (hash.Hash == nameHash || hash.ActualHash == nameHash))
+     //               {
+					//	return t.Name;
+     //               }
+				//}
 			}
 
 			return null;
 
 		}
 
-		public string GetPropertyName(uint nameHash)
+		public static string GetPropertyName(uint nameHash)
 		{
-			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x=>x.FullName.ToUpper().Contains("SDK")))
+			if (EbxClassesAssembly != null)
 			{
-				var types = a.GetTypes();
+				if (EbxClassesTypes == null)
+					EbxClassesTypes = EbxClassesAssembly.GetTypes();
+
+				var types = EbxClassesTypes;
 				for (var i = 0; i < types.Length; i++)
 				{
 					var t = types[i];
@@ -66,8 +81,16 @@ namespace FrostySdk.IO
 					
 		}
 
+		public readonly bool IsPatch;
+
 		public EbxSharedTypeDescriptors(FileSystem fs, string name, bool patch)
 		{
+			IsPatch = patch;
+			if(IsPatch)
+            {
+
+            }
+
 			var ebxtys = fs.GetFileFromMemoryFs(name);
             if (File.Exists("Debugging/" + name + ".dat"))
                 File.Delete("Debugging/" + name + ".dat");
@@ -99,6 +122,7 @@ namespace FrostySdk.IO
 					fields.Add(item);
 				}
 				int totalFieldCount = 0;
+				EbxClass lastValue = new EbxClass();
 				for (int j = 0; j < stdClassCount; j++)
 				{
 					Guid guid = nativeReader.ReadGuid();
@@ -107,7 +131,7 @@ namespace FrostySdk.IO
 					{
 						mapping.Add(guid, classes.Count);
                         classes.Add(null);
-                        //classes.Add(value);
+                        //classes.Add(lastValue);
                         guids.Add(guid);
 						continue;
 					}
@@ -127,7 +151,7 @@ namespace FrostySdk.IO
 						}
 						EbxClass value = new EbxClass
 						{
-							Name = GetClassName(nameHash2),
+							//Name = GetClassName(nameHash2),
 							NameHash = nameHash2,
 							FieldIndex = totalFieldCount,
 							FieldCount = (byte)fieldCount,
@@ -136,6 +160,7 @@ namespace FrostySdk.IO
 							Type = (ushort)(type >> 1),
 							Index = j
 						};
+						lastValue = value;
 						if (patch)
 						{
 							value.SecondSize = 1;
@@ -162,6 +187,8 @@ namespace FrostySdk.IO
 			}
 			var mappedGuid = mapping[guid];
 			EbxClass? c = classes.ElementAt(mappedGuid);
+			//if (!c.HasValue)
+			//	c = classes.ElementAt(mappedGuid - 1);
 			return c;
 		}
 
@@ -170,19 +197,28 @@ namespace FrostySdk.IO
 			return classes[index];
 		}
 
-		public Guid GetGuid(EbxClass classType)
+		public Guid? GetGuid(EbxClass classType)
 		{
-			return guids[classType.Index];
+			if(guids.Count > classType.Index)
+				return guids[classType.Index];
+
+			return null;
 		}
 
-		public Guid GetGuid(int index)
+		public Guid? GetGuid(int index)
 		{
-			return guids[index];
+			if(guids.Count > index)
+				return guids[index];
+
+			return null;
 		}
 
-		public EbxField GetField(int index)
+		public EbxField? GetField(int index)
 		{
-			return fields[index];
+			if(fields.Count > index)
+				return fields[index];
+
+			return null;
 		}
 	}
 }

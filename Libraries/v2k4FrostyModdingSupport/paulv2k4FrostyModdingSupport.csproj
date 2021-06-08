@@ -10,7 +10,7 @@
     <Description>This package is designed for FIFA Mod Tool developers to launch the game with ".fbmod" files integrated.</Description>
     <Copyright>2020 paulv2k4 - Paul Garlick</Copyright>
     <PackageProjectUrl>https://www.fifa-mods.com</PackageProjectUrl>
-    <PackageTags>FIFA, FIFA 20, Madden, Frostbite, Frosty, EA</PackageTags>
+    <PackageTags>FIFA, FIFA 20, FIFA 21, Madden, Frostbite, Frosty, EA</PackageTags>
     <PackageLicenseExpression>BSD-2-Clause OR MIT</PackageLicenseExpression>
     <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <FileVersion>1.2.0.0</FileVersion>
@@ -77,6 +77,10 @@
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
 	</None>
+    <None Update="ThirdParty\libzstd.1.5.0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
     <None Update="ThirdParty\LZMA.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>

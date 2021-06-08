@@ -26,15 +26,15 @@ namespace FrostySdk.IO
 
         public override string ToString()
         {
-            if(!string.IsNullOrEmpty(Name))
+            if(!string.IsNullOrEmpty(EbxSharedTypeDescriptors.GetClassName(NameHash)))
             {
                 if(NameHash > 0)
                 {
-                    return Name + " - " + NameHash;
+                    return EbxSharedTypeDescriptors.GetClassName(NameHash) + " - " + NameHash;
                 }
                 else
                 {
-                    return Name;
+                    return EbxSharedTypeDescriptors.GetClassName(NameHash);
                 }
             }
             return base.ToString();

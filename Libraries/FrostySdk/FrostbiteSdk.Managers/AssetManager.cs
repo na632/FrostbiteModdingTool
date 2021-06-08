@@ -678,8 +678,9 @@ namespace FrostySdk.Managers
 					{
 						if (ebxStream != null && ebxStream.Length > 0)
 						{
-							EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
-							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
+							//EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
+							EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
+						EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
 							return;
 						}
 					}
@@ -782,6 +783,11 @@ namespace FrostySdk.Managers
 			return (uint)resList.Values.Count((ResAssetEntry entry) => entry.ResType == resType);
 		}
 
+		public uint GetEmbeddedCount(uint resType)
+		{
+			return (uint)EmbeddedFileEntries.Count();
+		}
+
 		public void Reset()
 		{
 			List<EbxAssetEntry> list = EbxList.Values.ToList();
@@ -806,6 +812,7 @@ namespace FrostySdk.Managers
 					RevertAsset(item4, dataOnly: false, suppressOnModify: false);
 				}
 			}
+			EmbeddedFileEntries = new List<EmbeddedFileEntry>();
 		}
 
 		public void RevertAsset(AssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
@@ -864,6 +871,14 @@ namespace FrostySdk.Managers
 		public ICustomAssetManager GetLegacyAssetManager()
         {
 			return CustomAssetManagers["legacy"];
+        }
+
+		public void AddEmbeddedFile(EmbeddedFileEntry entry)
+        {
+			if (EmbeddedFileEntries.Contains(entry))
+				EmbeddedFileEntries.Remove(entry);
+
+			EmbeddedFileEntries.Add(entry);
         }
 
 		public void AddChunk(ChunkAssetEntry entry)
@@ -1575,7 +1590,9 @@ namespace FrostySdk.Managers
 				}
 			}
             bool inPatched = false;
-			if ( (ProfilesLibrary.IsFIFADataVersion() || ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
+			if ( (ProfilesLibrary.IsFIFADataVersion() 
+				|| ProfilesLibrary.IsMadden21DataVersion() 
+				|| ProfilesLibrary.IsFIFA21DataVersion())
 				&& entry.ExtraData.CasPath.StartsWith("native_patch"))
 			{
 				inPatched = true;
@@ -1616,17 +1633,21 @@ namespace FrostySdk.Managers
         }
 
 
-		public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
+		//public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
+		public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = false)
 		{
 			EbxReader ebxReader = null;
 			if (ProfilesLibrary.IsFIFA21DataVersion())
 			{
-				ebxReader = new EbxReader_F21(asset, inPatched);
+				//ebxReader = new EbxReader_F21(asset, inPatched);
+				ebxReader = new EbxReaderV2(asset, inPatched);
 
 			}
 			else if (ProfilesLibrary.IsMadden21DataVersion())
 			{
-				ebxReader = new EbxReader_F21(asset, inPatched);
+				//ebxReader = new EbxReader_F21(asset, inPatched);
+				ebxReader = new EbxReaderV2(asset, inPatched);
+
 			}
 			else if (ProfilesLibrary.DataVersion == 20181207
 				|| ProfilesLibrary.DataVersion == 20190911

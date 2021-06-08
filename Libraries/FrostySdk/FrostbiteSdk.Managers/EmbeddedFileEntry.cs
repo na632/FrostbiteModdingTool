@@ -1,16 +1,41 @@
 ﻿using FrostySdk.FrostySdk.Managers;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace FrostbiteSdk.FrostbiteSdk.Managers
 {
-    public sealed class EmbeddedFileEntry
+    public sealed class EmbeddedFileEntry : AssetEntry
     {
-        public string Name { get; set; }
-
         public string ExportedRelativePath { get; set; }
 
+        public string ImportedFileLocation { get; set; }
+
         public byte[] Data { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is EmbeddedFileEntry)
+            {
+                var other = obj as EmbeddedFileEntry;
+                if(other != null)
+                {
+                    return other.ImportedFileLocation == this.ImportedFileLocation;
+                }
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 }

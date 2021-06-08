@@ -1,4 +1,5 @@
-﻿using FrostySdk.IO;
+﻿using FrostySdk;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -148,7 +149,9 @@ namespace FIFA21Plugin
 				{
 					List<CASBundle> bundles = new List<CASBundle>();
 
-					AssetManager.Instance.logger.Log("Searching for CAS Data from " + TOCFile.FileLocation);
+					if(AssetManager.Instance != null)
+						AssetManager.Instance.logger.Log("Searching for CAS Data from " + TOCFile.FileLocation);
+
 					for (int i = 0; i < TOCFile.MetaData.BundleCount; i++)
 					{
 						CASBundle bundle = new CASBundle();
@@ -237,11 +240,12 @@ namespace FIFA21Plugin
 
 					if (bundles.Count > 0)
 					{
-						AssetManager.Instance.logger.Log($"Found {bundles.Count} bundles for CasFiles");
+						if(AssetManager.Instance != null)
+							AssetManager.Instance.logger.Log($"Found {bundles.Count} bundles for CasFiles");
 
 						foreach (var bundle in bundles)
 						{
-							var path = AssetManager.Instance.fs.GetFilePath(bundle.Catalog, bundle.Cas, bundle.Patch);
+							var path = FileSystem.Instance.GetFilePath(bundle.Catalog, bundle.Cas, bundle.Patch);
 							if (!string.IsNullOrEmpty(path))
 							{
 								var lstBundles = new List<CASBundle>();

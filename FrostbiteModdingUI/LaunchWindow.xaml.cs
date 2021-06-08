@@ -541,7 +541,8 @@ namespace FIFAModdingUI
                         Dispatcher.Invoke(() => {
                             var presence = new DiscordRPC.RichPresence();
                             presence.Details = "Playing " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods";
-                            presence.State = "Playing Solo";
+                            presence.State = "V." + App.ProductVersion;
+
                             App.DiscordRpcClient.SetPresence(presence);
                             App.DiscordRpcClient.Invoke();
                         });
@@ -871,6 +872,22 @@ namespace FIFAModdingUI
             }
             CEMWindow = new CEMWindow();
             CEMWindow.ShowDialog();
+        }
+
+        private void switchUseModData_Toggled(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(() => { 
+                switchUseSymbolicLink.IsEnabled = switchUseModData.IsOn;
+
+                // Cannot use symbolic link if there is no Mod Data folder
+                if (!switchUseModData.IsOn)
+                    switchUseSymbolicLink.IsOn = false;
+            });
+        }
+
+        private void switchUseSymbolicLink_Toggled(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(() => { switchUseModData.IsOn = switchUseSymbolicLink.IsOn; switchUseModData.IsEnabled = !switchUseSymbolicLink.IsOn; });
         }
     }
 

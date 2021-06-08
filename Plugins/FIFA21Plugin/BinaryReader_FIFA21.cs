@@ -28,6 +28,8 @@ namespace FIFA21Plugin
         {
             // Read out the Header Info
             var SBHeaderInformation = new SBHeaderInformation(binarySbReader2, IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 4);
+            if (!SBHeaderInformation.SuccessfullyRead)
+                return null;
             //
             List<Sha1> sha1 = new List<Sha1>();
             for (int i = 0; i < SBHeaderInformation.totalCount; i++)

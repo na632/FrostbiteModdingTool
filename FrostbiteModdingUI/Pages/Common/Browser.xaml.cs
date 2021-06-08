@@ -479,6 +479,7 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							var binaryData = File.ReadAllBytes(openFileDialog.FileName);
 							AssetManager.Instance.ModifyEbxBinary(SelectedEntry.Name, binaryData);
+							OpenAsset(SelectedEntry);
 						}
 					}
 				}

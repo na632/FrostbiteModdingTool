@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using Microsoft.ApplicationInsights;
 using FrostbiteSdk.Frosty.Abstract;
 using System.Text;
+using FrostbiteSdk.FrostbiteSdk.Managers;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -4350,7 +4351,7 @@ namespace paulv2k4ModdingExecuter
             await Task.Run(() =>
             {
 
-                if (ProfilesLibrary.IsMadden21DataVersion())
+                if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
                 {
                     string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
                     if (Directory.Exists(path))
@@ -4381,12 +4382,18 @@ namespace paulv2k4ModdingExecuter
 
             Logger.Log("Initializing resources");
 
-            rm = new ResourceManager(fs);
-            rm.Initialize();
+            if (ResourceManager.Instance == null)
+            {
+                rm = new ResourceManager(fs);
+                rm.Initialize();
+            }
+            else
+            {
+                rm = ResourceManager.Instance;
+            }
 
             bool FrostyModsFound = false;
 
-            Logger.Log("Loading mods");
             {
                 string[] allModPaths = modPaths;
                 var frostyMods = new Dictionary<Stream, IFrostbiteMod>();
@@ -4394,7 +4401,14 @@ namespace paulv2k4ModdingExecuter
                 // Sort out Zipped Files
                 //if (allModPaths.Contains(".zip"))
                 //{
+
+                Logger.Log("Deleting cached mods");
+
+                if (Directory.Exists(ApplicationDirectory + "TempMods"))
+                    Directory.Delete(ApplicationDirectory + "TempMods", true);
+
                 var compatibleModExtensions = new List<string>() { ".fbmod", ".fifamod" };
+                Logger.Log("Loading mods");
 
                 foreach (var f in allModPaths)
                 {
@@ -4409,41 +4423,30 @@ namespace paulv2k4ModdingExecuter
                         {
                             ZipArchive zipArchive = new ZipArchive(fsModZipped);
                             foreach (var zaentr in zipArchive.Entries
-                                .Where(x => 
-                                x.FullName.Contains(".fbmod", StringComparison.OrdinalIgnoreCase) 
-                                || x.FullName.Contains(".fifamod", StringComparison.OrdinalIgnoreCase) ))
+                                .Where(x =>
+                                x.FullName.Contains(".fbmod", StringComparison.OrdinalIgnoreCase)
+                                || x.FullName.Contains(".fifamod", StringComparison.OrdinalIgnoreCase)))
                             {
                                 Logger.Log("Loading mod " + zaentr.Name);
                                 FrostyModsFound = true;
                                 MemoryStream memoryStream = new MemoryStream();
-                                zaentr.Open().CopyTo(memoryStream);
-
-                                frostyMods.Add(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
+                                if (zaentr.Length > 1024 * 1024 || zaentr.Name.Contains(".fifamod"))
+                                {
+                                    if (!Directory.Exists(ApplicationDirectory + "TempMods"))
+                                        Directory.CreateDirectory(ApplicationDirectory + "TempMods");
+                                    zaentr.ExtractToFile(ApplicationDirectory + "TempMods/" + zaentr.Name);
+                                    GatherFrostbiteMods(ApplicationDirectory + "TempMods/" + zaentr.Name, ref FrostyModsFound, ref frostyMods);
+                                }
+                                else
+                                {
+                                    zaentr.Open().CopyTo(memoryStream);
+                                    frostyMods.Add(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
+                                }
                             }
                         }
                     }
-                    //    else 
-                    if (f.Contains(".fbmod", StringComparison.OrdinalIgnoreCase))
-                    {
-                        FrostyModsFound = true;
-
-                        FileInfo fileInfo2 = new FileInfo(rootPath + f);
-                        
-                        Logger.Log("Loading mod " + fileInfo2.Name);
-                        using var fsFBMod = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
-                        var fbmod = new FrostbiteMod(fsFBMod);
-                        frostyMods.Add(new MemoryStream(fbmod.ModBytes.ToArray()), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
-                    }
-
-                    if(f.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
-                    {
-                        FrostyModsFound = true;
-
-                        FileInfo fileInfo2 = new FileInfo(rootPath + f);
-                        Logger.Log("Loading mod " + fileInfo2.Name);
-                        var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
-                        frostyMods.Add(fs, new FIFAMod(string.Empty, fileInfo2.FullName));
-                    }
+                    else 
+                        GatherFrostbiteMods(rootPath + f, ref FrostyModsFound, ref frostyMods);
                 }
 
                 foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
@@ -4453,10 +4456,29 @@ namespace paulv2k4ModdingExecuter
                     var frostbiteMod = kvpMods.Value;
                     foreach (BaseModResource resource in frostbiteMod.Resources)
                     {
-                        if(resource is BaseModReader.ChunkResource)
-                        {
+                        // ------------------------------------------------------------------
+                        // Get the Resource Data out of the mod
+                        byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
 
+                        // ------------------------------------------------------------------
+                        // Embedded Files
+                        // Export to the Game Directory and create sub folders if neccessary
+                        if (resource is BaseModReader.EmbeddedFileResource)
+                        {
+                            EmbeddedFileEntry efAssetEntry = new EmbeddedFileEntry();
+                            resource.FillAssetEntry(efAssetEntry);
+
+                            var parentDirectoryPath = Directory.GetParent(GamePath + "//" + efAssetEntry.Name).FullName;
+                            if (!Directory.Exists(parentDirectoryPath))
+                                Directory.CreateDirectory(parentDirectoryPath);
+
+                            File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
+                                
                         }
+                        //
+                        // ------------------------------------------------------------------
+
+
                         foreach (int modifiedBundle in resource.ModifiedBundles)
                         {
                             if (!modifiedBundles.ContainsKey(modifiedBundle))
@@ -4508,9 +4530,7 @@ namespace paulv2k4ModdingExecuter
                         }
 
 
-                        // Get the Resource Data out of the mod
-                        byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-
+                      
 
                         if (resource.Type == ModResourceType.Ebx)
                         {
@@ -4554,7 +4574,7 @@ namespace paulv2k4ModdingExecuter
                             {
                                 ResAssetEntry resAssetEntry = null;
                                 HandlerExtraData handlerExtraData = null;
-                                byte[] resourceData2 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                                //byte[] resourceData2 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 if (modifiedRes.ContainsKey(resource.Name))
                                 {
                                     resAssetEntry = modifiedRes[resource.Name];
@@ -4576,7 +4596,8 @@ namespace paulv2k4ModdingExecuter
                                     resAssetEntry.ExtraData = handlerExtraData;
                                     modifiedRes.Add(resource.Name, resAssetEntry);
                                 }
-                                handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
+                                //handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
+                                handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData);
                             }
                             else
                             {
@@ -4595,16 +4616,18 @@ namespace paulv2k4ModdingExecuter
                                     modifiedRes.Remove(resource.Name);
                                     numArchiveEntries--;
                                 }
-                                byte[] resourceData3 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                                //byte[] resourceData3 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ResAssetEntry resAssetEntry3 = new ResAssetEntry();
                                 resource.FillAssetEntry(resAssetEntry3);
-                                resAssetEntry3.Size = resourceData3.Length;
+                                //resAssetEntry3.Size = resourceData3.Length;
+                                resAssetEntry3.Size = resourceData.Length;
                                 modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
                                 if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
                                 {
                                     archiveData.Add(resAssetEntry3.Sha1, new ArchiveInfo
                                     {
-                                        Data = resourceData3,
+                                        //Data = resourceData3,
+                                        Data = resourceData,
                                         RefCount = 1
                                     });
                                 }
@@ -4634,16 +4657,18 @@ namespace paulv2k4ModdingExecuter
                                     ModifiedChunks.Remove(guid);
                                     numArchiveEntries--;
                                 }
-                                byte[] resourceData5 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                                //byte[] resourceData5 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
                                 resource.FillAssetEntry(chunkAssetEntry3);
-                                chunkAssetEntry3.Size = resourceData5.Length;
+                                //chunkAssetEntry3.Size = resourceData5.Length;
+                                chunkAssetEntry3.Size = resourceData.Length;
                                 ModifiedChunks.Add(guid, chunkAssetEntry3);
                                 if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
                                 {
                                     archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo
                                     {
-                                        Data = resourceData5,
+                                        //Data = resourceData5,
+                                        Data = resourceData,
                                         RefCount = 1
                                     });
                                 }
@@ -4901,6 +4926,31 @@ namespace paulv2k4ModdingExecuter
             }
 
             return FrostyModsFound;
+        }
+
+        private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref Dictionary<Stream, IFrostbiteMod> frostyMods)
+        {
+            if (modPath.Contains(".fbmod", StringComparison.OrdinalIgnoreCase))
+            {
+                FrostyModsFound = true;
+
+                FileInfo fileInfo2 = new FileInfo(modPath);
+
+                Logger.Log("Loading mod " + fileInfo2.Name);
+                using var fsFBMod = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
+                var fbmod = new FrostbiteMod(fsFBMod);
+                frostyMods.Add(new MemoryStream(fbmod.ModBytes.ToArray()), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
+            }
+
+            if (modPath.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
+            {
+                FrostyModsFound = true;
+
+                FileInfo fileInfo2 = new FileInfo(modPath);
+                Logger.Log("Loading mod " + fileInfo2.Name);
+                var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
+                frostyMods.Add(fs, new FIFAMod(string.Empty, fileInfo2.FullName));
+            }
         }
 
         public static TelemetryClient AppInsightClient;// = new TelemetryClient();

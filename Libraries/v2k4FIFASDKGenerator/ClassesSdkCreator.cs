@@ -112,18 +112,27 @@ namespace SdkGenerator
 
             mapping = new Dictionary<string, Tuple<EbxClass, DbObject>>();
             fieldMapping = new Dictionary<string, List<EbxField>>();
-            if (FileSystem.HasFileInMemoryFs("SharedTypeDescriptors.ebx"))
+
+            List<Guid> existingClasses = new List<Guid>();
+            foreach (var f in FileSystem.memoryFs.Keys
+                .Where(x=>x.Contains("SharedTypeDescriptor", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(x=>x.Contains("Patch", StringComparison.OrdinalIgnoreCase))
+                )
             {
-                List<Guid> existingClasses = new List<Guid>();
-                LoadSharedTypeDescriptors("SharedTypeDescriptors.ebx", mapping, existingClasses);
-                LoadSharedTypeDescriptors("SharedTypeDescriptors_patch.ebx", mapping, existingClasses);
-                LoadSharedTypeDescriptors("SharedTypeDescriptors_Patch.ebx", mapping, existingClasses);
+                LoadSharedTypeDescriptors(f, mapping, ref existingClasses);
             }
-            else
-            {
-                throw new Exception("Havent found Shared Type Descriptors .EBX!");
+            //if (FileSystem.HasFileInMemoryFs("SharedTypeDescriptors.ebx"))
+            //{
+            //    List<Guid> existingClasses = new List<Guid>();
+            //    LoadSharedTypeDescriptors("SharedTypeDescriptors.ebx", mapping, existingClasses);
+            //    LoadSharedTypeDescriptors("SharedTypeDescriptors_patch.ebx", mapping, existingClasses);
+            //    LoadSharedTypeDescriptors("SharedTypeDescriptors_Patch.ebx", mapping, existingClasses);
+            //}
+            //else
+            //{
+            //    throw new Exception("Havent found Shared Type Descriptors .EBX!");
              
-            }
+            //}
             return true;
         }
 
@@ -221,7 +230,7 @@ namespace SdkGenerator
             return false;
         }
 
-        private void LoadSharedTypeDescriptors(string name, Dictionary<string, Tuple<EbxClass, DbObject>> mapping, List<Guid> existingClasses)
+        private void LoadSharedTypeDescriptors(string name, Dictionary<string, Tuple<EbxClass, DbObject>> mapping, ref List<Guid> existingClasses)
         {
             byte[] fileFromMemoryFs = FileSystem.GetFileFromMemoryFs(name);
             if (fileFromMemoryFs != null)
@@ -729,6 +738,7 @@ namespace SdkGenerator
             else if (ProfilesLibrary.IsFIFA21DataVersion())
             {
                 typeStr = "SdkGenerator.FIFA21.ClassInfo";
+                //typeStr = "SdkGenerator.Madden20.ClassInfo";
             }
             else if (ProfilesLibrary.IsMadden21DataVersion())
             {

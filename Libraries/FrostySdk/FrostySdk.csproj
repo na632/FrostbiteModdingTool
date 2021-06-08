@@ -88,6 +88,15 @@
 
 		  </None>
   </ItemGroup>
+	
+	<ItemGroup>
+	  <None Update="BF4Profile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="BFVProfile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 
 	<Target Name="AfterBuild">
 		<Message Text="1. ReferencePath:%0D%0A%09@(ReferencePath->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />

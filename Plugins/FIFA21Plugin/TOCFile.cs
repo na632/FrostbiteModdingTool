@@ -71,6 +71,8 @@ namespace FIFA21Plugin
 
 		public bool DoLogging = true;
 
+		public bool ProcessData = true;
+
 		//public int[] ArrayOfInitialHeaderData = new int[12];
 
 		public ContainerMetaData MetaData = new ContainerMetaData();
@@ -136,6 +138,9 @@ namespace FIFA21Plugin
         }
 
 		public int[] tocMetaData = new int[15];
+
+		public List<ChunkAssetEntry> TocChunks = new List<ChunkAssetEntry>();
+
 
 		public void Read(NativeReader nativeReader)
 		{
@@ -203,27 +208,30 @@ namespace FIFA21Plugin
 							var tocsizeposition = nativeReader.Position;
                             int size = nativeReader.ReadInt(Endian.Big);
 
-                            nativeReader.ReadInt(Endian.Big); // unknown
+                            int unk1 = nativeReader.ReadInt(Endian.Big); // unknown
 
                             int dataOffset = nativeReader.ReadInt(Endian.Big);
 
-							BaseBundleInfo newBundleInfo = new BaseBundleInfo
+							if (dataOffset > 0)
 							{
-								TocOffset = offset1,
-								Offset = dataOffset,
-								Size = size,
-								TOCSizePosition = tocsizeposition
-							};
-                            Bundles.Add(newBundleInfo);
-                        }
+								BaseBundleInfo newBundleInfo = new BaseBundleInfo
+								{
+									TocOffset = offset1,
+									Offset = dataOffset,
+									Size = size,
+									TOCSizePosition = tocsizeposition
+								};
+								Bundles.Add(newBundleInfo);
+							}
 
-                        var chunks = new List<ChunkAssetEntry>();
+						}
+
 
 						if (MetaData.ChunkFlagOffset != 0 && MetaData.ChunkFlagOffset != 32)
 						{
 							if (MetaData.ChunkCount > 0)
 							{
-								if(DoLogging)
+								if(DoLogging && AssetManager.Instance != null)
 									AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
 
 								nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffset;
@@ -312,18 +320,18 @@ namespace FIFA21Plugin
 									chunkAssetEntry2.Size = chunkSize;
 									chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
 									chunkAssetEntry2.ExtraData = new AssetExtraData();
-									chunkAssetEntry2.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog2, cas2, patch2);
+									chunkAssetEntry2.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog2, cas2, patch2);
 									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
 
-									chunks.Add(chunkAssetEntry2);
+									TocChunks.Add(chunkAssetEntry2);
 								}
 
 								_ = nativeReader.Position;
 								for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 								{
-									
-									var chunkAssetEntry = chunks[chunkIndex];
-									AssetManager.Instance.AddChunk(chunkAssetEntry);
+									var chunkAssetEntry = TocChunks[chunkIndex];
+									if(AssetManager.Instance != null)
+										AssetManager.Instance.AddChunk(chunkAssetEntry);
 
 								}
 							}
@@ -334,7 +342,7 @@ namespace FIFA21Plugin
 							}
 							for (int k = 0; k < MetaData.unk11Count; k++)
 							{
-								unk7Values[k] = nativeReader.ReadInt32BigEndian();
+								unk7Values[k] = nativeReader.ReadInt(Endian.Big);
 							}
                             int[] unk13Values = new int[MetaData.unk12Count];
                             if (nativeReader.Position != 556 + MetaData.unk13Offset)
@@ -343,14 +351,15 @@ namespace FIFA21Plugin
                             }
                             for (int j = 0; j < MetaData.unk12Count; j++)
                             {
-                                unk13Values[j] = nativeReader.ReadInt32BigEndian();
+                                unk13Values[j] = nativeReader.ReadInt(Endian.Big);
                             }
 
                             _ = nativeReader.Position;
 							if(nativeReader.Position < nativeReader.Length)
                             {
-								TOCCasDataLoader casDataLoader = new TOCCasDataLoader(this);
-								casDataLoader.Load2(nativeReader);
+								//TOCCasDataLoader casDataLoader = new TOCCasDataLoader(this);
+								//casDataLoader.Load2(nativeReader);
+								LoadCasBundles(nativeReader);
 							}
 
 
@@ -375,6 +384,123 @@ namespace FIFA21Plugin
 			}
 
 
+		}
+
+		public List<CASBundle> CasBundles = new List<CASBundle>();
+
+		public void LoadCasBundles(NativeReader nativeReader)
+		{
+			_ = nativeReader.Position;
+			if (nativeReader.Position < nativeReader.Length)
+			{
+
+				if (AssetManager.Instance != null)
+					AssetManager.Instance.logger.Log("Searching for CAS Data from " + FileLocation);
+
+				for (int i = 0; i < MetaData.BundleCount; i++)
+				{
+					CASBundle bundle = new CASBundle();
+
+					long startPosition = nativeReader.Position;
+					int a = nativeReader.ReadInt(Endian.Big);
+					int b = nativeReader.ReadInt(Endian.Big);
+					int flagsOffset = nativeReader.ReadInt32BigEndian();
+					int entriesCount = nativeReader.ReadInt32BigEndian();
+					int entriesOffset = nativeReader.ReadInt32BigEndian();
+					int num = nativeReader.ReadInt32BigEndian();
+					int e = nativeReader.ReadInt32BigEndian();
+					int f = nativeReader.ReadInt32BigEndian();
+					bool isInPatch = false;
+					byte catalog = 0;
+					byte cas = 0;
+					nativeReader.Position = startPosition + flagsOffset;
+					bundle.Flags = nativeReader.ReadBytes(entriesCount);
+					nativeReader.Position = startPosition + entriesOffset;
+					for (int j2 = 0; j2 < entriesCount; j2++)
+					{
+						bool hasCasIdentifier = bundle.Flags[j2] == 1;
+						if (hasCasIdentifier)
+						{
+							nativeReader.ReadByte();
+							isInPatch = nativeReader.ReadBoolean();
+							catalog = nativeReader.ReadByte();
+							cas = nativeReader.ReadByte();
+						}
+						long locationOfOffset = nativeReader.Position;
+						int bundleOffsetInCas = nativeReader.ReadInt32BigEndian();
+						long locationOfSize = nativeReader.Position;
+						int bundleSizeInCas = nativeReader.ReadInt32BigEndian();
+						if (j2 == 0)
+						{
+							bundle.BundleOffset = bundleOffsetInCas;
+							bundle.BundleSize = bundleSizeInCas;
+							bundle.Cas = cas;
+							bundle.Catalog = catalog;
+							bundle.Patch = isInPatch;
+						}
+						else
+						{
+							if (cas != bundle.Cas)
+							{
+							}
+							if (catalog != bundle.Catalog)
+							{
+							}
+							if (isInPatch != bundle.Patch)
+							{
+							}
+							bundle.TOCOffsets.Add(locationOfOffset);
+							bundle.Offsets.Add(bundleOffsetInCas);
+								
+							bundle.TOCSizes.Add(locationOfSize);
+							bundle.Sizes.Add(bundleSizeInCas);
+
+							bundle.TOCCas.Add(cas);
+							bundle.TOCCatalog.Add(catalog);
+							bundle.TOCPatch.Add(isInPatch);
+						}
+					}
+					CasBundles.Add(bundle);
+					nativeReader.Position = startPosition + flagsOffset + entriesCount;
+				}
+
+				Dictionary<string, List<CASBundle>> CASToBundles = new Dictionary<string, List<CASBundle>>();
+
+				if (CasBundles.Count > 0)
+				{
+					if (AssetManager.Instance != null)
+						AssetManager.Instance.logger.Log($"Found {CasBundles.Count} bundles for CasFiles");
+
+					foreach (var bundle in CasBundles)
+					{
+						var path = FileSystem.Instance.GetFilePath(bundle.Catalog, bundle.Cas, bundle.Patch);
+						if (!string.IsNullOrEmpty(path))
+						{
+							var lstBundles = new List<CASBundle>();
+							if (CASToBundles.ContainsKey(path))
+							{
+								lstBundles = CASToBundles[path];
+							}
+							else
+							{
+								CASToBundles.Add(path, lstBundles);
+							}
+
+							lstBundles.Add(bundle);
+							CASToBundles[path] = lstBundles;
+						}
+					}
+
+					if (ProcessData)
+					{
+						foreach (var ctb in CASToBundles)
+						{
+							CASDataLoader casDataLoader = new CASDataLoader(this);
+							casDataLoader.Load(ctb.Key, ctb.Value);
+						}
+					}
+				}
+			}
 		}
 
 		public static IEnumerable<int> PatternAt(byte[] source, byte[] pattern)

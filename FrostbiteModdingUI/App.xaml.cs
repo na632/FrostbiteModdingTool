@@ -43,6 +43,15 @@ namespace FIFAModdingUI
             }
         }
 
+        public static string ProductVersion
+        {
+            get
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+            }
+        }
+
 
         protected override void OnStartup(StartupEventArgs e)
         {

@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
@@ -409,7 +410,12 @@ namespace FIFAModdingUI.Pages.Common
 										};
 										PointsTreeViewParent.Items.Add(txtNumberOfPoints);
 
-										for (var i = 0; i < FloatCurve.Points.Count; i++)
+									var btnNumberOfPointsSub = new Button() { Name = "btn_" + p.PropertyName + "_NumberOfPoints_Sub", Content = "-" };
+										PointsTreeViewParent.Items.Add(btnNumberOfPointsSub);
+									var btnNumberOfPointsAdd = new Button() { Name = "btn_" + p.PropertyName + "_NumberOfPoints_Add", Content = "+" };
+									PointsTreeViewParent.Items.Add(btnNumberOfPointsAdd);
+
+									for (var i = 0; i < FloatCurve.Points.Count; i++)
 										{
 											var point = FloatCurve.Points[i];
 											if (point != null)
@@ -653,6 +659,16 @@ namespace FIFAModdingUI.Pages.Common
 								{
 									var fcp = floatCurve.GetPropertyValue("Points");
 									var pntsType = fcp.GetType();
+
+									//var fpc = TypeLibrary.CreateObject("FrostySdk.Ebx.FloatCurvePoint");
+
+									//var dataType = new Type[] { typeof(fpc) };
+									//var genericBase = typeof(List<>);
+									//var combinedType = genericBase.MakeGenericType(dataType);
+									//var listStringInstance = Activator.CreateInstance(combinedType);
+									//var addMethod = listStringInstance.GetType().GetMethod("Add");
+									//addMethod.Invoke(genericInstance, new object[] { "Hello World" });
+
 									var Points = ((IEnumerable<object>)floatCurve.GetPropertyValue("Points")).ToList();
 									if (Points != null) 
 									{
@@ -680,12 +696,9 @@ namespace FIFAModdingUI.Pages.Common
                                                 }
                                             }
 										}
-										v2k4Util.SetPropertyValue(floatCurve, "Points", Points);
-										//propertyInfo?.GetValue(obj).GetType().GetMethod("Add")
-										//.Invoke(propertyInfo.GetValue(obj), new object[1]
-										//{
-										//obj2
-										//});
+										v2k4Util.SetPropertyValue(floatCurve, "Points", Points.AsEnumerable());
+
+										SaveToRootObject();
 									}
 								}
                             }
@@ -777,8 +790,9 @@ namespace FIFAModdingUI.Pages.Common
 				}
 
 			}
-            catch
+            catch(Exception e)
             {
+				Debug.WriteLine(e.ToString());
             }
 
 			if (EditorWindow != null)

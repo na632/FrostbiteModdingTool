@@ -9,10 +9,10 @@ using System.Reflection;
 
 namespace FrostySdk.IO
 {
-    public class EbxReader_M21 : EbxReader_F21
+    public class EbxReader_M21 : EbxReaderV2
     {
         public EbxReader_M21(Stream InStream, bool inPatched, string name = "FromCas")
-            : base(InStream, inPatched, name)
+            : base(InStream, inPatched)
         {
         }
     }

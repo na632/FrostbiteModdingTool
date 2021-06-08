@@ -96,15 +96,16 @@ namespace FrostySdk.Frostbite
 
 							logger.Log("Initialised File System");
 
-							var ResourceManager = new ResourceManager(FileSystem);
-							ResourceManager.SetLogger(logger);
-							ResourceManager.Initialize();
+							
+							var resourceManager = ResourceManager.Instance != null ? ResourceManager.Instance : new ResourceManager(FileSystem);
+							resourceManager.SetLogger(logger);
+							resourceManager.Initialize();
 
 							logger.Log("Initialised Resource System");
 
 							if (AssetManager.Instance == null)
 							{
-								var assetManager = new AssetManager(FileSystem, ResourceManager);
+								var assetManager = new AssetManager(FileSystem, resourceManager);
 								assetManager.RegisterLegacyAssetManager();
 								assetManager.SetLogger(logger);
 								assetManager.Initialize(additionalStartup: true, result);

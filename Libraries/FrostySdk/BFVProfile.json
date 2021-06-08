@@ -1,0 +1,70 @@
+{
+  "Name": "BFV",
+  "DisplayName": "Battlefield V",
+  "DataVersion": 20180628,
+  "CacheName": "madden21",
+  "Deobfuscator": "NullDeobfuscator",
+  "KeyFile": "fifa21.key",
+  // If NULL it will try and find the plugin with the "Name" above
+  "PluginName": null,
+  // Your game's file system reader
+  "AssetLoader": "ManifestAssetLoader",
+  // Your game's file system compiler / ModData builder
+  "AssetCompiler": "BFVAssetCompiler",
+  // Your WinForms Main Editor Form
+  "EditorScreen": "BFVEditor",
+  // Texture Importer (Overriding the base Importer)
+  "TextureImporter": "",
+  // Texture Exporter (Overriding the base Exporter)
+  "TextureExporter": "",
+  // EBX Reader (Overriding the base Reader)
+  "EBXReader": null,
+  // EBX Writer (Overriding the base Writer)
+  "EBXWriter": null,
+  // EBX Importer (Overriding the base Importer)
+  "EBXImporter": null,
+  // EBX Exporter (Overriding the base Exporter)
+  "EBXExporter": null,
+
+  // Custom .cache file Writer - Write these exclusively (example - Madden21CacheWriter)
+  "CacheWriter": "",
+  // Custom .cache file Reader - Write these exclusively (example - Madden21CacheReader)
+  "CacheReader": "",
+
+  "Sources": [
+    {
+      "Path": "Patch",
+      "SubDirs": false
+    },
+    {
+      "Path": "Update",
+      "SubDirs": true
+    },
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+  "SDKFilename": "BFVSDK",
+  "SDKFirstTypeInfo": null,
+  "SDKAOBScan": null,
+  // Supported Launcher Filetypes
+  "SupportedLauncherFileTypes": [ "fbmod" ],
+  // File Type to save to when compiling a mod from the Editor
+  "ModCompilerFileType": "fbmod",
+  // Can the Launcher support this Game?
+  "CanLaunchMods": true,
+  // Can this Application Edit this Game?
+  "CanEdit": true,
+  "Banner": "",
+  "EbxVersion": 4,
+  "RequiresKey": true,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
+  "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
+  "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
+  "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
+  "SharedBundles": {},
+  "IgnoredResTypes": []
+}

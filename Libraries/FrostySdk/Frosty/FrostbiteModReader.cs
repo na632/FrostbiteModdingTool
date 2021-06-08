@@ -204,6 +204,9 @@ namespace FrostySdk
 				case ModResourceType.Legacy:
 					array[i] = new LegacyFileResource();
 					break;
+				case ModResourceType.EmbeddedFile:
+					array[i] = new EmbeddedFileResource();
+					break;
 				}
 				array[i].Read(this);
 			}
@@ -224,22 +227,14 @@ namespace FrostySdk
 			Position = dataOffset + dataCount * 16 + offset;
 			var data = ReadBytes((int)size);
 		 
-			if(resource is ResResource)
-            {
-				using (MemoryStream memoryStream = new MemoryStream(data))
-				{
-					ResAssetEntry resAssetEntry = new ResAssetEntry();
-					resource.FillAssetEntry(resAssetEntry);
-					if (resAssetEntry.Type == "MeshSet")
-					{
-						//MeshSet meshSet = new MeshSet(memoryStream, AssetManager.Instance);
-					}
-					else if (resAssetEntry.Type == "Texture")
-					{
-						//Texture texture = new Texture(memoryStream, AssetManager.Instance);
-					}
-				}
-            }
+			//if(resource is ResResource)
+   //         {
+			//	using (MemoryStream memoryStream = new MemoryStream(data))
+			//	{
+			//		ResAssetEntry resAssetEntry = new ResAssetEntry();
+			//		resource.FillAssetEntry(resAssetEntry);
+			//	}
+   //         }
 
 			return data;
 		}

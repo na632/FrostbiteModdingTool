@@ -938,9 +938,9 @@ namespace FrostySdk.IO
 			{
 				classTypes.Add(@class.Value);
 				if (EbxReader_F21.std != null)
-					classGuids.Add(EbxReader_F21.std.GetGuid(@class.Value));
+					classGuids.Add(EbxReaderV2.std.GetGuid(@class.Value).Value);
 				else if (EbxReader_M21.std != null)
-					classGuids.Add(EbxReader_M21.std.GetGuid(@class.Value));
+					classGuids.Add(EbxReaderV2.std.GetGuid(@class.Value).Value);
 
 				AddTypeName(name);
 				typesToProcess.Add(classType);

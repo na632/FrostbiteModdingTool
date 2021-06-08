@@ -534,7 +534,7 @@ namespace FIFA21Plugin
                                             break;
                                     }
                                     
-                                    if (origResDbo != null && assetBundle.Key.Type == "MeshSet")
+                                    if (origResDbo != null && (assetBundle.Key.Type == "MeshSet" || assetBundle.Key.Type == "Texture"))
                                     {
                                         nw_sb.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
                                         nw_sb.WriteBytes(parent.modifiedRes[assetBundle.Key.Name].ResMeta);

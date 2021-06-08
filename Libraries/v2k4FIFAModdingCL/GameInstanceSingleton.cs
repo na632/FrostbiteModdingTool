@@ -180,7 +180,7 @@ namespace v2k4FIFAModdingCL
                         }
                         catch
                         {
-                            throw new Exception("Injector: Unable to access process");
+                            //throw new Exception("Injector: Unable to access process");
                         }
                     }
 

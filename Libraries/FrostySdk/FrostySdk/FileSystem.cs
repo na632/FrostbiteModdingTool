@@ -123,6 +123,31 @@ namespace FrostySdk
             Instance = this;
 		}
 
+		private byte[] LoadKey()
+		{
+			if (ProfilesLibrary.RequiresKey)
+			{
+				byte[] array;
+
+				Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
+				array = NativeReader.ReadInStream(new FileStream("fifa20.key", FileMode.Open, FileAccess.Read));
+				byte[] array2 = new byte[16];
+				Array.Copy(array, array2, 16);
+				KeyManager.Instance.AddKey("Key1", array2);
+				if (array.Length > 16)
+				{
+					array2 = new byte[16];
+					Array.Copy(array, 16, array2, 0, 16);
+					KeyManager.Instance.AddKey("Key2", array2);
+					array2 = new byte[16384];
+					Array.Copy(array, 32, array2, 0, 16384);
+					KeyManager.Instance.AddKey("Key3", array2);
+				}
+				byte[] key = KeyManager.Instance.GetKey("Key1");
+				return key;
+			}
+			return null;
+		}
 
 		/// <summary>
 		/// Needs to first 16 bytes of the key
@@ -131,6 +156,10 @@ namespace FrostySdk
 		public void Initialize(byte[] key = null, bool patched = true)
 		{
 			ProcessLayouts();
+
+			if (key == null)
+				key = LoadKey();
+
 			LoadInitfs(key, patched);
 		}
 

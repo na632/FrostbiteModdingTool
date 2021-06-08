@@ -5,6 +5,7 @@ using FrostySdk.Managers;
 using paulv2k4ModdingExecuter;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -36,11 +37,89 @@ namespace FIFA21Plugin
                 return false;
             }
 
+//#if DEBUG
+//            //RunBundleCompiler(fs, logger, frostyModExecuter);
+//#endif
+
             if(!FrostyModExecutor.UseModData)
             {
                 return RunEADesktopCompiler(fs, logger, frostyModExecuter);
             }
             return RunOriginCompiler(fs, logger, frostyModExecuter);
+        }
+
+        private void RunBundleCompiler(FileSystem fs, ILogger logger, object frostyModExecuter, string directory = "native_data")
+        {
+            DateTime startTime = DateTime.Now;
+            var ModExecuter = (FrostyModExecutor)frostyModExecuter;
+            foreach (Catalog catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
+            {
+                NativeWriter writer_new_cas_file = null;
+                int casFileIndex = 0;
+                byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
+                foreach (string key3 in catalogInfo.SuperBundles.Keys)
+                {
+                    string tocFile = key3;
+                    if (catalogInfo.SuperBundles[key3])
+                    {
+                        tocFile = key3.Replace("win32", catalogInfo.Name);
+                    }
+
+                    var tocFileRAW = $"{directory}/{tocFile}.toc";
+                    string location_toc_file = ModExecuter.fs.ResolvePath(tocFileRAW).ToLower();
+                    TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21();
+                    tocSb.DoLogging = false;
+                    tocSb.ProcessData = false;
+                    tocSb.Read(location_toc_file, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
+                    if (tocSb.TOCFile != null)
+                    {
+                        foreach (var b in tocSb.TOCFile.Bundles)
+                        {
+                            DbObject dbo = new DbObject();
+                            //BinaryReader_FIFA21 binaryReader = new BinaryReader_FIFA21();
+                            //using(var nr = new NativeReader(tocSb.SBFile))
+                            //binaryReader.BinaryRead_FIFA21(b.Offset, ref dbo, )
+                        }
+
+                        NativeReader nrCas = null;
+                        string LastCasPath = null;
+                        foreach (var b in tocSb.TOCFile.CasBundles)
+                        {
+                            DbObject dbo = new DbObject();
+                            BinaryReader_FIFA21 binaryReader = new BinaryReader_FIFA21();
+                            var resolvedPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetCasFilePath(b.Catalog, b.Cas, b.Patch));
+                            if(LastCasPath != resolvedPath)
+                            {
+                                if (nrCas != null)
+                                {
+                                    nrCas.Dispose();
+                                    nrCas = null;
+                                    GC.Collect();
+                                    GC.WaitForPendingFinalizers();
+                                }
+                                LastCasPath = resolvedPath;
+                                nrCas = new NativeReader(new FileStream(resolvedPath, FileMode.Open));
+                            }
+                            binaryReader.BinaryRead_FIFA21(b.BundleOffset, ref dbo, nrCas, false);
+                        }
+                        if(nrCas != null)
+                        {
+                            nrCas.Dispose();
+                            nrCas = null;
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
+                    }
+                }
+            }
+
+            if(directory == "native_data")
+            {
+                RunBundleCompiler(fs, logger, frostyModExecuter, "native_patch");
+
+                logger.Log("RunBundleCompiler TimeTaken:: " + (DateTime.Now - startTime).ToString());
+            }
+
         }
 
         private bool RunOriginCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)

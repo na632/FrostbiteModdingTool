@@ -388,20 +388,19 @@ namespace FrostySdk
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 
 				// -----------------------
+				// Added Legacy Files
+				nativeWriter.Write(false);
+
+
+				// -----------------------
 				// Embedded files
-				nativeWriter.Write(3735928559u);
-				num = 0;
+				nativeWriter.Write(AssetManager.EmbeddedFileEntries.Count > 0);
+				nativeWriter.Write(AssetManager.EmbeddedFileEntries.Count);
 				foreach (EmbeddedFileEntry efe in AssetManager.EmbeddedFileEntries)
 				{
 					var serialisedEFE = JsonConvert.SerializeObject(efe);
 					nativeWriter.WriteLengthPrefixedString(serialisedEFE);
-					num++;
 				}
-				nativeWriter.BaseStream.Position = position;
-				nativeWriter.Write(num);
-				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
-
-
 
 				if (updateDirtyState)
 				{
@@ -987,270 +986,32 @@ namespace FrostySdk
 							}
 						}
 
+						if (reader.Length > reader.Position)
+						{
+							bool hasEmbeddedFiles = reader.ReadBoolean();
+							if (hasEmbeddedFiles)
+							{
+								AssetManager.Instance.EmbeddedFileEntries = new List<EmbeddedFileEntry>();
+								int embeddedFileCount = reader.ReadInt();
+								for (int iItem = 0; iItem < embeddedFileCount; iItem++)
+								{
+									var rawFile = reader.ReadLengthPrefixedString();
+									EmbeddedFileEntry efe = JsonConvert.DeserializeObject<EmbeddedFileEntry>(rawFile);
+									AssetManager.Instance.EmbeddedFileEntries.Add(efe);
+								}
+							}
+						}
+
 						//
 						//
 						// ----------------------------------------------------------------------------------------------------
 
 
 						return true;
-					}
+				}
 			}
 		}
 
-		private bool LegacyLoad(string inFilename)
-		{
-			Dictionary<int, AssetEntry> dictionary = new Dictionary<int, AssetEntry>();
-			DbObject dbObject = null;
-			using (DbReader dbReader = new DbReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read), null))
-			{
-				dbObject = dbReader.ReadDbObject();
-			}
-			uint value = dbObject.GetValue("version", 0u);
-			if (value > 12)
-			{
-				return false;
-			}
-			if (dbObject.GetValue("gameProfile", ProfilesLibrary.ProfileName) != ProfilesLibrary.ProfileName)
-			{
-				return false;
-			}
-			creationDate = new DateTime(dbObject.GetValue("creationDate", 0L));
-			modifiedDate = new DateTime(dbObject.GetValue("modifiedDate", 0L));
-			gameVersion = dbObject.GetValue("gameVersion", 0u);
-			DbObject value2 = dbObject.GetValue<DbObject>("modSettings");
-			if (value2 != null)
-			{
-				modSettings.Title = value2.GetValue("title", "");
-				modSettings.Author = value2.GetValue("author", "");
-				modSettings.Category = value2.GetValue("category", "");
-				modSettings.Version = value2.GetValue("version", "");
-				modSettings.Description = value2.GetValue("description", "");
-				modSettings.Icon = value2.GetValue<byte[]>("icon");
-				modSettings.SetScreenshot(0, value2.GetValue<byte[]>("screenshot1"));
-				modSettings.SetScreenshot(1, value2.GetValue<byte[]>("screenshot2"));
-				modSettings.SetScreenshot(2, value2.GetValue<byte[]>("screenshot3"));
-				modSettings.SetScreenshot(3, value2.GetValue<byte[]>("screenshot4"));
-				modSettings.ClearDirtyFlag();
-			}
-			DbObject value3 = dbObject.GetValue<DbObject>("added");
-			if (value3 != null)
-			{
-				foreach (DbObject item in value3.GetValue<DbObject>("superbundles"))
-				{
-					AssetManager.AddSuperBundle(item.GetValue<string>("name"));
-				}
-				foreach (DbObject item2 in value3.GetValue<DbObject>("bundles"))
-				{
-					AssetManager.AddBundle(item2.GetValue<string>("name"), (BundleType)item2.GetValue("type", 0), AssetManager.GetSuperBundleId(item2.GetValue<string>("superbundle")));
-				}
-				foreach (DbObject item3 in value3.GetValue<DbObject>("ebx"))
-				{
-					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-					ebxAssetEntry.Name = item3.GetValue<string>("name");
-					ebxAssetEntry.Guid = item3.GetValue<Guid>("guid");
-					ebxAssetEntry.Type = item3.GetValue("type", "UnknownAsset");
-					AssetManager.AddEbx(ebxAssetEntry);
-				}
-				foreach (DbObject item4 in value3.GetValue<DbObject>("res"))
-				{
-					ResAssetEntry resAssetEntry = new ResAssetEntry();
-					resAssetEntry.Name = item4.GetValue<string>("name");
-					resAssetEntry.ResRid = (ulong)item4.GetValue("resRid", 0L);
-					resAssetEntry.ResType = (uint)item4.GetValue("resType", 0);
-					AssetManager.AddRes(resAssetEntry);
-				}
-				foreach (DbObject item5 in value3.GetValue<DbObject>("chunks"))
-				{
-					ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-					chunkAssetEntry.Id = item5.GetValue<Guid>("id");
-					chunkAssetEntry.H32 = item5.GetValue("H32", 0);
-					AssetManager.AddChunk(chunkAssetEntry);
-				}
-			}
-			if (value < 6)
-			{
-				foreach (DbObject item6 in dbObject.GetValue<DbObject>("chunks"))
-				{
-					if (item6.GetValue("added", defaultValue: false))
-					{
-						ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
-						chunkAssetEntry2.Id = item6.GetValue<Guid>("id");
-						AssetManager.AddChunk(chunkAssetEntry2);
-					}
-				}
-			}
-			DbObject dbObject8 = dbObject.GetValue<DbObject>("modified");
-			if (dbObject8 == null)
-			{
-				dbObject8 = dbObject;
-			}
-			foreach (DbObject item7 in dbObject8.GetValue<DbObject>("res"))
-			{
-				ResAssetEntry resEntry = AssetManager.GetResEntry(item7.GetValue<string>("name"));
-				if (resEntry != null)
-				{
-					LoadLinkedAssets(item7, resEntry, value);
-					if (item7.HasValue("data"))
-					{
-						resEntry.ModifiedEntry = new ModifiedAssetEntry();
-						resEntry.ModifiedEntry.Sha1 = item7.GetValue<Sha1>("sha1");
-						resEntry.ModifiedEntry.OriginalSize = item7.GetValue("originalSize", 0L);
-						resEntry.ModifiedEntry.Data = item7.GetValue<byte[]>("data");
-						resEntry.ModifiedEntry.ResMeta = item7.GetValue<byte[]>("meta");
-					}
-					if (item7.HasValue("bundles"))
-					{
-						foreach (string item8 in item7.GetValue<DbObject>("bundles"))
-						{
-							resEntry.AddBundles.Add(AssetManager.GetBundleId(item8));
-						}
-					}
-					int key = Fnv1.HashString(resEntry.Name);
-					if (!dictionary.ContainsKey(key))
-					{
-						dictionary.Add(key, resEntry);
-					}
-				}
-			}
-			foreach (DbObject item9 in dbObject8.GetValue<DbObject>("ebx"))
-			{
-				EbxAssetEntry ebxEntry = AssetManager.GetEbxEntry(item9.GetValue<string>("name"));
-				if (ebxEntry != null)
-				{
-					LoadLinkedAssets(item9, ebxEntry, value);
-					if (item9.HasValue("data"))
-					{
-						ebxEntry.ModifiedEntry = new ModifiedAssetEntry();
-						byte[] buffer = item9.GetValue<byte[]>("data");
-						if (value < 7)
-						{
-							using (CasReader casReader = new CasReader(new MemoryStream(buffer)))
-							{
-								buffer = casReader.Read();
-							}
-						}
-						using (EbxReader ebxReader = new EbxReader(new MemoryStream(buffer)))
-						{
-							EbxAsset dataObject = ebxReader.ReadAsset();
-							ebxEntry.ModifiedEntry.DataObject = dataObject;
-						}
-						if (item9.HasValue("transient"))
-						{
-							ebxEntry.ModifiedEntry.IsTransientModified = true;
-						}
-					}
-					if (item9.HasValue("bundles"))
-					{
-						foreach (string item10 in item9.GetValue<DbObject>("bundles"))
-						{
-							ebxEntry.AddBundles.Add(AssetManager.GetBundleId(item10));
-						}
-					}
-					int key2 = Fnv1.HashString(ebxEntry.Name);
-					if (!dictionary.ContainsKey(key2))
-					{
-						dictionary.Add(key2, ebxEntry);
-					}
-				}
-			}
-			foreach (DbObject item11 in dbObject8.GetValue<DbObject>("chunks"))
-			{
-				Guid value4 = item11.GetValue<Guid>("id");
-				ChunkAssetEntry chunkAssetEntry3 = AssetManager.GetChunkEntry(value4);
-				if (chunkAssetEntry3 == null)
-				{
-					ChunkAssetEntry chunkAssetEntry4 = new ChunkAssetEntry();
-					chunkAssetEntry4.Id = item11.GetValue<Guid>("id");
-					chunkAssetEntry4.H32 = item11.GetValue("H32", 0);
-					AssetManager.AddChunk(chunkAssetEntry4);
-					if (dictionary.ContainsKey(chunkAssetEntry4.H32))
-					{
-						foreach (int bundle in dictionary[chunkAssetEntry4.H32].Bundles)
-						{
-							chunkAssetEntry4.AddToBundle(bundle);
-						}
-					}
-					chunkAssetEntry3 = chunkAssetEntry4;
-				}
-				if (item11.HasValue("data"))
-				{
-					chunkAssetEntry3.ModifiedEntry = new ModifiedAssetEntry();
-					chunkAssetEntry3.ModifiedEntry.Sha1 = item11.GetValue<Sha1>("sha1");
-					chunkAssetEntry3.ModifiedEntry.Data = item11.GetValue<byte[]>("data");
-					chunkAssetEntry3.ModifiedEntry.LogicalOffset = item11.GetValue("logicalOffset", 0u);
-					chunkAssetEntry3.ModifiedEntry.LogicalSize = item11.GetValue("logicalSize", 0u);
-					chunkAssetEntry3.ModifiedEntry.RangeStart = item11.GetValue("rangeStart", 0u);
-					chunkAssetEntry3.ModifiedEntry.RangeEnd = item11.GetValue("rangeEnd", 0u);
-					chunkAssetEntry3.ModifiedEntry.FirstMip = item11.GetValue("firstMip", -1);
-					chunkAssetEntry3.ModifiedEntry.H32 = item11.GetValue("h32", 0);
-					chunkAssetEntry3.ModifiedEntry.AddToChunkBundle = item11.GetValue("addToChunkBundle", defaultValue: true);
-				}
-				else
-				{
-					chunkAssetEntry3.FirstMip = item11.GetValue("firstMip", -1);
-					chunkAssetEntry3.H32 = item11.GetValue("h32", 0);
-				}
-				if (item11.HasValue("bundles"))
-				{
-					foreach (string item12 in item11.GetValue<DbObject>("bundles"))
-					{
-						chunkAssetEntry3.AddBundles.Add(AssetManager.GetBundleId(item12));
-					}
-				}
-			}
-			if (value < 6)
-			{
-				//FrostyTask.Update("Retroactively fixing textures");
-				foreach (ResAssetEntry item13 in AssetManager.EnumerateRes(0u, modifiedOnly: true))
-				{
-					ResourceType resType = (ResourceType)item13.ResType;
-					if (resType == ResourceType.Texture || resType == ResourceType.DxTexture)
-					{
-						Texture texture = new Texture(AssetManager.GetRes(item13), AssetManager);
-						if (texture.MipCount > 1)
-						{
-							byte[] buffer2 = new NativeReader(texture.Data).ReadToEnd();
-							AssetManager.RevertAsset(item13);
-							Texture texture2 = new Texture(AssetManager.GetRes(item13), AssetManager);
-							texture.FirstMip = texture2.FirstMip;
-							texture.LogicalOffset = 0u;
-							for (int i = 0; i < texture.MipCount - texture.FirstMip; i++)
-							{
-								texture.LogicalSize |= (uint)(3 << i * 2);
-							}
-							texture.LogicalOffset = (texture.ChunkSize & ~texture.LogicalSize);
-							texture.LogicalSize = (texture.ChunkSize & texture.LogicalSize);
-							AssetManager.ModifyChunk(texture.ChunkId, buffer2, texture);
-							AssetManager.ModifyRes(item13.Name, texture.ToBytes());
-						}
-					}
-				}
-			}
-			if (value < 8)
-			{
-				foreach (EbxAssetEntry item14 in AssetManager.EnumerateEbx("", modifiedOnly: true))
-				{
-					foreach (AssetEntry linkedAsset in item14.LinkedAssets)
-					{
-						if (linkedAsset is ChunkAssetEntry)
-						{
-							linkedAsset.ModifiedEntry.H32 = Fnv1.HashString(item14.Name.ToLower());
-						}
-					}
-				}
-				foreach (ResAssetEntry item15 in AssetManager.EnumerateRes(0u, modifiedOnly: true))
-				{
-					foreach (AssetEntry linkedAsset2 in item15.LinkedAssets)
-					{
-						if (linkedAsset2 is ChunkAssetEntry)
-						{
-							linkedAsset2.ModifiedEntry.H32 = Fnv1.HashString(item15.Name.ToLower());
-						}
-					}
-				}
-			}
-			return true;
-		}
 	}
 
 	public class ModSettings

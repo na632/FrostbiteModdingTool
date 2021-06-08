@@ -1,6 +1,7 @@
 ﻿using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -35,6 +36,8 @@ namespace FIFA21Plugin
             }
         }
 
+        public bool SuccessfullyRead = true;
+
         int AdditionalHeaderLength = 32;
 
         //public int shaCount;
@@ -47,7 +50,12 @@ namespace FIFA21Plugin
             size = nr.ReadInt(Endian.Big) + AdditionalHeaderLength;
             magicStuff = nr.ReadUInt(Endian.Big);
             if (magicStuff != 3599661469)
-                throw new Exception("Magic/Hash is not right, expecting 3599661469");
+            {
+                //throw new Exception("Magic/Hash is not right, expecting 3599661469");
+                Debug.WriteLine("Magic/Hash is not right, expecting 3599661469");
+                SuccessfullyRead = false;
+                return;
+            }
 
             totalCount = nr.ReadInt(Endian.Little);
             ebxCount = nr.ReadInt(Endian.Little);

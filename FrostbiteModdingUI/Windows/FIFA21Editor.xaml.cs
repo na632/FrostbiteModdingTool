@@ -73,28 +73,30 @@ namespace FIFAModdingUI.Windows
         public string FIFA21RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
 
 
-        private Queue<FileInfo> recentProjectFiles;
+        private List<FileInfo> recentProjectFiles;
 
-        public Queue<FileInfo> RecentProjectFiles
+        public List<FileInfo> RecentProjectFiles
         {
             get 
             { 
                 if(recentProjectFiles == null)
                 {
-                    recentProjectFiles = new Queue<FileInfo>();
+                    recentProjectFiles = new List<FileInfo>();
                     if(new FileInfo(FIFA21RecentFilesLocation).Exists)
                     {
-                        recentProjectFiles = JsonConvert.DeserializeObject<Queue<FileInfo>>(File.ReadAllText(FIFA21RecentFilesLocation));
+                        var allText = File.ReadAllText(FIFA21RecentFilesLocation);
+                        var items = JsonConvert.DeserializeObject<List<string>>(allText);
+                        recentProjectFiles = items.Select(x => new FileInfo(x)).ToList();
                     }
                 }
 
-                return recentProjectFiles;
+                return recentProjectFiles.OrderByDescending(x => x.LastWriteTime).Take(5).ToList();
             }
             set 
             {
                 recentProjectFiles = value;
 
-                var str = JsonConvert.SerializeObject(recentProjectFiles);
+                var str = JsonConvert.SerializeObject(recentProjectFiles.Select(x=>x.FullName));
                 File.WriteAllText(FIFA21RecentFilesLocation, str);
 
                 DataContext = null;
@@ -440,66 +442,82 @@ namespace FIFAModdingUI.Windows
             }
         }
 
-        private void CompileLMOD(string filename)
+        private void CompileLMOD(string filename, bool tryEncrypt = true)
         {
-            List<string> listOfCompilableFiles = new List<string>();
-            var index = 0;
-            var allFiles = Directory.GetFiles("Temp", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
-            foreach (var file in allFiles)
+            try
             {
-                StringBuilder sbFinalResult = new StringBuilder();
-
-                var encrypt = !file.Contains(".dds")
-                    && !file.Contains(".db");
-
-                if (encrypt)
+                List<string> listOfCompilableFiles = new List<string>();
+                var index = 0;
+                var allFiles = Directory.GetFiles("Temp", "*.*", SearchOption.AllDirectories).Where(x => !x.Contains(".mod"));
+                foreach (var file in allFiles)
                 {
-                    var splitExtension = file.Split('.');
-                    if (splitExtension[splitExtension.Length - 1] != "mod")
-                        splitExtension[splitExtension.Length - 1] = "mod";
+                    StringBuilder sbFinalResult = new StringBuilder();
 
-                    foreach (var str in splitExtension)
+                    var encrypt = !file.Contains(".dds")
+                        && !file.Contains(".db") && tryEncrypt;
+
+                    if (encrypt)
                     {
-                        if (str == "mod")
+                        var splitExtension = file.Split('.');
+                        if (splitExtension[splitExtension.Length - 1] != "mod")
+                            splitExtension[splitExtension.Length - 1] = "mod";
+
+                        foreach (var str in splitExtension)
                         {
-                            sbFinalResult.Append(".mod");
-                        }
-                        else
-                        {
-                            sbFinalResult.Append(str);
+                            if (str == "mod")
+                            {
+                                sbFinalResult.Append(".mod");
+                            }
+                            else
+                            {
+                                sbFinalResult.Append(str);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    sbFinalResult.Append(file);
+                    else
+                    {
+                        sbFinalResult.Append(file);
+                    }
+
+                    if (encrypt)
+                    {
+                        Log("Encrypting " + file);
+                        v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
+                        File.Delete(file);
+                    }
+
+                    listOfCompilableFiles.Add(sbFinalResult.ToString());
+                    index++;
                 }
 
-                if (encrypt)
+                Log("Encryption compilation complete");
+
+                if (File.Exists(filename))
+                    File.Delete(filename);
+
+                using (ZipArchive zipArchive = new ZipArchive(new FileStream(filename, FileMode.OpenOrCreate), ZipArchiveMode.Create))
                 {
-                    Log("Encrypting " + file);
-                    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
-                    File.Delete(file);
+                    foreach (var compatFile in listOfCompilableFiles)
+                    {
+                        zipArchive.CreateEntryFromFile(compatFile, compatFile.Replace("Temp\\", ""));
+                    }
                 }
 
-                listOfCompilableFiles.Add(sbFinalResult.ToString());
-                index++;
+                Log($"Legacy Mod file saved to {filename}");
             }
-
-            Log("Encryption compilation complete");
-
-            if (File.Exists(filename))
-                File.Delete(filename);
-
-            using (ZipArchive zipArchive = new ZipArchive(new FileStream(filename, FileMode.OpenOrCreate), ZipArchiveMode.Create))
+            catch (DllNotFoundException)
             {
-                foreach (var compatFile in listOfCompilableFiles)
+                if (tryEncrypt)
                 {
-                    zipArchive.CreateEntryFromFile(compatFile, compatFile.Replace("Temp\\", ""));
+                    LogError("Error in trying to Encrypt your files. Will revert to unencrypted version of lmod instead.");
+                    CompileLMOD(filename, false);
                 }
             }
-
-            Log($"Legacy Mod file saved to {filename}");
+            catch (Exception e)
+            {
+                LogError("Error in LMOD Compile. Report the message below to Paulv2k4.");
+                LogError(e.Message);
+            }
 
         }
 
@@ -534,6 +552,9 @@ namespace FIFAModdingUI.Windows
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
                     Log("Saved project successfully to " + saveFileDialog.FileName);
+
+                    RecentProjectFiles.Add(new FileInfo(saveFileDialog.FileName));
+                    RecentProjectFiles = recentProjectFiles;
 
                     WindowTitle = saveFileDialog.FileName;
 
@@ -657,46 +678,55 @@ namespace FIFAModdingUI.Windows
 
             
 
-            InjectLegacyDLL();
+            await InjectLegacyDLL();
 
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = true; });
 
         }
 
-        private async void InjectLegacyDLL()
+        private async Task<bool> InjectLegacyDLL()
         {
-            if (swEnableLegacyInjection.IsOn)
+            try
             {
-                string legacyModSupportFile = null;
-                if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
+                if (swEnableLegacyInjection.IsOn)
                 {
-                    legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
-                }
-                else if (ProfilesLibrary.IsFIFA21DataVersion())
-                {
-                    legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
-                }
-
-                if (!string.IsNullOrEmpty(legacyModSupportFile))
-                {
-
-                    if (File.Exists(legacyModSupportFile))
+                    string legacyModSupportFile = null;
+                    if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
                     {
-                        if (File.Exists(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll"))
-                            File.Delete(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
-
-                        File.Copy(legacyModSupportFile, GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
-
-                        if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll"))
-                        {
-                            var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
-                            await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
-                        }
+                        legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                    }
+                    else if (ProfilesLibrary.IsFIFA21DataVersion())
+                    {
+                        legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
                     }
 
+                    if (!string.IsNullOrEmpty(legacyModSupportFile))
+                    {
 
+                        if (File.Exists(legacyModSupportFile))
+                        {
+                            if (File.Exists(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll"))
+                                File.Delete(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
+
+                            File.Copy(legacyModSupportFile, GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
+
+                            if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll"))
+                            {
+                                var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                                return await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
+                            }
+                        }
+
+
+                    }
                 }
             }
+            catch(Exception e)
+            {
+                LogError(e.ToString());
+            }
+
+            return false;
         }
 
         private void btnProjectNew_Click(object sender, RoutedEventArgs e)
@@ -1033,6 +1063,12 @@ namespace FIFAModdingUI.Windows
             loadingDialog = null;
 
 
+        }
+
+        private void btnOpenEmbeddedFilesWindow_Click(object sender, RoutedEventArgs e)
+        {
+            FrostbiteModEmbeddedFiles frostbiteModEmbeddedFiles = new FrostbiteModEmbeddedFiles();
+            frostbiteModEmbeddedFiles.ShowDialog();
         }
     }
 }

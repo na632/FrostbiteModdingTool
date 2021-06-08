@@ -9,6 +9,7 @@ namespace FrostySdk
 		Chunk,
 		Custom,
 		Bundle,
-		Legacy
+		Legacy,
+		EmbeddedFile
 	}
 }

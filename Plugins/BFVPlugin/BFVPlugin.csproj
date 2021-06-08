@@ -4,4 +4,9 @@
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+  </ItemGroup>
+
 </Project>

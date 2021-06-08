@@ -49,6 +49,11 @@ namespace FIFA21Plugin
 
 			public int CasIndex { get; internal set; }
 
+            public override string ToString()
+            {
+				return $"Offset:{Offset}-Size:{Size}-Index{CasIndex}";
+			}
+
         }
 
 		public void LoadData(AssetManager parent, BinarySbDataHelper helper)

@@ -99,12 +99,7 @@ namespace FrostySdk
 			//	return;
 			//}
 			string lib = "thirdparty/libzstd.1.1.5.dll";
-			if (ProfilesLibrary.DataVersion == 20160927)
-			{
-				lib = "thirdparty/libzstd.0.0.6.dll";
-			}
-			else if (ProfilesLibrary.DataVersion == 20180914 
-				//|| ProfilesLibrary.DataVersion == 20190911 
+			if (ProfilesLibrary.DataVersion == 20180914 
 				|| ProfilesLibrary.IsFIFA20DataVersion()
 				|| ProfilesLibrary.IsMadden21DataVersion()
 				//|| ProfilesLibrary.IsFIFA21DataVersion()
@@ -114,12 +109,9 @@ namespace FrostySdk
 			}
             else if (ProfilesLibrary.IsFIFA21DataVersion())
             {
-                lib = "thirdparty/libzstd.1.4.5.dll";
-            }
-            //else if (ProfilesLibrary.IsMadden21DataVersion())
-            //{
-            //    lib = "thirdparty/libzstd.1.4.5.dll";
-            //}
+                //lib = "thirdparty/libzstd.1.4.5.dll";
+                lib = "thirdparty/libzstd.1.5.0.dll";
+			}
             handle = new LoadLibraryHandle(lib);
 			if (handle == IntPtr.Zero)
 			{
@@ -138,7 +130,6 @@ namespace FrostySdk
 				if (ProfilesLibrary.DataVersion == 20170929
 					|| ProfilesLibrary.DataVersion == 20180914 
 					|| ProfilesLibrary.IsFIFA20DataVersion() // FIFA 20
-					//|| ProfilesLibrary.IsMadden21DataVersion() // Madden 21
 					|| ProfilesLibrary.IsFIFA21DataVersion() // FIFA 21
 					)
 				{

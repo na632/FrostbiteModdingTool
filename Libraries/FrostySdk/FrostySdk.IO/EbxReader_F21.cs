@@ -278,9 +278,9 @@ namespace FrostySdk.IO
 		{
 			if (classType.SecondSize == 1)
 			{
-				return patchStd.GetField(index);
+				return patchStd.GetField(index).Value;
 			}
-			return std.GetField(index);
+			return std.GetField(index).Value;
 		}
 
 		internal object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)

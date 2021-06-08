@@ -31,14 +31,22 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
-    <Content Include="..\Libraries\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json" />
+    <Content Include="..\Libraries\FrostySdk\BF4Profile.json" Link="BF4Profile.json" />
+    <Content Include="..\Libraries\FrostySdk\BFVProfile.json" Link="BFVProfile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</Content>
+	   <Content Include="..\Libraries\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json">
+		   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		   <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	   </Content>
     <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </Content>
     <Content Include="..\Libraries\FrostySdk\Madden20Profile.json" Link="Madden20Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </Content>
@@ -195,6 +203,11 @@
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Plugins\BF4Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	</None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -226,7 +239,6 @@
 
   <ItemGroup>
     <Folder Include="Pages\Gameplay\" />
-    <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
@@ -270,6 +282,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+    <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Include="C:\Windows\System32\vcruntime140d.dll" Link="vcruntime140d.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Include="C:\Windows\System32\vcruntime140_clr0400.dll" Link="vcruntime140_clr0400.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -304,5 +328,7 @@
   <ItemGroup>
     <PackageReference Update="Microsoft.VCRTForwarders.140" Version="1.0.5" />
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

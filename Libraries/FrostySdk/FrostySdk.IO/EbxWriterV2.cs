@@ -859,14 +859,16 @@ namespace FrostySdk.IO
 
 		private int AddClass(string name, int fieldIndex, byte fieldCount, byte alignment, ushort type, ushort size, ushort secondSize, Type classType)
 		{
-			EbxClass @class = GetClass(classType);
+			EbxClass @class = GetClass(classType, out Guid guid);
 			classTypes.Add(@class);
-			if (EbxReaderV2.std != null)
-				classGuids.Add(EbxReaderV2.std.GetGuid(@class));
-			else if (EbxReader_M21.std != null)
-				classGuids.Add(EbxReader_M21.std.GetGuid(@class));
+			if(@class.SecondSize == 1 )
+            {
+				classGuids.Add(EbxReaderV2.patchStd.GetGuid(@class).Value);
+			}
+			classGuids.Add(EbxReaderV2.std.GetGuid(@class).Value);
+            //classGuids.Add(guid);
 
-			AddTypeName(name);
+            AddTypeName(name);
 			typesToProcess.Add(classType);
 			return classTypes.Count - 1;
 		}
@@ -887,7 +889,7 @@ namespace FrostySdk.IO
 			return num;
 		}
 
-		private uint AddString(string stringToAdd)
+		private new uint AddString(string stringToAdd)
 		{
 			if (stringToAdd == "")
 			{
@@ -910,7 +912,7 @@ namespace FrostySdk.IO
 			return num;
 		}
 
-		internal EbxClass GetClass(Type objType)
+		internal EbxClass GetClass(Type objType, out Guid guid)
 		{
 			EbxClass? ebxClass = null;
 			using (IEnumerator<TypeInfoGuidAttribute> enumerator = objType.GetCustomAttributes<TypeInfoGuidAttribute>().GetEnumerator())
@@ -920,21 +922,25 @@ namespace FrostySdk.IO
 					TypeInfoGuidAttribute current = enumerator.Current;
 					if (!ebxClass.HasValue)
 					{
-						EbxReaderV2.InitialiseStd();
-						ebxClass = EbxReaderV2.std.GetClass(current.Guid);
-                        if (!ebxClass.HasValue)
-                        {
-							ebxClass = EbxReaderV2.patchStd.GetClass(current.Guid);
-                        }
+						//EbxReaderV2.InitialiseStd();
+						//ebxClass = EbxReaderV2.std.GetClass(current.Guid);
+						//var ebxClass2 = EbxReaderV2.patchStd.GetClass(current.Guid);
+						//var ebxClass3 = GetClass(current.Guid);
+						ebxClass = GetClass(current.Guid);
+						guid = current.Guid;
 					}
 				}
 			}
+			guid = Guid.Empty;
 			return ebxClass.Value;
 		}
 
 		internal EbxClass GetClass(Guid guid)
 		{
 			EbxReaderV2.InitialiseStd();
+
+			if(EbxReaderV2.patchStd.GetClass(guid).HasValue)
+				return EbxReaderV2.patchStd.GetClass(guid).Value;
 
 			return EbxReaderV2.std.GetClass(guid).Value;
 		}
@@ -943,10 +949,10 @@ namespace FrostySdk.IO
 		{
 			EbxReaderV2.InitialiseStd();
 
-			if (EbxReader_M21.std != null)
-				return EbxReader_M21.std.GetField(index);
+            if (classType.SecondSize == 1 && EbxReaderV2.patchStd.GetField(index).HasValue)
+                return EbxReaderV2.patchStd.GetField(index).Value;
 
-			return EbxReaderV2.std.GetField(index);
+            return EbxReaderV2.std.GetField(index).Value;
 		}
 	}
 }

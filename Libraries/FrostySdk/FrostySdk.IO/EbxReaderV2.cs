@@ -290,18 +290,18 @@ namespace FrostySdk.IO
 		{
 			if (classType.SecondSize == 1)
 			{
-				return patchStd.GetField(index);
+				return patchStd.GetField(index).Value;
 			}
-			return std.GetField(index);
+			return std.GetField(index).Value;
 		}
 
 		internal override object CreateObject(EbxClass classType)
 		{
 			if (classType.SecondSize == 1)
 			{
-				return TypeLibrary.CreateObject(patchStd.GetGuid(classType));
+				return TypeLibrary.CreateObject(patchStd.GetGuid(classType).Value);
 			}
-			return TypeLibrary.CreateObject(std.GetGuid(classType));
+			return TypeLibrary.CreateObject(std.GetGuid(classType).Value);
 		}
 
 		internal object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)

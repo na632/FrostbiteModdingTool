@@ -20,9 +20,16 @@ namespace FrostySdk.Managers
 
 		private Dictionary<int, string> casFiles = new Dictionary<int, string>();
 
+		public static ResourceManager Instance { get; private set; }
+
 		public ResourceManager(FileSystem inFs)
 		{
+			if(Instance != null)
+            {
+				throw new Exception("You cannot have more than one Resource Manager!");
+            }
 			fs = inFs;
+			Instance = this;
 		}
 
 		public void Initialize()

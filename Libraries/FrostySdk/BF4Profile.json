@@ -1,0 +1,46 @@
+{
+  "Name": "BF4",
+  "DisplayName": "Battlefield™ 4",
+  "DataVersion": 20141117,
+  "CacheName": "bf4",
+  "Deobfuscator": "NullDeobfuscator",
+  "AssetLoader": "BF4AssetLoader",
+  "AssetCompiler": null,
+  "Sources": [
+    {
+      "Path": "Update\\Patch\\Data",
+      "SubDirs": false
+    },
+    {
+      "Path": "Update",
+      "SubDirs": true
+    },
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+  "SDKFilename": "BF4SDK",
+  "Banner": "",
+  "EbxVersion": 2,
+  "RequiresKey": false,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "DefaultDiffuse": "EditorData/Grid_128_D",
+  "DefaultNormals": "Architecture/_Textures/NormalmapDefault_N",
+  "DefaultMask": "EditorData/Grid_128_D",
+  "DefaultTint": "EditorData/Grid_128_D",
+  "SharedBundles": {},
+  "IgnoredResTypes": [],
+  "TextureImporter": null,
+  "TextureExporter": null,
+  "EditorScreen": null,
+  "EBXReader": null,
+  "EBXWriter": null,
+  "CacheWriter": null,
+  "CacheReader": null,
+  "SupportedLauncherFileTypes": null,
+  "ModCompilerFileType": null,
+  "CanEdit": false,
+  "CanLaunchMods": false
+}

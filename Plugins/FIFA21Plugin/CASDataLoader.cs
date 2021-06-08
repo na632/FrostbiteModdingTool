@@ -30,14 +30,14 @@ namespace FIFA21Plugin
         public void Load(int catalog, int cas, List<CASBundle> casBundles)
         {
             NativeFileLocation = AssetManager.Instance.fs.GetFilePath(catalog, cas, false);
-            var path = AssetManager.Instance.fs.ResolvePath(NativeFileLocation);// @"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
+            var path = FileSystem.Instance.ResolvePath(NativeFileLocation);// @"E:\Origin Games\FIFA 21\Data\Win32\superbundlelayout\fifa_installpackage_03\cas_03.cas";
             Load(path, casBundles);
         }
 
         public void Load(string path, List<CASBundle> casBundles)
         {
             NativeFileLocation = path;
-            path = AssetManager.Instance.fs.ResolvePath(NativeFileLocation);
+            path = FileSystem.Instance.ResolvePath(NativeFileLocation);
 
             using (NativeReader nr_cas = new NativeReader(
                 new FileStream(path, FileMode.Open, FileAccess.Read)
@@ -49,7 +49,9 @@ namespace FIFA21Plugin
                 int index = 0;
                 foreach (CASBundle casBundle in casBundles)
                 {
-                    AssetManager.Instance.logger.Log($"Completed {Math.Round(((double)index / casBundles.Count)*100).ToString()} in {path}");
+                    if(AssetManager.Instance != null)
+                        AssetManager.Instance.logger.Log($"Completed {Math.Round(((double)index / casBundles.Count)*100).ToString()} in {path}");
+                    
                     index++;
 
                     // go back 4 from the magic
@@ -415,7 +417,7 @@ namespace FIFA21Plugin
                             int catalog = item.GetValue("catalog", 0);
                             bool patch = item.GetValue("patch", false);
                             //bool cPath = casBundle. item.GetValue("path", false);
-                            ebxAssetEntry.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog, cas, patch);
+                            ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                             ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                             ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
@@ -444,7 +446,7 @@ namespace FIFA21Plugin
                             int cas = item.GetValue("cas", 0);
                             int catalog = item.GetValue("catalog", 0);
                             bool patch = item.GetValue("patch", false);
-                            resAssetEntry.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog, cas, patch);
+                            resAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                             //var resRid = ResIdList[iRes];
                             //resAssetEntry.ResRid = resRid;
@@ -474,7 +476,7 @@ namespace FIFA21Plugin
                             //if (chunkAssetEntry.Sha1 == Sha1.Zero)
                             //    chunkAssetEntry.Sha1 = sha1[ebxCount + resCount + iChunk];
 
-                            chunkAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(chunkAssetEntry.Sha1);
+                            chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
                             chunkAssetEntry.Size = item.GetValue("size", 0L);
                             chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                             chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
@@ -484,7 +486,7 @@ namespace FIFA21Plugin
                             int cas = item.GetValue("cas", 0);
                             int catalog = item.GetValue("catalog", 0);
                             bool patch = item.GetValue("patch", false);
-                            chunkAssetEntry.ExtraData.CasPath = AssetManager.Instance.fs.GetFilePath(catalog, cas, patch);
+                            chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                             chunkAssetEntry.Id = item.GetValue<Guid>("id");
                             if (chunkAssetEntry.Id.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")

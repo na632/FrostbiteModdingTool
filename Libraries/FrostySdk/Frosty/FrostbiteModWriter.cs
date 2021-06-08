@@ -1,3 +1,4 @@
+using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Attributes;
@@ -165,11 +166,11 @@ namespace FrostySdk
 
                 // ------------------------------------------------------------------------------
                 // Temporary fix for movement cocking up skill moves
-                if (
-                    entry.Filename.Contains("movement") || entry.Filename.Contains("cpuai_shot")
-                    && ProfilesLibrary.IsFIFA21DataVersion()
-                    )
-                    ebxBaseWriter = new EbxWriter_F21(new MemoryStream());
+                //if (
+                //    entry.Filename.Contains("movement") || entry.Filename.Contains("cpuai_shot")
+                //    && ProfilesLibrary.IsFIFA21DataVersion()
+                //    )
+                //    ebxBaseWriter = new EbxWriter_F21(new MemoryStream());
 
                 //if (
                 //	entry.Filename.Contains("ballhandler")
@@ -350,6 +351,24 @@ namespace FrostySdk
 			}
 		}
 
+		protected class EmbeddedFileResource : EditorModResource
+		{
+			public override ModResourceType Type => ModResourceType.EmbeddedFile;
+
+			public EmbeddedFileResource(EmbeddedFileEntry entry, Manifest manifest)
+			{
+				name = entry.ExportedRelativePath;
+				size = entry.Data.Length;
+				resourceIndex = manifest.Add(entry.Name, entry.Data);
+			}
+
+			public override void Write(NativeWriter writer)
+			{
+				base.Write(writer);
+				writer.Write(name);
+			}
+		}
+
 		private ModSettings overrideSettings;
 
 		protected Manifest manifest = new Manifest();
@@ -460,6 +479,11 @@ namespace FrostySdk
                 {
 					AddResource(new LegacyFileResource(lfe, manifest));
                 }
+			}
+			// Write Embedded stuff
+			foreach (EmbeddedFileEntry efe in AssetManager.Instance.EmbeddedFileEntries)
+			{
+				AddResource(new EmbeddedFileResource(efe, manifest));
 			}
 			Write(resources.Count);
 			foreach (EditorModResource resource in resources)

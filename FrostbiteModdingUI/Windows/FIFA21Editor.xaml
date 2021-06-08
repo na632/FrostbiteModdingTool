@@ -32,61 +32,84 @@
         </Grid.RowDefinitions>
         <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
             <StackPanel Orientation="Horizontal">
-                <Menu DockPanel.Dock="Top">
-                    <MenuItem Header="Project">
-                        <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
-                                <Label Content="New Project" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
-                                <Label Content="Open Project" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                <Label Content="Save Project" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
-                                <Label Content="Open Mod Details" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
+                <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
+                    <MenuItem Header="Project" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <MenuItem x:Name="btnProjectNew" Click="btnProjectNew_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
+                                    <Label Content="New Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnProjectOpen" Click="btnProjectOpen_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
+                                    <Label Content="Open Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnProjectSave" Click="btnProjectSave_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                    <Label Content="Save Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnOpenModDetailsPanel"  Click="btnOpenModDetailsPanel_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
+                                    <Label Content="Open Mod Details" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                         <Separator></Separator>
-                        <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
-                                <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnCleanUpLegacyFiles"  Height="30" Click="btnCleanUpLegacyFiles_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
-                                <Label Content="Clean up Legacy chunks" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
+                        <MenuItem x:Name="btnCompileLegacyModFromFolder"  Click="btnCompileLegacyModFromFolder_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
+                                    <Label Content="Compile Legacy Mod From Folder" FontSize="10" FontWeight="Bold"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnCleanUpLegacyFiles" Click="btnCleanUpLegacyFiles_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
+                                    <Label Content="Clean up Legacy chunks"  FontSize="10" FontWeight="Bold"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator></Separator>
+                        <MenuItem x:Name="btnOpenEmbeddedFilesWindow" Click="btnOpenEmbeddedFilesWindow_Click">
+                            <MenuItem.Header>
+                                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="OpenInNew" VerticalAlignment="Center" />
+                                    <Label Content="Manage Embedded Files" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                         <Separator></Separator>
                         <MenuItem>
                             <MenuItem.Header>
-                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
-                                    <MaterialDesign:PackIcon Kind="ClockArrow" VerticalAlignment="Center" />
-                                    <Label FontSize="10" FontWeight="Bold" Content="Recent Files" VerticalAlignment="Center" />
+                                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ClockFast" VerticalAlignment="Center" />
+                                    <Label Content="Recent Files" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                             <ListView ItemsSource="{Binding RecentProjectFiles}">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                        <Label FontSize="10" FontWeight="Bold" Content="{Binding Name}" VerticalAlignment="Center" />
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
                         </MenuItem>
+                        
+                        
                     </MenuItem>
                     <MenuItem Header="Mod">
                         <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">

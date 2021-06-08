@@ -7,6 +7,7 @@ using FrostbiteSdk;
 using FrostbiteSdk.FbxExporter;
 using FrostySdk;
 using FrostySdk.Frosty;
+using FrostySdk.FrostySdk.Resources.Mesh2;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
@@ -806,6 +807,13 @@ namespace FrostySdk.Frostbite.IO.Output
 		{
 			EbxAsset ebxAsset = AssetManager.Instance.GetEbx(ebx);
 			return LoadMeshSet(AssetManager.Instance, ebxAsset.RootObject);
+		}
+
+		public MeshSet2 LoadMeshSet2(EbxAssetEntry ebx)
+		{
+			EbxAsset ebxAsset = AssetManager.Instance.GetEbx(ebx);
+			MeshSet2 meshSet = new MeshSet2(AssetManager.Instance.GetRes(AssetManager.Instance.GetResEntry(((dynamic)ebxAsset.RootObject).Name)), AssetManager.Instance);
+			return meshSet;
 		}
 	}
 }
