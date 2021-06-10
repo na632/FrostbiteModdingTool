@@ -234,7 +234,6 @@ namespace FIFAModdingUI.Windows
                 var kitList = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
                 kitList = kitList.OrderBy(x => x.Name).ToList();
-                var citykits = kitList.Where(x => x.Name.ToLower().Contains("manchester_city"));
                 kitBrowser.AllAssetEntries = kitList;
 
 
@@ -255,6 +254,18 @@ namespace FIFAModdingUI.Windows
                 textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
 
                 textureBrowser.AllAssetEntries = textureAssets;
+
+                Log("Initialize Face Browser");
+                var faceList = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/player")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                faceList = faceList.OrderBy(x => x.Name).ToList();
+                faceBrowser.AllAssetEntries = faceList;
+
+                Log("Initialize Boot Browser");
+                var bootList = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                bootList = bootList.OrderBy(x => x.Name).ToList();
+                bootsBrowser.AllAssetEntries = bootList;
 
                 //playerEditor.InitPlayerSearch();
 
@@ -975,33 +986,6 @@ namespace FIFAModdingUI.Windows
 
         }
 
-        private void btnProjectSaveToFIFAProject_Click(object sender, RoutedEventArgs e)
-        {
-            // ---------------------------------------------------------
-            // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
-
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "FIFA Project files|*.fifaproject";
-            var result = saveFileDialog.ShowDialog();
-            if (result.HasValue && result.Value)
-            {
-                if (!string.IsNullOrEmpty(saveFileDialog.FileName))
-                {
-                    FIFAEditorProject.ConvertFromFbProject(ProjectManagement.Project, saveFileDialog.FileName);
-
-                    //FIFAEditorProject project = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
-                    //project.Save(saveFileDialog.FileName);
-
-                    lstProjectFiles.ItemsSource = null;
-                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
-
-                    Log("Saved project successfully to " + saveFileDialog.FileName);
-                }
-            }
-        }
-
         public void UpdateAllBrowsers()
         {
             dataBrowser.UpdateAssetListView();
@@ -1069,6 +1053,70 @@ namespace FIFAModdingUI.Windows
         {
             FrostbiteModEmbeddedFiles frostbiteModEmbeddedFiles = new FrostbiteModEmbeddedFiles();
             frostbiteModEmbeddedFiles.ShowDialog();
+        }
+
+
+        private void btnProjectSaveToFIFAProject_Click(object sender, RoutedEventArgs e)
+        {
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "FIFA Project files|*.fifaproject";
+            var result = saveFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                if (!string.IsNullOrEmpty(saveFileDialog.FileName))
+                {
+                    FIFAEditorProject.ConvertFromFbProject(ProjectManagement.Project, saveFileDialog.FileName);
+
+                    //FIFAEditorProject project = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+                    //project.Save(saveFileDialog.FileName);
+
+                    lstProjectFiles.ItemsSource = null;
+                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
+
+                    Log("Saved project successfully to " + saveFileDialog.FileName);
+                }
+            }
+        }
+
+
+        private async void btnProjectOpenFIFAProject_Click(object sender, RoutedEventArgs e)
+        {
+            LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "Cleaning loose Legacy Files");
+            loadingDialog.Show();
+            await Task.Delay(100);
+            // ---------------------------------------------------------
+            // Remove chunks and actual unmodified files before writing
+            LegacyFileManager_M21.CleanUpChunks();
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Project files|*.fifaproject";
+            var result = openFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                if (!string.IsNullOrEmpty(openFileDialog.FileName))
+                {
+                    await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
+
+                    await Task.Run(() => { 
+                        FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+                        editorProject.Load(openFileDialog.FileName);
+                    });
+
+                    lstProjectFiles.ItemsSource = null;
+
+                    Log("Opened project successfully from " + openFileDialog.FileName);
+
+                    WindowTitle = openFileDialog.FileName;
+
+                }
+            }
+            loadingDialog.Close();
+            loadingDialog = null;
         }
     }
 }

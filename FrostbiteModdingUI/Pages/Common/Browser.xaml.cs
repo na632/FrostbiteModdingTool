@@ -37,6 +37,9 @@ using System.Threading;
 using FrostySdk.Frostbite.IO.Output;
 using System.Diagnostics;
 using Frostbite.FileManagers;
+using Assimp.Unmanaged;
+using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -341,7 +344,8 @@ namespace FIFAModdingUI.Pages.Common
 						}
 						else
 						{
-							TextViewer.Text = ASCIIEncoding.UTF8.GetString(bytes);
+							if(SelectedLegacyEntry.Type.ToUpper() != "DB" && SelectedLegacyEntry.Type.ToUpper() != "LOC")
+								TextViewer.Text = ASCIIEncoding.UTF8.GetString(bytes);
 
 							AssetManager.Instance.ModifyLegacyAsset(
 								SelectedLegacyEntry.Name
@@ -795,13 +799,34 @@ namespace FIFAModdingUI.Pages.Common
 
 									var exporter = new MeshSetToFbxExport();
 									//exporter.OnlyFirstLOD = true;
-									exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.obj", "2016", "Meters", true, null, "*.obj", meshSet);
+									exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
 									Thread.Sleep(1000);
+									//AssimpLibrary.Instance.LoadLibrary(NativeLibrary.Load(libName, Assembly.GetExecutingAssembly(), null));
+
+									EbxAssetEntry textureAssetEntry = null;
+									if (ebxEntry.Name.Contains("head"))
+                                    {
+										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("head", "face").Replace("mesh", "color"));
+									}
+									else if (ebxEntry.Name.Contains("shoe"))
+									{
+										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("mesh", "0_color"));
+									}
+									else if (ebxEntry.Name.Contains("hair"))
+									{
+										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("mesh", "color"));
+									}
+									else
+                                    {
+										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("mesh", "color"));
+									}
 
 									//var import = new Importer();
 									//var scene = import.Load("test_noSkel.obj", new ImporterConfiguration() { GlobalScale = 100, FlipWindingOrder = true, CullMode = SharpDX.Direct3D11.CullMode.None, });
-									var m = new MainViewModel();
-									this.ModelViewer.DataContext = m;
+									//
+									var m = new MainViewModel(skinnedMeshAsset: skinnedMeshEbx, meshSet: meshSet, textureAsset: textureAssetEntry);
+                                    //var m = new Main3DViewModel(AssetManager.Instance, "test_noSkel", skinnedMeshEbx, meshSet);
+                                    this.ModelViewer.DataContext = m;
 									this.ModelViewer.Visibility = Visibility.Visible;
 									
 									this.btnExport.IsEnabled = true;

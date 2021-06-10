@@ -328,10 +328,10 @@ namespace FrostySdk.Resources
 			UnknownInt = reader.ReadUInt();
 			for (int l = 0; l < 6; l++)
 			{
-				//texCoordRatios.Add(reader.ReadFloat());
-				texCoordRatios.Add(1f);
-			}
-			reader.Position += 4 * 6;
+                texCoordRatios.Add(reader.ReadFloat());
+                //texCoordRatios.Add(1f);
+            }
+			//reader.Position += 4 * 6;
 			PrimitiveCount = reader.ReadUInt();
 			StartIndex = reader.ReadUInt();
 			VertexOffset = reader.ReadUInt();
@@ -377,18 +377,19 @@ namespace FrostySdk.Resources
 				}
 				GeometryDeclDesc[i].ElementCount = reader.ReadByte();
 				GeometryDeclDesc[i].StreamCount = reader.ReadByte();
-				//reader.ReadBytes(2);
-				reader.Pad(16);
-			}
+                reader.ReadBytes(2);
+                //reader.Pad(8);
+            }
 			int num = 0;
 
 			unknownInt2 = reader.ReadUInt();
-			reader.ReadInt();
+			//reader.ReadInt();
 
-			var longUnk1 = reader.ReadLong();
+			//var longUnk1 = reader.ReadLong();
 			//var longUnk2 = reader.ReadLong();
 			//unknownData = reader.ReadBytes(20);
 			//unknownData = reader.ReadBytes(16);
+			//unknownData = reader.ReadBytes(36);
 			long position3 = reader.Position;
 			reader.Position = position2;
 			for (int m = 0; m < BoneCount; m++)

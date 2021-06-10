@@ -74,7 +74,8 @@ namespace v2k4FIFAModdingCL
         {
             //"FIFA20.exe",
             "FIFA21.exe",
-            "Madden21.exe"
+            "Madden21.exe",
+            "bf4.exe",
         };
 
         public static bool IsCompatibleWithFbMod()

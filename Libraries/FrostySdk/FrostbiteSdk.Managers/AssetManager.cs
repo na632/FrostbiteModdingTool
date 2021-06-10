@@ -1857,7 +1857,8 @@ namespace FrostySdk.Managers
 							resRidList.Remove(resAssetEntry.ResRid);
 							resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
 							resAssetEntry.Size = item.GetValue("size", 0L);
-							resAssetEntry.ResRid = (ulong)item.GetValue("resRid", 0L);
+							//resAssetEntry.ResRid = (ulong)item.GetValue("resRid", 0L);
+							resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
 							resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
 							resAssetEntry.IsInline = item.HasValue("idata");
 							resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
@@ -2114,7 +2115,9 @@ namespace FrostySdk.Managers
 			resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
 			resAssetEntry.Size = res.GetValue("size", 0L);
 			resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
-			resAssetEntry.ResRid = res.GetValue<ulong>("resRid", 0L);
+			var rrid = res.GetValue<string>("resRid");
+			//if (rrid < 0) rrid *= -1;
+			resAssetEntry.ResRid = Convert.ToUInt64(rrid);
 			resAssetEntry.ResType = (uint)res.GetValue("resType", 0L);
 			resAssetEntry.ResMeta = res.GetValue<byte[]>("resMeta");
 			resAssetEntry.IsInline = res.HasValue("idata");
@@ -2495,10 +2498,10 @@ namespace FrostySdk.Managers
                 chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
                 chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
             }
-			else
-			{
-				throw new Exception("No Extra Data!");
-			}
+			//else
+			//{
+			//	throw new Exception("No Extra Data!");
+			//}
 			if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
             {
                 if (nativeReader.ReadBoolean())
@@ -2719,10 +2722,10 @@ namespace FrostySdk.Managers
                 nativeWriter.Write(chunkEntry.ExtraData.IsPatch);
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.ExtraData.CasPath);
             }
-			else
-            {
-				throw new Exception("No Extra Data!");
-            }
+			//else
+   //         {
+			//	throw new Exception("No Extra Data!");
+   //         }
             if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
             {
                 nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.SBFileLocation));

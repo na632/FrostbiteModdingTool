@@ -208,6 +208,7 @@ namespace FrostySdk
 		{
 			filename = filename.Trim('/');
 			filename = filename.Replace("/", "\\");
+			filename = filename.Replace("_debug_", "", StringComparison.OrdinalIgnoreCase); // BF4
 
             if (filename.StartsWith("win32"))
             {
@@ -223,6 +224,11 @@ namespace FrostySdk
 
 			if (filename.Contains("native_patch"))
 				resolvedPath = basePath + (checkModData ? "ModData\\" : "") + filename.Replace("native_patch", "Patch\\");
+
+			if(ProfilesLibrary.IsBF4DataVersion() && !Directory.Exists(Directory.GetParent(resolvedPath).FullName) && filename.Contains("native_patch"))
+            {
+				resolvedPath = basePath + (checkModData ? "ModData\\" : "") + filename.Replace("native_patch", "Update\\Patch\\Data\\");
+			}
 
 			if (!File.Exists(resolvedPath))
 				return string.Empty;

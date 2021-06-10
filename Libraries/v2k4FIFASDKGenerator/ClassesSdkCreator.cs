@@ -712,7 +712,8 @@ namespace SdkGenerator
             MemoryReader memoryReader = null;
             //string typeStr = "v2k4FIFASDKGenerator.ClassesSdkCreator+ClassInfo";
             //string typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
-            string typeStr = "SdkGenerator.Madden20.ClassInfo";
+            //string typeStr = "SdkGenerator.Madden20.ClassInfo";
+            string typeStr = "SdkGenerator.BaseInfo.ClassInfo";
 
             //if (ProfilesLibrary.DataVersion == 20181207)
             //{
@@ -786,6 +787,7 @@ namespace SdkGenerator
                 }
             }
             Debug.WriteLine(task.StatusMessage);
+            
             memoryReader.Dispose();
             DbObject result = new DbObject(bObject: false);
             classInfos.Sort((ClassInfo a, ClassInfo b) => a.typeInfo.name.CompareTo(b.typeInfo.name));

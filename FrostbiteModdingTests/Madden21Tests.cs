@@ -1,4 +1,5 @@
 ﻿using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using v2k4FIFAModding.Frosty;
@@ -183,6 +185,30 @@ namespace FrostbiteModdingTests
                     testfbmodname
                 }.ToArray()).Wait();
 
+        }
+
+        [TestMethod]
+        public void ExportFaceMesh()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathExe);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            var project = projectManagement.Project;
+
+            var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("hameer_2402_mesh")).FirstOrDefault();
+            if (skinnedMeshEntry != null)
+            {
+                var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
+                if (skinnedMeshEbx != null)
+                {
+                    var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
+                    var res = project.AssetManager.GetRes(resentry);
+
+                    var exporter1 = new MeshSetToFbxExport();
+                    MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
+
+                    exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/characters/rig/skeleton/player/maddenfb_hero_skeleton", "fbx", meshSet);
+                }
+            }
         }
 
     }

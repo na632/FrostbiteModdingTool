@@ -26,6 +26,12 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
+
+  <ItemGroup>
+    <None Remove="Resources\images\FIFA21Cover.jpg" />
+    <None Remove="Resources\images\M21Cover.jpg" />
+  </ItemGroup>
+
    <ItemGroup>
     <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -62,6 +68,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
+    </Content>
+    <Content Include="Resources\images\FIFA21Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\images\M21Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -203,11 +215,6 @@
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Plugins\BF4Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -218,6 +225,9 @@
 	
     </None>
     <None Update="Resources\images\PAUL-TOOL-COVER.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SDK\BF4SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SDK\FIFA20SDK.dll">
@@ -238,6 +248,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\ThreeD\" />
     <Folder Include="Pages\Gameplay\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
@@ -253,6 +264,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
+    </None>
+    <None Include="..\Plugins\BF4Plugin\bin\Debug\netstandard2.1\BF4Plugin.dll" Link="Plugins\BF4Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\Plugins\BFVPlugin\bin\Debug\netstandard2.1\BFVPlugin.dll" Link="Plugins\BFVPlugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

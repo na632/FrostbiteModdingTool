@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BFVPlugin
 {
-    public class ManifestAssetLoader : IAssetLoader
+    public class BF5AssetLoader : IAssetLoader
     {
         public void Load(AssetManager parent, BinarySbDataHelper helper)
         {

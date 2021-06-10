@@ -78,6 +78,8 @@ namespace FIFA21Plugin
 		public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
 
+		public List<Guid> tocChunkGuids = new List<Guid>();
+
 		public string SuperBundleName;
 
 		private TocSbReader_FIFA21 ParentReader;
@@ -109,13 +111,15 @@ namespace FIFA21Plugin
 			public int ChunkCount { get; set; }
 			public int ChunkEntryOffset { get; set; }
 			public int Unk1Offset { get; set; }
-			public int unk7Offset { get; set; }
+			public int Unk7Offset { get; set; }
 			public int Offset7 { get; set; }
 			public int CountOfSomething { get; set; }
 			public int CountOfSomething2 { get; set; }
-			public int unk11Count { get; set; }
-			public int unk12Count { get; set; }
-			public int unk13Offset { get; set; }
+			public int Unk7Count { get; set; }
+			public int Unk12Count { get; set; }
+			public int Unk12Offset { get; set; }
+
+			public int SizeOfUnkBlock { get; set; }
 
 			public void Read(NativeReader nativeReader)
 			{
@@ -127,13 +131,15 @@ namespace FIFA21Plugin
 				ChunkCount = nativeReader.ReadInt(Endian.Big);  // 24
 				ChunkEntryOffset = nativeReader.ReadInt(Endian.Big); // 28
 				Unk1Offset = nativeReader.ReadInt(Endian.Big); // 32
-				unk7Offset = nativeReader.ReadInt(Endian.Big); // 36
+				Unk7Offset = nativeReader.ReadInt(Endian.Big); // 36
 				Offset7 = nativeReader.ReadInt(Endian.Big); // 40
 				CountOfSomething = nativeReader.ReadInt(Endian.Big); // 44
 				CountOfSomething2 = nativeReader.ReadInt(Endian.Big); // 48
-				unk11Count = nativeReader.ReadInt(Endian.Big); // 52
-				unk12Count = nativeReader.ReadInt(Endian.Big); // 56
-				unk13Offset = nativeReader.ReadInt(Endian.Big); // 60
+				Unk7Count = nativeReader.ReadInt(Endian.Big); // 52
+				Unk12Count = nativeReader.ReadInt(Endian.Big); // 56
+				Unk12Offset = nativeReader.ReadInt(Endian.Big); // 60
+
+				SizeOfUnkBlock = (BundleOffset - Magic) / 4;
 			}
         }
 
@@ -144,9 +150,9 @@ namespace FIFA21Plugin
 
 		public void Read(NativeReader nativeReader)
 		{
-			var startPosition = nativeReader.Position;
-			if (File.Exists("debugToc.dat"))
-				File.Delete("debugToc.dat");
+			//var startPosition = nativeReader.Position;
+			//if (File.Exists("debugToc.dat"))
+			//	File.Delete("debugToc.dat");
 
 			//nativeReader.Position = 0;
 			//using (NativeWriter writer = new NativeWriter(new FileStream("debugToc.dat", FileMode.OpenOrCreate)))
@@ -157,16 +163,16 @@ namespace FIFA21Plugin
 
 			//AssetManager.Instance.logger.Log("Seaching for Internal TOC Bundles");
 
-			BoyerMoore boyerMoore = new BoyerMoore(new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3C });
-			var findInternalPatterns = boyerMoore.SearchAll(nativeReader.ReadToEnd());
-			nativeReader.Position = startPosition;
+			//BoyerMoore boyerMoore = new BoyerMoore(new byte[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3C });
+			//var findInternalPatterns = boyerMoore.SearchAll(nativeReader.ReadToEnd());
+			//nativeReader.Position = startPosition;
 
 			//AssetManager.Instance.logger.Log($"{findInternalPatterns.Count} Internal TOC Bundles found");
 
-			foreach (var internalPos in findInternalPatterns)
+			//foreach (var internalPos in findInternalPatterns)
 			{
-				var actualInternalPos = internalPos + 4;
-				//var actualInternalPos = 556L;
+				//var actualInternalPos = internalPos + 4;
+				var actualInternalPos = 556L;
 
 				nativeReader.Position = actualInternalPos;
 				var magic = nativeReader.ReadInt(Endian.Big);
@@ -179,214 +185,205 @@ namespace FIFA21Plugin
 
 				List<int> bundleReferences = new List<int>();
 
-				// Obviously not usable in standard way
-				//if (MetaData.BundleCount == 32)
+
+
+				if (MetaData.BundleCount > 0 && MetaData.BundleCount != MetaData.BundleOffset)
 				{
-					//nativeReader.Position = 556 + MetaData.Offset6;
-					//var newOffset = nativeReader.ReadInt(Endian.Big) + 556;
-					//nativeReader.Position = newOffset;
-					//var nextOffset = nativeReader.ReadInt(Endian.Big) + 556;
-
-				}
-				//else
-				{
-
-
-					if (MetaData.BundleCount > 0 && MetaData.BundleCount != MetaData.BundleOffset)
+					//for (int index = 0; index < MetaData.BundleCount; index++)
+					//{
+					//	bundleReferences.Add((int)nativeReader.ReadUInt(Endian.Big));
+					//}
+					nativeReader.Position = actualInternalPos + MetaData.BundleOffset;
+					for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.BundleCount; indexOfBundleCount++)
 					{
-                        //for (int index = 0; index < MetaData.BundleCount; index++)
-                        //{
-                        //	bundleReferences.Add((int)nativeReader.ReadUInt(Endian.Big));
-                        //}
-                        nativeReader.Position = actualInternalPos + MetaData.BundleOffset;
-                        for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.BundleCount; indexOfBundleCount++)
-                        {
 
-                            int offset1 = nativeReader.ReadInt(Endian.Big);
+						//int offset1 = nativeReader.ReadInt(Endian.Big);
 
+						//var tocsizeposition = nativeReader.Position;
+						//int size = nativeReader.ReadInt(Endian.Big);
 
-							var tocsizeposition = nativeReader.Position;
-                            int size = nativeReader.ReadInt(Endian.Big);
+						//int unk1 = nativeReader.ReadInt(Endian.Big); // unknown
 
-                            int unk1 = nativeReader.ReadInt(Endian.Big); // unknown
+						//int dataOffset = nativeReader.ReadInt(Endian.Big);
 
-                            int dataOffset = nativeReader.ReadInt(Endian.Big);
+						int unk1 = nativeReader.ReadInt(Endian.Big);
+                        var tocsizeposition = nativeReader.Position;
+                        int size = nativeReader.ReadInt(Endian.Big);
+						long dataOffset = nativeReader.ReadLong(Endian.Big);
 
-							if (dataOffset > 0)
-							{
-								BaseBundleInfo newBundleInfo = new BaseBundleInfo
-								{
-									TocOffset = offset1,
-									Offset = dataOffset,
-									Size = size,
-									TOCSizePosition = tocsizeposition
-								};
-								Bundles.Add(newBundleInfo);
-							}
-
-						}
-
-
-						if (MetaData.ChunkFlagOffset != 0 && MetaData.ChunkFlagOffset != 32)
+						if (dataOffset > 0)
 						{
-							if (MetaData.ChunkCount > 0)
+							BaseBundleInfo newBundleInfo = new BaseBundleInfo
 							{
-								if(DoLogging && AssetManager.Instance != null)
-									AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
-
-								nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffset;
-								List<int> list7 = new List<int>();
-								for (int num13 = 0; num13 < MetaData.ChunkCount; num13++)
-								{
-									list7.Add(nativeReader.ReadInt(Endian.Big));
-								}
-								nativeReader.Position = actualInternalPos + MetaData.ChunkGuidOffset;
-
-
-								List<Guid> tocChunkGuids = new List<Guid>();
-								for (int num14 = 0; num14 < MetaData.ChunkCount; num14++)
-								{
-									byte[] array6 = nativeReader.ReadBytes(16);
-									Guid tocChunkGuid = new Guid(new byte[16]
-									{
-										array6[15],
-										array6[14],
-										array6[13],
-										array6[12],
-										array6[11],
-										array6[10],
-										array6[9],
-										array6[8],
-										array6[7],
-										array6[6],
-										array6[5],
-										array6[4],
-										array6[3],
-										array6[2],
-										array6[1],
-										array6[0]
-									});
-									//nativeReader.Position -= 16;
-									//Guid value2 = nativeReader.ReadGuid(Endian.Little);
-									//nativeReader.Position -= 16;
-									//Guid value3 = nativeReader.ReadGuid(Endian.Big);
-									
-									int num15 = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
-									while (tocChunkGuids.Count <= num15)
-									{
-										tocChunkGuids.Add(Guid.Empty);
-									}
-									tocChunkGuids[num15 / 3] = tocChunkGuid;
-
-									if(tocChunkGuid.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")
-                                    {
-
-                                    }
-								}
-								nativeReader.Position = actualInternalPos + MetaData.ChunkEntryOffset;
-
-
-								//ParentReader.AssetManager.logger.Log($"Found {MetaData.ChunkCount} Chunks in TOC");
-
-								//if (NativeFileLocation.Contains("matchcinematicssba.toc"))
-								//	return;
-
-								for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-								{
-									ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
-									chunkAssetEntry2.TOCFileLocation = this.NativeFileLocation;
-									chunkAssetEntry2.IsTocChunk = true;
-
-									var unk2 = nativeReader.ReadByte();
-									bool patch2 = nativeReader.ReadBoolean();
-									byte catalog2 = nativeReader.ReadByte();
-									byte cas2 = nativeReader.ReadByte();
-
-									chunkAssetEntry2.SB_CAS_Offset_Position = (int)nativeReader.Position;
-									uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
-									chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
-									uint chunkSize = nativeReader.ReadUInt(Endian.Big);
-									chunkAssetEntry2.Id = tocChunkGuids[chunkIndex];
-									if (chunkAssetEntry2.Id.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")
-									{
-
-									}
-									// Generate a Sha1 since we dont have one.
-									chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
-
-									chunkAssetEntry2.LogicalOffset = 0;
-									chunkAssetEntry2.OriginalSize = (chunkAssetEntry2.LogicalOffset & 0xFFFF) | chunkSize;
-
-									chunkAssetEntry2.Size = chunkSize;
-									chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
-									chunkAssetEntry2.ExtraData = new AssetExtraData();
-									chunkAssetEntry2.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog2, cas2, patch2);
-									chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
-
-									TocChunks.Add(chunkAssetEntry2);
-								}
-
-								_ = nativeReader.Position;
-								for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-								{
-									var chunkAssetEntry = TocChunks[chunkIndex];
-									if(AssetManager.Instance != null)
-										AssetManager.Instance.AddChunk(chunkAssetEntry);
-
-								}
-							}
-							int[] unk7Values = new int[MetaData.unk11Count];
-							if (nativeReader.Position != 556 + MetaData.unk7Offset)
-							{
-								nativeReader.Position = 556 + MetaData.unk7Offset;
-							}
-							for (int k = 0; k < MetaData.unk11Count; k++)
-							{
-								unk7Values[k] = nativeReader.ReadInt(Endian.Big);
-							}
-                            int[] unk13Values = new int[MetaData.unk12Count];
-                            if (nativeReader.Position != 556 + MetaData.unk13Offset)
-                            {
-                                nativeReader.Position = 556 + MetaData.unk13Offset;
-                            }
-                            for (int j = 0; j < MetaData.unk12Count; j++)
-                            {
-                                unk13Values[j] = nativeReader.ReadInt(Endian.Big);
-                            }
-
-                            _ = nativeReader.Position;
-							if(nativeReader.Position < nativeReader.Length)
-                            {
-								//TOCCasDataLoader casDataLoader = new TOCCasDataLoader(this);
-								//casDataLoader.Load2(nativeReader);
-								LoadCasBundles(nativeReader);
-							}
-
-
-
+								//TocOffset = offset1,
+								Unk = unk1,
+								Offset = dataOffset,
+								Size = size,
+								TOCSizePosition = tocsizeposition
+							};
+							Bundles.Add(newBundleInfo);
 						}
+
 					}
 
-					//if (MetaData.Offset5 > 128)
-					//{
-					//	SBFile sbFile = new SBFile(ParentReader, this, 0);
-					//	BaseBundleInfo newBundleInfo = new BaseBundleInfo
-					//	{
-					//		TocOffset = 0,
-					//		Offset = MetaData.Offset5,
-					//		Size = MetaData.Offset6
-					//	};
-					//	//Bundles.Add(newBundleInfo);
-					//}
+
+					if (MetaData.ChunkFlagOffset != 0 && MetaData.ChunkFlagOffset != 32)
+					{
+						if (MetaData.ChunkCount > 0)
+						{
+							if (DoLogging && AssetManager.Instance != null)
+								AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
+
+							nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffset;
+							for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+							{
+								ListTocChunkPositions.Add(nativeReader.ReadInt(Endian.Big));
+							}
+							nativeReader.Position = actualInternalPos + MetaData.ChunkGuidOffset;
+
+
+							for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+							{
+								//byte[] array6 = nativeReader.ReadBytes(16);
+								//Guid tocChunkGuid = new Guid(new byte[16]
+								//{
+								//	array6[15],
+								//	array6[14],
+								//	array6[13],
+								//	array6[12],
+								//	array6[11],
+								//	array6[10],
+								//	array6[9],
+								//	array6[8],
+								//	array6[7],
+								//	array6[6],
+								//	array6[5],
+								//	array6[4],
+								//	array6[3],
+								//	array6[2],
+								//	array6[1],
+								//	array6[0]
+								//});
+								//nativeReader.Position -= 16;
+								//Guid value2 = nativeReader.ReadGuid(Endian.Little);
+								//nativeReader.Position -= 16;
+								//Guid value3 = nativeReader.ReadGuid(Endian.Big);
+								Guid tocChunkGuid = nativeReader.ReadGuidReverse();
+
+								int tocChunkIndex = nativeReader.ReadInt(Endian.Big) & 0xFFFFFF;
+								TocChunkIndexes.Add(tocChunkIndex);
+								while (tocChunkGuids.Count <= tocChunkIndex)
+								{
+									tocChunkGuids.Add(Guid.Empty);
+								}
+								tocChunkGuids[tocChunkIndex / 3] = tocChunkGuid;
+								//tocChunkGuids = tocChunkGuids.Where(x => x != Guid.Empty).ToList();
+
+
+
+							}
+							nativeReader.Position = actualInternalPos + MetaData.ChunkEntryOffset;
+
+							for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+							{
+								ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
+								chunkAssetEntry2.TOCFileLocation = this.NativeFileLocation;
+								chunkAssetEntry2.IsTocChunk = true;
+
+								var unk2 = nativeReader.ReadByte();
+								bool patch2 = nativeReader.ReadBoolean();
+								byte catalog2 = nativeReader.ReadByte();
+								byte cas2 = nativeReader.ReadByte();
+
+								chunkAssetEntry2.SB_CAS_Offset_Position = (int)nativeReader.Position;
+								uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
+								chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
+								uint chunkSize = nativeReader.ReadUInt(Endian.Big);
+								if (tocChunkGuids[chunkIndex] == Guid.Empty)
+								{
+
+								}
+								chunkAssetEntry2.Id = tocChunkGuids[chunkIndex];
+
+								// Generate a Sha1 since we dont have one.
+								chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
+
+								chunkAssetEntry2.LogicalOffset = 0;
+								chunkAssetEntry2.OriginalSize = (chunkAssetEntry2.LogicalOffset & 0xFFFF) | chunkSize;
+
+								chunkAssetEntry2.Size = chunkSize;
+								chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
+								chunkAssetEntry2.ExtraData = new AssetExtraData();
+								chunkAssetEntry2.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog2, cas2, patch2);
+								chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
+
+								TocChunks.Add(chunkAssetEntry2);
+							}
+
+							for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+							{
+								var chunkAssetEntry = TocChunks[chunkIndex];
+								if (AssetManager.Instance != null)
+									AssetManager.Instance.AddChunk(chunkAssetEntry);
+
+							}
+						}
+						Unk7Values = new int[MetaData.Unk7Count];
+						if (nativeReader.Position != 556 + MetaData.Unk7Offset)
+						{
+							nativeReader.Position = 556 + MetaData.Unk7Offset;
+						}
+						for (int k = 0; k < MetaData.Unk7Count; k++)
+						{
+							Unk7Values[k] = nativeReader.ReadInt(Endian.Big);
+						}
+						Unk12Values = new int[MetaData.Unk12Count];
+						if (nativeReader.Position != 556 + MetaData.Unk12Offset)
+						{
+							nativeReader.Position = 556 + MetaData.Unk12Offset;
+						}
+						for (int j = 0; j < MetaData.Unk12Count; j++)
+						{
+							Unk12Values[j] = nativeReader.ReadInt(Endian.Big);
+						}
+
+						CasBundlePosition = nativeReader.Position;
+						if (nativeReader.Position < nativeReader.Length)
+						{
+							//TOCCasDataLoader casDataLoader = new TOCCasDataLoader(this);
+							//casDataLoader.Load2(nativeReader);
+							LoadCasBundles(nativeReader);
+						}
+						var PositionAfterCasBundle = nativeReader.Position;
+						nativeReader.Position = CasBundlePosition;
+						CasBundleData = nativeReader.ReadBytes(Convert.ToInt32(PositionAfterCasBundle - CasBundlePosition));
+
+
+
+
+					}
 				}
 
-
 			}
+
+
 
 
 		}
 
 		public List<CASBundle> CasBundles = new List<CASBundle>();
+
+		public Dictionary<string, List<CASBundle>> CASToBundles = new Dictionary<string, List<CASBundle>>();
+
+		public long CasBundlePosition { get; set; }
+		public byte[] CasBundleData { get; set; }
+		public long TocChunkPosition { get; set; }
+
+		public List<int> TocChunkIndexes = new List<int>();
+
+		public List<int> ListTocChunkPositions = new List<int>();
+		public int[] Unk7Values { get; set; }
+		public int[] Unk12Values { get; set; }
 
 		public void LoadCasBundles(NativeReader nativeReader)
 		{
@@ -464,7 +461,6 @@ namespace FIFA21Plugin
 					nativeReader.Position = startPosition + flagsOffset + entriesCount;
 				}
 
-				Dictionary<string, List<CASBundle>> CASToBundles = new Dictionary<string, List<CASBundle>>();
 
 				if (CasBundles.Count > 0)
 				{
@@ -513,6 +509,175 @@ namespace FIFA21Plugin
 				}
 			}
 		}
+
+		/*
+		public void Write(Stream stream)
+        {
+			{
+				NativeWriter writer = new NativeWriter(stream);
+				writer.WriteInt32BigEndian(MetaData.Magic);
+				long startPosition = stream.Position;
+				writer.WriteInt32BigEndian(60);
+				long bundleDataOffsetPosition = writer.Position;
+				writer.WriteInt32BigEndian(0);
+				writer.WriteInt32BigEndian(Bundles.Count);
+				long chunkFlagsOffsetPosition = writer.Position;
+				writer.WriteInt32BigEndian(0);
+				long chunkGuidOffsetPosition = writer.Position;
+				writer.WriteInt32BigEndian(0);
+				writer.WriteInt32BigEndian(TocChunks.Count);
+				long chunkEntryOffsetPosition = writer.Position;
+				writer.WriteInt32BigEndian(0);
+				writer.WriteInt32BigEndian(0);
+				long offset2Position = writer.Position;
+				writer.WriteInt32BigEndian(0);
+				writer.WriteInt32BigEndian(0);
+				writer.WriteInt32BigEndian(tocFile.UnknownValue4);
+				writer.WriteInt32BigEndian(tocFile.UnknownValue5);
+				writer.WriteInt32BigEndian(tocFile.offset2Values.Count);
+				writer.WriteInt32BigEndian(tocFile.offset8Values.Count);
+				long offset8Position = writer.Position;
+				writer.WriteInt32BigEndian(0);
+				foreach (int bundleFlag in tocFile.bundleFlags)
+				{
+					writer.WriteInt32BigEndian(bundleFlag);
+				}
+				while ((writer.Position - startPosition) % 8 != 0L)
+				{
+					writer.Write((byte)0);
+				}
+				long bundleDataOffset = writer.Position;
+				foreach (var (unk3, length2, offset3) in tocFile.Bundles)
+				{
+					writer.WriteInt32BigEndian(unk3);
+					writer.WriteInt32BigEndian(length2);
+					writer.WriteInt64BigEndian(offset3);
+				}
+				long chunkFlagsOffset = writer.Position;
+				foreach (int chunkFlag in tocFile.ChunkFlags)
+				{
+					writer.WriteInt32BigEndian(chunkFlag);
+				}
+				long chunkGuidOffset = writer.Position;
+				foreach (var (chunkGuid, chunkIndex) in tocFile.chunkGuids)
+				{
+					foreach (byte guidByte in chunkGuid.ToByteArray().Reverse())
+					{
+						writer.Write(guidByte);
+					}
+					writer.WriteInt32BigEndian(chunkIndex);
+				}
+				long chunkEntryOffset = writer.Position;
+				foreach (var (unk2, patch, catalog, cas, offset2, size) in TocChunks)
+				{
+					writer.Write(unk2);
+					writer.Write((sbyte)(patch ? 1 : 0));
+					writer.Write(catalog);
+					writer.Write(cas);
+					writer.WriteUInt32BigEndian(offset2);
+					writer.WriteUInt32BigEndian(size);
+				}
+				long offset4 = writer.Position;
+				foreach (int offset2Value in tocFile.offset2Values)
+				{
+					writer.WriteInt32BigEndian(offset2Value);
+				}
+				long offset5 = writer.Position;
+				foreach (int offset8Value in tocFile.offset8Values)
+				{
+					writer.WriteInt32BigEndian(offset8Value);
+				}
+				if (CasBundles.Count > 0)
+				{
+					List<long> newOffsets = new List<long>(CasBundles.Count);
+					foreach (var casBundle in CasBundles)
+					{
+						byte[] flags = ArrayPool<byte>.Shared.Rent(casBundle.Entries.Count + 1);
+						int entryIndex = 0;
+						int currentCasIdentifier = CasFile.CreateCasIdentifier(0, casBundle.InPatch, (byte)casBundle.CasCatalog, (byte)casBundle.CasIndex);
+						flags[entryIndex] = 1;
+						foreach (TocFile_F21.CasBundleEntry entry2 in casBundle.Entries)
+						{
+							entryIndex++;
+							int num = CasFile.CreateCasIdentifier(0, entry2.InPatch, (byte)entry2.CasCatalog, (byte)entry2.CasIndex);
+							if (num != currentCasIdentifier)
+							{
+								flags[entryIndex] = 1;
+							}
+							else
+							{
+								flags[entryIndex] = 0;
+							}
+							currentCasIdentifier = num;
+						}
+						long placeholderPosition = writer.Position;
+						newOffsets.Add(placeholderPosition);
+						writer.WriteInt64BigEndian(0L);
+						writer.WriteInt32BigEndian(0);
+						writer.WriteInt32BigEndian(casBundle.Entries.Count + 1);
+						writer.WriteInt32BigEndian(32);
+						writer.WriteInt32BigEndian(32);
+						writer.WriteInt32BigEndian(32);
+						writer.WriteInt32BigEndian(0);
+						int casIdentifier = CasFile.CreateCasIdentifier(0, casBundle.InPatch, (byte)casBundle.CasCatalog, (byte)casBundle.CasIndex);
+						writer.WriteInt32BigEndian(casIdentifier);
+						_ = casBundle.BundleOffset;
+						_ = int.MaxValue;
+						writer.WriteInt32BigEndian((int)casBundle.BundleOffset);
+						writer.WriteInt32BigEndian(casBundle.BundleSize);
+						entryIndex = 0;
+						foreach (TocFile_F21.CasBundleEntry entry in casBundle.Entries)
+						{
+							entryIndex++;
+							if (flags[entryIndex] == 1)
+							{
+								casIdentifier = CasFile.CreateCasIdentifier(0, entry.InPatch, (byte)entry.CasCatalog, (byte)entry.CasIndex);
+								writer.WriteInt32BigEndian(casIdentifier);
+							}
+							writer.WriteUInt32BigEndian(entry.EntryOffset);
+							writer.WriteInt32BigEndian(entry.EntrySize);
+						}
+						int flagsOffset = (int)(writer.Position - placeholderPosition);
+						writer.WriteBytes(flags, 0, casBundle.Entries.Count + 1);
+						long endPosition = writer.Position;
+						writer.Position = placeholderPosition;
+						writer.WriteInt64BigEndian(0L);
+						writer.WriteInt32BigEndian(flagsOffset);
+						writer.WriteInt32BigEndian(casBundle.Entries.Count + 1);
+						writer.WriteInt32BigEndian(32);
+						writer.WriteInt32BigEndian(32);
+						writer.WriteInt32BigEndian(32);
+						writer.Position = endPosition;
+					}
+					writer.Position = bundleDataOffset;
+					int i = 0;
+					foreach (var bundle in Bundles)
+					{
+						writer.WriteInt32BigEndian(bundle.);
+						writer.WriteInt32BigEndian(length);
+						long newOffset = newOffsets[i] - 556;
+						writer.WriteInt64BigEndian(newOffset);
+						i++;
+					}
+				}
+				writer.Position = bundleDataOffsetPosition;
+				writer.WriteInt32BigEndian((int)(bundleDataOffset - startPosition));
+				writer.Position = chunkFlagsOffsetPosition;
+				writer.WriteInt32BigEndian((int)(chunkFlagsOffset - startPosition));
+				writer.Position = chunkGuidOffsetPosition;
+				writer.WriteInt32BigEndian((int)(chunkGuidOffset - startPosition));
+				writer.Position = chunkEntryOffsetPosition;
+				writer.WriteInt32BigEndian((int)(chunkEntryOffset - startPosition));
+				writer.WriteInt32BigEndian((int)(chunkEntryOffset - startPosition));
+				writer.Position = offset2Position;
+				writer.WriteInt32BigEndian((int)(offset4 - startPosition));
+				writer.WriteInt32BigEndian((int)(chunkEntryOffset - startPosition));
+				writer.Position = offset8Position;
+				writer.WriteInt32BigEndian((int)(offset5 - startPosition));
+			}
+		}
+		*/
+
 	}
 
 	

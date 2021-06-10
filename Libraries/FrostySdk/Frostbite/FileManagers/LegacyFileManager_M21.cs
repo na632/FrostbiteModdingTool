@@ -153,8 +153,9 @@ namespace Frostbite.FileManagers
 						nativeReader.Position = chunkBatch.FileFirstPosition;
 						for (uint index = 0u; index < chunkBatch.NumberOfFiles; index++)
 						{
-							var positionOfItem = nativeReader.Position + 8;
 							var positionOfText = nativeReader.ReadLong();
+							var positionOfItem = nativeReader.Position;
+
 							nativeReader.Position = positionOfText;
 
 							string name = nativeReader.ReadNullTerminatedString();
@@ -191,6 +192,7 @@ namespace Frostbite.FileManagers
 							legacyFileEntry.ActualSizePosition = (int)nativeReader.Position;
 							legacyFileEntry.Size = nativeReader.ReadLong();
 
+							legacyFileEntry.ChunkIdPosition = nativeReader.Position;
 							var chunkId = nativeReader.ReadGuid();
 							legacyFileEntry.ChunkId = chunkId;
 							if (legacyFileEntry.CompressedOffsetEnd > legacyFileEntry.CompressedOffsetStart)
@@ -361,16 +363,7 @@ namespace Frostbite.FileManagers
 						legacyItem.ExtraData.DataOffset = 0;
 						legacyItem.Size = legacyItem.ModifiedEntry.Data.Length;
 
-						//var originalSingularChunk = AssetManager.Instance.GetChunkEntry(gItem.Key);
-						//if(ProfilesLibrary.IsMadden21DataVersion())
-      //                  {
-						//	// M21 chunks are LZ4
-						//	AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, CompressionType.LZ4);
-						//}
-						//else
-      //                  {
-							AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType);
-						//}
+						AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType);
 					}
 					// Otherwise handle Chunk Batch
 					else
@@ -458,7 +451,19 @@ namespace Frostbite.FileManagers
 
 						//AssetManager.Instance.ModifyChunk(gItem.Key, newChunkGroupData, compressionOverride: CompressionType.Oodle);
 						AssetManager.Instance.ModifyChunk(gItem.Key, newChunkGroupData, compressionOverride: compressionType);
+
+
 					}
+
+
+					//foreach (var legacyFile in gItem.Value) 
+					//{
+					//	Guid newGuid = AssetManager.AddChunk(legacyFile.ModifiedEntry.Data, GenerateDeterministicGuid(legacyFile));
+					//	legacyFile.CompressedOffset = 0;
+					//	legacyFile.CompressedSize = 0;
+					//	legacyFile.ExtraData.DataOffset = 0;
+					//	legacyFile.ChunkId = newGuid;
+					//}
 				}
 
 
@@ -491,6 +496,10 @@ namespace Frostbite.FileManagers
                         nwNewBatch.Write((long)lfe.CompressedOffset);
                         nwNewBatch.Position = lfe.CompressedSizePosition;
                         nwNewBatch.Write((long)lfe.CompressedSize);
+
+						//nwNewBatch.Position = lfe.ChunkIdPosition;
+						//nwNewBatch.Write(lfe.ChunkId);
+
                         //nwNewBatch.Write((long)lfe.CompressedOffsetEnd);
                     }
 					//nwNewBatch.Position = chunkBatch.EndOfStrings;

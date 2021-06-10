@@ -4713,7 +4713,7 @@ namespace paulv2k4ModdingExecuter
 
                 }
                 Logger.Log("Cleaning up mod data directory");
-                List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
+                //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
                 fs.ResetManifest();
                 //if (!DeleteSelectFiles(modPath + patchPath))
                 //if (FrostyModsFound)
@@ -4744,35 +4744,35 @@ namespace paulv2k4ModdingExecuter
                     //    SymbolicLinkList.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
                     //}
 
-                    if (!ProfilesLibrary.IsFIFA21DataVersion() && !ProfilesLibrary.IsMadden21DataVersion())
-                    {
-                        foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
-                        {
-                            FileInfo fileInfo3 = new FileInfo(casFileLocation);
-                            string text3 = fileInfo3.Directory.FullName.ToLower().Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
-                            string inDst = Path.Combine(text3, fileInfo3.Name);
-                            if (!Directory.Exists(text3))
-                            {
-                                Directory.CreateDirectory(text3);
-                            }
-                            SymbolicLinkList.Add(new SymLinkStruct(inDst, fileInfo3.FullName, inFolder: false));
-                        }
-                    }
+                    //if (!ProfilesLibrary.IsFIFA21DataVersion() && !ProfilesLibrary.IsMadden21DataVersion())
+                    //{
+                    //    foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
+                    //    {
+                    //        FileInfo fileInfo3 = new FileInfo(casFileLocation);
+                    //        string text3 = fileInfo3.Directory.FullName.ToLower().Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
+                    //        string inDst = Path.Combine(text3, fileInfo3.Name);
+                    //        if (!Directory.Exists(text3))
+                    //        {
+                    //            Directory.CreateDirectory(text3);
+                    //        }
+                    //        SymbolicLinkList.Add(new SymLinkStruct(inDst, fileInfo3.FullName, inFolder: false));
+                    //    }
+                    //}
 
-                    if (SymbolicLinkList.Count > 0)
-                    {
-                        if (!RunSymbolicLinkProcess(SymbolicLinkList))
-                        {
-                            Directory.Delete(modPath, recursive: true);
-                            throw new FrostySymLinkException();
-                        }
-                    }
+                    //if (SymbolicLinkList.Count > 0)
+                    //{
+                    //    if (!RunSymbolicLinkProcess(SymbolicLinkList))
+                    //    {
+                    //        Directory.Delete(modPath, recursive: true);
+                    //        throw new FrostySymLinkException();
+                    //    }
+                    //}
                     int workerThreads = 0;
                     int completionPortThreads = 0;
                     ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
                     ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
                     Logger.Log("Applying mods");
-                    SymbolicLinkList.Clear();
+                    //SymbolicLinkList.Clear();
 
                     foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
                         .Where(x=>x.FullName.ToLower().Contains("plugin")))
@@ -4807,7 +4807,7 @@ namespace paulv2k4ModdingExecuter
 
 
                     //if (ProfilesLibrary.IsMaddenDataVersion() || ProfilesLibrary.IsFIFADataVersion())
-                    if (ProfilesLibrary.IsFIFADataVersion())
+                    if (ProfilesLibrary.IsFIFA20DataVersion())
                     {
                         DbObject layoutToc = null;
 
@@ -4865,49 +4865,22 @@ namespace paulv2k4ModdingExecuter
                             }
                         }
 
-                        //if (ProfilesLibrary.IsMaddenDataVersion())
-                        //{
-                        //    logger.Log("Writing new Layout file to Game Mod Folder");
-                        //    using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                        //    {
-                        //        dbWriter.Write(layoutToc);
-                        //        dbWriter.Seek(0, SeekOrigin.Begin);
-                        //        using (NativeReader reader = new NativeReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read))) {
-                        //           var initbytes = reader.ReadBytes(552);
-                        //            dbWriter.Write(initbytes);
-                        //        }
-                        //    }
-
-                        //    //File.Copy(fs.BasePath + patchPath + "/layout.toc", modPath + patchPath + "/layout.toc", true);
-
-                        //}
-                        //else
-                        if (!ProfilesLibrary.IsFIFA21DataVersion())
+                        logger.Log("Writing new Layout file to Game");
+                        using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
                         {
-                            logger.Log("Writing new Layout file to Game");
-                            using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                            {
-                                dbWriter.Write(layoutToc);
-                            }
+                            dbWriter.Write(layoutToc);
                         }
                     }
-                    if (!ProfilesLibrary.IsFIFA21DataVersion() && SymbolicLinkList.Count > 0)
-                    {
-                        RunSymbolicLinkProcess(SymbolicLinkList);
-                    }
+                    //if (!ProfilesLibrary.IsFIFA21DataVersion() && SymbolicLinkList.Count > 0)
+                    //{
+                    //    RunSymbolicLinkProcess(SymbolicLinkList);
+                    //}
 
                     if (UseModData)
                     {
                         logger.Log("Copying initfs_win32");
 
-                        if (ProfilesLibrary.IsMadden21DataVersion())
-                        {
-                            CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_Win32", modPath + patchPath + "/initfs_Win32");
-                        }
-                        else
-                        {
-                            CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
-                        }
+                        CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
                     }
                 }
 

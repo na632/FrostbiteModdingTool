@@ -586,7 +586,6 @@ namespace FrostySdk.Frosty.FET
 			}
 		}
 
-
 		public static HeaderData LoadHeader(string filename, out NativeReader fileReader, bool keepReader = false, HeaderData header = null)
 		{
 			if (filename == null)
@@ -601,7 +600,7 @@ namespace FrostySdk.Frosty.FET
 			NativeReader reader = new NativeReader(fileStream);
 			try
 			{
-				if (reader.ReadULong() != 5498700893333637446L)
+				if (reader.ReadUInt64LittleEndian() != 5498700893333637446L)
 				{
 					throw new InvalidDataException("Project file is in an unsupported format.");
 				}
@@ -649,16 +648,14 @@ namespace FrostySdk.Frosty.FET
 						Position = fileStream.Position
 					};
 					header.GameName = reader.ReadLengthPrefixedString();
-					var cdTicks1 = reader.ReadInt64LittleEndian();
-					var cdTicks2 = reader.ReadInt64LittleEndian();
-					var mdTicks1 = reader.ReadInt64LittleEndian();
-					var mdTicks2 = reader.ReadInt64LittleEndian();
-					header.CreationDate = new DateTimeOffset(cdTicks1, TimeSpan.FromTicks(cdTicks2));
-					header.ModifiedDate = new DateTimeOffset(mdTicks1, TimeSpan.FromTicks(mdTicks2));
+					header.CreationDate = new DateTimeOffset(reader.ReadInt64LittleEndian(), TimeSpan.FromTicks(reader.ReadInt64LittleEndian()));
+					header.ModifiedDate = new DateTimeOffset(reader.ReadInt64LittleEndian(), TimeSpan.FromTicks(reader.ReadInt64LittleEndian()));
 					header.GameVersion = reader.ReadUInt32LittleEndian();
 				}
+				LoadModSettings(reader, header.ModSettings, projectVersion);
 				if (projectVersion >= 17)
 				{
+					LoadLocaleIniSettings(reader, projectVersion);
 				}
 				fileReader = (keepReader ? reader : null);
 				return header;
@@ -787,6 +784,10 @@ namespace FrostySdk.Frosty.FET
 				{
 					continue;
 				}
+				foreach (var li in collection)
+					ebxEntry.LinkedAssets.Add(li);
+				//ebxEntry.AddLinkedAssets(collection);
+				//ebxEntry.AddAddedBundles(list);
 				if (flag)
 				{
 					using EbxReader ebxReader = new EbxReader(new MemoryStream(buffer));
@@ -796,11 +797,13 @@ namespace FrostySdk.Frosty.FET
 						IsTransientModified = isTransientModified,
 						UserData = userData,
 						DataObject = ebxAsset,
+						
 					};
 					if (ebxEntry.IsAdded)
 					{
 						ebxEntry.Type = ebxAsset.RootObject.GetType().Name;
 					}
+					//ebxEntry.ModifiedEntry.AddDependentAssets(ebxAsset.Dependencies);
 				}
 				int key = Fnv1.HashString(ebxEntry.Name);
 				if (!dictionary.ContainsKey(key))
@@ -858,7 +861,8 @@ namespace FrostySdk.Frosty.FET
 				{
 					continue;
 				}
-				//resEntry.AddLinkedAssets(collection2);
+				foreach (var li in collection2)
+					resEntry.LinkedAssets.Add(li);
 				//resEntry.AddAddedBundles(list2);
 				if (flag2)
 				{
@@ -953,20 +957,172 @@ namespace FrostySdk.Frosty.FET
 				};
 			}
 			int legacyFileCount = reader.ReadInt32LittleEndian();
-			for (int num14 = 0; num14 < legacyFileCount; num14++)
+			for (int legacyIndex = 0; legacyIndex < legacyFileCount; legacyIndex++)
 			{
 				string type2 = reader.ReadLengthPrefixedString();
 				if (type2 == "legacy")
 				{
 					//new Fifa_Tool.Project.LegacyCustomActionHandler().LoadFromProject(assetManager, legacyFileManager, version, reader, type2);
+					LoadLegacyFiles(version, reader, type2);
 					continue;
 				}
-				throw new NotSupportedException("Type of custom handler isn't recognised: " + type2);
 			}
 			return true;
 		}
 
 
+		public void LoadLegacyFiles(uint version, NativeReader reader, string type)
+		{
+			if (type != "legacy")
+			{
+				return;
+			}
+			int count = reader.ReadInt32LittleEndian();
+			for (int i = 0; i < count; i++)
+			{
+				string key = ((version < 16) ? reader.ReadNullTerminatedString() : reader.ReadLengthPrefixedString());
+				Guid guid = reader.ReadGuid();
+				long offset = reader.ReadInt64LittleEndian();
+				long compressedStartOffset = reader.ReadInt64LittleEndian();
+				long compressedEndOffset = reader.ReadInt64LittleEndian();
+				long size = reader.ReadInt64LittleEndian();
+				LegacyFileEntry customAssetEntry = AssetManager.Instance.GetLegacyAssetManager().GetAssetEntry(key) as LegacyFileEntry;
+				if (customAssetEntry == null)
+				{
+					continue;
+				}
+				ChunkAssetEntry chunkEntry = assetManager.GetChunkEntry(guid);
+				Stream chunk = assetManager.GetChunk(chunkEntry);
+				using (NativeReader nr = new NativeReader(chunk))
+                {
+					customAssetEntry.ModifiedEntry = new ModifiedAssetEntry()
+					{
+						Data = nr.ReadToEnd()
+					};
+
+				}
+				
+			}
+		}
+
+
+		private static void LoadModSettings(NativeReader reader, ModSettings modSettings, uint version)
+		{
+			if (reader == null)
+			{
+				throw new ArgumentNullException("reader");
+			}
+			if (modSettings == null)
+			{
+				throw new ArgumentNullException("modSettings");
+			}
+			switch (version)
+			{
+				case 0u:
+				case 1u:
+				case 2u:
+				case 3u:
+				case 4u:
+				case 5u:
+				case 6u:
+				case 7u:
+				case 8u:
+					throw new ArgumentOutOfRangeException("version", version, "This method only supports project version 9 or higher.");
+				case 9u:
+				case 10u:
+				case 11u:
+				case 12u:
+				case 13u:
+				case 14u:
+				case 15u:
+					{
+						modSettings.Title = reader.ReadNullTerminatedString();
+						modSettings.Author = reader.ReadNullTerminatedString();
+						if (version >= 14)
+						{
+							reader.ReadByte();
+							reader.ReadByte();
+						}
+						reader.ReadNullTerminatedString();
+						if (version >= 15)
+						{
+							reader.ReadNullTerminatedString();
+						}
+						if (version < 14)
+						{
+							
+						}
+						modSettings.Version = reader.ReadNullTerminatedString();
+						modSettings.Description = reader.ReadNullTerminatedString();
+						int iconByteCount2 = reader.ReadInt32LittleEndian();
+						if (iconByteCount2 > 0)
+						{
+							modSettings.Icon = reader.ReadBytes(iconByteCount2);
+						}
+						uint screenshotsCount2 = ((version < 13) ? 4u : reader.ReadUInt32LittleEndian());
+						for (int j = 0; j < screenshotsCount2; j++)
+						{
+							iconByteCount2 = reader.ReadInt32LittleEndian();
+							if (iconByteCount2 > 0)
+							{
+								modSettings.SetScreenshot(j, reader.ReadBytes(iconByteCount2));
+							}
+						}
+						return;
+					}
+			}
+			modSettings.Title = reader.ReadLengthPrefixedString();
+			modSettings.Author = reader.ReadLengthPrefixedString();
+			reader.ReadByte();
+			reader.ReadByte();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			modSettings.Version = reader.ReadLengthPrefixedString();
+			modSettings.Description = reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			reader.ReadLengthPrefixedString();
+			int iconByteCount = reader.ReadInt32LittleEndian();
+			if (iconByteCount > 0)
+			{
+				modSettings.Icon = reader.ReadBytes(iconByteCount);
+			}
+			uint screenshotsCount = ((version < 13) ? 4u : reader.ReadUInt32LittleEndian());
+			for (int i = 0; i < screenshotsCount; i++)
+			{
+				iconByteCount = reader.ReadInt32LittleEndian();
+				if (iconByteCount > 0)
+				{
+					modSettings.SetScreenshot(i, reader.ReadBytes(iconByteCount));
+				}
+			}
+		}
+
+
+		private static void LoadLocaleIniSettings(NativeReader reader,  uint version)
+		{
+			if (reader == null)
+			{
+				throw new ArgumentNullException("reader");
+			}
+			
+			if (version < 17)
+			{
+				throw new ArgumentOutOfRangeException("version", version, "This method only supports project version 17 or higher.");
+			}
+
+			int fileCount = reader.Read7BitEncodedInt();
+			for (int i = 0; i < fileCount; i++)
+			{
+				string description = reader.ReadLengthPrefixedString();
+				string contents = reader.ReadLengthPrefixedString();
+			}
+		}
 	}
 
 }

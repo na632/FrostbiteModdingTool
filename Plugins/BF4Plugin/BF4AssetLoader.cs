@@ -30,7 +30,7 @@ namespace BF4Plugin
 				{
 					flag2 = true;
 				}
-				parent.logger.Log("Loading data ({0})", superBundle);
+				parent.logger.Log($"Loading data ({superBundle})");
 				DbObject dbObject2 = parent.ProcessTocChunks($"native_patch/{superBundle}.toc", helper);
 				DbObject value = dbObject.GetValue<DbObject>("bundles");
 				DbObject dbObject3 = value;

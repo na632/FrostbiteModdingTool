@@ -117,7 +117,7 @@ namespace FrostySdk.Frostbite.IO.Output
 			{
 				for (int i = 0; i < meshSet.Lods.Count; i++)
 				{
-					FBXCreateMesh(assetManager, fbxScene, meshSet.Lods[i], boneNodes);
+					FBXCreateMesh(fbxScene, meshSet.Lods[i], boneNodes);
 				}
 			}
 			using FbxExporter fbxExporter = new FbxExporter(fbxManager, "");
@@ -195,24 +195,8 @@ namespace FrostySdk.Frostbite.IO.Output
 			return boneNodes[0];
 		}
 
-		private void FBXCreateMesh(AssetManager assetManager, FbxScene scene, MeshSetLod lod, List<FbxNode> boneNodes)
+		private void FBXCreateMesh(FbxScene scene, MeshSetLod lod, List<FbxNode> boneNodes)
 		{
-			if (assetManager == null)
-			{
-				throw new ArgumentNullException("assetManager");
-			}
-			if (scene == null)
-			{
-				throw new ArgumentNullException("scene");
-			}
-			if (lod == null)
-			{
-				throw new ArgumentNullException("lod");
-			}
-			if (boneNodes == null)
-			{
-				throw new ArgumentNullException("boneNodes");
-			}
 			int indexSize = lod.IndexUnitSize / 8;
 			FbxNode fbxNode = (flattenHierarchy ? scene.RootNode : new FbxNode(scene, lod.String03));
 			foreach (MeshSetSection section in lod.Sections)
@@ -221,14 +205,14 @@ namespace FrostySdk.Frostbite.IO.Output
 				{
 					continue;
 				}
-				NativeReader reader = new NativeReader((lod.ChunkId != Guid.Empty) ? assetManager.GetChunk(assetManager.GetChunkEntry(lod.ChunkId)) : new MemoryStream(lod.InlineData));
+				using NativeReader reader = new NativeReader((lod.ChunkId != Guid.Empty) ? AssetManager.Instance.GetChunk(AssetManager.Instance.GetChunkEntry(lod.ChunkId)) : new MemoryStream(lod.InlineData));
 				FbxNode fbxNode2 = FBXExportSubObject(scene, section, lod.VertexBufferSize, indexSize, reader);
 				if (flattenHierarchy)
 				{
 					fbxNode2.Name = lod.String03 + ":" + section.Name;
 				}
 				fbxNode.AddChild(fbxNode2);
-				if ((lod.Type != MeshType.MeshType_Skinned && lod.Type != MeshType.MeshType_Composite) || boneNodes.Count == 0)
+				if ((lod.Type != MeshType.MeshType_Skinned && lod.Type != MeshType.MeshType_Composite) || boneNodes.Count <= 0)
 				{
 					continue;
 				}
@@ -241,10 +225,20 @@ namespace FrostySdk.Frostbite.IO.Output
 						list.Add(num);
 					}
 				}
-				list.Clear();
-				for (ushort num2 = 0; num2 < boneNodes.Count; num2 = (ushort)(num2 + 1))
+				if (ProfilesLibrary.DataVersion == 20160927
+					|| ProfilesLibrary.DataVersion == 20170929
+					|| ProfilesLibrary.DataVersion == 20180807
+					|| ProfilesLibrary.DataVersion == 20180914
+					|| ProfilesLibrary.DataVersion == 20180628
+					|| ProfilesLibrary.IsFIFA20DataVersion()
+					|| ProfilesLibrary.IsFIFA21DataVersion()
+					)
 				{
-					list.Add(num2);
+					list.Clear();
+					for (ushort num2 = 0; num2 < boneNodes.Count; num2 = (ushort)(num2 + 1))
+					{
+						list.Add(num2);
+					}
 				}
 				FBXCreateSkin(scene, section, fbxNode2, boneNodes, list, lod.Type, reader);
 				FBXCreateBindPose(scene, section, fbxNode2);
@@ -344,10 +338,10 @@ namespace FrostySdk.Frostbite.IO.Output
 								}
 								else if (element.Format == VertexElementFormat.UShort4 || element.Format == VertexElementFormat.UShort4N)
 								{
-									array[3] = reader.ReadUInt16LittleEndian();
-									array[2] = reader.ReadUInt16LittleEndian();
-									array[1] = reader.ReadUInt16LittleEndian();
-									array[0] = reader.ReadUInt16LittleEndian();
+									array[3] = reader.ReadUShort();
+									array[2] = reader.ReadUShort();
+									array[1] = reader.ReadUShort();
+									array[0] = reader.ReadUShort();
 								}
 							}
 							else if (element.Usage == VertexElementUsage.BoneIndices2)
@@ -361,10 +355,10 @@ namespace FrostySdk.Frostbite.IO.Output
 								}
 								else if (element.Format == VertexElementFormat.UShort4 || element.Format == VertexElementFormat.UShort4N)
 								{
-									array[7] = reader.ReadUInt16LittleEndian();
-									array[6] = reader.ReadUInt16LittleEndian();
-									array[5] = reader.ReadUInt16LittleEndian();
-									array[4] = reader.ReadUInt16LittleEndian();
+									array[7] = reader.ReadUShort();
+									array[6] = reader.ReadUShort();
+									array[5] = reader.ReadUShort();
+									array[4] = reader.ReadUShort();
 								}
 							}
 							else if (element.Usage == VertexElementUsage.BoneWeights)
@@ -435,8 +429,8 @@ namespace FrostySdk.Frostbite.IO.Output
 			fbxMesh.InitControlPoints((int)section.VertexCount);
 			IntPtr controlPoints = fbxMesh.GetControlPoints();
 			int num = 0;
-			int num8 = 0;
-			int num9 = 0;
+			int num2 = 0;
+			int num3 = 0;
 			bool flag = false;
 			bool flag2 = false;
 			Vector3 val = default(Vector3);
@@ -454,7 +448,7 @@ namespace FrostySdk.Frostbite.IO.Output
 				}
 				for (int j = 0; j < section.VertexCount; j++)
 				{
-					int num10 = 0;
+					int num4 = 0;
 					GeometryDeclarationDesc.Element[] elements = section.GeometryDeclDesc[0].Elements;
 					for (int k = 0; k < elements.Length; k++)
 					{
@@ -463,25 +457,25 @@ namespace FrostySdk.Frostbite.IO.Output
 						{
 							continue;
 						}
-						if (num10 >= num9 && num10 < num9 + stream.VertexStride)
+						if (num4 >= num3 && num4 < num3 + stream.VertexStride)
 						{
 							if (element.Usage == VertexElementUsage.Pos)
 							{
 								double* ptr = (double*)(void*)controlPoints;
 								if (element.Format == VertexElementFormat.Float3)
 								{
-									ptr[j * 4] = reader.ReadSingleLittleEndian();
-									ptr[j * 4 + 1] = reader.ReadSingleLittleEndian();
-									ptr[j * 4 + 2] = reader.ReadSingleLittleEndian();
+									ptr[j * 4] = reader.ReadFloat();
+									ptr[j * 4 + 1] = reader.ReadFloat();
+									ptr[j * 4 + 2] = reader.ReadFloat();
 								}
 								else if (element.Format == VertexElementFormat.Half3 || element.Format == VertexElementFormat.Half4)
 								{
-									ptr[j * 4] = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-									ptr[j * 4 + 1] = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-									ptr[j * 4 + 2] = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+									ptr[j * 4] = HalfUtils.Unpack(reader.ReadUShort());
+									ptr[j * 4 + 1] = HalfUtils.Unpack(reader.ReadUShort());
+									ptr[j * 4 + 2] = HalfUtils.Unpack(reader.ReadUShort());
 									if (element.Format == VertexElementFormat.Half4)
 									{
-										reader.ReadUInt16LittleEndian();
+										reader.ReadUShort();
 									}
 								}
 							}
@@ -497,26 +491,26 @@ namespace FrostySdk.Frostbite.IO.Output
 									}
 									if (element.Format == VertexElementFormat.Half4)
 									{
-										val2.X = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-										val2.Y = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-										val2.Z = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-										list.Add(HalfUtils.Unpack(reader.ReadUInt16LittleEndian()));
+										val2.X = HalfUtils.Unpack(reader.ReadUShort());
+										val2.Y = HalfUtils.Unpack(reader.ReadUShort());
+										val2.Z = HalfUtils.Unpack(reader.ReadUShort());
+										list.Add(HalfUtils.Unpack(reader.ReadUShort()));
 									}
 									else
 									{
-										val2.X = reader.ReadSingleLittleEndian();
-										val2.Y = reader.ReadSingleLittleEndian();
-										val2.Z = reader.ReadSingleLittleEndian();
-										list.Add(reader.ReadSingleLittleEndian());
+										val2.X = reader.ReadFloat();
+										val2.Y = reader.ReadFloat();
+										val2.Z = reader.ReadFloat();
+										list.Add(reader.ReadFloat());
 									}
 								}
 								else if (element.Format == VertexElementFormat.Float)
 								{
-									list.Add(reader.ReadSingleLittleEndian());
+									list.Add(reader.ReadFloat());
 								}
 								else
 								{
-									list.Add(HalfUtils.Unpack(reader.ReadUInt16LittleEndian()));
+									list.Add(HalfUtils.Unpack(reader.ReadUShort()));
 								}
 								flag = true;
 							}
@@ -528,11 +522,11 @@ namespace FrostySdk.Frostbite.IO.Output
 									fbxLayerElementNormal.MappingMode = EMappingMode.eByControlPoint;
 									fbxLayerElementNormal.ReferenceMode = EReferenceMode.eDirect;
 								}
-								val.X = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-								val.Y = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-								val.Z = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+								val.X = HalfUtils.Unpack(reader.ReadUShort());
+								val.Y = HalfUtils.Unpack(reader.ReadUShort());
+								val.Z = HalfUtils.Unpack(reader.ReadUShort());
 								fbxLayerElementNormal.DirectArray.Add(val.X, val.Y, val.Z);
-								val3.Y = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+								val3.Y = HalfUtils.Unpack(reader.ReadUShort());
 							}
 							else if (element.Usage == VertexElementUsage.Binormal)
 							{
@@ -542,11 +536,11 @@ namespace FrostySdk.Frostbite.IO.Output
 									fbxLayerElementBinormal.MappingMode = EMappingMode.eByControlPoint;
 									fbxLayerElementBinormal.ReferenceMode = EReferenceMode.eDirect;
 								}
-								val3.X = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-								val3.Y = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-								val3.Z = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+								val3.X = HalfUtils.Unpack(reader.ReadUShort());
+								val3.Y = HalfUtils.Unpack(reader.ReadUShort());
+								val3.Z = HalfUtils.Unpack(reader.ReadUShort());
 								fbxLayerElementBinormal.DirectArray.Add(val3.X, val3.Y, val3.Z);
-								reader.ReadUInt16LittleEndian();
+								reader.ReadUShort();
 							}
 							else if (element.Usage == VertexElementUsage.Tangent)
 							{
@@ -556,11 +550,11 @@ namespace FrostySdk.Frostbite.IO.Output
 									fbxLayerElementTangent.MappingMode = EMappingMode.eByControlPoint;
 									fbxLayerElementTangent.ReferenceMode = EReferenceMode.eDirect;
 								}
-								val2.X = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-								val2.Y = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-								val2.Z = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+								val2.X = HalfUtils.Unpack(reader.ReadUShort());
+								val2.Y = HalfUtils.Unpack(reader.ReadUShort());
+								val2.Z = HalfUtils.Unpack(reader.ReadUShort());
 								fbxLayerElementTangent.DirectArray.Add(val2.X, val2.Y, val2.Z);
-								val3.Z = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+								val3.Z = HalfUtils.Unpack(reader.ReadUShort());
 							}
 							else if (element.Usage == VertexElementUsage.TangentSpace)
 							{
@@ -578,15 +572,15 @@ namespace FrostySdk.Frostbite.IO.Output
 								}
 								if (element.Format == VertexElementFormat.UByte4N)
 								{
-									list2.Add(new Vector4((float)(int)reader.ReadByte() / 255f, (float)(int)reader.ReadByte() / 255f, (float)(int)reader.ReadByte() / 255f, (float)(int)reader.ReadByte() / 255f));
+									list2.Add((object)new Vector4((float)(int)reader.ReadByte() / 255f, (float)(int)reader.ReadByte() / 255f, (float)(int)reader.ReadByte() / 255f, (float)(int)reader.ReadByte() / 255f));
 								}
 								else if (element.Format == VertexElementFormat.UShort4N)
 								{
-									list2.Add(new Vector4((float)(int)reader.ReadUInt16LittleEndian() / 65535f, (float)(int)reader.ReadUInt16LittleEndian() / 65535f, (float)(int)reader.ReadUInt16LittleEndian() / 65535f, (float)(int)reader.ReadUInt16LittleEndian() / 65535f));
+									list2.Add((object)new Vector4((float)(int)reader.ReadUShort() / 65535f, (float)(int)reader.ReadUShort() / 65535f, (float)(int)reader.ReadUShort() / 65535f, (float)(int)reader.ReadUShort() / 65535f));
 								}
 								else if (element.Format == VertexElementFormat.UInt)
 								{
-									list2.Add(reader.ReadUInt32LittleEndian());
+									list2.Add(reader.ReadUInt());
 								}
 								flag2 = true;
 							}
@@ -600,29 +594,29 @@ namespace FrostySdk.Frostbite.IO.Output
 									dictionary.Add(element.Usage, num);
 									num++;
 								}
-								float num11;
-								float num12;
+								float num5;
+								float num6;
 								if (element.Format == VertexElementFormat.Float2)
 								{
-									num11 = reader.ReadSingleLittleEndian();
-									num12 = 1f - reader.ReadSingleLittleEndian();
+									num5 = reader.ReadFloat();
+									num6 = 1f - reader.ReadFloat();
 								}
 								else
 								{
-									num11 = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-									num12 = 1f - HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+									num5 = HalfUtils.Unpack(reader.ReadUShort());
+									num6 = 1f - HalfUtils.Unpack(reader.ReadUShort());
 								}
-								array2[dictionary[element.Usage]].DirectArray.Add(num11, num12);
+								array2[dictionary[element.Usage]].DirectArray.Add(num5, num6);
 							}
 							else if ((int)element.Usage >= 30 && (int)element.Usage <= 31)
 							{
 								if (!dictionary2.ContainsKey(element.Usage))
 								{
-									array[num8] = new FbxLayerElementVertexColor(fbxMesh, "VColor" + (num8 + 1));
-									array[num8].MappingMode = EMappingMode.eByControlPoint;
-									array[num8].ReferenceMode = EReferenceMode.eDirect;
-									dictionary2.Add(element.Usage, num8);
-									num8++;
+									array[num2] = new FbxLayerElementVertexColor(fbxMesh, "VColor" + (num2 + 1));
+									array[num2].MappingMode = EMappingMode.eByControlPoint;
+									array[num2].ReferenceMode = EReferenceMode.eDirect;
+									dictionary2.Add(element.Usage, num2);
+									num2++;
 								}
 								array[dictionary2[element.Usage]].DirectArray.Add((double)(int)reader.ReadByte() / 255.0, (double)(int)reader.ReadByte() / 255.0, (double)(int)reader.ReadByte() / 255.0, (double)(int)reader.ReadByte() / 255.0);
 							}
@@ -648,80 +642,80 @@ namespace FrostySdk.Frostbite.IO.Output
 										dictionary.Add(element.Usage, num);
 										num++;
 									}
-									float num13 = 0f;
-									float num14 = 0f;
+									float num7 = 0f;
+									float num8 = 0f;
 									if (element.Format == VertexElementFormat.Half2)
 									{
-										num13 = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-										num14 = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+										num7 = HalfUtils.Unpack(reader.ReadUShort());
+										num8 = HalfUtils.Unpack(reader.ReadUShort());
 									}
 									else if (element.Format == VertexElementFormat.Float2)
 									{
-										num13 = reader.ReadSingleLittleEndian();
-										num14 = reader.ReadSingleLittleEndian();
+										num7 = reader.ReadFloat();
+										num8 = reader.ReadFloat();
 									}
 									else
 									{
-										num13 = reader.ReadSingleLittleEndian() / 32767f * 0.5f + 0.5f;
-										num14 = reader.ReadSingleLittleEndian() / 32767f * 0.5f + 0.5f;
+										num7 = (float)reader.ReadShort() / 32767f * 0.5f + 0.5f;
+										num8 = (float)reader.ReadShort() / 32767f * 0.5f + 0.5f;
 									}
-									array2[dictionary[element.Usage]].DirectArray.Add(num13, num14);
+									array2[dictionary[element.Usage]].DirectArray.Add(num7, num8);
 								}
 								else if (element.Format == VertexElementFormat.Half4 || element.Format == VertexElementFormat.Float4)
 								{
 									if (!dictionary2.ContainsKey(element.Usage))
 									{
-										array[num8] = new FbxLayerElementVertexColor(fbxMesh, pName);
-										array[num8].MappingMode = EMappingMode.eByControlPoint;
-										array[num8].ReferenceMode = EReferenceMode.eDirect;
-										dictionary2.Add(element.Usage, num8);
-										num8++;
+										array[num2] = new FbxLayerElementVertexColor(fbxMesh, pName);
+										array[num2].MappingMode = EMappingMode.eByControlPoint;
+										array[num2].ReferenceMode = EReferenceMode.eDirect;
+										dictionary2.Add(element.Usage, num2);
+										num2++;
 									}
-									float num15 = 0f;
-									float num2 = 0f;
-									float num3 = 0f;
-									float num4 = 0f;
+									float num9 = 0f;
+									float num10 = 0f;
+									float num11 = 0f;
+									float num12 = 0f;
 									if (element.Format == VertexElementFormat.Half4)
 									{
-										num15 = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-										num2 = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-										num3 = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
-										num4 = HalfUtils.Unpack(reader.ReadUInt16LittleEndian());
+										num9 = HalfUtils.Unpack(reader.ReadUShort());
+										num10 = HalfUtils.Unpack(reader.ReadUShort());
+										num11 = HalfUtils.Unpack(reader.ReadUShort());
+										num12 = HalfUtils.Unpack(reader.ReadUShort());
 									}
 									else
 									{
-										num15 = reader.ReadSingleLittleEndian();
-										num2 = reader.ReadSingleLittleEndian();
-										num3 = reader.ReadSingleLittleEndian();
-										num4 = reader.ReadSingleLittleEndian();
+										num9 = reader.ReadFloat();
+										num10 = reader.ReadFloat();
+										num11 = reader.ReadFloat();
+										num12 = reader.ReadFloat();
 									}
-									array[dictionary2[element.Usage]].DirectArray.Add(num15, num2, num3, num4);
+									array[dictionary2[element.Usage]].DirectArray.Add(num9, num10, num11, num12);
 								}
 								else if (element.Format == VertexElementFormat.Float)
 								{
 									if (!dictionary2.ContainsKey(element.Usage))
 									{
-										array[num8] = new FbxLayerElementVertexColor(fbxMesh, pName);
-										array[num8].MappingMode = EMappingMode.eByControlPoint;
-										array[num8].ReferenceMode = EReferenceMode.eDirect;
-										dictionary2.Add(element.Usage, num8);
-										num8++;
+										array[num2] = new FbxLayerElementVertexColor(fbxMesh, pName);
+										array[num2].MappingMode = EMappingMode.eByControlPoint;
+										array[num2].ReferenceMode = EReferenceMode.eDirect;
+										dictionary2.Add(element.Usage, num2);
+										num2++;
 									}
-									float num5 = reader.ReadSingleLittleEndian();
-									array[dictionary2[element.Usage]].DirectArray.Add(num5, 0.0, 0.0);
+									float num13 = reader.ReadFloat();
+									array[dictionary2[element.Usage]].DirectArray.Add(num13, 0.0, 0.0);
 								}
 								else if (element.Format == VertexElementFormat.Int)
 								{
 									if (!dictionary2.ContainsKey(element.Usage))
 									{
-										array[num8] = new FbxLayerElementVertexColor(fbxMesh, pName);
-										array[num8].MappingMode = EMappingMode.eByControlPoint;
-										array[num8].ReferenceMode = EReferenceMode.eDirect;
-										dictionary2.Add(element.Usage, num8);
-										num8++;
+										array[num2] = new FbxLayerElementVertexColor(fbxMesh, pName);
+										array[num2].MappingMode = EMappingMode.eByControlPoint;
+										array[num2].ReferenceMode = EReferenceMode.eDirect;
+										dictionary2.Add(element.Usage, num2);
+										num2++;
 									}
-									int num7 = reader.ReadInt32LittleEndian();
-									array[dictionary2[element.Usage]].DirectArray.Add((float)num7 / 255f, 0.0, 0.0);
+									int num14 = reader.ReadInt();
+									array[dictionary2[element.Usage]].DirectArray.Add((float)num14 / 255f, 0.0, 0.0);
 								}
 								else
 								{
@@ -729,10 +723,10 @@ namespace FrostySdk.Frostbite.IO.Output
 								}
 							}
 						}
-						num10 += element.Size;
+						num4 += element.Size;
 					}
 				}
-				num9 += stream.VertexStride;
+				num3 += stream.VertexStride;
 			}
 			if (flag)
 			{
@@ -755,7 +749,7 @@ namespace FrostySdk.Frostbite.IO.Output
 				fbxMesh.BeginPolygon(0);
 				for (int n = 0; n < 3; n++)
 				{
-					int index = (int)((indexSize == 2) ? reader.ReadUInt16LittleEndian() : reader.ReadUInt32LittleEndian());
+					int index = (int)((indexSize == 2) ? reader.ReadUShort() : reader.ReadUInt32LittleEndian());
 					fbxMesh.AddPolygon(index);
 				}
 				fbxMesh.EndPolygon();

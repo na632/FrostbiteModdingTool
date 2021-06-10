@@ -254,8 +254,11 @@
                                     <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
                                     <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
                                 </hx:Viewport3DX.InputBindings>
-                                <hx:DirectionalLight3D Direction="-1, -1, 0" Color="#9A9A9A" />
-                                <hx:AmbientLight3D Color="#B0B0B0" />
+                                        <hx:DirectionalLight3D Direction="0, 1, 0" Color="#DDDDDE" />
+                                        <hx:DirectionalLight3D Direction="0.9, 0.7, 0.7" Color="#DDDDDE" />
+                                        <hx:DirectionalLight3D Direction="-1, -0.5, -0.5" Color="#DDDDDE" />
+                                        <hx:DirectionalLight3D Direction="1, -0.5, -0.5" Color="#DDDDDE" />
+                                <hx:AmbientLight3D Color="#111111" />
                                 <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding FloorModel}"
@@ -267,23 +270,15 @@
                 Material="{Binding BunnyMaterial}"
                     
                     />
-                                <hx:MeshGeometryModel3D
+                        <hx:MeshGeometryModel3D
                 CullMode="None"
-                Geometry="{Binding BunnyModel_1}"
-                Instances="{Binding BunnyInstances_1}"
-                Material="{Binding BunnyMaterial_1}" />
-                                <hx:MeshGeometryModel3D
-                CullMode="None"
-                Geometry="{Binding BunnyModel_2}"
-                Instances="{Binding BunnyInstances_2}"
-                Material="{Binding BunnyMaterial_2}" />
-                                <hx:MeshGeometryModel3D
-                CullMode="None"
-                Geometry="{Binding BunnyModel_3}"
-                Instances="{Binding BunnyInstances_3}"
-                Material="{Binding BunnyMaterial_3}"
+                Geometry="{Binding MeshModel2}"
+                Instances="{Binding MeshInstances2}"
+                Material="{Binding MeshMaterial2}"
+                    
                     />
-                            </hx:Viewport3DX>
+
+                                    </hx:Viewport3DX>
 
 
                         </Grid>

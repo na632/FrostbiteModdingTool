@@ -117,7 +117,7 @@ namespace FrostbiteModdingTests
                     var exporter2 = new MeshSetToFbxExport2();
                     MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
 
-                    exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+                    exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
 
                     //exporter2.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
                     //meshToFbxExporter.Export(base.AssetManager, base.Asset, outputFile, "2020", "Meters", false, skeleton, "obj", meshSet);
@@ -215,6 +215,20 @@ namespace FrostbiteModdingTests
 
 
                 }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void OpenFETEditorProject()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+            editorProject.Load(@"C:\Users\paula\Downloads\JAYS BOOTPACK.fifaproject");
+            var count = AssetManager.Instance.EnumerateEbx(modifiedOnly: true).Count();
+            var res = AssetManager.Instance.EnumerateRes(modifiedOnly: true).ToList();
+            var count2 = res.Count();
+            var count3 = AssetManager.Instance.EnumerateChunks(modifiedOnly: true).Count();
+
 
         }
 

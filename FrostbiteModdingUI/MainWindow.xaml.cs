@@ -138,6 +138,11 @@ namespace FIFAModdingUI
             this.Visibility = Visibility.Hidden;
         }
 
-      
+        private void btnBF4Editor_Click(object sender, RoutedEventArgs e)
+        {
+            App.MainEditorWindow = new BF4Editor(this);
+            App.MainEditorWindow.Show();
+            this.Visibility = Visibility.Hidden;
+        }
     }
 }

@@ -105,56 +105,56 @@ namespace FrostySdk.Resources
 			{
 				throw new ArgumentNullException("reader");
 			}
-			Type = (MeshType)reader.ReadUInt32LittleEndian();
-			maxInstances = reader.ReadUInt32LittleEndian();
-			uint num = reader.ReadUInt32LittleEndian();
-			reader.ReadInt64LittleEndian();
-			for (uint num3 = 0u; num3 < num; num3++)
+			Type = (MeshType)reader.ReadUInt();
+			maxInstances = reader.ReadUInt();
+			uint sectionCount = reader.ReadUInt();
+			var unknownLong = reader.ReadLong();
+			for (uint num3 = 0u; num3 < sectionCount; num3++)
 			{
 				Sections.Add(null);
 			}
 			for (int i = 0; i < MaxCategories; i++)
 			{
-				int num4 = reader.ReadInt32LittleEndian();
-				reader.ReadInt64LittleEndian();
+				int num4 = reader.ReadInt();
+				var unkLong2 = reader.ReadLong();
 				CategorySubsetIndices.Add(new List<byte>());
 				for (int j = 0; j < num4; j++)
 				{
 					CategorySubsetIndices[i].Add(byte.MaxValue);
 				}
 			}
-			Flags = (MeshLayoutFlags)reader.ReadUInt32LittleEndian();
-			indexBufferFormat.format = reader.ReadInt32LittleEndian();
-			IndexBufferSize = reader.ReadUInt32LittleEndian();
-			VertexBufferSize = reader.ReadUInt32LittleEndian();
+			Flags = (MeshLayoutFlags)reader.ReadUInt();
+			indexBufferFormat.format = reader.ReadInt();
+			IndexBufferSize = reader.ReadUInt();
+			VertexBufferSize = reader.ReadUInt();
 			if (HasAdjacencyInMesh)
 			{
-				AdjacencyBufferSize = reader.ReadUInt32LittleEndian();
+				AdjacencyBufferSize = reader.ReadUInt();
 				adjacencyData = new byte[AdjacencyBufferSize];
 			}
 			ChunkId = reader.ReadGuid();
-			inlineDataOffset = reader.ReadUInt32LittleEndian();
+			inlineDataOffset = reader.ReadUInt();
 			if (HasAdjacencyInMesh)
 			{
-				reader.ReadInt64LittleEndian();
+				reader.ReadLong();
 			}
-			long position = reader.ReadInt64LittleEndian();
-			long position2 = reader.ReadInt64LittleEndian();
-			long position3 = reader.ReadInt64LittleEndian();
-			nameHash = reader.ReadUInt32LittleEndian();
+			long position = reader.ReadLong();
+			long position2 = reader.ReadLong();
+			long position3 = reader.ReadLong();
+			nameHash = reader.ReadUInt();
 			uint num5 = 0u;
 			long num6 = 0L;
 			long num7 = 0L;
 			long num8 = 0L;
-			reader.ReadInt64LittleEndian();
+			reader.ReadLong();
 			if (Type == MeshType.MeshType_Skinned)
 			{
-				num5 = reader.ReadUInt32LittleEndian();
-				num6 = reader.ReadInt64LittleEndian();
+				num5 = reader.ReadUInt();
+				num6 = reader.ReadLong();
 			}
 			else if (Type == MeshType.MeshType_Composite)
 			{
-				num8 = reader.ReadInt64LittleEndian();
+				num8 = reader.ReadLong();
 			}
 			reader.Pad(16);
 			long position4 = reader.Position;
@@ -163,14 +163,14 @@ namespace FrostySdk.Resources
 				reader.Position = num6;
 				for (int k = 0; k < num5; k++)
 				{
-					BoneIndexArray.Add(reader.ReadUInt32LittleEndian());
+					BoneIndexArray.Add(reader.ReadUInt());
 				}
 				if (num7 != 0L)
 				{
 					reader.Position = num7;
 					for (int l = 0; l < num5; l++)
 					{
-						BoneShortNameArray.Add(reader.ReadUInt32LittleEndian());
+						BoneShortNameArray.Add(reader.ReadUInt());
 					}
 				}
 			}

@@ -332,7 +332,7 @@ namespace FIFA21Plugin
             //try
             //{
             parent.Logger.Log("Loading files to know what to change.");
-            if (parent.modifiedEbx.Count == 0 && parent.modifiedRes.Count == 0 && parent.ModifiedChunks.Count == 0)
+            if (parent.modifiedEbx.Count == 0 && parent.modifiedRes.Count == 0 && parent.ModifiedChunks.Count == 0 && parent.modifiedLegacy.Count == 0)
                 return true;
 
             BuildCache buildCache = new BuildCache();
@@ -577,6 +577,9 @@ namespace FIFA21Plugin
 
 
                 }
+
+                // Add chunks to globals
+
             }
             return true;
             //}

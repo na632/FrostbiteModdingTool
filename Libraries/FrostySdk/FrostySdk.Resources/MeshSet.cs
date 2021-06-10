@@ -83,147 +83,244 @@ public class MeshSet
 
 	public int HeaderSize => BitConverter.ToUInt16(Meta, 12);
 
-	public int MaxLodCount => 7;
+	public int MaxLodCount
+	{
+		get
+		{
+			int dataVersion = ProfilesLibrary.DataVersion;
+			if (dataVersion == 20131115 || dataVersion == 20140225 || (uint)(dataVersion - 20141117) <= 1u)
+			{
+				return 6;
+			}
+			return 7;
+		}
+	}
 
 	public byte[] Meta { get; } = new byte[16];
 
 
 	public MeshSet(Stream stream)
-	{
-		if (stream == null)
+    {
+        if (stream == null)
+        {
+            throw new ArgumentNullException("stream");
+        }
+        NativeReader nativeReader = new NativeReader(stream);
+
+        using (NativeWriter nw = new NativeWriter(new FileStream("MeshSet.dat", FileMode.Create)))
+        {
+            nw.Write(nativeReader.ReadToEnd());
+        }
+        nativeReader.Position = 0;
+
+
+
+        boundingBox = nativeReader.ReadAxisAlignedBox();
+        long[] array = new long[MaxLodCount];
+        for (int i2 = 0; i2 < MaxLodCount; i2++)
+        {
+            array[i2] = nativeReader.ReadLong();
+        }
+        long position = nativeReader.ReadLong();
+        long position2 = nativeReader.ReadLong();
+        nameHash = nativeReader.ReadUInt();
+        Type = (MeshType)nativeReader.ReadUInt();
+        Flags = (MeshLayoutFlags)nativeReader.ReadUInt();
+        ReadUnknownUInts(nativeReader);
+        ushort lodsCount = nativeReader.ReadUShort();
+        nativeReader.ReadUShort();
+        ushort num2 = 0;
+        if (Type == MeshType.MeshType_Skinned)
+        {
+            boneCount = nativeReader.ReadUShort();
+            num2 = nativeReader.ReadUShort();
+            if (boneCount != 0)
+            {
+                nativeReader.ReadLong();
+                nativeReader.ReadLong();
+            }
+        }
+        else if (Type == MeshType.MeshType_Composite)
+        {
+            num2 = nativeReader.ReadUShort();
+            boneCount = nativeReader.ReadUShort();
+            long num3 = nativeReader.ReadLong();
+            long num4 = nativeReader.ReadLong();
+            long position3 = nativeReader.Position;
+            if (num3 != 0L)
+            {
+                nativeReader.Position = num3;
+                for (int n2 = 0; n2 < num2; n2++)
+                {
+                    partTransforms.Add(nativeReader.ReadLinearTransform());
+                }
+            }
+            if (num4 != 0L)
+            {
+                nativeReader.Position = num4;
+                for (int num5 = 0; num5 < num2; num5++)
+                {
+                    partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
+                }
+            }
+            nativeReader.Position = position3;
+        }
+        nativeReader.Pad(16);
+        headerSize = (uint)nativeReader.Position;
+        for (int n = 0; n < lodsCount; n++)
+        {
+            Lods.Add(new MeshSetLod(nativeReader));
+        }
+        int sectionIndex = 0;
+        foreach (MeshSetLod lod4 in Lods)
+        {
+            for (int m = 0; m < lod4.Sections.Count; m++)
+            {
+                lod4.Sections[m] = new MeshSetSection(nativeReader, sectionIndex++);
+            }
+        }
+        nativeReader.Pad(16);
+        nativeReader.Position = position;
+        FullName = nativeReader.ReadNullTerminatedString();
+        nativeReader.Position = position2;
+        Name = nativeReader.ReadNullTerminatedString();
+        nativeReader.Pad(16);
+        foreach (MeshSetLod lod3 in Lods)
+        {
+            for (int l = 0; l < lod3.CategorySubsetIndices.Count; l++)
+            {
+                for (int j2 = 0; j2 < lod3.CategorySubsetIndices[l].Count; j2++)
+                {
+                    lod3.CategorySubsetIndices[l][j2] = nativeReader.ReadByte();
+                }
+            }
+        }
+        nativeReader.Pad(16);
+        foreach (MeshSetLod lod2 in Lods)
+        {
+            nativeReader.Position += lod2.AdjacencyBufferSize;
+        }
+        nativeReader.Pad(16);
+        foreach (MeshSetLod lod in Lods)
+        {
+            if (lod.Type == MeshType.MeshType_Skinned)
+            {
+                nativeReader.Position += lod.BoneCount * 4;
+            }
+            else if (lod.Type == MeshType.MeshType_Composite)
+            {
+                nativeReader.Position += lod.Sections.Count * 24;
+            }
+        }
+        if (Type == MeshType.MeshType_Skinned)
+        {
+            nativeReader.Pad(16);
+            for (int k = 0; k < num2; k++)
+            {
+                boneIndices.Add(nativeReader.ReadUShort());
+            }
+            nativeReader.Pad(16);
+            for (int j = 0; j < num2; j++)
+            {
+                boneBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
+            }
+        }
+        else if (Type == MeshType.MeshType_Composite)
+        {
+            nativeReader.Pad(16);
+            for (int i = 0; i < num2; i++)
+            {
+                partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
+            }
+        }
+        nativeReader.Pad(16);
+        foreach (MeshSetLod lod in Lods)
+        {
+            lod.ReadInlineData(nativeReader);
+        }
+    }
+
+    private void ReadUnknownUInts(NativeReader nativeReader)
+    {
+        //for (int m2 = 0; m2 < 8; m2++)
+        //{
+        //    unknownUInts.Add(nativeReader.ReadUInt());
+        //}
+		switch (ProfilesLibrary.DataVersion)
 		{
-			throw new ArgumentNullException("stream");
-		}
-		NativeReader nativeReader = new NativeReader(stream);
-		boundingBox = nativeReader.ReadAxisAlignedBox();
-		long[] array = new long[MaxLodCount];
-		for (int i2 = 0; i2 < MaxLodCount; i2++)
-		{
-			array[i2] = nativeReader.ReadInt64LittleEndian();
-		}
-		long position = nativeReader.ReadInt64LittleEndian();
-		long position2 = nativeReader.ReadInt64LittleEndian();
-		nameHash = nativeReader.ReadUInt32LittleEndian();
-		Type = (MeshType)nativeReader.ReadUInt32LittleEndian();
-		Flags = (MeshLayoutFlags)nativeReader.ReadUInt32LittleEndian();
-		for (int m2 = 0; m2 < 8; m2++)
-		{
-			unknownUInts.Add(nativeReader.ReadUInt32LittleEndian());
-		}
-		ushort lodsCount = nativeReader.ReadUInt16LittleEndian();
-		nativeReader.ReadUInt16LittleEndian();
-		ushort num2 = 0;
-		if (Type == MeshType.MeshType_Skinned)
-		{
-			boneCount = nativeReader.ReadUInt16LittleEndian();
-			num2 = nativeReader.ReadUInt16LittleEndian();
-			if (boneCount != 0)
-			{
-				nativeReader.ReadInt64LittleEndian();
-				nativeReader.ReadInt64LittleEndian();
-			}
-		}
-		else if (Type == MeshType.MeshType_Composite)
-		{
-			num2 = nativeReader.ReadUInt16LittleEndian();
-			boneCount = nativeReader.ReadUInt16LittleEndian();
-			long num3 = nativeReader.ReadInt64LittleEndian();
-			long num4 = nativeReader.ReadInt64LittleEndian();
-			long position3 = nativeReader.Position;
-			if (num3 != 0L)
-			{
-				nativeReader.Position = num3;
-				for (int n2 = 0; n2 < num2; n2++)
+			case 20160927:
+				unknownUInts.Add(nativeReader.ReadUInt());
+				unknownUInts.Add(nativeReader.ReadUInt());
+				break;
+			case 20171210:
+				unknownUInts.Add(nativeReader.ReadUShort());
+				break;
+			case (int)ProfilesLibrary.DataVersions.FIFA21:
+			case 20170929:
+			case 20180807:
+			case 20180914:
+			case (int)ProfilesLibrary.DataVersions.FIFA20:
 				{
-					partTransforms.Add(nativeReader.ReadLinearTransform());
+					for (int m = 0; m < 8; m++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					break;
 				}
-			}
-			if (num4 != 0L)
-			{
-				nativeReader.Position = num4;
-				for (int num5 = 0; num5 < num2; num5++)
+			case 20180628:
 				{
-					partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
+					for (int k = 0; k < 6; k++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					break;
 				}
-			}
-			nativeReader.Position = position3;
-		}
-		nativeReader.Pad(16);
-		headerSize = (uint)nativeReader.Position;
-		for (int n = 0; n < lodsCount; n++)
-		{
-			Lods.Add(new MeshSetLod(nativeReader));
-		}
-		int sectionIndex = 0;
-		foreach (MeshSetLod lod4 in Lods)
-		{
-			for (int m = 0; m < lod4.Sections.Count; m++)
-			{
-				lod4.Sections[m] = new MeshSetSection(nativeReader, sectionIndex++);
-			}
-		}
-		nativeReader.Pad(16);
-		nativeReader.Position = position;
-		FullName = nativeReader.ReadNullTerminatedString();
-		nativeReader.Position = position2;
-		Name = nativeReader.ReadNullTerminatedString();
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod3 in Lods)
-		{
-			for (int l = 0; l < lod3.CategorySubsetIndices.Count; l++)
-			{
-				for (int j2 = 0; j2 < lod3.CategorySubsetIndices[l].Count; j2++)
+			case 20181207:
+			case 20190905:
+			case 20191101:
 				{
-					lod3.CategorySubsetIndices[l][j2] = nativeReader.ReadByte();
+					for (int j = 0; j < 7; j++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					break;
 				}
-			}
-		}
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod2 in Lods)
-		{
-			nativeReader.Position += lod2.AdjacencyBufferSize;
-		}
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod in Lods)
-		{
-			if (lod.Type == MeshType.MeshType_Skinned)
-			{
-				nativeReader.Position += lod.BoneCount * 4;
-			}
-			else if (lod.Type == MeshType.MeshType_Composite)
-			{
-				nativeReader.Position += lod.Sections.Count * 24;
-			}
-		}
-		if (Type == MeshType.MeshType_Skinned)
-		{
-			nativeReader.Pad(16);
-			for (int k = 0; k < num2; k++)
-			{
-				boneIndices.Add(nativeReader.ReadUInt16LittleEndian());
-			}
-			nativeReader.Pad(16);
-			for (int j = 0; j < num2; j++)
-			{
-				boneBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
-			}
-		}
-		else if (Type == MeshType.MeshType_Composite)
-		{
-			nativeReader.Pad(16);
-			for (int i = 0; i < num2; i++)
-			{
-				partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
-			}
-		}
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod5 in Lods)
-		{
-			lod5.ReadInlineData(nativeReader);
+			case (int)ProfilesLibrary.DataVersions.MADDEN21:
+			case 20190729:
+				{
+					for (int l = 0; l < 8; l++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					unknownUInts.Add(nativeReader.ReadUShort());
+					break;
+				}
+			default:
+				unknownUInts.Add(nativeReader.ReadUInt());
+				if (ProfilesLibrary.DataVersion != 20170321)
+				{
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+				}
+				break;
+			case 20131115:
+			case 20140225:
+			case 20141117:
+			case 20141118:
+			case 20150223:
+			case 20151103:
+				break;
 		}
 	}
 
-	private void PreProcess(MeshContainer meshContainer)
+    private void PreProcess(MeshContainer meshContainer)
 	{
 		if (meshContainer == null)
 		{

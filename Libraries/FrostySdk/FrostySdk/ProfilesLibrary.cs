@@ -257,6 +257,16 @@ namespace FrostySdk
 			return isFIFA;
 		}
 
+		public static bool IsBF4DataVersion()
+		{
+
+			bool isbf4 = false;
+
+			isbf4 = (ProfilesLibrary.DataVersion == 20141117);
+
+			return isbf4;
+		}
+
 		public static bool IsMadden21DataVersion()
 		{
 

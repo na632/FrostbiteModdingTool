@@ -1,0 +1,30 @@
+﻿<Window x:Class="FrostbiteModdingUI.Windows.BF4Editor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
+        mc:Ignorable="d"
+         xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
+         xmlns:localPlayerControls="clr-namespace:FrostbiteModdingUI.Pages.Player"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+        Title="{Binding Path=WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
+         SizeToContent="Manual" MinHeight="720" MinWidth="1280"
+        ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Visible"
+         WindowStartupLocation="CenterScreen" WindowState="Normal" WindowStyle="SingleBorderWindow"
+        
+        >
+    <DockingManager>
+        <LayoutRoot>
+            <LayoutPanel Orientation="Vertical">
+                <LayoutDocumentPane DockMinHeight="450" DockHeight="450" >
+                    <LayoutDocument CanClose="False" CanFloat="False" CanMove="False">
+                        <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
+                    </LayoutDocument>
+                </LayoutDocumentPane>
+            </LayoutPanel>
+        </LayoutRoot>
+    </DockingManager>
+</Window>

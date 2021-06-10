@@ -44,12 +44,12 @@ namespace SdkGenerator
         {
 			var allProcesses = Process.GetProcesses();
 			var process = allProcesses.FirstOrDefault(x =>
-					x.ProcessName.Contains("FIFA18")
-					|| x.ProcessName.Contains("FIFA19")
-					|| x.ProcessName.Contains("FIFA20")
-					|| x.ProcessName.Contains("FIFA21")
-					|| x.ProcessName.ToUpper().Contains("MADDEN21")
-					|| x.ProcessName.Contains("bf4")
+					x.ProcessName.Contains("FIFA18", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.Contains("FIFA19", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.Contains("FIFA20", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.Contains("FIFA21", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.ToUpper().Contains("MADDEN21", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.Contains("bf4", StringComparison.OrdinalIgnoreCase)
 					);
 			return process;
 		}
@@ -192,9 +192,9 @@ namespace SdkGenerator
 
 					List<string> patterns = new List<string>()
 					{
-    //            "488b05???????? 48894108 48890d???????? 48???? C3",
-    //            "488b05???????? 48894108 48890d????????",
-    //            "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+                "488b05???????? 48894108 48890d???????? 48???? C3",
+                "488b05???????? 48894108 48890d????????",
+                "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
 
                 //"48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08", // FIFA 21
 
@@ -229,7 +229,8 @@ namespace SdkGenerator
 					//	offset = 0L;
 					//	return false;
 					//}
-					listOfOffsets = listOfOffsets.OrderByDescending(x => x).ToList();
+					listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
+					//listOfOffsets = listOfOffsets.OrderByDescending(x => x).ToList();
 					memoryReader.Position = listOfOffsets[0] + 3;
 					int num = memoryReader.ReadInt();
 					memoryReader.Position = listOfOffsets[0] + 3 + num + 4;

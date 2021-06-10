@@ -48,8 +48,9 @@ namespace FIFA21Plugin
 			public long TocOffset { get; set; }
 
 			public int CasIndex { get; internal set; }
+			public int Unk { get; internal set; }
 
-            public override string ToString()
+			public override string ToString()
             {
 				return $"Offset:{Offset}-Size:{Size}-Index{CasIndex}";
 			}

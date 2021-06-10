@@ -431,6 +431,31 @@ namespace FrostySdk.IO
 			});
 		}
 
+
+		public Guid ReadGuidReverse()
+        {
+			byte[] array6 = ReadBytes(16);
+			Guid guid = new Guid(new byte[16]
+			{
+				array6[15],
+				array6[14],
+				array6[13],
+				array6[12],
+				array6[11],
+				array6[10],
+				array6[9],
+				array6[8],
+				array6[7],
+				array6[6],
+				array6[5],
+				array6[4],
+				array6[3],
+				array6[2],
+				array6[1],
+				array6[0]
+			});
+			return guid;
+		}
 		public Sha1 ReadSha1()
 		{
 			FillBuffer(20);

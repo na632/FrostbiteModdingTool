@@ -148,24 +148,27 @@ namespace SdkGenerator
 					stringBuilder.AppendLine("public class Delegate_" + @class.GetValue<Guid>("guid").ToString().Replace('-', '_') + " { }\r\n}");
 				}
 			}
-			//if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20140225)
-			//{
-			//	DbObject dbObject2 = DbObject.CreateObject();
-			//	dbObject2.SetValue("name", "RenderFormat");
-			//	List<string> list = CreateOldFB3PFs();
-			//	DbObject dbObject3 = DbObject.CreateList();
-			//	int num = 0;
-			//	foreach (string item in list)
-			//	{
-			//		DbObject dbObject4 = DbObject.CreateObject();
-			//		dbObject4.SetValue("name", item);
-			//		dbObject4.SetValue("value", num++);
-			//		dbObject3.Add(dbObject4);
-			//	}
-			//	dbObject2.SetValue("fields", dbObject3);
-			//	stringBuilder.Append(WriteEnum(dbObject2));
-			//}
-			stringBuilder.AppendLine("}");
+            if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20140225
+				 ||
+				ProfilesLibrary.IsBF4DataVersion()
+				)
+            {
+                DbObject dbObject2 = DbObject.CreateObject();
+                dbObject2.SetValue("name", "RenderFormat");
+                List<string> list = CreateOldFB3PFs();
+                DbObject dbObject3 = DbObject.CreateList();
+                int num = 0;
+                foreach (string item in list)
+                {
+                    DbObject dbObject4 = DbObject.CreateObject();
+                    dbObject4.SetValue("name", item);
+                    dbObject4.SetValue("value", num++);
+                    dbObject3.Add(dbObject4);
+                }
+                dbObject2.SetValue("fields", dbObject3);
+                stringBuilder.Append(WriteEnum(dbObject2));
+            }
+            stringBuilder.AppendLine("}");
 
 			//if (File.Exists("temp.cs"))
 			//	File.Delete("temp.cs");
@@ -305,6 +308,10 @@ namespace SdkGenerator
 			EbxFieldType ebxFieldType = (EbxFieldType)classObj.GetValue("type", 0);
 			DbObject value = classObj.GetValue<DbObject>("meta");
 			string className = classObj.GetValue<string>("name").Replace(':', '_');
+
+			if (string.IsNullOrEmpty(className))
+				return string.Empty;
+
 			stringBuilder.Append(WriteClassAttributes(classObj));
 
 			stringBuilder.AppendLine("public class " + className + ((parentClassName != "") ? (" : " + parentClassName) : ""));

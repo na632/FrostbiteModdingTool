@@ -191,9 +191,14 @@ namespace FrostySdk.Resources
 					return 16;
 				case 20190905:
 					return 16;
-				case 20190911:
+				//case 20190911: // FIFA 20
+				case (int)ProfilesLibrary.DataVersions.FIFA20: // FIFA20DataVersion
+				case (int)ProfilesLibrary.DataVersions.FIFA21: // FIFA21DataVersion
+				case (int)ProfilesLibrary.DataVersions.MADDEN21: // Madden21DataVersion
 					return 16;
-				default:
+
+
+					default:
 					return 8;
 				}
 			}

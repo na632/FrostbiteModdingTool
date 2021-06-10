@@ -12,6 +12,7 @@ namespace Frostbite.Textures
 {
     public class TextureExporter
 	{
+
 		public virtual void Export(Texture textureAsset, string filename, string filterType)
 		{
 			byte[] array = WriteToDDS(textureAsset);
