@@ -120,6 +120,7 @@
     <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
     <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
 	  <PackageReference Include="HelixToolkit" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.Core.WPF" Version="2.10.0" />
@@ -135,6 +136,7 @@
     <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Pfim" Version="0.9.1" />
+    <PackageReference Include="PropertyTools.Wpf" Version="3.1.0" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
@@ -248,7 +250,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controls\" />
     <Folder Include="Models\ThreeD\" />
+    <Folder Include="Pages\Common\Property\" />
     <Folder Include="Pages\Gameplay\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />

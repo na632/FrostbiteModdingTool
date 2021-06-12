@@ -233,16 +233,16 @@ namespace FIFAModdingUI.Pages.Common
 			
 		}
 
-		public async void LoadEbx(AssetEntry inAssetEntry
+		public async Task<bool> LoadEbx(AssetEntry inAssetEntry
 			, EbxAsset inAsset
 			, FrostbiteProject frostyProject
 			, IEditorWindow inEditorWindow)
         {
 			LoadingDialog loadingDialog = new LoadingDialog("Loading EBX", "Loading EBX");
 			loadingDialog.Show();
-			loadingDialog.Update("Loading EBX", "Loading EBX");
+			//await loadingDialog.UpdateAsync("Loading EBX", "Loading EBX");
 
-			await Task.Delay(1);
+			//await Task.Delay(1);
 
 			_VanillaRootProps = null;
 			_rootObjProps = null;
@@ -258,32 +258,27 @@ namespace FIFAModdingUI.Pages.Common
 			//this.TreeViewOriginal.DataContext = RootObject;
 			//this.TreeView2.DataContext = RootObject;
 
-			loadingDialog.Update("Loading EBX", "Building Tree Views");
-			await Task.Run(async() =>
+			bool success = true;
+			//await loadingDialog.UpdateAsync("Loading EBX", "Building Tree Views");
+			Dispatcher.Invoke(() =>
 			{
+				this.DataContext = this;
 
-				await Dispatcher.InvokeAsync(() =>
-				{
-					this.DataContext = this;
-
-					CreateEditor(RootObjectProperties, TreeView1);
-				});
-				await Dispatcher.InvokeAsync(() =>
-				{
-					CreateEditor(VanillaRootObjectProperties, TreeViewOriginal);
-				});
-
+				success = CreateEditor(RootObjectProperties, TreeView1).Result;
+				success = CreateEditor(VanillaRootObjectProperties, TreeViewOriginal).Result;
 			});
+
 
 			loadingDialog.Close();
 			loadingDialog = null;
+			return success;
 		}
 
         private void Editor_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
         }
 
-        public bool CreateEditor(object d, TreeView treeView)
+        public async Task<bool> CreateEditor(object d, TreeView treeView)
 		{
 			var propertyNSearch = ((Type)d.GetType()).ToString().ToLower().Replace(".", "_", StringComparison.OrdinalIgnoreCase);
 
@@ -298,12 +293,12 @@ namespace FIFAModdingUI.Pages.Common
 					var lst = mp.PropertyValue as IList;
 					foreach (var item in lst)
 					{
-						CreateEditor(item, treeView);
+						await CreateEditor(item, treeView);
 					}
 				}
 				else
                 {
-					CreateEditor(d, treeView);
+					await CreateEditor(d, treeView);
 				}
 			}
             if (ty != null)
@@ -334,8 +329,10 @@ namespace FIFAModdingUI.Pages.Common
 			   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<object, object>));
 		}
 
-		public void CreateEditor(List<ModdableProperty> moddableProperties, TreeView treeView)
+		public async Task<bool> CreateEditor(List<ModdableProperty> moddableProperties, TreeView treeView)
         {
+			bool success = true;
+
 			treeView.Items.Clear();
 			foreach (var p in moddableProperties)
 			{
@@ -620,6 +617,8 @@ namespace FIFAModdingUI.Pages.Common
 
 						default:
 							EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
+							success = false;
+
 							break;
 
 
@@ -629,7 +628,7 @@ namespace FIFAModdingUI.Pages.Common
 					treeView.Items.Add(propTreeViewParent);
 
 			}
-
+			return success;
 		}
 
         private void Chk_Checked(object sender, RoutedEventArgs e)

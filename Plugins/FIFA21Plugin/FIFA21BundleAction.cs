@@ -512,6 +512,10 @@ namespace FIFA21Plugin
                             SbToDbObject.Add(sbGroup.Key, new DbObject(dboOriginal2));
                             Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
                         }
+                        else if(!SbToDbObject.ContainsKey(sbGroup.Key) && sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
 
                         if(SbToDbObject.ContainsKey(sbGroup.Key))
                             dboOriginal = SbToDbObject[sbGroup.Key];
@@ -533,11 +537,17 @@ namespace FIFA21Plugin
                                         if (origResDbo != null)
                                             break;
                                     }
-                                    
-                                    if (origResDbo != null && (assetBundle.Key.Type == "MeshSet" || assetBundle.Key.Type == "Texture"))
+
+                                    if (origResDbo != null 
+                                        && parent.modifiedRes.ContainsKey(assetBundle.Key.Name)
+                                        && (assetBundle.Key.Type == "SkinnedMeshAsset" || assetBundle.Key.Type == "MeshSet" || assetBundle.Key.Type == "Texture"))
+                                    //if (origResDbo != null && (assetBundle.Key.Type == "MeshSet" || assetBundle.Key.Type == "Texture"))
                                     {
                                         nw_sb.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
                                         nw_sb.WriteBytes(parent.modifiedRes[assetBundle.Key.Name].ResMeta);
+                                    }
+                                    else if (origResDbo != null)
+                                    {
 
                                     }
                                 }

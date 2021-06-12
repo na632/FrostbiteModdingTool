@@ -198,7 +198,7 @@ namespace FrostySdk.Frostbite.IO.Output
 		private void FBXCreateMesh(FbxScene scene, MeshSetLod lod, List<FbxNode> boneNodes)
 		{
 			int indexSize = lod.IndexUnitSize / 8;
-			FbxNode fbxNode = (flattenHierarchy ? scene.RootNode : new FbxNode(scene, lod.String03));
+			FbxNode fbxNode = (flattenHierarchy ? scene.RootNode : new FbxNode(scene, lod.MeshName));
 			foreach (MeshSetSection section in lod.Sections)
 			{
 				if (section.Name == "")
@@ -209,20 +209,21 @@ namespace FrostySdk.Frostbite.IO.Output
 				FbxNode fbxNode2 = FBXExportSubObject(scene, section, lod.VertexBufferSize, indexSize, reader);
 				if (flattenHierarchy)
 				{
-					fbxNode2.Name = lod.String03 + ":" + section.Name;
+					//fbxNode2.Name = lod.String03 + ":" + section.Name;
+					fbxNode2.Name = lod.MeshName + ":" + section.materialName;
 				}
 				fbxNode.AddChild(fbxNode2);
 				if ((lod.Type != MeshType.MeshType_Skinned && lod.Type != MeshType.MeshType_Composite) || boneNodes.Count <= 0)
 				{
 					continue;
 				}
-				List<ushort> list = section.BoneList;
+				List<ushort> boneList = section.BoneList;
 				if (lod.Type == MeshType.MeshType_Composite && lod.PartTransforms.Count != 0)
 				{
-					list = new List<ushort>();
+					boneList = new List<ushort>();
 					for (ushort num = 0; num < lod.PartTransforms.Count; num = (ushort)(num + 1))
 					{
-						list.Add(num);
+						boneList.Add(num);
 					}
 				}
 				if (ProfilesLibrary.DataVersion == 20160927
@@ -234,13 +235,13 @@ namespace FrostySdk.Frostbite.IO.Output
 					|| ProfilesLibrary.IsFIFA21DataVersion()
 					)
 				{
-					list.Clear();
+					boneList.Clear();
 					for (ushort num2 = 0; num2 < boneNodes.Count; num2 = (ushort)(num2 + 1))
 					{
-						list.Add(num2);
+						boneList.Add(num2);
 					}
 				}
-				FBXCreateSkin(scene, section, fbxNode2, boneNodes, list, lod.Type, reader);
+				FBXCreateSkin(scene, section, fbxNode2, boneNodes, boneList, lod.Type, reader);
 				FBXCreateBindPose(scene, section, fbxNode2);
 			}
 			if (!flattenHierarchy)

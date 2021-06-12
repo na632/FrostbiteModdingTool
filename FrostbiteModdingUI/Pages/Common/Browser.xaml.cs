@@ -40,6 +40,8 @@ using Frostbite.FileManagers;
 using Assimp.Unmanaged;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using FrostySdk.Ebx;
+using Frosty.Hash;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -438,8 +440,11 @@ namespace FIFAModdingUI.Pages.Common
 						OpenFileDialog openFileDialog = new OpenFileDialog();
 						openFileDialog.Filter = "Fbx files (*.fbx)|*.fbx";
 						openFileDialog.FileName = SelectedEntry.Filename;
-						if (openFileDialog.ShowDialog().Value)
+
+						var fbximport_dialogresult = openFileDialog.ShowDialog();
+						if (fbximport_dialogresult.HasValue && fbximport_dialogresult.Value)
 						{
+
 							var skinnedMeshEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
 							if (skinnedMeshEbx != null)
 							{
@@ -457,9 +462,14 @@ namespace FIFAModdingUI.Pages.Common
 										});
 									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
 
+									// ---------------------------------------------------------------
+									// Clear the Compute Graph
+									var cg = ((dynamic)skinnedMeshEbx.RootObject).ComputeGraph = default(PointerRef);
+									AssetManager.Instance.ModifyEbx(SelectedEntry.Name, skinnedMeshEbx);
+
 									UpdateAssetListView();
 									App.AppInsightClient.TrackRequest("Import Skinned Mesh", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
-
+									OpenAsset(SelectedEntry);
 								}
 								catch (Exception ImportException)
 								{
@@ -603,6 +613,30 @@ namespace FIFAModdingUI.Pages.Common
 							var res = AssetManager.Instance.GetRes(resentry);
 							MeshSet meshSet = new MeshSet(res);
 
+							var skeletonEntryText = "content/character/rig/skeleton/player/skeleton_player";
+							var fifaMasterSkeleton = AssetManager.Instance.EbxList.ContainsKey(Fnv1.HashString(skeletonEntryText));
+							if(!fifaMasterSkeleton)
+                            {
+								MeshSkeletonSelector meshSkeletonSelector = new MeshSkeletonSelector();
+								var meshSelectorResult = meshSkeletonSelector.ShowDialog();
+								if(meshSelectorResult.HasValue && meshSelectorResult.Value)
+                                {
+                                    if (!meshSelectorResult.Value)
+                                    {
+										MessageBox.Show("Cannot export without a Skeleton");
+										return;
+                                    }
+
+									skeletonEntryText = meshSkeletonSelector.AssetEntry.Name;
+
+                                }
+                                else
+                                {
+									MessageBox.Show("Cannot export without a Skeleton");
+									return;
+								}
+                            }
+
 							SaveFileDialog saveFileDialog = new SaveFileDialog();
 							var filt = "*.fbx";
 							saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
@@ -613,7 +647,7 @@ namespace FIFAModdingUI.Pages.Common
 								var exporter = new MeshSetToFbxExport();
 								exporter.Export(AssetManager.Instance
 									, skinnedMeshEbx.RootObject
-									, saveFileDialog.FileName, "2016", "Millimeters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
+									, saveFileDialog.FileName, "FBX_2012", "Meters", true, skeletonEntryText, "*.fbx", meshSet);
 								
 								
 								MainEditorWindow.Log($"Exported {SelectedEntry.Name} to {saveFileDialog.FileName}");
@@ -739,8 +773,9 @@ namespace FIFAModdingUI.Pages.Common
 				ImageViewerScreen.Visibility = Visibility.Collapsed;
 				TextViewer.Visibility = Visibility.Collapsed;
 				EBXViewer.Visibility = Visibility.Collapsed;
+				BackupEBXViewer.Visibility = Visibility.Collapsed;
 				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
-				ModelViewer.Visibility = Visibility.Collapsed;
+				ModelDockingManager.Visibility = Visibility.Collapsed;
 				//HEXViewer.Visibility = Visibility.Collapsed;
 
 				//TextBlock control = sender as TextBlock;
@@ -827,10 +862,13 @@ namespace FIFAModdingUI.Pages.Common
 									var m = new MainViewModel(skinnedMeshAsset: skinnedMeshEbx, meshSet: meshSet, textureAsset: textureAssetEntry);
                                     //var m = new Main3DViewModel(AssetManager.Instance, "test_noSkel", skinnedMeshEbx, meshSet);
                                     this.ModelViewer.DataContext = m;
-									this.ModelViewer.Visibility = Visibility.Visible;
-									
+									this.ModelDockingManager.Visibility = Visibility.Visible;
+									this.ModelViewerEBXGrid.SelectedObject = skinnedMeshEbx.RootObject;
+
+
 									this.btnExport.IsEnabled = true;
 									this.btnImport.IsEnabled = true;
+									this.btnRevert.IsEnabled = true;
 								}
 
 									
@@ -848,8 +886,12 @@ namespace FIFAModdingUI.Pages.Common
 								MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
 								//EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-								EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-								EBXViewer.Visibility = Visibility.Visible;
+								var successful = EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+								EBXViewer.Visibility = successful.Result ? Visibility.Visible : Visibility.Collapsed;
+								BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
+								BackupEBXViewer.SelectedObject = ebx.RootObject;
+                                BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
+
 								btnRevert.IsEnabled = true;
 								//if (ebxEntry.Type == "HotspotDataAsset")
 								//{
@@ -944,7 +986,12 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		private void BuildTextureViewerFromAssetEntry(ResAssetEntry res)
+        private void BackupEBXViewer_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
+        {
+
+        }
+
+        private void BuildTextureViewerFromAssetEntry(ResAssetEntry res)
         {
 			using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(res))
 			{

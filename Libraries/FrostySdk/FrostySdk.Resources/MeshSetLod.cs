@@ -43,6 +43,7 @@ namespace FrostySdk.Resources
 		private readonly bool hasBoneShortNames;
 
 		public MeshType Type { get; set; }
+		public MeshType MeshType => Type;
 
 		public List<MeshSetSection> Sections { get; } = new List<MeshSetSection>();
 
@@ -74,7 +75,7 @@ namespace FrostySdk.Resources
 
 		public string String02 => name;
 
-		public string String03 => shortName;
+		public string MeshName => shortName;
 
 		public int BoneCount => BoneIndexArray.Count;
 
@@ -222,10 +223,7 @@ namespace FrostySdk.Resources
 
 		internal void PreProcess(MeshContainer meshContainer, ref uint inInlineDataOffset)
 		{
-			if (meshContainer == null)
-			{
-				throw new ArgumentNullException("meshContainer");
-			}
+			
 			inlineDataOffset = uint.MaxValue;
 			if (InlineData != null)
 			{
@@ -364,58 +362,138 @@ namespace FrostySdk.Resources
 			indexBufferFormat.format = (int)((newSize == 2) ? Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R16_UINT") : Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R32_UINT"));
 		}
 
-		internal void Process(NativeWriter writer, MeshContainer meshContainer)
-		{
-			if (writer == null)
-			{
-				throw new ArgumentNullException("writer");
-			}
-			if (meshContainer == null)
-			{
-				throw new ArgumentNullException("meshContainer");
-			}
-			writer.WriteInt32LittleEndian((int)Type);
-			writer.WriteUInt32LittleEndian(maxInstances);
-			meshContainer.WriteRelocArray("SECTION", Sections, writer);
-			foreach (List<byte> subsetCategory in CategorySubsetIndices)
-			{
-				meshContainer.WriteRelocArray("SUBSET", subsetCategory, writer);
-			}
-			writer.WriteInt32LittleEndian((int)Flags);
-			writer.WriteInt32LittleEndian(indexBufferFormat.format);
-			writer.WriteUInt32LittleEndian(IndexBufferSize);
-			writer.WriteUInt32LittleEndian(VertexBufferSize);
-			if (HasAdjacencyInMesh)
-			{
-				writer.WriteInt32LittleEndian(0);
-			}
-			writer.WriteGuid(ChunkId);
-			writer.WriteUInt32LittleEndian(inlineDataOffset);
-			if (HasAdjacencyInMesh)
-			{
-				if (inlineDataOffset != uint.MaxValue)
-				{
-					meshContainer.WriteRelocPtr("ADJACENCY", adjacencyData, writer);
-				}
-				else
-				{
-					writer.WriteUInt64LittleEndian(0uL);
-				}
-			}
-			meshContainer.WriteRelocPtr("STR", shaderDebugName, writer);
-			meshContainer.WriteRelocPtr("STR", name, writer);
-			meshContainer.WriteRelocPtr("STR", shortName, writer);
-			writer.WriteUInt32LittleEndian(nameHash);
-			writer.WriteInt64LittleEndian(0L);
-			if (Type == MeshType.MeshType_Skinned)
-			{
-				writer.WriteInt32LittleEndian(BoneIndexArray.Count);
-				meshContainer.WriteRelocPtr("BONES", BoneIndexArray, writer);
-			}
-			writer.WritePadding(16);
-		}
+        //internal void Process(NativeWriter writer, MeshContainer meshContainer)
+        //{
+        //	if (writer == null)
+        //	{
+        //		throw new ArgumentNullException("writer");
+        //	}
+        //	if (meshContainer == null)
+        //	{
+        //		throw new ArgumentNullException("meshContainer");
+        //	}
+        //	writer.WriteInt32LittleEndian((int)Type);
+        //	writer.WriteUInt32LittleEndian(maxInstances);
+        //	meshContainer.WriteRelocArray("SECTION", Sections, writer);
+        //	foreach (List<byte> subsetCategory in CategorySubsetIndices)
+        //	{
+        //		meshContainer.WriteRelocArray("SUBSET", subsetCategory, writer);
+        //	}
+        //	writer.WriteInt32LittleEndian((int)Flags);
+        //	writer.WriteInt32LittleEndian(indexBufferFormat.format);
+        //	writer.WriteUInt32LittleEndian(IndexBufferSize);
+        //	writer.WriteUInt32LittleEndian(VertexBufferSize);
+        //	if (HasAdjacencyInMesh)
+        //	{
+        //		writer.WriteInt32LittleEndian(0);
+        //	}
+        //	writer.WriteGuid(ChunkId);
+        //	writer.WriteUInt32LittleEndian(inlineDataOffset);
+        //	if (HasAdjacencyInMesh)
+        //	{
+        //		if (inlineDataOffset != uint.MaxValue)
+        //		{
+        //			meshContainer.WriteRelocPtr("ADJACENCY", adjacencyData, writer);
+        //		}
+        //		else
+        //		{
+        //			writer.WriteUInt64LittleEndian(0uL);
+        //		}
+        //	}
+        //	meshContainer.WriteRelocPtr("STR", shaderDebugName, writer);
+        //	meshContainer.WriteRelocPtr("STR", name, writer);
+        //	meshContainer.WriteRelocPtr("STR", shortName, writer);
+        //	writer.WriteUInt32LittleEndian(nameHash);
+        //	writer.WriteInt64LittleEndian(0L);
+        //	if (Type == MeshType.MeshType_Skinned)
+        //	{
+        //		writer.WriteInt32LittleEndian(BoneIndexArray.Count);
+        //		meshContainer.WriteRelocPtr("BONES", BoneIndexArray, writer);
+        //	}
+        //	writer.WritePadding(16);
+        //}
 
-		public MeshSubsetCategoryFlags GetSectionCategories(int index)
+        internal void Process(NativeWriter writer, MeshContainer meshContainer)
+        {
+            writer.Write((int)MeshType);
+            writer.Write(maxInstances);
+            meshContainer.WriteRelocArray("SECTION", Sections, writer);
+            foreach (List<byte> subsetCategory in CategorySubsetIndices)
+            {
+                meshContainer.WriteRelocArray("SUBSET", subsetCategory, writer);
+            }
+            writer.Write((int)Flags);
+            if (ProfilesLibrary.DataVersion != 20141118
+                && ProfilesLibrary.DataVersion != 20140225
+                && ProfilesLibrary.DataVersion != 20141117
+                && ProfilesLibrary.DataVersion != 20131115)
+            {
+                writer.Write(indexBufferFormat.format);
+            }
+            else
+            {
+                writer.Write((int)indexBufferFormat.formatEnum);
+            }
+            writer.Write(IndexBufferSize);
+            writer.Write(VertexBufferSize);
+            if (HasAdjacencyInMesh)
+            {
+                writer.Write(0);
+            }
+            writer.Write(ChunkId);
+            writer.Write(inlineDataOffset);
+            if (HasAdjacencyInMesh)
+            {
+                if (inlineDataOffset != uint.MaxValue)
+                {
+                    meshContainer.WriteRelocPtr("ADJACENCY", adjacencyData, writer);
+                }
+                else
+                {
+                    writer.Write(0uL);
+                }
+            }
+            meshContainer.WriteRelocPtr("STR", shaderDebugName, writer);
+            meshContainer.WriteRelocPtr("STR", name, writer);
+            meshContainer.WriteRelocPtr("STR", shortName, writer);
+            writer.Write(nameHash);
+            writer.Write(0L);
+            if (MeshType == MeshType.MeshType_Skinned)
+            {
+                if (ProfilesLibrary.DataVersion == 20160927
+                    || ProfilesLibrary.DataVersion == 20170929
+                    || ProfilesLibrary.DataVersion == 20180807
+                    || ProfilesLibrary.DataVersion == 20180914
+                    || ProfilesLibrary.DataVersion == 20190729
+                    || ProfilesLibrary.DataVersion == 20190911
+                    || ProfilesLibrary.DataVersion == 20171117
+                    || ProfilesLibrary.DataVersion == 20171110
+                    || ProfilesLibrary.IsFIFA21DataVersion()
+                    || ProfilesLibrary.IsMadden21DataVersion()
+                    )
+                {
+                    writer.Write(BoneIndexArray.Count);
+                    meshContainer.WriteRelocPtr("BONES", BoneIndexArray, writer);
+                }
+                else if (ProfilesLibrary.DataVersion != 20181207 && ProfilesLibrary.DataVersion != 20190905)
+                {
+                    writer.Write(BoneIndexArray.Count);
+                    meshContainer.WriteRelocPtr("BONES", BoneIndexArray, writer);
+                    if (BoneShortNameArray.Count != 0)
+                    {
+                        meshContainer.WriteRelocPtr("BONESNAMES", BoneShortNameArray, writer);
+                    }
+                    else
+                    {
+                        writer.Write(0uL);
+                    }
+                }
+            }
+            writer.WritePadding(16);
+
+        }
+
+        public MeshSubsetCategoryFlags GetSectionCategories(int index)
 		{
 			MeshSubsetCategoryFlags meshSubsetCategoryFlags = (MeshSubsetCategoryFlags)0;
 			for (int i = 0; i < CategorySubsetIndices.Count; i++)

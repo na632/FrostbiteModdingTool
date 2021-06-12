@@ -8,6 +8,10 @@
             xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
             xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
              xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:propertygrid="http://propertytools.org/wpf"
+             xmlns:frostbite="clr-namespace:FrostySdk.Ebx;assembly=FrostySdk"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
     <DockingManager>
         <LayoutRoot>
@@ -226,51 +230,56 @@
                                     <local:Editor Grid.Row="1" x:Name="EBXViewer" Visibility="Collapsed">
 
                                     </local:Editor>
+                                    <xctk:PropertyGrid Grid.Row="1" x:Name="BackupEBXViewer" Visibility="Collapsed">
+                                        
+                                    </xctk:PropertyGrid>
+
 
 
                                     <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
                                 <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
                             </StackPanel>
 
-                            <hx:Viewport3DX
+                                    <StackPanel  Grid.Row="1" x:Name="ModelDockingManager" Visibility="Hidden" Orientation="Horizontal"  >
+                                                    <hx:Viewport3DX
             x:Name="ModelViewer"
             Grid.Row="1"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
             EnableSSAO="True"
             FXAALevel="Medium"
-            Visibility="Hidden"    
-            ShowFrameDetails="True"
+              
+            ShowFrameDetails="False"
                  EnableDeferredRendering="True">
-                                <hx:Viewport3DX.InputBindings>
-                                    <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                                    <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                                    <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                                    <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                                    <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                                    <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                                    <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
-                                    <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
-                                    <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
-                                    <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
-                                </hx:Viewport3DX.InputBindings>
-                                        <hx:DirectionalLight3D Direction="0, 1, 0" Color="#DDDDDE" />
-                                        <hx:DirectionalLight3D Direction="0.9, 0.7, 0.7" Color="#DDDDDE" />
-                                        <hx:DirectionalLight3D Direction="-1, -0.5, -0.5" Color="#DDDDDE" />
-                                        <hx:DirectionalLight3D Direction="1, -0.5, -0.5" Color="#DDDDDE" />
-                                <hx:AmbientLight3D Color="#111111" />
-                                <hx:MeshGeometryModel3D
-                CullMode="None"
+                                                        <hx:Viewport3DX.InputBindings>
+                                                <!--<KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
+                                                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
+                                                            <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
+                                                            <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
+                                                            <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
+                                                            <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
+                                                            <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />-->
+                                                            <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+                                                            <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                                                            <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
+                                                        </hx:Viewport3DX.InputBindings>
+                                                        <hx:DirectionalLight3D Direction="0, 1, 0" Color="#DEDDDE" />
+                                            <hx:DirectionalLight3D Direction="-1, -0.5, -0.5" Color="#DEDDDE" />
+                                            <hx:DirectionalLight3D Direction="1, -0.5, -0.5" Color="#DEDDDE" />
+                                                        <hx:DirectionalLight3D Direction="0, 0, 1" Color="#DEDDDE" />
+                                            <hx:DirectionalLight3D Direction="1, 0, 0" Color="#DEDDDE" />
+                                            <hx:AmbientLight3D Color="#111111" />
+                                                        <hx:MeshGeometryModel3D
                 Geometry="{Binding FloorModel}"
                 Material="{Binding FloorMaterial}" />
-                                <hx:MeshGeometryModel3D
+                                                        <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding BunnyModel}"
                 Instances="{Binding BunnyInstances}"
                 Material="{Binding BunnyMaterial}"
                     
                     />
-                        <hx:MeshGeometryModel3D
+                                                        <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding MeshModel2}"
                 Instances="{Binding MeshInstances2}"
@@ -278,9 +287,36 @@
                     
                     />
 
-                                    </hx:Viewport3DX>
+                                                    </hx:Viewport3DX>
 
 
+                                        <xctk:PropertyGrid x:Name="ModelViewerEBXGrid">
+                                            <xctk:PropertyGrid.EditorDefinitions>
+                                                <xctk:EditorTemplateDefinition TargetProperties="{x:Type sys:Int32}">
+                                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                                        <DataTemplate>
+                                                            <xctk:PropertyGridEditorIntegerUpDown Increment="1" Value="{Binding Value}"></xctk:PropertyGridEditorIntegerUpDown>
+                                                        </DataTemplate>
+                                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                                </xctk:EditorTemplateDefinition>
+                                                
+                                                <!--<xctk:EditorTemplateDefinition TargetProperties="{x:Type frostbite:PointerRef}">
+                                                    <xctk:EditorTemplateDefinition.EditingTemplate>
+                                                        <DataTemplate>
+                                                            <TreeView DataContext="{Binding Value}">
+                                                                <TreeViewItem>
+                                                                    <TextBlock Text="{Binding Value.Internal}"></TextBlock>
+                                                                </TreeViewItem>
+                                                            </TreeView>
+                                                        </DataTemplate>
+                                                    </xctk:EditorTemplateDefinition.EditingTemplate>
+                                                </xctk:EditorTemplateDefinition>-->
+
+                                            </xctk:PropertyGrid.EditorDefinitions>
+                                        </xctk:PropertyGrid>
+                                        <!--<propertygrid:PropertyGrid x:Name="ModelViewerEBXGrid"></propertygrid:PropertyGrid>-->
+                                    </StackPanel>
+                            
                         </Grid>
                             </LayoutAnchorable>
                         </LayoutAnchorablePane>

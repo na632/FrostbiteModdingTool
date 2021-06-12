@@ -239,7 +239,7 @@ namespace FrostySdk.Resources
 
 		private readonly long offset1;
 
-		private readonly long offset2;
+		//private readonly long offset2;
 
 		private readonly uint unknownInt2;
 
@@ -312,6 +312,7 @@ namespace FrostySdk.Resources
 		public MeshSetSection(NativeReader reader, int sIndex = 0)
 		{
 			SectionIndex = sIndex;
+			sectionIndex = sIndex;
 
 			offset1 = reader.ReadLong();
 			
@@ -350,8 +351,9 @@ namespace FrostySdk.Resources
 			long position2 = reader.ReadLong();
 			//reader.ReadInt();
 			//reader.ReadULong();
-			reader.Position += 8;
-            for (int i = 0; i < 1; i++)
+			//reader.Position += 8;
+			unknownLong = reader.ReadUInt64LittleEndian();
+			for (int i = 0; i < 1; i++)
             {
                 GeometryDeclDesc[i].Elements = new GeometryDeclarationDesc.Element[GeometryDeclarationDesc.MaxElements];
 				GeometryDeclDesc[i].Streams = new GeometryDeclarationDesc.Stream[GeometryDeclarationDesc.MaxStreams];
@@ -396,6 +398,9 @@ namespace FrostySdk.Resources
 			{
 				BoneList.Add(reader.ReadUShort());
 			}
+			//reader.Position = position3;
+			reader.Position = positionOfMaterialName;
+			Name = reader.ReadNullTerminatedString();
 			reader.Position = position3;
 		}
 		
@@ -418,13 +423,120 @@ namespace FrostySdk.Resources
 			}
 		}
 
+		internal void ProcessFIFA21(NativeWriter writer, MeshContainer meshContainer)
+        {
+            writer.Write(offset1);
+            meshContainer.WriteRelocPtr("STR", sectionIndex + ":" + materialName, writer);
+            writer.Write(materialId);
+            writer.Write(UnknownInt);
+            for (int l = 0; l < 6; l++)
+            {
+                writer.WriteSingleLittleEndian(texCoordRatios[l]);
+            }
+            writer.Write(PrimitiveCount);
+            writer.Write(StartIndex);
+            writer.Write(VertexOffset);
+            writer.Write(VertexCount);
+            writer.WriteBytes(unknownData);
+            writer.Write(vertexStride);
+            writer.Write((byte)PrimitiveType);
+            writer.WriteUInt16LittleEndian(0);
+            writer.WriteUInt16LittleEndian(bonesPerVertex);
+            writer.WriteUInt16LittleEndian((ushort)BoneList.Count);
+            if (BoneList.Count > 0)
+            {
+                meshContainer.WriteRelocPtr("BONELIST", BoneList, writer);
+            }
+            else
+            {
+                writer.WriteUInt64LittleEndian(0uL);
+            }
+            writer.WriteUInt64LittleEndian(unknownLong);
+            for (int i = 0; i < DeclCount; i++)
+            {
+                for (int j = 0; j < GeometryDeclDesc[i].Elements.Length; j++)
+                {
+                    writer.Write((byte)GeometryDeclDesc[i].Elements[j].Usage);
+                    writer.Write((byte)GeometryDeclDesc[i].Elements[j].Format);
+                    writer.Write(GeometryDeclDesc[i].Elements[j].Offset);
+                    writer.Write(GeometryDeclDesc[i].Elements[j].StreamIndex);
+                }
+                for (int k = 0; k < GeometryDeclDesc[i].Streams.Length; k++)
+                {
+                    writer.Write(GeometryDeclDesc[i].Streams[k].VertexStride);
+                    writer.Write((byte)GeometryDeclDesc[i].Streams[k].Classification);
+                }
+                writer.Write(GeometryDeclDesc[i].ElementCount);
+                writer.Write(GeometryDeclDesc[i].StreamCount);
+                writer.WriteUInt16LittleEndian(0);
+            }
+            writer.Write(unknownInt2);
+			/*
+            writer.Write(offset1);
+			meshContainer.WriteRelocPtr("STR", SectionIndex + ":" + materialName, writer);
+			writer.Write(materialId);
+			writer.Write(UnknownInt);
+			for (int l = 0; l < 6; l++)
+			{
+				writer.Write(texCoordRatios[l]);
+			}
+			writer.Write(PrimitiveCount);
+			writer.Write(StartIndex);
+			writer.Write(VertexOffset);
+			writer.Write(VertexCount);
+			writer.Write(unknownData);
+			writer.Write(vertexStride);
+			writer.Write((byte)PrimitiveType);
+			writer.Write(bonesPerVertex);
+			writer.Write((byte)0);
+			writer.Write(BoneList.Count);
+			if (BoneList.Count > 0)
+			{
+				meshContainer.WriteRelocPtr("BONELIST", BoneList, writer);
+			}
+			else
+			{
+				writer.Write(0uL);
+			}
+
+			writer.Write(0uL);
+
+			for (int i = 0; i < DeclCount; i++)
+			{
+				for (int j = 0; j < GeometryDeclDesc[i].Elements.Length; j++)
+				{
+					writer.Write((byte)GeometryDeclDesc[i].Elements[j].Usage);
+					writer.Write((byte)GeometryDeclDesc[i].Elements[j].Format);
+					writer.Write(GeometryDeclDesc[i].Elements[j].Offset);
+					writer.Write(GeometryDeclDesc[i].Elements[j].StreamIndex);
+				}
+				for (int k = 0; k < GeometryDeclDesc[i].Streams.Length; k++)
+				{
+					writer.Write(GeometryDeclDesc[i].Streams[k].VertexStride);
+					writer.Write((byte)GeometryDeclDesc[i].Streams[k].Classification);
+				}
+				writer.Write(GeometryDeclDesc[i].ElementCount);
+				writer.Write(GeometryDeclDesc[i].StreamCount);
+				writer.Write((ushort)0);
+			}
+			
+			writer.Write(unknownInt2);
+			*/
+		}
+
 		internal void Process(NativeWriter writer, MeshContainer meshContainer)
 		{
-			writer.Write(offset1);
-			if (ProfilesLibrary.DataVersion == 20160607 || ProfilesLibrary.DataVersion == 20161021 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-			{
-				writer.Write(offset2);
-			}
+            if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+            {
+                ProcessFIFA21(writer, meshContainer);
+                return;
+            }
+
+            writer.Write(offset1);
+			//if (ProfilesLibrary.DataVersion == 20160607 || ProfilesLibrary.DataVersion == 20161021 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+			//{
+			//	writer.Write(offset2);
+			//}
 			meshContainer.WriteRelocPtr("STR", SectionIndex + ":" + materialName, writer);
 			writer.Write(materialId);
 			writer.Write(UnknownInt);

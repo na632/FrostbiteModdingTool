@@ -96,7 +96,7 @@ public class MeshSet
 		}
 	}
 
-	public byte[] Meta { get; } = new byte[16];
+	public byte[] Meta { get; set; } = new byte[16];
 
 
 	public MeshSet(Stream stream)
@@ -320,30 +320,6 @@ public class MeshSet
 		}
 	}
 
-    private void PreProcess(MeshContainer meshContainer)
-	{
-		if (meshContainer == null)
-		{
-			throw new ArgumentNullException("meshContainer");
-		}
-		uint inInlineDataOffset = 0u;
-		foreach (MeshSetLod lod3 in Lods)
-		{
-			lod3.PreProcess(meshContainer, ref inInlineDataOffset);
-		}
-		foreach (MeshSetLod lod2 in Lods)
-		{
-			meshContainer.AddRelocPtr("LOD", lod2);
-		}
-		meshContainer.AddString(fullName, fullName.Replace(Name, ""), ignoreNull: true);
-		meshContainer.AddString(Name, Name);
-		if (Type == MeshType.MeshType_Skinned)
-		{
-			meshContainer.AddRelocPtr("BONEINDICES", boneIndices);
-			meshContainer.AddRelocPtr("BONEBBOXES", boneBoundingBoxes);
-		}
-	}
-
 	public byte[] ToBytes()
 	{
 		MeshContainer meshContainer = new MeshContainer();
@@ -365,12 +341,210 @@ public class MeshSet
 		meshContainer.FixupRelocPtrs(nativeWriter);
 		meshContainer.WriteRelocTable(nativeWriter);
 		num3 = (uint)(nativeWriter.BaseStream.Position - num - num2);
-		BitConverter.TryWriteBytes(Meta, num);
-		BitConverter.TryWriteBytes(Meta.AsSpan(4), num2);
-		BitConverter.TryWriteBytes(Meta.AsSpan(8), num3);
-		BitConverter.TryWriteBytes(Meta.AsSpan(12), headerSize);
-		return ((MemoryStream)nativeWriter.BaseStream).ToArray();
+
+        BitConverter.TryWriteBytes(Meta, num);
+        BitConverter.TryWriteBytes(Meta.AsSpan(4), num2);
+        BitConverter.TryWriteBytes(Meta.AsSpan(8), num3);
+        BitConverter.TryWriteBytes(Meta.AsSpan(12), headerSize);
+
+        //var msMeta = new MemoryStream();
+        //using (var nwMeta = new NativeWriter(msMeta, true))
+        //      {
+        //	nwMeta.Write(num);
+        //	nwMeta.Write(num2);
+        //	nwMeta.Write(num3);
+        //	nwMeta.Write(headerSize);
+        //}
+        //Meta = msMeta.ToArray();
+
+        var bytes = ((MemoryStream)nativeWriter.BaseStream).ToArray();
+		return bytes;
 	}
+
+	private void PreProcess(MeshContainer meshContainer)
+	{
+		uint inInlineDataOffset = 0u;
+		foreach (MeshSetLod lod in Lods)
+		{
+			lod.PreProcess(meshContainer, ref inInlineDataOffset);
+		}
+		foreach (MeshSetLod lod2 in Lods)
+		{
+			meshContainer.AddRelocPtr("LOD", lod2);
+		}
+		meshContainer.AddString(fullName, FullName.Replace(Name, ""), ignoreNull: true);;
+		meshContainer.AddString(Name, Name);
+		if ((ProfilesLibrary.DataVersion == 20171117
+			|| ProfilesLibrary.DataVersion == 20171110
+			|| ProfilesLibrary.DataVersion == 20170321
+			|| ProfilesLibrary.DataVersion == 20160927
+			|| ProfilesLibrary.DataVersion == 20170929
+			|| ProfilesLibrary.DataVersion == 20180807
+			|| ProfilesLibrary.DataVersion == 20180914
+			|| ProfilesLibrary.DataVersion == 20190911
+			|| ProfilesLibrary.IsMadden21DataVersion()
+			|| ProfilesLibrary.IsFIFA21DataVersion()
+			|| ProfilesLibrary.DataVersion == 20190729) 
+			&& Type == MeshType.MeshType_Skinned)
+		{
+			meshContainer.AddRelocPtr("BONEINDICES", boneIndices);
+			meshContainer.AddRelocPtr("BONEBBOXES", boneBoundingBoxes);
+		}
+	}
+
+	/*
+	private void Process(NativeWriter writer, MeshContainer meshContainer)
+	{
+		writer.Write(boundingBox);
+		for (int i = 0; i < MaxLodCount; i++)
+		{
+			if (i < Lods.Count)
+			{
+				meshContainer.WriteRelocPtr("LOD", Lods[i], writer);
+			}
+			else
+			{
+				writer.Write(0uL);
+			}
+		}
+		meshContainer.WriteRelocPtr("STR", FullName, writer);
+		meshContainer.WriteRelocPtr("STR", Name, writer);
+		writer.Write(nameHash);
+		writer.Write((uint)Type);
+		writer.Write((uint)Flags);
+		foreach (uint unknownUInt in unknownUInts)
+		{
+			writer.Write(unknownUInt);
+		}
+		writer.Write((ushort)Lods.Count);
+		ushort num = 0;
+		foreach (MeshSetLod lod in Lods)
+		{
+			num = (ushort)(num + (ushort)lod.Sections.Count);
+		}
+		writer.Write(num);
+		if ((ProfilesLibrary.DataVersion == 20171117 
+			|| ProfilesLibrary.DataVersion == 20171110 
+			|| ProfilesLibrary.DataVersion == 20170321 
+			|| ProfilesLibrary.DataVersion == 20160927 
+			|| ProfilesLibrary.DataVersion == 20170929 
+			|| ProfilesLibrary.DataVersion == 20180807
+			|| ProfilesLibrary.DataVersion == 20180914
+			|| ProfilesLibrary.DataVersion == 20190911
+			|| ProfilesLibrary.DataVersion == 20190729
+			|| ProfilesLibrary.IsFIFA21DataVersion()
+			|| ProfilesLibrary.IsMadden21DataVersion()
+			) 
+			&& Type == MeshType.MeshType_Skinned)
+		{
+			writer.Write(boneCount);
+			writer.Write((ushort)boneIndices.Count);
+			meshContainer.WriteRelocPtr("BONEINDICES", boneIndices, writer);
+			meshContainer.WriteRelocPtr("BONEBBOXES", boneBoundingBoxes, writer);
+		}
+		writer.WritePadding(16);
+		foreach (MeshSetLod lod2 in Lods)
+		{
+			meshContainer.AddOffset("LOD", lod2, writer);
+			lod2.Process(writer, meshContainer);
+		}
+		foreach (MeshSetLod lod3 in Lods)
+		{
+			meshContainer.AddOffset("SECTION", lod3.Sections, writer);
+			foreach (MeshSetSection section in lod3.Sections)
+			{
+				section.Process(writer, meshContainer);
+			}
+		}
+		writer.WritePadding(16);
+		foreach (MeshSetLod lod4 in Lods)
+		{
+			foreach (MeshSetSection section2 in lod4.Sections)
+			{
+				if (section2.BoneList.Count <= 0)
+				{
+					continue;
+				}
+				meshContainer.AddOffset("BONELIST", section2.BoneList, writer);
+				foreach (ushort bone in section2.BoneList)
+				{
+					writer.Write(bone);
+				}
+			}
+		}
+		writer.WritePadding(16);
+		meshContainer.WriteStrings(writer);
+		writer.WritePadding(16);
+		foreach (MeshSetLod lod5 in Lods)
+		{
+			foreach (List<byte> categorySubsetIndex in lod5.CategorySubsetIndices)
+			{
+				meshContainer.AddOffset("SUBSET", categorySubsetIndex, writer);
+				writer.Write(categorySubsetIndex.ToArray());
+			}
+		}
+		writer.WritePadding(16);
+		if (Type != MeshType.MeshType_Skinned)
+		{
+			return;
+		}
+		foreach (MeshSetLod lod6 in Lods)
+		{
+			meshContainer.AddOffset("BONES", lod6.BoneIndexArray, writer);
+			foreach (uint item in lod6.BoneIndexArray)
+			{
+				writer.Write(item);
+			}
+			if (ProfilesLibrary.DataVersion == 20160927
+				|| ProfilesLibrary.DataVersion == 20171117 
+				|| ProfilesLibrary.DataVersion == 20170929 
+				|| ProfilesLibrary.DataVersion == 20180807 
+				|| ProfilesLibrary.DataVersion == 20180914 
+				|| ProfilesLibrary.DataVersion == 20181207 
+				|| ProfilesLibrary.DataVersion == 20190729 
+				|| ProfilesLibrary.DataVersion == 20190911 
+				|| ProfilesLibrary.IsFIFA21DataVersion()
+				|| ProfilesLibrary.IsMadden21DataVersion()
+				|| lod6.BoneShortNameArray.Count == 0)
+			{
+				continue;
+			}
+			meshContainer.AddOffset("BONESNAMES", lod6.BoneShortNameArray, writer);
+			foreach (uint item2 in lod6.BoneShortNameArray)
+			{
+				writer.Write(item2);
+			}
+		}
+		writer.WritePadding(16);
+		//if (ProfilesLibrary.DataVersion != 20171117 
+		//	&& ProfilesLibrary.DataVersion != 20171110
+		//	&& ProfilesLibrary.DataVersion != 20170321 
+		//	&& ProfilesLibrary.DataVersion != 20160927 
+		//	&& ProfilesLibrary.DataVersion != 20170929 
+		//	&& ProfilesLibrary.DataVersion != 20180807 
+		//	&& ProfilesLibrary.DataVersion != 20180914 
+		//	&& ProfilesLibrary.DataVersion != 20190911 
+		//	&& ProfilesLibrary.DataVersion != 20190729
+		//	&& !ProfilesLibrary.IsFIFA21DataVersion()
+		//	&& !ProfilesLibrary.IsMadden21DataVersion()
+		//	)
+		//{
+		//	return;
+		//}
+		meshContainer.AddOffset("BONEINDICES", boneIndices, writer);
+		foreach (ushort boneIndex in boneIndices)
+		{
+			writer.Write(boneIndex);
+		}
+		writer.WritePadding(16);
+		meshContainer.AddOffset("BONEBBOXES", boneBoundingBoxes, writer);
+		foreach (AxisAlignedBox boneBoundingBox in boneBoundingBoxes)
+		{
+			writer.Write(boneBoundingBox);
+		}
+		writer.WritePadding(16);
+	}
+	*/
 
 	private void Process(NativeWriter writer, MeshContainer meshContainer)
 	{
@@ -493,6 +667,7 @@ public class MeshSet
 		}
 		writer.WritePadding(16);
 	}
+
 }
 
 /*

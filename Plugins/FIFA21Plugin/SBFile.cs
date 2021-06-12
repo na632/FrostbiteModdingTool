@@ -384,7 +384,7 @@ namespace FIFA21Plugin
             return CachedBundle;
         }
 
-
+        /*
         public void WriteBundleFETWay(Stream stream, DbObject bundle)
         {
             long sbStartingPosition = stream.Position;
@@ -444,6 +444,7 @@ namespace FIFA21Plugin
             writer.WriteInt32BigEndian((int)bundleEndPosition - 36);
             writer.Position = endPosition;
         }
+        */
 
         public static int CreateCasIdentifier(byte unk, bool isPatch, byte packageIndex, byte casIndex)
         {
@@ -453,7 +454,7 @@ namespace FIFA21Plugin
     }
 
 
-
+    /*
     public class BundleWriter_F21
     {
         public long Write(Stream stream, DbObject bundle, bool padEnd = true)
@@ -609,6 +610,7 @@ namespace FIFA21Plugin
             }
         }
     }
+    */
 
 
 

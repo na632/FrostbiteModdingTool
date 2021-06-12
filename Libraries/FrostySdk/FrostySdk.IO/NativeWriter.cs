@@ -105,6 +105,18 @@ namespace FrostySdk.IO
 			}
 		}
 
+		public void Write(ulong value, Endian endian)
+		{
+			if (endian == Endian.Big)
+			{
+				Write(((value & 0xFF) << 56) | ((value & 0xFF00) << 40) | ((value & 0xFF0000) << 24) | ((value & 4278190080u) << 8) | (((value >> 8) & 4278190080u) | ((value >> 24) & 0xFF0000) | ((value >> 40) & 0xFF00) | ((value >> 56) & 0xFF)));
+			}
+			else
+			{
+				Write(value);
+			}
+		}
+
 		public void WriteInt16BigEndian(short value)
 		{
 			Write(value, Endian.Big);
@@ -131,16 +143,20 @@ namespace FrostySdk.IO
 
 		public void WriteUInt16BigEndian(ushort value)
 		{
-			Span<byte> span = stackalloc byte[2];
-			BinaryPrimitives.WriteUInt16BigEndian(span, value);
-			Write(span);
+			//Span<byte> span = stackalloc byte[2];
+			//BinaryPrimitives.WriteUInt16BigEndian(span, value);
+			//Write(span);
+
+			Write(value, Endian.Big);
+
 		}
 
 		public void WriteUInt16LittleEndian(ushort value)
 		{
-			Span<byte> span = stackalloc byte[2];
-			BinaryPrimitives.WriteUInt16LittleEndian(span, value);
-			Write(span);
+			//Span<byte> span = stackalloc byte[2];
+			//BinaryPrimitives.WriteUInt16LittleEndian(span, value);
+			//Write(span);
+			Write(value, Endian.Little);
 		}
 
 		public void WriteInt32BigEndian(int value)
@@ -150,9 +166,10 @@ namespace FrostySdk.IO
 
 		public void WriteInt32LittleEndian(int value)
 		{
-			Span<byte> span = stackalloc byte[4];
-			BinaryPrimitives.WriteInt32LittleEndian(span, value);
-			Write(span);
+			//Span<byte> span = stackalloc byte[4];
+			//BinaryPrimitives.WriteInt32LittleEndian(span, value);
+			//Write(span);
+			Write((int)value);
 		}
 
 		public void WriteUInt32BigEndian(uint value)
@@ -162,38 +179,52 @@ namespace FrostySdk.IO
 
 		public void WriteUInt32LittleEndian(uint value)
 		{
-			Span<byte> span = stackalloc byte[4];
-			BinaryPrimitives.WriteUInt32LittleEndian(span, value);
-			Write(span);
+			//Span<byte> span = stackalloc byte[4];
+			//BinaryPrimitives.WriteUInt32LittleEndian(span, value);
+			//Write(span);
+			Write((uint)value);
+
 		}
-		
+
 		public void WriteInt64LittleEndian(long value)
 		{
-			Span<byte> span = stackalloc byte[8];
-			BinaryPrimitives.WriteInt64LittleEndian(span, value);
-			Write(span);
+			//Span<byte> span = stackalloc byte[8];
+			//BinaryPrimitives.WriteInt64LittleEndian(span, value);
+			//Write(span);
+			Write((long)value);
+
 		}
 
 		public void WriteInt64BigEndian(long value)
 		{
-			Span<byte> span = stackalloc byte[8];
-			BinaryPrimitives.WriteInt64BigEndian(span, value);
-			Write(span);
-		}
+			//Span<byte> span = stackalloc byte[8];
+			//BinaryPrimitives.WriteInt64BigEndian(span, value);
+			//Write(span);
 
-		public void WriteUInt64BigEndian(ulong value)
-		{
-			Span<byte> span = stackalloc byte[8];
-			BinaryPrimitives.WriteUInt64BigEndian(span, value);
-			Write(span);
+			Write((long)value, Endian.Big);
+
 		}
 
 		public void WriteUInt64LittleEndian(ulong value)
 		{
-			Span<byte> span = stackalloc byte[8];
-			BinaryPrimitives.WriteUInt64LittleEndian(span, value);
-			Write(span);
+			//Span<byte> span = stackalloc byte[8];
+			//BinaryPrimitives.WriteUInt64LittleEndian(span, value);
+			//Write(span);
+			Write((ulong)value, Endian.Little);
+
 		}
+
+		public void WriteUInt64BigEndian(ulong value)
+		{
+            //Span<byte> span = stackalloc byte[8];
+            //BinaryPrimitives.WriteUInt64BigEndian(span, value);
+            //Write(span);
+
+            Write((ulong)value, Endian.Big);
+
+        }
+
+		
 
 
 		public void WriteSingleLittleEndian(float value)
@@ -324,6 +355,14 @@ namespace FrostySdk.IO
 			WriteVector3(lt.up);
 			WriteVector3(lt.forward);
 			WriteVector3(lt.trans);
+		}
+	}
+
+	public class FileWriter : NativeWriter
+    {
+		public FileWriter(Stream inStream, bool leaveOpen = false, bool wide = false)
+			: base(inStream, leaveOpen, wide)
+		{
 		}
 	}
 }

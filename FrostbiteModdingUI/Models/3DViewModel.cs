@@ -60,19 +60,16 @@ namespace FrostbiteModdingUI.Models
                 EffectsManager = new DefaultEffectsManager();
                 Camera = new PerspectiveCamera()
                 {
-                    Position = new System.Windows.Media.Media3D.Point3D(1, 0.001f, 0.001f),
-                    LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -1, -1),
+                    //Position = new System.Windows.Media.Media3D.Point3D(-100, -100, -100),
+                    //LookDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, 0),
                     UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0),
-                    FarPlaneDistance = 3000,
-                    NearPlaneDistance = 1
+                    //FarPlaneDistance = 3000,
+                    //NearPlaneDistance = 1
                 };
 
                 var builder = new MeshBuilder();
                 builder.AddBox(new Vector3(0, -0.1f, 0), 10, 0.1f, 10);
                 FloorModel = builder.ToMesh();
-
-                builder = new MeshBuilder();
-                SphereModel = builder.ToMesh();
 
                 var reader = new ObjReader();
                 if (File.Exists(file))
@@ -103,10 +100,10 @@ namespace FrostbiteModdingUI.Models
                         Matrix.Translation(0, 0, 0),
                        };
                     }
-                    //if (Camera != null && BunnyModel != null)
-                    //{
-                    //    Camera.Position = new System.Windows.Media.Media3D.Point3D(BunnyModel.Positions[0].X, BunnyModel.Positions[0].Y, BunnyModel.Positions[0].Z);
-                    //}
+                    if (Camera != null && BunnyModel != null)
+                    {
+                        Camera.Position = new System.Windows.Media.Media3D.Point3D(0.0, BunnyModel.Positions[0].Y, 0.6);
+                    }
                     if (skinnedMeshAsset != null)
                     {
                         Stream textureTest = LoadTexture(skinnedMeshAsset, 0, "colorTexture");
@@ -313,6 +310,7 @@ namespace FrostbiteModdingUI.Models
 
             protected set
             {
+                camera = value;
                 //SetValue(ref camera, value, "Camera");
                 CameraModel = value is PerspectiveCamera
                                        ? Perspective
