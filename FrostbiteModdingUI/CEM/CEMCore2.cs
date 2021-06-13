@@ -108,7 +108,8 @@ namespace FrostbiteModdingUI.CEM
 
         public static CareerFile SetupCareerFile(string inCareerFilePath)
         {
-            var CareerFile = new CareerFile(inCareerFilePath, CEMInternalDataDirectory + "fifa_ng_db-meta.XML");
+            CurrentCareerFile = new CareerFile(inCareerFilePath, CEMInternalDataDirectory + "fifa_ng_db-meta.XML");
+            var CareerFile = CurrentCareerFile;
 
             // Setup Internal Career Entities
             CareerDB1.Current = new CareerDB1();
@@ -186,7 +187,23 @@ namespace FrostbiteModdingUI.CEM
             return CareerFile;
         }
 
-        public CareerFile CurrentCareerFile;
+        private static CareerFile careerFile;
+
+        public static CareerFile CurrentCareerFile
+        {
+            get { return careerFile; }
+            set 
+            { 
+                if(careerFile != null)
+                {
+                    careerFile = null;
+                }
+
+                careerFile = value; 
+            
+            }
+        }
+
 
         public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync()
         {
@@ -210,6 +227,7 @@ namespace FrostbiteModdingUI.CEM
 
             using (NativeReader nr = new NativeReader(new FileStream(CurrentCareerFile.FileName, FileMode.Open)))
             {
+                //nr.Position = 6000000;
                 var rBytes = nr.ReadToEnd();
                 foreach (var player in userTeamPlayers)
                 {
@@ -219,6 +237,7 @@ namespace FrostbiteModdingUI.CEM
 
                     BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
                     var found2 = boyerMoore2.SearchAll(rBytes);
+                    //var found2 = ByteSearchList(rBytes, searchByte.ToArray());
                     foreach (var pos in found2)
                     {
                         nr.Position = pos;
@@ -234,6 +253,36 @@ namespace FrostbiteModdingUI.CEM
             }
 
             return stats;
+        }
+
+        int ByteSearch(byte[] src, byte[] pattern)
+        {
+            int maxFirstCharSlot = src.Length - pattern.Length + 1;
+            int j;
+            for (int i = 0; i < maxFirstCharSlot; i++)
+            {
+                if (src[i] != pattern[0]) continue;//comp only first byte
+
+                // found a match on first byte, it tries to match rest of the pattern
+                for (j = pattern.Length - 1; j >= 1 && src[i + j] == pattern[j]; j--) ;
+                if (j == 0) return i;
+            }
+            return -1;
+        }
+
+        IEnumerable<int?> ByteSearchList(byte[] src, byte[] pattern)
+        {
+            int maxFirstCharSlot = src.Length - pattern.Length + 1;
+            int j;
+            for (int i = 0; i < maxFirstCharSlot; i++)
+            {
+                if (src[i] != pattern[0]) continue;//comp only first byte
+
+                // found a match on first byte, it tries to match rest of the pattern
+                for (j = pattern.Length - 1; j >= 1 && src[i + j] == pattern[j]; j--) ;
+                if (j == 0)  yield return i;
+            }
+            yield return null;
         }
 
         public List<FIFAPlayerStat> UserTeamPlayerStats = new List<FIFAPlayerStat>(30000);

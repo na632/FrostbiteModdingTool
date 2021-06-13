@@ -67,6 +67,32 @@ namespace FrostbiteModdingTests
                 }
             }
         }
+
+        public void SaveStatsToCSV(List<FIFAPlayerStat> ps)
+        {
+            using (var nw = new NativeWriter(new FileStream("_TestExportCSV.csv", FileMode.Create), wide: true))
+            {
+                nw.WriteLine("Player Id,Player Name,Season Year,Competition,Appereances,Goals,Assists,Clean Sheets,Average Rating,Minutes Per Game,OVR,Growth");
+                for (var i = 0; i < ps.Count; i++)
+                {
+                    nw.WriteLine(
+                        ps[i].PlayerId
+                        + "," + ps[i].PlayerName
+                        + "," + ps[i].SeasonYear
+                        + "," + ps[i].CompName
+                        + "," + ps[i].Apps
+                        + "," + ps[i].Goals
+                        + "," + ps[i].Assists
+                        + "," + ps[i].CleanSheets
+                        + "," + ps[i].AverageRating
+                        + "," + ps[i].MinutesPerGame
+                        + "," + ps[i].OVR
+                        + "," + ps[i].OVRGrowth
+                        );
+                }
+            }
+        }
+
         [TestMethod]
         public void LoadUserFinancesFromLatestCareerSave()
         {
@@ -93,6 +119,15 @@ namespace FrostbiteModdingTests
             var cem = new CEMCore2("FIFA21");
             var newFile = CEMCore2.SetupCareerFile(@"C:\Users\paula\Documents\FIFA 21\settings\Career20210511171702");
             var ps = cem.GetPlayerStats();
+        }
+
+        [TestMethod]
+        public void LoadStatsFromParadoxSchalkeSave()
+        {
+            var cem = new CEMCore2("FIFA21");
+            var newFile = CEMCore2.SetupCareerFile(@"C:\Users\paula\Downloads\Career20210609205742_ParadoxSchalke");
+            var ps = cem.GetPlayerStats();
+            SaveStatsToCSV(ps);
         }
 
         [TestMethod]

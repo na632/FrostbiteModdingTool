@@ -93,7 +93,7 @@ namespace FrostbiteModdingUI.Windows
                 CEMCore = new CEMCore2(GameInstanceSingleton.GAMEVERSION);
                 CEMCore.FileSystemWatcher.Created += FileSystemWatcher_Created;
                 CEMCore.FileSystemWatcher.Changed += FileSystemWatcher_Changed;
-                SaveGameName = CEMCore.CurrentCareerFile.InGameName;
+                SaveGameName = CEMCore2.CurrentCareerFile.InGameName;
                 Dispatcher.Invoke(() =>
                 {
                     lblSaveName.Text = SaveGameName;
@@ -420,7 +420,7 @@ namespace FrostbiteModdingUI.Windows
                 Stats.Execute(items => { items.Clear(); items.AddRange(ps.Where(x => x != null)); });
                 lvPlayerStats.ItemsSource = null;
                 lvPlayerStats.ItemsSource = Stats;
-                lblSaveName.Text = CEMCore.CurrentCareerFile.InGameName;
+                lblSaveName.Text = CEMCore2.CurrentCareerFile.InGameName;
 
             });
 
@@ -435,7 +435,7 @@ namespace FrostbiteModdingUI.Windows
                 string file = button.Tag.ToString();
                 LoadingDialog loadingDialog = new LoadingDialog("Career file", "Loading Career File");
                 loadingDialog.Show();
-                CEMCore.CurrentCareerFile = await CEMCore2.SetupCareerFileAsync(file);
+                CEMCore2.CurrentCareerFile = await CEMCore2.SetupCareerFileAsync(file);
                 loadingDialog.Update("Career file", "Loading career stats", 50);
 
 
@@ -447,7 +447,7 @@ namespace FrostbiteModdingUI.Windows
                     Stats.Execute(items => { items.Clear(); items.AddRange(ps.Where(x => x != null)); });
                     lvPlayerStats.ItemsSource = null;
                     lvPlayerStats.ItemsSource = Stats;
-                    lblSaveName.Text = CEMCore.CurrentCareerFile.InGameName;
+                    lblSaveName.Text = CEMCore2.CurrentCareerFile.InGameName;
 
                 });
 
