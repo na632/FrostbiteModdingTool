@@ -12,7 +12,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void DumpFrostyProfiles()
         {
-            ProfilesLibrary.DumpFrostyProfile("BF4");
+            ProfilesLibrary.DumpFrostyProfile("FIFA20");
         }
     }
 }

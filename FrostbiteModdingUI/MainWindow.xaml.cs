@@ -32,7 +32,21 @@ namespace FIFAModdingUI
     {
         public List<Window> EditorWindows = new List<Window>();
 
-        public List<Profile> ProfilesWithEditorScreen = new List<Profile>();
+        //public List<Profile> ProfilesWithEditorScreen = ProfilesLibrary.EditorProfiles.ToList();
+
+        private List<Profile> profiles;
+
+        public List<Profile> ProfilesWithEditor
+        {
+            get {
+            
+                if(profiles == null)
+                    profiles = ProfilesLibrary.EditorProfiles.ToList();
+                return profiles; 
+            
+            }
+            set { profiles = value; }
+        }
 
         public string WindowTitle { get; set; }
 
@@ -81,12 +95,12 @@ namespace FIFAModdingUI
 
             EditorWindows.Clear();
 
-            foreach (var pr in ProfilesWithEditorScreen)
-            {
+            //foreach (var pr in ProfilesWithEditorScreen)
+            //{
 
-            }
+            //}
 
-            ProfilesWithEditorScreen.Clear();
+            //ProfilesWithEditorScreen.Clear();
 
             if (App.MainEditorWindow != null)
                 App.MainEditorWindow.Close();
@@ -143,6 +157,21 @@ namespace FIFAModdingUI
             App.MainEditorWindow = new BF4Editor(this);
             App.MainEditorWindow.Show();
             this.Visibility = Visibility.Hidden;
+        }
+
+        private void lstProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(((Profile)lstProfiles.SelectedItem).EditorScreen, StringComparison.OrdinalIgnoreCase));
+                if (t != null)
+                {
+                    App.MainEditorWindow = (Window)Activator.CreateInstance(t, this);
+                    App.MainEditorWindow.Show();
+                    this.Visibility = Visibility.Hidden;
+                    return;
+                }
+            }
         }
     }
 }

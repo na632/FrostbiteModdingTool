@@ -13,10 +13,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="110"></RowDefinition>
             <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
             <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <!-- <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>-->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -30,7 +30,7 @@
                 <Label Content="Launcher" VerticalAlignment="Center" FontSize="20" />
             </StackPanel>
         </Button>
-        <Button x:Name="btnFIFA21Editor" Grid.Row="3" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="True"
+        <!--<Button x:Name="btnFIFA21Editor" Grid.Row="3" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="True"
                     Click="btnEditor_Click"
                     ToolTip="FIFA 21 Editor">
             <StackPanel VerticalAlignment="Center"  HorizontalAlignment="left" Orientation="Horizontal">
@@ -45,7 +45,17 @@
                 <Image Grid.Row="0" Source="/Resources/images/M21Cover.jpg" Stretch="Fill" Margin="5,0,5,0" />
                 <TextBlock Text="Madden 21 Editor" VerticalAlignment="Center" FontSize="19" TextWrapping="Wrap" />
             </StackPanel>
-        </Button>
+        </Button>-->
+        <ListView x:Name="lstProfiles" Grid.Row="3" ItemsSource="{Binding ProfilesWithEditor}" SelectionChanged="lstProfiles_SelectionChanged"> 
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel VerticalAlignment="Center"  HorizontalAlignment="left" Orientation="Horizontal" Margin="5">
+                        <Image Grid.Row="0" Height="40" Width="35" Source="{Binding EditorIcon}" Stretch="Fill" Margin="10,0,10,0" />
+                        <TextBlock Text="{Binding EditorName}" VerticalAlignment="Center" FontSize="19" TextWrapping="Wrap" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
         <!--<Button x:Name="btnBF4Editor" Grid.Row="5"  Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                     Click="btnBF4Editor_Click"
                     ToolTip="Battlefield 4 Editor">

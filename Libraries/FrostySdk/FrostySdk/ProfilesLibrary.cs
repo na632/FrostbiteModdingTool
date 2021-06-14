@@ -16,89 +16,106 @@ namespace FrostySdk
 	{
 		public struct Profile
 		{
-			public string Name;
+			public string Name { get; set; }
 
-			public string DisplayName;
+			public string EditorName => Name + " Editor";
 
-			public int DataVersion;
 
-			public string CacheName;
+			public string DisplayName { get; set; }
 
-			public string Deobfuscator;
+			public int DataVersion { get; set; }
 
-			public string AssetLoader;
+			public string CacheName { get; set; }
 
-			public string AssetCompiler;
+			public string Deobfuscator { get; set; }
 
-			public List<FileSystemSource> Sources;
+			public string AssetLoader { get; set; }
 
-			public string SDKFilename;
+			public string AssetCompiler { get; set; }
 
-			public byte[] Banner;
+			public List<FileSystemSource> Sources { get; set; }
 
-			public int EbxVersion;
+			public string SDKFilename { get; set; }
 
-			public bool RequiresKey;
+			public byte[] Banner { get; set; }
 
-			public bool MustAddChunks;
+			public int EbxVersion { get; set; }
 
-			public bool EnableExecution;
+			public bool RequiresKey { get; set; }
 
-			public string DefaultDiffuse;
+			public bool MustAddChunks { get; set; }
 
-			public string DefaultNormals;
+			public bool EnableExecution { get; set; }
 
-			public string DefaultMask;
+			public string DefaultDiffuse { get; set; }
 
-			public string DefaultTint;
+			public string DefaultNormals { get; set; }
 
-			public Dictionary<int, string> SharedBundles;
+			public string DefaultMask { get; set; }
 
-			public List<uint> IgnoredResTypes;
+			public string DefaultTint { get; set; }
 
-			public string TextureImporter;
+			public Dictionary<int, string> SharedBundles { get; set; }
 
-			public string TextureExporter;
+			public List<uint> IgnoredResTypes { get; set; }
 
-			public string EditorScreen;
+			public string TextureImporter { get; set; }
 
-			public string EBXReader;
+			public string TextureExporter { get; set; }
 
-			public string EBXWriter;
+			public string EditorScreen { get; set; }
 
-			/// <summary>
-			/// 
-			/// </summary>
-			public string CacheWriter;
+			public string EBXReader { get; set; }
+
+			public string EBXWriter { get; set; }
 
 			/// <summary>
 			/// 
 			/// </summary>
-			public string CacheReader;
+			public string CacheWriter { get; set; }
+			/// <summary>
+			/// 
+			/// </summary>
+			public string CacheReader { get; set; }
 
 			/// <summary>
 			/// 
 			/// </summary>
-			public List<string> SupportedLauncherFileTypes;
+			public List<string> SupportedLauncherFileTypes { get; set; }
 
 			/// <summary>
 			/// 
 			/// </summary>
-			public string ModCompilerFileType;
+			public string ModCompilerFileType { get; set; }
 
 			/// <summary>
 			/// 
 			/// </summary>
-			public bool CanEdit;
+			public bool CanEdit { get; set; }
 
 			/// <summary>
 			/// 
 			/// </summary>
-			public bool CanLaunchMods;
+			public bool CanLaunchMods { get; set; }
+
+            private string editorIcon;
+
+            public string EditorIcon
+			{
+                get 
+				{
+
+					var fi = new FileInfo(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName + "/Resources/images/" + Name + "Cover.jpg");
+					if (fi.Exists)
+						return fi.FullName;
+					return editorIcon; 
+				
+				}
+                set { editorIcon = value; }
+            }
 
 
-
-		}
+        }
 
 		public static IEnumerable<Profile> EditorProfiles 
 		{ 
@@ -106,11 +123,14 @@ namespace FrostySdk
 			{
 				var profiles = Directory.EnumerateFiles(
 						Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName
-						, "*profile.json");
+						, "*profile.json").ToList();
+				profiles.AddRange(Directory.EnumerateFiles(
+						Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName
+						, "FrostbiteProfiles/*profile.json").ToList());
 				foreach (var p in profiles)
 				{
 					var prof = JsonConvert.DeserializeObject<Profile>(System.IO.File.ReadAllText(p));
-					if (prof.CanEdit)
+					if (prof.CanEdit && prof.EditorScreen != null)
 						yield return prof;
 				}
 
@@ -236,6 +256,17 @@ namespace FrostySdk
 
 			return isFIFA;
 		}
+
+		public static bool IsFIFA19DataVersion()
+		{
+
+			bool isFIFA = false;
+
+			isFIFA = (ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA19);
+
+			return isFIFA;
+		}
+
 
 		public static bool IsFIFA20DataVersion()
 		{
@@ -462,8 +493,16 @@ namespace FrostySdk
 				Directory.CreateDirectory("Debugging/Other");
 
 
-
-			if (File.Exists(profileKey + "Profile.json"))
+			
+			
+			if (File.Exists("FrostbiteProfiles/" + profileKey + "Profile.json"))
+			{
+				Profile profile = default(Profile);
+				profile = JsonConvert.DeserializeObject<Profile>(System.IO.File.ReadAllText("FrostbiteProfiles/" + profileKey + "Profile.json"));
+				LoadedProfile = profile;
+				return true;
+			}
+			else if (File.Exists(profileKey + "Profile.json"))
 			{
 				Profile profile = default(Profile);
 				profile = JsonConvert.DeserializeObject<Profile>(System.IO.File.ReadAllText(profileKey + "Profile.json"));

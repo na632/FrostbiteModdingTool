@@ -79,15 +79,18 @@ namespace SdkGenerator
             //}
             //else
             //{
-            //    using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
-            //    {
-            //        if (stream != null)
-            //        {
-            //            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-            //        }
-            //    }
+            if (ProfilesLibrary.IsFIFA19DataVersion() || ProfilesLibrary.IsFIFA20DataVersion())
+            {
+                using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
+                {
+                    if (stream != null)
+                    {
+                        classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                    }
+                }
+            }
             //}
-            
+
             classList = DumpClasses(task);
             if (classList != null)
             {
@@ -728,23 +731,45 @@ namespace SdkGenerator
             //    str = "FrostyEditor.Madden20.";
             //}
             //else 
-            if (ProfilesLibrary.DataVersion == 20190911)
-            {
-                typeStr = "SdkGenerator.Madden20.ClassInfo";
-            }
-            else if (ProfilesLibrary.DisplayName.Contains("18"))
-            {
-                typeStr = "SdkGenerator.FIFA18.ClassInfo";
-            }
-            else if (ProfilesLibrary.IsFIFA21DataVersion())
-            {
-                typeStr = "SdkGenerator.FIFA21.ClassInfo";
-                //typeStr = "SdkGenerator.Madden20.ClassInfo";
-            }
-            else if (ProfilesLibrary.IsMadden21DataVersion())
-            {
-                typeStr = "SdkGenerator.Madden21.ClassInfo";
-                //typeStr = "SdkGenerator.FIFA21.ClassInfo"; // Sort of works
+            switch (ProfilesLibrary.DataVersion) {
+
+                case (int)ProfilesLibrary.DataVersions.FIFA20:
+                    typeStr = "SdkGenerator.Madden20.ClassInfo";
+                break;
+                case (int)ProfilesLibrary.DataVersions.MADDEN20:
+                    typeStr = "SdkGenerator.Madden20.ClassInfo";
+                break;
+                case (int)ProfilesLibrary.DataVersions.FIFA21:
+                    typeStr = "SdkGenerator.FIFA21.ClassInfo";
+                break;
+                case (int)ProfilesLibrary.DataVersions.MADDEN21:
+                    typeStr = "SdkGenerator.Madden21.ClassInfo";
+                break;
+                default:
+                    typeStr = "SdkGenerator.BaseInfo.ClassInfo";
+                    break;
+                    //if (ProfilesLibrary.IsFIFA19DataVersion())
+                    //{
+                    //    typeStr = "SdkGenerator.Madden20.ClassInfo";
+                    //}
+                    //else if (ProfilesLibrary.DataVersion == 20190911)
+                    //{
+                    //    typeStr = "SdkGenerator.Madden20.ClassInfo";
+                    //}
+                    //else if (ProfilesLibrary.DisplayName.Contains("18"))
+                    //{
+                    //    typeStr = "SdkGenerator.FIFA18.ClassInfo";
+                    //}
+                    //else if (ProfilesLibrary.IsFIFA21DataVersion())
+                    //{
+                    //    typeStr = "SdkGenerator.FIFA21.ClassInfo";
+                    //    //typeStr = "SdkGenerator.Madden20.ClassInfo";
+                    //}
+                    //else if (ProfilesLibrary.IsMadden21DataVersion())
+                    //{
+                    //    typeStr = "SdkGenerator.Madden21.ClassInfo";
+                    //    //typeStr = "SdkGenerator.FIFA21.ClassInfo"; // Sort of works
+                    //}
             }
             //else if (ProfilesLibrary.DataVersion == 20191101)
             //{

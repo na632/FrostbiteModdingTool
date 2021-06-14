@@ -57,7 +57,8 @@ namespace FrostbiteModdingUI.Models
         {
             try
             {
-                EffectsManager = new DefaultEffectsManager();
+                EffectsManager = new DefaultEffectsManager() {
+                };
                 Camera = new PerspectiveCamera()
                 {
                     //Position = new System.Windows.Media.Media3D.Point3D(-100, -100, -100),
@@ -65,6 +66,7 @@ namespace FrostbiteModdingUI.Models
                     UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0),
                     //FarPlaneDistance = 3000,
                     //NearPlaneDistance = 1
+                     
                 };
 
                 var builder = new MeshBuilder();
@@ -123,8 +125,12 @@ namespace FrostbiteModdingUI.Models
                                 {
                                     textureDDSStream.Position = 0L;
                                     BunnyMaterial.DiffuseMap = new TextureModel(textureDDSStream);
-                                    if(MeshMaterial2 != null)
+                                    //BunnyMaterial.DiffuseAlphaMap = new TextureModel(new Color4[] { new Color4(1) }, 1, 1);
+                                    if (MeshMaterial2 != null)
+                                    {
                                         MeshMaterial2.DiffuseMap = new TextureModel(textureDDSStream);
+                                        //MeshMaterial2.DiffuseAlphaMap = new TextureModel(new Color4[] { new Color4(1) }, 1, 1);
+                                    }
                                 }
 
                             }

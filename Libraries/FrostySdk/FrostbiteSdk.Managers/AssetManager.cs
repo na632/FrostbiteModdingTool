@@ -411,7 +411,12 @@ namespace FrostySdk.Managers
 
 		public FileSystem fs;
 
+		public FileSystem FileSystem => fs;
+
 		public ResourceManager rm;
+
+		public ResourceManager ResourceManager => rm;
+
 
 		public ILogger logger;
 
@@ -553,8 +558,8 @@ namespace FrostySdk.Managers
             {
 				throw new Exception("Plugins could not be initialised!");
             }				
-			TypeLibrary.Initialize(true);
-			if (File.Exists("SDK/" + ProfilesLibrary.SDKFilename + ".dll"))
+			TypeLibrary.Initialize(TypeLibrary.RequestLoadSDK);
+			if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfilesLibrary.SDKFilename + ".dll"))
 			{
 				logger.Log($"Plugins and SDK {"SDK/" + ProfilesLibrary.SDKFilename + ".dll"} Initialised");
 			}
@@ -585,7 +590,7 @@ namespace FrostySdk.Managers
 			
 			DoEbxIndexing();
 
-			if (!additionalStartup)
+			if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
 			{
 				return;
 			}
@@ -1568,7 +1573,7 @@ namespace FrostySdk.Managers
 			Stream assetStream = null;
 			if (getModified)
 			{
-				if (entry.ModifiedEntry != null && entry.ModifiedEntry.DataObject != null)
+				if (entry != null && entry.ModifiedEntry != null && entry.ModifiedEntry.DataObject != null)
 				{
 					if (entry.IsBinary || entry.ModifiedEntry.Data != null)
 					{

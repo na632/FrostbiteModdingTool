@@ -269,7 +269,8 @@ namespace FrostySdk.IO
 			}
 			foreach (DbObject item3 in list)
 			{
-				item3.AddValue("resRid", reader.ReadLong(Endian.Big));
+				//item3.AddValue("resRid", reader.ReadLong(Endian.Big));
+				item3.AddValue("resRid", reader.ReadULong(Endian.Big));
 			}
 			return list;
 		}

@@ -188,7 +188,7 @@
                             <Grid Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="30"></RowDefinition>
-                                    <RowDefinition Height="512"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
                                     <RowDefinition Height="30"></RowDefinition>
                                 </Grid.RowDefinitions>
                                 <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
@@ -201,7 +201,7 @@
                                     <Label>Image Size:</Label>
                                     <Label x:Name="lblImageSize"></Label>
                                 </StackPanel>
-                                <Image Grid.Row="1" x:Name="ImageViewer" MinHeight="256" MinWidth="256" MaxWidth="256" MaxHeight="256">
+                                <Image Grid.Row="1" x:Name="ImageViewer" Stretch="Uniform"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
 
                                 </Image>
                                 <StackPanel  Grid.Row="2" Background="White" Orientation="Horizontal">

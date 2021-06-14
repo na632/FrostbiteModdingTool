@@ -13,8 +13,36 @@ namespace FrostySdk.Managers
 
 		public bool IsPatch;
 
-		public string CasPath = "";
+		private string casPath;
 
-        public int CasIndex { get; set; }
+		public string CasPath
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(casPath))
+					return casPath;
+
+				if(Catalog.HasValue && Cas.HasValue)
+                {
+					return FileSystem.Instance.GetFilePath(Catalog.Value, Cas.Value, IsPatch);
+                }
+
+                if (CasIndex.HasValue)
+                {
+					return FileSystem.Instance.GetFilePath(CasIndex.Value);
+				}
+
+				return string.Empty;
+			}
+			set
+			{
+				casPath = value;
+			}
+		}
+
+		public ushort? Catalog { get; set; }
+		public ushort? Cas { get; set; }
+
+        public int? CasIndex { get; set; }
     }
 }

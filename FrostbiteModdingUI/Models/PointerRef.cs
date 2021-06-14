@@ -1,5 +1,4 @@
 ﻿using FrostySdk.IO;
-using PropertyTools.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using System.Text;

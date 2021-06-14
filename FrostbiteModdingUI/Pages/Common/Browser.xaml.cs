@@ -42,6 +42,7 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using FrostySdk.Ebx;
 using Frosty.Hash;
+using v2k4FIFAModding;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -327,21 +328,6 @@ namespace FIFAModdingUI.Pages.Common
 						if (isImage)
 						{
 							DoLegacyImageImport(openFileDialog.FileName, SelectedLegacyEntry);
-							//DDSImage originalImage = new DDSImage(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
-							//DDSImage newImage = new DDSImage(bytes);
-							//if (originalImage._image.Width != newImage._image.Width)
-							//{
-							//	throw new Exception("Invalid Width of New Image for Legacy Asset");
-							//}
-
-							//var textureBytes = new NativeReader(newImage.SaveToStream()).ReadToEnd();
-							//ImageViewer.Source = LoadImage(textureBytes);
-
-							//var msImage = AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry) as MemoryStream;
-							//ImageViewerScreen.Visibility = Visibility.Collapsed;
-							//ImageViewer.Source = LoadImage(msImage.ToArray());
-							//ImageViewerScreen.Visibility = Visibility.Visible;
-
 							BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
 						}
 						else
@@ -452,19 +438,39 @@ namespace FIFAModdingUI.Pages.Common
 								var res = AssetManager.Instance.GetRes(resentry);
 								MeshSet meshSet = new MeshSet(res);
 
+								var skeletonEntryText = "content/character/rig/skeleton/player/skeleton_player";
+								MeshSkeletonSelector meshSkeletonSelector = new MeshSkeletonSelector();
+								var meshSelectorResult = meshSkeletonSelector.ShowDialog();
+								if (meshSelectorResult.HasValue && meshSelectorResult.Value)
+								{
+									if (!meshSelectorResult.Value)
+									{
+										MessageBox.Show("Cannot export without a Skeleton");
+										return;
+									}
+
+									skeletonEntryText = meshSkeletonSelector.AssetEntry.Name;
+
+								}
+								else
+								{
+									MessageBox.Show("Cannot export without a Skeleton");
+									return;
+								}
+
 								try
 								{
 									FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
 									importer.ImportFBX(openFileDialog.FileName, meshSet, skinnedMeshEbx, (EbxAssetEntry)SelectedEntry
 										, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
 										{
-											SkeletonAsset = "content/character/rig/skeleton/player/skeleton_player"
+											SkeletonAsset = skeletonEntryText
 										});
 									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
 
 									// ---------------------------------------------------------------
 									// Clear the Compute Graph
-									var cg = ((dynamic)skinnedMeshEbx.RootObject).ComputeGraph = default(PointerRef);
+									((dynamic)skinnedMeshEbx.RootObject).ComputeGraph = default(PointerRef);
 									AssetManager.Instance.ModifyEbx(SelectedEntry.Name, skinnedMeshEbx);
 
 									UpdateAssetListView();
@@ -890,7 +896,7 @@ namespace FIFAModdingUI.Pages.Common
 								EBXViewer.Visibility = successful.Result ? Visibility.Visible : Visibility.Collapsed;
 								BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
 								BackupEBXViewer.SelectedObject = ebx.RootObject;
-                                BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
+								BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
 
 								btnRevert.IsEnabled = true;
 								//if (ebxEntry.Type == "HotspotDataAsset")
@@ -986,12 +992,57 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
+        private void BackupEBXViewer_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+			//Xceed.Wpf.Toolkit.PropertyGrid.PropertyGrid propertyGrid = sender as Xceed.Wpf.Toolkit.PropertyGrid.PropertyGrid;
+			//if (propertyGrid != null)
+			//{
+			//	var ebxAsset = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
+			//	ebxAsset.SetRootObject(propertyGrid.SelectedObject);
+			//	AssetManager.Instance.ModifyEbx(SelectedEntry.Name, ebxAsset);
+			//	UpdateAssetListView();
+			//}
+		}
+
         private void BackupEBXViewer_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
         {
+            Xceed.Wpf.Toolkit.PropertyGrid.PropertyGrid propertyGrid = sender as Xceed.Wpf.Toolkit.PropertyGrid.PropertyGrid;
+            if (propertyGrid != null)
+            {
+                var ebxAsset = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
+
+				bool hasChanged = false;
+				var obj1 = ebxAsset.RootObject;
+				var obj2 = propertyGrid.SelectedObject;
+				var props = obj1.GetProperties();
+				foreach (var p in props)
+				{
+					foreach (var p2 in v2k4Util.GetProperties(obj2))
+					{
+						if (p.Name == p2.Name)
+						{
+							if (!p.GetValue(obj1).Equals(p2.GetValue(obj2)))
+							{
+								hasChanged = true;
+								break;
+							}
+						}
+
+						if (hasChanged)
+							break;
+					}
+				}
+				if (hasChanged)
+				{
+					ebxAsset.SetRootObject(propertyGrid.SelectedObject);
+					AssetManager.Instance.ModifyEbx(SelectedEntry.Name, ebxAsset);
+					UpdateAssetListView();
+				}
+            }
 
         }
 
-        private void BuildTextureViewerFromAssetEntry(ResAssetEntry res)
+		private void BuildTextureViewerFromAssetEntry(ResAssetEntry res)
         {
 			using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(res))
 			{
@@ -1114,13 +1165,13 @@ namespace FIFAModdingUI.Pages.Common
         {
 			if (SelectedEntry != null)
 			{
-				if (SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture" || SelectedEntry.Type == "SkinnedMeshAsset")
-				{
-					AssetManager.Instance.RevertAsset(SelectedEntry);
-				}
-				else if (EBXViewer != null && EBXViewer.Visibility == Visibility.Visible)
+				if (EBXViewer != null && EBXViewer.Visibility == Visibility.Visible)
 				{
 					EBXViewer.RevertAsset();
+				}
+				else 
+				{
+					AssetManager.Instance.RevertAsset(SelectedEntry);
 				}
 			}
 			else if (SelectedLegacyEntry != null)
@@ -1134,9 +1185,12 @@ namespace FIFAModdingUI.Pages.Common
 
 			if(MainEditorWindow != null)
 				MainEditorWindow.UpdateAllBrowsers();
-        }
 
-        private void txtFilter_TextChanged(object sender, TextChangedEventArgs e)
+			OpenAsset(SelectedEntry);
+
+		}
+
+		private void txtFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
 			//Update();
         }

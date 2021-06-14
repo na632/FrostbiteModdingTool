@@ -611,7 +611,7 @@ namespace Madden21Plugin
                                             {
 
                                             }
-                                            writer_new_toc_file_mod_data.Write(chunk.ExtraData.CasIndex);
+                                            writer_new_toc_file_mod_data.Write(chunk.ExtraData.CasIndex.Value);
                                             writer_new_toc_file_mod_data.Write(chunk.ExtraData.DataOffset);
                                             writer_new_toc_file_mod_data.Write(chunk.Size);
                                         }

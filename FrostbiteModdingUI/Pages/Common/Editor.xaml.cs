@@ -616,7 +616,7 @@ namespace FIFAModdingUI.Pages.Common
                             break;
 
 						default:
-							EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
+							//EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
 							success = false;
 
 							break;

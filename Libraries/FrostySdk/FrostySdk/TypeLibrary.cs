@@ -126,8 +126,10 @@ namespace FrostySdk
 
 		private static string ProfileSDKLocation = "SDK/" + ProfilesLibrary.SDKFilename + ".dll";
 
+		public static bool RequestLoadSDK = false;
 		public static bool Initialize(bool loadSDK = true)
 		{
+			RequestLoadSDK = loadSDK;
 			try
 			{
 				FileInfo fileInfo = new FileInfo("TmpProfiles/" + ProfilesLibrary.SDKFilename + ".dll");

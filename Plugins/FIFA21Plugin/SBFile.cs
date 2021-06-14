@@ -74,8 +74,8 @@ namespace FIFA21Plugin
         {
             //AssetManager.Instance.logger.Log($"Loading data from {FileLocation}");
 
-            CachingSBData cachingSBData = new CachingSBData();
-            cachingSBData.SBFile = NativeFileLocation;
+            //CachingSBData cachingSBData = new CachingSBData();
+            //cachingSBData.SBFile = NativeFileLocation;
 
 
             List<DbObject> dbObjects = new List<DbObject>();
@@ -105,14 +105,14 @@ namespace FIFA21Plugin
                 BundleEntry bundleEntry = new BundleEntry
                 {
                     Name = Guid.NewGuid().ToString(),
-                    SuperBundleId = SuperBundleIndex
+                    SuperBundleId = SuperBundleIndex,
                 };
                 //using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
                 using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, BaseBundleItem.Size)))
                 {
                     CachingSBData.Bundle cachingSBDataBundle = ReadInternalBundle((int)BaseBundleItem.Offset, ref dbObject, binarySbReader2);
                     cachingSBDataBundle.BaseBundleItem = BaseBundleItem;
-                    cachingSBData.Bundles.Add(cachingSBDataBundle);
+                    //cachingSBData.Bundles.Add(cachingSBDataBundle);
 
                 }
 
@@ -122,8 +122,8 @@ namespace FIFA21Plugin
                 FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex++;
             }
 
-            CachingSB.CachingSBs.Add(cachingSBData);
-            CachingSB.Save();
+            //CachingSB.CachingSBs.Add(cachingSBData);
+            //CachingSB.Save();
             return dbObjects;
         }
 
