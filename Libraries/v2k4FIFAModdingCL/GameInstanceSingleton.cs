@@ -73,6 +73,7 @@ namespace v2k4FIFAModdingCL
         public static List<string> CompatibleGameFBModVersions = new List<string>()
         {
             //"FIFA20.exe",
+            "FIFA19.exe",
             "FIFA21.exe",
             "Madden21.exe",
             "bf4.exe",

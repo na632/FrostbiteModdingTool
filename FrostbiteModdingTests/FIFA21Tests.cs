@@ -60,7 +60,7 @@ namespace FrostbiteModdingTests
         {
             var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
-            buildCache.LoadData("FIFA21", GamePath, this, true);
+            buildCache.LoadData("FIFA21", GamePath, this, true, true);
         }
 
         [TestMethod]
@@ -129,12 +129,12 @@ namespace FrostbiteModdingTests
             }
         }
 
-        ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
 
 
         [TestMethod]
-        public void TestImportFaceMesh()
+        public ProjectManagement TestImportFaceMesh()
         {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             var project = projectManagement.StartNewProject();
             //var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_192563_0_0_mesh")).FirstOrDefault();
             var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_192563_0_0_mesh")).FirstOrDefault();
@@ -164,12 +164,13 @@ namespace FrostbiteModdingTests
 
                 }
             }
+            return projectManagement;
         }
 
         [TestMethod]
         public void TestImportFaceMeshAndRun()
         {
-            TestImportFaceMesh();
+            var projectManagement = TestImportFaceMesh();
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;

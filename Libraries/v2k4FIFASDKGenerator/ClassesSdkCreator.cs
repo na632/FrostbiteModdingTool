@@ -67,8 +67,8 @@ namespace SdkGenerator
             var names = executingAssembly.GetManifestResourceNames();
             //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.Classes.txt"))
             //using (Stream stream = executingAssembly.GetManifestResourceStream("v2k4FIFASDKGenerator.Classes.txt"))
-            //if (ProfilesLibrary.IsMadden21DataVersion())
-            //{
+            if (ProfilesLibrary.IsMadden21DataVersion())
+            {
                 using (FileStream stream = new FileStream("M21.Classes.txt", FileMode.Open))
                 {
                     if (stream != null)
@@ -76,10 +76,10 @@ namespace SdkGenerator
                         classMetaList = TypeLibrary.LoadClassesSDK(stream);
                     }
                 }
-            //}
+            }
             //else
             //{
-            if (ProfilesLibrary.IsFIFA19DataVersion() || ProfilesLibrary.IsFIFA20DataVersion())
+            if (ProfilesLibrary.IsFIFA20DataVersion())
             {
                 using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
                 {
@@ -90,6 +90,16 @@ namespace SdkGenerator
                 }
             }
             //}
+            if (ProfilesLibrary.IsFIFA21DataVersion())
+            {
+                using (FileStream stream = new FileStream("FIFA21.Classes.txt", FileMode.Open))
+                {
+                    if (stream != null)
+                    {
+                        classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                    }
+                }
+            }
 
             classList = DumpClasses(task);
             if (classList != null)
@@ -462,7 +472,7 @@ namespace SdkGenerator
                 return 0;
             }
             processed.Add(pclass);
-            DbObject dbObject2 = classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject;
+            DbObject dboClassMetaList = classMetaList != null ? classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject : null;
             DbObject dbObject3 = pobj.GetValue<DbObject>("fields");
             DbObject dbObject4 = DbObject.CreateList();
             if (pclass.DebugType == EbxFieldType.Enum)
@@ -512,9 +522,9 @@ namespace SdkGenerator
                         continue;
                     }
                     DbObject fieldObj = DbObject.CreateObject();
-                    if (dbObject2 != null)
+                    if (dboClassMetaList != null)
                     {
-                        DbObject dbObject10 = dbObject2.GetValue<DbObject>("fields");
+                        DbObject dbObject10 = dboClassMetaList.GetValue<DbObject>("fields");
             DbObject dbObject13 = classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject;
                         if (dbObject13 !=  null)
                         {
@@ -689,10 +699,10 @@ namespace SdkGenerator
             pobj.SetValue("alignment", (int)pclass.Alignment);
             pobj.SetValue("fields", dbObject4);
             fieldIndex += dbObject4.Count;
-            if (dbObject2 != null)
+            if (dboClassMetaList != null)
             {
-                pobj.AddValue("meta", dbObject2);
-                foreach (DbObject dbObject5 in dbObject2.GetValue<DbObject>("fields").List)
+                pobj.AddValue("meta", dboClassMetaList);
+                foreach (DbObject dbObject5 in dboClassMetaList.GetValue<DbObject>("fields").List)
                 {
                     if (dbObject5.GetValue<bool>("added"))
                     {
@@ -733,6 +743,9 @@ namespace SdkGenerator
             //else 
             switch (ProfilesLibrary.DataVersion) {
 
+                case (int)ProfilesLibrary.DataVersions.FIFA19:
+                    typeStr = "SdkGenerator.BaseInfo.ClassInfo";
+                    break;
                 case (int)ProfilesLibrary.DataVersions.FIFA20:
                     typeStr = "SdkGenerator.Madden20.ClassInfo";
                 break;

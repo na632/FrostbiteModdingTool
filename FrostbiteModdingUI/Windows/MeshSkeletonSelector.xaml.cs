@@ -32,7 +32,7 @@ namespace FrostbiteModdingUI.Windows
             assetListView.ItemsSource = null;
             assetListView.ItemsSource = AssetManager.Instance
                                    .EnumerateEbx()
-                                   .Where(x => x.Type.Contains("SkeletonAsset", StringComparison.OrdinalIgnoreCase))
+                                   .Where(x => x.Type == "SkeletonAsset")
                                    .OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
         }

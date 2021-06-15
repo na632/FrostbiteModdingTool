@@ -30,7 +30,7 @@
   "IgnoredResTypes": [],
   "TextureImporter": null,
   "TextureExporter": null,
-  "EditorScreen": null,
+  "EditorScreen": "FIFA19Editor",
   "EBXReader": null,
   "EBXWriter": null,
   "CacheWriter": null,

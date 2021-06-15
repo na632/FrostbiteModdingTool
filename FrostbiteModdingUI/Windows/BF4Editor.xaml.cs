@@ -44,22 +44,22 @@ namespace FrostbiteModdingUI.Windows
             Owner = owner;
         }
 
-        public string LastLocation => App.ApplicationDirectory + "BF4LastLocation.json";
+        public string LastGameLocation => App.ApplicationDirectory + "BF4LastLocation.json";
 
         public string RecentFilesLocation => App.ApplicationDirectory + "BF4RecentFilesLocation.json";
 
         private void BF4Editor_Loaded(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(LastLocation))
+            if (File.Exists(LastGameLocation))
             {
-                var tmpLoc = File.ReadAllText(LastLocation);
+                var tmpLoc = File.ReadAllText(LastGameLocation);
                 if (File.Exists(tmpLoc))
                 {
                     AppSettings.Settings.GameInstallEXEPath = tmpLoc;
                 }
                 else
                 {
-                    File.Delete(LastLocation);
+                    File.Delete(LastGameLocation);
                 }
             }
 
@@ -82,7 +82,7 @@ namespace FrostbiteModdingUI.Windows
                 }
             }
 
-            File.WriteAllText(LastLocation, AppSettings.Settings.GameInstallEXEPath);
+            File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
         }
 
         protected override void OnClosed(EventArgs e)

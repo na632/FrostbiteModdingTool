@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
-        Title="Mesh Skeleton Selector">
+        Title="Mesh Skeleton Selector" WindowStartupLocation="CenterScreen">
     <Grid>
         <ListView VerticalAlignment="Stretch" x:Name="assetListView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible" 

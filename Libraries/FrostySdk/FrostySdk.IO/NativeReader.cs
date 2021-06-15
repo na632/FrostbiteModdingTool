@@ -707,4 +707,12 @@ namespace FrostySdk.IO
 			buffer = null;
 		}
 	}
+
+
+    public class FileReader : NativeReader
+    {
+        public FileReader(Stream inStream) : base(inStream)
+        {
+        }
+    }
 }

@@ -468,11 +468,6 @@ namespace FIFAModdingUI.Pages.Common
 										});
 									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
 
-									// ---------------------------------------------------------------
-									// Clear the Compute Graph
-									((dynamic)skinnedMeshEbx.RootObject).ComputeGraph = default(PointerRef);
-									AssetManager.Instance.ModifyEbx(SelectedEntry.Name, skinnedMeshEbx);
-
 									UpdateAssetListView();
 									App.AppInsightClient.TrackRequest("Import Skinned Mesh", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
 									OpenAsset(SelectedEntry);

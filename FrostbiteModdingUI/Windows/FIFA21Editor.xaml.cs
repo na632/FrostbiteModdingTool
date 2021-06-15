@@ -63,14 +63,11 @@ namespace FIFAModdingUI.Windows
             this.DataContext = this;
             Loaded += FIFA21Editor_Loaded;
             Owner = owner;
-
-            
-
         }
 
-        public string LastFIFA21Location => App.ApplicationDirectory + "FIFA21LastLocation.json";
+        public virtual string LastGameLocation => App.ApplicationDirectory + "FIFA21LastLocation.json";
 
-        public string FIFA21RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
+        public virtual string RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
 
 
         private List<FileInfo> recentProjectFiles;
@@ -82,9 +79,9 @@ namespace FIFAModdingUI.Windows
                 if(recentProjectFiles == null)
                 {
                     recentProjectFiles = new List<FileInfo>();
-                    if(new FileInfo(FIFA21RecentFilesLocation).Exists)
+                    if(new FileInfo(RecentFilesLocation).Exists)
                     {
-                        var allText = File.ReadAllText(FIFA21RecentFilesLocation);
+                        var allText = File.ReadAllText(RecentFilesLocation);
                         var items = JsonConvert.DeserializeObject<List<string>>(allText);
                         recentProjectFiles = items.Select(x => new FileInfo(x)).ToList();
                     }
@@ -97,7 +94,7 @@ namespace FIFAModdingUI.Windows
                 recentProjectFiles = value;
 
                 var str = JsonConvert.SerializeObject(recentProjectFiles.Select(x=>x.FullName));
-                File.WriteAllText(FIFA21RecentFilesLocation, str);
+                File.WriteAllText(RecentFilesLocation, str);
 
                 DataContext = null;
                 DataContext = this;
@@ -106,16 +103,16 @@ namespace FIFAModdingUI.Windows
 
         private void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(LastFIFA21Location))
+            if (File.Exists(LastGameLocation))
             {
-                var tmpLoc = File.ReadAllText(LastFIFA21Location);
+                var tmpLoc = File.ReadAllText(LastGameLocation);
                 if (File.Exists(tmpLoc))
                 {
                     AppSettings.Settings.GameInstallEXEPath = tmpLoc;
                 }
                 else
                 {
-                    File.Delete(LastFIFA21Location);
+                    File.Delete(LastGameLocation);
                 }
             }
 
@@ -138,7 +135,7 @@ namespace FIFAModdingUI.Windows
                 }
             }
 
-            File.WriteAllText(LastFIFA21Location, AppSettings.Settings.GameInstallEXEPath);
+            File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
         }
 
         protected override void OnClosing(CancelEventArgs e)

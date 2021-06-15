@@ -26,7 +26,7 @@
                         </LayoutAnchorable>
                     </LayoutAnchorablePane>
                     <LayoutAnchorablePane>
-                        <LayoutAnchorable Title="Vanilla" CanClose="False" CanHide="False" FloatingHeight="400" IsActive="False" IsMaximized="False" IsSelected="False">
+                        <LayoutAnchorable Title="Vanilla" CanClose="True" CanHide="True" FloatingHeight="400" IsActive="False" IsMaximized="False" IsSelected="False">
                             <TreeView x:Name="TreeViewOriginal"   ScrollViewer.VerticalScrollBarVisibility="Visible"
                                     ScrollViewer.HorizontalScrollBarVisibility="Visible" VerticalAlignment="Top" VerticalContentAlignment="Top">
 

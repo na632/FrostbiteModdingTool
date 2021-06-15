@@ -2,6 +2,7 @@ using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Attributes;
+using FrostySdk.FrostySdk.IO;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json;
@@ -158,7 +159,7 @@ namespace FrostySdk
                     : ((EbxBaseWriter)new EbxWriter(new MemoryStream()));
 
                 //if (ProfilesLibrary.IsFIFA21DataVersion())
-                //    ebxBaseWriter = new EbxWriter_F21(new MemoryStream());
+                //    ebxBaseWriter = new EbxWriterV3(new MemoryStream());
 
                 //if (ProfilesLibrary.IsMadden21DataVersion())
                 //    ebxBaseWriter = new EbxWriter_F21(new MemoryStream());

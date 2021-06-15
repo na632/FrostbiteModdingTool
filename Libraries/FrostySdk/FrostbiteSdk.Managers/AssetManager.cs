@@ -679,16 +679,24 @@ namespace FrostySdk.Managers
 				//ebxList[ebx.Name].Type = root.GetType().Name;
 				//if (string.IsNullOrEmpty(ebxList[ebx.Name].Type))
 				//{
-					using (Stream ebxStream = GetEbxStream(ebx))
+				using (Stream ebxStream = GetEbxStream(ebx))
+				{
+					if (ebxStream != null && ebxStream.Length > 0)
 					{
-						if (ebxStream != null && ebxStream.Length > 0)
+						//EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
+						if (ProfilesLibrary.IsFIFA19DataVersion())
 						{
-							//EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
-							EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
-						EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
-							return;
+							EbxReader ebxReader = new EbxReader(ebxStream, true);
+							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
 						}
+						else
+						{
+							EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
+							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
+						}
+						return;
 					}
+				}
 
 				//}
                     //}
@@ -719,6 +727,8 @@ namespace FrostySdk.Managers
 			var ebxListValues = EbxList.Values.ToList();
             if (ProfilesLibrary.IsMadden21DataVersion()
                 || ProfilesLibrary.IsFIFA21DataVersion()
+                || ProfilesLibrary.IsFIFA20DataVersion()
+                || ProfilesLibrary.IsFIFA19DataVersion()
                 )
             {
 
@@ -1161,17 +1171,19 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public void ModifyRes(string resName, byte[] buffer, byte[] meta = null)
+		public void ModifyRes(string resName, byte[] buffer, byte[] meta = null, CompressionType compressionOverride = CompressionType.Default)
 		{
 			if (resList.ContainsKey(resName))
 			{
 				ResAssetEntry resAssetEntry = resList[resName];
 				// Madden 21 Res is oodle
-				CompressionType compressionOverride = (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.IsMadden21DataVersion()) ? CompressionType.Oodle : CompressionType.Default;
-				if (resAssetEntry.ModifiedEntry == null)
-				{
-					resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-				}
+				// FIFA 21 Res for meshes is oodle
+				compressionOverride = (ProfilesLibrary.DataVersion == 20170929 
+					|| ProfilesLibrary.IsMadden21DataVersion()
+					|| ProfilesLibrary.IsFIFA21DataVersion()
+					) ? CompressionType.Oodle : CompressionType.Default;
+
+				resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
 				resAssetEntry.ModifiedEntry.Data = Utils.CompressFile(buffer, null, (ResourceType)resAssetEntry.ResType, compressionOverride);
 				resAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
 				resAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(resAssetEntry.ModifiedEntry.Data);
@@ -1597,75 +1609,47 @@ namespace FrostySdk.Managers
             bool inPatched = false;
 			if ( (ProfilesLibrary.IsFIFADataVersion() 
 				|| ProfilesLibrary.IsMadden21DataVersion() 
-				|| ProfilesLibrary.IsFIFA21DataVersion())
+				|| ProfilesLibrary.IsFIFA21DataVersion()
+				)
 				&& entry.ExtraData.CasPath.StartsWith("native_patch"))
 			{
 				inPatched = true;
 			}
 
             return GetEbxAssetFromStream(assetStream, inPatched);
-
-            //EbxReader ebxReader = null;
-            //if (ProfilesLibrary.IsFIFA21DataVersion())
-            //{
-            //    ebxReader = new EbxReader_F21(assetStream, inPatched, entry.Filename);
-            //    ((EbxReader_F21)ebxReader).CasPath = entry.ExtraData.CasPath;
-            //    ((EbxReader_F21)ebxReader).CasOffset = entry.ExtraData.DataOffset;
-
-            //}
-            //else if (ProfilesLibrary.IsMadden21DataVersion())
-            //{
-            //    ebxReader = new EbxReader_F21(assetStream, inPatched, entry.Filename);
-            //    ((EbxReader_F21)ebxReader).CasPath = entry.ExtraData.CasPath;
-            //    ((EbxReader_F21)ebxReader).CasOffset = entry.ExtraData.DataOffset;
-
-            //    //ebxReader = new EbxReader_M21(asset, fs, inPatched, entry.Filename);
-            //    //ebxReader = new EbxReaderV2(asset, inPatched);
-            //    //ebxReader = new EbxReaderV2(asset, inPatched);
-            //}
-            //else if (ProfilesLibrary.DataVersion == 20181207
-            //    || ProfilesLibrary.DataVersion == 20190911
-            //    || ProfilesLibrary.DataVersion == 20190905)
-            //{
-            //    ebxReader = new EbxReaderV2(assetStream, inPatched);
-            //}
-            //else
-            //{
-            //    ebxReader = new EbxReader(assetStream);
-            //}
-
-            //return ebxReader.ReadAsset();
         }
 
 
-		//public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
-		public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = false)
-		{
+        public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
+        //public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = false)
+        {
 			EbxReader ebxReader = null;
 			if (ProfilesLibrary.IsFIFA21DataVersion())
 			{
-				//ebxReader = new EbxReader_F21(asset, inPatched);
-				ebxReader = new EbxReaderV2(asset, inPatched);
+                //ebxReader = new EbxReader_F21(asset, inPatched);
+                //ebxReader = new EbxReaderV2(asset, inPatched);
+                ebxReader = new EbxReaderV3(asset, inPatched);
 
-			}
+            }
 			else if (ProfilesLibrary.IsMadden21DataVersion())
 			{
 				//ebxReader = new EbxReader_F21(asset, inPatched);
-				ebxReader = new EbxReaderV2(asset, inPatched);
+				//ebxReader = new EbxReaderV2(asset, inPatched);
+				ebxReader = new EbxReaderV3(asset, inPatched);
 
 			}
 			else if (ProfilesLibrary.DataVersion == 20181207
-				|| ProfilesLibrary.DataVersion == 20190911
+				|| ProfilesLibrary.IsFIFA20DataVersion()
 				|| ProfilesLibrary.DataVersion == 20190905)
 			{
 				ebxReader = new EbxReaderV2(asset, inPatched);
 			}
-			else
-			{
-				ebxReader = new EbxReader(asset);
-			}
+            else
+            {
+                ebxReader = new EbxReader(asset);
+            }
 
-			return ebxReader.ReadAsset();
+            return ebxReader.ReadAsset();
 		}
 
 		/// <summary>
@@ -1675,60 +1659,6 @@ namespace FrostySdk.Managers
 		/// <returns></returns>
 		public Stream GetEbxStream(EbxAssetEntry entry)
 		{
-			/*
-			if (entry.IsModified)
-			{
-                if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
-                {
-                    //using (EbxWriter_F21 ebxWriter = new EbxWriter_F21(new MemoryStream(), EbxWriteFlags.None))
-                    //{
-                    //    ebxWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
-                    //    ebxWriter.BaseStream.Position = 0L;
-                    //    return ebxWriter.BaseStream;
-                    //}
-                    using (EbxWriterV2 ebxWriter = new EbxWriterV2(new MemoryStream(), EbxWriteFlags.None))
-                    {
-                        ebxWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
-                        ebxWriter.BaseStream.Position = 0L;
-                        return ebxWriter.BaseStream;
-                    }
-                }
-				//else if (ProfilesLibrary.IsMadden21DataVersion())
-    //            {
-    //                //using (EbxWriter_F21 ebxWriter = new EbxWriter_F21(new MemoryStream(), EbxWriteFlags.None))
-    //                //{
-    //                //    ebxWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
-    //                //    ebxWriter.BaseStream.Position = 0L;
-    //                //    return ebxWriter.BaseStream;
-    //                //}
-    //                using (EbxWriterV2 ebxWriter = new EbxWriterV2(new MemoryStream(), EbxWriteFlags.None))
-    //                {
-    //                    ebxWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
-    //                    ebxWriter.BaseStream.Position = 0L;
-    //                    return ebxWriter.BaseStream;
-    //                }
-    //            }
-				else if (ProfilesLibrary.IsFIFADataVersion())
-                {
-					using (EbxWriterV2 ebxWriter = new EbxWriterV2(new MemoryStream(), EbxWriteFlags.None))
-					{
-						ebxWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
-						ebxWriter.BaseStream.Position = 0L;
-						return ebxWriter.BaseStream;
-					}
-				}
-                else
-                {
-                    using (EbxWriter ebxWriter = new EbxWriter(new MemoryStream(), EbxWriteFlags.None, leaveOpen: true))
-					{
-						ebxWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
-						ebxWriter.BaseStream.Position = 0L;
-						return ebxWriter.BaseStream;
-					}
-				}
-			}
-
-			*/
 			return GetAsset(entry);
 		}
 
@@ -2539,6 +2469,8 @@ namespace FrostySdk.Managers
             return chunkAssetEntry;
         }
 
+
+
         private void WriteToCache()
 		{
 			if(!string.IsNullOrEmpty(ProfilesLibrary.CacheWriter))
@@ -2547,7 +2479,9 @@ namespace FrostySdk.Managers
 				return;
 			}
 
-			using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
+			var msCache = new MemoryStream();
+			//using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
+			using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
 			{
 				nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
 				nativeWriter.Write(fs.Head);
@@ -2699,9 +2633,27 @@ namespace FrostySdk.Managers
                     }
                 }
             }
+
+			using (NativeWriter nativeWriter = new NativeWriter(new FileStream(ApplicationDirectory + fs.CacheName + ".cache", FileMode.Create)))
+            {
+				nativeWriter.WriteBytes(msCache.ToArray());
+				nativeWriter.Flush();
+            }
+
+			msCache.Close();
+			msCache.Dispose();
+
 		}
 
-        private static void WriteChunkToCache(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
+		public static string ApplicationDirectory
+		{
+			get
+			{
+				return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\";
+			}
+		}
+
+		private static void WriteChunkToCache(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
         {
             //var chunkJson = JsonConvert.SerializeObject(chunkEntry);
             //nativeWriter.WriteLengthPrefixedString(chunkJson);

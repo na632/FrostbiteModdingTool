@@ -50,6 +50,9 @@ namespace SdkGenerator
 					|| x.ProcessName.Contains("FIFA21", StringComparison.OrdinalIgnoreCase)
 					|| x.ProcessName.ToUpper().Contains("MADDEN21", StringComparison.OrdinalIgnoreCase)
 					|| x.ProcessName.Contains("bf4", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.Contains("bfv", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.Contains("bf5", StringComparison.OrdinalIgnoreCase)
+					|| x.ProcessName.Contains("bf1", StringComparison.OrdinalIgnoreCase)
 					);
 			return process;
 		}
@@ -193,13 +196,13 @@ namespace SdkGenerator
 					List<string> patterns = new List<string>()
 					{
                 "488b05???????? 48894108 48890d???????? 48???? C3",
-                "488b05???????? 48894108 48890d????????",
+                //"488b05???????? 48894108 48890d????????",
                 "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
 
                 //"48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08", // FIFA 21
 
 						// Works for Madden and FIFA 21
-				//"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10", // Madden 21 & FIFA 21
+				"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10", // Madden 21 & FIFA 21
 
 
                 //"30 40 96 49 01 00 00 00 48 70 12 48 01 00 00 00 D0 6F 12 48 01"
@@ -215,66 +218,30 @@ namespace SdkGenerator
 
 					List<long> listOfOffsets = null;
 
+					var selectedPattern = string.Empty;
 					foreach (string pattern in patterns)
 					{
 						memoryReader.Position = baseAddress;
 						listOfOffsets = memoryReader.scan(pattern).ToList();
 						if (listOfOffsets.Count != 0)
 						{
+							selectedPattern = pattern;
 							break;
 						}
 					}
-					//if (longList == null || longList.Count == 0)
-					//{
-					//	offset = 0L;
-					//	return false;
-					//}
-					listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
-					//listOfOffsets = listOfOffsets.OrderByDescending(x => x).ToList();
+					if (listOfOffsets.Count == 0)
+						throw new Exception("Unable to find TypeInfo Offset");
+
+					Debug.WriteLine("Used Pattern :: " + selectedPattern);
+					
+					//listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
 					memoryReader.Position = listOfOffsets[0] + 3;
 					int num = memoryReader.ReadInt();
 					memoryReader.Position = listOfOffsets[0] + 3 + num + 4;
 					sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
-
-					//List<long> list = null;
-					//foreach (string pattern in patterns)
-					//{
-					//	memoryReader.Position = baseAddress;
-					//	list = memoryReader.scan(pattern).ToList();
-					//	if (list.Count != 0)
-					//	{
-					//		break;
-					//	}
-					//}
-					//if (list.Count == 0)
-					//{
-					//	task.State = SdkUpdateTaskState.CompletedFail;
-					//	task.FailMessage = "Unable to find the first type info offset";
-					//	Debug.WriteLine(task.FailMessage);
-					//	Trace.WriteLine(task.FailMessage);
-					//	Console.WriteLine(task.FailMessage);
-					//	return false;
-					//}
-					//list.Sort();
-
-
-					//               memoryReader.Position = list.First() + 3;
-					//               int off = memoryReader.ReadInt();
-					//               memoryReader.Position = list.First() + off + 7;
-
-
-					//               long neOffset = memoryReader.ReadLong();
-
-					//               Debug.WriteLine(neOffset.ToString("X2"));
-
-
-					//sdkUpdateState.TypeInfoOffset = neOffset;
 				}
 
 
-				Debug.WriteLine(sdkUpdateState.TypeInfoOffset.ToString("X"));
-
-				//sdkUpdateState.TypeInfoOffset = Convert.ToInt64("145371E58");
 				task.State = SdkUpdateTaskState.CompletedSuccessful;
 
 				task.StatusMessage = string.Format("0x{0}", sdkUpdateState.TypeInfoOffset.ToString("X8"));

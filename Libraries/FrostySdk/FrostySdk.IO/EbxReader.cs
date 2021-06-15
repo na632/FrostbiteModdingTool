@@ -1,5 +1,6 @@
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
+using FrostySdk.FrostySdk.IO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,6 +43,9 @@ namespace FrostySdk.IO
 		internal List<int> refCounts = new List<int>();
 
 		protected List<BoxedValueRef> boxedValueRefs = new List<BoxedValueRef>();
+
+		internal List<EbxBoxedValue> boxedValues = new List<EbxBoxedValue>();
+
 
 		internal Guid fileGuid;
 
@@ -495,11 +499,11 @@ namespace FrostySdk.IO
 			case EbxFieldType.Pointer:
 			{
 				uint num = ReadUInt();
-				if (num >> 31 == 1 && imports.Count > num)
+				if (num >> 31 == 1)
 				{
 					return new PointerRef(imports[(int)(num & int.MaxValue)]);
 				}
-				if (num == 0 || refCounts.Count < num - 1)
+				else if (num == 0)
 				{
 					return default(PointerRef);
 				}

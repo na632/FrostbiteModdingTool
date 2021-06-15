@@ -300,22 +300,22 @@ namespace FIFA21Plugin
                             var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
                             bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
 
-                            using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
-                            {
-                                CasReader casReader = new CasReader(vs);
-                                var b = casReader.ReadBlock();
-                                if (b != null && b.Length > 0)
-                                {
-                                    var ms = new MemoryStream();
-                                    {
-                                        NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
-                                        nativeWriter_ForMS.Write(b);
-                                        ms.Position = 0;
-                                        EbxReader_F21 ebxReader_F21 = new EbxReader_F21(ms, casBundle.TOCPatch[i]);
-                                        ebxobjectinlist.SetValue("Type", ebxReader_F21.RootType);
-                                    }
-                                }
-                            }
+                            //using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
+                            //{
+                            //    CasReader casReader = new CasReader(vs);
+                            //    var b = casReader.ReadBlock();
+                            //    if (b != null && b.Length > 0)
+                            //    {
+                            //        var ms = new MemoryStream();
+                            //        {
+                            //            NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
+                            //            nativeWriter_ForMS.Write(b);
+                            //            ms.Position = 0;
+                            //            EbxReaderV3 ebxReader_F21 = new EbxReaderV3(ms, casBundle.TOCPatch[i]);
+                            //            ebxobjectinlist.SetValue("Type", ebxReader_F21.RootType);
+                            //        }
+                            //    }
+                            //}
                             ebxobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
                         }

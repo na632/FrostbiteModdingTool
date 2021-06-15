@@ -75,20 +75,22 @@ namespace FrostbiteModdingUI.Windows
                     TimeSpan.FromMilliseconds(230), "200", true);
         }
 
-        public string LastM21Location => App.ApplicationDirectory + "MADDEN21LastLocation.json";
+        public string LastGameLocation => App.ApplicationDirectory + "MADDEN21LastLocation.json";
+
+        public string RecentFilesLocation => throw new NotImplementedException();
 
         private void Madden21Editor_Loaded(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(LastM21Location))
+            if (File.Exists(LastGameLocation))
             {
-                var tmpLoc = File.ReadAllText(LastM21Location);
+                var tmpLoc = File.ReadAllText(LastGameLocation);
                 if (File.Exists(tmpLoc))
                 {
                     AppSettings.Settings.GameInstallEXEPath = tmpLoc;
                 }
                 else
                 {
-                    File.Delete(LastM21Location);
+                    File.Delete(LastGameLocation);
                 }
             }
 
@@ -111,7 +113,7 @@ namespace FrostbiteModdingUI.Windows
                 }
             }
 
-            File.WriteAllText(LastM21Location, AppSettings.Settings.GameInstallEXEPath);
+            File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
         }
 
         private void Madden21Editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
