@@ -147,22 +147,11 @@ namespace FrostySdk.Frostbite.IO.Input
             assetManager.ModifyRes(resEntry.Name, resData, meshSet.Meta);
             entry.LinkAsset(resEntry);
 
-			//var ebx = AssetManager.Instance.GetEbx(entry);
-			//var robjs = ((IEnumerable<object>)asset.RootObjects);
-			//var objs = ((IEnumerable<object>)asset.Objects);
-			//var ro = ((object)asset.RootObject);
-			((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
-			//((dynamic)asset.RootObject).LodGroup = default(PointerRef);
-
-			//((dynamic)asset.RootObject).LodScale = -1;
-			//var findLodGroupEntry = AssetManager.Instance.EnumerateEbx("MeshLodGroup").FirstOrDefault(x => x.Name.Contains("character_default"));
-			//if (findLodGroupEntry != null) 
-			//{
-			//	var ebxLodGroup = AssetManager.Instance.GetEbx(findLodGroupEntry);
-
-			//	((dynamic)asset.RootObject).LodGroup = new PointerRef(ebxLodGroup.FileGuid);
-			//}
-			AssetManager.Instance.ModifyEbx(entry.Name, asset);
+			if (ProfilesLibrary.IsFIFA21DataVersion())
+			{
+				((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
+				AssetManager.Instance.ModifyEbx(entry.Name, asset);
+			}
 		}
 
 		private float CubeMapFaceID(float inX, float inY, float inZ)
@@ -362,13 +351,13 @@ namespace FrostySdk.Frostbite.IO.Input
 				}
 			}
 
-			//bool flag = false;
-			foreach (MeshSetSection section2 in meshSetLod.Sections)
+            bool flag = false;
+            foreach (MeshSetSection section2 in meshSetLod.Sections)
 			{
 				if (section2.VertexCount > 65535)
 				{
-					//flag = true;
-					break;
+                    flag = true;
+                    break;
 				}
 			}
 			using NativeWriter nativeWriter = new NativeWriter(new MemoryStream());
@@ -382,20 +371,20 @@ namespace FrostySdk.Frostbite.IO.Input
 			{
 				foreach (uint item4 in item3)
 				{
-					//if (flag)
-					//{
-						nativeWriter.Write(item4);
-					//}
-					//else
-					//{
-					//	nativeWriter.Write((ushort)item4);
-					//}
-				}
+                    if (flag)
+                    {
+                        nativeWriter.Write(item4);
+                    }
+                    else
+                    {
+                        nativeWriter.Write((ushort)item4);
+                    }
+                }
 			}
 			nativeWriter.WritePadding(16);
 			meshSetLod.IndexBufferSize = (uint)(nativeWriter.BaseStream.Position - meshSetLod.VertexBufferSize);
-			//meshSetLod.SetIndexBufferFormatSize(flag ? 4 : 2);
-			meshSetLod.SetIndexBufferFormatSize(4);
+            meshSetLod.SetIndexBufferFormatSize(flag ? 4 : 2);
+            //meshSetLod.SetIndexBufferFormatSize(4);
 
 
 			nativeWriter.Position = 0;
@@ -407,30 +396,30 @@ namespace FrostySdk.Frostbite.IO.Input
                 ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(meshSetLod.ChunkId);
                 resEntry.LinkAsset(chunkEntry);
             }
-            //else
-            //{
-            //meshSetLod.SetInlineData(((MemoryStream)nativeWriter.BaseStream).ToArray());
-            //}
+            else
+            {
+                meshSetLod.SetInlineData(((MemoryStream)nativeWriter.BaseStream).ToArray());
+            }
         }
 	
 		private unsafe void ProcessSection(FbxNode[] sectionNodes, MeshSetLod meshLod, int sectionIndex, MemoryStream verticesBuffer, List<uint> indicesBuffer, uint vertexOffset, ref uint startIndex)
 		{
-			if (sectionNodes == null)
-			{
-				throw new ArgumentNullException("sectionNodes");
-			}
-			if (meshLod == null)
-			{
-				throw new ArgumentNullException("meshLod");
-			}
-			if (verticesBuffer == null)
-			{
-				throw new ArgumentNullException("verticesBuffer");
-			}
-			if (indicesBuffer == null)
-			{
-				throw new ArgumentNullException("indicesBuffer");
-			}
+			//if (sectionNodes == null)
+			//{
+			//	throw new ArgumentNullException("sectionNodes");
+			//}
+			//if (meshLod == null)
+			//{
+			//	throw new ArgumentNullException("meshLod");
+			//}
+			//if (verticesBuffer == null)
+			//{
+			//	throw new ArgumentNullException("verticesBuffer");
+			//}
+			//if (indicesBuffer == null)
+			//{
+			//	throw new ArgumentNullException("indicesBuffer");
+			//}
 			MeshSetSection meshSetSection = meshLod.Sections[sectionIndex];
 			uint num = 0u;
 			meshSetSection.VertexOffset = vertexOffset;

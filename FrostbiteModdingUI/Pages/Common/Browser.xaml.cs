@@ -296,11 +296,12 @@ namespace FIFAModdingUI.Pages.Common
 		}
 
 
-		private void btnImport_Click(object sender, RoutedEventArgs e)
+		private async void btnImport_Click(object sender, RoutedEventArgs e)
 		{
 			var importStartTime = DateTime.Now;
 
-			LoadingDialog loadingDialog = null;
+			LoadingDialog loadingDialog = new LoadingDialog();
+			loadingDialog.Show();
 			try
 			{
 				
@@ -357,7 +358,7 @@ namespace FIFAModdingUI.Pages.Common
 							var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(SelectedEntry.Name);
 							if (resEntry != null)
 							{
-								using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(resEntry))
+								using (var resStream = await ProjectManagement.Instance.Project.AssetManager.GetResAsync(resEntry))
 								{
 
 									Texture texture = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager);
@@ -430,12 +431,11 @@ namespace FIFAModdingUI.Pages.Common
 						var fbximport_dialogresult = openFileDialog.ShowDialog();
 						if (fbximport_dialogresult.HasValue && fbximport_dialogresult.Value)
 						{
-
-							var skinnedMeshEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
+							var skinnedMeshEbx = await AssetManager.Instance.GetEbxAsync((EbxAssetEntry)SelectedEntry);
 							if (skinnedMeshEbx != null)
 							{
 								var resentry = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
-								var res = AssetManager.Instance.GetRes(resentry);
+								var res = await AssetManager.Instance.GetResAsync(resentry);
 								MeshSet meshSet = new MeshSet(res);
 
 								var skeletonEntryText = "content/character/rig/skeleton/player/skeleton_player";
@@ -460,6 +460,7 @@ namespace FIFAModdingUI.Pages.Common
 
 								try
 								{
+									await loadingDialog.UpdateAsync("Importing Mesh", "");
 									FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
 									importer.ImportFBX(openFileDialog.FileName, meshSet, skinnedMeshEbx, (EbxAssetEntry)SelectedEntry
 										, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
@@ -866,10 +867,10 @@ namespace FIFAModdingUI.Pages.Common
 									this.ModelDockingManager.Visibility = Visibility.Visible;
 									this.ModelViewerEBXGrid.SelectedObject = skinnedMeshEbx.RootObject;
 
-
-									this.btnExport.IsEnabled = true;
-									this.btnImport.IsEnabled = true;
-									this.btnRevert.IsEnabled = true;
+									
+									this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
+									this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
+									this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
 								}
 
 									
@@ -1182,6 +1183,8 @@ namespace FIFAModdingUI.Pages.Common
 				MainEditorWindow.UpdateAllBrowsers();
 
 			OpenAsset(SelectedEntry);
+
+			UpdateAssetListView();
 
 		}
 

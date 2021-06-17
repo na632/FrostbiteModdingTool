@@ -5,6 +5,7 @@ using FrostySdk.Managers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -114,19 +115,36 @@ namespace FrostySdk
                 set { editorIcon = value; }
             }
 
+			private bool canImportMeshes;
 
-        }
+            public bool CanImportMeshes
+            {
+                get { return canImportMeshes; }
+                set { canImportMeshes = value; }
+            }
+
+			private bool canExportMeshes;
+
+			public bool CanExportMeshes
+			{
+				get { return canExportMeshes; }
+				set { canExportMeshes = value; }
+			}
+
+
+
+		}
 
 		public static IEnumerable<Profile> EditorProfiles 
 		{ 
 			get 
 			{
 				var profiles = Directory.EnumerateFiles(
-						Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName
+						ApplicationDirectory
 						, "*profile.json").ToList();
 				profiles.AddRange(Directory.EnumerateFiles(
-						Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName
-						, "FrostbiteProfiles/*profile.json").ToList());
+						ApplicationDirectory + "FrostbiteProfiles\\"
+						, "*profile.json").ToList());
 				foreach (var p in profiles)
 				{
 					var prof = JsonConvert.DeserializeObject<Profile>(System.IO.File.ReadAllText(p));
@@ -136,6 +154,14 @@ namespace FrostySdk
 
 				yield break;
 			} 
+		}
+
+		public static string ApplicationDirectory
+		{
+			get
+			{
+				return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\";
+			}
 		}
 
 		private static Profile LoadedProfile;
@@ -225,6 +251,9 @@ namespace FrostySdk
 		public static List<string> SupportedLauncherFileTypes => LoadedProfile.SupportedLauncherFileTypes;
 
 		public static string ModCompilerFileType => LoadedProfile.ModCompilerFileType;
+
+		public static bool CanImportMeshes => LoadedProfile.CanImportMeshes;
+		public static bool CanExportMeshes => LoadedProfile.CanExportMeshes;
 
 
 		/// <summary>

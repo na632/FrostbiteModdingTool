@@ -21,6 +21,8 @@ public class MeshSet
 
 	private readonly List<uint> unknownUInts = new List<uint>();
 
+	private readonly ushort? unknownUShort;
+
 	private readonly List<ushort> unknownUShorts = new List<ushort>();
 
 	private readonly List<long> unknownOffsets = new List<long>();
@@ -86,48 +88,57 @@ public class MeshSet
 
 	public byte[] Meta { get; } = new byte[16];
 
+	ushort unknownUint2;
 
 	public MeshSet(Stream stream)
 	{
-		if (stream == null)
-		{
-			throw new ArgumentNullException("stream");
-		}
+		NativeWriter nativeWriterTest = new NativeWriter(new FileStream("MeshSet.dat", FileMode.Create));
+		nativeWriterTest.Write(((MemoryStream)stream).ToArray());
+		nativeWriterTest.Close();
+		nativeWriterTest.Dispose();
+
 		FileReader nativeReader = new FileReader(stream);
 		boundingBox = nativeReader.ReadAxisAlignedBox();
 		long[] array = new long[MaxLodCount];
 		for (int i2 = 0; i2 < MaxLodCount; i2++)
 		{
-			array[i2] = nativeReader.ReadInt64LittleEndian();
+			array[i2] = nativeReader.ReadLong();
 		}
-		long position = nativeReader.ReadInt64LittleEndian();
-		long position2 = nativeReader.ReadInt64LittleEndian();
-		nameHash = nativeReader.ReadUInt32LittleEndian();
-		Type = (MeshType)nativeReader.ReadUInt32LittleEndian();
-		Flags = (MeshLayoutFlags)nativeReader.ReadUInt32LittleEndian();
-		for (int m2 = 0; m2 < 8; m2++)
-		{
-			unknownUInts.Add(nativeReader.ReadUInt32LittleEndian());
-		}
-		ushort lodsCount = nativeReader.ReadUInt16LittleEndian();
-		nativeReader.ReadUInt16LittleEndian();
+		long position = nativeReader.ReadLong();
+		long position2 = nativeReader.ReadLong();
+		nameHash = nativeReader.ReadUInt();
+		Type = (MeshType)nativeReader.ReadUInt();
+		Flags = (MeshLayoutFlags)nativeReader.ReadUInt();
+		ReadUnknownUInts(nativeReader);
+		//for (int m2 = 0; m2 < 8; m2++)
+		//{
+		//	unknownUInts.Add(nativeReader.ReadUInt32LittleEndian());
+		//}
+		if (ProfilesLibrary.IsMadden21DataVersion())
+			unknownUShort = nativeReader.ReadUShort();
+			//unknownUInts.Add(nativeReader.ReadUShort());
+			//	unknownUInts.Add(nativeReader.ReadUInt());
+		ushort lodsCount = nativeReader.ReadUShort();
+
+		// num 2's actual number
+		unknownUint2 = nativeReader.ReadUShort();
 		ushort num2 = 0;
 		if (Type == MeshType.MeshType_Skinned)
 		{
-			boneCount = nativeReader.ReadUInt16LittleEndian();
-			num2 = nativeReader.ReadUInt16LittleEndian();
+			boneCount = nativeReader.ReadUShort();
+			num2 = nativeReader.ReadUShort();
 			if (boneCount != 0)
 			{
-				nativeReader.ReadInt64LittleEndian();
-				nativeReader.ReadInt64LittleEndian();
+				nativeReader.ReadLong();
+				nativeReader.ReadLong();
 			}
 		}
 		else if (Type == MeshType.MeshType_Composite)
 		{
-			num2 = nativeReader.ReadUInt16LittleEndian();
-			boneCount = nativeReader.ReadUInt16LittleEndian();
-			long num3 = nativeReader.ReadInt64LittleEndian();
-			long num4 = nativeReader.ReadInt64LittleEndian();
+			num2 = nativeReader.ReadUShort();
+			boneCount = nativeReader.ReadUShort();
+			long num3 = nativeReader.ReadLong();
+			long num4 = nativeReader.ReadLong();
 			long position3 = nativeReader.Position;
 			if (num3 != 0L)
 			{
@@ -200,7 +211,7 @@ public class MeshSet
 			nativeReader.Pad(16);
 			for (int k = 0; k < num2; k++)
 			{
-				boneIndices.Add(nativeReader.ReadUInt16LittleEndian());
+				boneIndices.Add(nativeReader.ReadUShort());
 			}
 			nativeReader.Pad(16);
 			for (int j = 0; j < num2; j++)
@@ -220,6 +231,81 @@ public class MeshSet
 		foreach (MeshSetLod lod5 in Lods)
 		{
 			lod5.ReadInlineData(nativeReader);
+		}
+	}
+
+	private void ReadUnknownUInts(NativeReader nativeReader)
+	{
+		switch (ProfilesLibrary.DataVersion)
+		{
+			case 20160927:
+				unknownUInts.Add(nativeReader.ReadUInt());
+				unknownUInts.Add(nativeReader.ReadUInt());
+				break;
+			case 20171210:
+				unknownUInts.Add(nativeReader.ReadUShort());
+				break;
+			case (int)ProfilesLibrary.DataVersions.FIFA21:
+			case 20170929:
+			case 20180807:
+			case 20180914:
+			case (int)ProfilesLibrary.DataVersions.FIFA20:
+				{
+					for (int m = 0; m < 8; m++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					break;
+				}
+			case 20180628:
+				{
+					for (int k = 0; k < 6; k++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					break;
+				}
+			case 20181207:
+			case 20190905:
+			case 20191101:
+				{
+					for (int j = 0; j < 7; j++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					break;
+				}
+			case (int)ProfilesLibrary.DataVersions.MADDEN21:
+			case 20190729:
+				{
+					for (int l = 0; l < 8; l++)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+					break;
+				}
+			default:
+				unknownUInts.Add(nativeReader.ReadUInt());
+				if (ProfilesLibrary.DataVersion != 20170321)
+				{
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					unknownUInts.Add(nativeReader.ReadUInt());
+					if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110)
+					{
+						unknownUInts.Add(nativeReader.ReadUInt());
+					}
+				}
+				break;
+			case 20131115:
+			case 20140225:
+			case 20141117:
+			case 20141118:
+			case 20150223:
+			case 20151103:
+				break;
 		}
 	}
 
@@ -299,14 +385,21 @@ public class MeshSet
 		}
 		meshContainer.WriteRelocPtr("STR", fullName, writer);
 		meshContainer.WriteRelocPtr("STR", Name, writer);
-		writer.WriteUInt32LittleEndian(nameHash);
-		writer.WriteUInt32LittleEndian((uint)Type);
-		writer.WriteUInt32LittleEndian((uint)Flags);
+		writer.Write((uint)nameHash);
+		writer.Write((uint)(uint)Type);
+		writer.Write((uint)(uint)Flags);
+
+		// Unknown UInts that all of the systems have
 		foreach (uint unknownUInt in unknownUInts)
 		{
-			writer.WriteUInt32LittleEndian(unknownUInt);
+			writer.Write((uint)unknownUInt);
 		}
-		writer.WriteUInt16LittleEndian((ushort)Lods.Count);
+
+        // Madden 21 Ushort
+        if (unknownUShort.HasValue)
+            writer.Write((ushort)unknownUShort);
+
+        writer.WriteUInt16LittleEndian((ushort)Lods.Count);
 		ushort num = 0;
 		foreach (MeshSetLod lod in Lods)
 		{
@@ -379,7 +472,7 @@ public class MeshSet
 			meshContainer.AddOffset("BONES", lod4.BoneIndexArray, writer);
 			foreach (uint item in lod4.BoneIndexArray)
 			{
-				writer.WriteUInt32LittleEndian(item);
+				writer.Write((uint)item);
 			}
 		}
 		writer.WritePadding(16);

@@ -1,6 +1,7 @@
 ﻿using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Interfaces;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SdkGenerator;
@@ -209,6 +210,57 @@ namespace FrostbiteModdingTests
                     exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/characters/rig/skeleton/player/maddenfb_hero_skeleton", "fbx", meshSet);
                 }
             }
+        }
+
+
+        [TestMethod]
+        public ProjectManagement TestImportFaceMesh()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathExe);
+            var project = projectManagement.StartNewProject();
+            //var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_192563_0_0_mesh")).FirstOrDefault();
+            var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("mahomesiipatrick_12635_mesh")).FirstOrDefault();
+            if (skinnedMeshEntry != null)
+            {
+                var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
+                if (skinnedMeshEbx != null)
+                {
+                    var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
+                    var res = project.AssetManager.GetRes(resentry);
+                    MeshSet meshSet = new MeshSet(res);
+                    using(NativeWriter nwTest = new NativeWriter(new FileStream("MeshSet-" + skinnedMeshEntry.Filename + ".dat", FileMode.Create)))
+                    {
+                        nwTest.WriteBytes(((MemoryStream)res).ToArray());
+                    }
+
+
+                    FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
+                    //FrostySdk.Frostbite.IO.Input.FT.FBXImporter2 importer = new FrostySdk.Frostbite.IO.Input.FT.FBXImporter2(AssetManager.Instance);
+                    var exporter = new MeshSetToFbxExport();
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/characters/rig/skeleton/player/maddenfb_hero_skeleton", "*.fbx", meshSet);
+                    //importer.ImportFBX("test.fbx", meshSet, skinnedMeshEbx, skinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
+                    importer.ImportFBX(@"C:\Users\paula\Desktop\mackkhalil_12344_mesh.fbx", meshSet, skinnedMeshEbx, skinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
+                    {
+                        SkeletonAsset = "content/characters/rig/skeleton/player/maddenfb_hero_skeleton"
+                    });
+
+                }
+            }
+            return projectManagement;
+        }
+
+        [TestMethod]
+        public void TestImportFaceMeshAndRun()
+        {
+            var projectManagement = TestImportFaceMesh();
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    @"test.fbmod"
+                }.ToArray()).Wait();
+
         }
 
     }

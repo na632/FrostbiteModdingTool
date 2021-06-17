@@ -53,5 +53,7 @@
   "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
   "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
   "SharedBundles": {},
-  "IgnoredResTypes": []
+  "IgnoredResTypes": [],
+  "CanImportMeshes": true,
+  "CanExportMeshes": true
 }

@@ -688,11 +688,13 @@ namespace FrostySdk.Managers
 						{
 							EbxReader ebxReader = new EbxReader(ebxStream, true);
 							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
+							EbxList[Fnv1.HashString(ebx.Name)].Guid = ebxReader.FileGuid;
 						}
 						else
 						{
 							EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
 							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
+							EbxList[Fnv1.HashString(ebx.Name)].Guid = ebxReader.FileGuid;
 						}
 						return;
 					}
@@ -1522,6 +1524,12 @@ namespace FrostySdk.Managers
 			return EbxList[Fnv1.HashString(name)];
 		}
 
+		public EbxAssetEntry GetEbxEntry(Guid id)
+		{
+			var ebxGuids = EbxList.Values.Where(x => x.Guid != null);
+			return ebxGuids.FirstOrDefault(x => x.Guid == id);
+		}
+
 		public ResAssetEntry GetResEntry(ulong resRid)
 		{
 			if (!resRidList.ContainsKey(resRid))
@@ -1618,9 +1626,17 @@ namespace FrostySdk.Managers
 
             return GetEbxAssetFromStream(assetStream, inPatched);
         }
+		public async Task<EbxAsset> GetEbxAsync(EbxAssetEntry entry, bool getModified = true)
+		{
+			return await Task.Run(() =>
+			{
+				return GetEbx(entry, getModified);
+			});
+
+		}
 
 
-        public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
+			public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
         //public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = false)
         {
 			EbxReader ebxReader = null;
@@ -1665,6 +1681,14 @@ namespace FrostySdk.Managers
 		public Stream GetRes(ResAssetEntry entry)
 		{
 			return GetAsset(entry);
+		}
+
+		public async Task<Stream> GetResAsync(ResAssetEntry entry)
+		{
+			return await Task.Run(() =>
+			{
+				return GetRes(entry);
+			});
 		}
 
 		public T GetResAs<T>(ResAssetEntry entry) where T : Resource, new()
@@ -2238,7 +2262,7 @@ namespace FrostySdk.Managers
 					ebxAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
 					ebxAssetEntry.IsInline = nativeReader.ReadBoolean();
 					ebxAssetEntry.Type = nativeReader.ReadLengthPrefixedString();
-					Guid guid = nativeReader.ReadGuid();
+					ebxAssetEntry.Guid = nativeReader.ReadGuid();
 					if (nativeReader.ReadBoolean())
 					{
 						ebxAssetEntry.ExtraData = new AssetExtraData();
@@ -2280,7 +2304,6 @@ namespace FrostySdk.Managers
 					//}
 					if (flag)
 					{
-						ebxAssetEntry.Guid = guid;
 						prePatchCache.Add(ebxAssetEntry);
 					}
 					else
@@ -2515,7 +2538,7 @@ namespace FrostySdk.Managers
                     nativeWriter.Write((int)ebxEntry.Location);
                     nativeWriter.Write(ebxEntry.IsInline);
                     nativeWriter.WriteLengthPrefixedString((ebxEntry.Type != null) ? ebxEntry.Type : "");
-                    nativeWriter.Write(ebxEntry.Guid == Guid.Empty ? Guid.NewGuid() : ebxEntry.Guid);
+                    nativeWriter.Write(ebxEntry.Guid);
                     nativeWriter.Write(ebxEntry.ExtraData != null);
                     if (ebxEntry.ExtraData != null)
                     {

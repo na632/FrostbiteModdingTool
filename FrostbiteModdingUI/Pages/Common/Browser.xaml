@@ -269,17 +269,18 @@
                                                         <hx:DirectionalLight3D Direction="0, 0, 1" Color="#DEDDDE" />
                                             <hx:DirectionalLight3D Direction="1, 0, 0" Color="#DEDDDE" />
                                             <hx:AmbientLight3D Color="#111111" />
-                                                        <hx:MeshGeometryModel3D
+                                                        
+                                                <hx:MeshGeometryModel3D
                 Geometry="{Binding FloorModel}"
                 Material="{Binding FloorMaterial}" />
-                                                        <hx:MeshGeometryModel3D
+                                                <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding BunnyModel}"
                 Instances="{Binding BunnyInstances}"
                 Material="{Binding BunnyMaterial}"
                     
                     />
-                                                        <hx:MeshGeometryModel3D
+                                                <hx:MeshGeometryModel3D
                 CullMode="None"
                 Geometry="{Binding MeshModel2}"
                 Instances="{Binding MeshInstances2}"
@@ -287,6 +288,7 @@
                     
                     />
 
+                                               
                                                     </hx:Viewport3DX>
 
 

@@ -77,6 +77,67 @@ namespace FrostbiteModdingUI.Models
                 if (File.Exists(file))
                 {
                     var models = reader.Read(file);
+                    //var index = 0;
+                    //foreach(var m in models)
+                    //{
+                    //    MeshGeometryModel3D meshGeometryModel3D = new MeshGeometryModel3D();
+                    //    meshGeometryModel3D.Geometry = m.Geometry;
+                    //    meshGeometryModel3D.Instances = new Matrix[1]
+                    //    {
+                    //        Matrix.Translation(0, 0, 0),
+                    //    };
+                    //    meshGeometryModel3D.Material = new PhongMaterial
+                    //    {
+                    //        AmbientColor = Colors.White.ToColor4(),
+                    //        DiffuseColor = Colors.White.ToColor4(),
+                    //        SpecularColor = Colors.Black.ToColor4(),
+                    //        SpecularShininess = 0.01f
+                    //    };
+                    //    if (skinnedMeshAsset != null)
+                    //    {
+                    //        switch (index)
+                    //        {
+                    //            case 0:
+                    //                BunnyModel = m.Geometry;
+                    //                BunnyMaterial = new PhongMaterial
+                    //                {
+                    //                    AmbientColor = Colors.White.ToColor4(),
+                    //                    DiffuseColor = Colors.White.ToColor4(),
+                    //                    SpecularColor = Colors.Black.ToColor4(),
+                    //                    SpecularShininess = 0.01f
+                    //                };
+                    //                BunnyInstances = new Matrix[1]
+                    //                {
+                    //                Matrix.Translation(0, 0, 0),
+                    //                };
+                    //                Stream textureTest = LoadTexture(skinnedMeshAsset, 0, "colorTexture");
+                    //                if (textureTest != null)
+                    //                {
+                    //                    BunnyMaterial.DiffuseMap = textureTest;
+                    //                }
+                    //                break;
+                    //            case 1:
+                    //                MeshModel2 = m.Geometry;
+                    //                MeshMaterial2 = new PhongMaterial
+                    //                {
+                    //                    AmbientColor = Colors.White.ToColor4(),
+                    //                    DiffuseColor = Colors.White.ToColor4(),
+                    //                    SpecularColor = Colors.Black.ToColor4(),
+                    //                    SpecularShininess = 0.01f
+                    //                };
+                    //                MeshInstances2 = new Matrix[1]
+                    //                {
+                    //                Matrix.Translation(0, 0, 0),
+                    //                };
+                    //                Stream texture2 = LoadTexture(skinnedMeshAsset, 0, "colorTexture");
+                    //                if (texture2 != null)
+                    //                {
+                    //                    MeshMaterial2.DiffuseMap = texture2;
+                    //                }
+                    //                break;
+                    //        }
+                    //    }
+                    //}
 
                     BunnyModel = models[0].Geometry;
                     BunnyMaterial = new PhongMaterial
@@ -104,7 +165,7 @@ namespace FrostbiteModdingUI.Models
                     }
                     if (Camera != null && BunnyModel != null)
                     {
-                        Camera.Position = new System.Windows.Media.Media3D.Point3D(0.0, BunnyModel.Positions[0].Y, 0.6);
+                        Camera.Position = new System.Windows.Media.Media3D.Point3D(0.0, BunnyModel.Positions[0].Y, 0.65);
                     }
                     if (skinnedMeshAsset != null)
                     {
@@ -152,7 +213,7 @@ namespace FrostbiteModdingUI.Models
                                     {
                                         textureDDSStream.Position = 0L;
                                         BunnyMaterial.NormalMap = new TextureModel(textureDDSStream);
-                                        if(MeshMaterial2 != null)
+                                        if (MeshMaterial2 != null)
                                             MeshMaterial2.NormalMap = new TextureModel(textureDDSStream);
                                     }
 
@@ -161,20 +222,20 @@ namespace FrostbiteModdingUI.Models
                         }
                     }
 
-                    //if (meshSet != null)
-                    //{
-                    //    var section = meshSet.Lods[0].Sections[0];
-                    //    Stream colourTextureDDSStream = LoadTexture(skinnedMeshAsset, section.materialId, "colorTexture");
-                    //    if(colourTextureDDSStream != null)
-                    //    {
+                    ////if (meshSet != null)
+                    ////{
+                    ////    var section = meshSet.Lods[0].Sections[0];
+                    ////    Stream colourTextureDDSStream = LoadTexture(skinnedMeshAsset, section.materialId, "colorTexture");
+                    ////    if(colourTextureDDSStream != null)
+                    ////    {
 
-                    //    }
-                    //    //Stream normalTextureDDSStream = LoadTexture(ebxAsset, section.materialId, "normalTexture");
+                    ////    }
+                    ////    //Stream normalTextureDDSStream = LoadTexture(ebxAsset, section.materialId, "normalTexture");
+                    ////}
+                    //if (models.Count > 1)
+                    //{
+                    //    BunnyModel_1 = models[1].Geometry;
                     //}
-                    if (models.Count > 1)
-                    {
-                        BunnyModel_1 = models[1].Geometry;
-                    }
                     //if (models.Count > 2)
                     //{
                     //    BunnyModel_2 = models[2].Geometry;
@@ -258,7 +319,7 @@ namespace FrostbiteModdingUI.Models
             {
                 return null;
             }
-            EbxAssetEntry textureAssetEntry = AssetManager.Instance.GetEbxEntry(textureGuid.ToString());
+            EbxAssetEntry textureAssetEntry = AssetManager.Instance.GetEbxEntry(textureGuid);
             if (textureAssetEntry == null)
             {
                 return null;
