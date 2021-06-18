@@ -186,12 +186,15 @@
                                 </Button>
                             </Grid>
                             <Grid Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition MinWidth="256"></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="30"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                    <RowDefinition Height="30"></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
+                                        <RowDefinition Height="*"></RowDefinition>
+                                            <RowDefinition Height="*"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                               <!-- <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
                                     <Label>Name:</Label>
                                     <Label x:Name="lblImageName"></Label>
                                     <Label>DDS Type:</Label>
@@ -200,19 +203,24 @@
                                     <Label x:Name="lblImageRESType"></Label>
                                     <Label>Image Size:</Label>
                                     <Label x:Name="lblImageSize"></Label>
-                                </StackPanel>
-                                <Image Grid.Row="1" x:Name="ImageViewer" Stretch="Uniform"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
+                                </StackPanel>-->
+                                <Image  x:Name="ImageViewer" Grid.RowSpan="2" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
 
                                 </Image>
-                                <StackPanel  Grid.Row="2" Background="White" Orientation="Horizontal">
+                                <!--<StackPanel Grid.Row="1" Grid.Column="1" Background="White" Orientation="Vertical">
                                     <Label>CAS File:</Label>
                                     <Label x:Name="lblImageCASFile"></Label>
                                     <Label>CAS Offset:</Label>
                                     <Label x:Name="lblImageCASOffset"></Label>
                                     <Label>Bundle File:</Label>
                                     <Label x:Name="lblImageBundleFile"></Label>
-                                </StackPanel>
-                            </Grid>
+                                </StackPanel>-->
+                                        <xctk:PropertyGrid  Grid.Column="1" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
+                                        </xctk:PropertyGrid>
+                                        <xctk:PropertyGrid Grid.Row="1" Grid.Column="1" SelectedObject="{Binding SelectedEbxAsset.RootObject}" IsReadOnly="True" AutoGenerateProperties="True">
+                                        </xctk:PropertyGrid>
+
+                                    </Grid>
 
                             <TextBox Grid.Row="1" x:Name="TextViewer" MaxLines="999999" 
                      Visibility="Collapsed"

@@ -78,7 +78,36 @@ namespace FIFAModdingUI.Pages.Common
 
 		public string FilterText { get; set; }
 
-		public async Task<List<IAssetEntry>> GetFilteredAssetEntries()
+		#region Entry Properties
+
+		private AssetEntry assetEntry1;
+
+		public AssetEntry SelectedEntry
+		{
+			get
+			{
+				if (assetEntry1 == null && SelectedLegacyEntry != null)
+					return SelectedLegacyEntry;
+
+				return assetEntry1;
+			}
+			set { assetEntry1 = value; }
+		}
+
+		public LegacyFileEntry SelectedLegacyEntry { get; set; }
+
+        private EbxAsset ebxAsset;
+
+		public EbxAsset SelectedEbxAsset
+        {
+            get { return ebxAsset; }
+            set { ebxAsset = value; }
+        }
+
+
+        #endregion
+
+        public async Task<List<IAssetEntry>> GetFilteredAssetEntries()
 		{
 
 			return await Dispatcher.InvokeAsync(() =>
@@ -737,10 +766,9 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		public AssetEntry SelectedEntry;
-		public LegacyFileEntry SelectedLegacyEntry;
+        
 
-		private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
 		{
 			AssetEntry entry = ((TextBlock)sender).Tag as EbxAssetEntry;
 			if (entry == null)
@@ -766,6 +794,13 @@ namespace FIFAModdingUI.Pages.Common
 		{
 			try
 			{
+
+				if (entry != null) 
+				{
+					var bundleName = entry.Bundle;
+
+
+				}
 				SelectedEntry = null;
 				SelectedLegacyEntry = null;
 				btnImport.IsEnabled = false;
@@ -787,27 +822,23 @@ namespace FIFAModdingUI.Pages.Common
 					if (ebxEntry != null)
 					{
 						SelectedEntry = ebxEntry;
+						SelectedEbxAsset = AssetManager.Instance.GetEbx(ebxEntry);
 						if (ebxEntry.Type == "TextureAsset")
 						{
 							try
 							{
 								MainEditorWindow.Log("Loading Texture " + ebxEntry.Filename);
-
-								var eb = AssetManager.Instance.GetEbx(ebxEntry);
-								if (eb != null)
+								var res = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+								if (res != null)
 								{
-									var res = AssetManager.Instance.GetResEntry(ebxEntry.Name);
-									if (res != null)
-									{
-										MainEditorWindow.Log("Loading RES " + ebxEntry.Filename);
+									MainEditorWindow.Log("Loading RES " + ebxEntry.Filename);
 
-										BuildTextureViewerFromAssetEntry(res);
-									}
-									else
-                                    {
-										throw new Exception("Unable to find RES Entry for " + ebxEntry.Name);
-                                    }
+									BuildTextureViewerFromAssetEntry(res);
 								}
+								else
+                                {
+									throw new Exception("Unable to find RES Entry for " + ebxEntry.Name);
+                                }
 							}
 							catch (Exception e)
 							{
@@ -823,20 +854,16 @@ namespace FIFAModdingUI.Pages.Common
 							{
 								return;
 							}
-							var ebx = ProjectManagement.Instance.Project.AssetManager.GetEbx(ebxEntry);
-							if (ebx != null)
-							{
+							
 								MainEditorWindow.Log("Loading 3D Model " + ebxEntry.Filename);
-								var skinnedMeshEbx = AssetManager.Instance.GetEbx(ebxEntry);
-								if (skinnedMeshEbx != null)
-								{
+								
 									var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
 									var res = AssetManager.Instance.GetRes(resentry);
 									MeshSet meshSet = new MeshSet(res);
 
 									var exporter = new MeshSetToFbxExport();
 									//exporter.OnlyFirstLOD = true;
-									exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
+									exporter.Export(AssetManager.Instance, SelectedEbxAsset.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
 									Thread.Sleep(1000);
 									//AssimpLibrary.Instance.LoadLibrary(NativeLibrary.Load(libName, Assembly.GetExecutingAssembly(), null));
 
@@ -861,20 +888,19 @@ namespace FIFAModdingUI.Pages.Common
 									//var import = new Importer();
 									//var scene = import.Load("test_noSkel.obj", new ImporterConfiguration() { GlobalScale = 100, FlipWindingOrder = true, CullMode = SharpDX.Direct3D11.CullMode.None, });
 									//
-									var m = new MainViewModel(skinnedMeshAsset: skinnedMeshEbx, meshSet: meshSet, textureAsset: textureAssetEntry);
+									var m = new MainViewModel(skinnedMeshAsset: SelectedEbxAsset, meshSet: meshSet, textureAsset: textureAssetEntry);
                                     //var m = new Main3DViewModel(AssetManager.Instance, "test_noSkel", skinnedMeshEbx, meshSet);
                                     this.ModelViewer.DataContext = m;
 									this.ModelDockingManager.Visibility = Visibility.Visible;
-									this.ModelViewerEBXGrid.SelectedObject = skinnedMeshEbx.RootObject;
+									this.ModelViewerEBXGrid.SelectedObject = SelectedEbxAsset.RootObject;
 
 									
 									this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
 									this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
 									this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
-								}
+								
 
 									
-							}
 						}
 						else
 						{
@@ -906,7 +932,6 @@ namespace FIFAModdingUI.Pages.Common
 					else
 					{
 
-						{
 
 							LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
 							if (legacyFileEntry != null)
@@ -962,20 +987,9 @@ namespace FIFAModdingUI.Pages.Common
 									btnRevert.IsEnabled = true;
 
 									UnknownLegacyFileViewer.Visibility = Visibility.Visible;
-									//HEXViewer.Visibility = Visibility.Visible;
-									//byte[] bytes;
-									//using (var nr = new NativeReader(ProjectManagement.Instance.FrostyProject.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
-									//	bytes = nr.ReadToEnd();
-
-									//if (File.Exists("HexViewer.dat"))
-									//	File.Delete("HexViewer.dat");
-
-									//File.WriteAllBytes("HexViewer.dat", bytes);
-									//HEXViewer.FileName = "HexViewer.dat";
 								}
 
 							}
-						}
 
 					}
 				}
@@ -986,6 +1000,9 @@ namespace FIFAModdingUI.Pages.Common
 				Debug.WriteLine(e.ToString());
 
 			}
+
+			DataContext = null;
+			DataContext = this;
 		}
 
         private void BackupEBXViewer_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1076,7 +1093,7 @@ namespace FIFAModdingUI.Pages.Common
 
 						ImageViewer.Source = LoadImage(textureBytes);
 						ImageViewerScreen.Visibility = Visibility.Visible;
-
+						/*
 						lblImageName.Content = res.Filename;
 						lblImageDDSType.Content = textureAsset.PixelFormat;
 						lblImageRESType.Content = textureAsset.Type;
@@ -1087,7 +1104,7 @@ namespace FIFAModdingUI.Pages.Common
 							lblImageCASOffset.Content = res.ExtraData.DataOffset;
 						}
 						lblImageBundleFile.Content = !string.IsNullOrEmpty(res.SBFileLocation) ? res.SBFileLocation : res.TOCFileLocation;
-
+						*/
 						btnExport.IsEnabled = true;
 						btnImport.IsEnabled = true; 
 						btnRevert.IsEnabled = true;
@@ -1117,10 +1134,10 @@ namespace FIFAModdingUI.Pages.Common
 					ImageViewer.Source = LoadImage(textureBytes);
 					ImageViewerScreen.Visibility = Visibility.Visible;
 
-				lblImageName.Content = assetEntry.Filename;
-				lblImageDDSType.Content = image._image.Format;
-				lblImageRESType.Content = "DDS";
-				lblImageSize.Content = image.Data.Length;
+				// lblImageName.Content = assetEntry.Filename;
+				// lblImageDDSType.Content = image._image.Format;
+				// lblImageRESType.Content = "DDS";
+				// lblImageSize.Content = image.Data.Length;
 				//lblImageRESType.Content = textureAsset.Type;
 				//lblImageSize.Content = textureAsset.Width + "x" + textureAsset.Height;
 				//lblImageCASFile.Content = assetEntry.ExtraData.CasPath;

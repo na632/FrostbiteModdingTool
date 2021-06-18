@@ -196,6 +196,10 @@ namespace Madden21Plugin.Cache
             if (!string.IsNullOrEmpty(chunkEntry.Bundle))
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
 
+            if(chunkEntry.Id.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
+            {
+
+            }
             nativeWriter.Write(chunkEntry.Bundles.Count);
             foreach (int bundleId in chunkEntry.Bundles)
             {

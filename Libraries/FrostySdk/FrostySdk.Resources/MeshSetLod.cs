@@ -358,7 +358,7 @@ namespace FrostySdk.Resources
 			indexBufferFormat.format = (int)((newSize == 2) ? Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R16_UINT") : Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R32_UINT"));
 		}
 
-		internal void Process(FileWriter writer, MeshContainer meshContainer)
+		internal void Write(NativeWriter writer, MeshContainer meshContainer)
 		{
 			if (writer == null)
 			{
@@ -368,23 +368,23 @@ namespace FrostySdk.Resources
 			{
 				throw new ArgumentNullException("meshContainer");
 			}
-			writer.WriteInt32LittleEndian((int)Type);
-			writer.WriteUInt32LittleEndian(maxInstances);
+			writer.Write((int)(int)Type);
+			writer.Write((uint)maxInstances);
 			meshContainer.WriteRelocArray("SECTION", Sections, writer);
 			foreach (List<byte> subsetCategory in CategorySubsetIndices)
 			{
 				meshContainer.WriteRelocArray("SUBSET", subsetCategory, writer);
 			}
-			writer.WriteInt32LittleEndian((int)Flags);
-			writer.WriteInt32LittleEndian(indexBufferFormat.format);
-			writer.WriteUInt32LittleEndian(IndexBufferSize);
-			writer.WriteUInt32LittleEndian(VertexBufferSize);
+			writer.Write((int)(int)Flags);
+			writer.Write((int)indexBufferFormat.format);
+			writer.Write((uint)IndexBufferSize);
+			writer.Write((uint)VertexBufferSize);
 			if (HasAdjacencyInMesh)
 			{
-				writer.WriteInt32LittleEndian(0);
+				writer.Write((int)0);
 			}
 			writer.WriteGuid(ChunkId);
-			writer.WriteUInt32LittleEndian(inlineDataOffset);
+			writer.Write((uint)inlineDataOffset);
 			if (HasAdjacencyInMesh)
 			{
 				if (inlineDataOffset != uint.MaxValue)
@@ -399,11 +399,11 @@ namespace FrostySdk.Resources
 			meshContainer.WriteRelocPtr("STR", shaderDebugName, writer);
 			meshContainer.WriteRelocPtr("STR", name, writer);
 			meshContainer.WriteRelocPtr("STR", shortName, writer);
-			writer.WriteUInt32LittleEndian(nameHash);
+			writer.Write((uint)nameHash);
 			writer.WriteInt64LittleEndian(0L);
 			if (Type == MeshType.MeshType_Skinned)
 			{
-				writer.WriteInt32LittleEndian(BoneIndexArray.Count);
+				writer.Write((int)BoneIndexArray.Count);
 				meshContainer.WriteRelocPtr("BONES", BoneIndexArray, writer);
 			}
 			writer.WritePadding(16);

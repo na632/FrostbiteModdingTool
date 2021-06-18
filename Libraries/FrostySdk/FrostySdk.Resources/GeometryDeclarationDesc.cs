@@ -155,6 +155,9 @@ namespace FrostySdk.Resources
 		{
 			get
 			{
+				if (ProfilesLibrary.LoadedProfile.GDDMaxStreams.HasValue)
+					return ProfilesLibrary.LoadedProfile.GDDMaxStreams.Value;
+
 				switch (ProfilesLibrary.DataVersion)
 				{
 				case 20131115:
@@ -194,6 +197,7 @@ namespace FrostySdk.Resources
 				//case 20190911: // FIFA 20
 				case (int)ProfilesLibrary.DataVersions.FIFA20: // FIFA20DataVersion
 				case (int)ProfilesLibrary.DataVersions.FIFA21: // FIFA21DataVersion
+					return 16;
 				case (int)ProfilesLibrary.DataVersions.MADDEN21: // Madden21DataVersion
 					return 16;
 

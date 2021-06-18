@@ -45,6 +45,14 @@ namespace FrostySdk.IO
 
 		public virtual long Length => streamLength;
 
+		public NativeReader(string filePath)
+		{
+			stream = new FileStream(filePath, FileMode.Open);
+			wideDecoder = new UnicodeEncoding();
+			buffer = new byte[20];
+			charBuffer = new char[2];
+		}
+
 		public NativeReader(Stream inStream)
 		{
 			stream = inStream;

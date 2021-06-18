@@ -9,6 +9,7 @@
   "PluginName": null,
   // Your game's file system reader
   "AssetLoader": "Madden21AssetLoader",
+  //"AssetLoader": "FifaAssetLoader",
   // Your game's file system compiler / ModData builder
   "AssetCompiler": "Madden21AssetCompiler",
   // Your WinForms Main Editor Form
@@ -43,7 +44,7 @@
   ],
   "SDKFilename": "MADDEN21SDK",
   "SDKFirstTypeInfo": null,
-  "SDKAOBScan": null,
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "fbmod" ],
   // File Type to save to when compiling a mod from the Editor
@@ -63,6 +64,11 @@
   "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
   "SharedBundles": {},
   "IgnoredResTypes": [],
+  // Can this App import meshes into the Game?
   "CanImportMeshes": false,
-  "CanExportMeshes": true
+  // Can this App export meshes from the Game?
+  "CanExportMeshes": true,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16
+
 }

@@ -307,7 +307,13 @@ namespace FrostySdk.Managers
 												SuperBundleId = num
 											};
 											parent.bundles.Add(item);
-											using (BinarySbReader binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator()))
+											BinarySbReader binarySbReader = null;
+											if (ProfilesLibrary.IsMadden21DataVersion())
+												binarySbReader = new BinarySbReaderV2(memoryStream, 0L, parent.fs.CreateDeobfuscator());
+											else
+												binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator());
+
+											using (binarySbReader)
 											{
 												DbObject dbObject = binarySbReader.ReadDbObject();
 												BundleFileInfo bundleFileInfo = list2[0];
@@ -1747,7 +1753,7 @@ namespace FrostySdk.Managers
 			{
 				foreach (DbObject item in sb.GetValue<DbObject>("ebx"))
 				{
-					EbxAssetEntry ebxAssetEntry = AddEbx(item);
+					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfilesLibrary.IsMadden21DataVersion());
 					if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
 					{
 						ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
@@ -1794,10 +1800,16 @@ namespace FrostySdk.Managers
 					if (item.HasValue("ParentBundleSize"))
 						ebxAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-					if (item.HasValue("Bundle"))
-						ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
-
 					ebxAssetEntry.Bundles.Add(bundleId);
+
+					if (item.HasValue("Bundle"))
+					{
+						ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
+					}
+					else
+					{
+						ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+					}
 				}
 			}
 		}
@@ -1861,10 +1873,16 @@ namespace FrostySdk.Managers
 						if (item.HasValue("ParentBundleSize"))
 							resAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-						if (item.HasValue("Bundle"))
-							resAssetEntry.Bundle = item.GetValue<string>("Bundle");
-
 						resAssetEntry.Bundles.Add(bundleId);
+
+						if (item.HasValue("Bundle"))
+						{
+							resAssetEntry.Bundle = item.GetValue<string>("Bundle");
+						}
+						else
+						{
+							resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+						}
 					}
 				}
 			}
@@ -1876,14 +1894,6 @@ namespace FrostySdk.Managers
 			{
 				foreach (DbObject item in sb.GetValue<DbObject>("chunks"))
 				{
-					// If "Do not process" then continue
-					if (item.HasValue("DNP"))
-						continue;
-
-					if (item.GetValue<Guid>("id").ToString() == "966d0ca0-144a-c788-3678-3bc050252ff5") // Thiago Test
-					{
-
-					}
 
 					// colts uniform
 					if (item.GetValue<Guid>("name").ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
@@ -1891,13 +1901,14 @@ namespace FrostySdk.Managers
 
 					}
 
+
 					item.SetValue("bundleIndex", bundleId);
-					ChunkAssetEntry chunkAssetEntry = AddChunk(item);
+					ChunkAssetEntry chunkAssetEntry = AddChunk(item, ProfilesLibrary.IsMadden21DataVersion());
 					
-					if (item.GetValue("cache", defaultValue: false) && chunkAssetEntry.Location != AssetDataLocation.Cache)
-					{
-						helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
-					}
+					//if (item.GetValue("cache", defaultValue: false) && chunkAssetEntry.Location != AssetDataLocation.Cache)
+					//{
+					//	helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
+					//}
 					if (chunkAssetEntry.Size == 0L)
 					{
 						chunkAssetEntry.Size = item.GetValue("size", 0L);
@@ -1940,11 +1951,20 @@ namespace FrostySdk.Managers
 					if (item.HasValue("ParentBundleSize"))
 						chunkAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-					if (item.HasValue("Bundle"))
-						chunkAssetEntry.Bundle = item.GetValue<string>("Bundle");
-
+				
 					chunkAssetEntry.Bundles.Add(bundleId);
+
+					if (item.HasValue("Bundle") && !string.IsNullOrEmpty(item.GetValue<string>("Bundle")))
+					{
+						chunkAssetEntry.Bundle = item.GetValue<string>("Bundle");
+					}
+					else
+					{
+						chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+					}
+
 					chunkList[chunkAssetEntry.Id] = chunkAssetEntry;
+
 				}
 			}
 		}
@@ -2004,13 +2024,16 @@ namespace FrostySdk.Managers
 			return dbObject;
 		}
 
-		private EbxAssetEntry AddEbx(DbObject ebx)
+		private EbxAssetEntry AddEbx(DbObject ebx, bool returnExisting = false)
 		{
 			string text = ebx.GetValue<string>("name").ToLower();
 			if (EbxList.ContainsKey(Fnv1.HashString(text)))
 			{
 				//ebxList.Remove(text);
-				EbxList.TryRemove(Fnv1.HashString(text), out _);
+				if(returnExisting)
+					return EbxList[Fnv1.HashString(text)];
+				else
+					EbxList.TryRemove(Fnv1.HashString(text), out _);
 				//return ebxList[text];
 			}
 			EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
@@ -2060,11 +2083,14 @@ namespace FrostySdk.Managers
 			return ebxAssetEntry;
 		}
 
-		private ResAssetEntry AddRes(DbObject res)
+		private ResAssetEntry AddRes(DbObject res, bool returnExisting = false)
 		{
 			string value = res.GetValue<string>("name");
 			if (resList.ContainsKey(value))
 			{
+				if(returnExisting)
+					return resList[value];
+
 				resList.Remove(value);
 				//return resList[value];
 			}
@@ -2125,16 +2151,21 @@ namespace FrostySdk.Managers
 			return resAssetEntry;
 		}
 
-		private ChunkAssetEntry AddChunk(DbObject chunk)
+		private ChunkAssetEntry AddChunk(DbObject chunk, bool returnExisting = false)
 		{
 			Guid value = chunk.GetValue<Guid>("id");
 
-    //        if (chunkList.ContainsKey(value))
-    //        {
-				//chunkList.Remove(value);
-    //        }
+            if (chunkList.ContainsKey(value) && returnExisting)
+            {
+				return chunkList[value];
+			}
 
-            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+			if (value.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
+			{
+
+			}
+
+			ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
 			chunkAssetEntry.Id = value;
 			chunkAssetEntry.Sha1 = chunk.GetValue<Sha1>("sha1");
 			chunkAssetEntry.Size = chunk.GetValue("size", 0L);
@@ -2172,8 +2203,7 @@ namespace FrostySdk.Managers
 			chunkAssetEntry.SB_CAS_Offset_Position = chunk.GetValue<int>("SB_CAS_Offset_Position");
 			chunkAssetEntry.SB_CAS_Size_Position = chunk.GetValue<int>("SB_CAS_Size_Position");
 
-			chunkAssetEntry.Bundles.Add(chunk.GetValue<int>("bundleIndex"));
-			chunkAssetEntry.Bundles.Add(chunk.GetValue<int>("BundleIndex"));
+			//chunkAssetEntry.Bundles.Add(chunk.GetValue<int>("bundleIndex"));
 			//chunkList.Add(value, chunkAssetEntry);
 			AddChunk(chunkAssetEntry);
 

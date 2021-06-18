@@ -168,7 +168,7 @@ namespace FrostySdk.Resources
 			}
 		}
 
-		internal void Process(FileWriter writer, MeshContainer meshContainer)
+		internal void Process(NativeWriter writer, MeshContainer meshContainer)
 		{
 			writer.WriteInt64LittleEndian(offset1);
 			meshContainer.WriteRelocPtr("STR", sectionIndex + ":" + Name, writer);

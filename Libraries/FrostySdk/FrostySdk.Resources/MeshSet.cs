@@ -110,14 +110,10 @@ public class MeshSet
 		Type = (MeshType)nativeReader.ReadUInt();
 		Flags = (MeshLayoutFlags)nativeReader.ReadUInt();
 		ReadUnknownUInts(nativeReader);
-		//for (int m2 = 0; m2 < 8; m2++)
-		//{
-		//	unknownUInts.Add(nativeReader.ReadUInt32LittleEndian());
-		//}
+		
 		if (ProfilesLibrary.IsMadden21DataVersion())
 			unknownUShort = nativeReader.ReadUShort();
-			//unknownUInts.Add(nativeReader.ReadUShort());
-			//	unknownUInts.Add(nativeReader.ReadUInt());
+		
 		ushort lodsCount = nativeReader.ReadUShort();
 
 		// num 2's actual number
@@ -162,7 +158,6 @@ public class MeshSet
 		headerSize = (uint)nativeReader.Position;
 		for (int n = 0; n < lodsCount; n++)
 		{
-			//Lods.Add(new MeshSetLod(nativeReader, am));
 			Lods.Add(new MeshSetLod(nativeReader));
 		}
 		int sectionIndex = 0;
@@ -338,7 +333,7 @@ public class MeshSet
 		MeshContainer meshContainer = new MeshContainer();
 		PreProcess(meshContainer);
 		using FileWriter nativeWriter = new FileWriter(new MemoryStream());
-		Process(nativeWriter, meshContainer);
+		Write(nativeWriter, meshContainer);
 		uint num = (uint)nativeWriter.BaseStream.Position;
 		uint num2 = 0u;
 		uint num3 = 0u;
@@ -361,7 +356,7 @@ public class MeshSet
 		return ((MemoryStream)nativeWriter.BaseStream).ToArray();
 	}
 
-	private void Process(FileWriter writer, MeshContainer meshContainer)
+	private void Write(NativeWriter writer, MeshContainer meshContainer)
 	{
 		if (writer == null)
 		{
@@ -425,7 +420,7 @@ public class MeshSet
 		foreach (MeshSetLod lod2 in Lods)
 		{
 			meshContainer.AddOffset("LOD", lod2, writer);
-			lod2.Process(writer, meshContainer);
+			lod2.Write(writer, meshContainer);
 		}
 		foreach (MeshSetLod lod3 in Lods)
 		{

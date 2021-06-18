@@ -147,11 +147,11 @@ namespace FrostySdk.Frostbite.IO.Input
             assetManager.ModifyRes(resEntry.Name, resData, meshSet.Meta);
             entry.LinkAsset(resEntry);
 
-			if (ProfilesLibrary.IsFIFA21DataVersion())
-			{
+			//if (ProfilesLibrary.IsFIFA21DataVersion())
+			//{
 				((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
 				AssetManager.Instance.ModifyEbx(entry.Name, asset);
-			}
+			//}
 		}
 
 		private float CubeMapFaceID(float inX, float inY, float inZ)
@@ -392,8 +392,10 @@ namespace FrostySdk.Frostbite.IO.Input
             // Modifying the chunk fails --- >>
             if (meshSetLod.ChunkId != Guid.Empty)
             {
-                AssetManager.Instance.ModifyChunk(meshSetLod.ChunkId, ((MemoryStream)nativeWriter.BaseStream).ToArray(), compressionOverride: CompressionType.Oodle);
-                ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(meshSetLod.ChunkId);
+				ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(meshSetLod.ChunkId);
+				Stream originalChunkStream = AssetManager.Instance.GetChunk(chunkEntry);
+
+				AssetManager.Instance.ModifyChunk(meshSetLod.ChunkId, ((MemoryStream)nativeWriter.BaseStream).ToArray(), compressionOverride: CompressionType.Oodle);
                 resEntry.LinkAsset(chunkEntry);
             }
             else

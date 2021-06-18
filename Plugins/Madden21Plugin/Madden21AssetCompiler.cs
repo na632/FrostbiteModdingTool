@@ -415,7 +415,8 @@ namespace Madden21Plugin
                                                     {
                                                         //EbxAssetEntry ebxAssetEntry = parent.modifiedEbx[modBundleInfo.Modify.Ebx[num14]];
                                                         EbxAssetEntry ebxAssetEntry = ModExecuter.modifiedEbx[ebxName];
-                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[ebxAssetEntry.Sha1].Data.Length > 1073741824)
+                                                        //if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[ebxAssetEntry.Sha1].Data.Length > 1073741824)
+                                                        if (writer_new_cas_file == null)
                                                         {
                                                             writer_new_cas_file?.Close();
                                                             writer_new_cas_file = GetNextCas(out casFileIndex);
@@ -440,7 +441,8 @@ namespace Madden21Plugin
                                                     {
                                                         //ResAssetEntry resAssetEntry = parent.modifiedRes[modBundleInfo.Modify.Res[num15]];
                                                         ResAssetEntry resAssetEntry = ModExecuter.modifiedRes[resName];
-                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[resAssetEntry.Sha1].Data.Length > 1073741824)
+                                                        //if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[resAssetEntry.Sha1].Data.Length > 1073741824)
+                                                        if (writer_new_cas_file == null)
                                                         {
                                                             writer_new_cas_file?.Close();
                                                             writer_new_cas_file = GetNextCas(out casFileIndex);
@@ -487,7 +489,8 @@ namespace Madden21Plugin
                                                     if (ModExecuter.ModifiedChunks.ContainsKey(chunkId))
                                                     {
                                                         ChunkAssetEntry chunkAssetEntry = ModExecuter.ModifiedChunks[chunkId];
-                                                        if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[chunkAssetEntry.Sha1].Data.Length > 1073741824)
+                                                        //if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[chunkAssetEntry.Sha1].Data.Length > 1073741824)
+                                                        if (writer_new_cas_file == null)
                                                         {
                                                             writer_new_cas_file?.Close();
                                                             writer_new_cas_file = GetNextCas(out casFileIndex);
@@ -581,7 +584,9 @@ namespace Madden21Plugin
                                     //
                                     if (tocchunkposition != uint.MaxValue)
                                     {
-                                        TOCFile tocFile = new TOCFile();
+                                        TOCFile tocFile = new TOCFile(location_toc_file);
+                                        //tocFile.ReadHeader(null);
+                                        //tocFile.ReadTOCChunks(null, false);
                                         tocFile.Read(location_toc_file, AssetManager.Instance, new BinarySbDataHelper(AssetManager.Instance), 0, false, false);
 
                                         Dictionary<Guid, int> chunkPositions = new Dictionary<Guid, int>();

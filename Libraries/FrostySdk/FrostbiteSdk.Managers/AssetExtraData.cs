@@ -44,5 +44,7 @@ namespace FrostySdk.Managers
 		public ushort? Cas { get; set; }
 
         public int? CasIndex { get; set; }
+
+		
     }
 }

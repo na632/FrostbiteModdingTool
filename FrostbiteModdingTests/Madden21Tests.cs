@@ -52,6 +52,13 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestBuildCacheWithLoadedSDK()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("Madden21", GamePath, this, true, true);
+        }
+
+        [TestMethod]
         public void TestBuildSDK()
         {
             var buildCache = new BuildCache();
@@ -133,7 +140,28 @@ namespace FrostbiteModdingTests
 
             var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
             foreach (var oFile in oldFiles) File.Delete(oFile);
-            var testfbmodname = @"G:\Work\MADDEN Modding\Paulv2k4 Colt kit mod.fbmod";
+            var testfbmodname = @"G:\Work\MADDEN Modding\Paulv2k4 Colt kit mod 2.fbmod";
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GamePath, "",
+                new System.Collections.Generic.List<string>() {
+                    testfbmodname
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestColtKitModProject()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePath + "\\Madden21.exe");
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\\Work\MADDEN Modding\Paulv2k4 Colt mod.fbproject");
+            projectManagement.Project.WriteToMod(@"G:\\Work\MADDEN Modding\Paulv2k4 Colt kit mod 2.fbmod", new FrostySdk.ModSettings() { });
+
+            var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
+            foreach (var oFile in oldFiles) File.Delete(oFile);
+            var testfbmodname = @"G:\Work\MADDEN Modding\Paulv2k4 Colt kit mod 2.fbmod";
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;

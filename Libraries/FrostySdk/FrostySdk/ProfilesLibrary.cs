@@ -131,9 +131,18 @@ namespace FrostySdk
 				set { canExportMeshes = value; }
 			}
 
+            private int? gddMaxStreams;
+
+            public int? GDDMaxStreams
+            {
+                get { return gddMaxStreams; }
+                set { gddMaxStreams = value; }
+            }
 
 
-		}
+
+
+        }
 
 		public static IEnumerable<Profile> EditorProfiles 
 		{ 
@@ -164,7 +173,7 @@ namespace FrostySdk
 			}
 		}
 
-		private static Profile LoadedProfile;
+		public static Profile LoadedProfile;
 
 		private static string DeobfuscatorNamespace = typeof(NullDeobfuscator).Namespace;
 

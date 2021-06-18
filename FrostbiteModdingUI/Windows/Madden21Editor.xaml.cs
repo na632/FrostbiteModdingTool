@@ -281,7 +281,7 @@ namespace FrostbiteModdingUI.Windows
             }
         }
 
-        public string LogText = string.Empty;
+        public string LogText { get; set; }
 
         public void Log(string text, params object[] vars)
         {

@@ -37,7 +37,27 @@ namespace FrostySdk.Managers
 
 		public AssetExtraData ExtraData { get; set; }
 
-		public List<int> Bundles = new List<int>();
+		private List<int> listBundles = new List<int>();
+
+        public List<int> Bundles
+        {
+            get { return listBundles; }
+            set { listBundles = value; }
+        }
+
+		public IEnumerable<string> BundleNames
+		{
+			get
+			{
+				List<string> bNames = new List<string>();
+				foreach (var i in Bundles)
+				{
+					bNames.Add(AssetManager.Instance.bundles[i].Name);
+				}
+				return bNames;
+			}
+		}
+
 
 		public List<int> AddBundles = new List<int>();
 
@@ -45,7 +65,13 @@ namespace FrostySdk.Managers
 
 		public ModifiedAssetEntry ModifiedEntry { get; set; }
 
-		public List<AssetEntry> LinkedAssets = new List<AssetEntry>();
+		private List<AssetEntry> linkedAssets = new List<AssetEntry>();
+
+        public List<AssetEntry> LinkedAssets
+		{
+            get { return linkedAssets; }
+            set { linkedAssets = value; }
+        }
 
 		private bool dirty;
 

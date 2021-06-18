@@ -162,15 +162,14 @@ namespace Madden21Plugin
       //                  ||
       //                  tocPath.Contains("splash") // Splash
       //                  || tocPath.Contains("globals") // Legacy
-      //                                                 //|| tocPath.Contains("launch_common")
-      //                                                 //|| tocPath.Contains("/ui")
       //                  || tocPath.Contains("frontendscene")
       //                  || tocPath.Contains("teamwipe_sb")
       //                  || tocPath.Contains("playercontent_sb") // Player uniforms / kits
+      //                  || tocPath.Contains("playercontentlaunch_sb") // Player uniforms / kits
 						//)
                     {
 
-                        TOCFile tocFile = new TOCFile();
+                        TOCFile tocFile = new TOCFile(tocPath);
 						tocFile.Read(tocPath, parent, helper, sbIndex);
 						sbIndex++;
 						LoadedTOCFiles.Add(tocFile);

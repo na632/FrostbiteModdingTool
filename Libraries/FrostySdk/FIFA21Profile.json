@@ -35,7 +35,7 @@
   // SDK First Type Info (Only used if SDKAOBScan is not provided)
   "SDKFirstTypeInfo": null,
   // SDK Array of Bytes to scan to get first type info address
-  "SDKAOBScan": null,
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "lmod", "fbmod", "fifamod" ],
   // Will the Launcher support this Game?
@@ -55,5 +55,7 @@
   "SharedBundles": {},
   "IgnoredResTypes": [],
   "CanImportMeshes": true,
-  "CanExportMeshes": true
+  "CanExportMeshes": true,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16
 }
