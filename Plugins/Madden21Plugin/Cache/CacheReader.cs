@@ -91,20 +91,20 @@ namespace Madden21Plugin.Cache
 					{
 						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
 					}
-						if (nativeReader.ReadBoolean())
-							ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+						//if (nativeReader.ReadBoolean())
+						//	ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+						//if (nativeReader.ReadBoolean())
+						//	ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+						//if (nativeReader.ReadBoolean())
+						//	ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-						ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-						ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-						ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-						ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-						ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-						ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-					ebxAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
+						//ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+						//ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+						//ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+						//ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+						//ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
+						//ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+					//ebxAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
 
 					if (flag)
 					{
@@ -113,7 +113,7 @@ namespace Madden21Plugin.Cache
 					}
 					else
 					{
-						AssetManager.Instance.EbxList.TryAdd(Fnv1.HashString(ebxAssetEntry.Name), ebxAssetEntry);
+						AssetManager.Instance.EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
 					}
 				}
 				count = nativeReader.ReadInt();
@@ -153,18 +153,18 @@ namespace Madden21Plugin.Cache
 						resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
 						resAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
 						resAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-					resAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
+					//resAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
 
 
 
-					int num3 = nativeReader.ReadInt();
-					for (int num4 = 0; num4 < num3; num4++)
+					int bundleCount = nativeReader.ReadInt();
+					for (int num4 = 0; num4 < bundleCount; num4++)
 					{
 						resAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
 
 
-					AssetManager.Instance.resList.Add(resAssetEntry.Name, resAssetEntry);
+					AssetManager.Instance.RES.Add(resAssetEntry.Name, resAssetEntry);
 						if (resAssetEntry.ResRid != 0L)
 						{
 							if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
@@ -172,14 +172,24 @@ namespace Madden21Plugin.Cache
 						}
 					
 				}
+
+				// ------------------------------------------------------------------------
+				// Chunks
 				count = nativeReader.ReadInt();
 				for (int num5 = 0; num5 < count; num5++)
 				{
 					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-					if (!flag)
-					{
-						AssetManager.Instance.AddChunk(chunkAssetEntry);
-					}
+                    AssetManager.Instance.AddChunk(chunkAssetEntry);
+                }
+
+				// ------------------------------------------------------------------------
+				// Chunks in Bundles
+				count = nativeReader.ReadInt();
+				for (int num5 = 0; num5 < count; num5++)
+				{
+					var bundle = nativeReader.ReadLengthPrefixedString();
+					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+					AssetManager.Instance.BundleChunks.TryAdd((chunkAssetEntry.Bundle, chunkAssetEntry.Id), chunkAssetEntry);
 				}
 			}
 			return !flag;

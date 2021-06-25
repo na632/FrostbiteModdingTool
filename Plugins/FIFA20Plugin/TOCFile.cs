@@ -271,13 +271,13 @@ namespace FIFA20Plugin
 
 							toc_reader.Position = position2;
 
-							if (!parent.chunkList.ContainsKey(guid))
+							if (!parent.Chunks.ContainsKey(guid))
 							{
-								parent.chunkList.TryAdd(guid, chunkAssetEntry);
+								parent.Chunks.TryAdd(guid, chunkAssetEntry);
 							}
 							else
 							{
-								parent.chunkList[guid] = chunkAssetEntry;
+								parent.Chunks[guid] = chunkAssetEntry;
 							}
 						}
 					}

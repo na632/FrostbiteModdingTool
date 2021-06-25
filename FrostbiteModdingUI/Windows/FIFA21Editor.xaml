@@ -317,7 +317,7 @@
                         </LayoutAnchorable>
                     </LayoutAnchorablePane>
                     <LayoutAnchorablePane DockMinHeight="100" DockHeight="100" ResizableAbsoluteDockHeight="100">
-                        <LayoutAnchorable Title="Log" CanAutoHide="False" CanClose="False" CanHide="False" CanFloat="False" CanMove="False" CanDockAsTabbedDocument="False">
+                        <LayoutAnchorable CanClose="True" CanHide="True" Title="Log" >
                             <TextBox
                          x:Name="txtLog"
                          IsReadOnly="True"

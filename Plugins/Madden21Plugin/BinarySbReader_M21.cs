@@ -141,7 +141,7 @@ namespace FrostySdk.IO
 				dbObject.AddValue("metaSize", (int)(metaSize));
 
                 dbObject.AddValue("dataOffset", (int)(size));
-                //dbObject.AddValue("dataOffset", (int)(size - 4));
+                //dbObject.AddValue("dataOffset", size - 4);
 
                 if (chunkCount != 0)
 				{
@@ -179,6 +179,13 @@ namespace FrostySdk.IO
 			}
 			foreach (DbObject item in list)
 			{
+				if (item.HasValue("id"))
+				{
+					if(item.GetValue<Guid>("id", Guid.Empty).ToString() == "6f901288-9e31-203b-5470-39ef2669b593")
+                    {
+
+                    }						
+				}
 				item.AddValue("offset", bundleOffset + Position);
 				long origSize = item.GetValue("originalSize", 0L);
 				long size = 0L;
@@ -189,27 +196,43 @@ namespace FrostySdk.IO
                 }
                 else
                 {
-                    while (origSize > 0)
+
+					//CasReader casReader = new CasReader(new MemoryStream(ReadBytes((int)origSize + 9999999)));
+					//CasReader casReader = new CasReader(new MemoryStream(ReadBytes((int)origSize)));
+					//var testOrig = casReader.Read().Length;
+					//size = casReader.Read().Length;
+
+					//
+					Position = item.GetValue<long>("offset");
+					//Position = item.GetValue<long>("offset") + size;
+					size = 0;
+
+					while (origSize > 0)
                     {
-                        int num3 = ReadInt(Endian.Big);
-                        ushort num4 = ReadUShort();
-                        int num5 = ReadUShort(Endian.Big);
-                        int num6 = (num4 & 0xFF00) >> 8;
-                        if ((num6 & 0xF) != 0)
+                        int num = ReadInt(Endian.Big);
+                        ushort compressionType = ReadUShort();
+                        int LastBufferSize = ReadUShort(Endian.Big);
+                        int num4 = (compressionType & 0xFF00) >> 8;
+                        if ((num4 & 0xF) != 0)
                         {
-                            num5 = ((num6 & 0xF) << 16) + num5;
+                            LastBufferSize = ((num4 & 0xF) << 16) + LastBufferSize;
                         }
-                        if ((num3 & 4278190080u) != 0L)
+                        if ((num & 4278190080u) != 0L)
                         {
-                            num3 &= 0xFFFFFF;
+                            num &= 0xFFFFFF;
                         }
-                        origSize -= num3;
-                        if ((ushort)(num4 & 0x7F) == 0)
+                        origSize -= num;
+						var sw = (ushort)(compressionType & 0x7F);
+
+						// Read uncompressed
+						if ((ushort)(compressionType & 0x7F) == 0)
                         {
-                            num5 = num3;
+                            LastBufferSize = num;
                         }
-                        size += num5 + 8;
-                        Position += num5;
+
+                        size += LastBufferSize + 8;
+                        //size += ReadBytes(LastBufferSize).Length;
+                        Position += LastBufferSize;
                     }
                 }
 
@@ -350,16 +373,24 @@ namespace FrostySdk.IO
 			{
 				DbObject dbObject = new DbObject(new Dictionary<string, object>());
 				Guid guid = reader.ReadGuid(Endian.Little);
-				dbObject.AddValue("SB_LogicalOffset_Position", bundleOffset + reader.Position);
+
+				if (guid.ToString() == "6f901288-9e31-203b-5470-39ef2669b593")
+				{
+
+				}
+
+				//dbObject.AddValue("SB_LogicalOffset_Position", bundleOffset + reader.Position);
 				uint logicalOffset = reader.ReadUInt(Endian.Little);
-				dbObject.AddValue("SB_OriginalSize_Position", bundleOffset + reader.Position);
+				//dbObject.AddValue("SB_OriginalSize_Position", bundleOffset + reader.Position);
 				uint logicalSize = reader.ReadUInt(Endian.Little);
+				//long originalSize = (logicalOffset & 0xFFFF) | logicalSize;
 				long originalSize = (logicalOffset & 0xFFFF) | logicalSize;
+				//long originalSize2 = logicalSize + logicalOffset;
 				dbObject.AddValue("id", guid);
 				dbObject.AddValue("name", guid);
 				dbObject.AddValue("sha1", sha1[startIndex + chunkIndex]);
 				dbObject.AddValue("logicalOffset", logicalOffset);
-				dbObject.AddValue("logicalSize", logicalSize);
+				//dbObject.AddValue("logicalSize", logicalSize);
 				dbObject.AddValue("originalSize", originalSize);
 				dbObject.AddValue("Bundle", shortBundleName);
 				dbObject.AddValue("type", "CHUNKS");

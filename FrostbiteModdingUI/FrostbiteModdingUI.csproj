@@ -19,6 +19,8 @@
 <PropertyGroup>
   <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   <Deterministic>false</Deterministic>
+  <AssemblyName>FMT</AssemblyName>
+  <RootNamespace>FMT</RootNamespace>
 </PropertyGroup>
 
 
@@ -28,6 +30,7 @@
 
 
   <ItemGroup>
+    <None Remove="Resources\images\FIFA20Cover.jpg" />
     <None Remove="Resources\images\FIFA21Cover.jpg" />
     <None Remove="Resources\images\Madden21Cover.jpg" />
   </ItemGroup>
@@ -37,23 +40,6 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
-    <Content Include="..\Libraries\FrostySdk\BF4Profile.json" Link="BF4Profile.json">
-		 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</Content>
-    <Content Include="..\Libraries\FrostySdk\BFVProfile.json" Link="BFVProfile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</Content>
-	   <Content Include="..\Libraries\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json">
-		   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		   <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	   </Content>
-    <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </Content>
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA19Profile.json" Link="FrostbiteProfiles\FIFA19Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -61,16 +47,6 @@
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA20Profile.json" Link="FrostbiteProfiles\FIFA20Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\Madden20Profile.json" Link="Madden20Profile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
     </Content>
   </ItemGroup>
 
@@ -80,14 +56,21 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </Content>
+    <Content Include="Resources\images\FIFA20Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Include="Resources\images\FIFA21Cover.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Include="Resources\images\Madden21Cover.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL2.png">
@@ -144,8 +127,8 @@
     <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.17.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
-    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Pfim" Version="0.9.1" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
@@ -227,6 +210,9 @@
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Plugins\FIFA20Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -265,9 +251,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controls\" />
     <Folder Include="Models\ThreeD\" />
     <Folder Include="FrostbiteProfiles\" />
+    <Folder Include="NewFolder\" />
     <Folder Include="Pages\Common\Property\" />
     <Folder Include="Pages\Gameplay\" />
     <Folder Include="Properties\DataSources\" />
@@ -275,53 +261,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Libraries\FrostySdk\fifa21.key" Link="fifa21.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
     <None Include="..\Libraries\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
-    <None Include="..\Plugins\BF4Plugin\bin\Debug\netstandard2.1\BF4Plugin.dll" Link="Plugins\BF4Plugin.dll">
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netcoreapp3.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
-    <None Include="..\Plugins\BFVPlugin\bin\Debug\netstandard2.1\BFVPlugin.dll" Link="Plugins\BFVPlugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\FIFA19Plugin\bin\Debug\netstandard2.1\FIFA19Plugin.dll" Link="Plugins\FIFA19Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\FIFA20Plugin\bin\Debug\netstandard2.1\FIFA20Plugin.dll" Link="Plugins\FIFA20Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\netstandard2.1\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
-    <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\Madden22Plugin\bin\Debug\netstandard2.1\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	</None>
+	  <None Include="..\Plugins\Madden21Plugin\bin\Debug\netcoreapp3.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	  </None>
     <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

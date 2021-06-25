@@ -686,6 +686,10 @@ namespace FrostySdk
 						for (int n = 0; n < count; n++)
 						{
 							string name2 = reader.ReadNullTerminatedString();
+							if(name2.Contains("v2k4"))
+                            {
+
+                            }
 							List<AssetEntry> collection = LoadLinkedAssets(reader);
 							bool flag = reader.ReadBoolean();
 							bool isTransientModified = false;

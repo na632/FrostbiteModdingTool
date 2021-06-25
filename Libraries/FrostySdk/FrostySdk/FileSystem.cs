@@ -130,7 +130,7 @@ namespace FrostySdk
 				byte[] array;
 
 				Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
-				array = NativeReader.ReadInStream(new FileStream("fifa20.key", FileMode.Open, FileAccess.Read));
+				array = NativeReader.ReadInStream(new FileStream("FrostbiteKeys/fifa20.key", FileMode.Open, FileAccess.Read));
 				byte[] array2 = new byte[16];
 				Array.Copy(array, array2, 16);
 				KeyManager.Instance.AddKey("Key1", array2);
@@ -407,8 +407,11 @@ namespace FrostySdk
 			{
 				return dbObject;
 			}
+
+			// Go down to 556 (like TOC) using Deobfuscator
 			using (DbReader dbReader = new DbReader(new FileStream(text, FileMode.Open, FileAccess.Read), CreateDeobfuscator()))
 			{
+				// Read the Object (encrypted)
 				dbObject = dbReader.ReadDbObject();
 				//if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905)
 				//{
@@ -461,7 +464,7 @@ namespace FrostySdk
 					}
 				}
 
-				using (DbWriter dbWriter = new DbWriter(new FileStream("decrypted_initfs", FileMode.Create), inWriteHeader: true))
+				using (DbWriter dbWriter = new DbWriter(new FileStream("decrypted_initfs_" + (patched ? "patch" : "data"), FileMode.Create), inWriteHeader: true))
 				{
 					dbWriter.Write(dbObject);
 				}

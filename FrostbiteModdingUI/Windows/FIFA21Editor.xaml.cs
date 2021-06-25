@@ -65,9 +65,10 @@ namespace FIFAModdingUI.Windows
             Owner = owner;
         }
 
-        public virtual string LastGameLocation => App.ApplicationDirectory + "FIFA21LastLocation.json";
+        //public virtual string LastGameLocation => App.ApplicationDirectory + "FIFA21LastLocation.json";
+        public virtual string LastGameLocation => App.ApplicationDirectory + ProfilesLibrary.ProfileName + "LastLocation.json";
 
-        public virtual string RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
+        public virtual string RecentFilesLocation => App.ApplicationDirectory + ProfilesLibrary.ProfileName + "RecentFilesLocation.json";
 
 
         private List<FileInfo> recentProjectFiles;
@@ -177,7 +178,7 @@ namespace FIFAModdingUI.Windows
             Owner.Visibility = Visibility.Visible;
         }
 
-        private string WindowFIFAEditorTitle = $"FIFA 21 Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
+        private string WindowFIFAEditorTitle = $"FMT - FIFA Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
 
         private string _windowTitle;
         public string WindowTitle 
@@ -216,10 +217,46 @@ namespace FIFAModdingUI.Windows
 
             Task.Run(() =>
             {
-               
+
                 ProjectManagement = new ProjectManagement(filePath, this);
                 ProjectManagement.StartNewProject();
+                InitialiseBrowsers();
 
+                //playerEditor.InitPlayerSearch();
+
+                Dispatcher.Invoke(() =>
+                {
+
+                    btnProjectNew.IsEnabled = true;
+                    btnProjectOpen.IsEnabled = true;
+                    btnProjectSave.IsEnabled = true;
+                    btnProjectWriteToMod.IsEnabled = true;
+                    //btnProjectWriteToFIFAMod.IsEnabled = true;
+                    btnOpenModDetailsPanel.IsEnabled = true;
+                    var wt = WindowTitle;
+                    WindowTitle = "New Project";
+                    ProjectManagement.Project.ModifiedAssetEntries = null;
+                    this.DataContext = null;
+                    this.DataContext = this;
+                    this.UpdateLayout();
+
+                });
+
+            });
+
+            var presence = new DiscordRPC.RichPresence();
+            presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
+            App.DiscordRpcClient.SetPresence(presence);
+            App.DiscordRpcClient.Invoke();
+
+            LauncherOptions = LauncherOptions.LoadAsync().Result;
+            swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
+        }
+
+        private void InitialiseBrowsers()
+        {
+            Dispatcher.Invoke(() =>
+            {
                 Log("Initialize Data Browser");
                 dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx()
@@ -229,15 +266,19 @@ namespace FIFAModdingUI.Windows
                 // Kit Browser
                 Log("Initialize Kit Browser");
                 var kitList = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                                   .EnumerateEbx()
+                                   .Where(x => x.Path.ToLower().Contains("character/kit"))
+                                   .OrderBy(x => x.Path)
+                                   .Select(x => (IAssetEntry)x).ToList();
                 kitList = kitList.OrderBy(x => x.Name).ToList();
                 kitBrowser.AllAssetEntries = kitList;
-
 
                 Log("Initialize Gameplay Browser");
                 gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
                                   .EnumerateEbx()
-                                  .Where(x => x.Filename.StartsWith("gp_")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                                  .Where(x => x.Path.Contains("fifa/attribulator/gameplay", StringComparison.OrdinalIgnoreCase))
+                                  .OrderBy(x => x.Path)
+                                  .Select(x => (IAssetEntry)x).ToList();
 
 
                 var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
@@ -263,35 +304,7 @@ namespace FIFAModdingUI.Windows
                                    .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
                 bootList = bootList.OrderBy(x => x.Name).ToList();
                 bootsBrowser.AllAssetEntries = bootList;
-
-                //playerEditor.InitPlayerSearch();
-
-                Dispatcher.Invoke(() => {
-
-                    btnProjectNew.IsEnabled = true;
-                    btnProjectOpen.IsEnabled = true;
-                    btnProjectSave.IsEnabled = true;
-                    btnProjectWriteToMod.IsEnabled = true;
-                    //btnProjectWriteToFIFAMod.IsEnabled = true;
-                    btnOpenModDetailsPanel.IsEnabled = true;
-                    var wt = WindowTitle;
-                    WindowTitle = "New Project";
-                    ProjectManagement.Project.ModifiedAssetEntries = null;
-                    this.DataContext = null;
-                    this.DataContext = this;
-                    this.UpdateLayout();
-                    
-                });
-
             });
-
-            var presence = new DiscordRPC.RichPresence();
-            presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
-            App.DiscordRpcClient.SetPresence(presence);
-            App.DiscordRpcClient.Invoke();
-
-            LauncherOptions = LauncherOptions.LoadAsync().Result;
-            swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
         }
 
         LauncherOptions LauncherOptions { get; set; }
@@ -597,6 +610,10 @@ namespace FIFAModdingUI.Windows
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
+                    await Task.Run(() =>
+                    {
+                        InitialiseBrowsers();
+                    });
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
                     WindowTitle = openFileDialog.FileName;

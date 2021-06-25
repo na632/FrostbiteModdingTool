@@ -159,13 +159,15 @@ namespace FIFAModdingUI.Pages.Common
 					_VanillaRootProps = new List<ModdableProperty>();
 
 					var vanillaEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false);
-
-					foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
+					if (vanillaEbx != null)
 					{
-						var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
-						_VanillaRootProps.Add(modprop);
+						foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
+						{
+							var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
+							_VanillaRootProps.Add(modprop);
+						}
+						return _VanillaRootProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 					}
-					return _VanillaRootProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 				}
 				return _VanillaRootProps;
 			}

@@ -12,22 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\Libraries\FrostySdk\BF4Profile.json" Link="BF4Profile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\BFVProfile.json" Link="BFVProfile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA19Profile.json" Link="FrostbiteProfiles\FIFA19Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA20Profile.json" Link="FrostbiteProfiles\FIFA20Profile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -59,26 +47,20 @@
     <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\Libraries\FrostySdk\fifa20.key" Link="fifa20.key">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Libraries\FrostySdk\fifa21.key" Link="fifa21.key">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Libraries\FrostySdk\madden21.key" Link="madden21.key">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\Plugins\BF4Plugin\bin\Debug\netcoreapp3.1\BF4Plugin.dll" Link="Plugins\BF4Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\Plugins\FIFA19Plugin\bin\Debug\netstandard2.1\FIFA19Plugin.dll" Link="Plugins\FIFA19Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-	  <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="..\Plugins\FIFA20Plugin\bin\Debug\netcoreapp3.1\FIFA20Plugin.dll" Link="Plugins\FIFA20Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-		  <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netcoreapp3.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Plugins\Madden21Plugin\bin\Debug\netcoreapp3.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

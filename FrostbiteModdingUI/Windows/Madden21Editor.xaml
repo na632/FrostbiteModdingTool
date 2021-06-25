@@ -96,14 +96,17 @@
                                     <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
                                         <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
                                     </TabItem>
-                                    <TabItem x:Name="TabLegacy" Header="Legacy">
+                                <TabItem Header="Faces">
+                                    <localControls:Browser x:Name="facesBrowser"></localControls:Browser>
+                                </TabItem>
+                                <TabItem Header="Legacy">
                                         <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
                                     </TabItem>
                                 </TabControl>
                             </LayoutDocument>
                         </LayoutDocumentPane>
-                        <LayoutAnchorablePane>
-                            <LayoutAnchorable>
+                    <LayoutAnchorablePane DockMinHeight="100" DockHeight="100" ResizableAbsoluteDockHeight="100">
+                            <LayoutAnchorable CanClose="True" CanHide="True" Title="Log" >
                                 <TextBox
                                      x:Name="txtLog"
                                      IsReadOnly="True"

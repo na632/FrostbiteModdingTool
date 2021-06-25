@@ -12,10 +12,6 @@
       "SubDirs": false
     },
     {
-      "Path": "Update",
-      "SubDirs": true
-    },
-    {
       "Path": "Data",
       "SubDirs": false
     }
@@ -26,6 +22,7 @@
   "RequiresKey": true,
   "MustAddChunks": false,
   "EnableExecution": true,
+  "EditorScreen": "FIFA21Editor",
   "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
   "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
   "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
@@ -34,13 +31,16 @@
   "IgnoredResTypes": [],
   "TextureImporter": null,
   "TextureExporter": null,
-  "EditorScreen": null,
   "EBXReader": null,
   "EBXWriter": null,
   "CacheWriter": null,
   "CacheReader": null,
   "SupportedLauncherFileTypes": null,
   "ModCompilerFileType": null,
-  "CanEdit": false,
-  "CanLaunchMods": false
+  "CanEdit": true,
+  "CanLaunchMods": false,
+  "CanImportMeshes": true,
+  "CanExportMeshes": true,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16
 }

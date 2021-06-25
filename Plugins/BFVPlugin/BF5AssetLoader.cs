@@ -32,9 +32,9 @@ namespace BFVPlugin
 			}
 			foreach (ChunkAssetEntry chunk in parent.fs.ProcessManifestChunks())
 			{
-				if (!parent.chunkList.ContainsKey(chunk.Id))
+				if (!parent.Chunks.ContainsKey(chunk.Id))
 				{
-					parent.chunkList.TryAdd(chunk.Id, chunk);
+					parent.Chunks.TryAdd(chunk.Id, chunk);
 				}
 			}
 		}

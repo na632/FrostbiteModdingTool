@@ -4,14 +4,48 @@
              xmlns:local="clr-namespace:FIFAModdingUI"
              StartupUri="MainWindow.xaml"
               ShutdownMode="OnLastWindowClose"
-             >
+    xmlns:mwpfui="http://schemas.modernwpf.com/2019"
+
+    >
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
+
+                <!--<mwpfui:ThemeResources />
+                <mwpfui:XamlControlsResources />-->
             </ResourceDictionary.MergedDictionaries>
+
+            <!--<Style TargetType="ScrollViewer" BasedOn="{StaticResource DefaultScrollViewerStyle}">
+                <Setter Property="sc:AutoPanningMode.IsEnabled" Value="True" />
+            </Style>
+
+            <Thickness x:Key="ControlPageContentMargin">24,0,24,20</Thickness>
+
+            <Style x:Key="ControlPageContentPanelStyle" TargetType="ui:SimpleStackPanel">
+                <Setter Property="Margin" Value="{StaticResource ControlPageContentMargin}" />
+                <Setter Property="Spacing" Value="16" />
+            </Style>
+
+            <sc:EnumValuesConverter x:Key="EnumValuesConverter" />
+
+            <Style x:Key="OptionsPanelStyle" TargetType="ui:SimpleStackPanel">
+                <Setter Property="Spacing" Value="12" />
+                <Style.Resources>
+                    <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                        <Setter Property="MinWidth" Value="200" />
+                    </Style>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                        <Setter Property="MinWidth" Value="200" />
+                    </Style>
+                    <Style TargetType="DatePicker" BasedOn="{StaticResource {x:Type DatePicker}}">
+                        <Setter Property="MinWidth" Value="200" />
+                    </Style>
+                </Style.Resources>
+            </Style>-->
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

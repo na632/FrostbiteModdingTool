@@ -157,16 +157,16 @@ namespace Madden21Plugin
 					}
 
 
-      //              if (
-      //                  tocPath.Contains("attribsys") // GP
-      //                  ||
-      //                  tocPath.Contains("splash") // Splash
-      //                  || tocPath.Contains("globals") // Legacy
-      //                  || tocPath.Contains("frontendscene")
-      //                  || tocPath.Contains("teamwipe_sb")
-      //                  || tocPath.Contains("playercontent_sb") // Player uniforms / kits
-      //                  || tocPath.Contains("playercontentlaunch_sb") // Player uniforms / kits
-						//)
+                    if (
+                        tocPath.Contains("attribsys") // GP
+                        ||
+                        tocPath.Contains("splash") // Splash
+                        || tocPath.Contains("globals") // Legacy
+                        || tocPath.Contains("frontendscene")
+                        || tocPath.Contains("teamwipe_sb")
+                        || tocPath.Contains("playercontent_sb") // Player uniforms / kits
+                        || tocPath.Contains("playercontentlaunch_sb") // Player uniforms / kits
+                        )
                     {
 
                         TOCFile tocFile = new TOCFile(tocPath);

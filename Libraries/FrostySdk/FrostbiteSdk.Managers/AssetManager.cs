@@ -257,14 +257,23 @@ namespace FrostySdk.Managers
 									if (num2 > 0)
 									{
 										nativeReader2.Position = num2;
-										int num5 = nativeReader2.ReadInt();
-										for (int i = 0; i < num5; i++)
+										int numberOfBundles = nativeReader2.ReadInt();
+										for (int i = 0; i < numberOfBundles; i++)
 										{
 											list.Add(nativeReader2.ReadInt());
 										}
-										for (int j = 0; j < num5; j++)
+										DateTime lastLogTime = DateTime.Now;
+
+										for (int j = 0; j < numberOfBundles; j++)
 										{
-											parent.logger.Log($"cache build progress:{ Math.Round((double)j / (double)num5 * 100.0)}");
+											if (lastLogTime.AddSeconds(15) < DateTime.Now)
+											{
+												var percentDone = Math.Round((double)j / (double)numberOfBundles * 100.0);
+												parent.logger.Log($"{arg} Progress: {percentDone}");
+												lastLogTime = DateTime.Now;
+											}
+
+
 											int num6 = nativeReader2.ReadInt() - 12;
 											long position = nativeReader2.Position;
 											nativeReader2.Position = num6;
@@ -386,19 +395,19 @@ namespace FrostySdk.Managers
 											int index = nativeReader2.ReadInt();
 											int offset = nativeReader2.ReadInt();
 											int num18 = nativeReader2.ReadInt();
-											if (!parent.chunkList.ContainsKey(guid))
+											if (!parent.Chunks.ContainsKey(guid))
 											{
 												//parent.chunkList.Add(guid, new ChunkAssetEntry());
-												parent.chunkList.TryAdd(guid, new ChunkAssetEntry());
+												parent.Chunks.TryAdd(guid, new ChunkAssetEntry());
 											}
-											ChunkAssetEntry chunkAssetEntry = parent.chunkList[guid];
+											ChunkAssetEntry chunkAssetEntry = parent.Chunks[guid];
 											chunkAssetEntry.Id = guid;
 											chunkAssetEntry.Size = num18;
 											chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
 											chunkAssetEntry.ExtraData = new AssetExtraData();
 											chunkAssetEntry.ExtraData.CasPath = parent.fs.GetFilePath(index);
 											chunkAssetEntry.ExtraData.DataOffset = (uint)offset;
-											parent.chunkList[guid].IsTocChunk = true;
+											parent.Chunks[guid].IsTocChunk = true;
 											nativeReader2.Position = position2;
 										}
 									}
@@ -430,18 +439,18 @@ namespace FrostySdk.Managers
 
 		public List<BundleEntry> bundles = new List<BundleEntry>(999999);
 
-		//public ConcurrentDictionary<string, EbxAssetEntry> ebxList = new ConcurrentDictionary<string, EbxAssetEntry>(8, 999999, StringComparer.OrdinalIgnoreCase);
+        public ConcurrentDictionary<string, EbxAssetEntry> EBX = new ConcurrentDictionary<string, EbxAssetEntry>(8, 999999, StringComparer.OrdinalIgnoreCase);
 
-		/// <summary>
-		/// NameHash to EbxAssetEntry
-		/// </summary>
-		public ConcurrentDictionary<int, EbxAssetEntry> EbxList = new ConcurrentDictionary<int, EbxAssetEntry>();
+        /// <summary>
+        /// NameHash to EbxAssetEntry
+        /// </summary>
+        //public ConcurrentDictionary<int, EbxAssetEntry> EbxList = new ConcurrentDictionary<int, EbxAssetEntry>();
 
-		public Dictionary<string, ResAssetEntry> resList = new Dictionary<string, ResAssetEntry>(999999);
+        public Dictionary<string, ResAssetEntry> RES = new Dictionary<string, ResAssetEntry>(999999);
 
-        public ConcurrentDictionary<Guid, ChunkAssetEntry> chunkList = new ConcurrentDictionary<Guid, ChunkAssetEntry>(8, 999999);
+        public ConcurrentDictionary<Guid, ChunkAssetEntry> Chunks = new ConcurrentDictionary<Guid, ChunkAssetEntry>(8, 999999);
 
-        public ConcurrentDictionary<(string, Guid), ChunkAssetEntry> bundleChunkList = new ConcurrentDictionary<(string, Guid), ChunkAssetEntry>(8, 999999);
+        public ConcurrentDictionary<(string, Guid), ChunkAssetEntry> BundleChunks = new ConcurrentDictionary<(string, Guid), ChunkAssetEntry>(8, 999999);
 
         //public ConcurrentDictionary<Guid, EbxAssetEntry> ebxGuidList = new ConcurrentDictionary<Guid, EbxAssetEntry>();
 
@@ -486,14 +495,14 @@ namespace FrostySdk.Managers
 			{
 				bundles.Clear();
 				bundles = null;
-				EbxList.Clear();
-				EbxList = null;
-				resList.Clear();
-				resList = null;
+				EBX.Clear();
+				EBX = null;
+				RES.Clear();
+				RES = null;
 				resRidList.Clear();
 				resRidList = null;
-				chunkList.Clear();
-				chunkList = null;
+				Chunks.Clear();
+				Chunks = null;
 
 				TypeLibrary.ExistingAssembly = null;
 			}
@@ -654,7 +663,7 @@ namespace FrostySdk.Managers
 			get
 			{
 				if(_EbxItemsWithNoType == null)
-					_EbxItemsWithNoType = EbxList.Values.Where(x => string.IsNullOrEmpty(x.Type)).OrderBy(x=>x.ExtraData.CasPath).ToList();
+					_EbxItemsWithNoType = EBX.Values.Where(x => string.IsNullOrEmpty(x.Type)).OrderBy(x=>x.ExtraData.CasPath).ToList();
 
 				return _EbxItemsWithNoType;
 			}
@@ -693,14 +702,14 @@ namespace FrostySdk.Managers
 						if (ProfilesLibrary.IsFIFA19DataVersion())
 						{
 							EbxReader ebxReader = new EbxReader(ebxStream, true);
-							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
-							EbxList[Fnv1.HashString(ebx.Name)].Guid = ebxReader.FileGuid;
+							EBX[ebx.Name].Type = ebxReader.RootType;
+							EBX[ebx.Name].Guid = ebxReader.FileGuid;
 						}
 						else
 						{
 							EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
-							EbxList[Fnv1.HashString(ebx.Name)].Type = ebxReader.RootType;
-							EbxList[Fnv1.HashString(ebx.Name)].Guid = ebxReader.FileGuid;
+							EBX[ebx.Name].Type = ebxReader.RootType;
+							EBX[ebx.Name].Guid = ebxReader.FileGuid;
 						}
 						return;
 					}
@@ -713,7 +722,7 @@ namespace FrostySdk.Managers
 
 			if (string.IsNullOrEmpty(ebx.Type))
 			{
-				EbxList.TryRemove(Fnv1.HashString(ebx.Name), out _);
+				EBX.TryRemove(ebx.Name, out _);
 			}
 		}
 
@@ -732,7 +741,7 @@ namespace FrostySdk.Managers
 
 			ResourceManager.UseLastCasPath = true;
 
-			var ebxListValues = EbxList.Values.ToList();
+			var ebxListValues = EBX.Values.ToList();
             if (ProfilesLibrary.IsMadden21DataVersion()
                 || ProfilesLibrary.IsFIFA21DataVersion()
                 || ProfilesLibrary.IsFIFA20DataVersion()
@@ -767,9 +776,9 @@ namespace FrostySdk.Managers
 
 		public uint GetModifiedCount()
 		{
-			uint num = (uint)EbxList.Values.Count((EbxAssetEntry entry) => entry.IsModified);
-			uint num2 = (uint)resList.Values.Count((ResAssetEntry entry) => entry.IsModified);
-			uint num3 = (uint)chunkList.Values.Count((ChunkAssetEntry entry) => entry.IsModified);
+			uint num = (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.IsModified);
+			uint num2 = (uint)RES.Values.Count((ResAssetEntry entry) => entry.IsModified);
+			uint num3 = (uint)Chunks.Values.Count((ChunkAssetEntry entry) => entry.IsModified);
 			uint num4 = 0u;
 			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
@@ -780,9 +789,9 @@ namespace FrostySdk.Managers
 
 		public uint GetDirtyCount()
 		{
-			uint num = (uint)EbxList.Values.Count((EbxAssetEntry entry) => entry.IsDirty);
-			uint num2 = (uint)resList.Values.Count((ResAssetEntry entry) => entry.IsDirty);
-			uint num3 = (uint)chunkList.Values.Count((ChunkAssetEntry entry) => entry.IsDirty);
+			uint num = (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.IsDirty);
+			uint num2 = (uint)RES.Values.Count((ResAssetEntry entry) => entry.IsDirty);
+			uint num3 = (uint)Chunks.Values.Count((ChunkAssetEntry entry) => entry.IsDirty);
 			uint num4 = 0u;
 			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
@@ -793,17 +802,17 @@ namespace FrostySdk.Managers
 
 		public uint GetEbxCount(string ebxType)
 		{
-			return (uint)EbxList.Values.Count((EbxAssetEntry entry) => entry.Type != null && entry.Type.Equals(ebxType));
+			return (uint)EBX.Values.Count((EbxAssetEntry entry) => entry.Type != null && entry.Type.Equals(ebxType));
 		}
 
 		public uint GetEbxCount()
 		{
-			return (uint)EbxList.Count;
+			return (uint)EBX.Count;
 		}
 
 		public uint GetResCount(uint resType)
 		{
-			return (uint)resList.Values.Count((ResAssetEntry entry) => entry.ResType == resType);
+			return (uint)RES.Values.Count((ResAssetEntry entry) => entry.ResType == resType);
 		}
 
 		public uint GetEmbeddedCount(uint resType)
@@ -813,9 +822,9 @@ namespace FrostySdk.Managers
 
 		public void Reset()
 		{
-			List<EbxAssetEntry> list = EbxList.Values.ToList();
-			List<ResAssetEntry> list2 = resList.Values.ToList();
-			List<ChunkAssetEntry> list3 = chunkList.Values.ToList();
+			List<EbxAssetEntry> list = EBX.Values.ToList();
+			List<ResAssetEntry> list2 = RES.Values.ToList();
+			List<ChunkAssetEntry> list3 = Chunks.Values.ToList();
 			foreach (EbxAssetEntry item in list)
 			{
 				RevertAsset(item, dataOnly: false, suppressOnModify: false);
@@ -862,7 +871,7 @@ namespace FrostySdk.Managers
 			//	if (entry is EbxAssetEntry)
 			//	{
 			//		EbxAssetEntry ebxAssetEntry = entry as EbxAssetEntry;
-			//		ebxList.TryRemove(ebxAssetEntry.Name, out _);
+			//		EBX.TryRemove(ebxAssetEntry.Name, out _);
 			//	}
 			//	else if (entry is ResAssetEntry)
 			//	{
@@ -906,16 +915,16 @@ namespace FrostySdk.Managers
 
 		public void AddChunk(ChunkAssetEntry entry)
 		{
-            if (chunkList.ContainsKey(entry.Id))
-                chunkList.TryRemove(entry.Id, out _);
+            if (Chunks.ContainsKey(entry.Id))
+                Chunks.TryRemove(entry.Id, out _);
 
-			chunkList.TryAdd(entry.Id, entry);
+			Chunks.TryAdd(entry.Id, entry);
 
-			// ------------------------- SEPERATE LIST FOR BUNLDE ID ------------------------
-			if (bundleChunkList.ContainsKey((entry.Bundle, entry.Id)))
-				bundleChunkList.TryRemove((entry.Bundle, entry.Id), out _);
+			// ------------------------- SEPERATE LIST FOR BUNDLE ID ------------------------
+			if (BundleChunks.ContainsKey((entry.Bundle, entry.Id)))
+				BundleChunks.TryRemove((entry.Bundle, entry.Id), out _);
 
-			bundleChunkList.TryAdd((entry.Bundle, entry.Id), entry);
+			BundleChunks.TryAdd((entry.Bundle, entry.Id), entry);
 		}
 
 		public Dictionary<Guid, List<ChunkAssetEntry>> ChunkListDuplicates = new Dictionary<Guid, List<ChunkAssetEntry>>();
@@ -924,10 +933,10 @@ namespace FrostySdk.Managers
 		{
 			entry.IsAdded = true;
 
-			if (resList.ContainsKey(entry.Name.ToLower()))
-				resList.Remove(entry.Name.ToLower());
+			if (RES.ContainsKey(entry.Name.ToLower()))
+				RES.Remove(entry.Name.ToLower());
 
-			resList.Add(entry.Name.ToLower(), entry);
+			RES.Add(entry.Name.ToLower(), entry);
 
 			if (resRidList.ContainsKey(entry.ResRid))
 				resRidList.Remove(entry.ResRid);
@@ -935,11 +944,14 @@ namespace FrostySdk.Managers
 			resRidList.Add(entry.ResRid, entry);
 		}
 
-		public void AddEbx(EbxAssetEntry entry)
+		public bool AddEbx(EbxAssetEntry entry)
 		{
 			entry.IsAdded = true;
-			EbxList.TryAdd(Fnv1.HashString(entry.Name), entry);
+			//var intFnv1 = Fnv1.HashString(entry.Name);
+			bool result = EBX.TryAdd(entry.Name.ToLower(), entry);
 			//ebxGuidList.TryAdd(entry.Guid, entry);
+
+			return result;
 		}
 
 		public BundleEntry AddBundle(string name, BundleType type, int sbIndex)
@@ -975,9 +987,9 @@ namespace FrostySdk.Managers
 		public EbxAssetEntry AddEbx(string name, EbxAsset asset, params int[] bundles)
 		{
 			string key = name.ToLower();
-			if (EbxList.ContainsKey(Fnv1.HashString(key)))
+			if (EBX.ContainsKey(key))
 			{
-				return EbxList[Fnv1.HashString(key)];
+				return EBX[key];
 			}
 			EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
 			ebxAssetEntry.Name = name;
@@ -995,8 +1007,8 @@ namespace FrostySdk.Managers
 			ebxAssetEntry.ModifiedEntry.IsInline = false;
 			ebxAssetEntry.IsDirty = true;
 			ebxAssetEntry.IsAdded = true;
-			//ebxList.Add(key, ebxAssetEntry);
-			EbxList.TryAdd(Fnv1.HashString(ebxAssetEntry.Name), ebxAssetEntry);
+			//EBX.Add(key, ebxAssetEntry);
+			EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
 
 			//ebxGuidList.TryAdd(ebxAssetEntry.Guid, ebxAssetEntry);
 			return ebxAssetEntry;
@@ -1005,9 +1017,9 @@ namespace FrostySdk.Managers
 		public ResAssetEntry AddRes(string name, ResourceType resType, byte[] resMeta, byte[] buffer, params int[] bundles)
 		{
 			name = name.ToLower();
-			if (resList.ContainsKey(name))
+			if (RES.ContainsKey(name))
 			{
-				return resList[name];
+				return RES[name];
 			}
 			ResAssetEntry resAssetEntry = new ResAssetEntry();
 			resAssetEntry.Name = name;
@@ -1022,7 +1034,7 @@ namespace FrostySdk.Managers
 			resAssetEntry.ModifiedEntry.ResMeta = resAssetEntry.ResMeta;
 			resAssetEntry.IsAdded = true;
 			resAssetEntry.IsDirty = true;
-			resList.Add(resAssetEntry.Name, resAssetEntry);
+			RES.Add(resAssetEntry.Name, resAssetEntry);
 			resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
 			return resAssetEntry;
 		}
@@ -1058,7 +1070,7 @@ namespace FrostySdk.Managers
 				chunkAssetEntry.Id = new Guid(array);
 			}
 			//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-			chunkList.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
+			Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
 			return chunkAssetEntry.Id;
 		}
 
@@ -1067,11 +1079,11 @@ namespace FrostySdk.Managers
 			, Texture texture = null
 			, CompressionType compressionOverride = CompressionType.Default)
 		{
-			if (!bundleChunkList.ContainsKey(chunk))
+			if (!BundleChunks.ContainsKey(chunk))
 			{
 				return false;
 			}
-			ChunkAssetEntry chunkAssetEntry = bundleChunkList[chunk];
+			ChunkAssetEntry chunkAssetEntry = BundleChunks[chunk];
 			// fifa 21 chunk is oodle
 			// madden 21 chunk is oodle
 			if ((ProfilesLibrary.IsFIFADataVersion()
@@ -1107,11 +1119,11 @@ namespace FrostySdk.Managers
 			, Texture texture = null
 			, CompressionType compressionOverride = CompressionType.Default)
 		{
-			if (!chunkList.ContainsKey(chunkId))
+			if (!Chunks.ContainsKey(chunkId))
 			{
 				return false;
 			}
-			ChunkAssetEntry chunkAssetEntry = chunkList[chunkId];
+			ChunkAssetEntry chunkAssetEntry = Chunks[chunkId];
 			// fifa 21 chunk is oodle
 			// madden 21 chunk is oodle
 			if ((ProfilesLibrary.IsFIFADataVersion() 
@@ -1181,9 +1193,9 @@ namespace FrostySdk.Managers
 
 		public void ModifyRes(string resName, byte[] buffer, byte[] meta = null, CompressionType compressionOverride = CompressionType.Default)
 		{
-			if (resList.ContainsKey(resName))
+			if (RES.ContainsKey(resName))
 			{
-				ResAssetEntry resAssetEntry = resList[resName];
+				ResAssetEntry resAssetEntry = RES[resName];
 				// Madden 21 Res is oodle
 				// FIFA 21 Res for meshes is oodle
 				compressionOverride = (ProfilesLibrary.DataVersion == 20170929 
@@ -1205,9 +1217,9 @@ namespace FrostySdk.Managers
 
 		public void ModifyRes(string resName, Resource resource, byte[] meta = null)
 		{
-			if (resList.ContainsKey(resName))
+			if (RES.ContainsKey(resName))
 			{
-				ResAssetEntry resAssetEntry = resList[resName];
+				ResAssetEntry resAssetEntry = RES[resName];
 				if (resAssetEntry.ModifiedEntry == null)
 				{
 					resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
@@ -1224,9 +1236,9 @@ namespace FrostySdk.Managers
 		public void ModifyEbx(string name, EbxAsset asset)
 		{
 			name = name.ToLower();
-			if (EbxList.ContainsKey(Fnv1.HashString(name)))
+			if (EBX.ContainsKey(name))
 			{
-				EbxAssetEntry ebxAssetEntry = EbxList[Fnv1.HashString(name)];
+				EbxAssetEntry ebxAssetEntry = EBX[name];
 				if (ebxAssetEntry.ModifiedEntry == null)
 				{
 					ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
@@ -1245,9 +1257,9 @@ namespace FrostySdk.Managers
 		public void ModifyEbxBinary(string name, byte[] data)
 		{
 			name = name.ToLower();
-			if (EbxList.ContainsKey(Fnv1.HashString(name)))
+			if (EBX.ContainsKey(name))
 			{
-				var ebxEntry = EbxList[Fnv1.HashString(name)];
+				var ebxEntry = EBX[name];
 				var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
 				var ebxAsset = GetEbxAssetFromStream(new MemoryStream(data), patch);
 				ModifyEbx(name, ebxAsset);
@@ -1329,7 +1341,7 @@ namespace FrostySdk.Managers
 
 		protected IEnumerable<EbxAssetEntry> EnumerateEbx(string type, bool modifiedOnly, bool includeLinked, bool includeHidden, params int[] bundles)
 		{
-			foreach (EbxAssetEntry value in EbxList.Values)
+			foreach (EbxAssetEntry value in EBX.Values)
 			{
 				if ((!modifiedOnly || (value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified))) && (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
 				{
@@ -1397,7 +1409,7 @@ namespace FrostySdk.Managers
 
 		protected IEnumerable<ResAssetEntry> EnumerateRes(uint resType, bool modifiedOnly, params int[] bundles)
 		{
-			foreach (ResAssetEntry value in resList.Values)
+			foreach (ResAssetEntry value in RES.Values)
 			{
 				if ((!modifiedOnly || value.IsDirectlyModified) && (resType == 0 || value.ResType == resType))
 				{
@@ -1427,7 +1439,7 @@ namespace FrostySdk.Managers
 			int bindex = bundles.IndexOf(bentry);
 			if (bindex != -1)
 			{
-				foreach (ChunkAssetEntry value in chunkList.Values.OrderBy(x => x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
+				foreach (ChunkAssetEntry value in Chunks.Values.OrderBy(x => x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
 				{
 					if (value.Bundles.Contains(bindex))
 					{
@@ -1439,7 +1451,7 @@ namespace FrostySdk.Managers
 
 		public IEnumerable<ChunkAssetEntry> EnumerateChunks(bool modifiedOnly = false)
 		{
-			foreach (ChunkAssetEntry value in chunkList.Values.OrderBy(x=> x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
+			foreach (ChunkAssetEntry value in Chunks.Values.OrderBy(x=> x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
 			{
 				if (!modifiedOnly || value.IsDirectlyModified)
 				{
@@ -1523,16 +1535,16 @@ namespace FrostySdk.Managers
 		public EbxAssetEntry GetEbxEntry(string name)
 		{
 			name = name.ToLower();
-			if (!EbxList.ContainsKey(Fnv1.HashString(name)))
+			if (!EBX.ContainsKey(name))
 			{
 				return null;
 			}
-			return EbxList[Fnv1.HashString(name)];
+			return EBX[name];
 		}
 
 		public EbxAssetEntry GetEbxEntry(Guid id)
 		{
-			var ebxGuids = EbxList.Values.Where(x => x.Guid != null);
+			var ebxGuids = EBX.Values.Where(x => x.Guid != null);
 			return ebxGuids.FirstOrDefault(x => x.Guid == id);
 		}
 
@@ -1548,20 +1560,33 @@ namespace FrostySdk.Managers
 		public ResAssetEntry GetResEntry(string name)
 		{
 			name = name.ToLower();
-			if (!resList.ContainsKey(name))
+			if (!RES.ContainsKey(name))
 			{
 				return null;
 			}
-			return resList[name];
+			return RES[name];
+		}
+
+		public ChunkAssetEntry GetChunkEntry(Guid id, string bundle)
+		{
+			if (!BundleChunks.ContainsKey((bundle, id)))
+			{
+				//if (GetChunkEntry(id) != null)
+				//	return GetChunkEntry(id);
+
+				return null;
+			}
+			var entry = BundleChunks[(bundle, id)];
+			return entry;
 		}
 
 		public ChunkAssetEntry GetChunkEntry(Guid id)
 		{
-			if (!chunkList.ContainsKey(id))
+			if (!Chunks.ContainsKey(id))
 			{
 				return null;
 			}
-			var entry = chunkList[id];
+			var entry = Chunks[id];
 			return entry;
 		}
 
@@ -1902,6 +1927,18 @@ namespace FrostySdk.Managers
 					}
 
 
+					if (item.GetValue<Guid>("name").ToString() == "56aeabb4-505a-58f4-77a6-f3b3c5fda185")
+					{
+
+					}
+
+					var otherBundles = new List<int>();
+					// last bundles 
+                    if (Chunks.ContainsKey(item.GetValue<Guid>("name")))
+					{
+						otherBundles.AddRange(Chunks[item.GetValue<Guid>("name")].Bundles);
+                    }
+
 					item.SetValue("bundleIndex", bundleId);
 					ChunkAssetEntry chunkAssetEntry = AddChunk(item, ProfilesLibrary.IsMadden21DataVersion());
 					
@@ -1951,9 +1988,9 @@ namespace FrostySdk.Managers
 					if (item.HasValue("ParentBundleSize"))
 						chunkAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-				
+					chunkAssetEntry.Bundles.AddRange(otherBundles);
 					chunkAssetEntry.Bundles.Add(bundleId);
-
+					chunkAssetEntry.Bundles = chunkAssetEntry.Bundles.Distinct().ToList();
 					if (item.HasValue("Bundle") && !string.IsNullOrEmpty(item.GetValue<string>("Bundle")))
 					{
 						chunkAssetEntry.Bundle = item.GetValue<string>("Bundle");
@@ -1963,7 +2000,7 @@ namespace FrostySdk.Managers
 						chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
 					}
 
-					chunkList[chunkAssetEntry.Id] = chunkAssetEntry;
+					Chunks[chunkAssetEntry.Id] = chunkAssetEntry;
 
 				}
 			}
@@ -1991,11 +2028,11 @@ namespace FrostySdk.Managers
 				{
 					Guid value = item.GetValue<Guid>("id");
 					ChunkAssetEntry chunkAssetEntry = null;
-					if (chunkList.ContainsKey(value))
+					if (Chunks.ContainsKey(value))
 					{
-						chunkAssetEntry = chunkList[value];
+						chunkAssetEntry = Chunks[value];
 						//chunkList.Remove(value);
-						chunkList.TryRemove(value, out _);
+						Chunks.TryRemove(value, out _);
 						helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
 					}
 					else
@@ -2016,7 +2053,7 @@ namespace FrostySdk.Managers
 
 					chunkAssetEntry.SB_LogicalOffset_Position = item.GetValue("SB_LogicalOffset_Position", 0u);
 					chunkAssetEntry.SB_LogicalSize_Position = item.GetValue("SB_LogicalSize_Position", 0u);
-					chunkList.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
+					Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
 					//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
 				}
 				return dbObject;
@@ -2027,13 +2064,13 @@ namespace FrostySdk.Managers
 		private EbxAssetEntry AddEbx(DbObject ebx, bool returnExisting = false)
 		{
 			string text = ebx.GetValue<string>("name").ToLower();
-			if (EbxList.ContainsKey(Fnv1.HashString(text)))
+			if (EBX.ContainsKey(text))
 			{
-				//ebxList.Remove(text);
+				//EBX.Remove(text);
 				if(returnExisting)
-					return EbxList[Fnv1.HashString(text)];
+					return EBX[text];
 				else
-					EbxList.TryRemove(Fnv1.HashString(text), out _);
+					EBX.TryRemove(text, out _);
 				//return ebxList[text];
 			}
 			EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
@@ -2078,20 +2115,20 @@ namespace FrostySdk.Managers
 			ebxAssetEntry.SB_CAS_Size_Position = ebx.GetValue<int>("SB_CAS_Size_Position");
 
 
-			//ebxList.Add(text, ebxAssetEntry);
-				EbxList.TryAdd(Fnv1.HashString(text), ebxAssetEntry);
+			//EBX.Add(text, ebxAssetEntry);
+				EBX.TryAdd(text, ebxAssetEntry);
 			return ebxAssetEntry;
 		}
 
 		private ResAssetEntry AddRes(DbObject res, bool returnExisting = false)
 		{
 			string value = res.GetValue<string>("name");
-			if (resList.ContainsKey(value))
+			if (RES.ContainsKey(value))
 			{
 				if(returnExisting)
-					return resList[value];
+					return RES[value];
 
-				resList.Remove(value);
+				RES.Remove(value);
 				//return resList[value];
 			}
 			ResAssetEntry resAssetEntry = new ResAssetEntry();
@@ -2140,7 +2177,7 @@ namespace FrostySdk.Managers
 			resAssetEntry.SB_CAS_Offset_Position = res.GetValue<int>("SB_CAS_Offset_Position");
 			resAssetEntry.SB_CAS_Size_Position = res.GetValue<int>("SB_CAS_Size_Position");
 
-			resList.Add(value, resAssetEntry);
+			RES.Add(value, resAssetEntry);
 			if (resAssetEntry.ResRid != 0L)
 			{
 				if (resRidList.ContainsKey(resAssetEntry.ResRid))
@@ -2155,15 +2192,22 @@ namespace FrostySdk.Managers
 		{
 			Guid value = chunk.GetValue<Guid>("id");
 
-            if (chunkList.ContainsKey(value) && returnExisting)
-            {
-				return chunkList[value];
-			}
+            //if (chunkList.ContainsKey(value) && returnExisting)
+   //         {
+			//	return chunkList[value];
+			//}
 
 			if (value.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
 			{
 
 			}
+
+			if (value.ToString() == "56aeabb4-505a-58f4-77a6-f3b3c5fda185")
+			{
+
+			}
+
+			
 
 			ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
 			chunkAssetEntry.Id = value;
@@ -2280,7 +2324,7 @@ namespace FrostySdk.Managers
 					}
 				}
 				count = nativeReader.ReadInt();
-				EbxList = new ConcurrentDictionary<int, EbxAssetEntry>(1, count + 100);
+				EBX = new ConcurrentDictionary<string, EbxAssetEntry>(1, count + 100);
 				for (int k = 0; k < count; k++)
 				{
 					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
@@ -2338,7 +2382,7 @@ namespace FrostySdk.Managers
 					}
 					else
 					{
-						EbxList.TryAdd(Fnv1.HashString(ebxAssetEntry.Name), ebxAssetEntry);
+						EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
 					}
 				}
 				count = nativeReader.ReadInt();
@@ -2395,7 +2439,7 @@ namespace FrostySdk.Managers
 					
 					if (!flag || (CacheUpdate && resAssetEntry.ExtraData.CasPath.Contains("native_data", StringComparison.OrdinalIgnoreCase)))
 					{
-						resList.Add(resAssetEntry.Name, resAssetEntry);
+						RES.Add(resAssetEntry.Name, resAssetEntry);
 						if (resAssetEntry.ResRid != 0L)
 						{
 							if(!resRidList.ContainsKey(resAssetEntry.ResRid))
@@ -2409,14 +2453,14 @@ namespace FrostySdk.Managers
                     ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
                     if (!flag)
 					{
-                        if (chunkList.ContainsKey(chunkAssetEntry.Id))
+                        if (Chunks.ContainsKey(chunkAssetEntry.Id))
                         {
                             //chunkList.Remove(chunkAssetEntry.Id);
-                            chunkList.TryRemove(chunkAssetEntry.Id, out _);
+                            Chunks.TryRemove(chunkAssetEntry.Id, out _);
                         }
                         //chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-                        chunkList.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
-						var entryAfter = chunkList[chunkAssetEntry.Id];
+                        Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
+						var entryAfter = Chunks[chunkAssetEntry.Id];
 						//if(chunkAssetEntry.Id.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
       //                  {
 
@@ -2556,8 +2600,8 @@ namespace FrostySdk.Managers
 					nativeWriter.WriteNullTerminatedString(bundle.Name);
 					nativeWriter.Write(bundle.SuperBundleId);
 				}
-				nativeWriter.Write(EbxList.Values.Count);
-				foreach (EbxAssetEntry ebxEntry in EbxList.Values)
+				nativeWriter.Write(EBX.Values.Count);
+				foreach (EbxAssetEntry ebxEntry in EBX.Values)
 				{
                     //var ebxJson = JsonConvert.SerializeObject(ebxEntry);
                     //nativeWriter.WriteLengthPrefixedString(ebxJson);
@@ -2615,8 +2659,8 @@ namespace FrostySdk.Managers
                     }
 
                 }
-				nativeWriter.Write(resList.Values.Count);
-				foreach (ResAssetEntry resEntry in resList.Values)
+				nativeWriter.Write(RES.Values.Count);
+				foreach (ResAssetEntry resEntry in RES.Values)
 				{
 
                     nativeWriter.WriteLengthPrefixedString(resEntry.Name);
@@ -2669,8 +2713,8 @@ namespace FrostySdk.Managers
                         nativeWriter.Write(bundle3);
                     }
                 }
-				nativeWriter.Write(chunkList.Count);
-				foreach (ChunkAssetEntry chunkEntry in chunkList.Values)
+				nativeWriter.Write(Chunks.Count);
+				foreach (ChunkAssetEntry chunkEntry in Chunks.Values)
                 {
                     WriteChunkToCache(nativeWriter, chunkEntry);
 

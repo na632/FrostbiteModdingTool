@@ -283,7 +283,7 @@ namespace FIFA21Plugin
                                                     }
                                                     foreach (var chunk in moddedChunk)
                                                     {
-                                                        var originalChunk = AssetManager.Instance.chunkList[chunk.Key];
+                                                        var originalChunk = AssetManager.Instance.Chunks[chunk.Key];
                                                         nwNewBinaryDataSection.Write(chunk.Value.Id, Endian.Little);
                                                         nwNewBinaryDataSection.Write((int)originalChunk.LogicalOffset, Endian.Little);
                                                         nwNewBinaryDataSection.Write((int)originalChunk.LogicalSize, Endian.Little);

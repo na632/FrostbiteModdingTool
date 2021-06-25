@@ -215,11 +215,12 @@
                                     <Label>Bundle File:</Label>
                                     <Label x:Name="lblImageBundleFile"></Label>
                                 </StackPanel>-->
-                                        <xctk:PropertyGrid  Grid.Column="1" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
+                                        <xctk:PropertyGrid  Grid.Column="1" VerticalContentAlignment="Stretch" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
                                         </xctk:PropertyGrid>
                                         <xctk:PropertyGrid Grid.Row="1" Grid.Column="1" SelectedObject="{Binding SelectedEbxAsset.RootObject}" IsReadOnly="True" AutoGenerateProperties="True">
                                         </xctk:PropertyGrid>
-
+                                        <!--<local2:FMTPropertyGrid x:Name="ivPropertyGrid" Grid.Row="1" Grid.Column="1"  >
+                                        </local2:FMTPropertyGrid>-->
                                     </Grid>
 
                             <TextBox Grid.Row="1" x:Name="TextViewer" MaxLines="999999" 
@@ -241,7 +242,8 @@
                                     <xctk:PropertyGrid Grid.Row="1" x:Name="BackupEBXViewer" Visibility="Collapsed">
                                         
                                     </xctk:PropertyGrid>
-
+                                    <!--<local2:FMTPropertyGrid x:Name="BackupEBXViewer" Grid.Row="1" Visibility="Collapsed">
+                                    </local2:FMTPropertyGrid>-->
 
 
                                     <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
@@ -271,33 +273,13 @@
                                                             <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
                                                             <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
                                                         </hx:Viewport3DX.InputBindings>
-                                                        <hx:DirectionalLight3D Direction="0, 1, 0" Color="#DEDDDE" />
-                                            <hx:DirectionalLight3D Direction="-1, -0.5, -0.5" Color="#DEDDDE" />
-                                            <hx:DirectionalLight3D Direction="1, -0.5, -0.5" Color="#DEDDDE" />
-                                                        <hx:DirectionalLight3D Direction="0, 0, 1" Color="#DEDDDE" />
-                                            <hx:DirectionalLight3D Direction="1, 0, 0" Color="#DEDDDE" />
+                                            <hx:DirectionalLight3D Direction="{Binding Camera.LookDirection}" Color="#D6D6D6" />
                                             <hx:AmbientLight3D Color="#111111" />
                                                         
-                                                <hx:MeshGeometryModel3D
-                Geometry="{Binding FloorModel}"
-                Material="{Binding FloorMaterial}" />
-                                                <hx:MeshGeometryModel3D
-                CullMode="None"
-                Geometry="{Binding BunnyModel}"
-                Instances="{Binding BunnyInstances}"
-                Material="{Binding BunnyMaterial}"
-                    
-                    />
-                                                <hx:MeshGeometryModel3D
-                CullMode="None"
-                Geometry="{Binding MeshModel2}"
-                Instances="{Binding MeshInstances2}"
-                Material="{Binding MeshMaterial2}"
-                    
-                    />
+                     
+                                            <hx:Element3DPresenter Content="{Binding GroupModel}" />
 
-                                               
-                                                    </hx:Viewport3DX>
+                                        </hx:Viewport3DX>
 
 
                                         <xctk:PropertyGrid x:Name="ModelViewerEBXGrid">

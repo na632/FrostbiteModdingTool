@@ -16,8 +16,8 @@
         <DockingManager Grid.Row="1">
             <LayoutRoot>
                 <LayoutPanel>
-                    <LayoutAnchorablePane>
-                        <LayoutAnchorable Title="Modded" CanClose="False" CanHide="False">
+                    <LayoutAnchorablePane  >
+                        <LayoutAnchorable Title="Modded" >
                             <TreeView x:Name="TreeView1" VerticalContentAlignment="Top" VerticalAlignment="Top"
                                     ScrollViewer.VerticalScrollBarVisibility="Visible"
                                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
@@ -25,8 +25,8 @@
                             </TreeView>
                         </LayoutAnchorable>
                     </LayoutAnchorablePane>
-                    <LayoutAnchorablePane>
-                        <LayoutAnchorable Title="Vanilla" CanClose="True" CanHide="True" FloatingHeight="400" IsActive="False" IsMaximized="False" IsSelected="False">
+                    <LayoutAnchorablePane >
+                        <LayoutAnchorable Title="Vanilla">
                             <TreeView x:Name="TreeViewOriginal"   ScrollViewer.VerticalScrollBarVisibility="Visible"
                                     ScrollViewer.HorizontalScrollBarVisibility="Visible" VerticalAlignment="Top" VerticalContentAlignment="Top">
 

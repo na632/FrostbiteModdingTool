@@ -2,8 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">   
   <PropertyGroup>
 	<LangVersion>8.0</LangVersion>
-	<TargetFramework>netstandard2.1</TargetFramework>
-	<PackageId>FrostySdk</PackageId>
+	<!--<TargetFramework>netstandard2.1</TargetFramework>-->
+	<TargetFramework>netcoreapp3.1</TargetFramework>
+	<PackageId>FMTSDK</PackageId>
 	<Authors>paulv2k4</Authors>
 	<Company>paulv2k4</Company>
 
@@ -13,11 +14,12 @@
 
     <ItemGroup>
 		<!--<PackageReference Include="CSharpImageLibrary" Version="4.2.0" />-->
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
 		<PackageReference Include="DotNetZip" Version="1.15.0" />
 		<PackageReference Include="HashDepot" Version="2.0.3" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="FastStream" Version="1.6.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="SharpDX" Version="4.2.0" />
 		<PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
 		<PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
@@ -31,51 +33,6 @@
 	
 	<ItemGroup>
     <EmbeddedResource Include="FrostySdk.Profiles.bin" />
-    <None Include="FIFA18Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="fifa20.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="FIFA20Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="FIFA20_demoProfile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="fifa21.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="FIFA21Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="Madden20Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="madden21.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="Madden21Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
     <None Include="nuget.config" />
 	  <None Include="ThirdParty\dxtex.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -90,15 +47,31 @@
   </ItemGroup>
 	
 	<ItemGroup>
-	  <None Update="BF4Profile.json">
+	  <None Update="FrostbiteKeys\fifa20.key">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteKeys\fifa21.key">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteKeys\madden21.key">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\BF4Profile.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
 	  </None>
-	  <None Update="BFVProfile.json">
+	  <None Update="FrostbiteProfiles\BFVProfile.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA18Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	  <None Update="FrostbiteProfiles\FIFA19Profile.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -110,6 +83,22 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA20_demoProfile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA21Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\Madden20Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\Madden21Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	</ItemGroup>
 

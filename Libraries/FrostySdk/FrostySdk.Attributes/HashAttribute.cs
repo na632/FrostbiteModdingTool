@@ -12,7 +12,13 @@ namespace FrostySdk.Attributes
 				return (int)(long)(ActualHash);
 			}
         }
-        public ulong ActualHash
+  //      public ulong ActualHash
+		//{
+		//	get;
+		//	set;
+		//}
+
+		public long ActualHash
 		{
 			get;
 			set;
@@ -20,12 +26,15 @@ namespace FrostySdk.Attributes
 
 		public HashAttribute(int inHash)
 		{
-			ActualHash = Convert.ToUInt64(inHash);
+			if (long.TryParse(inHash.ToString(), out long r))
+			{
+				ActualHash = r;
+			}
 		}
 
 		public HashAttribute(uint inHash)
 		{
-			ActualHash = Convert.ToUInt64(inHash);
+			ActualHash = Convert.ToInt64(inHash);
 		}
 	}
 }

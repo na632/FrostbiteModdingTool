@@ -18,40 +18,53 @@ using FrostySdk.Resources;
 using Frostbite.Textures;
 using System.Windows.Media;
 using Matrix = SharpDX.Matrix;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace FrostbiteModdingUI.Models
 {
-    public class MainViewModel : BaseViewModel
+    public class MainViewModel : BaseViewModel, IDisposable
     {
         public Geometry3D FloorModel { get; }
-        public Geometry3D SphereModel { get; }
-        public Geometry3D TeapotModel { get; }
-
-        public Geometry3D BunnyModel { get; set; }
-        public Geometry3D BunnyModel_1 { get; set; }
-        public Geometry3D BunnyModel_2 { get; set; }
-        public Geometry3D BunnyModel_3 { get; set; }
-
+        public Geometry3D MeshModel { get; set; }
         public Geometry3D MeshModel2 { get; set; }
 
-
         public PhongMaterial FloorMaterial { get; }
-        public PhongMaterial SphereMaterial { get; }
 
-        public PhongMaterial BunnyMaterial { get; }
+        public PhongMaterial MeshMaterial { get; }
 
         public PhongMaterial MeshMaterial2 { get; }
 
-        public Matrix[] SphereInstances { get; }
-
-        public Matrix[] BunnyInstances { get; }
-        public Matrix[] BunnyInstances_1 { get; }
-        public Matrix[] BunnyInstances_2 { get; }
-        public Matrix[] BunnyInstances_3 { get; }
-
+        public Matrix[] MeshInstances { get; }
         public Matrix[] MeshInstances2 { get; }
 
         public SSAOQuality[] SSAOQualities { get; } = new SSAOQuality[] { SSAOQuality.High, SSAOQuality.Low };
+
+        public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
+
+        public TextureModel EnvironmentMap { get; }
+
+        //private bool renderEnvironmentMap = true;
+        //public bool RenderEnvironmentMap
+        //{
+        //    set
+        //    {
+        //        if (SetValue(ref renderEnvironmentMap, value) && scene != null && scene.Root != null)
+        //        {
+        //            foreach (var node in scene.Root.Traverse())
+        //            {
+        //                if (node is MaterialGeometryNode m && m.Material is PBRMaterialCore material)
+        //                {
+        //                    material.RenderEnvironmentMap = value;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    get => renderEnvironmentMap;
+        //}
+
+        private HelixToolkit.SharpDX.Core.Assimp.HelixToolkitScene scene;
+        Stream textureDDSStreamColour;
+        Stream textureDDSStreamNormal;
 
         public MainViewModel(string file = "test_noSkel.obj", EbxAsset skinnedMeshAsset = null, MeshSet meshSet = null, EbxAssetEntry textureAsset = null)
         {
@@ -73,197 +86,72 @@ namespace FrostbiteModdingUI.Models
                 builder.AddBox(new Vector3(0, -0.1f, 0), 10, 0.1f, 10);
                 FloorModel = builder.ToMesh();
 
-                var reader = new ObjReader();
-                if (File.Exists(file))
+                var htImporter = new HelixToolkit.SharpDX.Core.Assimp.Importer();
+                scene = htImporter.Load(file);
+
+                MeshNode firstModel = null;
+                var index = 0;
+                if (scene != null)
                 {
-                    var models = reader.Read(file);
-                    //var index = 0;
-                    //foreach(var m in models)
-                    //{
-                    //    MeshGeometryModel3D meshGeometryModel3D = new MeshGeometryModel3D();
-                    //    meshGeometryModel3D.Geometry = m.Geometry;
-                    //    meshGeometryModel3D.Instances = new Matrix[1]
-                    //    {
-                    //        Matrix.Translation(0, 0, 0),
-                    //    };
-                    //    meshGeometryModel3D.Material = new PhongMaterial
-                    //    {
-                    //        AmbientColor = Colors.White.ToColor4(),
-                    //        DiffuseColor = Colors.White.ToColor4(),
-                    //        SpecularColor = Colors.Black.ToColor4(),
-                    //        SpecularShininess = 0.01f
-                    //    };
-                    //    if (skinnedMeshAsset != null)
-                    //    {
-                    //        switch (index)
-                    //        {
-                    //            case 0:
-                    //                BunnyModel = m.Geometry;
-                    //                BunnyMaterial = new PhongMaterial
-                    //                {
-                    //                    AmbientColor = Colors.White.ToColor4(),
-                    //                    DiffuseColor = Colors.White.ToColor4(),
-                    //                    SpecularColor = Colors.Black.ToColor4(),
-                    //                    SpecularShininess = 0.01f
-                    //                };
-                    //                BunnyInstances = new Matrix[1]
-                    //                {
-                    //                Matrix.Translation(0, 0, 0),
-                    //                };
-                    //                Stream textureTest = LoadTexture(skinnedMeshAsset, 0, "colorTexture");
-                    //                if (textureTest != null)
-                    //                {
-                    //                    BunnyMaterial.DiffuseMap = textureTest;
-                    //                }
-                    //                break;
-                    //            case 1:
-                    //                MeshModel2 = m.Geometry;
-                    //                MeshMaterial2 = new PhongMaterial
-                    //                {
-                    //                    AmbientColor = Colors.White.ToColor4(),
-                    //                    DiffuseColor = Colors.White.ToColor4(),
-                    //                    SpecularColor = Colors.Black.ToColor4(),
-                    //                    SpecularShininess = 0.01f
-                    //                };
-                    //                MeshInstances2 = new Matrix[1]
-                    //                {
-                    //                Matrix.Translation(0, 0, 0),
-                    //                };
-                    //                Stream texture2 = LoadTexture(skinnedMeshAsset, 0, "colorTexture");
-                    //                if (texture2 != null)
-                    //                {
-                    //                    MeshMaterial2.DiffuseMap = texture2;
-                    //                }
-                    //                break;
-                    //        }
-                    //    }
-                    //}
-
-                    BunnyModel = models[0].Geometry;
-                    BunnyMaterial = new PhongMaterial
+                    if (scene.Root != null)
                     {
-                        AmbientColor = Colors.White.ToColor4(),
-                        DiffuseColor = Colors.White.ToColor4(),
-                        SpecularColor = Colors.Black.ToColor4(),
-                        SpecularShininess = 0.01f
-                    };
-
-                    if (models.Count > 1)
-                    {
-                        MeshModel2 = models[1].Geometry;
-                        MeshMaterial2 = new PhongMaterial
+                        GroupModel.Clear();
+                        GroupModel.AddNode(scene.Root);
+                        foreach (SceneNode rItem in scene.Root.Items)
                         {
-                            AmbientColor = Colors.White.ToColor4(),
-                            DiffuseColor = Colors.White.ToColor4(),
-                            SpecularColor = Colors.Black.ToColor4(),
-                            SpecularShininess = 0.01f
-                        };
-                        MeshInstances2 = new Matrix[1]
-                       {
-                        Matrix.Translation(0, 0, 0),
-                       };
-                    }
-                    if (Camera != null && BunnyModel != null)
-                    {
-                        Camera.Position = new System.Windows.Media.Media3D.Point3D(0.0, BunnyModel.Positions[0].Y, 0.65);
-                    }
-                    if (skinnedMeshAsset != null)
-                    {
-                        Stream textureTest = LoadTexture(skinnedMeshAsset, 0, "colorTexture");
-                    }
-                    if (textureAsset != null)
-                    {
-                        var resStream = AssetManager.Instance.GetRes(AssetManager.Instance.GetResEntry(textureAsset.Name));
-                        if (resStream != null)
-                        {
-                            Texture t = new Texture(resStream, AssetManager.Instance);
-                            if (t != null)
+                            foreach (SceneNode item in rItem.Items)
                             {
-                                MemoryStream textureDDSStream = new MemoryStream();
-                                TextureExporter textureExporter = new TextureExporter();
-                                textureDDSStream = textureExporter.ExportToStream(t) as MemoryStream;
-                                if (textureDDSStream != null)
+                                MeshNode meshNode = item as MeshNode;
+                                if (meshNode != null && skinnedMeshAsset != null)
                                 {
-                                    textureDDSStream.Position = 0L;
-                                    BunnyMaterial.DiffuseMap = new TextureModel(textureDDSStream);
-                                    //BunnyMaterial.DiffuseAlphaMap = new TextureModel(new Color4[] { new Color4(1) }, 1, 1);
-                                    if (MeshMaterial2 != null)
+                                    if (!meshNode.Name.Contains("lod0"))
                                     {
-                                        MeshMaterial2.DiffuseMap = new TextureModel(textureDDSStream);
-                                        //MeshMaterial2.DiffuseAlphaMap = new TextureModel(new Color4[] { new Color4(1) }, 1, 1);
+                                        meshNode.Visible = false;
+                                    }
+                                    else
+                                    {
+                                        if (firstModel == null)
+                                            firstModel = meshNode;
+
+                                        textureDDSStreamColour = LoadTexture(skinnedMeshAsset, index, "colorTexture");
+                                        PhongMaterial material = new PhongMaterial
+                                        {
+                                            AmbientColor = Colors.Gray.ToColor4(),
+                                            DiffuseColor = Colors.White.ToColor4(),
+                                            SpecularColor = Colors.Black.ToColor4(),
+                                            SpecularShininess = 0.002f
+                                        };
+
+                                        if (textureDDSStreamColour != null)
+                                        {
+                                            material.DiffuseMap = new TextureModel(textureDDSStreamColour);
+                                            material.SpecularColorMap = material.DiffuseMap;
+                                        }
+
+                                        textureDDSStreamNormal = LoadTexture(skinnedMeshAsset, index, "normalTexture");
+                                        if (textureDDSStreamNormal != null)
+                                        {
+                                            material.NormalMap = new TextureModel(textureDDSStreamNormal);
+                                        }
+                                        meshNode.Material = material;
+
                                     }
                                 }
-
                             }
-                        }
+                            if(rItem.Items.Count > 0 && skinnedMeshAsset != null)
+                                index++;
 
-                        var normalResEntry = AssetManager.Instance.GetResEntry(textureAsset.Name.Replace("color", "normal"));
-                        if (normalResEntry != null)
-                        {
-                            var resStreamN = AssetManager.Instance.GetRes(normalResEntry);
-                            if (resStreamN != null)
-                            {
-                                Texture t = new Texture(resStreamN, AssetManager.Instance);
-                                if (t != null)
-                                {
-                                    MemoryStream textureDDSStream = new MemoryStream();
-                                    TextureExporter textureExporter = new TextureExporter();
-                                    textureDDSStream = textureExporter.ExportToStream(t) as MemoryStream;
-                                    if (textureDDSStream != null)
-                                    {
-                                        textureDDSStream.Position = 0L;
-                                        BunnyMaterial.NormalMap = new TextureModel(textureDDSStream);
-                                        if (MeshMaterial2 != null)
-                                            MeshMaterial2.NormalMap = new TextureModel(textureDDSStream);
-                                    }
-
-                                }
-                            }
                         }
                     }
-
-                    ////if (meshSet != null)
-                    ////{
-                    ////    var section = meshSet.Lods[0].Sections[0];
-                    ////    Stream colourTextureDDSStream = LoadTexture(skinnedMeshAsset, section.materialId, "colorTexture");
-                    ////    if(colourTextureDDSStream != null)
-                    ////    {
-
-                    ////    }
-                    ////    //Stream normalTextureDDSStream = LoadTexture(ebxAsset, section.materialId, "normalTexture");
-                    ////}
-                    //if (models.Count > 1)
-                    //{
-                    //    BunnyModel_1 = models[1].Geometry;
-                    //}
-                    //if (models.Count > 2)
-                    //{
-                    //    BunnyModel_2 = models[2].Geometry;
-                    //}
-                    //if (models.Count > 3)
-                    //{
-                    //    BunnyModel_3 = models[3].Geometry;
-                    //}
                 }
+
                 FloorMaterial = PhongMaterials.White;
                 FloorMaterial.AmbientColor = FloorMaterial.DiffuseColor * 0.7f;
 
-                BunnyInstances = new Matrix[1]
+                if (Camera != null && firstModel != null)
                 {
-                Matrix.Translation(0, 0, 0),
-                };
-                BunnyInstances_1 = new Matrix[1]
-                {
-                Matrix.Translation(0, 0, 0),
-                };
-                BunnyInstances_2 = new Matrix[1]
-                {
-                Matrix.Translation(0, 0, 0),
-                };
-                BunnyInstances_3 = new Matrix[1]
-                {
-                Matrix.Translation(0, 0, 0),
-                };
+                    Camera.Position = new System.Windows.Media.Media3D.Point3D(0.0, firstModel.Geometry.Positions[0].Y, 0.65);
+                }
             }
             catch
             {
@@ -276,7 +164,17 @@ namespace FrostbiteModdingUI.Models
 
         private Stream LoadTexture(EbxAsset ebxAsset, int materialId, string textureName)
         {
-            dynamic meshMaterial = ((dynamic)ebxAsset.RootObject).Materials[materialId].Internal;
+            var rootObject = ((dynamic)ebxAsset.RootObject);
+            if (rootObject == null)
+                return null;
+
+            if (rootObject.Materials == null)
+                return null;
+
+            if (rootObject.Materials.Count == 0)
+                return null;
+
+            dynamic meshMaterial = rootObject.Materials[materialId].Internal;
             dynamic shader = meshMaterial.Shader;
             dynamic desiredTextureParameter = null;
             foreach (dynamic textureParameter2 in shader.TextureParameters)
@@ -334,6 +232,58 @@ namespace FrostbiteModdingUI.Models
             textureDDSStream.Position = 0L;
             return textureDDSStream;
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    if (textureDDSStreamColour != null)
+                        textureDDSStreamColour.Dispose();
+                    if (textureDDSStreamNormal != null)
+                        textureDDSStreamNormal.Dispose();
+                }
+
+                
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+                if (EffectsManager != null)
+                {
+                    var effectManager = EffectsManager as IDisposable;
+                    Disposer.RemoveAndDispose(ref effectManager);
+                }
+                
+                if (scene != null && scene.Root != null)
+                    scene.Root.Dispose();
+
+
+                disposedValue = true;
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        ~MainViewModel()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
 
     }
 

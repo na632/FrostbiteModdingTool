@@ -179,8 +179,13 @@ namespace FrostbiteModdingUI.Windows
 
                 Log("Initialise Data Browser");
                 dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx()
-                                   .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                                   .EnumerateEbx().OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+                Log("Initialize Face Browser");
+                var faceList = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("characters/player/players")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                faceList = faceList.OrderBy(x => x.Name).ToList();
+                facesBrowser.AllAssetEntries = faceList;
 
 
                 loadingDialog.Update("Loading Editor", "Loading Data Files", 100);

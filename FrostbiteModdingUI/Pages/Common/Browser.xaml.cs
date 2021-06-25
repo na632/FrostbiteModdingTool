@@ -154,22 +154,12 @@ namespace FIFAModdingUI.Pages.Common
 
 		}
 
-		public void BrowseTo(string path)
-		{
-			if (!string.IsNullOrEmpty(CurrentPath))
-				CurrentPath = CurrentPath + "/" + path;
-			else
-				CurrentPath = path;
-
-			Update();
-		}
-
 		private Dictionary<string, AssetPath> assetPathMapping = new Dictionary<string, AssetPath>(StringComparer.OrdinalIgnoreCase);
 		private AssetPath selectedPath = null;
 
 		public async void Update()
 		{
-			AssetPath assetPath = new AssetPath("", "", null);
+			AssetPath assetPath = new AssetPath("", "", null, true);
 
 			var assets = await GetFilteredAssetEntries();
 
@@ -182,8 +172,7 @@ namespace FIFAModdingUI.Pages.Common
 							'/'
 					}, StringSplitOptions.RemoveEmptyEntries);
 					AssetPath assetPath2 = assetPath;
-					string[] array2 = array;
-					foreach (string text in array2)
+					foreach (string text in array)
 					{
 						bool flag = false;
 						foreach (AssetPath child in assetPath2.Children)
@@ -645,7 +634,7 @@ namespace FIFAModdingUI.Pages.Common
 							MeshSet meshSet = new MeshSet(res);
 
 							var skeletonEntryText = "content/character/rig/skeleton/player/skeleton_player";
-							var fifaMasterSkeleton = AssetManager.Instance.EbxList.ContainsKey(Fnv1.HashString(skeletonEntryText));
+							var fifaMasterSkeleton = AssetManager.Instance.EBX.ContainsKey(skeletonEntryText);
 							if(!fifaMasterSkeleton)
                             {
 								MeshSkeletonSelector meshSkeletonSelector = new MeshSkeletonSelector();
@@ -789,6 +778,7 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
+		MainViewModel ModelViewerModel;
 
 		private void OpenAsset(AssetEntry entry)
 		{
@@ -836,9 +826,9 @@ namespace FIFAModdingUI.Pages.Common
 									BuildTextureViewerFromAssetEntry(res);
 								}
 								else
-                                {
+								{
 									throw new Exception("Unable to find RES Entry for " + ebxEntry.Name);
-                                }
+								}
 							}
 							catch (Exception e)
 							{
@@ -854,53 +844,29 @@ namespace FIFAModdingUI.Pages.Common
 							{
 								return;
 							}
+
+							MainEditorWindow.Log("Loading 3D Model " + ebxEntry.Filename);
+
+							var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+							var res = AssetManager.Instance.GetRes(resentry);
+							MeshSet meshSet = new MeshSet(res);
+
+							var exporter = new MeshSetToFbxExport();
+							exporter.Export(AssetManager.Instance, SelectedEbxAsset.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
+							Thread.Sleep(250);
 							
-								MainEditorWindow.Log("Loading 3D Model " + ebxEntry.Filename);
-								
-									var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
-									var res = AssetManager.Instance.GetRes(resentry);
-									MeshSet meshSet = new MeshSet(res);
+							if (ModelViewerModel != null)
+								ModelViewerModel.Dispose();
 
-									var exporter = new MeshSetToFbxExport();
-									//exporter.OnlyFirstLOD = true;
-									exporter.Export(AssetManager.Instance, SelectedEbxAsset.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
-									Thread.Sleep(1000);
-									//AssimpLibrary.Instance.LoadLibrary(NativeLibrary.Load(libName, Assembly.GetExecutingAssembly(), null));
+							ModelViewerModel = new MainViewModel(skinnedMeshAsset: SelectedEbxAsset, meshSet: meshSet);
+							this.ModelViewer.DataContext = ModelViewerModel;
+							this.ModelDockingManager.Visibility = Visibility.Visible;
+							this.ModelViewerEBXGrid.SelectedObject = SelectedEbxAsset.RootObject;
 
-									EbxAssetEntry textureAssetEntry = null;
-									if (ebxEntry.Name.Contains("head"))
-                                    {
-										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("head", "face").Replace("mesh", "color"));
-									}
-									else if (ebxEntry.Name.Contains("shoe"))
-									{
-										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("mesh", "0_color"));
-									}
-									else if (ebxEntry.Name.Contains("hair"))
-									{
-										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("mesh", "color"));
-									}
-									else
-                                    {
-										textureAssetEntry = AssetManager.Instance.GetEbxEntry(ebxEntry.Name.Replace("mesh", "color"));
-									}
+							this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
+							this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
+							this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
 
-									//var import = new Importer();
-									//var scene = import.Load("test_noSkel.obj", new ImporterConfiguration() { GlobalScale = 100, FlipWindingOrder = true, CullMode = SharpDX.Direct3D11.CullMode.None, });
-									//
-									var m = new MainViewModel(skinnedMeshAsset: SelectedEbxAsset, meshSet: meshSet, textureAsset: textureAssetEntry);
-                                    //var m = new Main3DViewModel(AssetManager.Instance, "test_noSkel", skinnedMeshEbx, meshSet);
-                                    this.ModelViewer.DataContext = m;
-									this.ModelDockingManager.Visibility = Visibility.Visible;
-									this.ModelViewerEBXGrid.SelectedObject = SelectedEbxAsset.RootObject;
-
-									
-									this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
-									this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
-									this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
-								
-
-									
 						}
 						else
 						{
@@ -919,12 +885,16 @@ namespace FIFAModdingUI.Pages.Common
 								BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
 								BackupEBXViewer.SelectedObject = ebx.RootObject;
 								BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
+								//BackupEBXViewer.Asset = ebx;
+								//BackupEBXViewer.SetClass(ebx.RootObject);
+								//BackupEBXViewer.Recreate();
+
 
 								btnRevert.IsEnabled = true;
 								//if (ebxEntry.Type == "HotspotDataAsset")
 								//{
-									btnImport.IsEnabled = true;
-									btnExport.IsEnabled = true;
+								btnImport.IsEnabled = true;
+								btnExport.IsEnabled = true;
 								//}
 							}
 						}
@@ -1057,10 +1027,11 @@ namespace FIFAModdingUI.Pages.Common
 
 		private void BuildTextureViewerFromAssetEntry(ResAssetEntry res)
         {
-			using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(res))
-			{
+			//using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(res))
+			//{
 				// {3e0a186b-c286-1dff-455b-7eb097c3e8f9} Splashscreen Guid
-				using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager))
+				//using (Texture textureAsset = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager))
+				using (Texture textureAsset = new Texture(res))
                 {
                     try
 					{
@@ -1115,7 +1086,7 @@ namespace FIFAModdingUI.Pages.Common
 						MainEditorWindow.LogError(e.ToString());
 						ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed; }
 				}
-			}
+			//}
 		}
 
 		private void BuildTextureViewerFromStream(Stream stream, AssetEntry assetEntry)

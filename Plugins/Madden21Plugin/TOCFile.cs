@@ -1,4 +1,5 @@
 ﻿using FrostbiteSdk.Extras;
+using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using static Madden21Plugin.Madden21AssetLoader;
 
 namespace Madden21Plugin
@@ -146,6 +148,7 @@ namespace Madden21Plugin
                         nativeReader.Position = gotoposition1;
                         int bundleNamePosition = nativeReader.ReadInt() - 1 + ArrayOffset;
                         using (var MemoryUtil = new FrostbiteSdk.Extras.MemoryUtils())
+                        //using (var MemoryUtil = new MemoryStream())
                         {
                             int bundleCasIndex;
                             string fp = string.Empty;
@@ -333,9 +336,9 @@ namespace Madden21Plugin
 
 				if (processData)
 				{
-					if (!AssetManager.Instance.chunkList.ContainsKey(guid))
+					if (!AssetManager.Instance.Chunks.ContainsKey(guid))
 					{
-						AssetManager.Instance.chunkList.TryAdd(guid, chunkAssetEntry);
+						AssetManager.Instance.Chunks.TryAdd(guid, chunkAssetEntry);
 					}
 				}
 			}
@@ -348,12 +351,14 @@ namespace Madden21Plugin
 
         public Dictionary<string, DbObject> BundleTOCSB = new Dictionary<string, DbObject>();
 
-		private void ReadBundleCasData(AssetManager parent, BinarySbDataHelper helper, List<BundleFileInfo> TocBundles, MemoryUtils MemoryUtil, BundleEntry bundle, bool process = true)
-		{
+        private void ReadBundleCasData(AssetManager parent, BinarySbDataHelper helper, List<BundleFileInfo> TocBundles, MemoryUtils MemoryUtil, BundleEntry bundle, bool process = true)
+        //private void ReadBundleCasData(AssetManager parent, BinarySbDataHelper helper, List<BundleFileInfo> TocBundles, MemoryStream MemoryUtil, BundleEntry bundle, bool process = true)
+        {
 			using (BinarySbReader_M21 binarySbReader
 												= new BinarySbReader_M21(
-													MemoryUtil.GetMemoryStream()
-													, 0
+                                                    MemoryUtil.GetMemoryStream()
+                                                    //MemoryUtil
+                                                    , 0
 													, parent.fs.CreateDeobfuscator()))
 			{
 
@@ -368,121 +373,157 @@ namespace Madden21Plugin
 				long finishingItemOffset = bundleFileInfo.Offset + (dbObject.GetValue("dataOffset", 0L));
 				long currentLength = bundleFileInfo.Size - (dbObject.GetValue("dataOffset", 0L));
 				int tocBundleIndex = 0;
-				foreach (DbObject finishingEbxItem in dbObject.GetValue<DbObject>("ebx"))
+				foreach (DbObject ebx in dbObject.GetValue<DbObject>("ebx"))
 				{
-					if(finishingEbxItem.HasValue("name") && finishingEbxItem.GetValue<string>("name").Contains("col_jersey_2020_whi_jersey_col"))
-					{
+					var ebxName = ebx.GetValue<string>("name");
+					var nameHash = Fnv1.HashString(ebxName);
 
-                    }
-
-                    if (currentLength == 0L)
+					if (currentLength <= 0L)
                     {
                         bundleFileInfo = TocBundles[++tocBundleIndex];
                         currentLength = bundleFileInfo.Size;
                         finishingItemOffset = bundleFileInfo.Offset;
                     }
 
-                    int itemSize = finishingEbxItem.GetValue("size", 0);
-					finishingEbxItem.SetValue("offset", finishingItemOffset);
-					finishingEbxItem.SetValue("cas", bundleFileInfo.Index);
+                    int itemSize = ebx.GetValue("size", 0);
+					ebx.SetValue("offset", finishingItemOffset);
+					ebx.SetValue("cas", bundleFileInfo.Index);
 					finishingItemOffset += itemSize;
 					currentLength -= itemSize;
 
-					finishingEbxItem.SetValue("TOCFileLocation", NativePath);
-					//finishingEbxItem.SetValue("SB_OriginalSize_Position", bundleFileInfo.Offset + finishingEbxItem.GetValue<int>("SB_OriginalSize_Position"));
-					//finishingEbxItem.SetValue("ParentBundleOffset_Position", bundleFileInfo.OffsetPosition);
-					//finishingEbxItem.SetValue("ParentBundleOffset", bundleFileInfo.Offset);
-					//finishingEbxItem.SetValue("ParentBundleSize_Position", bundleFileInfo.SizePosition);
-					//finishingEbxItem.SetValue("ParentBundleSize", bundleFileInfo.Size);
-					//finishingEbxItem.SetValue("Bundle", bundleName);
-					//finishingEbxItem.SetValue("BundleIndex", parent.bundles.Count - 1);
-					//bundleFileInfo.ItemsInBundle.Add(new BundleFileInfo.BundleItem("ebx", finishingEbxItem.GetValue<string>("name")));
+					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+					if (AssetManager.Instance.EBX.ContainsKey(ebxName))
+						ebxAssetEntry = AssetManager.Instance.EBX[ebxName];
 
-					//if (!bundleFileInfo.BundleObject.HasValue("ebx"))
-					//	bundleFileInfo.BundleObject.AddValue("ebx", new DbObject());
+					ebxAssetEntry.Name = ebxName;
+					ebxAssetEntry.Sha1 = ebx.GetValue<Sha1>("sha1");
+					ebxAssetEntry.Size = ebx.GetValue("size", 0L);
+					ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
+					ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+					ebxAssetEntry.ExtraData = new AssetExtraData();
+					ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
+					ebxAssetEntry.ExtraData.CasPath = (ebx.HasValue("catalog") ? AssetManager.Instance.fs.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.HasValue("patch")) : AssetManager.Instance.fs.GetFilePath(ebx.GetValue("cas", 0)));
+					ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
+					ebxAssetEntry.Bundles.Add(parent.bundles.Count - 1);
 
-					//bundleFileInfo.BundleObject.GetValue<DbObject>("ebx").Add(finishingEbxItem);
+					if (AssetManager.Instance.EBX.ContainsKey(ebxName))
+						AssetManager.Instance.EBX[ebxName] = ebxAssetEntry;
+					else
+						AssetManager.Instance.EBX.TryAdd(ebxName, ebxAssetEntry);
 
 				}
-				foreach (DbObject finishingRESItem in dbObject.GetValue<DbObject>("res"))
+
+				foreach (DbObject res in dbObject.GetValue<DbObject>("res"))
 				{
-					if (currentLength == 0L)
+					var resName = res.GetValue<string>("name");
+					var nameHash = Fnv1.HashString(resName);
+
+					if (currentLength <= 0L)
 					{
 						bundleFileInfo = TocBundles[++tocBundleIndex];
 						currentLength = bundleFileInfo.Size;
 						finishingItemOffset = bundleFileInfo.Offset;
 					}
-					int itemSize = finishingRESItem.GetValue("size", 0);
-					finishingRESItem.SetValue("offset", finishingItemOffset);
-					finishingRESItem.SetValue("cas", bundleFileInfo.Index);
+					int itemSize = res.GetValue("size", 0);
+					res.SetValue("offset", finishingItemOffset);
+					res.SetValue("cas", bundleFileInfo.Index);
 					finishingItemOffset += itemSize;
 					currentLength -= itemSize;
+					
+					ResAssetEntry resAssetEntry = new ResAssetEntry();
+					if (AssetManager.Instance.RES.ContainsKey(resName))
+						resAssetEntry = AssetManager.Instance.RES[resName];
 
-					finishingRESItem.SetValue("TOCFileLocation", NativePath);
-					//finishingRESItem.SetValue("SB_OriginalSize_Position", bundleFileInfo.Offset + finishingRESItem.GetValue<int>("SB_OriginalSize_Position"));
-					//finishingRESItem.SetValue("ParentBundleOffset_Position", bundleFileInfo.OffsetPosition);
-					//finishingRESItem.SetValue("ParentBundleOffset", bundleFileInfo.Offset);
-					//finishingRESItem.SetValue("ParentBundleSize_Position", bundleFileInfo.SizePosition);
-					//finishingRESItem.SetValue("ParentBundleSize", bundleFileInfo.Size);
-					//finishingRESItem.SetValue("Bundle", bundleName);
-					////finishingRESItem.SetValue("BundleIndex", parent.bundles.Count - 1);
+					resAssetEntry.Name = resName;
+					resAssetEntry.Sha1 = res.GetValue<Sha1>("sha1");
+					resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
+					resAssetEntry.Size = res.GetValue("size", 0L);
+					resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
+					var rrid = res.GetValue<string>("resRid");
+					resAssetEntry.ResRid = Convert.ToUInt64(rrid);
+					resAssetEntry.ResType = (uint)res.GetValue("resType", 0L);
+					resAssetEntry.ResMeta = res.GetValue<byte[]>("resMeta");
+					resAssetEntry.IsInline = res.HasValue("idata");
+					resAssetEntry.Location = AssetDataLocation.Cas;
+					resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+					resAssetEntry.ExtraData = new AssetExtraData();
+					resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
+					resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? FileSystem.Instance.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : FileSystem.Instance.GetFilePath(res.GetValue("cas", 0)));
+					resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
+					resAssetEntry.Bundles.Add(parent.bundles.Count - 1);
 
+					if (AssetManager.Instance.RES.ContainsKey(resName))
+						AssetManager.Instance.RES[resName] = resAssetEntry;
+					else
+						AssetManager.Instance.RES.TryAdd(resName, resAssetEntry);
 
-					//bundleFileInfo.ItemsInBundle.Add(new BundleFileInfo.BundleItem("res", finishingRESItem.GetValue<string>("name")));
+					if (AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
+						AssetManager.Instance.resRidList.Remove(resAssetEntry.ResRid);
 
-					//if (!bundleFileInfo.BundleObject.HasValue("res"))
-					//	bundleFileInfo.BundleObject.AddValue("res", new DbObject());
-
-					//bundleFileInfo.BundleObject.GetValue<DbObject>("res").Add(finishingRESItem);
-
+					AssetManager.Instance.resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
 
 				}
-				foreach (DbObject finishingChunkItem in dbObject.GetValue<DbObject>("chunks"))
+				foreach (DbObject chunk in dbObject.GetValue<DbObject>("chunks"))
 				{
-					if (currentLength == 0L)
+					var chunkName = chunk.GetValue<Guid>("name");
+
+					if (currentLength <= 0L)
 					{
 						bundleFileInfo = TocBundles[++tocBundleIndex];
 						currentLength = bundleFileInfo.Size;
 						finishingItemOffset = bundleFileInfo.Offset;
 					}
-					int chunkItemSize = finishingChunkItem.GetValue("size", 0);
-					finishingChunkItem.SetValue("offset", finishingItemOffset);
-					finishingChunkItem.SetValue("cas", bundleFileInfo.Index);
+					int chunkItemSize = chunk.GetValue("size", 0);
+					chunk.SetValue("offset", finishingItemOffset);
+					chunk.SetValue("cas", bundleFileInfo.Index);
 					finishingItemOffset += chunkItemSize;
 					currentLength -= chunkItemSize;
 
-					finishingChunkItem.SetValue("TOCFileLocation", NativePath);
-					//finishingChunkItem.SetValue("SB_OriginalSize_Position", bundleFileInfo.Offset + finishingChunkItem.GetValue<int>("SB_OriginalSize_Position"));
-					//finishingChunkItem.SetValue("ParentBundleOffset_Position", bundleFileInfo.OffsetPosition);
-					//finishingChunkItem.SetValue("ParentBundleOffset", bundleFileInfo.Offset);
-					//finishingChunkItem.SetValue("ParentBundleSize_Position", bundleFileInfo.SizePosition);
-					//finishingChunkItem.SetValue("ParentBundleSize", bundleFileInfo.Size);
-					//finishingChunkItem.SetValue("Bundle", bundleName);
-					//finishingChunkItem.SetValue("BundleIndex", parent.bundles.Count - 1);
-
-					//bundleFileInfo.ItemsInBundle.Add(new BundleFileInfo.BundleItem("chunk", finishingChunkItem.GetValue<Guid>("id").ToString()));
-
-					//if (!bundleFileInfo.BundleObject.HasValue("chunks"))
-					//	bundleFileInfo.BundleObject.AddValue("chunks", new DbObject());
-
-					// colts uniform
-					//if (finishingChunkItem.GetValue<Guid>("name").ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b"
-					//	&& !bundleName.Contains("playeruniformtextures")
-					//	)
+					ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+					//if (AssetManager.Instance.Chunks.ContainsKey(chunkName))
 					//{
-					//	finishingChunkItem.SetValue("DNP", true);
+					//	// Save the Duplicate ----
+					//	if (!AssetManager.Instance.ChunkListDuplicates.ContainsKey(chunkName))
+					//		AssetManager.Instance.ChunkListDuplicates.Add(chunkName, new List<ChunkAssetEntry>());
+					//	AssetManager.Instance.ChunkListDuplicates[chunkName].Add(AssetManager.Instance.Chunks[chunkName]);
+					//	// -----
+
+					//	chunkAssetEntry = AssetManager.Instance.Chunks[chunkName];
 					//}
+
+					chunkAssetEntry.Id = chunkName;
+					chunkAssetEntry.Sha1 = chunk.GetValue<Sha1>("sha1");
+					chunkAssetEntry.Size = chunk.GetValue("size", 0L);
+					chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
+					chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);
+					chunkAssetEntry.RangeStart = chunk.GetValue("rangeStart", 0u);
+					chunkAssetEntry.RangeEnd = chunk.GetValue("rangeEnd", 0u);
+					chunkAssetEntry.Bundle = chunk.GetValue<string>("Bundle");
+					chunkAssetEntry.BundledSize = chunk.GetValue("bundledSize", 0u);
+					chunkAssetEntry.IsInline = chunk.HasValue("idata");
+					chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+					chunkAssetEntry.ExtraData = new AssetExtraData();
+					chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
+					chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? FileSystem.Instance.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.HasValue("patch")) : FileSystem.Instance.GetFilePath(chunk.GetValue("cas", 0)));
+					chunkAssetEntry.ExtraData.IsPatch = chunk.HasValue("patch") ? chunk.GetValue<bool>("patch") : false;
+					chunkAssetEntry.ExtraData.SuperBundleId = AssetManager.Instance.superBundles.Count - 1;
+					chunkAssetEntry.Bundles.Add(parent.bundles.Count - 1);
+
+					//if (AssetManager.Instance.Chunks.ContainsKey(chunkName))
+					//	AssetManager.Instance.Chunks[chunkName] = chunkAssetEntry;
+					//else
+					//	AssetManager.Instance.Chunks.TryAdd(chunkName, chunkAssetEntry);
+					AssetManager.Instance.AddChunk(chunkAssetEntry);
+					//AssetManager.Instance.BundleChunks.TryAdd((chunk.GetValue<string>("Bundle"), chunkName), chunkAssetEntry);
 				}
 
-				if (process)
-				{
-					//parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
-					//parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
-					//parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
-					parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
-					parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
-					parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
-				}
+				//if (process)
+				//{
+					
+				//	//parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
+				//	//parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
+				//	//parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
+				//}
 
 
 			}

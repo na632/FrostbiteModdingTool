@@ -56,7 +56,7 @@ namespace FrostySdk.Frostbite
 						Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
 
 
-						array = NativeReader.ReadInStream(new FileStream("fifa20.key", FileMode.Open, FileAccess.Read));
+						array = NativeReader.ReadInStream(new FileStream("FrostbiteKeys/fifa20.key", FileMode.Open, FileAccess.Read));
 						byte[] array2 = new byte[16];
 						Array.Copy(array, array2, 16);
 						KeyManager.Instance.AddKey("Key1", array2);

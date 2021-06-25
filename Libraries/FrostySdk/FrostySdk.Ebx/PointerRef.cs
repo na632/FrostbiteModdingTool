@@ -9,15 +9,19 @@ namespace FrostySdk.Ebx
 
 		private object internalObj;
 
-		private PointerRefType type;
-
 		public EbxImportReference External => external;
 
 		public object Internal => internalObj;
 
-		public PointerRefType Type => type;
+        private PointerRefType type;
 
-		public PointerRef(EbxImportReference externalRef)
+        public PointerRefType Type
+        {
+            get { return type; }
+            set { type = value; }
+        }
+
+        public PointerRef(EbxImportReference externalRef)
 		{
 			external = externalRef;
 			internalObj = null;

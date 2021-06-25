@@ -2,6 +2,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace FrostySdk.Resources
 {
@@ -14,6 +15,8 @@ namespace FrostySdk.Resources
 		private int pixelFormat;
 
 		private uint unknown1;
+
+		private uint unknown2;
 
 		private TextureFlags flags;
 
@@ -251,30 +254,7 @@ namespace FrostySdk.Resources
 			{
 				stream.Position = 0;
 
-				//if (!Directory.Exists("Debugging"))
-				//	Directory.CreateDirectory("Debugging");
-
-				//if (!Directory.Exists("Debugging\\Other\\"))
-				//	Directory.CreateDirectory("Debugging\\Other\\");
-
-				//if (File.Exists("Debugging\\Other\\_TextureExport.dat"))
-				//	File.Delete("Debugging\\Other\\_TextureExport.dat");
-
-				//using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureExport.dat", FileMode.OpenOrCreate))
-				//{
-				//	stream.CopyTo(fileStream);
-				//}
-				//stream.Position = 0;
-
-				//if (ProfilesLibrary.DataVersion == 20131115)
-				//{
-				//	unknown3[0] = nativeReader.ReadUInt();
-				//	type = (TextureType)nativeReader.ReadUInt();
-				//	pixelFormat = nativeReader.ReadInt();
-				//	unknown3[1] = nativeReader.ReadUInt();
-				//}
-				//else
-				//{
+				
 					mipOffsets[0] = nativeReader.ReadUInt();
 					mipOffsets[1] = nativeReader.ReadUInt();
 					type = (TextureType)nativeReader.ReadUInt();
@@ -296,15 +276,10 @@ namespace FrostySdk.Resources
 						unknown1 = nativeReader.ReadUInt();
 					}
 					flags = (TextureFlags)nativeReader.ReadUShort();
-				//}
 				width = nativeReader.ReadUShort();
 				height = nativeReader.ReadUShort();
 				depth = nativeReader.ReadUShort();
 				sliceCount = nativeReader.ReadUShort();
-				//if (ProfilesLibrary.DataVersion == 20131115)
-				//{
-				//	flags = (TextureFlags)nativeReader.ReadUShort();
-				//}
 				mipCount = nativeReader.ReadByte();
 				firstMip = nativeReader.ReadByte();
 				chunkId = nativeReader.ReadGuid();
@@ -349,6 +324,80 @@ namespace FrostySdk.Resources
 					ChunkEntry = am.GetChunkEntry(chunkId);
 					data = am.GetChunk(ChunkEntry);
 				}
+			}
+		}
+
+		/// <summary>
+		/// Build a Texture Object from a Stream
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="am"></param>
+		public Texture(ResAssetEntry resAssetEntry)
+		{
+			var stream = AssetManager.Instance.GetRes(resAssetEntry);
+			if (stream == null)
+			{
+				return;
+			}
+			if (resAssetEntry == null)
+			{
+				return;
+			}
+			using (NativeReader nativeReader = new NativeReader(stream))
+			{
+				stream.Position = 0;
+
+				if (!Directory.Exists("Debugging"))
+					Directory.CreateDirectory("Debugging");
+
+				if (!Directory.Exists("Debugging\\Other\\"))
+					Directory.CreateDirectory("Debugging\\Other\\");
+
+				if (File.Exists("Debugging\\Other\\_TextureExport.dat"))
+					File.Delete("Debugging\\Other\\_TextureExport.dat");
+
+				using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureExport.dat", FileMode.OpenOrCreate))
+				{
+					stream.CopyTo(fileStream);
+				}
+				stream.Position = 0;
+
+				mipOffsets[0] = nativeReader.ReadUInt();
+				mipOffsets[1] = nativeReader.ReadUInt();
+				type = (TextureType)nativeReader.ReadUInt();
+				pixelFormat = nativeReader.ReadInt();
+				unknown1 = nativeReader.ReadUInt();
+				flags = (TextureFlags)nativeReader.ReadUShort();
+				width = nativeReader.ReadUShort();
+				height = nativeReader.ReadUShort();
+				depth = nativeReader.ReadUShort();
+				sliceCount = nativeReader.ReadUShort();
+				mipCount = nativeReader.ReadByte();
+				firstMip = nativeReader.ReadByte();
+				chunkId = nativeReader.ReadGuid();
+				for (int i = 0; i < 15; i++)
+				{
+					mipSizes[i] = nativeReader.ReadUInt();
+				}
+				chunkSize = nativeReader.ReadUInt();
+				assetNameHash = nativeReader.ReadUInt();
+
+				unknown2 = nativeReader.ReadUInt();
+				//textureGroup = nativeReader.ReadSizedString(16);
+				textureGroup = nativeReader.ReadNullTerminatedString();
+				if (AssetManager.Instance.logger != null)
+					AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+
+				ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
+				if (ChunkEntry == null)
+				{
+					var n = resAssetEntry.BundleNames.Select(x => x.Split('/')[x.Split('/').Length - 1]);
+					ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId, n.First());
+					var ChunkEntry2 = AssetManager.Instance.GetChunkEntry(chunkId, n.Last());
+
+					var cbEntry = AssetManager.Instance.BundleChunks.First(x => x.Key.Item2 == chunkId);
+				}
+				data = AssetManager.Instance.GetChunk(ChunkEntry);
 			}
 		}
 

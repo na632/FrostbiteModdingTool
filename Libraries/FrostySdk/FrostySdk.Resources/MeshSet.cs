@@ -92,6 +92,9 @@ public class MeshSet
 
 	public MeshSet(Stream stream)
 	{
+		if (stream == null)
+			return;
+
 		NativeWriter nativeWriterTest = new NativeWriter(new FileStream("MeshSet.dat", FileMode.Create));
 		nativeWriterTest.Write(((MemoryStream)stream).ToArray());
 		nativeWriterTest.Close();
