@@ -40,5 +40,10 @@ namespace FrostySdk.Managers
 				}
 			}
 		}
-	}
+
+        public override AssetEntry Clone()
+        {
+			return this.MemberwiseClone() as EbxAssetEntry;
+		}
+    }
 }

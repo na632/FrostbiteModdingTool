@@ -3,16 +3,9 @@ using System.Collections.Generic;
 
 namespace FrostySdk.Managers
 {
-	public class ModifiedAssetEntry
+	public class ModifiedAssetEntry : AssetEntry
 	{
-		public Sha1 Sha1 { get; set; }
-
 		public byte[] Data { get; set; }
-
-		public long Size
-        {
-            get { return Data != null ? Data.Length : 0L; }			
-        }
 
 		public long? NewOffset
         {
@@ -20,8 +13,6 @@ namespace FrostySdk.Managers
         }
 
 		public object DataObject { get; set; }
-
-		public long OriginalSize { get; set; }
 
 		public byte[] ResMeta { get; set; }
 
@@ -41,8 +32,6 @@ namespace FrostySdk.Managers
             set { firstMip = value; }
         }
 
-
-        public bool IsInline { get; set; }
 
 		public bool AddToChunkBundle = true;
 

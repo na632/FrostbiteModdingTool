@@ -16,6 +16,9 @@ namespace Frostbite.FileManagers
 {
 	public class LegacyFileManager_M21 : ILegacyFileManager, ICustomAssetManager
 	{
+
+		public List<LegacyFileEntry> AddedFileEntries { get; set; }
+
 		public static Dictionary<int, LegacyFileEntry> LegacyEntries = new Dictionary<int, LegacyFileEntry>();
 
 		private Dictionary<Guid, byte[]> cachedChunks = new Dictionary<Guid, byte[]>();
@@ -34,7 +37,7 @@ namespace Frostbite.FileManagers
 
 			public long FileFirstPosition { get; set; }
 
-			public uint UnkCount2 { get; set; }
+			public uint BootableItemCount { get; set; }
 
 
 			public byte[] Initial64Data { get; set; }
@@ -98,15 +101,16 @@ namespace Frostbite.FileManagers
 
 			public int EndOfStrings { get; internal set; }
 			public byte[] EndData { get; internal set; }
-            public long UnkOffset2 { get; internal set; }
-            public uint ChunkCount1 { get; internal set; }
-            public long ChunkOffset1 { get; internal set; }
+            public long BootableItemOffset { get; internal set; }
+            public uint LinkedChunkCount { get; internal set; }
+            public long LinkedChunkOffset { get; internal set; }
+            public EbxAsset EbxAsset { get; internal set; }
 
-			public List<ChunkAssetEntry> CompressedItemChunks = new List<ChunkAssetEntry>();
+            public List<ChunkAssetEntry> CompressedItemChunks = new List<ChunkAssetEntry>();
         }
 
 		/// <summary>
-		/// Chunk Batches are the entire batch of chunks and locations of the chunks
+		/// Chunk Batches are the entire batch of chunks and locations of the chunks. Each is an EBX
 		/// </summary>
 		public static List<ChunkBatch> ChunkBatches = new List<ChunkBatch>();
 
@@ -117,12 +121,14 @@ namespace Frostbite.FileManagers
         public void Initialize(ILogger logger)
 		{
 			logger.Log("Loading legacy files");
+			AddedFileEntries = new List<LegacyFileEntry>();
 
 			ChunkBatches = new List<ChunkBatch>();
 
-			foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
-			{
-				var chunkAssetEntry = GetChunkAssetForEbx(item);
+            foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
+            //foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("CFC_GM_Launch"))
+            {
+				GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
 				if (chunkAssetEntry == null)
 					continue;
 
@@ -136,15 +142,17 @@ namespace Frostbite.FileManagers
 
 						var chunkBatch = new ChunkBatch()
 						{
+							EbxAssetEntry = item,
+							EbxAsset = ebxAsset,
 							ChunkAssetEntry = chunkAssetEntry,
 							UnkCount1 = nativeReader.ReadUInt(), // 0
 							UnkOffset1 = nativeReader.ReadLong(), // 4
 							NumberOfFiles = nativeReader.ReadInt(), // 12
 							FileFirstPosition = nativeReader.ReadLong(), // 16
-							UnkCount2 = nativeReader.ReadUInt(), // 24 
-							UnkOffset2 = nativeReader.ReadLong(), // 28
-							ChunkCount1 = nativeReader.ReadUInt(), // 36
-							ChunkOffset1 = nativeReader.ReadLong() // 40
+							BootableItemCount = nativeReader.ReadUInt(), // 24 
+							BootableItemOffset = nativeReader.ReadLong(), // 28
+							LinkedChunkCount = nativeReader.ReadUInt(), // 36
+							LinkedChunkOffset = nativeReader.ReadLong() // 40
 						};
 						//nativeReader.Position = 0;
 						//chunkBatch.Initial64Data = nativeReader.ReadBytes((int)chunkBatch.FileFirstPosition);
@@ -205,8 +213,8 @@ namespace Frostbite.FileManagers
 
 						if (ProfilesLibrary.IsFIFA21DataVersion())
 						{
-							nativeReader.Position = chunkBatch.UnkOffset2;
-							for (uint j = 0u; j < chunkBatch.UnkCount2; j++)
+							nativeReader.Position = chunkBatch.BootableItemOffset;
+							for (uint j = 0u; j < chunkBatch.BootableItemCount; j++)
 							{
 								long nameOffset3 = nativeReader.ReadLong();
 								long currentPosition3 = nativeReader.Position;
@@ -217,8 +225,8 @@ namespace Frostbite.FileManagers
 								var unknumber2 = nativeReader.ReadUInt();
 							}
 
-							nativeReader.Position = chunkBatch.ChunkOffset1;
-							for (uint i = 0u; i < chunkBatch.ChunkCount1; i++)
+							nativeReader.Position = chunkBatch.LinkedChunkOffset;
+							for (uint i = 0u; i < chunkBatch.LinkedChunkCount; i++)
 							{
 								var chunkSize = nativeReader.ReadLong();
 								var chunkid2 = nativeReader.ReadGuid();
@@ -242,37 +250,41 @@ namespace Frostbite.FileManagers
 
 		}
 
-		public static ChunkAssetEntry GetChunkAssetForEbx(EbxAssetEntry ebxAssetEntry)
+		public void WriteAllLegacy()
 		{
-			EbxAsset ebx = AssetManager.Instance.GetEbx(ebxAssetEntry);
-			if (ebx != null)
+			// A chunk batch corresponds to each Ebx in the CFC
+			foreach (ChunkBatch chunkBatch in ChunkBatches)
 			{
-				dynamic rootObject = ebx.RootObject;
+				//AssetManager.Instance.ModifyEbx(chunkBatch, chunkBatch);
+			}
+		}
+
+		public static EbxAsset GetEbxAssetForEbx(EbxAssetEntry ebxAssetEntry)
+        {
+			EbxAsset ebx = AssetManager.Instance.GetEbx(ebxAssetEntry);
+			return ebx;
+		}
+
+		public static void GetChunkAssetForEbx(EbxAssetEntry ebxAssetEntry, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset)
+		{
+			chunkAssetEntry = null;
+			ebxAsset = AssetManager.Instance.GetEbx(ebxAssetEntry);
+			if (ebxAsset != null)
+			{
+				dynamic rootObject = ebxAsset.RootObject;
 				if (rootObject != null)
 				{
-					try
-					{
-						dynamic val = rootObject.Manifest;
-						ChunkAssetEntry chunkAssetEntry = AssetManager.Instance.GetChunkEntry(val.ChunkId);
-						if (chunkAssetEntry != null)
-						{
-							return chunkAssetEntry;
-						}
-					}
-					catch(Exception e)
-                    {
-
-                    }
+					dynamic val = rootObject.Manifest;
+					chunkAssetEntry = AssetManager.Instance.GetChunkEntry(val.ChunkId);
 				}
 			}
-			return null;
 		}
 
 		public Stream GetChunkStreamForEbx(EbxAssetEntry ebxAssetEntry)
 		{
-			var chunkAsset = GetChunkAssetForEbx(ebxAssetEntry);
-			if (chunkAsset != null)
-				return AssetManager.GetChunk(chunkAsset);
+			GetChunkAssetForEbx(ebxAssetEntry, out ChunkAssetEntry chunkAssetEntry, out EbxAsset asset);
+			if (chunkAssetEntry != null)
+				return AssetManager.GetChunk(chunkAssetEntry);
 
 			return null;
 		}
@@ -306,12 +318,7 @@ namespace Frostbite.FileManagers
 		}
 		public LegacyFileEntry GetLFEntry(string key)
 		{
-			int key2 = Fnv1.HashString(key);
-			if (LegacyEntries.ContainsKey(key2))
-			{
-				return LegacyEntries[key2];
-			}
-			return null;
+			return GetAssetEntry(key) as LegacyFileEntry;
 		}
 
 		public Stream GetAsset(AssetEntry entry)
@@ -655,8 +662,10 @@ namespace Frostbite.FileManagers
 						NewOffset = lfe.ModifiedEntry.NewOffset
 					};
 					LegacyEntries[key2].ExtraData.DataOffset = Convert.ToUInt32(lfe.ModifiedEntry.NewOffset.HasValue ? lfe.ModifiedEntry.NewOffset.Value : lfe.ExtraData.DataOffset);
+
 				}
 			}
+			AddedFileEntries = entries;
 		}
 
 		private Stream GetChunkStream(LegacyFileEntry lfe)
@@ -731,7 +740,7 @@ namespace Frostbite.FileManagers
 				AssetManager.Instance.RevertAsset(chunkEntry);
 				foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
 				{
-					var chunkAssetEntry = GetChunkAssetForEbx(item);
+					GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
 					if (chunkAssetEntry == null || (chunkAssetEntry != null && !chunkAssetEntry.HasModifiedData))
 						continue;
 					AssetManager.Instance.RevertAsset(chunkAssetEntry);
@@ -756,7 +765,7 @@ namespace Frostbite.FileManagers
 
 			foreach (EbxAssetEntry item in AssetManager.Instance.EnumerateEbx("ChunkFileCollector"))
 			{
-				var chunkAssetEntry = GetChunkAssetForEbx(item);
+				GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
 				if (chunkAssetEntry != null)
                 {
 					AssetManager.Instance.RevertAsset(chunkAssetEntry);
@@ -794,6 +803,14 @@ namespace Frostbite.FileManagers
 			}
 		}
 
-
-	}
+        public void AddAsset(string key, LegacyFileEntry lfe)
+        {
+			if (!LegacyEntries.ContainsKey(Fnv1.HashString(key)))
+			{
+				lfe.IsAdded = true;
+				lfe.ModifiedEntry = new ModifiedAssetEntry() { Data = ((MemoryStream)GetChunkStream(lfe)).ToArray() };
+				LegacyEntries.Add(Fnv1.HashString(key), lfe);
+			}
+        }
+    }
 }

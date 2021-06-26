@@ -71,18 +71,38 @@
                                             <GridViewColumn Width="200" Header="Name">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock Text="{Binding DisplayName}" Tag="{Binding}" 
-                                               >
+                                                        <TextBlock Text="{Binding DisplayName}" Tag="{Binding}">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding IsModified}"
-                                                        Value="True">
+                                                                            Value="True">
                                                                             <Setter Property="FontWeight" Value="Bold"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
                                                             </TextBlock.Style>
+                                                            <TextBlock.ContextMenu>
+                                                                <ContextMenu >
+                                                                    <MenuItem Header="Duplicate"
+                                                                     x:Name="btnDuplicate" Tag="{Binding}"
+                                                                              Click="btnDuplicate_Click" />
+                                                                    <MenuItem Header="Delete"
+                                                                     x:Name="btnDelete" Tag="{Binding}"
+                                                                              Click="btnDelete_Click" IsEnabled="False" >
+                                                                        <MenuItem.ItemContainerStyle>
+                                                                            <Style TargetType="MenuItem">
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsAdded}"
+                                                                            Value="True">
+                                                                                        <Setter Property="IsEnabled" Value="True"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </MenuItem.ItemContainerStyle>
+                                                                    </MenuItem>
+                                                                </ContextMenu>
+                                                            </TextBlock.ContextMenu>
                                                         </TextBlock>
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>

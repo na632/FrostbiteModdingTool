@@ -6,6 +6,8 @@ namespace FrostySdk.Managers
 {
 	public interface ICustomAssetManager
 	{
+		public List<LegacyFileEntry> AddedFileEntries { get; set; }
+
 		void Initialize(ILogger logger);
 
 		AssetEntry GetAssetEntry(string key);
@@ -15,6 +17,8 @@ namespace FrostySdk.Managers
 		void ModifyAsset(string key, byte[] data);
 
 		void ModifyAsset(string key, byte[] data, bool rebuildChunk);
+
+		void AddAsset(string key, LegacyFileEntry lfe);
 
 		IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly);
 

@@ -384,5 +384,10 @@ namespace FrostbiteModdingUI.Windows
             var mdw = new ModDetailsWindow();
             mdw.Show();
         }
+
+        public void UpdateAllBrowsersFull()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

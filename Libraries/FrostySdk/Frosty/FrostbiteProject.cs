@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -375,22 +376,26 @@ namespace FrostySdk
 
 				// --------------------
 				// Legacy Files
-				nativeWriter.Write(3735928559u);
-				num = 0;
+				nativeWriter.Write(AssetManager.EnumerateCustomAssets("legacy", modifiedOnly: true).Count());
 				foreach (LegacyFileEntry lfe in AssetManager.EnumerateCustomAssets("legacy", modifiedOnly: true))
 				{
 					var serialisedLFE = JsonConvert.SerializeObject(lfe);
 					nativeWriter.WriteLengthPrefixedString(serialisedLFE);
 					num++;
 				}
-				nativeWriter.BaseStream.Position = position;
-				nativeWriter.Write(num);
-				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 
 				// -----------------------
 				// Added Legacy Files
-				nativeWriter.Write(false);
-
+				var hasAddedLegacyFiles = AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries.Count > 0;
+				nativeWriter.Write(hasAddedLegacyFiles);
+				if (hasAddedLegacyFiles)
+				{
+					nativeWriter.Write(AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries.Count);
+					foreach (var lfe in AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries)
+					{
+						nativeWriter.WriteLengthPrefixedString(JsonConvert.SerializeObject(lfe));
+					}
+				}
 
 				// -----------------------
 				// Embedded files

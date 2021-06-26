@@ -68,9 +68,9 @@ namespace FIFAModdingUI.Pages.Common
 		public int HalfMainWindowWidth { get { return MainEditorWindow != null ? (int)Math.Round(((Window)MainEditorWindow).ActualWidth / 2) : 400; } }
 
 
-		private List<IAssetEntry> allAssets;
+		private IEnumerable<IAssetEntry> allAssets;
 
-		public List<IAssetEntry> AllAssetEntries
+		public IEnumerable<IAssetEntry> AllAssetEntries
 		{
 			get { return allAssets; }
 			set { allAssets = value; Update(); }
@@ -107,7 +107,7 @@ namespace FIFAModdingUI.Pages.Common
 
         #endregion
 
-        public async Task<List<IAssetEntry>> GetFilteredAssetEntries()
+        public async Task<IEnumerable<IAssetEntry>> GetFilteredAssetEntries()
 		{
 
 			return await Dispatcher.InvokeAsync(() =>
@@ -123,7 +123,7 @@ namespace FIFAModdingUI.Pages.Common
 					{
 						assets = assets.Where(x =>
 							x.Name.Contains(txtFilter.Text, StringComparison.OrdinalIgnoreCase)
-							).ToList();
+							);
 					}
 
 					assets = assets.Where(x =>
@@ -134,7 +134,7 @@ namespace FIFAModdingUI.Pages.Common
 						)
 						|| chkShowOnlyModified.IsChecked == false
 
-						).ToList();
+						);
 
 				}
 				return assets;
@@ -1250,6 +1250,25 @@ namespace FIFAModdingUI.Pages.Common
 
 			OpenAsset(entry);
 		}
+
+        private void btnDuplicate_Click(object sender, RoutedEventArgs e)
+        {
+			FMT.Controls.Windows.DuplicateItem dupWindow = new FMT.Controls.Windows.DuplicateItem();
+			dupWindow.EntryToDuplicate = SelectedEntry != null ? SelectedEntry : SelectedLegacyEntry;
+			dupWindow.IsLegacy = SelectedLegacyEntry != null;
+			var result = dupWindow.ShowDialog();
+			if(result.HasValue && result.Value)
+            {
+				if (MainEditorWindow != null)
+					MainEditorWindow.UpdateAllBrowsersFull();
+            }
+			dupWindow = null;
+        }
+
+        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     internal class AssetPath

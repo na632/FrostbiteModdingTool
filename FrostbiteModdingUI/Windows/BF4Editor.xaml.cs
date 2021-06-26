@@ -185,5 +185,10 @@ namespace FrostbiteModdingUI.Windows
         public void LogError(string text, params object[] vars)
         {
         }
+
+        public void UpdateAllBrowsersFull()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

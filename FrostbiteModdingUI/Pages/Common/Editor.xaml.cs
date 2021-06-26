@@ -14,6 +14,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -208,7 +209,7 @@ namespace FIFAModdingUI.Pages.Common
 			this.DataContext = Asset;
 		}
 
-		[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
+		//[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
 		public Editor(EbxAsset ebx
 			)
 		{
@@ -223,23 +224,25 @@ namespace FIFAModdingUI.Pages.Common
 
 		public static Editor CurrentEditorInstance { get; set; }
 
-		public Editor(AssetEntry inAssetEntry
-			, EbxAsset inAsset
-			, FrostbiteProject frostyProject
-			, IEditorWindow inEditorWindow)
-		{
-			InitializeComponent();
-			CurrentEditorInstance = this;
-			PropertyChanged += Editor_PropertyChanged;
-			LoadEbx(inAssetEntry, inAsset, frostyProject, inEditorWindow);
+		//public Editor(AssetEntry inAssetEntry
+		//	, EbxAsset inAsset
+		//	, FrostbiteProject frostyProject
+		//	, IEditorWindow inEditorWindow)
+		//{
+		//	InitializeComponent();
+		//	CurrentEditorInstance = this;
+		//	PropertyChanged += Editor_PropertyChanged;
+		//	LoadEbx(inAssetEntry, inAsset, frostyProject, inEditorWindow);
 			
-		}
+		//}
 
 		public async Task<bool> LoadEbx(AssetEntry inAssetEntry
 			, EbxAsset inAsset
 			, FrostbiteProject frostyProject
 			, IEditorWindow inEditorWindow)
         {
+			CurrentEditorInstance = this;
+
 			LoadingDialog loadingDialog = new LoadingDialog("Loading EBX", "Loading EBX");
 			loadingDialog.Show();
 			//await loadingDialog.UpdateAsync("Loading EBX", "Loading EBX");
@@ -800,10 +803,34 @@ namespace FIFAModdingUI.Pages.Common
 				EditorWindow.UpdateAllBrowsers();
 		}
 
-        public void SaveToRootObject()
+        public async void SaveToRootObject()
         {
-			FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
-			//FrostyProject.Save("GameplayProject.fbproject", true);
+			LoadingDialog loadingDialog = null;
+			await Dispatcher.InvokeAsync(() =>
+			{
+				loadingDialog = new LoadingDialog("Saving hotspot", "Saving hotspot");
+				loadingDialog.Show();
+			});
+
+			await Task.Run(() =>
+			{
+				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+				//FrostyProject.Save("GameplayProject.fbproject", true);
+			});
+
+			await loadingDialog.UpdateAsync("Saving hotspot", "Updating browsers");
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (EditorWindow != null)
+                    EditorWindow.UpdateAllBrowsers();
+            });
+
+            await Dispatcher.InvokeAsync(() =>
+			{
+				loadingDialog.Close();
+				loadingDialog = null;
+			});
 		}
 
 

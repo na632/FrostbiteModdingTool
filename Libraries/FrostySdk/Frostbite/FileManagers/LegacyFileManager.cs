@@ -13,6 +13,8 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 {
 	public class LegacyFileManager : ICustomAssetManager, ILegacyFileManager
 	{
+		public List<LegacyFileEntry> AddedFileEntries { get; set; }
+
 		public static ILegacyFileManager Instance = null;
 
 		private Dictionary<int, LegacyFileEntry> legacyEntries = new Dictionary<int, LegacyFileEntry>();
@@ -237,5 +239,10 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 			while (AssetManager.GetChunkEntry(guid) != null);
 			return guid;
 		}
-	}
+
+        public void AddAsset(string key, LegacyFileEntry lfe)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

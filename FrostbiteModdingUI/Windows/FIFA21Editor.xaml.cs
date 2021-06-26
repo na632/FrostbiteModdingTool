@@ -255,56 +255,7 @@ namespace FIFAModdingUI.Windows
 
         private void InitialiseBrowsers()
         {
-            Dispatcher.Invoke(() =>
-            {
-                Log("Initialize Data Browser");
-                dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx()
-                                   .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-
-
-                // Kit Browser
-                Log("Initialize Kit Browser");
-                var kitList = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx()
-                                   .Where(x => x.Path.ToLower().Contains("character/kit"))
-                                   .OrderBy(x => x.Path)
-                                   .Select(x => (IAssetEntry)x).ToList();
-                kitList = kitList.OrderBy(x => x.Name).ToList();
-                kitBrowser.AllAssetEntries = kitList;
-
-                Log("Initialize Gameplay Browser");
-                gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
-                                  .EnumerateEbx()
-                                  .Where(x => x.Path.Contains("fifa/attribulator/gameplay", StringComparison.OrdinalIgnoreCase))
-                                  .OrderBy(x => x.Path)
-                                  .Select(x => (IAssetEntry)x).ToList();
-
-
-                var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).ToList();
-
-                Log("Initialize Legacy Browser");
-                legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
-
-                Log("Initialize Texture Browser");
-                List<IAssetEntry> textureAssets = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
-
-                textureBrowser.AllAssetEntries = textureAssets;
-
-                Log("Initialize Face Browser");
-                var faceList = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/player")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                faceList = faceList.OrderBy(x => x.Name).ToList();
-                faceBrowser.AllAssetEntries = faceList;
-
-                Log("Initialize Boot Browser");
-                var bootList = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                bootList = bootList.OrderBy(x => x.Name).ToList();
-                bootsBrowser.AllAssetEntries = bootList;
-            });
+            UpdateAllBrowsersFull();
         }
 
         LauncherOptions LauncherOptions { get; set; }
@@ -1002,10 +953,68 @@ namespace FIFAModdingUI.Windows
 
         public void UpdateAllBrowsers()
         {
+            
             dataBrowser.UpdateAssetListView();
             textureBrowser.UpdateAssetListView();
             gameplayBrowser.UpdateAssetListView();
             legacyBrowser.UpdateAssetListView();
+            faceBrowser.UpdateAssetListView();
+            bootsBrowser.UpdateAssetListView();
+        }
+
+        public void UpdateAllBrowsersFull()
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                Log("Initialize Data Browser");
+                dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx()
+                                   .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+
+
+                // Kit Browser
+                Log("Initialize Kit Browser");
+                var kitList = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx()
+                                   .Where(x => x.Path.ToLower().Contains("character/kit"))
+                                   .OrderBy(x => x.Path)
+                                   .Select(x => (IAssetEntry)x);
+                kitBrowser.AllAssetEntries = kitList.ToList();
+
+                Log("Initialize Gameplay Browser");
+                gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
+                                  .EnumerateEbx()
+                                  .Where(x => x.Path.Contains("fifa/attribulator/gameplay", StringComparison.OrdinalIgnoreCase))
+                                  .OrderBy(x => x.Path)
+                                  .Select(x => (IAssetEntry)x).ToList();
+
+
+                var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path);
+
+                Log("Initialize Legacy Browser");
+                legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
+
+                Log("Initialize Texture Browser");
+                List<IAssetEntry> textureAssets = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
+
+                textureBrowser.AllAssetEntries = textureAssets;
+
+                Log("Initialize Face Browser");
+                var faceList = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/player")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
+                faceList = faceList.OrderBy(x => x.Name).ToList();
+                faceBrowser.AllAssetEntries = faceList;
+
+                Log("Initialize Boot Browser");
+                var bootList = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
+                bootList = bootList.OrderBy(x => x.Name);
+                bootsBrowser.AllAssetEntries = bootList;
+            });
+
+            UpdateAllBrowsers();
         }
 
         private void btnOpenModBundler_Click(object sender, RoutedEventArgs e)

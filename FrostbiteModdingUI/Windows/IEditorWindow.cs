@@ -12,6 +12,8 @@ namespace FrostbiteModdingUI.Windows
     {
         public Window OwnerWindow { get; set; }
 
+        public void UpdateAllBrowsersFull();
+
         public void UpdateAllBrowsers();
 
         public string LastGameLocation { get; }

@@ -5,4 +5,8 @@
 	  <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
+  </ItemGroup>
+
 </Project>

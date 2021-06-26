@@ -361,5 +361,10 @@ namespace FrostySdk.Managers
         {
 			return BitConverter.ToInt32(Sha1.ToByteArray());
         }
+
+		public virtual AssetEntry Clone()
+        {
+			return this.MemberwiseClone() as AssetEntry;
+        }
     }
 }
