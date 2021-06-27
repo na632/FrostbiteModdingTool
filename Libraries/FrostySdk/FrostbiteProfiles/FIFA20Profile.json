@@ -22,7 +22,7 @@
   "RequiresKey": true,
   "MustAddChunks": false,
   "EnableExecution": true,
-  "EditorScreen": "FIFA21Editor",
+  "EditorScreen": "FIFA20Editor",
   "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
   "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
   "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",

@@ -1238,8 +1238,11 @@ namespace FIFAModdingUI.Pages.Common
         private void assetTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
 			var assetTreeViewSelectedItem = assetTreeView.SelectedItem as AssetPath;
-			SelectedAssetPath = assetTreeViewSelectedItem;
-			UpdateAssetListView();
+			if (assetTreeViewSelectedItem != null)
+			{
+				SelectedAssetPath = assetTreeViewSelectedItem;
+				UpdateAssetListView();
+			}
 		}
 
         private void assetListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1248,7 +1251,8 @@ namespace FIFAModdingUI.Pages.Common
 			if (entry == null)
 				entry = ((ListView)sender).SelectedItem as LegacyFileEntry;
 
-			OpenAsset(entry);
+			if(entry != null)
+				OpenAsset(entry);
 		}
 
         private void btnDuplicate_Click(object sender, RoutedEventArgs e)
