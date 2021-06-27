@@ -222,6 +222,13 @@ namespace FrostySdk.Managers
 						string text = parent.fs.ResolvePath($"{arg}.toc");
 						if (text != "")
 						{
+							//if(ProfilesLibrary.IsMadden21DataVersion())
+       //                     {
+							//	if (!text.Contains("playercontent_sb") // Player uniforms / kits
+					  // && !text.Contains("playercontentlaunch_sb") // Player uniforms / kits
+							//		)
+							//		continue;
+							//}
 							int num2 = 0;
 							int num3 = 0;
 							byte[] array = null;
@@ -326,50 +333,50 @@ namespace FrostySdk.Managers
 											{
 												DbObject dbObject = binarySbReader.ReadDbObject();
 												BundleFileInfo bundleFileInfo = list2[0];
-												long num12 = bundleFileInfo.Offset + (dbObject.GetValue("dataOffset", 0L) + 4);
-												long num13 = bundleFileInfo.Size - (dbObject.GetValue("dataOffset", 0L) + 4);
+												long offset = bundleFileInfo.Offset + (dbObject.GetValue("dataOffset", 0L) + 4);
+												long currentSize = bundleFileInfo.Size - (dbObject.GetValue("dataOffset", 0L) + 4);
 												int num14 = 0;
 												foreach (DbObject item3 in dbObject.GetValue<DbObject>("ebx"))
 												{
-													if (num13 == 0L)
+													if (currentSize == 0L)
 													{
 														bundleFileInfo = list2[++num14];
-														num13 = bundleFileInfo.Size;
-														num12 = bundleFileInfo.Offset;
+														currentSize = bundleFileInfo.Size;
+														offset = bundleFileInfo.Offset;
 													}
 													int value = item3.GetValue("size", 0);
-													item3.SetValue("offset", num12);
+													item3.SetValue("offset", offset);
 													item3.SetValue("cas", bundleFileInfo.Index);
-													num12 += value;
-													num13 -= value;
+													offset += value;
+													currentSize -= value;
 												}
 												foreach (DbObject item4 in dbObject.GetValue<DbObject>("res"))
 												{
-													if (num13 == 0L)
+													if (currentSize == 0L)
 													{
 														bundleFileInfo = list2[++num14];
-														num13 = bundleFileInfo.Size;
-														num12 = bundleFileInfo.Offset;
+														currentSize = bundleFileInfo.Size;
+														offset = bundleFileInfo.Offset;
 													}
 													int value2 = item4.GetValue("size", 0);
-													item4.SetValue("offset", num12);
+													item4.SetValue("offset", offset);
 													item4.SetValue("cas", bundleFileInfo.Index);
-													num12 += value2;
-													num13 -= value2;
+													offset += value2;
+													currentSize -= value2;
 												}
 												foreach (DbObject item5 in dbObject.GetValue<DbObject>("chunks"))
 												{
-													if (num13 == 0L)
+													if (currentSize == 0L)
 													{
 														bundleFileInfo = list2[++num14];
-														num13 = bundleFileInfo.Size;
-														num12 = bundleFileInfo.Offset;
+														currentSize = bundleFileInfo.Size;
+														offset = bundleFileInfo.Offset;
 													}
 													int value3 = item5.GetValue("size", 0);
-													item5.SetValue("offset", num12);
+													item5.SetValue("offset", offset);
 													item5.SetValue("cas", bundleFileInfo.Index);
-													num12 += value3;
-													num13 -= value3;
+													offset += value3;
+													currentSize -= value3;
 												}
 												parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
 												parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);

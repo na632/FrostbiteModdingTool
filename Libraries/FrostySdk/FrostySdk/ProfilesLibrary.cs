@@ -105,8 +105,8 @@ namespace FrostySdk
 			{
                 get 
 				{
-
-					var fi = new FileInfo(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName + "/Resources/images/" + Name + "Cover.jpg");
+					
+					var fi = new FileInfo(AssetManager.ApplicationDirectory + "/Resources/images/" + Name + "Cover.jpg");
 					if (fi.Exists)
 						return fi.FullName;
 					return editorIcon; 

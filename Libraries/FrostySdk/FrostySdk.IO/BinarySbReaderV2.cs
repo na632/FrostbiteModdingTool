@@ -143,10 +143,11 @@ namespace FrostySdk.IO
 				dbObject.AddValue("metaOffset", (int)(metaOffset));
 				dbObject.AddValue("metaSize", (int)(metaSize));
 
-				dbObject.AddValue("dataOffset", (int)(size));
-				//dbObject.AddValue("dataOffset", (int)(size - 4));
+                //dbObject.AddValue("dataOffset", (int)(size));
+                //dbObject.AddValue("dataOffset2", (int)(size) - 4);
+                dbObject.AddValue("dataOffset", (int)(size - 4));
 
-				if (chunkCount != 0)
+                if (chunkCount != 0)
 				{
 					dbReader.Position = metaOffset - HeaderSize;
 					var dbObj = dbReader.ReadDbObject();

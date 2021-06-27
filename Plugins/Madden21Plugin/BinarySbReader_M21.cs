@@ -141,7 +141,6 @@ namespace FrostySdk.IO
 				dbObject.AddValue("metaSize", (int)(metaSize));
 
                 dbObject.AddValue("dataOffset", (int)(size));
-                //dbObject.AddValue("dataOffset", size - 4);
 
                 if (chunkCount != 0)
 				{

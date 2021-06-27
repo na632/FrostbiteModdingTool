@@ -29,12 +29,6 @@
   </PropertyGroup>
 
 
-  <ItemGroup>
-    <None Remove="Resources\images\FIFA20Cover.jpg" />
-    <None Remove="Resources\images\FIFA21Cover.jpg" />
-    <None Remove="Resources\images\Madden21Cover.jpg" />
-  </ItemGroup>
-
    <ItemGroup>
     <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

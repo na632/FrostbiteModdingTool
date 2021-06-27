@@ -403,124 +403,6 @@ namespace FrostySdk.Resources
 			}
 		}
 
-		public static bool TryParse(Stream stream, AssetManager am, out Texture texture)
-        {
-			texture = null;
-			if (stream == null)
-			{
-				return false;
-			}
-			try
-			{
-				using (NativeReader nativeReader = new NativeReader(stream))
-				{
-					texture = new Texture();
-
-					stream.Position = 0;
-
-					if (!Directory.Exists("Debugging"))
-						Directory.CreateDirectory("Debugging");
-
-					if (!Directory.Exists("Debugging\\Other\\"))
-						Directory.CreateDirectory("Debugging\\Other\\");
-
-					if (File.Exists("Debugging\\Other\\_TextureExport.dat"))
-						File.Delete("Debugging\\Other\\_TextureExport.dat");
-
-					using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureExport.dat", FileMode.OpenOrCreate))
-					{
-						stream.CopyTo(fileStream);
-					}
-					stream.Position = 0;
-
-					if (ProfilesLibrary.DataVersion == 20131115)
-					{
-						texture.unknown3[0] = nativeReader.ReadUInt();
-						texture.type = (TextureType)nativeReader.ReadUInt();
-						texture.pixelFormat = nativeReader.ReadInt();
-						texture.unknown3[1] = nativeReader.ReadUInt();
-					}
-					else
-					{
-						texture.mipOffsets[0] = nativeReader.ReadUInt();
-						texture.mipOffsets[1] = nativeReader.ReadUInt();
-						texture.type = (TextureType)nativeReader.ReadUInt();
-						texture.pixelFormat = nativeReader.ReadInt();
-						if (ProfilesLibrary.DataVersion == 20170321
-							|| ProfilesLibrary.DataVersion == 20160927
-							|| ProfilesLibrary.DataVersion == 20171117
-							|| ProfilesLibrary.DataVersion == 20170929
-							|| ProfilesLibrary.DataVersion == 20171110
-							|| ProfilesLibrary.DataVersion == 20180807
-							|| ProfilesLibrary.DataVersion == 20180914
-							|| ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20180628
-							|| ProfilesLibrary.IsMadden20DataVersion() // Madden 20
-							|| ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905
-							|| ProfilesLibrary.IsMadden21DataVersion()
-							|| ProfilesLibrary.IsFIFA21DataVersion()
-							)
-						{
-							texture.unknown1 = nativeReader.ReadUInt();
-						}
-						texture.flags = (TextureFlags)nativeReader.ReadUShort();
-					}
-					texture.width = nativeReader.ReadUShort();
-					texture.height = nativeReader.ReadUShort();
-					texture.depth = nativeReader.ReadUShort();
-					texture.sliceCount = nativeReader.ReadUShort();
-					//if (ProfilesLibrary.DataVersion == 20131115)
-					//{
-					//	flags = (TextureFlags)nativeReader.ReadUShort();
-					//}
-					texture.mipCount = nativeReader.ReadByte();
-					texture.firstMip = nativeReader.ReadByte();
-					texture.chunkId = nativeReader.ReadGuid();
-					for (int i = 0; i < 15; i++)
-					{
-						texture.mipSizes[i] = nativeReader.ReadUInt();
-					}
-					texture.chunkSize = nativeReader.ReadUInt();
-					//if (ProfilesLibrary.DataVersion == 20181207)
-					//{
-					//	for (int j = 0; j < 3; j++)
-					//	{
-					//		unknown3[j] = nativeReader.ReadUInt();
-					//	}
-					//}
-					//else if (ProfilesLibrary.DataVersion == 20170321)
-					//{
-					//	for (int k = 0; k < 4; k++)
-					//	{
-					//		unknown3[k] = nativeReader.ReadUInt();
-					//	}
-					//}
-					//else if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180807)
-					//{
-					//	unknown3[0] = nativeReader.ReadUInt();
-					//}
-					texture.assetNameHash = nativeReader.ReadUInt();
-					//if (ProfilesLibrary.DataVersion == 20150223)
-					//{
-					//	unknown3[0] = nativeReader.ReadUInt();
-					//}
-					texture.textureGroup = nativeReader.ReadSizedString(16);
-					//if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-					//{
-					//	unknown3[0] = nativeReader.ReadUInt();
-					//}
-					if (am != null)
-					{
-						texture.ChunkEntry = am.GetChunkEntry(texture.chunkId);
-						texture.data = am.GetChunk(texture.ChunkEntry);
-					}
-				}
-				return true;
-			}
-			catch
-            {
-				return false;
-            }
-		}
 		public byte[] ToBytes()
 		{
 			MemoryStream memoryStream = new MemoryStream();
@@ -581,7 +463,15 @@ namespace FrostySdk.Resources
 				{
 					nativeWriter.Write(unknown3[0]);
 				}
-				nativeWriter.WriteFixedSizedString(textureGroup, 16);
+				if (ProfilesLibrary.IsMadden21DataVersion())
+				{
+					nativeWriter.Write(unknown2);
+					nativeWriter.WriteNullTerminatedString(textureGroup);
+				}
+				else
+				{
+					nativeWriter.WriteFixedSizedString(textureGroup, 16);
+				}
 				if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
 				{
 					nativeWriter.Write(unknown3[0]);

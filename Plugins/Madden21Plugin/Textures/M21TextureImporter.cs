@@ -84,12 +84,17 @@ namespace Madden21.Textures
 
 				}
 
+				string pixelFormat = "";
+				TextureFlags flags = (TextureFlags)0;
+				TextureImporter.GetPixelFormat(dDSHeader, textureAsset, out pixelFormat, out flags);
+
 				var ebxAsset = AssetManager.Instance.GetEbx(assetEntry);
 				ulong resRid = ((dynamic)ebxAsset.RootObject).Resource;
 				ResAssetEntry resEntry = AssetManager.Instance.GetResEntry(resRid);
 				ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(textureAsset.ChunkId);
 				byte[] textureArray = new byte[nativeReader.Length - nativeReader.Position];
 				nativeReader.Read(textureArray, 0, (int)(nativeReader.Length - nativeReader.Position));
+				textureAsset.CalculateMipData((byte)dDSHeader.dwMipMapCount, TextureUtils.GetFormatBlockSize(pixelFormat), TextureUtils.IsCompressedFormat(pixelFormat), (uint)textureArray.Length);
 				AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray, textureAsset);
 				AssetManager.Instance.ModifyRes(resRid, textureAsset.ToBytes());
 				AssetManager.Instance.ModifyEbx(assetEntry.Name, ebxAsset);

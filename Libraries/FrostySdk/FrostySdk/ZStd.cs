@@ -101,14 +101,16 @@ namespace FrostySdk
 			string lib = "thirdparty/libzstd.1.1.5.dll";
 			if (ProfilesLibrary.DataVersion == 20180914 
 				|| ProfilesLibrary.IsFIFA20DataVersion()
-				|| ProfilesLibrary.IsMadden21DataVersion()
+				//|| ProfilesLibrary.IsMadden21DataVersion()
 				//|| ProfilesLibrary.IsFIFA21DataVersion()
 				)
 			{
 				lib = "thirdparty/libzstd.1.3.4.dll";
 			}
-            else if (ProfilesLibrary.IsFIFA21DataVersion())
-            {
+            else if (ProfilesLibrary.IsFIFA21DataVersion()
+				|| ProfilesLibrary.IsMadden21DataVersion()
+				)
+			{
                 //lib = "thirdparty/libzstd.1.4.5.dll";
                 lib = "thirdparty/libzstd.1.5.0.dll";
             }

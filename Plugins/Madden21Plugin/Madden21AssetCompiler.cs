@@ -347,7 +347,8 @@ namespace Madden21Plugin
                                                     }
                                                 }
                                                 DbObject dbObject = null;
-                                                using (BinarySbReader_M21 binarySbReader = new BinarySbReader_M21(memoryStream, 0L, ModExecuter.fs.CreateDeobfuscator()))
+                                                //using (BinarySbReader_M21 binarySbReader = new BinarySbReader_M21(memoryStream, 0L, ModExecuter.fs.CreateDeobfuscator()))
+                                                using (BinarySbReaderV2 binarySbReader = new BinarySbReaderV2(memoryStream, 0L, ModExecuter.fs.CreateDeobfuscator()))
                                                 {
                                                     dbObject = binarySbReader.ReadDbObject();
                                                     foreach (DbObject ebxItem in dbObject.GetValue<DbObject>("ebx"))
@@ -409,9 +410,9 @@ namespace Madden21Plugin
                                                 {
                                                     var ebxName = ebx.GetValue<string>("name");
 
-                                                    //int num14 = modBundleInfo.Modify.Ebx.FindIndex((string a) => a.Equals(ebx.GetValue<string>("name")));
-                                                        //if (num14 != -1)
-                                                    if (ModExecuter.modifiedEbx.ContainsKey(ebxName))
+                                                    int num14 = modBundleInfo.Modify.Ebx.FindIndex((string a) => a.Equals(ebx.GetValue<string>("name")));
+                                                    if (num14 != -1)
+                                                    //if (ModExecuter.modifiedEbx.ContainsKey(ebxName))
                                                     {
                                                         //EbxAssetEntry ebxAssetEntry = parent.modifiedEbx[modBundleInfo.Modify.Ebx[num14]];
                                                         EbxAssetEntry ebxAssetEntry = ModExecuter.modifiedEbx[ebxName];
@@ -434,11 +435,11 @@ namespace Madden21Plugin
                                                 foreach (DbObject res in dbObject.GetValue<DbObject>("res"))
                                                 {
                                                     var resName = res.GetValue<string>("name");
-                                                    //int num16 = modBundleInfo.Modify.Chunks.FindIndex((Guid a) => a == chunk.GetValue<Guid>("id"));
-                                                    //if (num16 != -1)
-                                                    //{
-                                                    if (ModExecuter.modifiedRes.ContainsKey(resName))
+                                                    int num14 = modBundleInfo.Modify.Res.FindIndex((string a) => a.Equals(res.GetValue<string>("name")));
+                                                    if (num14 != -1)
                                                     {
+                                                        //if (ModExecuter.modifiedRes.ContainsKey(resName))
+                                                        //{
                                                         //ResAssetEntry resAssetEntry = parent.modifiedRes[modBundleInfo.Modify.Res[num15]];
                                                         ResAssetEntry resAssetEntry = ModExecuter.modifiedRes[resName];
                                                         //if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[resAssetEntry.Sha1].Data.Length > 1073741824)
@@ -483,12 +484,12 @@ namespace Madden21Plugin
                                                 foreach (DbObject chunk in dbObject.GetValue<DbObject>("chunks"))
                                                 {
                                                     var chunkId = chunk.GetValue<Guid>("id");
-                                                    //int num16 = modBundleInfo.Modify.Chunks.FindIndex((Guid a) => a == chunk.GetValue<Guid>("id"));
-                                                    //if (num16 != -1)
-                                                    //{
-                                                    if (ModExecuter.ModifiedChunks.ContainsKey(chunkId))
+                                                    int num16 = modBundleInfo.Modify.Chunks.FindIndex((Guid a) => a == chunk.GetValue<Guid>("id"));
+                                                    if (num16 != -1)
                                                     {
-                                                        ChunkAssetEntry chunkAssetEntry = ModExecuter.ModifiedChunks[chunkId];
+                                                        //if (ModExecuter.ModifiedChunks.ContainsKey(chunkId))
+                                                        //{
+                                                        ChunkAssetEntry chunkAssetEntry = parent.ModifiedChunks[modBundleInfo.Modify.Chunks[num16]];  // ModExecuter.ModifiedChunks[chunkId];
                                                         //if (writer_new_cas_file == null || writer_new_cas_file.BaseStream.Length + ModExecuter.archiveData[chunkAssetEntry.Sha1].Data.Length > 1073741824)
                                                         if (writer_new_cas_file == null)
                                                         {
@@ -501,8 +502,12 @@ namespace Madden21Plugin
                                                         //chunk.SetValue("size", chunkAssetEntry.Size);
                                                         chunk.SetValue("cas", casFileIndex);
                                                         chunk.SetValue("offset", (int)writer_new_cas_file.BaseStream.Position);
-                                                        //chunk.SetValue("logicalOffset", chunkAssetEntry.LogicalOffset);
-                                                        //chunk.SetValue("logicalSize", chunkAssetEntry.LogicalSize);
+                                                        chunk.SetValue("logicalOffset", chunkAssetEntry.LogicalOffset);
+                                                        chunk.SetValue("logicalSize", chunkAssetEntry.LogicalSize);
+
+                                                        //chunk.SetValue("logicalOffset", 0);
+                                                        //chunk.SetValue("logicalSize", 0);
+
                                                         writer_new_cas_file.Write(ModExecuter.archiveData[chunkAssetEntry.Sha1].Data);
                                                     }
                                                     //}
