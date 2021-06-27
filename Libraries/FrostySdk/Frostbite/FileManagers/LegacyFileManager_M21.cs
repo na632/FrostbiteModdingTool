@@ -703,27 +703,7 @@ namespace Frostbite.FileManagers
 			}
 		}
 
-		public Guid GenerateDeterministicGuid(LegacyFileEntry lfe)
-		{
-			ulong num = Murmur2.HashString64(lfe.Filename, 18532uL);
-			ulong value = Murmur2.HashString64(lfe.Path, 18532uL);
-			int num2 = 1;
-			Guid guid = Guid.Empty;
-			do
-			{
-				using (NativeWriter nativeWriter = new NativeWriter(new MemoryStream()))
-				{
-					nativeWriter.Write(value);
-					nativeWriter.Write((ulong)((long)num ^ (long)num2));
-					byte[] array = ((MemoryStream)nativeWriter.BaseStream).ToArray();
-					array[15] = 1;
-					guid = new Guid(array);
-				}
-				num2++;
-			}
-			while (AssetManager.GetChunkEntry(guid) != null);
-			return guid;
-		}
+		
 
 		/// <summary>
 		/// Cleans up asset and associated chunks (chunks should not be modified but this checks them over)

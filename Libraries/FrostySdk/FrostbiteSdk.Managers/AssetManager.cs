@@ -1742,6 +1742,11 @@ namespace FrostySdk.Managers
 			return GetAsset(entry);
 		}
 
+		public byte[] GetChunkData(ChunkAssetEntry entry)
+		{
+			return ((MemoryStream)GetAsset(entry)).ToArray();
+		}
+
 		private Stream GetAsset(AssetEntry entry)
 		{
 			if(entry == null)
@@ -2836,6 +2841,28 @@ namespace FrostySdk.Managers
 			{
 				return new Sha1(sHA1Managed.ComputeHash(buffer));
 			}
+		}
+
+		public Guid GenerateChunkId(AssetEntry ae)
+		{
+			ulong num = Murmur2.HashString64(ae.Filename, 18532uL);
+			ulong value = Murmur2.HashString64(ae.Path, 18532uL);
+			int num2 = 1;
+			Guid guid = Guid.Empty;
+			do
+			{
+				using (NativeWriter nativeWriter = new NativeWriter(new MemoryStream()))
+				{
+					nativeWriter.Write(value);
+					nativeWriter.Write((ulong)((long)num ^ (long)num2));
+					byte[] array = ((MemoryStream)nativeWriter.BaseStream).ToArray();
+					array[15] = 1;
+					guid = new Guid(array);
+				}
+				num2++;
+			}
+			while (AssetManager.Instance.GetChunkEntry(guid) != null);
+			return guid;
 		}
 	}
 }

@@ -327,6 +327,8 @@ namespace FrostySdk.Resources
 			}
 		}
 
+		public Stream ResStream { get; set; }
+
 		/// <summary>
 		/// Build a Texture Object from a Stream
 		/// </summary>
@@ -334,8 +336,8 @@ namespace FrostySdk.Resources
 		/// <param name="am"></param>
 		public Texture(ResAssetEntry resAssetEntry)
 		{
-			var stream = AssetManager.Instance.GetRes(resAssetEntry);
-			if (stream == null)
+			ResStream = AssetManager.Instance.GetRes(resAssetEntry);
+			if (ResStream == null)
 			{
 				return;
 			}
@@ -343,9 +345,9 @@ namespace FrostySdk.Resources
 			{
 				return;
 			}
-			using (NativeReader nativeReader = new NativeReader(stream))
+			using (NativeReader nativeReader = new NativeReader(ResStream))
 			{
-				stream.Position = 0;
+				ResStream.Position = 0;
 
 				if (!Directory.Exists("Debugging"))
 					Directory.CreateDirectory("Debugging");
@@ -358,9 +360,9 @@ namespace FrostySdk.Resources
 
 				using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureExport.dat", FileMode.OpenOrCreate))
 				{
-					stream.CopyTo(fileStream);
+					ResStream.CopyTo(fileStream);
 				}
-				stream.Position = 0;
+				ResStream.Position = 0;
 
 				mipOffsets[0] = nativeReader.ReadUInt();
 				mipOffsets[1] = nativeReader.ReadUInt();
