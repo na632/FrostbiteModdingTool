@@ -34,7 +34,7 @@
         <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
             <StackPanel Orientation="Horizontal">
                 <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
-                    <MenuItem Header="Project" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <MenuItem x:Name="miProject" Header="Project" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
                         <MenuItem x:Name="btnProjectNew" Click="btnProjectNew_Click">
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
@@ -94,7 +94,7 @@
                             </MenuItem.Header>
                         </MenuItem>
                         <Separator></Separator>
-                        <MenuItem>
+                        <MenuItem Visibility="Collapsed">
                             <MenuItem.Header>
                                 <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="ClockFast" VerticalAlignment="Center" />
@@ -112,7 +112,7 @@
                         
                         
                     </MenuItem>
-                    <MenuItem Header="Mod">
+                    <MenuItem x:Name="miMod" Header="Mod" IsEnabled="False">
                         <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
@@ -133,7 +133,7 @@
                         </Button>
                         
                     </MenuItem>
-                    <MenuItem Header="Experimental">
+                    <MenuItem x:Name="miProjectConverter" Header="FIFA Project Converters" IsEnabled="False">
                         <Button x:Name="btnProjectOpenFIFAProject"  Height="30" Click="btnProjectOpenFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />

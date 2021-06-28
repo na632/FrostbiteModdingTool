@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace FrostySdk.Managers
 {
+	//public class ModifiedAssetEntry : AssetEntry
 	public class ModifiedAssetEntry : AssetEntry
 	{
 		public byte[] Data { get; set; }

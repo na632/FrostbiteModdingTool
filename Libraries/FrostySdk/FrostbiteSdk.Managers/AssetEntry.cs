@@ -113,12 +113,16 @@ namespace FrostySdk.Managers
 		{
 			get
 			{
-				int num = Name.LastIndexOf('/');
-				if (num == -1)
+				if (!string.IsNullOrEmpty(Name))
 				{
-					return Name;
+					int num = Name.LastIndexOf('/');
+					if (num == -1)
+					{
+						return Name;
+					}
+					return Name.Substring(num + 1);
 				}
-				return Name.Substring(num + 1);
+				return string.Empty;
 			}
 		}
 
@@ -129,12 +133,16 @@ namespace FrostySdk.Managers
 		{
 			get
 			{
-				int num = Name.LastIndexOf('/');
-				if (num == -1)
+				if (!string.IsNullOrEmpty(Name))
 				{
-					return "";
+					int num = Name.LastIndexOf('/');
+					if (num == -1)
+					{
+						return "";
+					}
+					return Name.Substring(0, num);
 				}
-				return Name.Substring(0, num);
+				return string.Empty;
 			}
 		}
 

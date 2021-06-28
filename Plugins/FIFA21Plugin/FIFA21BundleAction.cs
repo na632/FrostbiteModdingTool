@@ -528,7 +528,6 @@ namespace FIFA21Plugin
                                 {
                                     var origEbxBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("ebx")).Select(x => ((DbObject)x).GetValue<DbObject>("ebx")).ToList();
 
-
                                     var origResBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("res")).Select(x => ((DbObject)x).GetValue<DbObject>("res")).ToList();
                                     DbObject origResDbo = null;
                                     foreach (DbObject dbInBundle in origResBundles)
@@ -549,6 +548,25 @@ namespace FIFA21Plugin
                                     else if (origResDbo != null)
                                     {
 
+                                    }
+
+                                    var origChunkBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("chunks")).Select(x => ((DbObject)x).GetValue<DbObject>("chunks")).ToList();
+                                    DbObject origChunkDbo = null;
+                                    foreach (DbObject dbInBundle in origChunkBundles)
+                                    {
+                                        origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+                                        if (origChunkDbo != null)
+                                            break;
+                                    }
+
+                                    if (Guid.TryParse(assetBundle.Key.Name, out Guid bndleId)) {
+                                        if (origChunkDbo != null
+                                            && parent.ModifiedChunks.ContainsKey(bndleId)
+                                            )
+                                        {
+                                            nw_sb.BaseStream.Position = origChunkDbo.GetValue<int>("SB_LogicalOffset_Position");
+                                            nw_sb.Write(parent.ModifiedChunks[bndleId].LogicalOffset);
+                                        }
                                     }
                                 }
 

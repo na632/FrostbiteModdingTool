@@ -724,21 +724,29 @@ namespace FIFAModdingUI.Pages.Common
 
 		public void UpdateAssetListView()
 		{
+			var filterText = string.Empty;
+			bool onlyModified = false;
+			Dispatcher.Invoke(() => {
+				filterText = txtFilter.Text;
+				onlyModified = chkShowOnlyModified.IsChecked.HasValue && chkShowOnlyModified.IsChecked.Value;
+			});
+
+
 			if (SelectedAssetPath != null)
 			{
 				if (SelectedAssetPath.FullPath.Length > 3)
 				{
 					var filterPath = (SelectedAssetPath.FullPath.Substring(1, SelectedAssetPath.FullPath.Length - 1));
 					var filteredAssets = AllAssetEntries.Where(x => x.Path.ToLower() == filterPath.ToLower());
-					filteredAssets = filteredAssets.Where(x => x.Name.Contains(txtFilter.Text, StringComparison.OrdinalIgnoreCase));
+					filteredAssets = filteredAssets.Where(x => x.Name.Contains(filterText, StringComparison.OrdinalIgnoreCase));
 
 					filteredAssets = filteredAssets.Where(x =>
 
 						(
-						chkShowOnlyModified.IsChecked == true
+						onlyModified == true
 						&& x.IsModified
 						)
-						|| chkShowOnlyModified.IsChecked == false
+						|| onlyModified == false
 
 						).ToList();
 

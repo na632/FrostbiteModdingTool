@@ -116,7 +116,10 @@ namespace FrostySdk
 
 		public async Task<bool> LoadAsync(string inFilename)
         {
-			return await Task.Run(() => { return Load(inFilename); });
+			return await new TaskFactory().StartNew(() =>
+			{
+				return Load(inFilename);
+			}, TaskCreationOptions.LongRunning);
         }
 
 		public static string LastFilePath;
@@ -379,9 +382,11 @@ namespace FrostySdk
 				nativeWriter.Write(AssetManager.EnumerateCustomAssets("legacy", modifiedOnly: true).Count());
 				foreach (LegacyFileEntry lfe in AssetManager.EnumerateCustomAssets("legacy", modifiedOnly: true))
 				{
-					var serialisedLFE = JsonConvert.SerializeObject(lfe);
-					nativeWriter.WriteLengthPrefixedString(serialisedLFE);
-					num++;
+					if (lfe.Name != null)
+					{
+						var serialisedLFE = JsonConvert.SerializeObject(lfe);
+						nativeWriter.WriteLengthPrefixedString(serialisedLFE);
+					}
 				}
 
 				// -----------------------

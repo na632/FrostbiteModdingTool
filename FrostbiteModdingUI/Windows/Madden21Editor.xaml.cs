@@ -387,7 +387,7 @@ namespace FrostbiteModdingUI.Windows
 
         public void UpdateAllBrowsersFull()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

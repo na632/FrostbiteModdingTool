@@ -227,6 +227,9 @@ namespace FIFAModdingUI.Windows
 
                 Dispatcher.Invoke(() =>
                 {
+                    miProject.IsEnabled = true;
+                    miMod.IsEnabled = true;
+                    miProjectConverter.IsEnabled = true;
 
                     btnProjectNew.IsEnabled = true;
                     btnProjectOpen.IsEnabled = true;
@@ -562,7 +565,7 @@ namespace FIFAModdingUI.Windows
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
-                    await Task.Run(() =>
+                    await new TaskFactory().StartNew(() =>
                     {
                         InitialiseBrowsers();
                     });
@@ -965,50 +968,58 @@ namespace FIFAModdingUI.Windows
 
         public void UpdateAllBrowsersFull()
         {
-            Dispatcher.InvokeAsync(() =>
-            {
-                dataBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
+             var dataBrowserData = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx()
                                    .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
+            // Kit Browser
+            var kitList = ProjectManagement.Project.AssetManager
+                               .EnumerateEbx()
+                               .Where(x => x.Path.ToLower().Contains("character/kit"))
+                               .OrderBy(x => x.Path)
+                               .Select(x => (IAssetEntry)x);
 
-                // Kit Browser
-                var kitList = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx()
-                                   .Where(x => x.Path.ToLower().Contains("character/kit"))
-                                   .OrderBy(x => x.Path)
-                                   .Select(x => (IAssetEntry)x);
-                kitBrowser.AllAssetEntries = kitList.ToList();
-
-                gameplayBrowser.AllAssetEntries = ProjectManagement.Project.AssetManager
+            var gpBrowserData = ProjectManagement.Project.AssetManager
                                   .EnumerateEbx()
                                   .Where(x => x.Path.Contains("fifa/attribulator/gameplay", StringComparison.OrdinalIgnoreCase))
                                   .OrderBy(x => x.Path)
                                   .Select(x => (IAssetEntry)x).ToList();
 
+            var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
-                var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path);
+            List<IAssetEntry> textureAssets = ProjectManagement.Project.AssetManager
+                                .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+            textureAssets.AddRange(legacyFiles.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
 
-                legacyBrowser.AllAssetEntries = legacyFiles.Select(x => (IAssetEntry)x).ToList();
 
-                List<IAssetEntry> textureAssets = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-                textureAssets.AddRange(legacyBrowser.AllAssetEntries.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
+            var faceList = ProjectManagement.Project.AssetManager
+                                  .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/player")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
+            faceList = faceList.OrderBy(x => x.Name).ToList();
 
+            var bootList = ProjectManagement.Project.AssetManager
+                                 .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
+            bootList = bootList.OrderBy(x => x.Name);
+
+            Dispatcher.InvokeAsync(() =>
+            {
+                dataBrowser.AllAssetEntries = dataBrowserData;
+                
+                kitBrowser.AllAssetEntries = kitList;
+
+                gameplayBrowser.AllAssetEntries = gpBrowserData;
+
+                legacyBrowser.AllAssetEntries = legacyFiles;
+             
                 textureBrowser.AllAssetEntries = textureAssets;
-
-                var faceList = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/player")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
-                faceList = faceList.OrderBy(x => x.Name).ToList();
+               
                 faceBrowser.AllAssetEntries = faceList;
-
-                var bootList = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
-                bootList = bootList.OrderBy(x => x.Name);
+              
                 bootsBrowser.AllAssetEntries = bootList;
             });
 
             UpdateAllBrowsers();
+
+            Log("Updated Browsers");
         }
 
         private void btnOpenModBundler_Click(object sender, RoutedEventArgs e)
