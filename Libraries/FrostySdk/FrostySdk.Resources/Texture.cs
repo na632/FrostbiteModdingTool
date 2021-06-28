@@ -403,6 +403,11 @@ namespace FrostySdk.Resources
 			}
 		}
 
+		public byte[] Write()
+        {
+			return ToBytes();
+        }
+
 		public byte[] ToBytes()
 		{
 			MemoryStream memoryStream = new MemoryStream();

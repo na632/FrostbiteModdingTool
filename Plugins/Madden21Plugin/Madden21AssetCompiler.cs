@@ -1,4 +1,5 @@
-﻿using Frosty.Hash;
+﻿using FrostbiteSdk.Extras;
+using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
@@ -249,6 +250,9 @@ namespace Madden21Plugin
                     string location_toc_file = ModExecuter.fs.ResolvePath($"{arg}.toc").ToLower();
                     if (location_toc_file != "")
                     {
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+
                         uint orig_toc_file_num1 = 0u;
                         uint tocchunkposition = 0u;
                         byte[] byte_array_of_original_toc_file = null;
@@ -337,18 +341,20 @@ namespace Madden21Plugin
                                                 ModExecuter.Logger.Log("Modifying Bundle: " + bundleName);
 
                                                 ModBundleInfo modBundleInfo = ModExecuter.modifiedBundles[bundleKey];
-                                                MemoryStream memoryStream = new MemoryStream();
+                                                //MemoryStream memoryStream = new MemoryStream();
+                                                MemoryUtils memoryUtils = new MemoryUtils();
                                                 foreach (BundleFileEntry item in listOfBundleFileEntries)
                                                 {
                                                     using (NativeReader nativeReader3 = new NativeReader(new FileStream(ModExecuter.fs.ResolvePath(ModExecuter.fs.GetFilePath(item.CasIndex)), FileMode.Open, FileAccess.Read)))
                                                     {
                                                         nativeReader3.Position = item.Offset;
-                                                        memoryStream.Write(nativeReader3.ReadBytes(item.Size), 0, item.Size);
+                                                        //memoryStream.Write(nativeReader3.ReadBytes(item.Size), 0, item.Size);
+                                                        memoryUtils.Write(nativeReader3.ReadBytes(item.Size));
                                                     }
                                                 }
                                                 DbObject dbObject = null;
-                                                //using (BinarySbReader_M21 binarySbReader = new BinarySbReader_M21(memoryStream, 0L, ModExecuter.fs.CreateDeobfuscator()))
-                                                using (BinarySbReaderV2 binarySbReader = new BinarySbReaderV2(memoryStream, 0L, ModExecuter.fs.CreateDeobfuscator()))
+                                                //using (BinarySbReaderV2 binarySbReader = new BinarySbReaderV2(memoryStream, 0L, ModExecuter.fs.CreateDeobfuscator()))
+                                                using (BinarySbReaderV2 binarySbReader = new BinarySbReaderV2(memoryUtils.GetMemoryStream(), 0L, ModExecuter.fs.CreateDeobfuscator()))
                                                 {
                                                     dbObject = binarySbReader.ReadDbObject();
                                                     foreach (DbObject ebxItem in dbObject.GetValue<DbObject>("ebx"))
@@ -554,6 +560,8 @@ namespace Madden21Plugin
                                                     bundleFileEntry.Size = (int)(bwBytes.Length);
                                                     writer_new_cas_file.WriteBytes(bwBytes);
                                                 }
+
+                                                memoryUtils.Dispose();
                                             }
                                             list2.Add((int)(writer_new_toc_file_mod_data.BaseStream.Position - position));
                                             long unkTocOffset = (writer_new_toc_file_mod_data.BaseStream.Position - position + listOfBundleFileEntries.Count * 3 * 4 + 5);

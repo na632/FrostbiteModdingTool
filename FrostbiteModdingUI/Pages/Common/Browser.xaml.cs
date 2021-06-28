@@ -381,32 +381,20 @@ namespace FIFAModdingUI.Pages.Common
 							var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(SelectedEntry.Name);
 							if (resEntry != null)
 							{
-								using (var resStream = await ProjectManagement.Instance.Project.AssetManager.GetResAsync(resEntry))
+								Texture texture = new Texture(resEntry);
+								TextureImporter textureImporter = new TextureImporter();
+								EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
+
+								if (ebxAssetEntry != null)
 								{
-
-									Texture texture = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager);
-									TextureImporter textureImporter = new TextureImporter();
-									EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
-
-
-
-									if (ebxAssetEntry != null)
-									{
-										textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
-									}
-
-
-									var res = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
-									if (res != null)
-									{
-										BuildTextureViewerFromAssetEntry(res);
-									}
-
-
-									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
-									App.AppInsightClient.TrackRequest("Import Texture", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
-
+									textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
 								}
+
+								BuildTextureViewerFromAssetEntry(resEntry);
+
+								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
+								App.AppInsightClient.TrackRequest("Import Texture", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
+
 							}
 						}
 					}
