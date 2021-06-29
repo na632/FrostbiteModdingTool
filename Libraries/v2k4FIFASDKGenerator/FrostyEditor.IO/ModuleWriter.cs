@@ -215,21 +215,29 @@ namespace SdkGenerator
 
 			var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, options);
 
-			var objectAssemblyLocation = typeof(object).Assembly.Location;
-			var systemRuntimeAssemblyLocation = typeof(System.Runtime.Serialization.DataContractSerializer).Assembly.Location;
+
+			var dotnetcore_directory = Directory.GetParent(typeof(object).Assembly.Location);
+
+			var dotnetcore_files = Directory.GetFiles(dotnetcore_directory.FullName, "*.dll", SearchOption.AllDirectories);
+
+            var objectAssemblyLocation = typeof(object).Assembly.Location;
+            //var systemRuntimeAssemblyLocation = typeof(System.Runtime.Serialization.DataContractSerializer).Assembly.Location;
 
 
-			var references = new MetadataReference[]
-			{
-            MetadataReference.CreateFromFile(objectAssemblyLocation),
-			//MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
-			//MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-			//MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.12\netstandard.dll"),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.12\System.Runtime.dll"),
-            MetadataReference.CreateFromFile("FrostySdk.dll"),
-			//MetadataReference.CreateFromFile("FrostbiteSdk.dll")
+            var references = new MetadataReference[]
+            {
+                    MetadataReference.CreateFromFile(objectAssemblyLocation),
+					MetadataReference.CreateFromFile(dotnetcore_directory + @"\netstandard.dll"),
+					MetadataReference.CreateFromFile(dotnetcore_directory + @"\System.Runtime.dll"),
+                    MetadataReference.CreateFromFile("FrostySdk.dll"),
 			};
+
+   //         var references = new List<MetadataReference>();
+			//foreach(var dotnetcoredll in dotnetcore_files)
+   //         {
+			//	references.Add(MetadataReference.CreateFromFile(dotnetcoredll));
+			//}
+			//references.Add(MetadataReference.CreateFromFile("FrostySdk.dll"));
 
 			if (File.Exists("EbxClasses.dll"))
 				File.Delete("EbxClasses.dll");
