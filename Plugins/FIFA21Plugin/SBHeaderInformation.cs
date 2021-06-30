@@ -42,8 +42,12 @@ namespace FIFA21Plugin
 
         //public int shaCount;
 
+        int attempts = 0;
+
         public SBHeaderInformation(NativeReader nr, int additionalHeaderLength = 36)
         {
+            startOfSBHI:
+
             AdditionalHeaderLength = additionalHeaderLength;
             var pos = nr.Position;
 
@@ -51,7 +55,13 @@ namespace FIFA21Plugin
             magicStuff = nr.ReadUInt(Endian.Big);
             if (magicStuff != 3599661469)
             {
-                //throw new Exception("Magic/Hash is not right, expecting 3599661469");
+                if (attempts == 0)
+                {
+                    nr.Position = 0;
+                    attempts++;
+                    goto startOfSBHI;
+                }
+
                 Debug.WriteLine("Magic/Hash is not right, expecting 3599661469");
                 SuccessfullyRead = false;
                 return;

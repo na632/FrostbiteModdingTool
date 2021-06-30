@@ -2,16 +2,15 @@ namespace FrostySdk.Managers
 {
 	public class AssetExtraData
 	{
-		public Sha1 BaseSha1;
+		public Sha1 BaseSha1 { get; set; }
 
-		public Sha1 DeltaSha1;
+		public Sha1 DeltaSha1 { get; set; }
 
-		//public long DataOffset;
-		public uint DataOffset;
+		public uint DataOffset { get; set; }
 
-		public int SuperBundleId;
+		public int SuperBundleId { get; set; }
 
-		public bool IsPatch;
+		public bool IsPatch { get; set; }
 
 		private string casPath;
 
@@ -44,6 +43,8 @@ namespace FrostySdk.Managers
 		public ushort? Cas { get; set; }
 
         public int? CasIndex { get; set; }
+
+		public byte Unk { get; set; }
 
 		
     }

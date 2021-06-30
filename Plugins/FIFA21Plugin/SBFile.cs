@@ -116,7 +116,9 @@ namespace FIFA21Plugin
 
                 }
 
-                AssetManager.Instance.bundles.Add(bundleEntry);
+                if(AssetManager.Instance != null && ParentReader.ProcessData)
+                    AssetManager.Instance.bundles.Add(bundleEntry);
+
                 dbObjects.Add(dbObject);
                 index++;
                 FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex++;

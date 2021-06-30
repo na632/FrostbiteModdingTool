@@ -27,7 +27,9 @@ namespace FIFA21Plugin
             )
         {
             // Read out the Header Info
-            var SBHeaderInformation = new SBHeaderInformation(binarySbReader2, IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 4);
+            var SBHeaderInformation = new SBHeaderInformation(binarySbReader2
+                , IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 4
+                );
             if (!SBHeaderInformation.SuccessfullyRead)
                 return null;
             //

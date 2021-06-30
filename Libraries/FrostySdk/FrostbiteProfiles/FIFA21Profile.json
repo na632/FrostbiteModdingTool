@@ -13,9 +13,9 @@
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)
-  "EBXReader": "EBXReader_F21",
+  "EBXReader": "EBXReaderV3",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": null,
+  "EBXWriter": "EBXWriterV2",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)

@@ -90,198 +90,6 @@ namespace FIFA21Plugin
                         var resCount = binaryObject.GetValue<DbObject>("res").Count;
                         var chunkCount = binaryObject.GetValue<DbObject>("chunks").Count;
                         //
-                        /*
-                        var size = inner_reader.ReadInt(Endian.Big) + 4;
-                        var magicStuff = inner_reader.ReadUInt(Endian.Big);
-                        if (magicStuff != 3599661469) 
-                            return;
-                            //throw new Exception("Magic/Hash is not right, expecting 3599661469");
-
-                        var totalCount = inner_reader.ReadInt(Endian.Little);
-                        ebxCount = inner_reader.ReadInt(Endian.Little);
-                        var resCount = inner_reader.ReadInt(Endian.Little);
-                        var chunkCount = inner_reader.ReadInt(Endian.Little);
-                        if(ebxCount + resCount + chunkCount != totalCount) return;
-                        //throw new Exception("Total Count is not right");
-
-                        if (totalCount != casBundle.Offsets.Count) 
-                            return;
-
-                        var stringOffset = inner_reader.ReadInt(Endian.Little) + 4;
-                        var metaOffset = inner_reader.ReadInt(Endian.Little) + 4;
-                        var metaSize = inner_reader.ReadInt(Endian.Little) + 4;
-
-                        DbObject FullObjectList = new DbObject();
-                        FullObjectList.AddValue("dataOffset", size);
-                        FullObjectList.AddValue("stringsOffset", stringOffset);
-                        FullObjectList.AddValue("metaOffset", metaOffset);
-                        FullObjectList.AddValue("metaSize", metaSize);
-
-                        var posBeforeChunkMeta = inner_reader.Position;
-                        if (chunkCount != 0)
-                        {
-                            //using (DbReader dbReader = new DbReader(nativeReader.CreateViewStream(SBHeaderInformation.metaOffset + BaseBundleItem.Offset, nativeReader.Length - binarySbReader2.Position), new NullDeobfuscator()))
-                            using (DbReader dbReader = new DbReader(inner_reader.CreateViewStream(metaOffset, inner_reader.Length - metaSize), new NullDeobfuscator()))
-                            {
-                                var o = dbReader.ReadDbObject();
-                                FullObjectList.AddValue("chunkMeta", o);
-
-                                CASBinaryMeta = o;
-                            }
-                        }
-                        inner_reader.Position = posBeforeChunkMeta;
-
-                        List<long> Sha1Positions = new List<long>();
-                        List<Sha1> sha1 = new List<Sha1>();
-                        for (int i = 0; i < totalCount; i++)
-                        {
-                            Sha1Positions.Add(inner_reader.Position + baseBundleInfo.Offset);
-                            sha1.Add(inner_reader.ReadSha1());
-                        }
-
-                        List<DbObject> EbxObjectList = new List<DbObject>();
-                        for (int i = 0; i < ebxCount; i++)
-                        {
-                            DbObject dbObject = new DbObject(new Dictionary<string, object>());
-                            dbObject.AddValue("AssetType", "EBX");
-
-                            dbObject.AddValue("SB_StringOffsetPosition", inner_reader.Position + baseBundleInfo.Offset);
-                            uint num = inner_reader.ReadUInt(Endian.Little);
-                            dbObject.AddValue("StringOffsetPos", num);
-
-                            dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + baseBundleInfo.Offset);
-                            if (inner_reader.Position + baseBundleInfo.Offset == 0)
-                                throw new Exception("Cannot set SB_OriginalSize_Position");
-
-                            uint originalSize = inner_reader.ReadUInt(Endian.Little);
-                            dbObject.AddValue("originalSize", originalSize);
-                            //dbObject.AddValue("size", originalSize);
-
-                            dbObject.AddValue("cas", casBundle.Cas);
-                            dbObject.AddValue("catalog", casBundle.Catalog);
-
-                            dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
-                            dbObject.AddValue("sha1", sha1[i]);
-
-                            EbxObjectList.Add(dbObject);
-                        }
-                        List<DbObject> ResObjectList = new List<DbObject>();
-                        for (int i = 0; i < resCount; i++)
-                        {
-                            DbObject dbObject = new DbObject(new Dictionary<string, object>());
-                            dbObject.AddValue("AssetType", "RES");
-
-                            dbObject.AddValue("SB_StringOffsetPosition", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
-                            uint num = inner_reader.ReadUInt(Endian.Little);
-                            dbObject.AddValue("StringOffsetPos", num);
-
-                            dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
-                            uint originalSize = inner_reader.ReadUInt(Endian.Little);
-                            dbObject.AddValue("originalSize", originalSize);
-                            //dbObject.AddValue("size", originalSize);
-
-                            dbObject.AddValue("cas", casBundle.Cas);
-                            dbObject.AddValue("catalog", casBundle.Catalog);
-
-                            dbObject.AddValue("SB_Sha1_Position", Sha1Positions[ebxCount + i]);
-                            dbObject.AddValue("sha1", sha1[ebxCount + i]);
-
-                            ResObjectList.Add(dbObject);
-                        }
-                        // RES Types
-                        for (var i = 0; i < resCount; i++)
-                        {
-                            var type = inner_reader.ReadUInt(Endian.Little);
-                            var resType = (ResourceType)type;
-                            ResObjectList[i].AddValue("resType", type);
-                            ResObjectList[i].AddValue("resType2", resType);
-                        }
-                        // RES Meta ??? 
-                        for (var i = 0; i < resCount; i++)
-                        {
-                            var resMeta = inner_reader.ReadBytes(16);
-                            ResObjectList[i].AddValue("resMeta", resMeta);
-                        }
-
-                        List<ulong> ResIdList = new List<ulong>();
-                        // ResId ??
-                        for (int i = 0; i < resCount; i++)
-                        {
-                            var resRid = inner_reader.ReadULong(Endian.Little);
-                            ResIdList.Add(resRid);
-                        }
-
-
-                        List<DbObject> ChunkObjectList = new List<DbObject>();
-                        for (int i = 0; i < chunkCount; i++)
-                        {
-                            DbObject dbObject = new DbObject(new Dictionary<string, object>());
-                            dbObject.AddValue("AssetType", "CHUNK");
-
-                            dbObject.AddValue("SB_Guid_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
-                            Guid guid = inner_reader.ReadGuid(Endian.Little);
-                            
-                            dbObject.AddValue("SB_LogicalOffset_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
-                            uint logicalOffset = inner_reader.ReadUInt(Endian.Little);
-                            dbObject.AddValue("SB_OriginalSize_Position", inner_reader.Position + (baseBundleInfo != null ? baseBundleInfo.Offset : 0));
-                            uint chunkSize = inner_reader.ReadUInt(Endian.Little);
-                            long origSize = (logicalOffset & 0xFFFF) | chunkSize;
-                            dbObject.AddValue("id", guid);
-                            dbObject.AddValue("logicalOffset", logicalOffset);
-                            dbObject.AddValue("logicalSize", chunkSize);
-                            dbObject.AddValue("originalSize", origSize);
-
-                            dbObject.AddValue("cas", casBundle.Cas);
-                            dbObject.AddValue("catalog", casBundle.Catalog);
-
-                            dbObject.AddValue("SB_Sha1_Position", Sha1Positions[ebxCount + resCount + i]);
-                            dbObject.AddValue("sha1", sha1[ebxCount + resCount + i]);
-
-                            if (AssetManager.Instance.chunkList.ContainsKey(guid))
-                            {
-                                AssetManager.Instance.chunkList[guid].SB_Sha1_Position = (int)Sha1Positions[ebxCount + resCount + i];
-                                AssetManager.Instance.chunkList[guid].Sha1 = sha1[ebxCount + resCount + i];
-                                AssetManager.Instance.chunkList[guid].CASFileLocation = NativeFileLocation;
-                            }
-                            ChunkObjectList.Add(dbObject);
-                        }
-
-                        var positionBeforeStringSearch = inner_reader.Position;
-                        var stringsLength = 0;
-                        for (var i = 0; i < ebxCount; i++)
-                        {
-                            var string_offset = EbxObjectList[i].GetValue<int>("StringOffsetPos");
-
-                            inner_reader.Position = stringOffset + string_offset;
-                            var name = inner_reader.ReadNullTerminatedString();
-                            stringsLength += name.Length + 1;
-                            EbxObjectList[i].AddValue("name", name);
-                            EbxObjectList[i].AddValue("nameHash", Fnv1.HashString(name));
-
-                        }
-
-                        for (var i = 0; i < resCount; i++)
-                        {
-                            var string_offset = ResObjectList[i].GetValue<int>("StringOffsetPos");
-
-                            inner_reader.Position = stringOffset + string_offset;
-                            var name = inner_reader.ReadNullTerminatedString();
-                            stringsLength += name.Length + 1;
-
-                            ResObjectList[i].AddValue("name", name);
-                            ResObjectList[i].AddValue("nameHash", Fnv1.HashString(name));
-                        }
-
-                        //inner_reader.Position = metaOffset + metaSize - 4;
-
-                        //FullObjectList.AddValue("dataOffset", inner_reader.Position);
-                        inner_reader.Position = positionBeforeStringSearch + stringsLength;
-                        //inner_reader.Position = 387;
-
-                      
-                        var dataOffset = baseBundleInfo.Offset + inner_reader.Position;
-              */
-
                         for (var i = 0; i < ebxCount; i++)
                         {
                             var ebxobjectinlist = EbxObjectList[i] as DbObject;
@@ -300,22 +108,6 @@ namespace FIFA21Plugin
                             var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
                             bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
 
-                            //using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[i]))
-                            //{
-                            //    CasReader casReader = new CasReader(vs);
-                            //    var b = casReader.ReadBlock();
-                            //    if (b != null && b.Length > 0)
-                            //    {
-                            //        var ms = new MemoryStream();
-                            //        {
-                            //            NativeWriter nativeWriter_ForMS = new NativeWriter(ms, true);
-                            //            nativeWriter_ForMS.Write(b);
-                            //            ms.Position = 0;
-                            //            EbxReaderV3 ebxReader_F21 = new EbxReaderV3(ms, casBundle.TOCPatch[i]);
-                            //            ebxobjectinlist.SetValue("Type", ebxReader_F21.RootType);
-                            //        }
-                            //    }
-                            //}
                             ebxobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
                         }
@@ -337,41 +129,6 @@ namespace FIFA21Plugin
 
                             resobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
-                            //resobjectinlist.SetValue("cas", casBundle.Cas);
-                            //resobjectinlist.SetValue("catalog", casBundle.Catalog);
-                            //resobjectinlist.SetValue("patch", casBundle.Patch);
-
-                            //ResObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + i]]);
-                            //ResObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + i]]);
-                            //ResObjectList[i].SetValue("patch", casBundle.TOCOffsetsToPatch[casBundle.Offsets[ebxCount + i]]);
-
-                            var bundleCheck = casBundle.Offsets[ebxCount + i] - casBundle.BundleOffset;
-                            //bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[ebxCount + i];
-
-                            //if (
-                            //    bundleCheck > 0
-                            //    && casBundle.TOCCas[ebxCount + i] == casBundle.Cas 
-                            //    && casBundle.TOCCatalog[ebxCount + i] == casBundle.Catalog)
-                            //{
-                                //using (var vs = inner_reader.CreateViewStream(bundleCheck, casBundle.Sizes[ebxCount + i]))
-                                //{
-                                //    CasReader casReader = new CasReader(vs);
-                                //    var b = casReader.ReadBlock();
-                                //    if (b != null && b.Length > 0)
-                                //    {
-
-                                //    }
-                                //    else
-                                //    {
-                                //        AssetManager.Instance.logger.LogError("Unable to read CasBlock in " + this.NativeFileLocation + " at position " + (bundleCheck + casBundle.Offsets[ebxCount + i]));
-                                //    }
-                                //}
-                            //}
-                            //else
-                            //{
-
-                            //}
-
                         }
 
                         for (var i = 0; i < chunkCount; i++)
@@ -385,19 +142,13 @@ namespace FIFA21Plugin
                             chunkObjectInList.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
                             chunkObjectInList.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + resCount + i]);
 
-                            //chunkObjectInList.SetValue("cas", casBundle.Cas);
-                            //chunkObjectInList.SetValue("catalog", casBundle.Catalog);
-                            //chunkObjectInList.SetValue("patch", casBundle.Patch);
-
+                      
                             chunkObjectInList.SetValue("cas", casBundle.TOCCas[ebxCount + resCount + i]);
                             chunkObjectInList.SetValue("catalog", casBundle.TOCCatalog[ebxCount + resCount + i]);
                             chunkObjectInList.SetValue("patch", casBundle.TOCPatch[ebxCount + resCount + i]);
 
                             chunkObjectInList.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
-                            //ChunkObjectList[i].SetValue("cas", casBundle.TOCOffsetsToCAS[casBundle.Offsets[ebxCount + resCount + i]]);
-                            //ChunkObjectList[i].SetValue("catalog", casBundle.TOCOffsetsToCatalog[casBundle.Offsets[ebxCount + resCount + i]]);
-                            //ChunkObjectList[i].SetValue("patch", casBundle.TOCOffsetsToPatch[casBundle.Offsets[ebxCount + resCount + i]]);
                         }
 
 
@@ -416,7 +167,6 @@ namespace FIFA21Plugin
                             int cas = item.GetValue("cas", 0);
                             int catalog = item.GetValue("catalog", 0);
                             bool patch = item.GetValue("patch", false);
-                            //bool cPath = casBundle. item.GetValue("path", false);
                             ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                             ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
@@ -448,8 +198,6 @@ namespace FIFA21Plugin
                             bool patch = item.GetValue("patch", false);
                             resAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                            //var resRid = ResIdList[iRes];
-                            //resAssetEntry.ResRid = resRid;
                             resAssetEntry.ResRid = item.GetValue<ulong>("resRid", 0ul);
                             resAssetEntry.ResType = item.GetValue<uint>("resType", 0);
                             resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta", null);
@@ -472,10 +220,7 @@ namespace FIFA21Plugin
                         {
                             ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
                             chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                            //chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1", sha1[ebxCount + resCount + iChunk]);
-                            //if (chunkAssetEntry.Sha1 == Sha1.Zero)
-                            //    chunkAssetEntry.Sha1 = sha1[ebxCount + resCount + iChunk];
-
+                    
                             chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
                             chunkAssetEntry.Size = item.GetValue("size", 0L);
                             chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
@@ -489,10 +234,6 @@ namespace FIFA21Plugin
                             chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                             chunkAssetEntry.Id = item.GetValue<Guid>("id");
-                            if (chunkAssetEntry.Id.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")
-                            {
-
-                            }
                             chunkAssetEntry.LogicalOffset = item.GetValue<uint>("logicalOffset");
                             chunkAssetEntry.LogicalSize = item.GetValue<uint>("logicalSize");
 

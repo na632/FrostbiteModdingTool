@@ -5,8 +5,15 @@ namespace FIFA21Plugin
 {
     public class CASBundle
     {
+        public int unk1 { get; set; }
+        public int unk2 { get; set; }
+        public int unk3 { get; set; }
+        public int unk4 { get; set; }
+        public int unk5 { get; set; }
         public int Catalog { get; set; }
         public int Cas { get; set; }
+
+        public int FlagsOffset { get; set; }
 
         public int BundleOffset { get; set; }
         public int BundleSize { get; internal set; }
@@ -14,6 +21,8 @@ namespace FIFA21Plugin
         public List<int> Sizes = new List<int>();
 
         public List<int> Offsets = new List<int>();
+
+        public List<dynamic> Entries = new List<dynamic>();
 
         public long TotalSize
         { 
@@ -30,6 +39,8 @@ namespace FIFA21Plugin
         }
 
         public bool Patch { get; internal set; }
+        public int EntriesCount { get; internal set; }
+        public int EntriesOffset { get; internal set; }
 
         /// <summary>
         /// 
