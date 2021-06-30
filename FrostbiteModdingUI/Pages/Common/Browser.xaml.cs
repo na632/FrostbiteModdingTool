@@ -274,12 +274,13 @@ namespace FIFAModdingUI.Pages.Common
 				//options.generateMipmaps = (textureAsset.MipCount > 1);
 				options.generateMipmaps = false;
 				options.mipmapsFilter = 0;
-				options.resizeTexture = true;
+				options.resizeTexture = false;
+				//options.resizeTexture = true;
 				options.resizeFilter = 0;
 				//options.resizeHeight = textureAsset.Height;
 				//options.resizeWidth = textureAsset.Width;
-				options.resizeHeight = originalImage._image.Height;
-				options.resizeWidth = originalImage._image.Width;
+				//options.resizeHeight = originalImage._image.Height;
+				//options.resizeWidth = originalImage._image.Width;
 				byte[] pngarray = NativeReader.ReadInStream(new FileStream(importFilePath, FileMode.Open, FileAccess.Read));
                 TextureUtils.ConvertImageToDDS(pngarray, pngarray.Length, imageFormat, options, ref pOutData);
             }
@@ -330,7 +331,7 @@ namespace FIFAModdingUI.Pages.Common
 				
 
 				//var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
-				var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
+				var imageFilter = "Image files (*.dds, *.png)|*.dds;*.png";
 				if (SelectedLegacyEntry != null)
 				{
 					OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -541,7 +542,7 @@ namespace FIFAModdingUI.Pages.Common
 				SaveFileDialog saveFileDialog = new SaveFileDialog();
 				var filt = "*." + SelectedLegacyEntry.Type;
 				if(SelectedLegacyEntry.Type == "DDS")
-					saveFileDialog.Filter = "PNG files (*.png)|*.png";
+					saveFileDialog.Filter = "Image files (*.dds,*.png)|*.png;*.dds";
 				else
 					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
 				
@@ -550,7 +551,7 @@ namespace FIFAModdingUI.Pages.Common
 				if (saveFileDialog.ShowDialog().Value)
 				{
 					var legacyData = ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry);
-					if (SelectedLegacyEntry.Type == "DDS")
+					if (SelectedLegacyEntry.Type == "DDS" && saveFileDialog.FileName.Contains("PNG", StringComparison.OrdinalIgnoreCase))
 					{
 						DDSImage image = new DDSImage(legacyData);
 						image.Save(saveFileDialog.FileName);

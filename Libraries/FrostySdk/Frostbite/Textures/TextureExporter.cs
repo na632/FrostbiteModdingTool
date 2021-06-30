@@ -700,6 +700,12 @@ namespace Frostbite.Textures
 				case "PFIM.DXT5DDSRGBA32":
 					result = "BC3_SRGB";
 					break;
+				case "PFIM.DXT3DDSRGBA32":
+					result = "BC2_SRGB";
+					break;
+				default:
+					result = "BC3_SRGB";
+					break;
 			}
 
 			return ToShaderFormat(result);
