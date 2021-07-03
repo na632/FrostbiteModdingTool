@@ -32,6 +32,12 @@ namespace FIFA21Plugin
                 );
             if (!SBHeaderInformation.SuccessfullyRead)
                 return null;
+
+            dbObject.AddValue("totalCount", SBHeaderInformation.totalCount);
+            dbObject.AddValue("ebxCount", SBHeaderInformation.ebxCount);
+            dbObject.AddValue("resCount", SBHeaderInformation.resCount);
+            dbObject.AddValue("chunkCount", SBHeaderInformation.chunkCount);
+
             //
             List<Sha1> sha1 = new List<Sha1>();
             for (int i = 0; i < SBHeaderInformation.totalCount; i++)

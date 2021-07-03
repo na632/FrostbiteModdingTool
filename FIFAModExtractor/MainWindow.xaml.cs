@@ -3,6 +3,7 @@ using FrostySdk;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Frosty;
 using FrostySdk.IO;
+using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.Win32;
 using System;
@@ -22,7 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static FrostySdk.BaseModReader;
+using static FrostbiteSdk.Frosty.Abstract.BaseModReader;
 
 namespace FIFAModExtractor
 {
@@ -87,35 +88,6 @@ namespace FIFAModExtractor
                 return new ObservableCollection<BaseModResource>(items);
 
 
-            switch (FIFAModFileInfo.Extension)
-            {
-                case ".fifamod":
-                    ModFile = new FIFAMod(new FileStream(FIFAModFilePath, FileMode.Open));
-                    break;
-                default:
-                    ModFile = new FrostbiteMod(new FileStream(FIFAModFilePath, FileMode.Open));
-                    break;
-            }
-
-
-
-            if (ModFile != null)
-            {
-                if(ModFile is FrostbiteMod)
-                {
-                    if(((FrostbiteMod)ModFile).IsEncrypted)
-                        return new ObservableCollection<BaseModResource>(items);
-                }
-
-                items = ModFile.Resources.Where(x => x.GetType().Name != "EmbeddedResource").ToList();
-            }
-            return new ObservableCollection<BaseModResource>(items);
-        }
-
-        public IFrostbiteMod ModFile { get; set; }
-
-        public IFrostbiteMod GetModFile()
-        {
             if (ModFile == null)
             {
                 switch (FIFAModFileInfo.Extension)
@@ -127,6 +99,87 @@ namespace FIFAModExtractor
                         ModFile = new FrostbiteMod(new FileStream(FIFAModFilePath, FileMode.Open));
                         break;
                 }
+            }
+
+
+            if (ModFile != null)
+            {
+                if(ModFile is FrostbiteMod)
+                {
+                    if(((FrostbiteMod)ModFile).IsEncrypted)
+                        return new ObservableCollection<BaseModResource>(items);
+                }
+
+                items = ModFile.Resources.Where(x => 
+                (x.Type == ModResourceType.Ebx
+                || x.Type == ModResourceType.Chunk
+                 || !x.Name.Contains("mesh"))
+                ).ToList();
+            }
+            return new ObservableCollection<BaseModResource>(items);
+        }
+
+        public List<BaseModResource> GetAllItemsInFile()
+        {
+            if (ModFile != null)
+            {
+                return ModFile.Resources.ToList();
+            }
+
+            return null;
+        }
+
+        public IFrostbiteMod ModFile { get; set; }
+
+        public IFrostbiteMod GetModFile()
+        {
+            if (ModFile == null)
+            {
+                MemoryStream memoryStream = new MemoryStream();
+                using (var nr = new NativeReader(new FileStream(FIFAModFilePath, FileMode.Open)))
+                    memoryStream = new MemoryStream(nr.ReadToEnd());
+
+                switch (FIFAModFileInfo.Extension)
+                {
+                    case ".fifamod":
+                        ModFile = new FIFAMod(memoryStream);
+                        break;
+                    default:
+                        ModFile = new FrostbiteMod(memoryStream);
+                        break;
+                }
+                //if (AssetManager.Instance == null)
+                //    AssetManager.Instance = new AssetManager(FileSystem.Instance, ResourceManager.Instance);
+
+                //foreach(var i in ItemsInFile)
+                //{
+
+                //    switch(i.Type)0
+                //    {
+                //        case ModResourceType.Ebx:
+
+                //            EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+                //            i.FillAssetEntry(ebxAssetEntry);
+                //            AssetManager.Instance.AddEbx(ebxAssetEntry);
+
+                //            break;
+                //        case ModResourceType.Res:
+
+                //            ResAssetEntry resAssetEntry = new ResAssetEntry();
+                //            i.FillAssetEntry(resAssetEntry);
+                //            AssetManager.Instance.AddRes(resAssetEntry);
+
+                //            break;
+                //        case ModResourceType.Chunk:
+
+                //            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                //            i.FillAssetEntry(chunkAssetEntry);
+                //            AssetManager.Instance.AddChunk(chunkAssetEntry);
+
+                //            break;
+                //    }
+                //}
+
             }
             return ModFile;
         }
@@ -153,6 +206,10 @@ namespace FIFAModExtractor
 
                 var profName = new FileInfo(GamePath).Name.Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
                 ProfilesLibrary.Initialize(profName);
+
+                FileSystem.Instance = new FileSystem(Directory.GetParent(GamePath).FullName);
+                FileSystem.Instance.Initialize();
+
                 ZStd.Bind();
                 Oodle.Bind(Directory.GetParent(GamePath).FullName);
                 TypeLibrary.Initialize(true);
@@ -185,6 +242,8 @@ namespace FIFAModExtractor
             {
                 if (lstModItems.SelectedValue != null)
                 {
+                    // getting lots of "already in use" errors here from "getmodfile()"
+
                     var compResoruceData = GetModFile().GetResourceData((BaseModResource)lstModItems.SelectedValue);
                     if (compResoruceData.Length > 0)
                     {
@@ -193,7 +252,61 @@ namespace FIFAModExtractor
 
                         if (lstModItems.SelectedValue is EbxResource)
                         {
-                            ExportDataToFile(uncompressedData);
+                            var ebxModResource = (EbxResource)lstModItems.SelectedItem;
+
+                            var filename = ebxModResource.Name;
+                            filename = filename.Split('/')[filename.Split('/').Length - 1];
+
+                            EbxAsset ebx = new EbxReaderV3(new MemoryStream(uncompressedData), true).ReadAsset();
+
+                            var lastNameItem = ebxModResource.Name.Split("_")[ebxModResource.Name.Split("_").Length - 1];
+                            if (ListOfMeshNames.Contains(lastNameItem))
+                            {
+                                var resModResource = (ResResource)GetAllItemsInFile().FirstOrDefault(
+                                    x => x.Name.Equals(ebxModResource.Name, StringComparison.OrdinalIgnoreCase)
+                                    && x.Type == ModResourceType.Res);
+                                var resResoruceData = GetModFile().GetResourceData(resModResource);
+                                if (resResoruceData.Length > 0)
+                                {
+                                    casReader = new CasReader(new MemoryStream(resResoruceData));
+                                    uncompressedData = casReader.Read();
+                                    MeshSet meshSet = new MeshSet(new MemoryStream(uncompressedData));
+                                    var exporter = new MeshSetToFbxExport();
+
+                                    SaveFileDialog sfdExportMesh = new SaveFileDialog();
+                                    sfdExportMesh.Filter = "Model (*.fbx)|*.fbx;";
+                                    sfdExportMesh.FileName = filename;
+                                    var sfd_result = sfdExportMesh.ShowDialog();
+                                    if (sfd_result.HasValue && sfd_result.Value)
+                                    {
+                                        exporter.Export(null, ebx, sfdExportMesh.FileName, "FBX_2012", "Meters", true, null, "*.fbx", meshSet);
+                                    }
+                                }
+                            }
+                           else if (ListOfTextureNames.Contains(lastNameItem))
+                            {
+                                var resModResource = (ResResource)ItemsInFile.FirstOrDefault(x => x.Name == ebxModResource.Name && x.Type == ModResourceType.Res);
+                                var resResoruceData = GetModFile().GetResourceData(resModResource);
+                                if (resResoruceData.Length > 0)
+                                {
+                                    casReader = new CasReader(new MemoryStream(resResoruceData));
+                                    uncompressedData = casReader.Read();
+                                    Texture texture = new Texture(new MemoryStream(uncompressedData), null);
+                                    if (texture != null && texture.Type == TextureType.TT_2d)
+                                    {
+                                        var mdR = ModFile.Resources.FirstOrDefault(x => x.Name == texture.ChunkId.ToString());
+                                        if (mdR != null)
+                                        {
+                                            texture.SetData(DecompressData(ModFile.GetResourceData(mdR)));
+                                            TextureExporter textureExporter = new TextureExporter();
+                                            var exportableTextureData = textureExporter.WriteToDDS(texture);
+                                            ExportDataToFile(exportableTextureData, filename, "*.dds");
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                                ExportDataToFile(uncompressedData);
                         }
                         else if (lstModItems.SelectedValue is ResResource)
                         {
@@ -218,20 +331,6 @@ namespace FIFAModExtractor
                                         var exportableTextureData = textureExporter.WriteToDDS(texture);
                                         ExportDataToFile(exportableTextureData, filename, "*.dds");
                                     }
-                                }
-                            }
-                            else if (ListOfMeshNames.Contains(lastNameItem))
-                            {
-                                MeshSet meshSet = new MeshSet(new MemoryStream(uncompressedData));
-                                var exporter = new MeshToFbxExporter();
-                                SaveFileDialog sfdExportMesh = new SaveFileDialog();
-                                sfdExportMesh.Filter = "Unknown (*.obj, *.fbx)|*.obj;*.fbx";
-                                sfdExportMesh.FileName = filename;
-                                var sfd_result = sfdExportMesh.ShowDialog();
-                                if (sfd_result.HasValue && sfd_result.Value)
-                                {
-                                    exporter.FrostbiteMod = ModFile;
-                                    exporter.Export(null, null, sfdExportMesh.FileName, "FBX_2012", "Centimeters", true, null, "*.fbx", meshSet);
                                 }
                             }
                             else

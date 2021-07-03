@@ -168,14 +168,6 @@ namespace FIFA21Plugin
         /// <returns></returns>
         public CachingSBData.Bundle ReadInternalBundle(int bundleOffset, ref DbObject dbObject, NativeReader binarySbReader2)
         {
-            //if (File.Exists("debugSBViewStream.dat"))
-            //    File.Delete("debugSBViewStream.dat");
-            //using (NativeWriter writer = new NativeWriter(new FileStream("debugSBViewStream.dat", FileMode.OpenOrCreate)))
-            //{
-            //    writer.Write(binarySbReader2.ReadToEnd());
-            //}
-            //binarySbReader2.Position = 0;
-
             CachedBundle = new CachingSBData.Bundle();
             CachedBundle.StartOffset = (int)bundleOffset;
             dbObject.SetValue("BundleStartOffset", CachedBundle.StartOffset);
@@ -217,12 +209,8 @@ namespace FIFA21Plugin
             // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
 
             CachedBundle.BinaryDataOffset = (int)binarySbReader2.Position;
-            //SBHeaderInformation SBHeaderInformation = BinaryRead_FIFA21(nativeReader, BaseBundleItem, dbObject, binarySbReader2);
             SBHeaderInformation SBHeaderInformation = new BinaryReader_FIFA21().BinaryRead_FIFA21(bundleOffset, ref dbObject, binarySbReader2, true);
             CachedBundle.BinaryDataOffsetEnd = (int)binarySbReader2.Position;
-
-            //binarySbReader2.Position = CachedBundle.BinaryDataOffset;
-            //cachingSBDataBundle.BinaryDataData = binarySbReader2.ReadBytes((int)cachingSBDataBundle.BinaryDataOffsetEnd - (int)cachingSBDataBundle.BinaryDataOffset);
 
             // END OF BINARY READER
             // ---------------------------------------------------------------------------------------------------------------------

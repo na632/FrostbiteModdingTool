@@ -51,6 +51,8 @@ namespace FrostySdk.Frosty
 
 		public IEnumerable<BaseModResource> Resources { get; set; }
 
+		public static IFrostbiteMod CurrentFIFAModInstance = null;
+
 		public FIFAMod(string gameName, string filename)
 		{
 			if (filename == null)
@@ -64,43 +66,50 @@ namespace FrostySdk.Frosty
 			//using (var mbReader = new NativeReader(new FileStream(filename, FileMode.Open)))
 			//	ModBytes = mbReader.ReadToEnd();
 
-			using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read);
-			FIFAModReader modReader = new FIFAModReader(fileStream);
-			if (!modReader.IsValid)
+			using (FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read))
 			{
-				throw new InvalidDataException("The file is not a valid mod.");
-			}
-			NewFormat = true;
-			GameVersion = modReader.GameVersion;
-			ModDetails = modReader.ReadModDetails();
-			Resources = modReader.ReadResources();
-			ModDetails.SetIcon(modReader.GetResourceData(Resources.First()));
-			for (int i = 0; i < ModDetails.ScreenshotsCount; i++)
-			{
-				byte[] resourceData = modReader.GetResourceData(Resources.ElementAt(i + 1));
-				if (resourceData != null)
+				FIFAModReader modReader = new FIFAModReader(fileStream);
+				if (!modReader.IsValid)
 				{
-					ModDetails.AddScreenshot(resourceData);
+					throw new InvalidDataException("The file is not a valid mod.");
 				}
+				NewFormat = true;
+				GameVersion = modReader.GameVersion;
+				ModDetails = modReader.ReadModDetails();
+				Resources = modReader.ReadResources();
+				ModDetails.SetIcon(modReader.GetResourceData(Resources.First()));
+				for (int i = 0; i < ModDetails.ScreenshotsCount; i++)
+				{
+					byte[] resourceData = modReader.GetResourceData(Resources.ElementAt(i + 1));
+					if (resourceData != null)
+					{
+						ModDetails.AddScreenshot(resourceData);
+					}
+				}
+
+				CurrentFIFAModInstance = this;
 			}
 		}
 
-		public FIFAMod(Stream stream)
-        {
-			if(stream is FileStream)
+		public FIFAMod(Stream stream, bool loadIntoModBytes = true)
+		{
+			if (stream is FileStream)
 				Path = ((FileStream)stream).Name;
 
 			// ----------------------------------------------
 			// Get Mod Bytes
-			var position = stream.Position;
-			var nrQuickRead = new NativeReader(stream);
-			nrQuickRead.Position = 0;
-			ModBytes = nrQuickRead.ReadToEnd();
-			stream.Position = position;
-			//
-			// ----------------------------------------------
+			if (loadIntoModBytes)
+			{
+				var position = stream.Position;
+				var nrQuickRead = new NativeReader(stream);
+				nrQuickRead.Position = 0;
+				ModBytes = nrQuickRead.ReadToEnd();
+				stream.Position = position;
+			}
+            //
+            // ----------------------------------------------
 
-			FIFAModReader modReader = new FIFAModReader(stream);
+            FIFAModReader modReader = new FIFAModReader(stream);
 			if (!modReader.IsValid)
 			{
 				throw new InvalidDataException("The file is not a valid mod.");
@@ -118,6 +127,9 @@ namespace FrostySdk.Frosty
 					ModDetails.AddScreenshot(resourceData);
 				}
 			}
+
+			CurrentFIFAModInstance = this;
+
 		}
 
 		public byte[] GetResourceData(BaseModResource resource)
@@ -126,8 +138,15 @@ namespace FrostySdk.Frosty
 			{
 				throw new ArgumentNullException("resource");
 			}
-			using FileStream fileStream = new FileStream(Path, FileMode.Open, FileAccess.Read);
-			return new FIFAModReader(fileStream).GetResourceData(resource);
+			if (ModBytes != null)
+			{
+				return new FIFAModReader(new MemoryStream(ModBytes)).GetResourceData(resource);
+			}
+			else
+			{
+				using FileStream fileStream = new FileStream(Path, FileMode.Open, FileAccess.Read);
+				return new FIFAModReader(fileStream).GetResourceData(resource);
+			}
 		}
 
 		public byte[] GetResourceData(BaseModResource resource, Stream stream)

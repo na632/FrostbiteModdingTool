@@ -86,9 +86,9 @@ namespace FIFA21Plugin
             nw.Write(ebxCount, Endian.Little);
             nw.Write(resCount, Endian.Little);
             nw.Write(chunkCount, Endian.Little);
-            nw.Write(stringOffset, Endian.Little);
-            nw.Write(metaOffset, Endian.Little);
-            nw.Write(metaSize, Endian.Little);
+            nw.Write(stringOffset - AdditionalHeaderLength, Endian.Little);
+            nw.Write(metaOffset - AdditionalHeaderLength, Endian.Little);
+            nw.Write(metaSize - AdditionalHeaderLength, Endian.Little);
             return memoryStream.ToArray();
         }
     }

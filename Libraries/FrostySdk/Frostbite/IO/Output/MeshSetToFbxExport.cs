@@ -31,10 +31,10 @@ namespace FrostySdk.Frostbite.IO.Output
 
 		public void Export(AssetManager assetManager, dynamic meshAsset, string filename, string fbxVersion, string units, bool flattenHierarchy, string skeleton, string fileType, params MeshSet[] meshSets)
 		{
-			if (assetManager == null)
-			{
-				throw new ArgumentNullException("assetManager");
-			}
+			//if (assetManager == null)
+			//{
+			//	throw new ArgumentNullException("assetManager");
+			//}
 			if (meshAsset == null)
 			{
 				throw new ArgumentNullException("meshAsset");
@@ -198,7 +198,6 @@ namespace FrostySdk.Frostbite.IO.Output
 		private void FBXCreateMesh(FbxScene scene, MeshSetLod lod, List<FbxNode> boneNodes)
 		{
 			int indexSize = lod.IndexUnitSize / 8;
-			//FbxNode fbxNode = (flattenHierarchy ? scene.RootNode : new FbxNode(scene, lod.MeshName));
 			FbxNode fbxNode = (flattenHierarchy ? scene.RootNode : new FbxNode(scene, lod.String03));
 			foreach (MeshSetSection section in lod.Sections)
 			{
@@ -206,7 +205,23 @@ namespace FrostySdk.Frostbite.IO.Output
 				{
 					continue;
 				}
-				using NativeReader reader = new NativeReader((lod.ChunkId != Guid.Empty) ? AssetManager.Instance.GetChunk(AssetManager.Instance.GetChunkEntry(lod.ChunkId)) : new MemoryStream(lod.InlineData));
+				NativeReader reader = null;
+				if (AssetManager.Instance != null && lod.ChunkId != Guid.Empty)
+					reader = new NativeReader(AssetManager.Instance.GetChunk(AssetManager.Instance.GetChunkEntry(lod.ChunkId)));
+				else if (lod.InlineData != null && lod.InlineData.Length > 0)
+					reader = new NativeReader(new MemoryStream(lod.InlineData));
+				else if (FIFAMod.CurrentFIFAModInstance != null)
+				{
+					var modResource = FIFAMod.CurrentFIFAModInstance.Resources.FirstOrDefault(x => x.Type == ModResourceType.Chunk && Guid.Parse(x.Name) == lod.ChunkId);
+					if (modResource != null)
+					{
+						var modResourceData = new CasReader(new MemoryStream(FIFAMod.CurrentFIFAModInstance.GetResourceData(modResource))).Read();
+						reader = new NativeReader(new MemoryStream(modResourceData));
+					}
+
+				}
+
+
 				FbxNode fbxNode2 = FBXExportSubObject(scene, section, lod.VertexBufferSize, indexSize, reader);
 				if (flattenHierarchy)
 				{

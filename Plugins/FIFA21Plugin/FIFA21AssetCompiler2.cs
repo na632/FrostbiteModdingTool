@@ -83,12 +83,24 @@ namespace FIFA21Plugin
 
                     var location_toc_file_new = UseModData 
                         ? location_toc_file
-                        .Replace("Data", "ModData/Data", StringComparison.OrdinalIgnoreCase)
-                        .Replace("Patch", "ModData/Patch", StringComparison.OrdinalIgnoreCase)
+                        .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
+                        .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
                         : location_toc_file;
 
                     if (tocSb.TOCFile != null)
                     {
+                        if (
+                            location_toc_file.Contains("patch", StringComparison.OrdinalIgnoreCase)
+                            )
+                        {
+                            if (UseModData && File.Exists(location_toc_file))
+                            {
+                                File.Copy(location_toc_file
+                                , location_toc_file_new, true);
+                            }
+                            continue;
+                        }
+
                         foreach (var b in tocSb.TOCFile.Bundles)
                         {
                             DbObject dbo = new DbObject();
@@ -99,27 +111,27 @@ namespace FIFA21Plugin
 
                         // Read Out stuff from Original TOC
 
-                        NativeReader nrCas = null;
-                        string LastCasPath = null;
-                        foreach (var b in tocSb.TOCFile.CasBundles)
-                        {
-                            DbObject dbo = new DbObject();
-                            BinaryReader_FIFA21 binaryReader = new BinaryReader_FIFA21();
-                            var resolvedPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetCasFilePath(b.Catalog, b.Cas, b.Patch));
-                            if (LastCasPath != resolvedPath)
-                            {
-                                if (nrCas != null)
-                                {
-                                    nrCas.Dispose();
-                                    nrCas = null;
-                                    GC.Collect();
-                                    GC.WaitForPendingFinalizers();
-                                }
-                                LastCasPath = resolvedPath;
-                                nrCas = new NativeReader(new FileStream(resolvedPath, FileMode.Open));
-                            }
-                            binaryReader.BinaryRead_FIFA21(b.BundleOffset, ref dbo, nrCas, false);
-                        }
+                        //NativeReader nrCas = null;
+                        //string LastCasPath = null;
+                        //foreach (var b in tocSb.TOCFile.CasBundles)
+                        //{
+                        //    DbObject dbo = new DbObject();
+                        //    BinaryReader_FIFA21 binaryReader = new BinaryReader_FIFA21();
+                        //    var resolvedPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetCasFilePath(b.Catalog, b.Cas, b.Patch));
+                        //    if (LastCasPath != resolvedPath)
+                        //    {
+                        //        if (nrCas != null)
+                        //        {
+                        //            nrCas.Dispose();
+                        //            nrCas = null;
+                        //            GC.Collect();
+                        //            GC.WaitForPendingFinalizers();
+                        //        }
+                        //        LastCasPath = resolvedPath;
+                        //        nrCas = new NativeReader(new FileStream(resolvedPath, FileMode.Open));
+                        //    }
+                        //    binaryReader.BinaryRead_FIFA21(b.BundleOffset, ref dbo, nrCas, false);
+                        //}
 
 
                         // Write new TOC
@@ -133,13 +145,33 @@ namespace FIFA21Plugin
                             writer.Write(newTocData);
                         }
 
-                        if (nrCas != null)
-                        {
-                            nrCas.Dispose();
-                            nrCas = null;
-                            GC.Collect();
-                            GC.WaitForPendingFinalizers();
-                        }
+                        //if(File.ReadAllBytes(location_toc_file_new).Length != File.ReadAllBytes(location_toc_file).Length)
+                        //{
+
+                        //}
+
+                        //if (nrCas != null)
+                        //{
+                        //    nrCas.Dispose();
+                        //    nrCas = null;
+                        //    GC.Collect();
+                        //    GC.WaitForPendingFinalizers();
+                        //}
+                    }
+
+                    // testing that it will just work with normal files
+                    //if (File.Exists(location_toc_file))
+                    //{
+                    //    File.Copy(location_toc_file
+                    //    , location_toc_file_new, true);
+                    //}
+
+                    if (File.Exists(tocSb.SbPath))
+                    {
+                        File.Copy(tocSb.SbPath
+                            , tocSb.SbPath
+                            .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
+                            .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase), true);
                     }
                 }
             }

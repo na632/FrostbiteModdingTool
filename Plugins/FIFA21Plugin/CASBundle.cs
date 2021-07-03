@@ -10,8 +10,18 @@ namespace FIFA21Plugin
         public int unk3 { get; set; }
         public int unk4 { get; set; }
         public int unk5 { get; set; }
-        public int Catalog { get; set; }
-        public int Cas { get; set; }
+
+        // ---------------------------------------
+        // Cas Identifiers
+
+        public byte Unk { get; set; }
+        public byte Catalog { get; set; }
+        public byte Cas { get; set; }
+        public bool Patch { get; internal set; }
+
+        //
+        // ---------------------------------------
+
 
         public int FlagsOffset { get; set; }
 
@@ -38,7 +48,6 @@ namespace FIFA21Plugin
             } 
         }
 
-        public bool Patch { get; internal set; }
         public int EntriesCount { get; internal set; }
         public int EntriesOffset { get; internal set; }
 

@@ -34,6 +34,8 @@ namespace FIFA21Plugin
 
         public bool ProcessData = true;
 
+        public string SbPath = string.Empty;
+
         public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false, string nativePath = null)
         {
             SBIndex = sbIndex;
@@ -44,7 +46,7 @@ namespace FIFA21Plugin
             //byte[] key = KeyManager.Instance.GetKey("Key2");
             if (tocPath != "")
             {
-                var sbPath = tocPath.Replace(".toc", ".sb");
+                SbPath = tocPath.Replace(".toc", ".sb");
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 //if (!tocPath.Contains("globals.toc"))
@@ -64,7 +66,7 @@ namespace FIFA21Plugin
                     TOCFile.Read(nativeReader);
 
                     // SB File
-                    var rObjs = ReadSB(sbPath, helper, nativePath != null ? nativePath.Replace(".toc", ".sb") : null);
+                    var rObjs = ReadSB(SbPath, helper, nativePath != null ? nativePath.Replace(".toc", ".sb") : null);
                     if (rObjs != null)
                         objs.AddRange(rObjs);
 
@@ -83,11 +85,11 @@ namespace FIFA21Plugin
 
         public List<DbObject> ReadSB(string sbPath, BinarySbDataHelper helper, string nativeSBPath = null)
         {
-            Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
-            if(sbPath.Contains("contentlaunchsb", StringComparison.OrdinalIgnoreCase))
-            {
+            //Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
+            //if(sbPath.Contains("contentlaunchsb", StringComparison.OrdinalIgnoreCase))
+            //{
 
-            }
+            //}
 
             using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read)))
             {
