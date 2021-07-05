@@ -1,4 +1,5 @@
-﻿using Frostbite.Textures;
+﻿using CSharpImageLibrary;
+using Frostbite.Textures;
 using FrostySdk;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Frosty;
@@ -106,15 +107,19 @@ namespace FIFAModExtractor
             {
                 if(ModFile is FrostbiteMod)
                 {
-                    if(((FrostbiteMod)ModFile).IsEncrypted)
-                        return new ObservableCollection<BaseModResource>(items);
-                }
+                    //if(((FrostbiteMod)ModFile).IsEncrypted)
+                    //    return new ObservableCollection<BaseModResource>(items);
 
-                items = ModFile.Resources.Where(x => 
-                (x.Type == ModResourceType.Ebx
-                || x.Type == ModResourceType.Chunk
-                 || !x.Name.Contains("mesh"))
-                ).ToList();
+                    return new ObservableCollection<BaseModResource>(items);
+                }
+                if (ModFile.Resources != null)
+                {
+                    items = ModFile.Resources.Where(x =>
+                    (x.Type == ModResourceType.Ebx
+                    || x.Type == ModResourceType.Chunk
+                     || !x.Name.Contains("mesh"))
+                    ).ToList();
+                }
             }
             return new ObservableCollection<BaseModResource>(items);
         }
@@ -242,8 +247,6 @@ namespace FIFAModExtractor
             {
                 if (lstModItems.SelectedValue != null)
                 {
-                    // getting lots of "already in use" errors here from "getmodfile()"
-
                     var compResoruceData = GetModFile().GetResourceData((BaseModResource)lstModItems.SelectedValue);
                     if (compResoruceData.Length > 0)
                     {
@@ -339,9 +342,26 @@ namespace FIFAModExtractor
                             }
 
                         }
-                        else
+                        else if (lstModItems.SelectedValue is ChunkResource)
                         {
-                            throw new Exception("You cannot fully extract a chunk, try a Res instead");
+                            string chunkName = "UnknownFile";
+                            ChunkResource chunkResource = lstModItems.SelectedValue as ChunkResource;
+                            if(chunkResource!= null)
+                            {
+                                if(chunkResource.LegacyName != null)
+                                {
+                                    chunkName = chunkResource.LegacyName;
+                                }
+                            }
+
+                            ImageEngineImage imageEngineImage = null;
+                            NativeReader nrChunk = new NativeReader(new MemoryStream(uncompressedData));
+                            var sizedString = nrChunk.ReadSizedString(3);
+                            if (sizedString == "DDS")
+                            {
+                                imageEngineImage = new ImageEngineImage(uncompressedData);
+                            }
+                            ExportDataToFile(uncompressedData, inName: chunkName, image: imageEngineImage);
                         }
                     }
                 }
@@ -389,17 +409,35 @@ namespace FIFAModExtractor
             }
         }
 
-        private void ExportDataToFile(byte[] uncompressedData, string inName = "UnknownFile", string inExtension = "*.dat")
+        private void ExportDataToFile(byte[] uncompressedData, string inName = "UnknownFile", string inExtension = "*.dat", ImageEngineImage image = null)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.FileName = inName;
-            saveFileDialog.Filter = $"Files ({inExtension})|{inExtension}";
+            if(image != null)
+                saveFileDialog.Filter = $"Files (*.png)|*.png";
+            else
+                saveFileDialog.Filter = $"Files ({inExtension})|{inExtension}";
             var dialogResult = saveFileDialog.ShowDialog();
             if (dialogResult.HasValue && dialogResult.Value)
             {
-                using (var nw = new NativeWriter(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate)))
+                var fs = new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate);
+
+                if (image != null)
                 {
-                    nw.WriteBytes(uncompressedData);
+                    image.Save(fs, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.PNG), MipHandling.KeepTopOnly);
+                }
+                else
+                {
+                    using (var nw = new NativeWriter(fs, true))
+                    {
+                        nw.WriteBytes(uncompressedData);
+                    }
+                }
+
+                if(fs != null)
+                {
+                    fs.Close();
+                    fs.Dispose();
                 }
             }
         }

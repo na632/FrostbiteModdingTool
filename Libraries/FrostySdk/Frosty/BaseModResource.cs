@@ -53,6 +53,91 @@ namespace FrostySdk
 
 		public IEnumerable<int> AddedBundles => bundlesToAdd;
 
+		public virtual bool IsDDS
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		public virtual bool IsLegacyFile
+        {
+			get
+			{
+				return LegacyFullName != null;
+			}
+        }
+
+		/// <summary>
+		/// Only relavant to FIFAMod
+		/// </summary>
+		public virtual string LegacyFullName
+        {
+			get
+            {
+				if (!string.IsNullOrEmpty(UserData))
+				{
+					if (UserData.Contains(";"))
+					{
+						return UserData.Split(";")[1];
+					}
+				}
+				return null;
+			}
+        }
+
+		/// <summary>
+		/// Only relavant to FIFAMod
+		/// </summary>
+		public virtual string LegacyName
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(LegacyFullName))
+				{
+					if (LegacyFullName.Contains("/"))
+					{
+						var lastIndex = LegacyFullName.LastIndexOf("/");
+						if (lastIndex != -1)
+						{
+							var result = LegacyFullName.Substring(lastIndex+1, LegacyFullName.Length - lastIndex - 1);
+                            if (result.Contains("."))
+                            {
+								lastIndex = result.LastIndexOf(".");
+								if (lastIndex != -1)
+								{
+									result = result.Substring(0, lastIndex);
+								}
+							}
+							return result;
+						}
+					}
+				}
+				return null;
+			}
+		}
+
+		public virtual string LegacyPath
+        {
+			get
+			{
+				if (!string.IsNullOrEmpty(LegacyFullName))
+				{
+					if (LegacyFullName.Contains("/"))
+					{
+						var lastIndex = LegacyFullName.LastIndexOf("/");
+						if (lastIndex != -1)
+                        {
+							return LegacyFullName.Substring(0, lastIndex) + "/";
+                        }
+					}
+				}
+				return null;
+			}
+		}
+
+
 		public virtual void Read(NativeReader reader)
 		{
 			resourceIndex = reader.ReadInt();

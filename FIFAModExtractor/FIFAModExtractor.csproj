@@ -30,6 +30,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\Libraries\CSIL\CSIL.csproj" />
     <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj">
       <Private>true</Private>
     </ProjectReference>
@@ -69,6 +70,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.4.7" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
   </ItemGroup>
 

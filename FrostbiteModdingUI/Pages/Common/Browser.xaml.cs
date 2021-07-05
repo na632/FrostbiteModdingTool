@@ -253,8 +253,7 @@ namespace FIFAModdingUI.Pages.Common
 			imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
 			if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
 			{
-				MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!");
-				MainEditorWindow.LogWarning(Environment.NewLine);
+				MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!" + Environment.NewLine);
 			}
 			// -------------------------------- //
 

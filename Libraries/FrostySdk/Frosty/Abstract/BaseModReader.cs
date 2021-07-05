@@ -71,6 +71,14 @@ namespace FrostbiteSdk.Frosty.Abstract
 
 			public override ModResourceType Type => ModResourceType.Chunk;
 
+			public override bool IsDDS
+            {
+				get
+                {
+					return firstMip >= 0;
+                }
+            }
+
 			public override void Read(NativeReader reader)
 			{
 				base.Read(reader);
