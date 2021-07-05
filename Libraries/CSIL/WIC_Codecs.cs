@@ -263,7 +263,8 @@ namespace CSharpImageLibrary
                 if (!anyAlpha)
                     frame = BitmapFrame.Create(new FormatConvertedBitmap(image, PixelFormats.Bgr32, image.Palette, 0));
             }
-            else
+                
+            if(frame == null)
                 frame = BitmapFrame.Create(image);
 
             frame.Freeze();

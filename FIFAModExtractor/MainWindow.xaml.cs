@@ -414,7 +414,7 @@ namespace FIFAModExtractor
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.FileName = inName;
             if(image != null)
-                saveFileDialog.Filter = $"Files (*.png)|*.png";
+                saveFileDialog.Filter = $"Files (*.png,*.dds)|*.png,*.dds";
             else
                 saveFileDialog.Filter = $"Files ({inExtension})|{inExtension}";
             var dialogResult = saveFileDialog.ShowDialog();
@@ -424,7 +424,18 @@ namespace FIFAModExtractor
 
                 if (image != null)
                 {
-                    image.Save(fs, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.PNG), MipHandling.KeepTopOnly);
+                    if (saveFileDialog.FileName.Contains(".png", StringComparison.OrdinalIgnoreCase))
+                    {
+                        image.Save(fs, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.PNG)
+                            , MipHandling.KeepExisting
+                            , removeAlpha: false);
+                    }
+                    else if (saveFileDialog.FileName.Contains(".dds", StringComparison.OrdinalIgnoreCase))
+                    {
+                        image.Save(fs, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.DDS_DXT1)
+                           , MipHandling.KeepTopOnly
+                           , removeAlpha: false);
+                    }
                 }
                 else
                 {
