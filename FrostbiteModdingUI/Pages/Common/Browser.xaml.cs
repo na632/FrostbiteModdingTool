@@ -43,6 +43,8 @@ using System.Reflection;
 using FrostySdk.Ebx;
 using Frosty.Hash;
 using v2k4FIFAModding;
+using FMT.Util;
+using CSharpImageLibrary;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -235,8 +237,6 @@ namespace FIFAModdingUI.Pages.Common
 
 		public void DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
 		{
-			
-
 			var extension = "DDS";
 			var spl = importFilePath.Split('.');
 			extension = spl[spl.Length - 1].ToUpper();
@@ -254,41 +254,41 @@ namespace FIFAModdingUI.Pages.Common
 			if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
 			{
 				MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!");
+				MainEditorWindow.LogWarning(Environment.NewLine);
 			}
 			// -------------------------------- //
 
-			MemoryStream memoryStream = null;
-			TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+			MemoryStream memoryStream = (MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry);
+			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
 			if (imageFormat == TextureUtils.ImageFormat.DDS)
 			{
 				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(importFilePath, FileMode.Open, FileAccess.Read)));
 			}
 			else
 			{
-				DDSImage originalImage = new DDSImage(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
-				TextureUtils.TextureImportOptions options = default(TextureUtils.TextureImportOptions);
+				//DDSImage originalImage = new DDSImage();
+				ImageEngineImage originalImage = new ImageEngineImage(memoryStream.ToArray());
 
-				options.type = TextureType.TT_2d;
-                //options.format = TextureUtils.ToShaderFormat(textureAsset.PixelFormat, (textureAsset.Flags & TextureFlags.SrgbGamma) != 0);
-                options.format = TextureUtils.ToShaderFormatFromPfim(originalImage._image.ToString(), originalImage._image.Format.ToString());
-				//options.generateMipmaps = (textureAsset.MipCount > 1);
-				options.generateMipmaps = false;
-				options.mipmapsFilter = 0;
-				options.resizeTexture = false;
-				//options.resizeTexture = true;
-				options.resizeFilter = 0;
-				//options.resizeHeight = textureAsset.Height;
-				//options.resizeWidth = textureAsset.Width;
-				//options.resizeHeight = originalImage._image.Height;
-				//options.resizeWidth = originalImage._image.Width;
-				byte[] pngarray = NativeReader.ReadInStream(new FileStream(importFilePath, FileMode.Open, FileAccess.Read));
-                TextureUtils.ConvertImageToDDS(pngarray, pngarray.Length, imageFormat, options, ref pOutData);
+				ImageEngineImage imageEngineImage = new ImageEngineImage(importFilePath);
+				//var imageBytes = imageEngineImage.Save(
+				//	new ImageFormats.ImageEngineFormatDetails(originalImage.FormatDetails.Format)
+				//	, MipHandling.KeepTopOnly
+				//	, removeAlpha: false);
+
+				var imageBytes = imageEngineImage.Save(
+					new ImageFormats.ImageEngineFormatDetails(
+						ImageEngineFormat.DDS_DXT1
+						, originalImage.FormatDetails.DX10Format)
+					, MipHandling.KeepTopOnly
+					, removeAlpha: false);
+
+				memoryStream = new MemoryStream(imageBytes);
             }
 
-			if (imageFormat != TextureUtils.ImageFormat.DDS)
-			{
-				memoryStream = new MemoryStream(pOutData.Data);
-			}
+			//if (imageFormat != TextureUtils.ImageFormat.DDS)
+			//{
+			//	memoryStream = new MemoryStream(pOutData.Data);
+			//}
 
 			//if (!Directory.Exists("Debugging"))
 			//	Directory.CreateDirectory("Debugging");
@@ -535,14 +535,14 @@ namespace FIFAModdingUI.Pages.Common
             }
 		}
 
-		private void btnExport_Click(object sender, RoutedEventArgs e)
+		private async void btnExport_Click(object sender, RoutedEventArgs e)
 		{
 			if (SelectedLegacyEntry != null)
 			{
 				SaveFileDialog saveFileDialog = new SaveFileDialog();
 				var filt = "*." + SelectedLegacyEntry.Type;
 				if(SelectedLegacyEntry.Type == "DDS")
-					saveFileDialog.Filter = "Image files (*.dds,*.png)|*.png;*.dds";
+					saveFileDialog.Filter = "Image files (*.dds,*.png)|*.dds;*.png;";
 				else
 					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
 				
@@ -550,7 +550,7 @@ namespace FIFAModdingUI.Pages.Common
 
 				if (saveFileDialog.ShowDialog().Value)
 				{
-					var legacyData = ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry);
+					var legacyData = (MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry);
 					if (SelectedLegacyEntry.Type == "DDS" && saveFileDialog.FileName.Contains("PNG", StringComparison.OrdinalIgnoreCase))
 					{
 						DDSImage image = new DDSImage(legacyData);
@@ -558,8 +558,12 @@ namespace FIFAModdingUI.Pages.Common
 					}
 					else
                     {
-						File.WriteAllBytes(saveFileDialog.FileName, new NativeReader(legacyData).ReadToEnd());
-                    }
+						//DDSImage2 image2 = new DDSImage2(legacyData.ToArray());
+						//File.WriteAllBytes(saveFileDialog.FileName, image2.GetTextureData());
+
+						await legacyData.CopyToAsync(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate));
+						//await File.WriteAllBytesAsync(saveFileDialog.FileName, pOutData.Data);
+					}
 					MainEditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveFileDialog.FileName}");
 				}
 			}
@@ -1037,6 +1041,8 @@ namespace FIFAModdingUI.Pages.Common
 				try
 				{
 					ImageViewer.Source = null;
+					CurrentDDSImageFormat = textureAsset.PixelFormat;
+
 
 					var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
@@ -1081,21 +1087,29 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		private void BuildTextureViewerFromStream(Stream stream, AssetEntry assetEntry)
+		public string CurrentDDSImageFormat { get; set; }
+
+        private void BuildTextureViewerFromStream(Stream stream, AssetEntry assetEntry = null)
+        //private void BuildTextureViewerFromStream(MemoryStream stream)
         {
 
-				try
-				{
-					ImageViewer.Source = null;
+			try
+			{
+				ImageViewer.Source = null;
 
-					var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
+				var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
-				DDSImage image = new DDSImage(stream);
-				var textureBytes = new NativeReader(image.SaveToStream()).ReadToEnd();
-					//var textureBytes = new NativeReader(textureExporter.ExportToStream(texture)).ReadToEnd();
+				var CurrentDDSImage = new DDSImage(stream);
+				stream.Position = 0;
+				var dds2 = new DDSImage2(((MemoryStream)stream).ToArray());
+				FourCC fourCC = dds2.GetPixelFormatFourCC();
 
-					ImageViewer.Source = LoadImage(textureBytes);
-					ImageViewerScreen.Visibility = Visibility.Visible;
+				CurrentDDSImageFormat = fourCC.ToString() + " - " + CurrentDDSImage._image.ToString() + " - " + CurrentDDSImage._image.Format.ToString();
+				var textureBytes = new NativeReader(CurrentDDSImage.SaveToStream()).ReadToEnd();
+				//var textureBytes = new NativeReader(textureExporter.ExportToStream(texture)).ReadToEnd();
+
+				ImageViewer.Source = LoadImage(textureBytes);
+				ImageViewerScreen.Visibility = Visibility.Visible;
 
 				// lblImageName.Content = assetEntry.Filename;
 				// lblImageDDSType.Content = image._image.Format;
@@ -1108,14 +1122,15 @@ namespace FIFAModdingUI.Pages.Common
 				//lblImageBundleFile.Content = !string.IsNullOrEmpty(assetEntry.SBFileLocation) ? assetEntry.SBFileLocation : assetEntry.TOCFileLocation;
 
 				btnExport.IsEnabled = true;
-					btnImport.IsEnabled = true;
-					btnRevert.IsEnabled = true;
+				btnImport.IsEnabled = true;
+				btnRevert.IsEnabled = true;
 
-				}
-				catch(Exception e) 
+			}
+			catch (Exception e)
 			{
 				MainEditorWindow.LogError(e.Message);
-				ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed; }
+				ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
+			}
 
 		}
 
@@ -1155,7 +1170,8 @@ namespace FIFAModdingUI.Pages.Common
 				AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
 				if(SelectedLegacyEntry.Type == "DDS")
                 {
-					BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+					//BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+					BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
                 }
             }
 

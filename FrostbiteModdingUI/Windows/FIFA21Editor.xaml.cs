@@ -322,6 +322,25 @@ namespace FIFAModdingUI.Windows
 
         public string LogText { get; set; }
 
+        public void LogSync(string text)
+        {
+            var stringBuilder = new StringBuilder();
+
+            var txt = string.Empty;
+            Dispatcher.Invoke(() => {
+                txt = txtLog.Text;
+            });
+            stringBuilder.Append(txt);
+            stringBuilder.AppendLine(text);
+
+            Dispatcher.Invoke(() =>
+            {
+                txtLog.Text = text;
+                txtLog.ScrollToEnd();
+            });
+
+        }
+
         public void Log(string text, params object[] vars)
         {
             LogAsync(text);
@@ -353,9 +372,10 @@ namespace FIFAModdingUI.Windows
         }
 
         public void LogWarning(string text, params object[] vars)
-        {
+        {       
             Debug.WriteLine("[WARNING] " + text);
-            LogAsync("[WARNING] " + text);
+            //LogAsync("[WARNING] " + text);
+            LogSync("[WARNING] " + text);
         }
 
         public void LogError(string text, params object[] vars)

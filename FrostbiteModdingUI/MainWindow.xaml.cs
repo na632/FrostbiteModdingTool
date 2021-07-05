@@ -161,15 +161,19 @@ namespace FIFAModdingUI
 
         private void lstProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            if (lstProfiles.SelectedItem != null)
             {
-                var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(((Profile)lstProfiles.SelectedItem).EditorScreen, StringComparison.OrdinalIgnoreCase));
-                if (t != null)
+                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    App.MainEditorWindow = (Window)Activator.CreateInstance(t, this);
-                    App.MainEditorWindow.Show();
-                    this.Visibility = Visibility.Hidden;
-                    return;
+                    var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(((Profile)lstProfiles.SelectedItem).EditorScreen, StringComparison.OrdinalIgnoreCase));
+                    if (t != null)
+                    {
+                        App.MainEditorWindow = (Window)Activator.CreateInstance(t, this);
+                        App.MainEditorWindow.Show();
+                        lstProfiles.SelectedItem = null;
+                        this.Visibility = Visibility.Hidden;
+                        return;
+                    }
                 }
             }
         }

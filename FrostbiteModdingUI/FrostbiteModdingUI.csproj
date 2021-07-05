@@ -123,7 +123,7 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
     <PackageReference Include="ModernWpfUI" Version="0.9.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Pfim" Version="0.9.1" />
+    <PackageReference Include="Pfim" Version="0.10.0" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
@@ -139,6 +139,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Libraries\CSIL\CSIL.csproj" />
     <ProjectReference Include="..\Libraries\FMT.Controls\FMT.Controls.csproj" />
     <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj" />
     <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />

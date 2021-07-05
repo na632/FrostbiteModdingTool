@@ -697,14 +697,17 @@ namespace Frostbite.Textures
 			var result = string.Empty;
 			switch (format)
 			{
-				case "PFIM.DXT5DDSRGBA32":
-					result = "BC3_SRGB";
-					break;
-				case "PFIM.DXT3DDSRGBA32":
-					result = "BC2_SRGB";
-					break;
-				default:
-					result = "BC3_SRGB";
+                //case "PFIM.DXT5DDSRGB32":
+                //	result = "BC3_SRGB";
+                //	break;
+                //case "PFIM.DXT5DDSRGBA32":
+                //	result = "BC3A_SRGB";
+                //	break;
+                case "PFIM.DXT3DDSRGBA32":
+                    result = "BC2_UNORM";
+                    break;
+                default:
+					result = "BC3_UNORM";
 					break;
 			}
 

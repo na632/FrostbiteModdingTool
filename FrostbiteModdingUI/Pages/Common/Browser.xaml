@@ -213,6 +213,7 @@
                                 <Grid.RowDefinitions>
                                         <RowDefinition Height="*"></RowDefinition>
                                             <RowDefinition Height="*"></RowDefinition>
+                                            <RowDefinition Height="*"></RowDefinition>
                                         </Grid.RowDefinitions>
                                <!-- <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
                                     <Label>Name:</Label>
@@ -224,23 +225,20 @@
                                     <Label>Image Size:</Label>
                                     <Label x:Name="lblImageSize"></Label>
                                 </StackPanel>-->
-                                <Image  x:Name="ImageViewer" Grid.RowSpan="2" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
+                                <Image  x:Name="ImageViewer" Grid.RowSpan="3" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
 
                                 </Image>
-                                <!--<StackPanel Grid.Row="1" Grid.Column="1" Background="White" Orientation="Vertical">
-                                    <Label>CAS File:</Label>
-                                    <Label x:Name="lblImageCASFile"></Label>
-                                    <Label>CAS Offset:</Label>
-                                    <Label x:Name="lblImageCASOffset"></Label>
-                                    <Label>Bundle File:</Label>
-                                    <Label x:Name="lblImageBundleFile"></Label>
-                                </StackPanel>-->
+                               
                                         <xctk:PropertyGrid  Grid.Column="1" VerticalContentAlignment="Stretch" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
                                         </xctk:PropertyGrid>
-                                        <xctk:PropertyGrid Grid.Row="1" Grid.Column="1" SelectedObject="{Binding SelectedEbxAsset.RootObject}" IsReadOnly="True" AutoGenerateProperties="True">
+                                        <xctk:PropertyGrid Grid.Row="1" Grid.Column="1"
+                                                           VerticalContentAlignment="Stretch"
+                                                           VerticalAlignment="Stretch" SelectedObject="{Binding SelectedEbxAsset.RootObject}"
+                                                           IsReadOnly="True"
+                                                           AutoGenerateProperties="True">
                                         </xctk:PropertyGrid>
-                                        <!--<local2:FMTPropertyGrid x:Name="ivPropertyGrid" Grid.Row="1" Grid.Column="1"  >
-                                        </local2:FMTPropertyGrid>-->
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentDDSImageFormat}"></TextBlock>
+
                                     </Grid>
 
                             <TextBox Grid.Row="1" x:Name="TextViewer" MaxLines="999999" 
