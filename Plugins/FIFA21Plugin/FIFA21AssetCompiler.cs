@@ -40,89 +40,13 @@ namespace FIFA21Plugin
                 return false;
             }
 
-            //#if DEBUG
-            //            //RunBundleCompiler(fs, logger, frostyModExecuter);
-            //#endif
+           
 
             if (!FrostyModExecutor.UseModData)
             {
                 return RunEADesktopCompiler(fs, logger, frostyModExecuter);
             }
             return RunOriginCompiler(fs, logger, frostyModExecuter);
-        }
-
-        private void RunBundleCompiler(FileSystem fs, ILogger logger, object frostyModExecuter, string directory = "native_data")
-        {
-            DateTime startTime = DateTime.Now;
-            var ModExecuter = (FrostyModExecutor)frostyModExecuter;
-            foreach (Catalog catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
-            {
-                NativeWriter writer_new_cas_file = null;
-                int casFileIndex = 0;
-                byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
-                foreach (string key3 in catalogInfo.SuperBundles.Keys)
-                {
-                    string tocFile = key3;
-                    if (catalogInfo.SuperBundles[key3])
-                    {
-                        tocFile = key3.Replace("win32", catalogInfo.Name);
-                    }
-
-                    var tocFileRAW = $"{directory}/{tocFile}.toc";
-                    string location_toc_file = ModExecuter.fs.ResolvePath(tocFileRAW).ToLower();
-                    TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21();
-                    tocSb.DoLogging = false;
-                    tocSb.ProcessData = false;
-                    tocSb.Read(location_toc_file, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
-                    if (tocSb.TOCFile != null)
-                    {
-                        foreach (var b in tocSb.TOCFile.Bundles)
-                        {
-                            DbObject dbo = new DbObject();
-                            //BinaryReader_FIFA21 binaryReader = new BinaryReader_FIFA21();
-                            //using(var nr = new NativeReader(tocSb.SBFile))
-                            //binaryReader.BinaryRead_FIFA21(b.Offset, ref dbo, )
-                        }
-
-                        NativeReader nrCas = null;
-                        string LastCasPath = null;
-                        foreach (var b in tocSb.TOCFile.CasBundles)
-                        {
-                            DbObject dbo = new DbObject();
-                            BinaryReader_FIFA21 binaryReader = new BinaryReader_FIFA21();
-                            var resolvedPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetCasFilePath(b.Catalog, b.Cas, b.Patch));
-                            if (LastCasPath != resolvedPath)
-                            {
-                                if (nrCas != null)
-                                {
-                                    nrCas.Dispose();
-                                    nrCas = null;
-                                    GC.Collect();
-                                    GC.WaitForPendingFinalizers();
-                                }
-                                LastCasPath = resolvedPath;
-                                nrCas = new NativeReader(new FileStream(resolvedPath, FileMode.Open));
-                            }
-                            binaryReader.BinaryRead_FIFA21(b.BundleOffset, ref dbo, nrCas, false);
-                        }
-                        if (nrCas != null)
-                        {
-                            nrCas.Dispose();
-                            nrCas = null;
-                            GC.Collect();
-                            GC.WaitForPendingFinalizers();
-                        }
-                    }
-                }
-            }
-
-            if (directory == "native_data")
-            {
-                RunBundleCompiler(fs, logger, frostyModExecuter, "native_patch");
-
-                logger.Log("RunBundleCompiler TimeTaken:: " + (DateTime.Now - startTime).ToString());
-            }
-
         }
 
         private bool RunOriginCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
@@ -567,6 +491,71 @@ namespace FIFA21Plugin
 
         private void ProcessLegacyMods()
         {
+            List<Guid> ChunksToRemove = new List<Guid>();
+            // *.fifamod files do not put data into "modifiedLegacy" and instead embed into Chunks 
+            // handling those chunks here
+            //if (parent.AddedChunks.Count > 0)
+            //{
+                
+            //    foreach(var mod in parent.AddedChunks)
+            //    {
+            //        ChunkAssetEntry cae = mod.Value;
+            //        if (cae != null)
+            //        {
+            //            if(cae.ModifiedEntry != null)
+            //            {
+            //                if(cae.ModifiedEntry.IsLegacyFile)
+            //                {
+            //                    parent.modifiedLegacy.Add(cae.ModifiedEntry.LegacyFullName
+            //                        , new LegacyFileEntry()
+            //                        {
+            //                            Sha1 = cae.ModifiedEntry.Sha1,
+            //                            Name = cae.ModifiedEntry.LegacyFullName
+            //                        });
+            //                    ChunksToRemove.Add(mod.Key);
+
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //else 
+            //if (parent.ModifiedChunks.Count > 0)
+            //{
+            //    foreach (var mod in parent.ModifiedChunks)
+            //    {
+            //        ChunkAssetEntry cae = mod.Value;
+            //        if (cae != null)
+            //        {
+            //            if (cae.ModifiedEntry != null)
+            //            {
+            //                if (cae.ModifiedEntry.IsLegacyFile)
+            //                {
+            //                    parent.modifiedLegacy.Add(cae.ModifiedEntry.LegacyFullName
+            //                        , new LegacyFileEntry()
+            //                        {
+            //                            Sha1 = cae.ModifiedEntry.Sha1,
+            //                            Name = cae.ModifiedEntry.LegacyFullName,
+            //                            ModifiedEntry = new ModifiedAssetEntry()
+            //                            {
+            //                                Name = cae.ModifiedEntry.LegacyFullName,
+            //                                UserData = cae.ModifiedEntry.LegacyFullName,
+            //                                Data = cae.ModifiedEntry.Data
+            //                            }
+            //                        });
+            //                    ChunksToRemove.Add(mod.Key);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
+            //foreach (var mod in ChunksToRemove)
+            //    parent.ModifiedChunks.Remove(mod);
+
+
+            // -----------------------------------------------------------
+            // process modified legacy chunks and make live changes
             if (parent.modifiedLegacy.Count > 0)
             {
                 parent.Logger.Log($"Legacy :: {parent.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
@@ -575,10 +564,17 @@ namespace FIFA21Plugin
                 var countLegacyChunksModified = 0;
                 foreach (var modLegacy in parent.modifiedLegacy)
                 {
-                    var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
-                    var data = parent.archiveData[modLegacy.Value.Sha1].Data;
-                    legacyData.Add(modLegacy.Key, data);
+                    //var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
+                    byte[] data = null;
+                    //if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
+                    //    data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
+                    //else if (parent.archiveData.ContainsKey(modLegacy.Value.Sha1))
+                        data = parent.archiveData[modLegacy.Value.Sha1].Data;
 
+                    if (data != null)
+                    {
+                        legacyData.Add(modLegacy.Key, data);
+                    }
                 }
 
                 AssetManager.Instance.ModifyLegacyAssets(legacyData, true);

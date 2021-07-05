@@ -244,6 +244,20 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestFETFIFAMod_Legacy()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    @"G:\Work\FIFA Modding\GraphicMod\FIFA 21\ALP 3.7.fifamod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void OpenFETEditorProject()
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);

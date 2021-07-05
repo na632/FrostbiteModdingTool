@@ -4453,6 +4453,8 @@ namespace paulv2k4ModdingExecuter
                 {
                     //Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
+
+
                     var frostbiteMod = kvpMods.Value;
                     foreach (BaseModResource resource in frostbiteMod.Resources)
                     {
@@ -4505,6 +4507,8 @@ namespace paulv2k4ModdingExecuter
                                     break;
                             }
                         }
+                        
+                        
                         foreach (int addedBundle in resource.AddedBundles)
                         {
                             if (!modifiedBundles.ContainsKey(addedBundle))
@@ -4640,8 +4644,8 @@ namespace paulv2k4ModdingExecuter
                         }
                         else if (resource.Type == ModResourceType.Chunk)
                         {
+                            
                             Guid guid = new Guid(resource.Name);
-                            {
                                 if (ModifiedChunks.ContainsKey(guid))
                                 {
                                     ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
@@ -4662,6 +4666,16 @@ namespace paulv2k4ModdingExecuter
                                 resource.FillAssetEntry(chunkAssetEntry3);
                                 //chunkAssetEntry3.Size = resourceData5.Length;
                                 chunkAssetEntry3.Size = resourceData.Length;
+
+                            if (chunkAssetEntry3.ModifiedEntry == null && !string.IsNullOrEmpty(resource.UserData))
+                                chunkAssetEntry3.ModifiedEntry = new ModifiedAssetEntry() 
+                                    { 
+                                        Data = resourceData
+                                        , UserData = resource.UserData
+                                        , Sha1 = chunkAssetEntry3.Sha1
+                                };
+
+
                                 ModifiedChunks.Add(guid, chunkAssetEntry3);
                                 if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
                                 {
@@ -4677,7 +4691,6 @@ namespace paulv2k4ModdingExecuter
                                     archiveData[chunkAssetEntry3.Sha1].RefCount++;
                                 }
                                 numArchiveEntries++;
-                            }
                         }
 
                         else if (resource.Type == ModResourceType.Legacy)

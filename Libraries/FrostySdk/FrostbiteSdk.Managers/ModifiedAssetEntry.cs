@@ -45,6 +45,35 @@ namespace FrostySdk.Managers
 		public string UserData = "";
 
 		/// <summary>
+		/// Only related to *.fifamod
+		/// </summary>
+		public virtual bool IsLegacyFile
+		{
+			get
+			{
+				return LegacyFullName != null;
+			}
+		}
+
+		/// <summary>
+		/// Only relavant to FIFAMod
+		/// </summary>
+		public virtual string LegacyFullName
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(UserData))
+				{
+					if (UserData.Contains(";"))
+					{
+						return UserData.Split(";")[1];
+					}
+				}
+				return null;
+			}
+		}
+
+		/// <summary>
 		/// 
 		/// </summary>
 		public byte[] CompressedData
