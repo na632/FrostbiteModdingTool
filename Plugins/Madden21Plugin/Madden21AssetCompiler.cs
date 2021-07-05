@@ -137,7 +137,7 @@ namespace Madden21Plugin
                     if (ModExecuter.archiveData.ContainsKey(chunk.Sha1))
                         ModExecuter.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
                     else
-                        ModExecuter.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                        ModExecuter.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                 }
                 ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
             }

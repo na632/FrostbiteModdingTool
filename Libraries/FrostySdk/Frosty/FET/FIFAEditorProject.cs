@@ -992,14 +992,17 @@ namespace FrostySdk.Frosty.FET
 					continue;
 				}
 				ChunkAssetEntry chunkEntry = assetManager.GetChunkEntry(guid);
-				Stream chunk = assetManager.GetChunk(chunkEntry);
-				using (NativeReader nr = new NativeReader(chunk))
-                {
-					customAssetEntry.ModifiedEntry = new ModifiedAssetEntry()
+				if (chunkEntry != null)
+				{
+					Stream chunk = assetManager.GetChunk(chunkEntry);
+					using (NativeReader nr = new NativeReader(chunk))
 					{
-						Data = nr.ReadToEnd()
-					};
+						customAssetEntry.ModifiedEntry = new ModifiedAssetEntry()
+						{
+							Data = nr.ReadToEnd()
+						};
 
+					}
 				}
 				
 			}

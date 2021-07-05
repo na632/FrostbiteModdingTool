@@ -300,10 +300,17 @@ namespace FIFAModExtractor
                                         var mdR = ModFile.Resources.FirstOrDefault(x => x.Name == texture.ChunkId.ToString());
                                         if (mdR != null)
                                         {
-                                            texture.SetData(DecompressData(ModFile.GetResourceData(mdR)));
+                                            var imageChunkData = DecompressData(ModFile.GetResourceData(mdR));
+                                            texture.SetData(imageChunkData);
                                             TextureExporter textureExporter = new TextureExporter();
-                                            var exportableTextureData = textureExporter.WriteToDDS(texture);
-                                            ExportDataToFile(exportableTextureData, filename, "*.dds");
+                                            var exportableTextureData = textureExporter.ExportToStream(texture) as MemoryStream;
+                                            var imageEngineImage = new ImageEngineImage(exportableTextureData);
+                                            MemoryStream newImageData = new MemoryStream();
+                                            imageEngineImage.Save(newImageData, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.PNG)
+                                            , MipHandling.KeepExisting
+                                            , removeAlpha: false);
+                                            ExportDataToFile(newImageData.ToArray(), resModResource.Name, "*.png", imageEngineImage);
+
                                         }
                                     }
                                 }
@@ -331,8 +338,13 @@ namespace FIFAModExtractor
                                     {
                                         texture.SetData(DecompressData(ModFile.GetResourceData(mdR)));
                                         TextureExporter textureExporter = new TextureExporter();
-                                        var exportableTextureData = textureExporter.WriteToDDS(texture);
-                                        ExportDataToFile(exportableTextureData, filename, "*.dds");
+                                        var exportableTextureData = textureExporter.ExportToStream(texture) as MemoryStream;
+                                        var imageEngineImage = new ImageEngineImage(exportableTextureData);
+                                        MemoryStream newImageData = new MemoryStream();
+                                        imageEngineImage.Save(newImageData, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.PNG)
+                                        , MipHandling.KeepExisting
+                                        , removeAlpha: false);
+                                        ExportDataToFile(newImageData.ToArray(), resModResource.Name, "*.png", imageEngineImage);
                                     }
                                 }
                             }

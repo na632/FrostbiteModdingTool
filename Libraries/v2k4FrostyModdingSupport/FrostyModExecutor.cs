@@ -24,6 +24,7 @@ using Microsoft.ApplicationInsights;
 using FrostbiteSdk.Frosty.Abstract;
 using System.Text;
 using FrostbiteSdk.FrostbiteSdk.Managers;
+using System.Collections.Concurrent;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -2673,7 +2674,7 @@ namespace paulv2k4ModdingExecuter
                                             ResAssetEntry resAssetEntry2 = (ResAssetEntry)handlerExtraData.Handler.Modify(resAssetEntry, resourceData, handlerExtraData.Data, out outData);
                                             if (!parent.archiveData.ContainsKey(resAssetEntry2.Sha1))
                                             {
-                                                parent.archiveData.Add(resAssetEntry2.Sha1, new ArchiveInfo
+                                                parent.archiveData.TryAdd(resAssetEntry2.Sha1, new ArchiveInfo
                                                 {
                                                     Data = outData,
                                                     RefCount = 1
@@ -3131,7 +3132,7 @@ namespace paulv2k4ModdingExecuter
                                         Stream resourceData = parent.rm.GetResourceData(item3.GetValue<Sha1>("sha1"));
                                         byte[] outData = null;
                                         chunkAssetEntry3 = (ChunkAssetEntry)handlerExtraData.Handler.Modify(chunkAssetEntry3, resourceData, handlerExtraData.Data, out outData);
-                                        parent.archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo
+                                        parent.archiveData.TryAdd(chunkAssetEntry3.Sha1, new ArchiveInfo
                                         {
                                             Data = outData,
                                             RefCount = 1
@@ -4266,7 +4267,7 @@ namespace paulv2k4ModdingExecuter
 
         public Dictionary<string, LegacyFileEntry> modifiedLegacy = new Dictionary<string, LegacyFileEntry>();
 
-        public Dictionary<Sha1, ArchiveInfo> archiveData = new Dictionary<Sha1, ArchiveInfo>();
+        public ConcurrentDictionary<Sha1, ArchiveInfo> archiveData = new ConcurrentDictionary<Sha1, ArchiveInfo>();
 
         public int numArchiveEntries;
 
@@ -4454,10 +4455,13 @@ namespace paulv2k4ModdingExecuter
                     //Logger.Log("Compiling mod " + kvpMods.Value.Filename);
 
 
-
+                    int indexCompleted = -1;
                     var frostbiteMod = kvpMods.Value;
+                    //Parallel.ForEach(frostbiteMod.Resources, (BaseModResource resource) =>
                     foreach (BaseModResource resource in frostbiteMod.Resources)
                     {
+                        indexCompleted++;
+
                         // ------------------------------------------------------------------
                         // Get the Resource Data out of the mod
                         byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
@@ -4475,7 +4479,7 @@ namespace paulv2k4ModdingExecuter
                                 Directory.CreateDirectory(parentDirectoryPath);
 
                             File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
-                                
+
                         }
                         //
                         // ------------------------------------------------------------------
@@ -4507,8 +4511,8 @@ namespace paulv2k4ModdingExecuter
                                     break;
                             }
                         }
-                        
-                        
+
+
                         foreach (int addedBundle in resource.AddedBundles)
                         {
                             if (!modifiedBundles.ContainsKey(addedBundle))
@@ -4534,7 +4538,7 @@ namespace paulv2k4ModdingExecuter
                         }
 
 
-                      
+
 
                         if (resource.Type == ModResourceType.Ebx)
                         {
@@ -4543,12 +4547,12 @@ namespace paulv2k4ModdingExecuter
                                 EbxAssetEntry ebxAssetEntry = modifiedEbx[resource.Name];
                                 if (ebxAssetEntry.Sha1 == resource.Sha1)
                                 {
-                                    continue;
+                                    //continue;
                                 }
                                 archiveData[ebxAssetEntry.Sha1].RefCount--;
                                 if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
                                 {
-                                    archiveData.Remove(ebxAssetEntry.Sha1);
+                                    archiveData.TryRemove(ebxAssetEntry.Sha1, out _);
                                 }
                                 modifiedEbx.Remove(resource.Name);
                                 numArchiveEntries--;
@@ -4560,7 +4564,7 @@ namespace paulv2k4ModdingExecuter
                             modifiedEbx.Add(ebxAssetEntry2.Name, ebxAssetEntry2);
                             if (!archiveData.ContainsKey(ebxAssetEntry2.Sha1))
                             {
-                                archiveData.Add(ebxAssetEntry2.Sha1, new ArchiveInfo
+                                archiveData.TryAdd(ebxAssetEntry2.Sha1, new ArchiveInfo
                                 {
                                     Data = resourceData,
                                     RefCount = 1
@@ -4608,14 +4612,14 @@ namespace paulv2k4ModdingExecuter
                                 if (modifiedRes.ContainsKey(resource.Name))
                                 {
                                     ResAssetEntry resAssetEntry2 = modifiedRes[resource.Name];
-                                    if (resAssetEntry2.Sha1 == resource.Sha1)
-                                    {
-                                        continue;
-                                    }
+                                    //if (resAssetEntry2.Sha1 == resource.Sha1)
+                                    //{
+                                    //    continue;
+                                    //}
                                     archiveData[resAssetEntry2.Sha1].RefCount--;
                                     if (archiveData[resAssetEntry2.Sha1].RefCount == 0)
                                     {
-                                        archiveData.Remove(resAssetEntry2.Sha1);
+                                        archiveData.TryRemove(resAssetEntry2.Sha1, out _);
                                     }
                                     modifiedRes.Remove(resource.Name);
                                     numArchiveEntries--;
@@ -4628,7 +4632,7 @@ namespace paulv2k4ModdingExecuter
                                 modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
                                 if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
                                 {
-                                    archiveData.Add(resAssetEntry3.Sha1, new ArchiveInfo
+                                    archiveData.TryAdd(resAssetEntry3.Sha1, new ArchiveInfo
                                     {
                                         //Data = resourceData3,
                                         Data = resourceData,
@@ -4644,58 +4648,56 @@ namespace paulv2k4ModdingExecuter
                         }
                         else if (resource.Type == ModResourceType.Chunk)
                         {
-                            
+
                             Guid guid = new Guid(resource.Name);
-                                if (ModifiedChunks.ContainsKey(guid))
+                            if (ModifiedChunks.ContainsKey(guid))
+                            {
+                                ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
+                                //if (chunkAssetEntry2.Sha1 == resource.Sha1)
+                                //{
+                                //    continue;
+                                //}
+                                archiveData[chunkAssetEntry2.Sha1].RefCount--;
+                                if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
                                 {
-                                    ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
-                                    if (chunkAssetEntry2.Sha1 == resource.Sha1)
-                                    {
-                                        continue;
-                                    }
-                                    archiveData[chunkAssetEntry2.Sha1].RefCount--;
-                                    if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
-                                    {
-                                        archiveData.Remove(chunkAssetEntry2.Sha1);
-                                    }
-                                    ModifiedChunks.Remove(guid);
-                                    numArchiveEntries--;
+                                    archiveData.TryRemove(chunkAssetEntry2.Sha1, out _);
                                 }
-                                //byte[] resourceData5 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                                ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
-                                resource.FillAssetEntry(chunkAssetEntry3);
-                                //chunkAssetEntry3.Size = resourceData5.Length;
-                                chunkAssetEntry3.Size = resourceData.Length;
+                                ModifiedChunks.Remove(guid);
+                                numArchiveEntries--;
+                            }
+                            ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
+                            resource.FillAssetEntry(chunkAssetEntry3);
+                            chunkAssetEntry3.Size = resourceData.Length;
 
-                            if (chunkAssetEntry3.ModifiedEntry == null && !string.IsNullOrEmpty(resource.UserData))
-                                chunkAssetEntry3.ModifiedEntry = new ModifiedAssetEntry() 
-                                    { 
-                                        Data = resourceData
-                                        , UserData = resource.UserData
-                                        , Sha1 = chunkAssetEntry3.Sha1
-                                };
+                            // Removing this for now (*.fifamod legacy support)
+                            //if (chunkAssetEntry3.ModifiedEntry == null && !string.IsNullOrEmpty(resource.UserData))
+                            //    chunkAssetEntry3.ModifiedEntry = new ModifiedAssetEntry() 
+                            //        { 
+                            //            Data = resourceData
+                            //            , UserData = resource.UserData
+                            //            , Sha1 = chunkAssetEntry3.Sha1
+                            //    };
 
 
-                                ModifiedChunks.Add(guid, chunkAssetEntry3);
-                                if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
+                            ModifiedChunks.Add(guid, chunkAssetEntry3);
+                            if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
+                            {
+                                archiveData.TryAdd(chunkAssetEntry3.Sha1, new ArchiveInfo
                                 {
-                                    archiveData.Add(chunkAssetEntry3.Sha1, new ArchiveInfo
-                                    {
-                                        //Data = resourceData5,
-                                        Data = resourceData,
-                                        RefCount = 1
-                                    });
-                                }
-                                else
-                                {
-                                    archiveData[chunkAssetEntry3.Sha1].RefCount++;
-                                }
-                                numArchiveEntries++;
+                                    //Data = resourceData5,
+                                    Data = resourceData,
+                                    RefCount = 1
+                                });
+                            }
+                            else
+                            {
+                                archiveData[chunkAssetEntry3.Sha1].RefCount++;
+                            }
+                            numArchiveEntries++;
                         }
 
                         else if (resource.Type == ModResourceType.Legacy)
                         {
-                            //byte[] resourceData3 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                             LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
                             resource.FillAssetEntry(legacyAssetEntry);
                             legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = resourceData };
@@ -4708,7 +4710,7 @@ namespace paulv2k4ModdingExecuter
 
                             if (!archiveData.ContainsKey(legacyAssetEntry.Sha1))
                             {
-                                archiveData.Add(legacyAssetEntry.Sha1, new ArchiveInfo
+                                archiveData.TryAdd(legacyAssetEntry.Sha1, new ArchiveInfo
                                 {
                                     Data = resourceData,
                                     RefCount = 1
@@ -4716,15 +4718,15 @@ namespace paulv2k4ModdingExecuter
                             }
                             else
                             {
-                                //archiveData[legacyAssetEntry.Sha1].RefCount++;
                                 archiveData[legacyAssetEntry.Sha1].Data = resourceData;
                                 archiveData[legacyAssetEntry.Sha1].RefCount++;
                             }
                             numArchiveEntries++;
                         }
+                    //});
                     }
 
-                }
+            }
                 Logger.Log("Cleaning up mod data directory");
                 //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
                 fs.ResetManifest();

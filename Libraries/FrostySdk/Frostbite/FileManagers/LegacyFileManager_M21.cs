@@ -247,7 +247,7 @@ namespace Frostbite.FileManagers
 			}
 
 			logger.Log($"Loaded {LegacyEntries.Count} legacy files");
-
+			LegacyFileManager.Instance = this;
 		}
 
 		public void WriteAllLegacy()

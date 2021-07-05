@@ -62,14 +62,14 @@ namespace CSharpImageLibrary.DDS
                     if (!CheckSize_DXT(mipWidth, mipHeight))  
                         return;
 
-                    try
-                    {
+                    //try
+                    //{
                         DecompressBlock(CompressedData, compressedPosition, decompressedData, decompressedStart, decompressedRowLength, formatDetails.IsPremultipliedFormat);
-                    }
-                    catch (IndexOutOfRangeException e)
-                    {
-                        throw;
-                    }
+                    //}
+                    //catch (IndexOutOfRangeException e)
+                    //{
+                    //    throw;
+                    //}
                 });
 
                 // Actually perform decompression using threading, no threading, or GPU.

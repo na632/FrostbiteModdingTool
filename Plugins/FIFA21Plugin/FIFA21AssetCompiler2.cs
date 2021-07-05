@@ -388,7 +388,7 @@ namespace FIFA21Plugin
                     if (parent.archiveData.ContainsKey(chunk.Sha1))
                         parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
                     else
-                        parent.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                        parent.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                 }
                 parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
             }

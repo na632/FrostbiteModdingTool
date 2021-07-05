@@ -142,8 +142,8 @@ namespace FrostySdk
 		public FrostbiteModReader(Stream inStream)
 			: base(inStream)
 		{
-			var viewableBytes = new NativeReader(inStream).ReadToEnd();
-			inStream.Position = 0;
+			//var viewableBytes = new NativeReader(inStream).ReadToEnd();
+			//inStream.Position = 0;
 			if (ReadULong() != FrostbiteMod.Magic)
 			{
 				return;
