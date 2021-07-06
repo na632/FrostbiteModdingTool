@@ -470,6 +470,14 @@ namespace FrostySdk
 			{
 				if (chunkEntry.HasModifiedData)
 				{
+					if(chunkEntry.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                    {
+
+                    }
+					if (chunkEntry.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+					{
+
+					}
 					AddResource(new ChunkResource(chunkEntry, manifest));
 				}
 			}

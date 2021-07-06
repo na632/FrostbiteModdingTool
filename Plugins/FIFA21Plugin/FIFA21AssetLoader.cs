@@ -50,9 +50,11 @@ namespace FIFA21Plugin
 			public int CasIndex { get; internal set; }
 			public int Unk { get; internal set; }
 
+			public int TocBundleIndex { get; set; }
+
 			public override string ToString()
             {
-				return $"Offset:{Offset}-Size:{Size}-Index{CasIndex}";
+				return $"Offset:{Offset}-Size:{Size}-Index:{TocBundleIndex}";
 			}
 
         }

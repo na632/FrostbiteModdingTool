@@ -13,5 +13,9 @@ namespace FrostySdk.Managers
 		public bool Added;
 
 		public string DisplayName => Name;
+
+		public int PersistedIndex { get; set; }
+
+		public static int PersistedIndexCount;
 	}
 }

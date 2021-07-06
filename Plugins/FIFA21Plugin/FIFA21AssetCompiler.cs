@@ -582,6 +582,10 @@ namespace FIFA21Plugin
                 var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
                 foreach (var modLegChunk in modifiedLegacyChunks)
                 {
+                    if(modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+                    {
+
+                    }
                     modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
                     if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
                     {
@@ -597,6 +601,11 @@ namespace FIFA21Plugin
                 var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
                 foreach (var chunk in modifiedChunks)
                 {
+                    if (chunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+                    {
+
+                    }
+
                     if (parent.archiveData.ContainsKey(chunk.Sha1))
                         parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
                     else
@@ -702,6 +711,16 @@ namespace FIFA21Plugin
                             nwCas.Position = nwCas.Length;
                             byte[] data = new byte[0];
                             AssetEntry originalEntry = modItem.OriginalEntry;
+
+                            if (modItem.NamePath.Contains("3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d"))
+                            {
+
+                            }
+
+                            if (modItem.NamePath.Contains("f0ca4187-b95e-5153-a1eb-1e0a7fff6371"))
+                            {
+
+                            }
 
                             if (originalEntry != null && parent.archiveData.ContainsKey(modItem.Sha1))
                             {
@@ -837,8 +856,9 @@ namespace FIFA21Plugin
 
                                     if (origResDbo != null
                                         && parent.modifiedRes.ContainsKey(assetBundle.Key.Name)
-                                        && (assetBundle.Key.Type == "SkinnedMeshAsset" || assetBundle.Key.Type == "MeshSet" || assetBundle.Key.Type == "Texture"))
-                                    //if (origResDbo != null && (assetBundle.Key.Type == "MeshSet" || assetBundle.Key.Type == "Texture"))
+                                        && (assetBundle.Key.Type == "SkinnedMeshAsset"
+                                        || assetBundle.Key.Type == "MeshSet"
+                                        || assetBundle.Key.Type == "Texture"))
                                     {
                                         nw_sb.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
                                         nw_sb.WriteBytes(parent.modifiedRes[assetBundle.Key.Name].ResMeta);

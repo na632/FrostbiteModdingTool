@@ -16,7 +16,7 @@ using static FIFA21Plugin.FIFA21AssetLoader;
 
 namespace FIFA21Plugin
 {
-    
+
 
     public class SBFile
     {
@@ -39,7 +39,10 @@ namespace FIFA21Plugin
 
         public SBFile() { }
 
-
+        public SBFile(TOCFile parentTOC)
+        {
+            AssociatedTOCFile = parentTOC;
+        }
 
         public SBFile(TocSbReader_FIFA21 parent, TOCFile parentTOC, int sbIndex)
         {
@@ -65,6 +68,16 @@ namespace FIFA21Plugin
 
         public bool DoLogging = true;
 
+
+        public List<DbObject> Read()
+        {
+            if (AssociatedTOCFile == null)
+                throw new FileNotFoundException("Unable to process SB file without knowing its location");
+
+            var sbLocation = AssociatedTOCFile.FileLocation.Replace(".toc", ".sb", StringComparison.OrdinalIgnoreCase);
+            return Read(new NativeReader(File.ReadAllBytes(sbLocation)));
+        }
+
         /// <summary>
         /// Reads the entire SBFile from the Associated TOC Bundles
         /// </summary>
@@ -81,14 +94,14 @@ namespace FIFA21Plugin
             List<DbObject> dbObjects = new List<DbObject>();
 
             var startOffset = nativeReader.Position;
-//#if DEBUG
-//            if (File.Exists("debugSB.dat"))
-//                File.Delete("debugSB.dat");
-//            using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
-//            {
-//                writer.Write(nativeReader.ReadToEnd());
-//            }
-//#endif
+            //#if DEBUG
+            //            if (File.Exists("debugSB.dat"))
+            //                File.Delete("debugSB.dat");
+            //            using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
+            //            {
+            //                writer.Write(nativeReader.ReadToEnd());
+            //            }
+            //#endif
             nativeReader.Position = startOffset;
             var index = 0;
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)
@@ -97,7 +110,8 @@ namespace FIFA21Plugin
                 if (DoLogging)
                 {
                     var percentDone = Math.Round(((double)index / AssociatedTOCFile.Bundles.Count) * 100).ToString();
-                    AssetManager.Instance.logger.Log($"Loading data from {FileLocation} {percentDone}%");
+                    if (AssetManager.Instance != null)
+                        AssetManager.Instance.logger.Log($"Loading data from {FileLocation} {percentDone}%");
                 }
 
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());
@@ -106,18 +120,22 @@ namespace FIFA21Plugin
                 {
                     Name = Guid.NewGuid().ToString(),
                     SuperBundleId = SuperBundleIndex,
+                    PersistedIndex = BundleEntry.PersistedIndexCount
                 };
                 //using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
                 using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, BaseBundleItem.Size)))
                 {
+                    dbObject.SetValue("Bundle", BaseBundleItem);
+                    dbObject.SetValue("BundleEntry", bundleEntry);
                     CachingSBData.Bundle cachingSBDataBundle = ReadInternalBundle((int)BaseBundleItem.Offset, ref dbObject, binarySbReader2);
                     cachingSBDataBundle.BaseBundleItem = BaseBundleItem;
                     //cachingSBData.Bundles.Add(cachingSBDataBundle);
-
                 }
 
-                if(AssetManager.Instance != null && ParentReader.ProcessData)
+                if (AssetManager.Instance != null && ParentReader.ProcessData)
                     AssetManager.Instance.bundles.Add(bundleEntry);
+
+                BundleEntry.PersistedIndexCount++;
 
                 dbObjects.Add(dbObject);
                 index++;
@@ -127,6 +145,28 @@ namespace FIFA21Plugin
             //CachingSB.CachingSBs.Add(cachingSBData);
             //CachingSB.Save();
             return dbObjects;
+        }
+
+        public Dictionary<DbObject, (int, int)> Write(List<DbObject> objs, out MemoryStream msNewFile)
+        {
+            msNewFile = new MemoryStream();
+
+            var newBundleOffsets = new Dictionary<DbObject, (int, int)>();
+
+            using (NativeWriter nw = new NativeWriter(msNewFile, true))
+            {
+                foreach (DbObject obj in objs)
+                {
+                    MemoryStream msNewInternalBundle = new MemoryStream();
+
+                    var newBundlePosition = msNewFile.Position;
+                    WriteInternalBundle(msNewInternalBundle, obj);
+                    nw.Write(msNewInternalBundle.ToArray());
+
+                    newBundleOffsets.Add(obj, ((int)newBundlePosition, msNewInternalBundle.ToArray().Length));
+                }
+            }
+            return newBundleOffsets;
         }
 
         public class BundleHeader
@@ -181,7 +221,8 @@ namespace FIFA21Plugin
             uint casFileForGroupOffset = binarySbReader2.ReadUInt(Endian.Big);
             dbObject.SetValue("CasFileForGroupOffset", casFileForGroupOffset);
 
-            var unk2 = binarySbReader2.ReadUInt(Endian.Big);
+            var totalCount = binarySbReader2.ReadUInt(Endian.Big);
+            dbObject.SetValue("unk2", totalCount);
 
             uint CatalogAndCASOffset = binarySbReader2.ReadUInt(Endian.Big);
             dbObject.SetValue("CatalogAndCASOffset", CatalogAndCASOffset);
@@ -195,15 +236,21 @@ namespace FIFA21Plugin
                  ,
                 casFileForGroupOffset = casFileForGroupOffset
                  ,
-                unk2 = unk2
+                unk2 = totalCount
                  ,
                 CatalogAndCASOffset = CatalogAndCASOffset
             };
 
             // read 3 unknowns 
             CachedBundle.BundleHeader.unk3 = binarySbReader2.ReadUInt(Endian.Big);
+            dbObject.SetValue("unk3", CachedBundle.BundleHeader.unk3);
+
             CachedBundle.BundleHeader.unk4 = binarySbReader2.ReadUInt(Endian.Big);
+            dbObject.SetValue("unk4", CachedBundle.BundleHeader.unk4);
+
             CachedBundle.BundleHeader.unk5 = binarySbReader2.ReadUInt(Endian.Big);
+            dbObject.SetValue("unk5", CachedBundle.BundleHeader.unk5);
+
 
             // ---------------------------------------------------------------------------------------------------------------------
             // This is where it hits the Binary SB Reader. FIFA 21 is more like MADDEN 21 in this section
@@ -211,6 +258,7 @@ namespace FIFA21Plugin
             CachedBundle.BinaryDataOffset = (int)binarySbReader2.Position;
             SBHeaderInformation SBHeaderInformation = new BinaryReader_FIFA21().BinaryRead_FIFA21(bundleOffset, ref dbObject, binarySbReader2, true);
             CachedBundle.BinaryDataOffsetEnd = (int)binarySbReader2.Position;
+            dbObject.SetValue("BinarySize", CachedBundle.BinaryDataOffsetEnd - 32);
 
             // END OF BINARY READER
             // ---------------------------------------------------------------------------------------------------------------------
@@ -374,24 +422,30 @@ namespace FIFA21Plugin
             return CachedBundle;
         }
 
-        /*
-        public void WriteBundleFETWay(Stream stream, DbObject bundle)
+        
+        public void WriteInternalBundle(MemoryStream stream, DbObject bundle)
         {
             long sbStartingPosition = stream.Position;
             NativeWriter writer = new NativeWriter(stream);
-            int entriesCount = checked(bundle.GetValue<DbObject>("ebx").List.Count + bundle.GetValue<DbObject>("res").List.Count + bundle.GetValue<DbObject>("chunks").List.Count);
-            writer.WriteInt32BigEndian(32);
+            int totalCount = bundle.GetValue<DbObject>("ebx").List.Count + bundle.GetValue<DbObject>("res").List.Count + bundle.GetValue<DbObject>("chunks").List.Count;
+            writer.Write((int)bundle.GetValue<int>("CatalogOffset"), Endian.Big);
             long headerStartPosition = stream.Position;
-            writer.WriteInt32BigEndian(0);
-            writer.WriteInt32BigEndian(0);
-            writer.WriteInt32BigEndian(entriesCount);
-            writer.WriteInt32BigEndian(0);
-            writer.WriteInt32BigEndian(0);
-            writer.WriteInt32BigEndian(0);
-            writer.WriteInt32BigEndian(0);
-            writer.WriteInt32BigEndian(0);
-            long bundleEndPosition = new BundleWriter_F21().Write(stream, bundle);
-            byte[] flags = ArrayPool<byte>.Shared.Rent(entriesCount);
+            writer.Write((int)bundle.GetValue<int>("EndOfMeta"), Endian.Big);
+            writer.Write((int)bundle.GetValue<int>("CasFileForGroupOffset"), Endian.Big);
+            writer.Write((int)totalCount, Endian.Big);
+            writer.Write((int)bundle.GetValue<int>("CatalogAndCASOffset"), Endian.Big);
+            writer.Write((int)bundle.GetValue<int>("unk3"), Endian.Big);
+            writer.Write((int)bundle.GetValue<int>("unk4"), Endian.Big);
+            writer.Write((int)bundle.GetValue<int>("unk5"), Endian.Big);
+            //writer.Write((int)0, Endian.Big);
+            //long bundleEndPosition = new BundleWriter_F21().Write(stream, bundle);
+
+
+            new BinaryWriter_FIFA21().Write(bundle, stream);
+            long bundleEndPosition = stream.Position;
+            long binarySize = stream.Position - 32;
+
+            byte[] flags = ArrayPool<byte>.Shared.Rent(totalCount);
             int currentCasIdentifier = -1;
             long startOfEntryDataOffset = writer.Position - 32 - sbStartingPosition;
             int entryIndex = 0;
@@ -401,7 +455,7 @@ namespace FIFA21Plugin
                 _ = 0;
                 if (entryCasIdentifier != currentCasIdentifier)
                 {
-                    writer.WriteInt32BigEndian(entryCasIdentifier);
+                    writer.Write((int)entryCasIdentifier);
                     flags[entryIndex] = 1;
                     currentCasIdentifier = entryCasIdentifier;
                 }
@@ -409,32 +463,26 @@ namespace FIFA21Plugin
                 {
                     flags[entryIndex] = 0;
                 }
-                writer.WriteUInt32BigEndian(entry.GetValue<uint>("offset"));
-                writer.WriteInt32BigEndian(entry.GetValue<int>("size"));
+                writer.Write((uint)entry.GetValue<uint>("offset"), Endian.Big);
+                writer.Write((uint)entry.GetValue<int>("size"), Endian.Big);
                 entryIndex++;
             }
             long startOfFlagsOffset = writer.Position - sbStartingPosition;
-            //writer.WriteBytes(flags, 0, entriesCount);
             writer.WriteBytes(flags);
             ArrayPool<byte>.Shared.Return(flags);
             long endPosition = writer.Position;
             writer.Position = headerStartPosition;
-            if (startOfEntryDataOffset <= int.MaxValue && startOfFlagsOffset <= int.MaxValue && startOfEntryDataOffset + 32 <= int.MaxValue)
-            {
-                _ = bundleEndPosition - 36;
-                _ = int.MaxValue;
-            }
-            writer.WriteInt32BigEndian((int)startOfEntryDataOffset);
-            writer.WriteInt32BigEndian((int)startOfFlagsOffset);
-            writer.WriteInt32BigEndian(entriesCount);
-            writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
-            writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
-            writer.WriteInt32BigEndian((int)(startOfEntryDataOffset + 32));
-            writer.WriteInt32BigEndian(0);
-            writer.WriteInt32BigEndian((int)bundleEndPosition - 36);
+            writer.Write((int)(int)startOfEntryDataOffset, Endian.Big);
+            writer.Write((int)(int)startOfFlagsOffset, Endian.Big);
+            writer.Write((int)totalCount, Endian.Big);
+            writer.Write((int)(int)startOfEntryDataOffset + 32, Endian.Big);
+            writer.Write((int)(int)startOfEntryDataOffset + 32, Endian.Big);
+            writer.Write((int)(int)startOfEntryDataOffset + 32, Endian.Big);
+            //writer.Write((int)(int)bundleEndPosition - 36, Endian.Big);
+            writer.Write(0, Endian.Big);
             writer.Position = endPosition;
         }
-        */
+        
 
         public static int CreateCasIdentifier(byte unk, bool isPatch, byte packageIndex, byte casIndex)
         {
@@ -442,167 +490,5 @@ namespace FIFA21Plugin
         }
 
     }
-
-
-    /*
-    public class BundleWriter_F21
-    {
-        public long Write(Stream stream, DbObject bundle, bool padEnd = true)
-        {
-            if (stream == null)
-            {
-                throw new ArgumentNullException("stream");
-            }
-            if (!stream.CanWrite)
-            {
-                throw new ArgumentException("Stream must support writing.", "stream");
-            }
-            if (!stream.CanSeek)
-            {
-                throw new ArgumentException("Stream must support seeking.", "stream");
-            }
-            if (bundle == null)
-            {
-                throw new ArgumentNullException("bundle");
-            }
-            NativeWriter writer = new NativeWriter(stream);
-            long bundleStartOffset = writer.Position;
-            int ebxEntries = bundle.GetValue<DbObject>("ebx").List.Count;
-            int resEntries = bundle.GetValue<DbObject>("res").List.Count;
-            int chunkEntries = bundle.GetValue<DbObject>("chunks").List.Count;
-            int totalEntries = checked(ebxEntries + resEntries + chunkEntries);
-            writer.WriteUInt32BigEndian(3599661469u);
-            writer.WriteInt32LittleEndian(totalEntries);
-            writer.WriteInt32LittleEndian(ebxEntries);
-            writer.WriteInt32LittleEndian(resEntries);
-            writer.WriteInt32LittleEndian(chunkEntries);
-            long placeholderPosition = writer.Position;
-            writer.WriteUInt32LittleEndian(0u);
-            writer.WriteUInt32LittleEndian(0u);
-            writer.WriteUInt32LittleEndian(0u);
-            foreach (DbObject item in bundle.GetValue<DbObject>("ebx").List.Concat(bundle.GetValue<DbObject>("res").List).Concat(bundle.GetValue<DbObject>("chunks").List))
-            {
-                Sha1 hash = item.GetValue<Sha1>("sha1");
-                writer.Write(hash);
-            }
-            uint entryNamesOffset = 0u;
-            WriteEbx(writer, bundle.GetValue<DbObject>("ebx").List.Cast<DbObject>(), ref entryNamesOffset);
-            WriteRes(writer, bundle.GetValue<DbObject>("res").List.Cast<DbObject>(), ref entryNamesOffset);
-            WriteChunks(writer, bundle.GetValue<DbObject>("chunks").List.Cast<DbObject>());
-            long stringsOffset = writer.Position - bundleStartOffset;
-            foreach (DbObject entry in bundle.GetValue<DbObject>("ebx").List.Concat(bundle.GetValue<DbObject>("res").List))
-            {
-                writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
-            }
-            long chunkMetaOffset = 0L;
-            long chunkMetaSize = 0L;
-            if (chunkEntries > 0)
-            {
-                chunkMetaOffset = writer.Position - bundleStartOffset;
-                var chunkMetaBytes = new DbWriter(stream).WriteDbObject("chunkMeta", bundle.GetValue<DbObject>("chunkMeta"));
-                writer.WriteBytes(chunkMetaBytes);
-                chunkMetaSize = writer.Position - bundleStartOffset - chunkMetaOffset;
-            }
-            long endPosition = writer.Position;
-            writer.Position = placeholderPosition;
-            _ = uint.MaxValue;
-            writer.WriteUInt32LittleEndian((uint)stringsOffset);
-            if (chunkMetaOffset != 0L)
-            {
-                if (chunkMetaOffset <= uint.MaxValue)
-                {
-                    _ = uint.MaxValue;
-                }
-                writer.WriteUInt32LittleEndian((uint)chunkMetaOffset);
-                writer.WriteUInt32LittleEndian((uint)chunkMetaSize);
-            }
-            else
-            {
-                writer.WriteUInt64LittleEndian(0uL);
-            }
-            writer.Position = endPosition;
-            if (padEnd)
-            {
-                writer.WritePadding(4);
-            }
-            return endPosition;
-        }
-
-        private void WriteEbx(NativeWriter writer, IEnumerable<DbObject> ebxEntries, ref uint stringsOffset)
-        {
-            if (writer == null)
-            {
-                throw new ArgumentNullException("writer");
-            }
-            if (ebxEntries == null)
-            {
-                throw new ArgumentNullException("ebxEntries");
-            }
-            checked
-            {
-                foreach (DbObject ebxEntry in ebxEntries)
-                {
-                    writer.WriteUInt32LittleEndian(stringsOffset);
-                    stringsOffset += (uint)Encoding.ASCII.GetByteCount(ebxEntry.GetValue<string>("name")) + 1u;
-                    writer.WriteUInt32LittleEndian(ebxEntry.GetValue<uint>("originalSize"));
-                }
-            }
-        }
-
-        private void WriteRes(NativeWriter writer, IEnumerable<DbObject> resEntries, ref uint stringsOffset)
-        {
-            if (writer == null)
-            {
-                throw new ArgumentNullException("writer");
-            }
-            if (resEntries == null)
-            {
-                throw new ArgumentNullException("resEntries");
-            }
-            checked
-            {
-                foreach (DbObject resEntry4 in resEntries)
-                {
-                    writer.WriteUInt32LittleEndian(stringsOffset);
-                    stringsOffset += (uint)Encoding.ASCII.GetByteCount(resEntry4.GetValue<string>("name")) + 1u;
-                    writer.WriteUInt32LittleEndian(resEntry4.GetValue<uint>("originalSize"));
-                }
-            }
-            foreach (DbObject resEntry3 in resEntries)
-            {
-                writer.WriteUInt32LittleEndian((uint)resEntry3.GetValue<long>("resType"));
-            }
-            foreach (DbObject resEntry2 in resEntries)
-            {
-                writer.WriteBytes(resEntry2.GetValue<byte[]>("resMeta"));
-            }
-            foreach (DbObject resEntry in resEntries)
-            {
-                writer.WriteInt64LittleEndian(resEntry.GetValue<long>("resRid"));
-            }
-        }
-
-        private void WriteChunks(NativeWriter writer, IEnumerable<DbObject> chunkEntries)
-        {
-            if (writer == null)
-            {
-                throw new ArgumentNullException("writer");
-            }
-            if (chunkEntries == null)
-            {
-                throw new ArgumentNullException("chunkEntries");
-            }
-            foreach (DbObject chunkEntry in chunkEntries)
-            {
-                writer.WriteGuid(chunkEntry.GetValue<Guid>("id"));
-                writer.WriteUInt32LittleEndian(chunkEntry.GetValue<uint>("logicalOffset"));
-                writer.WriteUInt32LittleEndian(chunkEntry.GetValue<uint>("logicalSize"));
-            }
-        }
-    }
-    */
-
-
-
 
 }

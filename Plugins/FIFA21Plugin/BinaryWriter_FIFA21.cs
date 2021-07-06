@@ -9,6 +9,184 @@ namespace FIFA21Plugin
 {
     public class BinaryWriter_FIFA21
     {
+        /*
+        public long Write(DbObject bundle, Stream stream, bool padEnd = true)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            if (!stream.CanWrite)
+            {
+                throw new ArgumentException("Stream must support writing.", "stream");
+            }
+            if (!stream.CanSeek)
+            {
+                throw new ArgumentException("Stream must support seeking.", "stream");
+            }
+            if (bundle == null)
+            {
+                throw new ArgumentNullException("bundle");
+            }
+            FileWriter writer = new FileWriter(stream);
+            long bundleStartOffset = writer.Position;
+            int ebxEntries = bundle.GetValue<DbObject>("ebx").List.Count;
+            int resEntries = bundle.GetValue<DbObject>("res").List.Count;
+            int chunkEntries = bundle.GetValue<DbObject>("chunks").List.Count;
+            int totalCount = checked(ebxEntries + resEntries + chunkEntries);
+            writer.WriteUInt32BigEndian(3599661469u);
+            writer.WriteInt32LittleEndian(totalCount);
+            writer.WriteInt32LittleEndian(ebxEntries);
+            writer.WriteInt32LittleEndian(resEntries);
+            writer.WriteInt32LittleEndian(chunkEntries);
+            long placeholderPosition = writer.Position;
+            writer.WriteUInt32LittleEndian(0u);
+            writer.WriteUInt32LittleEndian(0u);
+            writer.WriteUInt32LittleEndian(0u);
+            List<Sha1> sha1s = bundle.GetValue<List<Sha1>>("sha1s");
+            for (int i = 0; i < totalCount; i++)
+            {
+                writer.Write(sha1s[i]);
+            }
+            uint entryNamesOffset = 0u;
+            WriteEbx(writer, bundle.GetValue<DbObject>("ebx"), ref entryNamesOffset);
+            WriteRes(writer, bundle.GetValue<DbObject>("res"), ref entryNamesOffset);
+            WriteChunks(writer, bundle.GetValue<DbObject>("chunks"));
+            long stringsOffset = writer.Position - bundleStartOffset;
+            foreach (DbObject entry in bundle.GetValue<DbObject>("ebx"))
+            {
+                writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
+            }
+            foreach (DbObject entry in bundle.GetValue<DbObject>("res"))
+            {
+                writer.WriteNullTerminatedString(entry.GetValue<string>("name"));
+            }
+            long chunkMetaOffset = 0L;
+            long chunkMetaSize = 0L;
+            if (chunkEntries > 0)
+            {
+                chunkMetaOffset = writer.Position - bundleStartOffset;
+                //new DbWriter(stream).WriteDbObject("chunkMeta", bundle.GetValue<DbObject>("chunkMeta"));
+                writer.Write(WriteChunkMeta(bundle));
+                chunkMetaSize = writer.Position - bundleStartOffset - chunkMetaOffset;
+            }
+            long endPosition = writer.Position;
+            writer.Position = placeholderPosition;
+            _ = uint.MaxValue;
+            writer.WriteUInt32LittleEndian((uint)stringsOffset);
+            if (chunkMetaOffset != 0L)
+            {
+                if (chunkMetaOffset <= uint.MaxValue)
+                {
+                    _ = uint.MaxValue;
+                }
+                writer.WriteUInt32LittleEndian((uint)chunkMetaOffset);
+                writer.WriteUInt32LittleEndian((uint)chunkMetaSize);
+            }
+            else
+            {
+                writer.WriteUInt64LittleEndian(0uL);
+            }
+            writer.Position = endPosition;
+            if (padEnd)
+            {
+                writer.WritePadding(4);
+            }
+            return endPosition;
+        }
+
+        private void WriteEbx(FileWriter writer, DbObject ebxEntries, ref uint stringsOffset)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+            if (ebxEntries == null)
+            {
+                throw new ArgumentNullException("ebxEntries");
+            }
+            checked
+            {
+                foreach (DbObject ebxEntry in ebxEntries)
+                {
+                    writer.WriteUInt32LittleEndian(stringsOffset);
+                    stringsOffset += (uint)Encoding.ASCII.GetByteCount(ebxEntry.GetValue<string>("name")) + 1u;
+                    writer.WriteUInt32LittleEndian(ebxEntry.GetValue<uint>("originalSize"));
+                }
+            }
+        }
+
+        private void WriteRes(FileWriter writer, DbObject resEntries, ref uint stringsOffset)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+            if (resEntries == null)
+            {
+                throw new ArgumentNullException("resEntries");
+            }
+            checked
+            {
+                foreach (DbObject resEntry4 in resEntries)
+                {
+                    writer.WriteUInt32LittleEndian(stringsOffset);
+                    stringsOffset += (uint)Encoding.ASCII.GetByteCount(resEntry4.GetValue<string>("name")) + 1u;
+                    writer.WriteUInt32LittleEndian(resEntry4.GetValue<uint>("originalSize"));
+                }
+            }
+            foreach (DbObject resEntry3 in resEntries)
+            {
+                writer.WriteUInt32LittleEndian((uint)resEntry3.GetValue<long>("resType"));
+            }
+            foreach (DbObject resEntry2 in resEntries)
+            {
+                writer.WriteBytes(resEntry2.GetValue<byte[]>("resMeta"));
+            }
+            foreach (DbObject resEntry in resEntries)
+            {
+                //writer.WriteInt64LittleEndian(resEntry.GetValue<long>("resRid"));
+
+                var resRidString = resEntry["resRid"].ToString();
+                if (ulong.TryParse(resRidString, out ulong resRid))
+                {
+                    writer.Write(resRid);
+                }
+                else
+                {
+                    throw new OverflowException("Unable to Parse resRid: " + resRidString);
+                }
+            }
+        }
+
+        private void WriteChunks(FileWriter writer, DbObject chunkEntries)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+            if (chunkEntries == null)
+            {
+                throw new ArgumentNullException("chunkEntries");
+            }
+            foreach (DbObject chunkEntry in chunkEntries)
+            {
+                writer.WriteGuid(chunkEntry.GetValue<Guid>("id"));
+                writer.WriteUInt32LittleEndian(chunkEntry.GetValue<uint>("logicalOffset"));
+                writer.WriteUInt32LittleEndian(chunkEntry.GetValue<uint>("logicalSize"));
+            }
+        }
+
+        private byte[] WriteChunkMeta(DbObject obj)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            DbObject o = obj.GetValue<DbObject>("chunkMeta");
+            DbWriter dbWriter = new DbWriter(memoryStream, leaveOpen: true);
+            memoryStream = new MemoryStream(dbWriter.WriteDbObject("chunkMeta", o));
+            return memoryStream.ToArray();
+        }
+        */
+
         public void Write(DbObject dbObject, MemoryStream ms)
         {
             byte[] bytesToWrite = WriteToBytes(dbObject);
@@ -37,6 +215,12 @@ namespace FIFA21Plugin
                 writer.Write((int)0); // string offset
                 writer.Write((int)0); // meta offset
                 writer.Write((int)0); // meta size
+
+                List<Sha1> sha1s = obj.GetValue<List<Sha1>>("sha1s");
+                for (int i = 0; i < totalCount; i++)
+                {
+                    writer.Write(sha1s[i]);
+                }
 
                 WriteEbx(obj, writer);
                 WriteRes(obj, writer);
@@ -189,10 +373,6 @@ namespace FIFA21Plugin
                         {
                             writer.Write(o.GetValue<byte[]>("data"));
                         }
-                        else
-                        {
-                            throw new KeyNotFoundException("Data was not found for ebx " + o["name"].ToString());
-                        }
                     }
                 }
                 if (obj.HasValue("res"))
@@ -203,10 +383,6 @@ namespace FIFA21Plugin
                         {
                             writer.Write(o.GetValue<byte[]>("data"));
                         }
-                        else
-                        {
-                            throw new KeyNotFoundException("Data was not found for res " + o["name"].ToString());
-                        }
                     }
                 }
                 if (obj.HasValue("chunks"))
@@ -216,10 +392,6 @@ namespace FIFA21Plugin
                         if (o.HasValue("data"))
                         {
                             writer.Write(o.GetValue<byte[]>("data"));
-                        }
-                        else
-                        {
-                            throw new KeyNotFoundException("Data was not found for chunk " + obj.GetValue<Guid>("Id").ToString());
                         }
                     }
                 }

@@ -111,14 +111,14 @@ namespace FIFA21Plugin
 			public int ChunkGuidOffset { get; set; }
 			public int ChunkCount { get; set; }
 			public int ChunkEntryOffset { get; set; }
-			public int Unk1Offset { get; set; }
-			public int Unk7Offset { get; set; }
-			public int Offset7 { get; set; }
-			public int CountOfSomething { get; set; }
-			public int CountOfSomething2 { get; set; }
-			public int Unk7Count { get; set; }
-			public int Unk12Count { get; set; }
-			public int Unk12Offset { get; set; }
+			public int Unk1_Offset { get; set; }
+			public int Unk7_Offset { get; set; }
+			public int Unk8_Offset { get; set; }
+			public int Unk9_Count { get; set; }
+			public int Unk9_Offset { get; set; }
+			public int Unk7_Count { get; set; }
+			public int Unk12_Count { get; set; }
+			public int Unk12_Offset { get; set; }
 
 			public int SizeOfUnkBlock { get; set; }
 
@@ -132,14 +132,14 @@ namespace FIFA21Plugin
 				ChunkGuidOffset = nativeReader.ReadInt(Endian.Big);  // 20
 				ChunkCount = nativeReader.ReadInt(Endian.Big);  // 24
 				ChunkEntryOffset = nativeReader.ReadInt(Endian.Big); // 28
-				Unk1Offset = nativeReader.ReadInt(Endian.Big); // 32
-				Unk7Offset = nativeReader.ReadInt(Endian.Big); // 36
-				Offset7 = nativeReader.ReadInt(Endian.Big); // 40
-				CountOfSomething = nativeReader.ReadInt(Endian.Big); // 44
-				CountOfSomething2 = nativeReader.ReadInt(Endian.Big); // 48
-				Unk7Count = nativeReader.ReadInt(Endian.Big); // 52
-				Unk12Count = nativeReader.ReadInt(Endian.Big); // 56
-				Unk12Offset = nativeReader.ReadInt(Endian.Big); // 60
+				Unk1_Offset = nativeReader.ReadInt(Endian.Big); // 32
+				Unk7_Offset = nativeReader.ReadInt(Endian.Big); // 36
+				Unk8_Offset = nativeReader.ReadInt(Endian.Big); // 40
+				Unk9_Count = nativeReader.ReadInt(Endian.Big); // 44 // seems to be the same as bundles count
+				Unk9_Offset = nativeReader.ReadInt(Endian.Big); // 48
+				Unk7_Count = nativeReader.ReadInt(Endian.Big); // 52
+				Unk12_Count = nativeReader.ReadInt(Endian.Big); // 56
+				Unk12_Offset = nativeReader.ReadInt(Endian.Big); // 60
 
 				SizeOfUnkBlock = (BundleOffset - Magic) / 4;
 			}
@@ -153,14 +153,14 @@ namespace FIFA21Plugin
 				nativeWriter.Write(ChunkGuidOffset, Endian.Big);
 				nativeWriter.Write(ChunkCount, Endian.Big);
 				nativeWriter.Write(ChunkEntryOffset, Endian.Big);
-				nativeWriter.Write(Unk1Offset, Endian.Big);
-				nativeWriter.Write(Unk7Offset, Endian.Big);
-				nativeWriter.Write(Offset7, Endian.Big);
-				nativeWriter.Write(CountOfSomething, Endian.Big);
-				nativeWriter.Write(CountOfSomething2, Endian.Big);
-				nativeWriter.Write(Unk7Count, Endian.Big);
-				nativeWriter.Write(Unk12Count, Endian.Big);
-				nativeWriter.Write(Unk12Offset, Endian.Big);
+				nativeWriter.Write(Unk1_Offset, Endian.Big);
+				nativeWriter.Write(Unk7_Offset, Endian.Big);
+				nativeWriter.Write(Unk8_Offset, Endian.Big);
+				nativeWriter.Write(Unk9_Count, Endian.Big);
+				nativeWriter.Write(Unk9_Offset, Endian.Big);
+				nativeWriter.Write(Unk7_Count, Endian.Big);
+				nativeWriter.Write(Unk12_Count, Endian.Big);
+				nativeWriter.Write(Unk12_Offset, Endian.Big);
 			}
         }
 
@@ -174,6 +174,13 @@ namespace FIFA21Plugin
 
 		public void Read(NativeReader nativeReader)
 		{
+			if (FileLocation.Contains("fifagame", StringComparison.OrdinalIgnoreCase)
+				&& FileLocation.Contains("patch", StringComparison.OrdinalIgnoreCase)
+				)
+			{
+
+			}
+
 			nativeReader.Position = 0;
 			//var actualInternalPos = internalPos + 4;
 			InitialHeaderData = nativeReader.ReadBytes(556);
@@ -196,27 +203,18 @@ namespace FIFA21Plugin
 				nativeReader.Position = actualInternalPos + MetaData.BundleOffset;
 				for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.BundleCount; indexOfBundleCount++)
 				{
-
 					int unk1 = nativeReader.ReadInt(Endian.Big);
-					var tocsizeposition = nativeReader.Position;
 					int size = nativeReader.ReadInt(Endian.Big);
 					long dataOffset = nativeReader.ReadLong(Endian.Big);
-
-					if (dataOffset > 0)
+					BaseBundleInfo newBundleInfo = new BaseBundleInfo
 					{
-						BaseBundleInfo newBundleInfo = new BaseBundleInfo
-						{
-							//TocOffset = offset1,
-							Unk = unk1,
-							Offset = dataOffset,
-							Size = size,
-							TOCSizePosition = tocsizeposition
-						};
-						Bundles.Add(newBundleInfo);
-					}
-
+						Unk = unk1,
+						Offset = dataOffset,
+						Size = size,
+						TocBundleIndex = indexOfBundleCount
+					};
+					Bundles.Add(newBundleInfo);
 				}
-
 
 				if (MetaData.ChunkOffsetPosition != 0 && MetaData.ChunkOffsetPosition != 32)
 				{
@@ -295,16 +293,16 @@ namespace FIFA21Plugin
 						}
 					}
 
-					Unk7Values = new int[MetaData.Unk7Count];
-					nativeReader.Position = 556 + MetaData.Unk7Offset;
-					for (int k = 0; k < MetaData.Unk7Count; k++)
+					Unk7Values = new int[MetaData.Unk7_Count];
+					nativeReader.Position = 556 + MetaData.Unk7_Offset;
+					for (int k = 0; k < MetaData.Unk7_Count; k++)
 					{
 						Unk7Values[k] = nativeReader.ReadInt(Endian.Big);
 					}
 
-					Unk12Values = new int[MetaData.Unk12Count];
-					nativeReader.Position = 556 + MetaData.Unk12Offset;
-					for (int j = 0; j < MetaData.Unk12Count; j++)
+					Unk12Values = new int[MetaData.Unk12_Count];
+					nativeReader.Position = 556 + MetaData.Unk12_Offset;
+					for (int j = 0; j < MetaData.Unk12_Count; j++)
 					{
 						Unk12Values[j] = nativeReader.ReadInt(Endian.Big);
 					}
@@ -470,7 +468,9 @@ namespace FIFA21Plugin
 
 		public void Write(Stream stream)
 		{
-			if(FileLocation.Contains("fifagame", StringComparison.OrdinalIgnoreCase))
+			if(FileLocation.Contains("fifagame", StringComparison.OrdinalIgnoreCase)
+				&& FileLocation.Contains("patch", StringComparison.OrdinalIgnoreCase)
+				)
             {
 
             }
@@ -503,13 +503,13 @@ namespace FIFA21Plugin
 				writer.Write((int)bundle.Size, Endian.Big);
 				writer.Write((long)bundle.Offset, Endian.Big);
 			}
-			MetaData.ChunkOffsetPosition = (int)writer.Position - (int)actualInternalPos;
-			foreach (int chunkFlag in ListTocChunkPositions)
+            MetaData.ChunkOffsetPosition = (int)writer.Position - (int)actualInternalPos;
+            foreach (int chunkFlag in ListTocChunkPositions)
 			{
 				writer.Write((int)chunkFlag, Endian.Big);
 			}
-			MetaData.ChunkGuidOffset = (int)writer.Position - (int)actualInternalPos;
-			foreach (var chunk in ChunkIndexToChunkId)
+            MetaData.ChunkGuidOffset = (int)writer.Position - (int)actualInternalPos;
+            foreach (var chunk in ChunkIndexToChunkId)
 			{
 				foreach (byte guidByte in chunk.Value.ToByteArray().Reverse())
 				{
@@ -517,8 +517,8 @@ namespace FIFA21Plugin
 				}
 				writer.Write(chunk.Key, Endian.Big);
 			}
-			MetaData.ChunkEntryOffset = (int)writer.Position - (int)actualInternalPos;
-			foreach (var chunk in TocChunks)
+            MetaData.ChunkEntryOffset = (int)writer.Position - (int)actualInternalPos;
+            foreach (var chunk in TocChunks)
 			{
 				writer.Write((byte)chunk.ExtraData.Unk);
 				writer.Write((byte)(chunk.ExtraData.IsPatch ? 1 : 0));
@@ -527,13 +527,13 @@ namespace FIFA21Plugin
 				writer.Write((uint)chunk.ExtraData.DataOffset, Endian.Big);
 				writer.Write((uint)chunk.Size, Endian.Big);
 			}
-			MetaData.Unk7Offset = (int)writer.Position - (int)actualInternalPos;
-			foreach (int offset2Value in Unk7Values)
+            MetaData.Unk7_Offset = (int)writer.Position - (int)actualInternalPos;
+            foreach (int offset2Value in Unk7Values)
 			{
 				writer.Write((int)offset2Value, Endian.Big);
 			}
-			MetaData.Unk12Offset = (int)writer.Position - (int)actualInternalPos;
-			foreach (int offset12Value in Unk12Values)
+            MetaData.Unk12_Offset = (int)writer.Position - (int)actualInternalPos;
+            foreach (int offset12Value in Unk12Values)
 			{
 				writer.Write((int)offset12Value, Endian.Big);
 			}
@@ -542,7 +542,6 @@ namespace FIFA21Plugin
 				List<long> newCasBundleOffsets = new List<long>(CasBundles.Count);
 
                 foreach (var cBundle in CasBundles)
-                //foreach (var casBundle in CasBundles)
                 {
                     long casBundleOffsetPosition = writer.Position;
                     newCasBundleOffsets.Add(casBundleOffsetPosition);
@@ -566,10 +565,6 @@ namespace FIFA21Plugin
                     {
                         var entry = cBundle.Entries[j2];
 
-                        if (writer.Position > 96000 && writer.Position < 110000)
-                        {
-
-                        }
                         bool hasCasIdentifier =
                             j2 == 0
                             || currentCas != entry.cas

@@ -84,8 +84,7 @@ namespace FIFA21Plugin
                         var EbxObjectList = binaryObject.GetValue<DbObject>("ebx");
                         var ResObjectList = binaryObject.GetValue<DbObject>("res");
                         var ChunkObjectList = binaryObject.GetValue<DbObject>("chunks");
-                        //
-                        //var totalCount = inner_reader.ReadInt(Endian.Little);
+
                         var ebxCount = binaryObject.GetValue<DbObject>("ebx").Count;
                         var resCount = binaryObject.GetValue<DbObject>("res").Count;
                         var chunkCount = binaryObject.GetValue<DbObject>("chunks").Count;

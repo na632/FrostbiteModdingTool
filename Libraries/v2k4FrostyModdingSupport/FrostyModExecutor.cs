@@ -4650,6 +4650,16 @@ namespace paulv2k4ModdingExecuter
                         {
 
                             Guid guid = new Guid(resource.Name);
+                            if (resource.Name == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                            {
+
+                            }
+                            if (resource.Name == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+                            {
+
+                            }
+
+
                             if (ModifiedChunks.ContainsKey(guid))
                             {
                                 ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
@@ -4691,7 +4701,8 @@ namespace paulv2k4ModdingExecuter
                             }
                             else
                             {
-                                archiveData[chunkAssetEntry3.Sha1].RefCount++;
+                                //archiveData[chunkAssetEntry3.Sha1].RefCount++;
+                                archiveData[chunkAssetEntry3.Sha1].Data = resourceData;
                             }
                             numArchiveEntries++;
                         }

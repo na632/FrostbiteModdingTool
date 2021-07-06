@@ -55,14 +55,14 @@ namespace FIFA21Plugin
             magicStuff = nr.ReadUInt(Endian.Big);
             if (magicStuff != 3599661469)
             {
-                if (attempts == 0)
-                {
-                    nr.Position = 0;
-                    attempts++;
-                    goto startOfSBHI;
-                }
+                //if (attempts == 0)
+                //{
+                //    nr.Position = 0;
+                //    attempts++;
+                //    goto startOfSBHI;
+                //}
 
-                Debug.WriteLine("Magic/Hash is not right, expecting 3599661469");
+                //Debug.WriteLine("Magic/Hash is not right, expecting 3599661469");
                 SuccessfullyRead = false;
                 return;
             }
@@ -71,9 +71,9 @@ namespace FIFA21Plugin
             ebxCount = nr.ReadInt(Endian.Little);
             resCount = nr.ReadInt(Endian.Little);
             chunkCount = nr.ReadInt(Endian.Little);
-            stringOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
-            metaOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
-            metaSize = nr.ReadInt(Endian.Little) + AdditionalHeaderLength;
+            stringOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength + 4;
+            metaOffset = nr.ReadInt(Endian.Little) + AdditionalHeaderLength + 4;
+            metaSize = nr.ReadInt(Endian.Little) + AdditionalHeaderLength + 4;
         }
 
         public byte[] Write()
