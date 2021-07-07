@@ -564,6 +564,7 @@ namespace FIFAModdingUI.Windows
 
         private async void btnProjectOpen_Click(object sender, RoutedEventArgs e)
         {
+
             LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "Cleaning loose Legacy Files");
             loadingDialog.Show();
             await Task.Delay(100);
@@ -578,6 +579,9 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
+                    await loadingDialog.UpdateAsync("Loading Project", "Resetting files");
+                    AssetManager.Instance.Reset();
+
                     await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
 
                     ProjectManagement.Project.ModifiedAssetEntries = null;

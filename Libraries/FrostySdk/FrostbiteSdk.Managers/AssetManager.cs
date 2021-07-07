@@ -852,6 +852,9 @@ namespace FrostySdk.Managers
 				}
 			}
 			EmbeddedFileEntries = new List<EmbeddedFileEntry>();
+
+			LegacyFileManager_M21.CleanUpChunks();
+
 		}
 
 		public void RevertAsset(AssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
