@@ -4269,7 +4269,6 @@ namespace paulv2k4ModdingExecuter
 
         public ConcurrentDictionary<Sha1, ArchiveInfo> archiveData = new ConcurrentDictionary<Sha1, ArchiveInfo>();
 
-        public int numArchiveEntries;
 
         public int numTasks;
 
@@ -4555,7 +4554,6 @@ namespace paulv2k4ModdingExecuter
                                     archiveData.TryRemove(ebxAssetEntry.Sha1, out _);
                                 }
                                 modifiedEbx.Remove(resource.Name);
-                                numArchiveEntries--;
                             }
                             //byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                             EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
@@ -4574,7 +4572,6 @@ namespace paulv2k4ModdingExecuter
                             {
                                 archiveData[ebxAssetEntry2.Sha1].RefCount++;
                             }
-                            numArchiveEntries++;
                         }
                         else if (resource.Type == ModResourceType.Res)
                         {
@@ -4622,7 +4619,6 @@ namespace paulv2k4ModdingExecuter
                                         archiveData.TryRemove(resAssetEntry2.Sha1, out _);
                                     }
                                     modifiedRes.Remove(resource.Name);
-                                    numArchiveEntries--;
                                 }
                                 //byte[] resourceData3 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ResAssetEntry resAssetEntry3 = new ResAssetEntry();
@@ -4643,7 +4639,6 @@ namespace paulv2k4ModdingExecuter
                                 {
                                     archiveData[resAssetEntry3.Sha1].RefCount++;
                                 }
-                                numArchiveEntries++;
                             }
                         }
                         else if (resource.Type == ModResourceType.Chunk)
@@ -4662,18 +4657,20 @@ namespace paulv2k4ModdingExecuter
 
                             if (ModifiedChunks.ContainsKey(guid))
                             {
-                                ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
+                                //ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
                                 //if (chunkAssetEntry2.Sha1 == resource.Sha1)
                                 //{
                                 //    continue;
                                 //}
-                                archiveData[chunkAssetEntry2.Sha1].RefCount--;
-                                if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
-                                {
-                                    archiveData.TryRemove(chunkAssetEntry2.Sha1, out _);
-                                }
+                                //if (archiveData.ContainsKey(chunkAssetEntry2.Sha1))
+                                //{
+                                //    archiveData[chunkAssetEntry2.Sha1].RefCount--;
+                                //    if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
+                                //    {
+                                //        archiveData.TryRemove(chunkAssetEntry2.Sha1, out _);
+                                //    }
+                                //}
                                 ModifiedChunks.Remove(guid);
-                                numArchiveEntries--;
                             }
                             ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
                             resource.FillAssetEntry(chunkAssetEntry3);
@@ -4694,9 +4691,7 @@ namespace paulv2k4ModdingExecuter
                             {
                                 archiveData.TryAdd(chunkAssetEntry3.Sha1, new ArchiveInfo
                                 {
-                                    //Data = resourceData5,
                                     Data = resourceData,
-                                    RefCount = 1
                                 });
                             }
                             else
@@ -4704,7 +4699,6 @@ namespace paulv2k4ModdingExecuter
                                 //archiveData[chunkAssetEntry3.Sha1].RefCount++;
                                 archiveData[chunkAssetEntry3.Sha1].Data = resourceData;
                             }
-                            numArchiveEntries++;
                         }
 
                         else if (resource.Type == ModResourceType.Legacy)
@@ -4732,7 +4726,6 @@ namespace paulv2k4ModdingExecuter
                                 archiveData[legacyAssetEntry.Sha1].Data = resourceData;
                                 archiveData[legacyAssetEntry.Sha1].RefCount++;
                             }
-                            numArchiveEntries++;
                         }
                     //});
                     }
@@ -4938,17 +4931,20 @@ namespace paulv2k4ModdingExecuter
                 Logger.Log("Loading mod " + fileInfo2.Name);
                 using var fsFBMod = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
                 var fbmod = new FrostbiteMod(fsFBMod);
-                frostyMods.Add(new MemoryStream(fbmod.ModBytes.ToArray()), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
+                // make copy
+                var modBytes = fbmod.ModBytes.ToArray();
+                //frostyMods.Add(new MemoryStream(modBytes), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
+                frostyMods.Add(new MemoryStream(modBytes), fbmod);
             }
 
             if (modPath.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
             {
                 FrostyModsFound = true;
 
-                FileInfo fileInfo2 = new FileInfo(modPath);
-                Logger.Log("Loading mod " + fileInfo2.Name);
-                var fs = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
-                frostyMods.Add(fs, new FIFAMod(string.Empty, fileInfo2.FullName));
+                FileInfo fiFIFAMod = new FileInfo(modPath);
+                Logger.Log("Loading mod " + fiFIFAMod.Name);
+                var fs = new FileStream(fiFIFAMod.FullName, FileMode.Open, FileAccess.Read);
+                frostyMods.Add(fs, new FIFAMod(string.Empty, fiFIFAMod.FullName));
             }
         }
 

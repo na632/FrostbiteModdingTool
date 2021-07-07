@@ -230,12 +230,12 @@ namespace FIFAModdingUI.Windows
                     miMod.IsEnabled = true;
                     miProjectConverter.IsEnabled = true;
 
-                    btnProjectNew.IsEnabled = true;
-                    btnProjectOpen.IsEnabled = true;
-                    btnProjectSave.IsEnabled = true;
-                    btnProjectWriteToMod.IsEnabled = true;
-                    //btnProjectWriteToFIFAMod.IsEnabled = true;
-                    btnOpenModDetailsPanel.IsEnabled = true;
+                    //btnProjectNew.IsEnabled = true;
+                    //btnProjectOpen.IsEnabled = true;
+                    //btnProjectSave.IsEnabled = true;
+                    //btnProjectWriteToMod.IsEnabled = true;
+                    ////btnProjectWriteToFIFAMod.IsEnabled = true;
+                    //btnOpenModDetailsPanel.IsEnabled = true;
                     var wt = WindowTitle;
                     WindowTitle = "New Project";
                     ProjectManagement.Project.ModifiedAssetEntries = null;
@@ -569,7 +569,7 @@ namespace FIFAModdingUI.Windows
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_M21.CleanUpChunks(true);
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Project files|*.fbproject";
@@ -619,10 +619,6 @@ namespace FIFAModdingUI.Windows
 
             var testmodname = "test-" + RandomSaver.Next().ToString() + ".fbmod";
 
-            // ---------------------------------------------------------
-            // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
-
             var author = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
             var category = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
             var desc = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
@@ -632,43 +628,6 @@ namespace FIFAModdingUI.Windows
                 , new ModSettings() { Author = author, Category = category, Description = desc, Title = title, Version = version });
 
 
-            /*
-            if (chkEnableLegacyInjection.IsChecked.HasValue && chkEnableLegacyInjection.IsChecked.Value)
-            {
-                var modifiedLegacy = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true).ToList();
-
-                modifiedLegacy.ForEach(
-                    entry =>
-                    {
-
-                        var extractPath = AssetManager.Instance.fs.BasePath + "/LegacyMods/Legacy/" + entry.Path;
-                        if (!string.IsNullOrEmpty(extractPath))
-                        {
-                            if (!Directory.Exists(extractPath))
-                                Directory.CreateDirectory(extractPath);
-
-
-                            if (File.Exists(extractPath + "/" + entry.Filename + ".mod"))
-                            {
-                                File.Delete(extractPath + "/" + entry.Filename + ".mod");
-                            }
-
-                            var aE = AssetManager.Instance.GetCustomAssetEntry("legacy", "");
-                            if (aE != null)
-                            {
-                                var streamAsset = AssetManager.Instance.GetCustomAsset("legacy", aE);
-                                if (streamAsset != null)
-                                {
-                                    var bytes = new NativeReader(streamAsset).ReadToEnd();
-                                    File.WriteAllBytes(extractPath + "/" + entry.Filename + "." + entry.Type, bytes);
-                                }
-                            }
-                        }
-
-
-                    });
-            }
-            */
             var useModData = swUseModData.IsOn;
             await Task.Run(() =>
             {
@@ -679,11 +638,11 @@ namespace FIFAModdingUI.Windows
                 frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
             });
 
-            
-
             await InjectLegacyDLL();
 
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = true; });
+
+            LegacyFileManager_M21.CleanUpChunks();
 
         }
 
@@ -735,7 +694,7 @@ namespace FIFAModdingUI.Windows
         private void btnProjectNew_Click(object sender, RoutedEventArgs e)
         {
             AssetManager.Instance.Reset();
-            Log("Asset Manager Reset");
+            LegacyFileManager_M21.CleanUpChunks(true);
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             ProjectManagement.Project.ModifiedAssetEntries = null;
             lstProjectFiles.ItemsSource = null;
@@ -1053,7 +1012,8 @@ namespace FIFAModdingUI.Windows
 
         private void btnCleanUpLegacyFiles_Click(object sender, RoutedEventArgs e)
         {
-            LegacyFileManager_M21.CleanUpChunks();
+            //LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_M21.CleanUpChunks(true);
             Log("Legacy files have been cleaned");
         }
 

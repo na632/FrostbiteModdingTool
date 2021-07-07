@@ -754,9 +754,12 @@ namespace FIFAModdingUI.Pages.Common
 
 						).ToList();
 
-					var selectedit = assetListView.SelectedItem;
-					assetListView.ItemsSource = filteredAssets.OrderBy(x => x.Name);
-					assetListView.SelectedItem = selectedit;
+					Dispatcher.Invoke(() =>
+					{
+						var selectedit = assetListView.SelectedItem;
+						assetListView.ItemsSource = filteredAssets.OrderBy(x => x.Name);
+						assetListView.SelectedItem = selectedit;
+					});
 
 				}
 			}

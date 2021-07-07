@@ -15,6 +15,10 @@ namespace FrostySdk.Managers
 
 		public object DataObject { get; set; }
 
+		public long CompressedOffset { get; set; } 
+
+		public long CompressedSize { get; set; }
+
 		public byte[] ResMeta { get; set; }
 
 		public uint LogicalOffset { get; set; }
