@@ -19,7 +19,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
-using Windows.Foundation.Metadata;
 
 namespace FrostbiteModdingUI.Windows
 {
@@ -30,7 +29,8 @@ namespace FrostbiteModdingUI.Windows
     {
         public Window OwnerWindow { get; set; }
 
-        [Deprecated("Incorrect usage of Editor Windows", DeprecationType.Remove, 0)]
+        [Obsolete("Incorrect usage of Editor Windows")]
+
         public BF4Editor()
         {
             throw new Exception("Incorrect usage of Editor Windows");

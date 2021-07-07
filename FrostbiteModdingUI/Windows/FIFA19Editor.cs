@@ -42,7 +42,6 @@ using System.Windows.Shapes;
 using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
-using Windows.Foundation.Metadata;
 
 namespace FrostbiteModdingUI.Windows
 {

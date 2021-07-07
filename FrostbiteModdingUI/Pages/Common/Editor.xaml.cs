@@ -26,7 +26,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using v2k4FIFAModding;
-using Windows.Foundation.Metadata;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -202,7 +201,8 @@ namespace FIFAModdingUI.Pages.Common
 		public EbxAsset Asset { get { return asset; } set { asset = value; } }
         public FrostbiteProject FrostyProject { get; protected set; }
 
-		[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
+		[Obsolete("Incorrect usage of Editor Windows")]
+
 		public Editor()
 		{
             InitializeComponent();

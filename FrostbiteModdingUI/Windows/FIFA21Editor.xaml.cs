@@ -40,7 +40,6 @@ using System.Windows.Shapes;
 using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
-using Windows.Foundation.Metadata;
 
 namespace FIFAModdingUI.Windows
 {
@@ -51,7 +50,7 @@ namespace FIFAModdingUI.Windows
     {
         public Window OwnerWindow { get; set; }
 
-        [Deprecated("Incorrect usage of Editor Windows", DeprecationType.Remove, 0)]
+        [Obsolete("Incorrect usage of Editor Windows")]
         public FIFA21Editor()
         {
             throw new Exception("Incorrect usage of Editor Windows");
