@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+//using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.Identity.Client;
 
 namespace FIFAModdingUI
@@ -95,31 +95,37 @@ namespace FIFAModdingUI
 
         private async void StartApplicationInsights()
         {
-            // Create a TelemetryConfiguration instance.
-            TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
-            config.InstrumentationKey = "92c621ff-61c0-43a2-a2d6-e539b359f053";
-            QuickPulseTelemetryProcessor quickPulseProcessor = null;
-            config.DefaultTelemetrySink.TelemetryProcessorChainBuilder
-                .Use((next) =>
-                {
-                    quickPulseProcessor = new QuickPulseTelemetryProcessor(next);
-                    return quickPulseProcessor;
-                })
-                .Build();
+            try
+            {
+                // Create a TelemetryConfiguration instance.
+                TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
+                config.InstrumentationKey = "92c621ff-61c0-43a2-a2d6-e539b359f053";
+                //QuickPulseTelemetryProcessor quickPulseProcessor = null;
+                //config.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+                //    .Use((next) =>
+                //    {
+                //        quickPulseProcessor = new QuickPulseTelemetryProcessor(next);
+                //        return quickPulseProcessor;
+                //    })
+                //    .Build();
 
-            var quickPulseModule = new QuickPulseTelemetryModule();
+                //var quickPulseModule = new QuickPulseTelemetryModule();
 
-            // Secure the control channel.
-            // This is optional, but recommended.
-            //quickPulseModule.AuthenticationApiKey = "YOUR-API-KEY-HERE";
-            quickPulseModule.Initialize(config);
-            quickPulseModule.RegisterTelemetryProcessor(quickPulseProcessor);
+                // Secure the control channel.
+                // This is optional, but recommended.
+                //quickPulseModule.AuthenticationApiKey = "YOUR-API-KEY-HERE";
+                //quickPulseModule.Initialize(config);
+                //quickPulseModule.RegisterTelemetryProcessor(quickPulseProcessor);
 
-            // Create a TelemetryClient instance. It is important
-            // to use the same TelemetryConfiguration here as the one
-            // used to setup Live Metrics.
-            AppInsightClient = new TelemetryClient(config);
+                // Create a TelemetryClient instance. It is important
+                // to use the same TelemetryConfiguration here as the one
+                // used to setup Live Metrics.
+                AppInsightClient = new TelemetryClient(config);
+            }
+            catch (Exception ex)
+            {
 
+            }
             await Task.Delay(1000);
         }
 

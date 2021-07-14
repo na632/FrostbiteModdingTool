@@ -6,7 +6,7 @@
 	  <!--<TargetFramework>net6.0-windows</TargetFramework>-->
 	  <!--<TargetFramework>net5.0-windows</TargetFramework>-->
     <UseWPF>true</UseWPF>
-    <PublishTrimmed>true</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>false</PublishReadyToRun>
@@ -119,8 +119,6 @@
 	  <PackageReference Include="HelixToolkit.SharpDX.Assimp" Version="2.10.0" />
     <PackageReference Include="MahApps.Metro" Version="2.4.3" />
     <PackageReference Include="MaterialDesignThemes" Version="3.0.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.17.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.17.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
