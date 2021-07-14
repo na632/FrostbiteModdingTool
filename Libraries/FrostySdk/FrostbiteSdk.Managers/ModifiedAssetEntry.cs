@@ -15,11 +15,11 @@ namespace FrostySdk.Managers
 
 		public object DataObject { get; set; }
 
-		public long CompressedOffset { get; set; } 
+		public long? CompressedOffset { get; set; } 
 
-		public long CompressedSize { get; set; }
+		public long? CompressedSize { get; set; }
 
-		public byte[] ResMeta { get; set; }
+        public byte[] ResMeta { get; set; }
 
 		public uint LogicalOffset { get; set; }
 
@@ -39,6 +39,8 @@ namespace FrostySdk.Managers
 
 
 		public bool AddToChunkBundle = true;
+
+		public bool AddToTOCChunks = false;
 
 		public bool IsTransientModified { get; set; }
 

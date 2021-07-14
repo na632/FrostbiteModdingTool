@@ -1747,6 +1747,11 @@ namespace FrostySdk.Managers
 			}
 		}
 
+		public Stream GetChunk(Guid id)
+		{
+			return GetAsset(GetChunkEntry(id));
+		}
+
 		public Stream GetChunk(ChunkAssetEntry entry)
 		{
 			return GetAsset(entry);
