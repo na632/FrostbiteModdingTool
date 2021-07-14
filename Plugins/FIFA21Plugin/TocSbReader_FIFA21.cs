@@ -26,12 +26,18 @@ namespace FIFA21Plugin
         public int SBIndex { get; set; }
 
 
-
+        /// <summary>
+        /// Does the logging to Windows or Debuggers
+        /// </summary>
         public bool DoLogging
         {
             get; set;
         } = true;
 
+
+        /// <summary>
+        /// Processes the Internal Data into the AssetManager EBX,RES,Chunk Lists
+        /// </summary>
         public bool ProcessData = true;
 
         public string SbPath = string.Empty;

@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FrostySdk
 {
@@ -618,6 +619,10 @@ namespace FrostySdk
 
 		}
 
+		public static async Task<bool> InitialiseAsync(string profileKey)
+        {
+			return await Task.Run(() => Initialize(profileKey));
+        }
 		private static string DecodeString(NativeReader reader)
 		{
 			int num = reader.Read7BitEncodedInt();

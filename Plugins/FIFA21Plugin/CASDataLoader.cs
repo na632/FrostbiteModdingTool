@@ -49,7 +49,7 @@ namespace FIFA21Plugin
                 int index = 0;
                 foreach (CASBundle casBundle in casBundles)
                 {
-                    if(AssetManager.Instance != null)
+                    if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
                         AssetManager.Instance.logger.Log($"Completed {Math.Round(((double)index / casBundles.Count)*100).ToString()} in {path}");
                     
                     index++;
@@ -81,7 +81,9 @@ namespace FIFA21Plugin
                         binaryReader.BinaryRead_FIFA21((int)baseBundleInfo.Offset, ref binaryObject, inner_reader, false);
                         inner_reader.Position = pos;
 
-                        var EbxObjectList = binaryObject.GetValue<DbObject>("ebx");
+                        if (AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.ProcessData)
+                        {
+                            var EbxObjectList = binaryObject.GetValue<DbObject>("ebx");
                         var ResObjectList = binaryObject.GetValue<DbObject>("res");
                         var ChunkObjectList = binaryObject.GetValue<DbObject>("chunks");
 
@@ -104,8 +106,8 @@ namespace FIFA21Plugin
                             ebxobjectinlist.SetValue("catalog", casBundle.TOCCatalog[i]);
                             ebxobjectinlist.SetValue("patch", casBundle.TOCPatch[i]);
 
-                            var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
-                            bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
+                            //var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
+                            //bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
 
                             ebxobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
@@ -150,103 +152,105 @@ namespace FIFA21Plugin
 
                         }
 
+                        
 
-                        foreach (DbObject item in EbxObjectList)
-                        {
-                            EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-                            ebxAssetEntry.Name = item.GetValue<string>("name");
-                            ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                            ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
-                            ebxAssetEntry.Size = item.GetValue("size", 0L);
-                            ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                            ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                            ebxAssetEntry.ExtraData = new AssetExtraData();
-                            ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+                            foreach (DbObject item in EbxObjectList)
+                            {
+                                EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+                                ebxAssetEntry.Name = item.GetValue<string>("name");
+                                ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+                                ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
+                                ebxAssetEntry.Size = item.GetValue("size", 0L);
+                                ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                                ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+                                ebxAssetEntry.ExtraData = new AssetExtraData();
+                                ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
 
-                            int cas = item.GetValue("cas", 0);
-                            int catalog = item.GetValue("catalog", 0);
-                            bool patch = item.GetValue("patch", false);
-                            ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
+                                int cas = item.GetValue("cas", 0);
+                                int catalog = item.GetValue("catalog", 0);
+                                bool patch = item.GetValue("patch", false);
+                                ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                            ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
-                            ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                            ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                            ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                            ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+                                ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
+                                ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
+                                ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
+                                ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                            ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
+                                ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
 
-                            AssetManager.Instance.AddEbx(ebxAssetEntry);
-                        }
+                                    AssetManager.Instance.AddEbx(ebxAssetEntry);
+                            }
 
-                        var iRes = 0;
-                        foreach (DbObject item in ResObjectList)
-                        {
-                            ResAssetEntry resAssetEntry = new ResAssetEntry();
-                            resAssetEntry.Name = item.GetValue<string>("name");
-                            resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                            resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
-                            resAssetEntry.Size = item.GetValue("size", 0L);
-                            resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                            resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                            resAssetEntry.ExtraData = new AssetExtraData();
-                            resAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+                            var iRes = 0;
+                            foreach (DbObject item in ResObjectList)
+                            {
+                                ResAssetEntry resAssetEntry = new ResAssetEntry();
+                                resAssetEntry.Name = item.GetValue<string>("name");
+                                resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+                                resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
+                                resAssetEntry.Size = item.GetValue("size", 0L);
+                                resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                                resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+                                resAssetEntry.ExtraData = new AssetExtraData();
+                                resAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
 
-                            int cas = item.GetValue("cas", 0);
-                            int catalog = item.GetValue("catalog", 0);
-                            bool patch = item.GetValue("patch", false);
-                            resAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
+                                int cas = item.GetValue("cas", 0);
+                                int catalog = item.GetValue("catalog", 0);
+                                bool patch = item.GetValue("patch", false);
+                                resAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                            resAssetEntry.ResRid = item.GetValue<ulong>("resRid", 0ul);
-                            resAssetEntry.ResType = item.GetValue<uint>("resType", 0);
-                            resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta", null);
+                                resAssetEntry.ResRid = item.GetValue<ulong>("resRid", 0ul);
+                                resAssetEntry.ResType = item.GetValue<uint>("resType", 0);
+                                resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta", null);
 
-                            resAssetEntry.CASFileLocation = NativeFileLocation;
-                            resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
-                            resAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                            resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                            resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                            resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+                                resAssetEntry.CASFileLocation = NativeFileLocation;
+                                resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                resAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
+                                resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
+                                resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
+                                resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                            AssetManager.Instance.AddRes(resAssetEntry);
+                                    AssetManager.Instance.AddRes(resAssetEntry);
 
 
-                            iRes++;
-                        }
+                                iRes++;
+                            }
 
-                        var iChunk = 0;
-                        foreach (DbObject item in ChunkObjectList)
-                        {
-                            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                            chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                    
-                            chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
-                            chunkAssetEntry.Size = item.GetValue("size", 0L);
-                            chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                            chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                            chunkAssetEntry.ExtraData = new AssetExtraData();
-                            chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+                            var iChunk = 0;
+                            foreach (DbObject item in ChunkObjectList)
+                            {
+                                ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                                chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
 
-                            int cas = item.GetValue("cas", 0);
-                            int catalog = item.GetValue("catalog", 0);
-                            bool patch = item.GetValue("patch", false);
-                            chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
+                                chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
+                                chunkAssetEntry.Size = item.GetValue("size", 0L);
+                                chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                                chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+                                chunkAssetEntry.ExtraData = new AssetExtraData();
+                                chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
 
-                            chunkAssetEntry.Id = item.GetValue<Guid>("id");
-                            chunkAssetEntry.LogicalOffset = item.GetValue<uint>("logicalOffset");
-                            chunkAssetEntry.LogicalSize = item.GetValue<uint>("logicalSize");
+                                int cas = item.GetValue("cas", 0);
+                                int catalog = item.GetValue("catalog", 0);
+                                bool patch = item.GetValue("patch", false);
+                                chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                            chunkAssetEntry.CASFileLocation = NativeFileLocation;
-                            chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                chunkAssetEntry.Id = item.GetValue<Guid>("id");
+                                chunkAssetEntry.LogicalOffset = item.GetValue<uint>("logicalOffset");
+                                chunkAssetEntry.LogicalSize = item.GetValue<uint>("logicalSize");
 
-                            chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                            chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                            chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                            chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+                                chunkAssetEntry.CASFileLocation = NativeFileLocation;
+                                chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
-                            AssetManager.Instance.AddChunk(chunkAssetEntry);
+                                chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
+                                chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
+                                chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
+                                chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                            iChunk++;
+                                    AssetManager.Instance.AddChunk(chunkAssetEntry);
+
+                                iChunk++;
+                            }
                         }
 
                     }

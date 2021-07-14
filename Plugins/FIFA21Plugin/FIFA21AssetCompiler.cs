@@ -475,8 +475,8 @@ namespace FIFA21Plugin
                 else
                 {
                     AddedChunks.Add(modChunks.Value);
-                    parent.Logger.LogWarning($"This mod compiler cannot handle Added Chunks. {modChunks.Key} will be ignored.");
-                    ErrorCounts[ModType.CHUNK]++;
+                    //parent.Logger.LogWarning($"This mod compiler cannot handle Added Chunks. {modChunks.Key} will be ignored.");
+                    //ErrorCounts[ModType.CHUNK]++;
 
                     //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
                     //parent.Logger.LogWarning($"Unable to find CAS file to edit for Chunk {modChunks.Key}");
@@ -688,15 +688,6 @@ namespace FIFA21Plugin
                     if (!UseModData)
                     {
                         casPath = casPath.Replace("ModData\\", "", StringComparison.OrdinalIgnoreCase);
-
-
-                        // Shouldnt need to do this. 
-                        // Patches will overwrite the cas files
-                        // Mods always write to the end
-                        //if(!File.Exists(casPath + ".bak"))
-                        //    FIFA21AssetCompiler.CopyFile(casPath, casPath + ".bak");
-
-                        //FIFA21AssetCompiler.CopyFile(casPath + ".bak", casPath);
                     }
 
                     Debug.WriteLine($"Modifying CAS file - {casPath}");
@@ -817,22 +808,29 @@ namespace FIFA21Plugin
                             throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
                         }
 
+                        var tocSbReader = new TocSbReader_FIFA21();
+                        tocSbReader.DoLogging = false;
+                        tocSbReader.ProcessData = false;
+
 
                         DbObject dboOriginal = null;
-                        if (!SbToDbObject.ContainsKey(sbGroup.Key) && !sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                        if (!SbToDbObject.ContainsKey(sbGroup.Key)//)
+                            // This needs to go. Probably be replaced by the new compiler anyway
+                            && !sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
                         {
                             var timeStarted = DateTime.Now;
-                            var tocSbReader = new TocSbReader_FIFA21();
-                            tocSbReader.DoLogging = false;
+                            
                             var dboOriginal2 = tocSbReader.Read(sbpath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, new BinarySbDataHelper(AssetManager.Instance), sbpath);
 
                             SbToDbObject.Add(sbGroup.Key, new DbObject(dboOriginal2));
                             Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
                         }
-                        else if (!SbToDbObject.ContainsKey(sbGroup.Key) && sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
-                        {
+                        //else if (!SbToDbObject.ContainsKey(sbGroup.Key) && sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                        //{
 
-                        }
+                        //}
+
+
 
                         if (SbToDbObject.ContainsKey(sbGroup.Key))
                             dboOriginal = SbToDbObject[sbGroup.Key];
@@ -910,7 +908,7 @@ namespace FIFA21Plugin
                                         nw_sb.Write((uint)originalSizeOfData, Endian.Little);
                                     }
 
-                                    if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                    if (nw_sb.Length > assetBundle.Key.SB_Sha1_Position
                                         &&
                                         assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
                                     {
@@ -920,6 +918,41 @@ namespace FIFA21Plugin
                                 }
                             }
                         }
+
+                        //if (tocSbReader.TOCFile != null)
+                        //{
+                        //    // TOC Chunks
+                        //    using (NativeWriter nw_toc = new NativeWriter(new FileStream(tocSbReader.TOCFile.FileLocation, FileMode.Open)))
+                        //    {
+                        //        if (tocSbReader != null && tocSbReader.TOCFile != null)
+                        //        {
+                        //            foreach (var assetBundle in sbGroup.Value)
+                        //            {
+                        //                if (Guid.TryParse(assetBundle.Key.Name, out Guid chunkId))
+                        //                {
+                        //                    if (tocSbReader.TOCFile.tocChunkGuids.Contains(chunkId))
+                        //                    {
+                        //                        var chunk = tocSbReader.TOCFile.TocChunks.FirstOrDefault(x => x.Id == chunkId);
+                        //                        if (chunk != null)
+                        //                        {
+                        //                            var positionOfNewData = assetBundle.Value.Item1;
+                        //                            var sizeOfData = assetBundle.Value.Item2;
+                        //                            var originalSizeOfData = assetBundle.Value.Item3;
+                        //                            var sha = assetBundle.Value.Item4;
+
+                        //                            nw_toc.Position = chunk.SB_CAS_Offset_Position;
+                        //                            nw_toc.Write((uint)positionOfNewData, Endian.Big);
+
+                        //                            nw_toc.Position = chunk.SB_CAS_Size_Position;
+                        //                            nw_toc.Write((uint)sizeOfData, Endian.Big);
+                        //                        }
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                    
                     }
 
 
@@ -928,6 +961,10 @@ namespace FIFA21Plugin
                 // Add chunks to globals
 
             }
+
+
+            ModifyTOCChunks();
+
             return true;
             //}
             //catch (Exception e)
@@ -935,6 +972,100 @@ namespace FIFA21Plugin
             //    throw e;
             //}
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="directory"></param>
+        private void ModifyTOCChunks(string directory = "native_data")
+        {
+            foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
+            {
+                byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
+                foreach (string key3 in catalogInfo.SuperBundles.Keys)
+                {
+                    string tocFile = key3;
+                    if (catalogInfo.SuperBundles[key3])
+                    {
+                        tocFile = key3.Replace("win32", catalogInfo.Name);
+                    }
+
+                    // Only handle Legacy stuff right now
+                    if(!tocFile.Contains("globals", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var tocFileRAW = $"{directory}/{tocFile}.toc";
+                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW).ToLower();
+                    TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21();
+                    tocSb.DoLogging = false;
+                    tocSb.ProcessData = false;
+
+                    var location_toc_file_new = UseModData
+                        ? location_toc_file
+                        .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
+                        .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
+                        : location_toc_file;
+
+                    // read the changed toc file in ModData
+                    tocSb.Read(location_toc_file_new, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
+
+                    // Full Proper Rewrite
+                    //if (tocSb.TOCFile != null)
+                    //{
+                    //    var msNewFile = new MemoryStream();
+                    //    tocSb.TOCFile.Write(msNewFile);
+                    //    File.WriteAllBytes(location_toc_file_new, msNewFile.ToArray());
+                    //}
+
+                    var catalog = tocSb.TOCFile.TocChunks[0].ExtraData.Catalog.Value;
+                    var cas = tocSb.TOCFile.TocChunks[0].ExtraData.Cas.Value;
+                    var patch = true;
+                    var firstCasInData = FileSystem.Instance.GetFilePath(
+                        catalog
+                        , cas
+                        , patch);
+
+                    using (NativeWriter nw_toc = new NativeWriter(new FileStream(location_toc_file_new, FileMode.Open)))
+                    {
+                        foreach (var modChunk in parent.ModifiedChunks)
+                        {
+                            if (tocSb.TOCFile.tocChunkGuids.Contains(modChunk.Key))
+                            {
+                                var chunk = tocSb.TOCFile.TocChunks.FirstOrDefault(x => x.Id == modChunk.Key);
+                                if (chunk != null)
+                                {
+                                    DbObject dboChunk = tocSb.TOCFile.TocChunkInfo[modChunk.Key];
+                                    var resolvedCasPath = FileSystem.Instance.ResolvePath(chunk.ExtraData.CasPath, UseModData);
+
+                                    using (NativeWriter nw_cas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
+                                    {
+                                        nw_cas.Position = nw_cas.Length;
+                                        var newPosition = nw_cas.Position;
+
+                                        var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                        nw_cas.WriteBytes(data);
+
+                                        nw_toc.Position = chunk.SB_CAS_Offset_Position;
+                                        nw_toc.Write((uint)newPosition, Endian.Big);
+
+                                        nw_toc.Position = chunk.SB_CAS_Size_Position;
+                                        nw_toc.Write((uint)data.Length, Endian.Big);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+
+                }
+            }
+
+            if(directory == "native_data")
+                ModifyTOCChunks("native_patch");
         }
     }
 

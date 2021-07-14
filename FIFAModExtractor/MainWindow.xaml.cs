@@ -105,19 +105,23 @@ namespace FIFAModExtractor
 
             if (ModFile != null)
             {
-                if(ModFile is FrostbiteMod)
-                {
-                    //if(((FrostbiteMod)ModFile).IsEncrypted)
-                    //    return new ObservableCollection<BaseModResource>(items);
+                //if(ModFile is FrostbiteMod)
+                //{
+                //    //if(((FrostbiteMod)ModFile).IsEncrypted)
+                //    //    return new ObservableCollection<BaseModResource>(items);
 
-                    return new ObservableCollection<BaseModResource>(items);
-                }
+                //    return new ObservableCollection<BaseModResource>(items);
+                //}
                 if (ModFile.Resources != null)
                 {
                     items = ModFile.Resources.Where(x =>
+
+                    !string.IsNullOrEmpty(x.Name)
+                    &&
                     (x.Type == ModResourceType.Ebx
                     || x.Type == ModResourceType.Chunk
-                     || !x.Name.Contains("mesh"))
+                     || !x.Name.Contains("mesh")
+                     )
                     ).ToList();
                 }
             }
@@ -229,6 +233,8 @@ namespace FIFAModExtractor
 
         private void btnBrowseFIFAMod_Click(object sender, RoutedEventArgs e)
         {
+            ModFile = null;
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Mod files|*.fbmod;*.fifamod";
             var result = openFileDialog.ShowDialog();

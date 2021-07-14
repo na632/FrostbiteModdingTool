@@ -290,7 +290,24 @@ namespace FrostbiteModdingTests
 
         }
 
+        [TestMethod]
+        public void TestArsenalKitMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Arsenal Kit 21-22.fbproject");
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+        }
 
         [TestMethod]
         public void TestLegacyMod()
@@ -316,10 +333,7 @@ namespace FrostbiteModdingTests
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-
-            AssetManager.Instance.ModifyLegacyAsset("data/fifarna/lua/assets/player.lua"
-                , new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source fbmod\fifarna\lua\assets\player.LUA", FileMode.Open)).ReadToEnd()
-                , false);
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\DynamicSystem\Paulv2k4 FIFA 21 Dynamic Mod - Version 6.fbproject");
 
             var testModFile = $"test{DateTime.Now.Ticks}.fbmod";
             projectManagement.Project.WriteToMod(testModFile, new FrostySdk.ModSettings());
@@ -341,13 +355,13 @@ namespace FrostbiteModdingTests
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
 
-            var ca = AssetManager.Instance.GetCustomAsset("legacy", AssetManager.Instance.GetCustomAssetEntry("legacy", @"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/Finance/ProfCWRelation.csv"));
-            byte[] data = null;
-            using (NativeReader nr = new NativeReader(ca))
-            {
-                nr.Position = 0;
-                data = nr.ReadToEnd();
-            }
+            //var ca = AssetManager.Instance.GetCustomAsset("legacy", AssetManager.Instance.GetCustomAssetEntry("legacy", @"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/Finance/ProfCWRelation.csv"));
+            //byte[] data = null;
+            //using (NativeReader nr = new NativeReader(ca))
+            //{
+            //    nr.Position = 0;
+            //    data = nr.ReadToEnd();
+            //}
 
             AssetManager.Instance.ModifyLegacyAsset(@"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/Finance/ProfCWRelation.csv"
                 , new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source lmod\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\Finance\ProfCWRelation.csv", FileMode.Open)).ReadToEnd()

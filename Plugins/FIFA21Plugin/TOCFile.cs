@@ -172,6 +172,8 @@ namespace FIFA21Plugin
 		long actualInternalPos = 556L;
 		private byte[] InitialHeaderData;
 
+		public Dictionary<Guid, DbObject> TocChunkInfo = new Dictionary<Guid, DbObject>();
+
 		public void Read(NativeReader nativeReader)
 		{
 			if (FileLocation.Contains("fifagame", StringComparison.OrdinalIgnoreCase)
@@ -215,7 +217,7 @@ namespace FIFA21Plugin
 					};
 					Bundles.Add(newBundleInfo);
 				}
-
+				nativeReader.Position = actualInternalPos + MetaData.ChunkOffsetPosition;
 				if (MetaData.ChunkOffsetPosition != 0 && MetaData.ChunkOffsetPosition != 32)
 				{
 					if (MetaData.ChunkCount > 0)
@@ -250,17 +252,24 @@ namespace FIFA21Plugin
 
 						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 						{
+							DbObject dboChunk = new DbObject();
+
 							ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
 							chunkAssetEntry2.TOCFileLocation = this.NativeFileLocation;
 							chunkAssetEntry2.IsTocChunk = true;
 
 							var unk2 = nativeReader.ReadByte();
+							dboChunk.SetValue("patchPosition", (int)nativeReader.Position);
 							bool patch = nativeReader.ReadBoolean();
+							dboChunk.SetValue("catalogPosition", (int)nativeReader.Position);
 							byte catalog2 = nativeReader.ReadByte();
+							dboChunk.SetValue("casPosition", (int)nativeReader.Position);
 							byte cas2 = nativeReader.ReadByte();
 
 							chunkAssetEntry2.SB_CAS_Offset_Position = (int)nativeReader.Position;
+							dboChunk.SetValue("chunkOffsetPosition", (int)nativeReader.Position);
 							uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
+							dboChunk.SetValue("chunkSizePosition", (int)nativeReader.Position);
 							chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
 							uint chunkSize = nativeReader.ReadUInt(Endian.Big);
 							
@@ -282,6 +291,8 @@ namespace FIFA21Plugin
 							chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
 
 							TocChunks.Add(chunkAssetEntry2);
+
+							TocChunkInfo.Add(chunkAssetEntry2.Id, dboChunk);
 						}
 
 						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
@@ -342,7 +353,7 @@ namespace FIFA21Plugin
 			if (nativeReader.Position < nativeReader.Length)
 			{
 
-				if (AssetManager.Instance != null)
+				if (AssetManager.Instance != null && DoLogging)
 					AssetManager.Instance.logger.Log("Searching for CAS Data from " + FileLocation);
 
 				for (int i = 0; i < MetaData.BundleCount; i++)
@@ -420,7 +431,7 @@ namespace FIFA21Plugin
 
 				if (CasBundles.Count > 0)
 				{
-					if (AssetManager.Instance != null)
+					if (AssetManager.Instance != null && DoLogging)
 						AssetManager.Instance.logger.Log($"Found {CasBundles.Count} bundles for CasFiles");
 
 					foreach (var bundle in CasBundles)
@@ -443,13 +454,10 @@ namespace FIFA21Plugin
 						}
 					}
 
-					if (ProcessData)
+					foreach (var ctb in CASToBundles)
 					{
-						foreach (var ctb in CASToBundles)
-						{
-							CASDataLoader casDataLoader = new CASDataLoader(this);
-							casDataLoader.Load(ctb.Key, ctb.Value);
-						}
+						CASDataLoader casDataLoader = new CASDataLoader(this);
+						casDataLoader.Load(ctb.Key, ctb.Value);
 					}
 				}
 			}
