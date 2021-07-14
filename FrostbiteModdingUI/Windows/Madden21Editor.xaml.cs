@@ -332,11 +332,11 @@ namespace FrostbiteModdingUI.Windows
 
 
 
-        private void btnBuildSDK_Click(object sender, RoutedEventArgs e)
-        {
-            BuildSDK buildSDK = new BuildSDK();
-            buildSDK.ShowDialog();
-        }
+        //private void btnBuildSDK_Click(object sender, RoutedEventArgs e)
+        //{
+        //    BuildSDK buildSDK = new BuildSDK();
+        //    buildSDK.ShowDialog();
+        //}
 
         private async void btnLaunchGameInEditor_Click(object sender, RoutedEventArgs e)
         {
