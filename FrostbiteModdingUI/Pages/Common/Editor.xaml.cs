@@ -242,9 +242,11 @@ namespace FIFAModdingUI.Pages.Common
 			, IEditorWindow inEditorWindow)
         {
 			CurrentEditorInstance = this;
+			//vanillaAnchorable.Hide();
+			vanillaAnchorable.ToggleAutoHide();
 
-			LoadingDialog loadingDialog = new LoadingDialog("Loading EBX", "Loading EBX");
-			loadingDialog.Show();
+			//LoadingDialog loadingDialog = new LoadingDialog();
+			//loadingDialog.Show();
 			//await loadingDialog.UpdateAsync("Loading EBX", "Loading EBX");
 
 			//await Task.Delay(1);
@@ -258,24 +260,19 @@ namespace FIFAModdingUI.Pages.Common
 			FrostyProject = frostyProject;
 			EditorWindow = inEditorWindow;
 
-
-			//this.TreeView1.DataContext = RootObject;
-			//this.TreeViewOriginal.DataContext = RootObject;
-			//this.TreeView2.DataContext = RootObject;
-
 			bool success = true;
 			//await loadingDialog.UpdateAsync("Loading EBX", "Building Tree Views");
-			Dispatcher.Invoke(() =>
-			{
-				this.DataContext = this;
+			
+				Dispatcher.Invoke(() =>
+				{
+					this.DataContext = this;
 
-				success = CreateEditor(RootObjectProperties, TreeView1).Result;
-				success = CreateEditor(VanillaRootObjectProperties, TreeViewOriginal).Result;
-			});
+					success = CreateEditor(RootObjectProperties, TreeView1).Result;
+					success = CreateEditor(VanillaRootObjectProperties, TreeViewOriginal).Result;
+				});
 
-
-			loadingDialog.Close();
-			loadingDialog = null;
+			//loadingDialog.Close();
+			//loadingDialog = null;
 			return success;
 		}
 

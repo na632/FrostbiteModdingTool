@@ -1,7 +1,8 @@
 ﻿using CareerExpansionMod.CEM;
-using FIFAModdingUI.Mods;
+using FIFAModdingUI;
 using FIFAModdingUI.Windows;
 using FIFAModdingUI.Windows.Profile;
+using FMT.Mods;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
@@ -34,7 +35,8 @@ using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
-namespace FIFAModdingUI
+//namespace FIFAModdingUI
+namespace FMT
 {
     /// <summary>
     /// Interaction logic for LaunchWindow.xaml

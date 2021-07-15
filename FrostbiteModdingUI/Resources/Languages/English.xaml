@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="textLauncher">Launch FMT Mod Manager</system:String>
+    <system:String x:Key="textLaunchGame">Launch Game</system:String>
+    <system:String x:Key="textImport">Import</system:String>
+    <system:String x:Key="textExport">Export</system:String>
+    <system:String x:Key="textRemove">Remove</system:String>
+    <system:String x:Key="textFindGameEXE">Find your game executable (EXE)</system:String>
+    <system:String x:Key="textModList">Your mod list - This is loaded from top to bottom. Bottom has priority.</system:String>
+</ResourceDictionary>

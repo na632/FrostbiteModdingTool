@@ -23,7 +23,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static FrostySdk.ProfilesLibrary;
 
-namespace FIFAModdingUI
+//namespace FIFAModdingUI
+namespace FMT
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -174,6 +175,32 @@ namespace FIFAModdingUI
                         this.Visibility = Visibility.Hidden;
                         return;
                     }
+                }
+            }
+        }
+
+        private void cbLanguageSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbLanguageSelection.SelectedItem != null && cbLanguageSelection.SelectedIndex >= 1)
+            {
+                string selectedLanguage = null;
+                var selectedItem = ((ComboBoxItem)cbLanguageSelection.SelectedItem).Content.ToString();
+                switch (selectedItem) 
+                {
+                    case "English":
+                        selectedLanguage = "en";
+                        break;
+                    case "Deutsch":
+                        selectedLanguage = "de";
+                        break;
+                    case "Português":
+                        selectedLanguage = "pt";
+                        break;
+                }
+
+                if (!string.IsNullOrEmpty(selectedLanguage))
+                {
+                    App.LoadLanguageFile(selectedLanguage);
                 }
             }
         }

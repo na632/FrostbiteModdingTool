@@ -31,6 +31,14 @@
   </PropertyGroup>
 
 
+  <ItemGroup>
+    <Page Remove="Resources\Languages\Dictionary1.xaml" />
+    <Page Remove="Resources\Languages\English.xaml" />
+    <Page Remove="Resources\Languages\German.xaml" />
+    <Page Remove="Resources\Languages\Portugese.xaml" />
+  </ItemGroup>
+
+
    <ItemGroup>
     <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -108,7 +116,7 @@
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.51.1" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
     <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
@@ -117,18 +125,17 @@
 	  <PackageReference Include="HelixToolkit.SharpDX.Core" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.SharpDX.Assimp" Version="2.10.0" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.3" />
-    <PackageReference Include="MaterialDesignThemes" Version="3.0.1" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.7" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="0.1.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Pfim" Version="0.10.0" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
     <PackageReference Include="System.Management" Version="4.7.0" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
   </ItemGroup>
@@ -255,6 +262,7 @@
     <Folder Include="Pages\Gameplay\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="Util\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -285,6 +293,24 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Languages\Dictionary1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\Languages\English.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator></Generator>
+    </Resource>
+    <Resource Include="Resources\Languages\German.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator></Generator>
+    </Resource>
+    <Resource Include="Resources\Languages\Portugese.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator></Generator>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

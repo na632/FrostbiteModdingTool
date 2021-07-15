@@ -1,9 +1,8 @@
-﻿<Window x:Class="FIFAModdingUI.LaunchWindow"
+﻿<Window x:Class="FMT.LaunchWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FIFAModdingUI"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
@@ -25,19 +24,19 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="btnLaunch" Height="30" Width="150" Click="btnLaunch_Click" IsEnabled="False" Background="Transparent" >
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
-                    <Label Content="Launch" VerticalAlignment="Center" />
+                    <MaterialDesign:PackIcon Kind="RocketLaunch" VerticalAlignment="Center" />
+                    <Label Content="{DynamicResource textLaunchGame}" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
             <Button x:Name="btnLaunchOtherTool" Height="30" Width="150" Click="btnLaunchOtherTool_Click" Visibility="Collapsed" Background="Transparent" >
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                    <MaterialDesign:PackIcon Kind="RocketLaunchOutline" VerticalAlignment="Center" />
                     <Label Content="Legacy Inject Other Tool" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
             <Button x:Name="btnOpenCEMWindow" Height="30" Width="150" Click="btnOpenCEMWindow_Click" Visibility="Collapsed" Background="Transparent" >
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="Rocket" VerticalAlignment="Center" />
+                    <MaterialDesign:PackIcon Kind="WindowOpen" VerticalAlignment="Center" />
                     <Label Content="Open CEM Window" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
@@ -52,18 +51,14 @@
                     <Label FontSize="14" FontWeight="Bold">Profile:</Label>
                     <Label FontSize="14" FontWeight="Bold" Content="{Binding Profile.ProfileName}"></Label>
                 </StackPanel>
-                <Label FontSize="14" FontWeight="Bold">Mod List</Label>
+                <Label FontSize="14" FontWeight="Bold" Content="{DynamicResource textModList}"></Label>
                 <ListView x:Name="listMods" BorderThickness="1" Height="250"
                          SelectionChanged="listMods_SelectionChanged"
                           VirtualizingStackPanel.IsVirtualizing="False"
                          >
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <!--<StackPanel/>
-                    If StackPanel was used, the memory consumed was over 2GB and dead slow.
-                    -->
                             <VirtualizingStackPanel>
-                                <!--Memory footprint is only 200 mb-->
                             </VirtualizingStackPanel>
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
@@ -102,13 +97,13 @@
                 <Button x:Name="btnRemove" Click="btnRemove_Click">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="RemoveCircleOutline" VerticalAlignment="Center" />
-                        <Label Content="Remove" VerticalAlignment="Center" />
+                        <Label Content="{DynamicResource textRemove}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
                 <Button x:Name="btnAdd" Click="btnAdd_Click">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                         <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
-                        <Label Content="Import" VerticalAlignment="Center" />
+                        <Label Content="{DynamicResource textImport}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
                 <Controls:ToggleSwitch x:Name="switchInstallEmbeddedFiles" IsEnabled="False" Content="Install Embedded Files" ToolTip="Installs files from Mods to your Game folder"  />

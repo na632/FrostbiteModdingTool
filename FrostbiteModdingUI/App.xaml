@@ -1,22 +1,36 @@
-﻿<Application x:Class="FIFAModdingUI.App"
+﻿<Application x:Class="FMT.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:FIFAModdingUI"
+             
              StartupUri="MainWindow.xaml"
               ShutdownMode="OnLastWindowClose"
-    xmlns:mwpfui="http://schemas.modernwpf.com/2019"
-
+xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     >
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />-->
+
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
 
-                <!--<mwpfui:ThemeResources />
-                <mwpfui:XamlControlsResources />-->
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Blue" SecondaryColor="Blue" />
+                <!--<ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />-->
+
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Fonts.xaml" />
+
+
+                <ResourceDictionary Source="/Resources/Languages/English.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
+
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="2" />
+            </Style>
 
             <!--<Style TargetType="ScrollViewer" BasedOn="{StaticResource DefaultScrollViewerStyle}">
                 <Setter Property="sc:AutoPanningMode.IsEnabled" Value="True" />

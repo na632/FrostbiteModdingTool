@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.ApplicationInsights;
@@ -13,7 +14,8 @@ using Microsoft.ApplicationInsights.Extensibility;
 //using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.Identity.Client;
 
-namespace FIFAModdingUI
+//namespace FIFAModdingUI
+namespace FMT
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -76,6 +78,11 @@ namespace FIFAModdingUI
             // --------------------------------------------------------------
             // Application Insights
             StartApplicationInsights();
+
+            // --------------------------------------------------------------
+            // Language Settings
+            LoadLanguageFile();
+
 
 
             base.OnStartup(e);
@@ -194,6 +201,53 @@ namespace FIFAModdingUI
             Console.WriteLine(e.ToString());
             Debug.WriteLine(e.ToString());
 
+        }
+
+        public static void LoadLanguageFile(string newLanguage = null)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(newLanguage))
+                    newLanguage = Thread.CurrentThread.CurrentCulture.ToString().Substring(0, 2);
+
+                // prefix to the relative Uri for resource (xaml file)
+                string _prefix = String.Concat(typeof(App).Namespace, ";component/");
+
+                // clear all ResourceDictionaries
+                var currentLanguage = Application.Current.Resources.MergedDictionaries.FirstOrDefault(x => x.Source != null && x.Source.ToString().Contains("Languages"));
+                if (currentLanguage != null) 
+                {
+                    Application.Current.Resources.MergedDictionaries.Remove(currentLanguage);
+                }
+                // get correct file
+                string filename = "";
+                switch (newLanguage)
+                {
+                    case "pt":
+                        filename = "Resources\\Languages\\Portugese.xaml";
+                        break;
+                    case "de":
+                        filename = "Resources\\Languages\\German.xaml";
+                        break;
+                    case "en":
+                        filename = "Resources\\Languages\\English.xaml";
+                        break;
+                    default:
+                        filename = "Resources\\Languages\\English.xaml";
+                        break;
+                }
+
+                // add ResourceDictionary
+                Application.Current.Resources.MergedDictionaries.Add
+                (
+                 //new ResourceDictionary { Source = new Uri(String.Concat(_prefix + filename), UriKind.Relative) }
+                 new ResourceDictionary { Source = new Uri(String.Concat(filename), UriKind.Relative) }
+                );
+            }
+            catch (Exception)
+            {
+                //throw ex;
+            }
         }
     }
 }

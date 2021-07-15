@@ -2,6 +2,7 @@
 using CareerExpansionMod.CEM.FIFA;
 using CsvHelper;
 using FIFAModdingUI;
+using FMT;
 using FrostbiteModdingUI.CEM;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;

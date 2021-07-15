@@ -30,7 +30,7 @@ using FIFAModdingUI.Windows;
 using Newtonsoft.Json;
 using FrostbiteModdingUI.Windows;
 using Frostbite;
-using DDSReader;
+//using DDSReader;
 using HelixToolkit.SharpDX.Core.Assimp;
 using FrostbiteModdingUI.Models;
 using System.Threading;
@@ -43,8 +43,9 @@ using System.Reflection;
 using FrostySdk.Ebx;
 using Frosty.Hash;
 using v2k4FIFAModding;
-using FMT.Util;
+//using FMT.Util;
 using CSharpImageLibrary;
+using FMT;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -552,8 +553,18 @@ namespace FIFAModdingUI.Pages.Common
 					var legacyData = (MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry);
 					if (SelectedLegacyEntry.Type == "DDS" && saveFileDialog.FileName.Contains("PNG", StringComparison.OrdinalIgnoreCase))
 					{
-						DDSImage image = new DDSImage(legacyData);
-						image.Save(saveFileDialog.FileName);
+						//DDSImage image = new DDSImage(legacyData);
+						//image.Save(saveFileDialog.FileName);
+
+						ImageEngineImage originalImage = new ImageEngineImage(legacyData);
+
+						var imageBytes = originalImage.Save(
+							new ImageFormats.ImageEngineFormatDetails(
+								ImageEngineFormat.PNG)
+							, MipHandling.KeepTopOnly
+							, removeAlpha: false);
+
+						await File.WriteAllBytesAsync(saveFileDialog.FileName, imageBytes);
 					}
 					else
                     {
@@ -1101,27 +1112,23 @@ namespace FIFAModdingUI.Pages.Common
 
 				var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
-				var CurrentDDSImage = new DDSImage(stream);
-				stream.Position = 0;
-				var dds2 = new DDSImage2(((MemoryStream)stream).ToArray());
-				FourCC fourCC = dds2.GetPixelFormatFourCC();
+				ImageEngineImage imageEngineImage = new ImageEngineImage(((MemoryStream)stream).ToArray());
+				var iData = imageEngineImage.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.BMP), MipHandling.KeepTopOnly, removeAlpha: false);
 
-				CurrentDDSImageFormat = fourCC.ToString() + " - " + CurrentDDSImage._image.ToString() + " - " + CurrentDDSImage._image.Format.ToString();
-				var textureBytes = new NativeReader(CurrentDDSImage.SaveToStream()).ReadToEnd();
-				//var textureBytes = new NativeReader(textureExporter.ExportToStream(texture)).ReadToEnd();
+				//var CurrentDDSImage = new DDSImage(stream);
+				//stream.Position = 0;
+				//var dds2 = new DDSImage2(((MemoryStream)stream).ToArray());
+				//FourCC fourCC = dds2.GetPixelFormatFourCC();
 
-				ImageViewer.Source = LoadImage(textureBytes);
+				//CurrentDDSImageFormat = fourCC.ToString() + " - " + CurrentDDSImage._image.ToString() + " - " + CurrentDDSImage._image.Format.ToString();
+				//var textureBytes = new NativeReader(CurrentDDSImage.SaveToStream()).ReadToEnd();
+				////var textureBytes = new NativeReader(textureExporter.ExportToStream(texture)).ReadToEnd();
+
+				//CurrentDDSImageFormat = imageEngineImage.Format.ToString() + " - " + imageEngineImage.FormatDetails.DX10Format;
+
+				//ImageViewer.Source = LoadImage(textureBytes);
+				ImageViewer.Source = LoadImage(iData);
 				ImageViewerScreen.Visibility = Visibility.Visible;
-
-				// lblImageName.Content = assetEntry.Filename;
-				// lblImageDDSType.Content = image._image.Format;
-				// lblImageRESType.Content = "DDS";
-				// lblImageSize.Content = image.Data.Length;
-				//lblImageRESType.Content = textureAsset.Type;
-				//lblImageSize.Content = textureAsset.Width + "x" + textureAsset.Height;
-				//lblImageCASFile.Content = assetEntry.ExtraData.CasPath;
-				//lblImageCASOffset.Content = assetEntry.ExtraData.DataOffset;
-				//lblImageBundleFile.Content = !string.IsNullOrEmpty(assetEntry.SBFileLocation) ? assetEntry.SBFileLocation : assetEntry.TOCFileLocation;
 
 				btnExport.IsEnabled = true;
 				btnImport.IsEnabled = true;
