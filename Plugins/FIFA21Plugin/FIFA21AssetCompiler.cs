@@ -1034,7 +1034,9 @@ namespace FIFA21Plugin
                         {
                             if (tocSb.TOCFile.tocChunkGuids.Contains(modChunk.Key))
                             {
-                                var chunk = tocSb.TOCFile.TocChunks.FirstOrDefault(x => x.Id == modChunk.Key);
+                                var chunk = tocSb.TOCFile.TocChunks.FirstOrDefault(x => x.Id == modChunk.Key 
+                                    && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle)
+                                    );
                                 if (chunk != null)
                                 {
                                     DbObject dboChunk = tocSb.TOCFile.TocChunkInfo[modChunk.Key];

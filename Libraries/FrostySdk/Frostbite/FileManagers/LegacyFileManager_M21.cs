@@ -421,7 +421,7 @@ namespace Frostbite.FileManagers
 						legacyItem.ModifiedEntry.Size = legacyItem.ModifiedEntry.Data.Length;
 						legacyItem.ModifiedEntry.CompressedOffset = 0;
 						ModifiedChunks.Add(AssetManager.Instance.GetChunkEntry(gItem.Key));
-						AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType);
+						AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType,  addToChunkBundle: true);
 						legacyItem.ModifiedEntry.CompressedSize = AssetManager.Instance.GetChunk(gItem.Key).Length;
 
 					}
@@ -488,7 +488,7 @@ namespace Frostbite.FileManagers
 						//	);
 						//AssetManager.Instance.ModifyChunk(gItem.Key, newChunkGroupData, compressionOverride: compressionType);
 						//AssetManager.Instance.ModifyChunk(gItem.Key, ms_newChunkGroupCompressed.ToArray(), compressionOverride: compressionType);
-						AssetManager.Instance.ModifyChunk(gItem.Key, ms_newChunkGroup.ToArray(), compressionOverride: compressionType);
+						AssetManager.Instance.ModifyChunk(gItem.Key, ms_newChunkGroup.ToArray(), compressionOverride: compressionType, addToChunkBundle: true);
 
 						//var groupOfLegacyFiles = chunkBatch.ChunkGroupsInBatch.First(x => x.Key == gItem.Key);
 
@@ -599,7 +599,7 @@ namespace Frostbite.FileManagers
 				//}
 				ModifiedChunks.Add(AssetManager.Instance.GetChunkEntry(chunkBatch.ChunkAssetEntry.Id));
 
-				AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, newBatchData, compressionOverride: compressionType);
+				AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, newBatchData, compressionOverride: compressionType, addToChunkBundle: true);
 				msNewBatch.Close();
                 msNewBatch.Dispose();
                 GC.Collect();

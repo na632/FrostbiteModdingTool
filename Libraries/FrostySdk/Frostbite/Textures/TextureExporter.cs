@@ -691,28 +691,28 @@ namespace Frostbite.Textures
 			}
 		}
 
-		public static Format ToShaderFormatFromPfim(string format1, string format2)
-		{
-			var format = (format1 + format2).ToUpper();
-			var result = string.Empty;
-			switch (format)
-			{
-                //case "PFIM.DXT5DDSRGB32":
-                //	result = "BC3_SRGB";
-                //	break;
-                //case "PFIM.DXT5DDSRGBA32":
-                //	result = "BC3A_SRGB";
-                //	break;
-                case "PFIM.DXT3DDSRGBA32":
-                    result = "BC2_UNORM";
-                    break;
-                default:
-					result = "BC3_UNORM";
-					break;
-			}
+		//public static Format ToShaderFormatFromPfim(string format1, string format2)
+		//{
+		//	var format = (format1 + format2).ToUpper();
+		//	var result = string.Empty;
+		//	switch (format)
+		//	{
+  //              //case "PFIM.DXT5DDSRGB32":
+  //              //	result = "BC3_SRGB";
+  //              //	break;
+  //              //case "PFIM.DXT5DDSRGBA32":
+  //              //	result = "BC3A_SRGB";
+  //              //	break;
+  //              case "PFIM.DXT3DDSRGBA32":
+  //                  result = "BC2_UNORM";
+  //                  break;
+  //              default:
+		//			result = "BC3_UNORM";
+		//			break;
+		//	}
 
-			return ToShaderFormat(result);
-		}
+		//	return ToShaderFormat(result);
+		//}
 
 		public static Format ToShaderFormat(string pixelFormat, bool bLegacySrgb = false)
 		{

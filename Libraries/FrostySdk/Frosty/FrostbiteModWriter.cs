@@ -300,7 +300,7 @@ namespace FrostySdk
 				{
 					//if (ProfilesLibrary.MustAddChunks || entry.IsAdded)
 					//{
-						AddBundle("chunks", modify: false);
+					//	AddBundle("chunks", modify: false);
 					//}
 					//else
 					//{

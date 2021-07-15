@@ -1127,7 +1127,8 @@ namespace FrostySdk.Managers
 		public bool ModifyChunk(Guid chunkId
 			, byte[] buffer
 			, Texture texture = null
-			, CompressionType compressionOverride = CompressionType.Default)
+			, CompressionType compressionOverride = CompressionType.Default
+			, bool addToChunkBundle = false)
 		{
 			if (!Chunks.ContainsKey(chunkId))
 			{
@@ -1161,6 +1162,7 @@ namespace FrostySdk.Managers
 				chunkAssetEntry.ModifiedEntry.FirstMip = texture.FirstMip;
 			}
 			chunkAssetEntry.IsDirty = true;
+			chunkAssetEntry.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
 			return true;
 		}
 
