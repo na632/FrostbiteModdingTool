@@ -8,43 +8,50 @@
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="800"
-        Width="1000"
-        ResizeMode="CanMinimize"
+        
+        ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         HorizontalContentAlignment="Stretch"
-        VerticalContentAlignment="Stretch">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        VerticalContentAlignment="Stretch"
+        ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Visible"
+        >
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Visible">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="btnLaunch" Height="30" Width="150" Click="btnLaunch_Click" IsEnabled="False" Background="Transparent" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" x:Name="btnLaunch" Height="30" Click="btnLaunch_Click" IsEnabled="False" Background="Transparent" >
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                     <MaterialDesign:PackIcon Kind="RocketLaunch" VerticalAlignment="Center" />
                     <Label Content="{DynamicResource textLaunchGame}" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
-            <Button x:Name="btnLaunchOtherTool" Height="30" Width="150" Click="btnLaunchOtherTool_Click" Visibility="Collapsed" Background="Transparent" >
+            <Button Grid.Column="1"  x:Name="btnLaunchOtherTool" Height="30"  Click="btnLaunchOtherTool_Click" Visibility="Collapsed" Background="Transparent" >
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                     <MaterialDesign:PackIcon Kind="RocketLaunchOutline" VerticalAlignment="Center" />
                     <Label Content="Legacy Inject Other Tool" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
-            <Button x:Name="btnOpenCEMWindow" Height="30" Width="150" Click="btnOpenCEMWindow_Click" Visibility="Collapsed" Background="Transparent" >
+            <Button Grid.Column="2"  x:Name="btnOpenCEMWindow" Height="30"  Click="btnOpenCEMWindow_Click" Visibility="Collapsed" Background="Transparent" >
                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                     <MaterialDesign:PackIcon Kind="WindowOpen" VerticalAlignment="Center" />
                     <Label Content="Open CEM Window" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
-        </StackPanel>
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Margin="5">
+        </Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" >
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="650"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="5" >
                 <StackPanel Orientation="Horizontal">
@@ -121,10 +128,24 @@
 
             </StackPanel>
         </Grid>
-        <TabControl Grid.Row="3"
+        <!--<DockingManager Grid.Row="3">
+            <LayoutRoot>
+                <LayoutPanel>
+                    <LayoutDocumentPane>
+                        <LayoutDocument>
+                            <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
+
+                            </TextBox>
+                        </LayoutDocument>
+                    </LayoutDocumentPane>
+                </LayoutPanel>
+            </LayoutRoot>
+        </DockingManager>-->
+        <Controls:MetroTabControl Grid.Row="3"
+                                  VerticalAlignment="Stretch"
                     VerticalContentAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"
-                    Margin="10"
+                                  Margin="5"
                     x:Name="TabCont">
             <Controls:MetroTabItem x:Name="tabLog" Header="Log">
                 <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
@@ -140,20 +161,21 @@
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-                    <TextBlock x:Name="txtModTitle" Background="AliceBlue" Foreground="Black" FontSize="18"  Grid.Row="0">
+                    <TextBlock x:Name="txtModTitle" Text="{Binding SelectedFrostbiteMod.ModDetails.Title, Mode=OneWay}" Background="AliceBlue" Foreground="Black" FontSize="18"  Grid.Row="0">
                     </TextBlock>
                     <StackPanel Grid.Row="1">
                         <TextBlock  FontSize="16" >Description</TextBlock>
-                        <TextBox IsReadOnly="True" x:Name="txtModDescription" Height="200" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow" />
+                        <TextBox IsReadOnly="True" x:Name="txtModDescription" MaxHeight="150" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow"
+                                 Text="{Binding SelectedFrostbiteMod.ModDetails.Description, Mode=OneWay}"   />
                     </StackPanel>
                     <StackPanel Grid.Row="2">
                         <TextBlock  FontSize="16" >Version</TextBlock>
-                        <TextBox IsReadOnly="True" x:Name="txtModVersion"></TextBox>
+                        <TextBox IsReadOnly="True" x:Name="txtModVersion"  Text="{Binding SelectedFrostbiteMod.ModDetails.Version, Mode=OneWay}"></TextBox>
                     </StackPanel>
                     <StackPanel Grid.Row="3">
                         <TextBlock  FontSize="16" >Author / Creator</TextBlock>
-                        <TextBox IsReadOnly="True" x:Name="txtModAuthor"></TextBox>
+                        <TextBox IsReadOnly="True" x:Name="txtModAuthor"  Text="{Binding SelectedFrostbiteMod.ModDetails.Author, Mode=OneWay}"></TextBox>
                     </StackPanel>
 
                 </Grid>
@@ -196,7 +218,7 @@
                     </ListView>
                 </Grid>
             </Controls:MetroTabItem>
-        </TabControl>
+        </Controls:MetroTabControl>
 
 
 

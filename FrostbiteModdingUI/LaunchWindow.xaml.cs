@@ -343,25 +343,6 @@ namespace FMT
                 TabCont.SelectedIndex = 0;
                 DoLegacyModSetup();
 
-                // Copy the Locale.ini if checked
-                //if (switchInstallLocale.IsOn)
-                //{
-                //    foreach (var z in ListOfMods.Select(x => x.Path).Where(x => x.Contains(".zip")))
-                //    {
-                //        using (FileStream fs = new FileStream(z, FileMode.Open))
-                //        {
-                //            ZipArchive zipA = new ZipArchive(fs);
-                //            foreach (var ent in zipA.Entries)
-                //            {
-                //                if (ent.Name.Contains("locale.ini"))
-                //                {
-                //                    ent.ExtractToFile(GameInstanceSingleton.FIFALocaleINIPath, true);
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
-
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
                 if (ProfilesLibrary.IsFIFA21DataVersion())
@@ -406,10 +387,18 @@ namespace FMT
                     btnLaunch.IsEnabled = false;
                     btnLaunchOtherTool.IsEnabled = false;
                 });
-                await Task.Delay(1000);
+                await Task.Delay(500);
 
 
                     Log("Mod Compiler Started for " + GameInstanceSingleton.GAMEVERSION);
+
+                    Dispatcher.Invoke(() => {
+                        var presence = new DiscordRPC.RichPresence();
+                        presence.Details = "Launching " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods";
+                        presence.State = "V." + App.ProductVersion;
+                        App.DiscordRpcClient.SetPresence(presence);
+                        App.DiscordRpcClient.Invoke();
+                    });
 
                     var launchSuccess = false;
                     try
@@ -452,13 +441,11 @@ namespace FMT
                             {
                                 LogSync("Legacy Injection - FIFA 20 found. Using FIFA20Legacy.DLL.");
 
-                                //legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
                                 legacyModSupportFile = ApplicationRunningLocation + @"\FIFA20Legacy.dll";
                             }
                             else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.GAMEVERSION == "FIFA21")
                             {
                                 LogSync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
-                                //legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
                                 legacyModSupportFile = ApplicationRunningLocation + @"\FIFA.dll";
                             }
 
@@ -493,12 +480,6 @@ namespace FMT
 
                                     App.AppInsightClient.TrackException(InjectDLLException);
                                     App.AppInsightClient.TrackException(new Exception(JsonConvert.SerializeObject(Process.GetProcesses().Select(x => x.ProcessName))));
-                                    LogError("Your Processes are: ");
-                                    foreach(var p in Process.GetProcesses().Select(x => x.ProcessName))
-                                    {
-                                        LogError(p);
-                                    }
-                                    LogError("Please report this to paulv2k4 together with your list above!");
                                 }
                             }
                         }
@@ -562,18 +543,20 @@ namespace FMT
                         GC.WaitForPendingFinalizers();
 
                     }
+                    else
+                    {
+                        Dispatcher.Invoke(() => {
+                            var presence = new DiscordRPC.RichPresence();
+                            presence.Details = "In Launcher - " + GameInstanceSingleton.GAMEVERSION;
+                            presence.State = "V." + App.ProductVersion;
+
+                            App.DiscordRpcClient.SetPresence(presence);
+                            App.DiscordRpcClient.Invoke();
+                        });
+                    }
+
                     //});
                     await Task.Delay(1000);
-
-
-                    //Dispatcher.Invoke(() =>
-                    //{
-                    //    if (switchUseCEM.IsOn && ProfilesLibrary.IsFIFA21DataVersion())
-                    //    {
-                    //        CEMWindow = new CEMWindow();
-                    //        CEMWindow.Show();
-                    //    }
-                    //});
 
 
                     Dispatcher.Invoke(() =>
@@ -711,7 +694,6 @@ namespace FMT
 
                 if (ProfilesLibrary.IsFIFA21DataVersion())
                 {
-                    //txtWarningAboutPersonalSettings.Visibility = Visibility.Visible;
                     switchUseSymbolicLink.Visibility = Visibility.Collapsed;
                     switchUseSymbolicLink.IsOn = false;
                     btnLaunchOtherTool.Visibility = Visibility.Visible;
@@ -785,6 +767,8 @@ namespace FMT
 
         public ModList.ModItem SelectedModListItem { get; set; }
 
+        public IFrostbiteMod SelectedFrostbiteMod { get; set; }
+
         private void listMods_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (this.listMods != null && this.listMods.SelectedIndex != -1 && this.listMods.SelectedItem != null) {
@@ -793,52 +777,36 @@ namespace FMT
                 if (SelectedModListItem == null)
                     return;
 
-                this.DataContext = null;
-                this.DataContext = this;
-
-
                 var selectedMod = SelectedModListItem.Path;
-                if (selectedMod.Contains(".fbmod")) 
-                {
-                    var fm = new FrostbiteMod(selectedMod);
-                    if (fm.ModDetails != null)
-                    {
-                        txtModAuthor.Text = fm.ModDetails.Author;
-                        txtModDescription.Text = fm.ModDetails.Description;
-                        txtModTitle.Text = fm.ModDetails.Title;
-                        txtModVersion.Text = fm.ModDetails.Version;
-                    }
-                }
-                else if (selectedMod.Contains(".fifamod"))
-                {
-                    var fm = new FIFAMod(string.Empty, selectedMod);
-                    if (fm.ModDetails != null)
-                    {
-                        txtModAuthor.Text = fm.ModDetails.Author;
-                        txtModDescription.Text = fm.ModDetails.Description;
-                        txtModTitle.Text = fm.ModDetails.Title;
-                        txtModVersion.Text = fm.ModDetails.Version;
-                    }
 
-                }
-                else if (selectedMod.Contains(".zip"))
+                if (selectedMod.Contains(".zip"))
+                {
+                    txtModDescription.Text = "Includes the following mods: \n";
+                    using (FileStream fsModZipped = new FileStream(selectedMod, FileMode.Open))
                     {
-                        txtModDescription.Text = "Includes the following mods: \n";
-                        using (FileStream fsModZipped = new FileStream(selectedMod, FileMode.Open))
+                        ZipArchive zipArchive = new ZipArchive(fsModZipped);
+                        foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
                         {
-                            ZipArchive zipArchive = new ZipArchive(fsModZipped);
-                            foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
-                            {
-                                txtModDescription.Text += zaentr.Name + "\n";
-                            }
+                            txtModDescription.Text += zaentr.Name + "\n";
                         }
-
-                        txtModAuthor.Text = "Multiple";
-                        txtModTitle.Text = selectedMod;
-                        FileInfo fiZip = new FileInfo(selectedMod);
-                        txtModVersion.Text = fiZip.CreationTime.ToString();
                     }
+
+                    txtModAuthor.Text = "Multiple";
+                    txtModTitle.Text = selectedMod;
+                    FileInfo fiZip = new FileInfo(selectedMod);
+                    txtModVersion.Text = fiZip.CreationTime.ToString();
+                }
+                else
+                {
+                    SelectedFrostbiteMod = SelectedModListItem.GetFrostbiteMod();
+                }
             }
+
+
+            this.DataContext = null;
+            this.DataContext = this;
+
+
         }
 
         private void cbProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
