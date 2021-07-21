@@ -178,7 +178,7 @@
         <DockingManager Grid.Row="1">
             <LayoutRoot>
                 <LayoutPanel Orientation="Vertical">
-                    <LayoutDocumentPane DockMinHeight="450" DockHeight="450" >
+                    <LayoutDocumentPane ShowHeader="False" DockMinHeight="450" DockHeight="450" >
                         <LayoutDocument CanClose="False" CanFloat="False" CanMove="False" >
                             <TabControl DockPanel.Dock="Top" Margin="0,0,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                                 <TabItem x:Name="TabDataBrowser" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
@@ -229,7 +229,7 @@
                                             <RowDefinition Height="35" MaxHeight="35" MinHeight="35"></RowDefinition>
                                             <RowDefinition></RowDefinition>
                                         </Grid.RowDefinitions>
-                                        <Label Grid.Row="0" Background="Yellow" Content="WARNING: Legacy editing is very unstable. Use with caution." Margin="5"></Label>
+                                        <Label Grid.Row="0" Background="Yellow" Content="WARNING: Legacy editing is very unstable. Use with caution. Some compressed files require the EXACT same size to run when using *.fbmod." Margin="5"></Label>
                                         <localControls:Browser Grid.Row="1" x:Name="legacyBrowser"></localControls:Browser>
                                     </Grid>
                                 </TabItem>
