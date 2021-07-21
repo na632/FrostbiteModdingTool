@@ -669,6 +669,8 @@ namespace FIFA21Plugin
 
                 foreach (var item in dictOfModsToCas)
                 {
+                    
+
                     var casPath = string.Empty;
 
                     if (!string.IsNullOrEmpty(item.Key))
@@ -730,6 +732,8 @@ namespace FIFA21Plugin
                                 continue;
                             }
 
+                            AssetEntry modifiedAsset = null;
+
                             var origSize = 0;
                             var positionOfData = nwCas.Position;
                             // write the new data to end of the file (this should be fine)
@@ -738,15 +742,25 @@ namespace FIFA21Plugin
                             switch (modItem.ModType)
                             {
                                 case ModType.EBX:
-                                    origSize = Convert.ToInt32(parent.modifiedEbx[modItem.NamePath].OriginalSize);
+                                    modifiedAsset = parent.modifiedEbx[modItem.NamePath];
                                     break;
                                 case ModType.RES:
-                                    origSize = Convert.ToInt32(parent.modifiedRes[modItem.NamePath].OriginalSize);
+                                    modifiedAsset = parent.modifiedRes[modItem.NamePath];
                                     break;
                                 case ModType.CHUNK:
-                                    origSize = Convert.ToInt32(parent.ModifiedChunks[Guid.Parse(modItem.NamePath)].OriginalSize);
+                                    modifiedAsset = parent.ModifiedChunks[Guid.Parse(modItem.NamePath)];
                                     break;
                             }
+
+                            if(modifiedAsset != null && modifiedAsset is ChunkAssetEntry)
+                            {
+                                var chunkModAsset = modifiedAsset as ChunkAssetEntry;
+                                if (chunkModAsset.ModifiedEntry != null && chunkModAsset.ModifiedEntry.AddToChunkBundle)
+                                    continue;
+                            }
+
+                            origSize = Convert.ToInt32(modifiedAsset.OriginalSize);
+
                             if (origSize == 0
                                 || origSize == data.Length)
                             {
@@ -774,6 +788,9 @@ namespace FIFA21Plugin
                         }
 
                     }
+
+                    if (EntriesToNewPosition == null)
+                        continue;
 
                     var groupedBySB = EntriesToNewPosition.GroupBy(x =>
                                 !string.IsNullOrEmpty(x.Key.SBFileLocation)
@@ -919,40 +936,7 @@ namespace FIFA21Plugin
                             }
                         }
 
-                        //if (tocSbReader.TOCFile != null)
-                        //{
-                        //    // TOC Chunks
-                        //    using (NativeWriter nw_toc = new NativeWriter(new FileStream(tocSbReader.TOCFile.FileLocation, FileMode.Open)))
-                        //    {
-                        //        if (tocSbReader != null && tocSbReader.TOCFile != null)
-                        //        {
-                        //            foreach (var assetBundle in sbGroup.Value)
-                        //            {
-                        //                if (Guid.TryParse(assetBundle.Key.Name, out Guid chunkId))
-                        //                {
-                        //                    if (tocSbReader.TOCFile.tocChunkGuids.Contains(chunkId))
-                        //                    {
-                        //                        var chunk = tocSbReader.TOCFile.TocChunks.FirstOrDefault(x => x.Id == chunkId);
-                        //                        if (chunk != null)
-                        //                        {
-                        //                            var positionOfNewData = assetBundle.Value.Item1;
-                        //                            var sizeOfData = assetBundle.Value.Item2;
-                        //                            var originalSizeOfData = assetBundle.Value.Item3;
-                        //                            var sha = assetBundle.Value.Item4;
-
-                        //                            nw_toc.Position = chunk.SB_CAS_Offset_Position;
-                        //                            nw_toc.Write((uint)positionOfNewData, Endian.Big);
-
-                        //                            nw_toc.Position = chunk.SB_CAS_Size_Position;
-                        //                            nw_toc.Write((uint)sizeOfData, Endian.Big);
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
-                    
+                       
                     }
 
 
@@ -1021,7 +1005,7 @@ namespace FIFA21Plugin
                     //}
 
                     var catalog = tocSb.TOCFile.TocChunks[0].ExtraData.Catalog.Value;
-                    var cas = tocSb.TOCFile.TocChunks[0].ExtraData.Cas.Value;
+                    var cas = tocSb.TOCFile.TocChunks.Max(x => x.ExtraData.Cas.Value) + 1;
                     var patch = true;
                     var firstCasInData = FileSystem.Instance.GetFilePath(
                         catalog
