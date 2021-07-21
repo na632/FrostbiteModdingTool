@@ -752,7 +752,7 @@ namespace FIFA21Plugin
                                     break;
                             }
 
-                            if(modifiedAsset != null && modifiedAsset is ChunkAssetEntry)
+                            if (modifiedAsset != null && modifiedAsset is ChunkAssetEntry)
                             {
                                 var chunkModAsset = modifiedAsset as ChunkAssetEntry;
                                 if (chunkModAsset.ModifiedEntry != null && chunkModAsset.ModifiedEntry.AddToChunkBundle)

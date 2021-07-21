@@ -51,17 +51,15 @@ namespace Frostbite.FileManagers
 
 			public ChunkAssetEntry ChunkAssetEntry { get; set; }
 
-			//       public IEnumerable<LegacyFileEntry> BatchLegacyFiles
-			//       {
-			//           get
-			//           {
-			//return LegacyEntries.Values.Where(x => x.ParentGuid == ChunkAssetEntry.Id);
-			//           }
-			//       }
+			public IEnumerable<LegacyFileEntry> BatchLegacyFiles
+			{
+				get
+				{
+					return LegacyEntries.Values.Where(x => x.ParentGuid == ChunkAssetEntry.Id);
+				}
+			}
 
-			public List<LegacyFileEntry> BatchLegacyFiles = new List<LegacyFileEntry>();
-
-			public ChunkBatch() 
+			public ChunkBatch()
 			{
 			}
 
@@ -108,188 +106,156 @@ namespace Frostbite.FileManagers
 
 			public int EndOfStrings { get; internal set; }
 			public byte[] EndData { get; internal set; }
-            public long BootableItemOffset { get; internal set; }
-            public uint LinkedChunkCount { get; internal set; }
-            public long LinkedChunkOffset { get; internal set; }
-            public EbxAsset EbxAsset { get; internal set; }
+			public long BootableItemOffset { get; internal set; }
+			public uint LinkedChunkCount { get; internal set; }
+			public long LinkedChunkOffset { get; internal set; }
+			public EbxAsset EbxAsset { get; internal set; }
 
-            public List<ChunkAssetEntry> CompressedItemChunks = new List<ChunkAssetEntry>();
-
-			public List<BootableItem> BootableItems = new List<BootableItem>();
-
-			public List<ChunkAssetEntry> LinkedChunks = new List<ChunkAssetEntry>();
-
-			public class BootableItem
-            {
-				public long nameOffset3;
-				public string unkName2;
-				public uint unknumber1;
-				public uint unknumber2;
-			}
-        }
+			public List<ChunkAssetEntry> CompressedItemChunks = new List<ChunkAssetEntry>();
+		}
 
 		/// <summary>
 		/// Chunk Batches are the entire batch of chunks and locations of the chunks. Each is an EBX
 		/// </summary>
 		public static List<ChunkBatch> ChunkBatches = new List<ChunkBatch>();
 
-        public LegacyFileManager_M21()
-        {
-        }
+		public LegacyFileManager_M21()
+		{
+		}
 
-        public void Initialize(ILogger logger)
+		public void Initialize(ILogger logger)
 		{
 			logger.Log("Loading legacy files");
 			AddedFileEntries = new List<LegacyFileEntry>();
 
 			ChunkBatches = new List<ChunkBatch>();
 
-            foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
-            //foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("CFC_GM_Launch"))
-            {
+			foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
+			//foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("CFC_GM_Launch"))
+			{
 				GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
 				if (chunkAssetEntry == null)
 					continue;
 
 				Stream chunk = GetChunkStreamForEbx(item);
-				ReadChunk(chunk, ebxAsset, item, chunkAssetEntry);
+				if (chunk != null)
+				{
+					using (NativeReader nativeReader = new NativeReader(chunk))
+					{
+						byte[] allbytesofbatch = nativeReader.ReadToEnd();
+						nativeReader.Position = 0;
+
+						var chunkBatch = new ChunkBatch()
+						{
+							EbxAssetEntry = item,
+							EbxAsset = ebxAsset,
+							ChunkAssetEntry = chunkAssetEntry,
+							UnkCount1 = nativeReader.ReadUInt(), // 0
+							UnkOffset1 = nativeReader.ReadLong(), // 4
+							NumberOfFiles = nativeReader.ReadInt(), // 12
+							FileFirstPosition = nativeReader.ReadLong(), // 16
+							BootableItemCount = nativeReader.ReadUInt(), // 24 
+							BootableItemOffset = nativeReader.ReadLong(), // 28
+							LinkedChunkCount = nativeReader.ReadUInt(), // 36
+							LinkedChunkOffset = nativeReader.ReadLong() // 40
+						};
+						//nativeReader.Position = 0;
+						//chunkBatch.Initial64Data = nativeReader.ReadBytes((int)chunkBatch.FileFirstPosition);
+
+						chunkBatch.EndOfStrings = 0;
+						nativeReader.Position = chunkBatch.FileFirstPosition;
+						for (uint index = 0u; index < chunkBatch.NumberOfFiles; index++)
+						{
+							var positionOfText = nativeReader.ReadLong();
+							var positionOfItem = nativeReader.Position;
+
+							nativeReader.Position = positionOfText;
+
+							string name = nativeReader.ReadNullTerminatedString();
+							if (nativeReader.Position > chunkBatch.EndOfStrings)
+								chunkBatch.EndOfStrings = (int)nativeReader.Position;
+
+							nativeReader.Position = positionOfItem;
+							int key = Fnv1.HashString(name);
+							LegacyFileEntry legacyFileEntry = null;
+							if (!LegacyEntries.ContainsKey(key))
+							{
+								legacyFileEntry = new LegacyFileEntry();
+								legacyFileEntry.Name = name;
+								LegacyEntries.Add(key, legacyFileEntry);
+							}
+							else
+							{
+								legacyFileEntry = LegacyEntries[key];
+							}
+							legacyFileEntry.BatchOffset = positionOfItem;
+							legacyFileEntry.ParentGuid = chunkAssetEntry.Id;
+
+
+							legacyFileEntry.CompressedOffsetPosition = nativeReader.Position;
+							legacyFileEntry.CompressedOffset = nativeReader.ReadLong();
+							legacyFileEntry.CompressedOffsetStart = legacyFileEntry.CompressedOffset;
+							legacyFileEntry.CompressedSizePosition = nativeReader.Position;
+							//legacyFileEntry.CompressedOffsetEnd = nativeReader.ReadLong();
+							//legacyFileEntry.CompressedSize = legacyFileEntry.CompressedOffsetEnd - legacyFileEntry.CompressedOffset;
+							legacyFileEntry.CompressedSize = nativeReader.ReadLong() - legacyFileEntry.CompressedOffset;
+
+							legacyFileEntry.ActualOffsetPosition = (int)nativeReader.Position;
+							legacyFileEntry.ExtraData = new AssetExtraData() { DataOffset = (uint)nativeReader.ReadLong() };
+							legacyFileEntry.ActualSizePosition = (int)nativeReader.Position;
+							legacyFileEntry.Size = nativeReader.ReadLong();
+
+							legacyFileEntry.ChunkIdPosition = nativeReader.Position;
+							var chunkId = nativeReader.ReadGuid();
+							legacyFileEntry.ChunkId = chunkId;
+							if (legacyFileEntry.CompressedOffsetEnd > legacyFileEntry.CompressedOffsetStart)
+							{
+								chunkBatch.CompressedItemChunks.Add(
+									AssetManager.Instance.GetChunkEntry(chunkId)
+									);
+							}
+						}
+
+						if (ProfilesLibrary.IsFIFA21DataVersion())
+						{
+							nativeReader.Position = chunkBatch.BootableItemOffset;
+							for (uint j = 0u; j < chunkBatch.BootableItemCount; j++)
+							{
+								long nameOffset3 = nativeReader.ReadLong();
+								long currentPosition3 = nativeReader.Position;
+								nativeReader.Position = nameOffset3;
+								var unkName2 = nativeReader.ReadNullTerminatedString();
+								nativeReader.Position = currentPosition3;
+								var unknumber1 = nativeReader.ReadUInt();
+								var unknumber2 = nativeReader.ReadUInt();
+							}
+
+							nativeReader.Position = chunkBatch.LinkedChunkOffset;
+							for (uint i = 0u; i < chunkBatch.LinkedChunkCount; i++)
+							{
+								var chunkSize = nativeReader.ReadLong();
+								var chunkid2 = nativeReader.ReadGuid();
+								var otherChunk = AssetManager.Instance.GetChunkEntry(chunkid2);
+								//chunkBatch.CompressedItemChunks.Add(otherChunk);
+								if (chunkBatch.CompressedItemChunks.Any(x => x.Id == chunkid2))
+								{
+
+								}
+							}
+						}
+
+						ChunkBatches.Add(chunkBatch);
+
+
+					}
+				}
 			}
 
 			logger.Log($"Loaded {LegacyEntries.Count} legacy files");
 			LegacyFileManager.Instance = this;
 		}
 
-		public void ReadChunk(Stream chunk, EbxAsset ebxAsset, EbxAssetEntry item, ChunkAssetEntry chunkAssetEntry)
-        {
-			if (chunk != null)
-			{
-				using (NativeReader nativeReader = new NativeReader(chunk))
-				{
-					byte[] allbytesofbatch = nativeReader.ReadToEnd();
-					nativeReader.Position = 0;
-
-					var chunkBatch = new ChunkBatch()
-					{
-						EbxAssetEntry = item,
-						EbxAsset = ebxAsset,
-						ChunkAssetEntry = chunkAssetEntry,
-						UnkCount1 = nativeReader.ReadUInt(), // 0
-						UnkOffset1 = nativeReader.ReadLong(), // 4
-						NumberOfFiles = nativeReader.ReadInt(), // 12
-						FileFirstPosition = nativeReader.ReadLong(), // 16
-						BootableItemCount = nativeReader.ReadUInt(), // 24 
-						BootableItemOffset = nativeReader.ReadLong(), // 28
-						LinkedChunkCount = nativeReader.ReadUInt(), // 36
-						LinkedChunkOffset = nativeReader.ReadLong() // 40
-					};
-					//nativeReader.Position = 0;
-					//chunkBatch.Initial64Data = nativeReader.ReadBytes((int)chunkBatch.FileFirstPosition);
-
-					chunkBatch.EndOfStrings = 0;
-					nativeReader.Position = chunkBatch.FileFirstPosition;
-					for (uint index = 0u; index < chunkBatch.NumberOfFiles; index++)
-					{
-						var positionOfText = nativeReader.ReadLong();
-						var positionOfItem = nativeReader.Position;
-
-						nativeReader.Position = positionOfText;
-
-						string name = nativeReader.ReadNullTerminatedString();
-						if (nativeReader.Position > chunkBatch.EndOfStrings)
-							chunkBatch.EndOfStrings = (int)nativeReader.Position;
-
-						if(name.Contains("ProfCWRelation", StringComparison.OrdinalIgnoreCase))
-                        {
-
-                        }
-
-						nativeReader.Position = positionOfItem;
-						int key = Fnv1.HashString(name);
-						LegacyFileEntry legacyFileEntry = null;
-						if (!LegacyEntries.ContainsKey(key))
-						{
-							legacyFileEntry = new LegacyFileEntry();
-							legacyFileEntry.Name = name;
-							LegacyEntries.Add(key, legacyFileEntry);
-						}
-						else
-						{
-							legacyFileEntry = LegacyEntries[key];
-						}
-						legacyFileEntry.BatchOffset = positionOfItem;
-						legacyFileEntry.ParentGuid = chunkAssetEntry.Id;
-
-
-						legacyFileEntry.CompressedOffsetPosition = nativeReader.Position;
-						legacyFileEntry.CompressedOffset = nativeReader.ReadLong();
-						legacyFileEntry.CompressedOffsetStart = legacyFileEntry.CompressedOffset;
-						legacyFileEntry.CompressedSizePosition = nativeReader.Position;
-						//legacyFileEntry.CompressedOffsetEnd = nativeReader.ReadLong();
-						//legacyFileEntry.CompressedSize = legacyFileEntry.CompressedOffsetEnd - legacyFileEntry.CompressedOffset;
-						legacyFileEntry.CompressedSize = nativeReader.ReadLong() - legacyFileEntry.CompressedOffset;
-						if(ProfilesLibrary.IsFIFA21DataVersion())
-							legacyFileEntry.CompressedSize += legacyFileEntry.CompressedOffset;
-
-						var res = legacyFileEntry.CompressedSize - legacyFileEntry.CompressedOffset;
-
-						legacyFileEntry.ActualOffsetPosition = (int)nativeReader.Position;
-						legacyFileEntry.ExtraData = new AssetExtraData() { DataOffset = (uint)nativeReader.ReadLong() };
-						legacyFileEntry.ActualSizePosition = (int)nativeReader.Position;
-						legacyFileEntry.Size = nativeReader.ReadLong();
-
-						legacyFileEntry.ChunkIdPosition = nativeReader.Position;
-						var chunkId = nativeReader.ReadGuid();
-						legacyFileEntry.ChunkId = chunkId;
-
-						chunkBatch.BatchLegacyFiles.Add(legacyFileEntry);
-					}
-
-					if (ProfilesLibrary.IsFIFA21DataVersion())
-					{
-						nativeReader.Position = chunkBatch.BootableItemOffset;
-						for (uint j = 0u; j < chunkBatch.BootableItemCount; j++)
-						{
-							long nameOffset3 = nativeReader.ReadLong();
-							long currentPosition3 = nativeReader.Position;
-							nativeReader.Position = nameOffset3;
-							var unkName2 = nativeReader.ReadNullTerminatedString();
-							nativeReader.Position = currentPosition3;
-							var unknumber1 = nativeReader.ReadUInt();
-							var unknumber2 = nativeReader.ReadUInt();
-
-							ChunkBatch.BootableItem bootableItem = new ChunkBatch.BootableItem()
-							{
-								nameOffset3 = nameOffset3,
-								unkName2 = unkName2,
-								unknumber1 = unknumber1,
-								unknumber2 = unknumber2
-							};
-							chunkBatch.BootableItems.Add(bootableItem);
-
-						}
-
-						nativeReader.Position = chunkBatch.LinkedChunkOffset;
-						for (uint i = 0u; i < chunkBatch.LinkedChunkCount; i++)
-						{
-							var chunkSize = nativeReader.ReadLong();
-							var chunkid2 = nativeReader.ReadGuid();
-							var otherChunk = AssetManager.Instance.GetChunkEntry(chunkid2);
-							otherChunk.OriginalSize = chunkSize;
-
-							chunkBatch.LinkedChunks.Add(otherChunk);
-						}
-					}
-
-					ChunkBatches.Add(chunkBatch);
-
-
-
-
-				}
-			}
-        }
-
-        public void WriteAllLegacy()
+		public void WriteAllLegacy()
 		{
 			// A chunk batch corresponds to each Ebx in the CFC
 			foreach (ChunkBatch chunkBatch in ChunkBatches)
@@ -299,7 +265,7 @@ namespace Frostbite.FileManagers
 		}
 
 		public static EbxAsset GetEbxAssetForEbx(EbxAssetEntry ebxAssetEntry)
-        {
+		{
 			EbxAsset ebx = AssetManager.Instance.GetEbx(ebxAssetEntry);
 			return ebx;
 		}
@@ -381,12 +347,12 @@ namespace Frostbite.FileManagers
 			{
 				// 
 				if (legacyFileEntry.Name.Contains("voicecommand"))
-                {
+				{
 					if (!testDO.HasValue)
 						testDO = legacyFileEntry.ExtraData.DataOffset;
 					else if (testDO.Value != legacyFileEntry.ExtraData.DataOffset)
 						throw new Exception("these should be the same");
-					
+
 				}
 				nativeReader.Position = legacyFileEntry.ExtraData.DataOffset;
 				return new MemoryStream(nativeReader.ReadBytes((int)legacyFileEntry.Size));
@@ -398,20 +364,14 @@ namespace Frostbite.FileManagers
 		//	AssetManager.ModifyChunk(legacyFileEntry.ChunkId, legacyFileEntry.ModifiedEntry.Data);
 		//}
 
-		public async Task<ChunkAssetEntry> RebuildEntireChunkAsync(Guid chunkId, List<LegacyFileEntry> replaceFileEntries, List<LegacyFileEntry> newFileEntries = null)
-		{
-			return await Task.Run(() => { return RebuildEntireChunk(chunkId, replaceFileEntries, newFileEntries); });
-		}
-
 		public ChunkAssetEntry RebuildEntireChunk(Guid chunkId, List<LegacyFileEntry> replaceFileEntries, List<LegacyFileEntry> newFileEntries = null)
 		{
-            //CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.Oodle;
-            //CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.ZStd;
-            CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.None;
+			//CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.Oodle;
+			CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.ZStd;
 
-            ChunkBatch chunkBatch;
-            // get the chunk batch (the main batch with offsets etc)
-            chunkBatch = ChunkBatches.FirstOrDefault(x => x.ChunkAssetEntry.Id == chunkId);
+			ChunkBatch chunkBatch;
+			// get the chunk batch (the main batch with offsets etc)
+			chunkBatch = ChunkBatches.FirstOrDefault(x => x.ChunkAssetEntry.Id == chunkId);
 			if (chunkBatch != null)
 			{
 				var edited = replaceFileEntries.GroupBy(x => x.ChunkId).ToDictionary(x => x.Key, x => x.ToList());
@@ -419,82 +379,163 @@ namespace Frostbite.FileManagers
 				var edited2 = chunkBatch.BatchLegacyFiles.Where(x => x.ModifiedEntry != null).GroupBy(x => x.ChunkId).ToDictionary(x => x.Key, x => x.ToList());
 				foreach (var gItem in edited)
 				{
-					ModifiedChunks.Add(AssetManager.Instance.GetChunkEntry(gItem.Key));
-
 					// Easily handle Singular Chunk
 					if (gItem.Value.Count == 1 && chunkBatch.ChunkGroupsInBatch[gItem.Value.First().ChunkId].Count == 1)
 					{
 						var legacyItem = gItem.Value.First();
+						//legacyItem.CompressedOffset = 0;
+						//legacyItem.CompressedSize = 0;
+						//legacyItem.ExtraData.DataOffset = 0;
+						//legacyItem.Size = legacyItem.ModifiedEntry.Data.Length;
 						legacyItem.ModifiedEntry.NewOffset = 0;
 						legacyItem.ModifiedEntry.Size = legacyItem.ModifiedEntry.Data.Length;
-						AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType,  addToChunkBundle: true);
 
+						ModifiedChunks.Add(AssetManager.Instance.GetChunkEntry(gItem.Key));
+
+
+						AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType);
 					}
 					// Otherwise handle Chunk Batch
 					else
-                    {
-                        var groupOfLegacyFiles = chunkBatch.ChunkGroupsInBatch.First(x => x.Key == gItem.Key);
-                        var groupChunkEntry = AssetManager.Instance.GetChunkEntry(gItem.Key);
-                        var groupChunk = AssetManager.Instance.GetChunk(groupChunkEntry);
+					{
+						var groupOfLegacyFiles = chunkBatch.ChunkGroupsInBatch.First(x => x.Key == gItem.Key);
+						var groupChunkEntry = AssetManager.Instance.GetChunkEntry(gItem.Key);
+						var groupChunk = AssetManager.Instance.GetChunk(groupChunkEntry);
 
-                        MemoryStream ms_newChunkGroup = CreateNewUncompressedChunkGroup(groupOfLegacyFiles, groupChunk);
 
-                        var newChunkAlreadyCompressed = CompressChunkGroup(ms_newChunkGroup
-                            , groupOfLegacyFiles.Value
-                            //, groupOfLegacyFiles.Value.Where(x => x.HasModifiedData).ToDictionary(x => x.NameHash, x => x.ModifiedEntry.Data)
-                            , compressionType);
+						var ms_newChunkGroup = new MemoryStream();
+						using (var nw_newChunkGroup = new NativeWriter(ms_newChunkGroup, leaveOpen: true))
+						{
+							using (var nr_GroupChunk = new NativeReader(groupChunk))
+							{
+								foreach (var itemInChunkGroup in groupOfLegacyFiles.Value.OrderBy(x => x.ModifiedEntry == null))
+								{
+									if (itemInChunkGroup.HasModifiedData)
+									{
+										//itemInChunkGroup.ExtraData.DataOffset = (uint)nw_newChunkGroup.Position;
+										itemInChunkGroup.ModifiedEntry.NewOffset = (uint)nw_newChunkGroup.Position;
+										itemInChunkGroup.ModifiedEntry.Size = itemInChunkGroup.ModifiedEntry.Data.Length;
+										nw_newChunkGroup.Write(itemInChunkGroup.ModifiedEntry.Data);
+									}
+									else
+									{
+										nr_GroupChunk.Position = itemInChunkGroup.ExtraData.DataOffset;
+										var d = nr_GroupChunk.ReadBytes((int)itemInChunkGroup.Size);
+										//itemInChunkGroup.CompressedOffset = 0;
+										//itemInChunkGroup.CompressedSize = 0;
+										//itemInChunkGroup.ExtraData.DataOffset = (uint)nw_newChunkGroup.Position;
+										itemInChunkGroup.ModifiedEntry = new ModifiedAssetEntry()
+										{
+											NewOffset = (uint)nw_newChunkGroup.Position
+											,
+											CompressedOffset = 0
+											,
+											CompressedSize = 0
+										};
+										nw_newChunkGroup.Write(d);
+									}
+								}
 
-                        //AssetManager.Instance.ModifyChunk(gItem.Key, ms_newChunkGroup.ToArray(), compressionOverride: compressionType, addToChunkBundle: true);
-                        groupChunkEntry.ModifiedEntry = new ModifiedAssetEntry()
-                        {
-                            Data = newChunkAlreadyCompressed.newChunk,
-                            Size = newChunkAlreadyCompressed.newChunk.Length,
-                            Sha1 = AssetManager.Instance.GenerateSha1(newChunkAlreadyCompressed.newChunk),
-                            LogicalSize = (uint)newChunkAlreadyCompressed.newChunk.Length
-                        };
+							}
+						}
+						// Modify the Chunk
+						ms_newChunkGroup.Position = 0;
+						byte[] newChunkGroupData = new NativeReader(ms_newChunkGroup).ReadToEnd();
 
-                    }
-                }
 
-				byte[] oldBatchData = ((MemoryStream)AssetManager.Instance.GetChunk(chunkBatch.ChunkAssetEntry)).ToArray();
+						//byte[] newChunkGroupData = ms_newChunkGroup.ToArray();
 
-                var msNewBatch = new MemoryStream();
-                using (var nwNewBatch = new NativeWriter(msNewBatch, leaveOpen: true))
-                {
-                    nwNewBatch.Write(oldBatchData);
-                    foreach (var lfe in chunkBatch.BatchLegacyFiles)
-                    {
-                        nwNewBatch.Position = lfe.ActualOffsetPosition;
-                        if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.NewOffset != null)
-                            nwNewBatch.Write((long)lfe.ModifiedEntry.NewOffset);
-                        else
-                            nwNewBatch.Write((long)lfe.ExtraData.DataOffset);
-                        nwNewBatch.Position = lfe.ActualSizePosition;
-                        if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.Data != null)
-                            nwNewBatch.Write((long)lfe.ModifiedEntry.Size);
-                        else
-                            nwNewBatch.Write((long)lfe.Size);
+						ModifiedChunks.Add(AssetManager.Instance.GetChunkEntry(gItem.Key));
+
+						//AssetManager.Instance.ModifyChunk(gItem.Key, newChunkGroupData, compressionOverride: CompressionType.Oodle);
+
+						var newChunkAlreadyCompressed = CompressChunkGroup(ms_newChunkGroup, groupOfLegacyFiles.Value, compressionType);
+						groupChunkEntry.ModifiedEntry = new ModifiedAssetEntry()
+						{
+							Data = newChunkAlreadyCompressed.newChunk,
+							Size = newChunkAlreadyCompressed.newChunk.Length,
+							Sha1 = AssetManager.Instance.GenerateSha1(newChunkAlreadyCompressed.newChunk),
+							LogicalSize = (uint)newChunkAlreadyCompressed.newChunk.Length
+						};
+						groupChunkEntry.IsDirty = true;
+						groupChunkEntry.ModifiedEntry.AddToChunkBundle = true;
+
+						//AssetManager.Instance.ModifyChunk(gItem.Key, newChunkGroupData, compressionOverride: compressionType);
+
+
+					}
+
+
+					//foreach (var legacyFile in gItem.Value) 
+					//{
+					//	Guid newGuid = AssetManager.AddChunk(legacyFile.ModifiedEntry.Data, GenerateDeterministicGuid(legacyFile));
+					//	legacyFile.CompressedOffset = 0;
+					//	legacyFile.CompressedSize = 0;
+					//	legacyFile.ExtraData.DataOffset = 0;
+					//	legacyFile.ChunkId = newGuid;
+					//}
+				}
+
+
+
+
+				byte[] oldBatchData;
+
+				using (var nrOldBatch = new NativeReader(AssetManager.Instance.GetChunk(chunkBatch.ChunkAssetEntry)))
+				{
+					oldBatchData = nrOldBatch.ReadToEnd();
+				}
+
+				var msNewBatch = new MemoryStream();
+				using (var nwNewBatch = new NativeWriter(msNewBatch, leaveOpen: true))
+				{
+					nwNewBatch.Write(oldBatchData);
+					foreach (var lfe in chunkBatch.BatchLegacyFiles)
+					{
+						nwNewBatch.Position = lfe.ActualOffsetPosition;
+						if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.NewOffset != null)
+							nwNewBatch.Write((long)lfe.ModifiedEntry.NewOffset);
+						else
+							nwNewBatch.Write((long)lfe.ExtraData.DataOffset);
+						nwNewBatch.Position = lfe.ActualSizePosition;
+						if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.Data != null)
+							nwNewBatch.Write((long)lfe.ModifiedEntry.Data.Length);
+						else
+							nwNewBatch.Write((long)lfe.Size);
 
 						// Compressed Offset
-                        nwNewBatch.Position = lfe.CompressedOffsetPosition;
-                        if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.CompressedOffset != null)
+						nwNewBatch.Position = lfe.CompressedOffsetPosition;
+						if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.CompressedOffset != null)
 							nwNewBatch.Write((long)lfe.ModifiedEntry.CompressedOffset);
 						else
 							nwNewBatch.Write((long)lfe.CompressedOffset);
 
 						// Compressed Size
 						nwNewBatch.Position = lfe.CompressedSizePosition;
+						//if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.Data != null)
 						if (lfe.ModifiedEntry != null && lfe.ModifiedEntry.CompressedSize != null)
 								nwNewBatch.Write((long)lfe.ModifiedEntry.CompressedSize);
 						else
 							nwNewBatch.Write((long)lfe.CompressedSize);
-                    }
-				
-				}
-                msNewBatch.Position = 0;
 
-				//var newBatchData = new NativeReader(msNewBatch).ReadToEnd();
-				var newBatchData = msNewBatch.ToArray();
+						//nwNewBatch.Position = lfe.ChunkIdPosition;
+						//nwNewBatch.Write(lfe.ChunkId);
+
+						//nwNewBatch.Write((long)lfe.CompressedOffsetEnd);
+					}
+					//nwNewBatch.Position = chunkBatch.EndOfStrings;
+					//nwNewBatch.WriteNullTerminatedString("boot");
+					//nwNewBatch.WriteNullTerminatedString("permanent");
+
+					//nwNewBatch.Position = 24;
+					//nwNewBatch.Write((uint)0);
+					//nwNewBatch.Write((ulong)0);
+					//nwNewBatch.Write((uint)0);
+					//nwNewBatch.Write((ulong)0);
+				}
+				msNewBatch.Position = 0;
+
+				var newBatchData = new NativeReader(msNewBatch).ReadToEnd();
 
 				//AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, newBatchData, compressionOverride: CompressionType.Oodle);
 
@@ -508,18 +549,18 @@ namespace Frostbite.FileManagers
 				//}
 				ModifiedChunks.Add(AssetManager.Instance.GetChunkEntry(chunkBatch.ChunkAssetEntry.Id));
 
-				AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, newBatchData, compressionOverride: compressionType, addToChunkBundle: true);
+				AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, newBatchData, compressionOverride: compressionType);
 				msNewBatch.Close();
-                msNewBatch.Dispose();
-                GC.Collect();
+				msNewBatch.Dispose();
+				GC.Collect();
 				GC.WaitForPendingFinalizers();
-                return chunkBatch.ChunkAssetEntry;
+				return chunkBatch.ChunkAssetEntry;
 			}
 
 			return null;
 		}
 
-        public void ModifyAsset(string key, byte[] data)
+		public void ModifyAsset(string key, byte[] data)
 		{
 			ModifyAsset(key, data, true);
 		}
@@ -531,7 +572,7 @@ namespace Frostbite.FileManagers
 			{
 				LegacyFileEntry legacyFileEntry = LegacyEntries[key2];
 
-				if(!OriginalLegacyEntries.Contains(legacyFileEntry))
+				if (!OriginalLegacyEntries.Contains(legacyFileEntry))
 					OriginalLegacyEntries.Add(legacyFileEntry);
 
 				legacyFileEntry.ModifiedEntry = new ModifiedAssetEntry()
@@ -562,7 +603,9 @@ namespace Frostbite.FileManagers
 					LegacyFileEntry legacyFileEntry = LegacyEntries[key2];
 					legacyFileEntry.ModifiedEntry = new ModifiedAssetEntry()
 					{
-						Data = dpi.Value
+						Data = dpi.Value,
+						RangeStart = 0,
+						RangeEnd = (uint)dpi.Value.Length,
 					};
 
 					legacyFileEntry.IsDirty = true;
@@ -580,7 +623,22 @@ namespace Frostbite.FileManagers
 			}
 		}
 
-		
+		///// <summary>
+		///// Modifies multiple assets and expects the entries to already has a ModifiedEntry object instance
+		///// </summary>
+		///// <param name="entries"></param>
+		//public IEnumerable<ChunkAssetEntry> ModifyAssets(List<LegacyFileEntry> entries)
+		//{
+		//	var groupedAssets = entries.GroupBy(x => x.ParentGuid).ToDictionary(x => x.Key, x => x.ToList());
+		//	foreach (var group in groupedAssets)
+		//	{
+		//		foreach (var lfe in group.Value)
+		//		{
+		//			ModifyAsset(lfe.Name, lfe.ModifiedEntry.Data);
+		//		}
+		//		yield return RebuildEntireChunk(group.Key, group.Value);
+		//	}
+		//}
 
 		/// <summary>
 		/// Modifies multiple assets and expects the entries to already has a ModifiedEntry object instance
@@ -632,9 +690,22 @@ namespace Frostbite.FileManagers
 
 		private Stream GetChunkStream(LegacyFileEntry lfe)
 		{
-			var chunkEntry = AssetManager.GetChunkEntry(lfe.ChunkId);
-			var chunk = AssetManager.GetChunk(chunkEntry);
-			return chunk;
+			//if (cacheMode)
+			//{
+			//	if (!cachedChunks.ContainsKey(lfe.ChunkId))
+			//	{
+			//		using (Stream stream = AssetManager.GetChunk(AssetManager.GetChunkEntry(lfe.ChunkId)))
+			//		{
+			//			if (stream == null)
+			//			{
+			//				return null;
+			//			}
+			//			cachedChunks.Add(lfe.ChunkId, ((MemoryStream)stream).ToArray());
+			//		}
+			//	}
+			//	return new MemoryStream(cachedChunks[lfe.ChunkId]);
+			//}
+			return AssetManager.GetChunk(AssetManager.GetChunkEntry(lfe.ChunkId));
 		}
 
 		public void OnCommand(string command, params object[] value)
@@ -652,7 +723,7 @@ namespace Frostbite.FileManagers
 			}
 		}
 
-		
+
 
 		/// <summary>
 		/// Cleans up asset and associated chunks (chunks should not be modified but this checks them over)
@@ -677,15 +748,15 @@ namespace Frostbite.FileManagers
 			}
 
 			ChunkAssetEntry chunkAssetEntry1 = entry as ChunkAssetEntry;
-			if(chunkAssetEntry1 != null)
-            {
+			if (chunkAssetEntry1 != null)
+			{
 				AssetManager.Instance.RevertAsset(chunkAssetEntry1);
 			}
 
 		}
 
 		public static void CleanUpChunks(bool fullReset = false)
-        {
+		{
 			var movedEntries = LegacyEntries.Where(x => x.Value.ModifiedEntry != null
 					&& x.Value.ModifiedEntry.Data == null
 					&& x.Value.ModifiedEntry.NewOffset.HasValue
@@ -693,30 +764,30 @@ namespace Frostbite.FileManagers
 
 			// Revert all the moved files
 			foreach (var lfe in movedEntries)
-            {
+			{
 				lfe.Value.ModifiedEntry = null;
-            }
+			}
 
-            // Revert all the chunks
-            foreach (EbxAssetEntry item in AssetManager.Instance.EnumerateEbx("ChunkFileCollector"))
-            {
-                GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
-                if (chunkAssetEntry != null)
-                {
-                    AssetManager.Instance.RevertAsset(chunkAssetEntry);
-                }
-                AssetManager.Instance.RevertAsset(item);
-            }
+			// Revert all the chunks
+			foreach (EbxAssetEntry item in AssetManager.Instance.EnumerateEbx("ChunkFileCollector"))
+			{
+				GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
+				if (chunkAssetEntry != null)
+				{
+					AssetManager.Instance.RevertAsset(chunkAssetEntry);
+				}
+				AssetManager.Instance.RevertAsset(item);
+			}
 
-            foreach (ChunkAssetEntry assetEntry in ModifiedChunks)
-            {
+			foreach (ChunkAssetEntry assetEntry in ModifiedChunks)
+			{
 				assetEntry.ModifiedEntry = null;
-            }
+			}
 			ModifiedChunks.Clear();
 
 			// Revert all legacy files
-			if(fullReset)
-            {
+			if (fullReset)
+			{
 				foreach (var lfe in LegacyEntries)
 				{
 					lfe.Value.ModifiedEntry = null;
@@ -724,60 +795,15 @@ namespace Frostbite.FileManagers
 			}
 		}
 
-        public void AddAsset(string key, LegacyFileEntry lfe)
-        {
+		public void AddAsset(string key, LegacyFileEntry lfe)
+		{
 			if (!LegacyEntries.ContainsKey(Fnv1.HashString(key)))
 			{
 				lfe.IsAdded = true;
 				lfe.ModifiedEntry = new ModifiedAssetEntry() { Data = ((MemoryStream)GetChunkStream(lfe)).ToArray() };
 				LegacyEntries.Add(Fnv1.HashString(key), lfe);
 			}
-        }
-
-
-		private static MemoryStream CreateNewUncompressedChunkGroup(KeyValuePair<Guid, List<LegacyFileEntry>> groupOfLegacyFiles, Stream groupChunk)
-		{
-			MemoryStream ms_newChunkGroup = new MemoryStream();
-			MemoryStream ms_newChunkGroupCompressed = new MemoryStream();
-
-			using (var nw_newChunkGroupCompressed = new NativeWriter(ms_newChunkGroupCompressed, leaveOpen: true))
-			{
-				using (var nw_newChunkGroup = new NativeWriter(ms_newChunkGroup, leaveOpen: true))
-				{
-					using (var nr_GroupChunk = new NativeReader(groupChunk))
-					{
-						foreach (var itemInChunkGroup in groupOfLegacyFiles.Value.OrderBy(x => x.HasModifiedData))
-						{
-							byte[] origData = null;
-
-							if (itemInChunkGroup.HasModifiedData)
-							{
-								itemInChunkGroup.ModifiedEntry.NewOffset = (uint)nw_newChunkGroup.Position;
-								itemInChunkGroup.ModifiedEntry.Size = itemInChunkGroup.ModifiedEntry.Data.Length;
-								nw_newChunkGroup.Write(itemInChunkGroup.ModifiedEntry.Data);
-
-							}
-							else
-							{
-								nr_GroupChunk.Position = itemInChunkGroup.ExtraData.DataOffset;
-								origData = nr_GroupChunk.ReadBytes((int)itemInChunkGroup.Size);
-								itemInChunkGroup.ModifiedEntry = new ModifiedAssetEntry()
-								{
-									NewOffset = (uint)nw_newChunkGroup.Position,
-									//Size = origData.Length,
-									Size = itemInChunkGroup.Size
-								};
-								nw_newChunkGroup.Write(origData);
-							}
-
-						}
-					}
-				}
-			}
-
-			return ms_newChunkGroup;
 		}
-
 
 		public static (byte[] newChunk, long uncompressedSize) CompressChunkGroup(
 			Stream uncompressedChunkStream
@@ -811,7 +837,6 @@ namespace Frostbite.FileManagers
 				List<LegacyFileEntry> filesEndingInBlock = (from f in filesInChunk
 															where
                                                             f.ModifiedEntry.NewOffset.Value + f.ModifiedEntry.Size
-                                                            //f.ModifiedEntry.NewOffset.Value
                                                             >= modDCS.Position
 															&& f.ModifiedEntry.NewOffset.Value + f.ModifiedEntry.Size
 															<= modDCS.Position + amountToRead
@@ -822,14 +847,7 @@ namespace Frostbite.FileManagers
 				}
 				byte[] compressedBlock = Utils.CompressFile(modDCS.ReadBytes(amountToRead), null, ResourceType.Invalid, compressionType);
 				compressedStream.Write(compressedBlock);
-				if (isFirstSet)
-				{
-					foreach (LegacyFileEntry item in list)
-					{
-						item.ModifiedEntry.CompressedSize = compressedStream.Position;
-					}
-				}
-				foreach (LegacyFileEntry item in filesEndingInBlock)
+                foreach (LegacyFileEntry item in filesEndingInBlock)
                 {
                     item.ModifiedEntry.CompressedSize = compressedStream.Position;
                 }
