@@ -40,20 +40,28 @@ namespace SdkGenerator
             }
         }
 
+		public string ProcessName = ProfilesLibrary.ProfileName;
+
 		public Process GetProcess()
         {
 			var allProcesses = Process.GetProcesses();
+            //var process = allProcesses.FirstOrDefault(x =>
+            //        x.ProcessName.Contains("FIFA18", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("FIFA19", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("FIFA20", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("FIFA21", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.ToUpper().Contains("MADDEN21", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bf4", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bfv", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bf5", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bf1", StringComparison.OrdinalIgnoreCase)
+            //        );
 			var process = allProcesses.FirstOrDefault(x =>
-					x.ProcessName.Contains("FIFA18", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.Contains("FIFA19", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.Contains("FIFA20", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.Contains("FIFA21", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.ToUpper().Contains("MADDEN21", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.Contains("bf4", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.Contains("bfv", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.Contains("bf5", StringComparison.OrdinalIgnoreCase)
-					|| x.ProcessName.Contains("bf1", StringComparison.OrdinalIgnoreCase)
-					);
+				   x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase)
+				   );
+			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
 			return process;
 		}
 
@@ -216,29 +224,45 @@ namespace SdkGenerator
 
                     };
 
-					List<long> listOfOffsets = null;
-
-					var selectedPattern = string.Empty;
-					foreach (string pattern in patterns)
-					{
-						memoryReader.Position = baseAddress;
-						listOfOffsets = memoryReader.scan(pattern).ToList();
-						if (listOfOffsets.Count != 0)
-						{
-							selectedPattern = pattern;
-							break;
-						}
+                    if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKAOBScan))
+                    {
+						patterns.Insert(0, ProfilesLibrary.LoadedProfile.SDKAOBScan);
+						Debug.WriteLine("Attempting to use Profile Pattern :: " + ProfilesLibrary.LoadedProfile.SDKAOBScan);
 					}
-					if (listOfOffsets.Count == 0)
-						throw new Exception("Unable to find TypeInfo Offset");
 
-					Debug.WriteLine("Used Pattern :: " + selectedPattern);
-					
-					//listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
-					memoryReader.Position = listOfOffsets[0] + 3;
-					int num = memoryReader.ReadInt();
-					memoryReader.Position = listOfOffsets[0] + 3 + num + 4;
-					sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
+
+					if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo))
+					{
+						sdkUpdateState.TypeInfoOffset = long.Parse(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo);
+
+						Debug.WriteLine("Attempting to use Profile TypeInfoOffset :: " + ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo);
+					}
+					else
+					{
+						List<long> listOfOffsets = null;
+
+						var selectedPattern = string.Empty;
+						foreach (string pattern in patterns)
+						{
+							memoryReader.Position = baseAddress;
+							listOfOffsets = memoryReader.scan(pattern).ToList();
+							if (listOfOffsets.Count != 0)
+							{
+								selectedPattern = pattern;
+								break;
+							}
+						}
+						if (listOfOffsets.Count == 0)
+							throw new Exception("Unable to find TypeInfo Offset");
+
+						Debug.WriteLine("Used Pattern :: " + selectedPattern);
+
+						//listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
+						memoryReader.Position = listOfOffsets[0] + 3;
+						int num = memoryReader.ReadInt();
+						memoryReader.Position = listOfOffsets[0] + 3 + num + 4;
+						sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
+					}
 				}
 
 

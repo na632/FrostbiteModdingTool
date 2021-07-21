@@ -1096,13 +1096,17 @@ namespace FrostySdk.Managers
 			ChunkAssetEntry chunkAssetEntry = BundleChunks[chunk];
 			// fifa 21 chunk is oodle
 			// madden 21 chunk is oodle
-			if ((ProfilesLibrary.IsFIFADataVersion()
-				|| ProfilesLibrary.IsMadden21DataVersion()
-				|| ProfilesLibrary.IsFIFA21DataVersion()
-				)
-				&& texture != null)
+			//if ((ProfilesLibrary.IsFIFADataVersion()
+			//	|| ProfilesLibrary.IsMadden21DataVersion()
+			//	|| ProfilesLibrary.IsFIFA21DataVersion()
+			//	)
+			//	&& texture != null)
+			//{
+			//	compressionOverride = CompressionType.Oodle;
+			//}
+			if (compressionOverride == CompressionType.Default)
 			{
-				compressionOverride = CompressionType.Oodle;
+				compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Chunks);
 			}
 
 			if (chunkAssetEntry.ModifiedEntry == null)
@@ -1137,13 +1141,17 @@ namespace FrostySdk.Managers
 			ChunkAssetEntry chunkAssetEntry = Chunks[chunkId];
 			// fifa 21 chunk is oodle
 			// madden 21 chunk is oodle
-			if ((ProfilesLibrary.IsFIFADataVersion() 
-				|| ProfilesLibrary.IsMadden21DataVersion()
-				|| ProfilesLibrary.IsFIFA21DataVersion()
-				) 
-				&& texture != null)
+			//if ((ProfilesLibrary.IsFIFADataVersion() 
+			//	|| ProfilesLibrary.IsMadden21DataVersion()
+			//	|| ProfilesLibrary.IsFIFA21DataVersion()
+			//	) 
+			//	&& texture != null)
+			//{
+			//	compressionOverride = CompressionType.Oodle;
+			//}
+			if (compressionOverride == CompressionType.Default)
 			{
-				compressionOverride = CompressionType.Oodle;
+				compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Chunks);
 			}
 
 			if (chunkAssetEntry.ModifiedEntry == null)
@@ -1172,8 +1180,10 @@ namespace FrostySdk.Managers
 			{
 				ResAssetEntry resAssetEntry = resRidList[resRid];
 				//CompressionType compressionOverride = (ProfilesLibrary.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
-				CompressionType compressionOverride = CompressionType.Default;
-				if (ProfilesLibrary.IsMadden21DataVersion()) compressionOverride = CompressionType.Oodle;
+				CompressionType compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.RES);
+				//if (ProfilesLibrary.IsMadden21DataVersion()) compressionOverride = CompressionType.Oodle;
+				
+
 				if (resAssetEntry.ModifiedEntry == null)
 				{
 					resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
@@ -1210,10 +1220,14 @@ namespace FrostySdk.Managers
 				ResAssetEntry resAssetEntry = RES[resName];
 				// Madden 21 Res is oodle
 				// FIFA 21 Res for meshes is oodle
-				compressionOverride = (ProfilesLibrary.DataVersion == 20170929 
-					|| ProfilesLibrary.IsMadden21DataVersion()
-					|| ProfilesLibrary.IsFIFA21DataVersion()
-					) ? CompressionType.Oodle : CompressionType.Default;
+				//compressionOverride = (ProfilesLibrary.DataVersion == 20170929 
+				//	|| ProfilesLibrary.IsMadden21DataVersion()
+				//	|| ProfilesLibrary.IsFIFA21DataVersion()
+				//	) ? CompressionType.Oodle : CompressionType.Default;
+				if(compressionOverride == CompressionType.Default)
+                {
+					compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.RES);
+                }
 
 				resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
 				resAssetEntry.ModifiedEntry.Data = Utils.CompressFile(buffer, null, (ResourceType)resAssetEntry.ResType, compressionOverride);
@@ -2852,7 +2866,7 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		private Sha1 GenerateSha1(byte[] buffer)
+		public Sha1 GenerateSha1(byte[] buffer)
 		{
 			using (SHA1Managed sHA1Managed = new SHA1Managed())
 			{

@@ -140,8 +140,9 @@ namespace FrostySdk
 			public EbxResource(EbxAssetEntry entry, Manifest manifest)
 			{
 				CompressionType compressionOverride = CompressionType.Default;
-                if (ProfilesLibrary.IsMadden21DataVersion())
-                    compressionOverride = CompressionType.ZStd;
+				//if (ProfilesLibrary.IsMadden21DataVersion())
+				//    compressionOverride = CompressionType.ZStd;
+				compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.EBX);
 
                 byte[] array = null;
 				name = entry.Name.ToLower();

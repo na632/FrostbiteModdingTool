@@ -140,10 +140,19 @@ namespace FrostySdk
                 set { gddMaxStreams = value; }
             }
 
+            public string CompressedFormatEBX { get; set; }
+            public string CompressedFormatRES { get; set; }
+            public string CompressedFormatChunk { get; set; }
+            public string CompressedFormatLegacy { get; set; }
+
+			public string SDKFirstTypeInfo { get; set; }
+
+			public string SDKAOBScan { get; set; }
 
 
 
-        }
+
+		}
 
 		public static IEnumerable<Profile> EditorProfiles 
 		{ 
@@ -264,6 +273,45 @@ namespace FrostySdk
 
 		public static bool CanImportMeshes => LoadedProfile.CanImportMeshes;
 		public static bool CanExportMeshes => LoadedProfile.CanExportMeshes;
+
+		public enum CompTypeArea
+        {
+			EBX,
+			RES,
+			Chunks,
+			Legacy
+        }
+		public static CompressionType GetCompressionType(CompTypeArea area)
+        {
+			var cf_text = "";
+			switch(area)
+            {
+				case CompTypeArea.EBX:
+					cf_text = (LoadedProfile.CompressedFormatEBX.ToUpper());
+				break;
+				case CompTypeArea.RES:
+					cf_text = (LoadedProfile.CompressedFormatRES.ToUpper());
+					break;
+				case CompTypeArea.Chunks:
+					cf_text = (LoadedProfile.CompressedFormatChunk.ToUpper());
+					break;
+				case CompTypeArea.Legacy:
+					cf_text = (LoadedProfile.CompressedFormatLegacy.ToUpper());
+					break;
+			}
+
+			switch(cf_text)
+            {
+				case "ZSTD":
+					return CompressionType.ZStd;
+				case "OODLE":
+					return CompressionType.Oodle;
+				case "LZ4":
+					return CompressionType.LZ4;
+				default:
+					return CompressionType.None;
+			}
+        }
 
 
 		/// <summary>

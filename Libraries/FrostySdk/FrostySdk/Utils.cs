@@ -21,12 +21,12 @@ namespace FrostySdk
 		{
 			get
 			{
-				if (ProfilesLibrary.IsFIFADataVersion()
-					|| ProfilesLibrary.IsFIFA21DataVersion())
-				{
-					return 262144;
-				}
-				return 65536;
+                if (ProfilesLibrary.IsFIFADataVersion()
+                    || ProfilesLibrary.IsFIFA21DataVersion())
+                {
+                    return 262144;
+                }
+                return 65536;
 			}
 		}
 

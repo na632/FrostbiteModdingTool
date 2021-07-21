@@ -57,5 +57,10 @@
   "CanImportMeshes": true,
   "CanExportMeshes": true,
   // GeometryDeclarationDesc stream count
-  "GDDMaxStreams": 16
+  "GDDMaxStreams": 16,
+  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatRES": "Oodle",
+  "CompressedFormatChunk": "Oodle",
+  "CompressedFormatLegacy": "None"
+
 }
