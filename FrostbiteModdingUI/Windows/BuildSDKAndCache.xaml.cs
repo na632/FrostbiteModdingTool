@@ -39,10 +39,22 @@ namespace FIFAModdingUI.Windows
         {
             InitializeComponent();
 
-            Loaded += BuildSDKAndCache_Loaded;
+            //Loaded += BuildSDKAndCache_Loaded;
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+
+            Rebuild();
         }
 
         private async void BuildSDKAndCache_Loaded(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private async void Rebuild()
         {
             if (DoesCacheNeedsRebuilding())
             {
