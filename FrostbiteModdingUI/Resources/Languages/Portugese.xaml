@@ -6,6 +6,17 @@
     <system:String x:Key="textImport">Importação</system:String>
     <system:String x:Key="textExport">Exportação</system:String>
     <system:String x:Key="textRemove">Retirar</system:String>
+    
+    <system:String x:Key="textRevert">Revert</system:String>
+    
     <system:String x:Key="textFindGameEXE">Encontre seu jogo executável (EXE)</system:String>
     <system:String x:Key="textModList">Sua lista de mod - Isso é carregado de cima para baixo. O fundo tem prioridade.</system:String>
+
+    <system:String x:Key="textImportFileIntoBIG">Import file into BIG</system:String>
+    <system:String x:Key="textExportFileOutOfBIG">Export file out of BIG</system:String>
+    <system:String x:Key="textRevertFileInBIG">Revert file in BIG</system:String>
+
+
+    <system:String x:Key="textData">Dados</system:String>
+    <system:String x:Key="textGameplay">Jogabilidade</system:String>
 </ResourceDictionary>

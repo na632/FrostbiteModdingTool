@@ -185,7 +185,7 @@
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                             <MaterialDesign:PackIcon Kind="Database" VerticalAlignment="Center" />
-                                            <Label>Data</Label>
+                                            <Label Content="{DynamicResource textData}"></Label>
                                         </StackPanel>
                                     </TabItem.Header>
                                     <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
@@ -212,7 +212,7 @@
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                             <MaterialDesign:PackIcon Kind="Soccer" VerticalAlignment="Center" />
-                                            <Label>Gameplay</Label>
+                                            <Label Content="{DynamicResource textGameplay}"></Label>
                                         </StackPanel>
                                     </TabItem.Header>
                                     <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>

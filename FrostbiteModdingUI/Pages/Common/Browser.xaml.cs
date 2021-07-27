@@ -824,6 +824,7 @@ namespace FIFAModdingUI.Pages.Common
 				BackupEBXViewer.Visibility = Visibility.Collapsed;
 				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
 				ModelDockingManager.Visibility = Visibility.Collapsed;
+				BIGViewer.Visibility = Visibility.Collapsed;
 				//HEXViewer.Visibility = Visibility.Collapsed;
 
 				//TextBlock control = sender as TextBlock;
@@ -946,7 +947,13 @@ namespace FIFAModdingUI.Pages.Common
 							"DDS"
 						};
 
-								if (textViewers.Contains(legacyFileEntry.Type))
+							List<string> bigViewers = new List<string>()
+						{
+							"BIG",
+							"AST"
+						};
+
+							if (textViewers.Contains(legacyFileEntry.Type))
 								{
 									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
@@ -971,6 +978,26 @@ namespace FIFAModdingUI.Pages.Common
 
 
 								}
+							else if (bigViewers.Contains(legacyFileEntry.Type))
+                            {
+								BIGViewer.Visibility = Visibility.Visible;
+								BIGViewer.AssetEntry = legacyFileEntry;
+								BIGViewer.ParentBrowser = this;
+								switch(legacyFileEntry.Type)
+                                {
+									//case "BIG":
+									//	BIGViewer.LoadBig();
+									//	break;
+									default:
+										BIGViewer.LoadBig();
+										break;
+
+								}
+
+								btnImport.IsEnabled = false;
+								btnExport.IsEnabled = false;
+								btnRevert.IsEnabled = true;
+                            }
 								else
 								{
 									MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);

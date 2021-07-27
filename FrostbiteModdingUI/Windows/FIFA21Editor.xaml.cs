@@ -612,6 +612,12 @@ namespace FIFAModdingUI.Windows
             Log("Autosaving Project");
             await Task.Run(() =>
             {
+                // Delete old Autosaves
+                foreach (var tFile in Directory.GetFiles(App.ApplicationDirectory, "*.fbproject")) 
+                { 
+                    if(File.GetLastWriteTime(tFile) < DateTime.Now.AddDays(-2))
+                        File.Delete(tFile);
+                };
                 ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString() + ".fbproject");
             });
 

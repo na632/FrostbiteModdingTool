@@ -314,8 +314,7 @@ namespace FrostbiteModdingTests
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Customize and Dynamic - Alpha 1.fbproject");
-            //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Dark Theme.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\expanded customization.fbproject");
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
@@ -389,8 +388,8 @@ namespace FrostbiteModdingTests
             byte[] data = ((MemoryStream)ca).ToArray();
 
             AssetManager.Instance.ModifyLegacyAsset(@"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/playervalues.ini"
-                //, new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source lmod\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\playervalues.ini", FileMode.Open)).ReadToEnd()
-                , data
+                , new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source lmod\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\playervalues.ini", FileMode.Open)).ReadToEnd()
+                //, data
                 , false
                 );
 
