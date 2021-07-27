@@ -17,7 +17,7 @@ namespace FrostySdk.Managers
 
 		public long? CompressedOffset { get; set; } 
 
-		public long? CompressedSize { get; set; }
+		public long? CompressedOffsetEnd { get; set; }
 
         public byte[] ResMeta { get; set; }
 
@@ -82,7 +82,7 @@ namespace FrostySdk.Managers
 		/// <summary>
 		/// 
 		/// </summary>
-		public byte[] CompressedData
+		public byte[] CompressedDataOodle
         {
             get
             {
@@ -106,6 +106,23 @@ namespace FrostySdk.Managers
 				if (Data != null)
 				{
 					return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.ZStd);
+
+				}
+				else
+				{
+					return null;
+				}
+
+			}
+		}
+
+		public byte[] CompressedDataNone
+		{
+			get
+			{
+				if (Data != null)
+				{
+					return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.None);
 
 				}
 				else

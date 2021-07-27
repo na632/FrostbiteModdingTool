@@ -4608,22 +4608,13 @@ namespace paulv2k4ModdingExecuter
                             {
                                 if (modifiedRes.ContainsKey(resource.Name))
                                 {
-                                    ResAssetEntry resAssetEntry2 = modifiedRes[resource.Name];
-                                    //if (resAssetEntry2.Sha1 == resource.Sha1)
-                                    //{
-                                    //    continue;
-                                    //}
-                                    archiveData[resAssetEntry2.Sha1].RefCount--;
-                                    if (archiveData[resAssetEntry2.Sha1].RefCount == 0)
-                                    {
-                                        archiveData.TryRemove(resAssetEntry2.Sha1, out _);
-                                    }
                                     modifiedRes.Remove(resource.Name);
+                                    if (archiveData.ContainsKey(resource.Sha1))
+                                        archiveData.TryRemove(resource.Sha1, out ArchiveInfo _);
+                                    
                                 }
-                                //byte[] resourceData3 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
                                 ResAssetEntry resAssetEntry3 = new ResAssetEntry();
                                 resource.FillAssetEntry(resAssetEntry3);
-                                //resAssetEntry3.Size = resourceData3.Length;
                                 resAssetEntry3.Size = resourceData.Length;
                                 modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
                                 if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
@@ -4645,31 +4636,8 @@ namespace paulv2k4ModdingExecuter
                         {
 
                             Guid guid = new Guid(resource.Name);
-                            if (resource.Name == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
-                            {
-
-                            }
-                            if (resource.Name == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
-                            {
-
-                            }
-
-
                             if (ModifiedChunks.ContainsKey(guid))
                             {
-                                //ChunkAssetEntry chunkAssetEntry2 = ModifiedChunks[guid];
-                                //if (chunkAssetEntry2.Sha1 == resource.Sha1)
-                                //{
-                                //    continue;
-                                //}
-                                //if (archiveData.ContainsKey(chunkAssetEntry2.Sha1))
-                                //{
-                                //    archiveData[chunkAssetEntry2.Sha1].RefCount--;
-                                //    if (archiveData[chunkAssetEntry2.Sha1].RefCount == 0)
-                                //    {
-                                //        archiveData.TryRemove(chunkAssetEntry2.Sha1, out _);
-                                //    }
-                                //}
                                 ModifiedChunks.Remove(guid);
                             }
                             ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
@@ -4696,7 +4664,6 @@ namespace paulv2k4ModdingExecuter
                             }
                             else
                             {
-                                //archiveData[chunkAssetEntry3.Sha1].RefCount++;
                                 archiveData[chunkAssetEntry3.Sha1].Data = resourceData;
                             }
                         }

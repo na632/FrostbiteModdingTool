@@ -204,7 +204,7 @@ namespace FrostySdk
 		/// <param name="filename"></param>
 		/// <param name="checkModData"></param>
 		/// <returns></returns>
-		public string ResolvePath(string filename, bool checkModData = false)
+		public string ResolvePath(string filename, bool checkModData = false, bool created = false)
 		{
 			filename = filename.Trim('/');
 			filename = filename.Replace("/", "\\");
@@ -230,7 +230,7 @@ namespace FrostySdk
 				resolvedPath = basePath + (checkModData ? "ModData\\" : "") + filename.Replace("native_patch", "Update\\Patch\\Data\\");
 			}
 
-			if (!File.Exists(resolvedPath))
+			if (!File.Exists(resolvedPath) && !created)
 				return string.Empty;
 
 			return resolvedPath;

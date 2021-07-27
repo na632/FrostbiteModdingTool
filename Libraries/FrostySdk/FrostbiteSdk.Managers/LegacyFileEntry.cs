@@ -169,8 +169,10 @@ namespace FrostySdk
             }
 		}
 
-        public long BatchOffset { get; internal set; }
+        //public long BatchOffset { get; internal set; }
         public long ChunkIdPosition { get; internal set; }
+
+		public long FileNameInBatchOffset { get; set; }
 
         public override void ClearModifications()
 		{
