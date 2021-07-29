@@ -464,7 +464,8 @@ namespace FIFA21Plugin
             {
                 var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
 
-                if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+                if ((modChunks.Value.ModifiedEntry == null || !modChunks.Value.ModifiedEntry.AddToChunkBundle)
+                    && originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                 {
                     if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
                     {
@@ -728,6 +729,8 @@ namespace FIFA21Plugin
                             nwCas.Position = nwCas.Length;
                             byte[] data = new byte[0];
                             AssetEntry originalEntry = modItem.OriginalEntry;
+                            if (originalEntry == null)
+                                continue;
 
                             if (modItem.NamePath.Contains("3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d"))
                             {
@@ -812,6 +815,7 @@ namespace FIFA21Plugin
                         }
 
                     }
+
 
                     if (EntriesToNewPosition == null)
                         continue;
@@ -1027,13 +1031,17 @@ namespace FIFA21Plugin
                     // read the changed toc file in ModData
                     tocSb.Read(location_toc_file_new, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
 
-                    //var catalog = tocSb.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
-                    
-                    var catalog = tocSb.TOCFile.TocChunks.Last().ExtraData.Catalog.Value;
+                    var patch = true;
+                    var catalog = tocSb.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
+                    //if (!tocSb.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
+                    //    patch = false;
+                    //else
+                    //    catalog = tocSb.TOCFile.TocChunks.Where(x=>x.ExtraData.IsPatch).Max(x => x.ExtraData.Catalog.Value);
+
+                    //var catalog = tocSb.TOCFile.TocChunks.Last().ExtraData.Catalog.Value;
                     //var cas = tocSb.TOCFile.TocChunks.Last().ExtraData.Cas.Value;
-                    var cas = tocSb.TOCFile.TocChunks.Max(x => x.ExtraData.Cas.Value);
+                    var cas = tocSb.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
                     //var casNext = tocSb.TOCFile.TocChunks.Max(x=> x.ExtraData.Cas.Value) + 1;
-                    var patch = tocSb.TOCFile.TocChunks.Last().ExtraData.IsPatch;
                     //var patch = directory == "native_patch";
                     var nextCasPath = FileSystem.Instance.GetFilePath(
                         catalog
@@ -1054,20 +1062,20 @@ namespace FIFA21Plugin
                                     && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
                                 if(chunkIndex != -1)
                                 {
+                                    var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                    //var data = parent.archiveData[modChunk.Value.ModifiedEntry.Sha1].Data;
+
                                     var chunkGuid = tocSb.TOCFile.TocChunkGuids[chunkIndex];
 
                                     var chunk = tocSb.TOCFile.TocChunks[chunkIndex];
                                     DbObject dboChunk = tocSb.TOCFile.TocChunkInfo[modChunk.Key];
-                                    //var resolvedCasPath = FileSystem.Instance.ResolvePath(chunk.ExtraData.CasPath, UseModData);
-                                    //var resolvedCasPath = FileSystem.Instance.ResolvePath(nextCasPath, UseModData);
 
-                                    //using (NativeWriter nw_cas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
                                     using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
                                     {
                                         nw_cas.Position = nw_cas.Length;
                                         var newPosition = nw_cas.Position;
 
-                                        var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                        
                                         nw_cas.WriteBytes(data);
 
                                         nw_toc.Position = dboChunk.GetValue<long>("patchPosition");
@@ -1079,8 +1087,8 @@ namespace FIFA21Plugin
                                         nw_toc.Write((uint)newPosition, Endian.Big);
 
                                         nw_toc.Position = chunk.SB_CAS_Size_Position;
-                                        //nw_toc.Write((uint)data.Length, Endian.Big);
-                                        nw_toc.Write((uint)modChunk.Value.ModifiedEntry.Size, Endian.Big);
+                                        nw_toc.Write((uint)data.Length, Endian.Big);
+                                        //nw_toc.Write((uint)modChunk.Value.ModifiedEntry.Size, Endian.Big);
                                     }
                                 }
                             }
@@ -1150,20 +1158,20 @@ namespace FIFA21Plugin
         {
             newCas = lastCas;
 
-            newCas++;
             string text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + (newCas).ToString("D2") + ".cas";
 
             var fiCas = new FileInfo(text);
-            do
+            while (fiCas.Exists && fiCas.Length > 1073741824)
             {
                 newCas++;
                 text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + (newCas).ToString("D2") + ".cas";
                 fiCas = new FileInfo(text);
-            } while (fiCas.Exists && fiCas.Length > 1073741824);
+            } 
 
             if (!FrostyModExecutor.UseModData)
                 text = text.Replace("ModData\\patch\\", "patch\\", StringComparison.OrdinalIgnoreCase);
 
+            fiCas = null;
             return text;
         }
     }

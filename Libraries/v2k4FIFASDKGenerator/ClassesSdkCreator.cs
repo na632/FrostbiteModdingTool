@@ -761,33 +761,9 @@ namespace SdkGenerator
                 default:
                     typeStr = "SdkGenerator.BaseInfo.ClassInfo";
                     break;
-                    //if (ProfilesLibrary.IsFIFA19DataVersion())
-                    //{
-                    //    typeStr = "SdkGenerator.Madden20.ClassInfo";
-                    //}
-                    //else if (ProfilesLibrary.DataVersion == 20190911)
-                    //{
-                    //    typeStr = "SdkGenerator.Madden20.ClassInfo";
-                    //}
-                    //else if (ProfilesLibrary.DisplayName.Contains("18"))
-                    //{
-                    //    typeStr = "SdkGenerator.FIFA18.ClassInfo";
-                    //}
-                    //else if (ProfilesLibrary.IsFIFA21DataVersion())
-                    //{
-                    //    typeStr = "SdkGenerator.FIFA21.ClassInfo";
-                    //    //typeStr = "SdkGenerator.Madden20.ClassInfo";
-                    //}
-                    //else if (ProfilesLibrary.IsMadden21DataVersion())
-                    //{
-                    //    typeStr = "SdkGenerator.Madden21.ClassInfo";
-                    //    //typeStr = "SdkGenerator.FIFA21.ClassInfo"; // Sort of works
-                    //}
+                
             }
-            //else if (ProfilesLibrary.DataVersion == 20191101)
-            //{
-            //    str = "FrostyEditor.Madden20.";
-            //}
+          
 
             // Find types to find out all is good
             //Assembly thisLibClasses = typeof(v2k4FIFASDKGenerator.ClassesSdkCreator).Assembly;

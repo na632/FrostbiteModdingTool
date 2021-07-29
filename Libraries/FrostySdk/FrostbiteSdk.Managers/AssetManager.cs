@@ -994,35 +994,35 @@ namespace FrostySdk.Managers
 			return superBundleEntry;
 		}
 
-		public EbxAssetEntry AddEbx(string name, EbxAsset asset, params int[] bundles)
-		{
-			string key = name.ToLower();
-			if (EBX.ContainsKey(key))
-			{
-				return EBX[key];
-			}
-			EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-			ebxAssetEntry.Name = name;
-			ebxAssetEntry.Guid = asset.FileGuid;
-			ebxAssetEntry.Type = asset.RootObject.GetType().Name;
-			ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-			using (EbxWriter ebxWriter = new EbxWriter(new MemoryStream()))
-			{
-				ebxWriter.WriteAsset(asset);
-				((MemoryStream)ebxWriter.BaseStream).ToArray();
-			}
-			ebxAssetEntry.ModifiedEntry.DataObject = asset;
-			ebxAssetEntry.ModifiedEntry.OriginalSize = 0L;
-			ebxAssetEntry.ModifiedEntry.Sha1 = Sha1.Zero;
-			ebxAssetEntry.ModifiedEntry.IsInline = false;
-			ebxAssetEntry.IsDirty = true;
-			ebxAssetEntry.IsAdded = true;
-			//EBX.Add(key, ebxAssetEntry);
-			EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
+		//public EbxAssetEntry AddEbx(string name, EbxAsset asset, params int[] bundles)
+		//{
+		//	string key = name.ToLower();
+		//	if (EBX.ContainsKey(key))
+		//	{
+		//		return EBX[key];
+		//	}
+		//	EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+		//	ebxAssetEntry.Name = name;
+		//	ebxAssetEntry.Guid = asset.FileGuid;
+		//	ebxAssetEntry.Type = asset.RootObject.GetType().Name;
+		//	ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+		//	using (EbxWriter ebxWriter = new EbxWriter(new MemoryStream()))
+		//	{
+		//		ebxWriter.WriteAsset(asset);
+		//		((MemoryStream)ebxWriter.BaseStream).ToArray();
+		//	}
+		//	ebxAssetEntry.ModifiedEntry.DataObject = asset;
+		//	ebxAssetEntry.ModifiedEntry.OriginalSize = 0L;
+		//	ebxAssetEntry.ModifiedEntry.Sha1 = Sha1.Zero;
+		//	ebxAssetEntry.ModifiedEntry.IsInline = false;
+		//	ebxAssetEntry.IsDirty = true;
+		//	ebxAssetEntry.IsAdded = true;
+		//	//EBX.Add(key, ebxAssetEntry);
+		//	EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
 
-			//ebxGuidList.TryAdd(ebxAssetEntry.Guid, ebxAssetEntry);
-			return ebxAssetEntry;
-		}
+		//	//ebxGuidList.TryAdd(ebxAssetEntry.Guid, ebxAssetEntry);
+		//	return ebxAssetEntry;
+		//}
 
 		public ResAssetEntry AddRes(string name, ResourceType resType, byte[] resMeta, byte[] buffer, params int[] bundles)
 		{

@@ -398,10 +398,7 @@ namespace FrostySdk
 		public DbObject LoadInitfs(byte[] key, bool patched = true)
 		{
 			DbObject dbObject = null;
-			//if (ProfilesLibrary.DataVersion != 20170321 && ProfilesLibrary.DataVersion != 20170929 && ProfilesLibrary.DataVersion != 20180914 && ProfilesLibrary.DataVersion != 20181207 && ProfilesLibrary.DataVersion != 20190911 && ProfilesLibrary.DataVersion != 20190905)
-			//{
-			//	return;
-			//}
+			
 			string text = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
 			if (text == "")
 			{
@@ -413,8 +410,7 @@ namespace FrostySdk
 			{
 				// Read the Object (encrypted)
 				dbObject = dbReader.ReadDbObject();
-				//if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905)
-				//{
+				
 					byte[] value = dbObject.GetValue<byte[]>("encrypted");
 				if (value != null)
 				{

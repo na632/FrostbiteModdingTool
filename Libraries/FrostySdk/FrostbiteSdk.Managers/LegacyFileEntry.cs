@@ -143,11 +143,6 @@ namespace FrostySdk
 		{
 			get
 			{
-                //if (HasModifiedData)
-                //{
-                //    return ModifiedEntry.Data.Length;
-                //}
-
                 return _size;
 			}
 			set
@@ -160,7 +155,6 @@ namespace FrostySdk
 		{
 			get
 			{
-                //if (LegacyFileManager.AssetManager.GetChunkEntry(ChunkId).IsDirty)
                 if (AssetManager.Instance.GetChunkEntry(ChunkId).IsDirty)
                 {
                     return true;
@@ -181,5 +175,14 @@ namespace FrostySdk
 				collectorInstance.ModifiedEntry = null;
 			}
 		}
-	}
+
+        public override string ToString()
+        {
+			if(Name != null)
+            {
+				return Name;
+            }
+            return base.ToString();
+        }
+    }
 }

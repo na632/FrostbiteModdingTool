@@ -88,9 +88,13 @@
                                                                     <MenuItem Header="Duplicate"
                                                                      x:Name="btnDuplicate" Tag="{Binding}"
                                                                               Click="btnDuplicate_Click" />
+                                                                    <MenuItem Header="Revert"
+                                                                     x:Name="btnCMRevert" Tag="{Binding}"
+                                                                              Click="btnRevert_Click" />
                                                                     <MenuItem Header="Delete"
                                                                      x:Name="btnDelete" Tag="{Binding}"
                                                                               Click="btnDelete_Click" IsEnabled="False" >
+                                                                       
                                                                         <MenuItem.ItemContainerStyle>
                                                                             <Style TargetType="MenuItem">
                                                                                 <Style.Triggers>

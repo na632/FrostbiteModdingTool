@@ -259,22 +259,22 @@ namespace FrostySdk.Resources
 					mipOffsets[1] = nativeReader.ReadUInt();
 					type = (TextureType)nativeReader.ReadUInt();
 					pixelFormat = nativeReader.ReadInt();
-					if (ProfilesLibrary.DataVersion == 20170321
-						|| ProfilesLibrary.DataVersion == 20160927
-						|| ProfilesLibrary.DataVersion == 20171117
-						|| ProfilesLibrary.DataVersion == 20170929
-						|| ProfilesLibrary.DataVersion == 20171110
-						|| ProfilesLibrary.DataVersion == 20180807
-						|| ProfilesLibrary.DataVersion == 20180914
-						|| ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20180628
-						|| ProfilesLibrary.IsMadden20DataVersion() // Madden 20
-						|| ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905
-						|| ProfilesLibrary.IsMadden21DataVersion()
-						|| ProfilesLibrary.IsFIFA21DataVersion()
-						)
-					{
+					//if (ProfilesLibrary.DataVersion == 20170321
+					//	|| ProfilesLibrary.DataVersion == 20160927
+					//	|| ProfilesLibrary.DataVersion == 20171117
+					//	|| ProfilesLibrary.DataVersion == 20170929
+					//	|| ProfilesLibrary.DataVersion == 20171110
+					//	|| ProfilesLibrary.DataVersion == 20180807
+					//	|| ProfilesLibrary.DataVersion == 20180914
+					//	|| ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20180628
+					//	|| ProfilesLibrary.IsMadden20DataVersion() // Madden 20
+					//	|| ProfilesLibrary.IsFIFA20DataVersion()
+					//	|| ProfilesLibrary.IsMadden21DataVersion()
+					//	|| ProfilesLibrary.IsFIFA21DataVersion()
+					//	)
+					//{
 						unknown1 = nativeReader.ReadUInt();
-					}
+					//}
 					flags = (TextureFlags)nativeReader.ReadUShort();
 				width = nativeReader.ReadUShort();
 				height = nativeReader.ReadUShort();
@@ -417,25 +417,9 @@ namespace FrostySdk.Resources
 				nativeWriter.Write(mipOffsets[1]);
 				nativeWriter.Write((uint)type);
 				nativeWriter.Write(pixelFormat);
-				if (ProfilesLibrary.DataVersion == 20170321
-					|| ProfilesLibrary.DataVersion == 20160927 
-					|| ProfilesLibrary.DataVersion == 20171117
-					|| ProfilesLibrary.DataVersion == 20170929
-					|| ProfilesLibrary.DataVersion == 20171110
-					|| ProfilesLibrary.DataVersion == 20180807
-					|| ProfilesLibrary.DataVersion == 20180914 
-					|| ProfilesLibrary.DataVersion == 20180628
-					|| ProfilesLibrary.IsMadden20DataVersion() 
-					|| ProfilesLibrary.DataVersion == 20190911
-					|| ProfilesLibrary.DataVersion == 20190905
-					|| ProfilesLibrary.IsFIFA20DataVersion()
-					|| ProfilesLibrary.IsMadden21DataVersion()
-					|| ProfilesLibrary.IsFIFA21DataVersion()
-
-					)
-				{
+				
 					nativeWriter.Write(unknown1);
-				}
+				
 				nativeWriter.Write((ushort)flags);
 				nativeWriter.Write(width);
 				nativeWriter.Write(height);

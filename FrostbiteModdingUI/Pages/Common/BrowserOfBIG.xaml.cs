@@ -123,10 +123,10 @@ namespace FMT.Pages.Common
 				}
 				finally
 				{
-					if (compressedFlag)
-					{
-						ArrayPool<byte>.Shared.Return(data);
-					}
+					//if (compressedFlag)
+					//{
+					//	ArrayPool<byte>.Shared.Return(data);
+					//}
 				}
 				nativeReader.Position = position;
 				list.Add(new BigFileEntry(text, offset, size, decompressedData, inType));

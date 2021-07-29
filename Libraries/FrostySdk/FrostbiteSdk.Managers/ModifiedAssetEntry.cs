@@ -132,5 +132,7 @@ namespace FrostySdk.Managers
 
 			}
 		}
-	}
+
+        public Guid? ChunkId { get; internal set; }
+    }
 }

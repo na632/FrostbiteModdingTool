@@ -736,7 +736,7 @@ namespace FrostySdk
 									ebxEntry.ModifiedEntry.IsTransientModified = isTransientModified;
 									ebxEntry.ModifiedEntry.UserData = userData;
 									EbxReader ebxReader = null;
-									if (ProfilesLibrary.DataVersion == 20190911 && num == 9)
+									if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
 										ebxReader = new EbxReaderV2(new MemoryStream(buffer), inPatched: false);
 									else
 										ebxReader = new EbxReader(new MemoryStream(buffer));

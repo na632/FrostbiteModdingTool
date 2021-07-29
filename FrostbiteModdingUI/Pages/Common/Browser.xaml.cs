@@ -252,10 +252,10 @@ namespace FIFAModdingUI.Pages.Common
 			// Gets Image Format from Extension //
 			TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.DDS;
 			imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
-			if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
-			{
-				MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!" + Environment.NewLine);
-			}
+			//if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
+			//{
+			//	MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!" + Environment.NewLine);
+			//}
 			// -------------------------------- //
 
 			MemoryStream memoryStream = (MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry);
@@ -329,8 +329,6 @@ namespace FIFAModdingUI.Pages.Common
 			try
 			{
 				
-
-				//var imageFilter = "Image files (*.DDS, *.PNG)|*.DDS;*.PNG";
 				var imageFilter = "Image files (*.dds, *.png)|*.dds;*.png";
 				if (SelectedLegacyEntry != null)
 				{
@@ -994,8 +992,8 @@ namespace FIFAModdingUI.Pages.Common
 
 								}
 
-								btnImport.IsEnabled = false;
-								btnExport.IsEnabled = false;
+								btnImport.IsEnabled = true;
+								btnExport.IsEnabled = true;
 								btnRevert.IsEnabled = true;
                             }
 								else

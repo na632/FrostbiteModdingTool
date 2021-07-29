@@ -359,8 +359,8 @@ namespace FrostbiteModdingTests
 
 
             AssetManager.Instance.ModifyLegacyAsset(@"dlc/dlc_FootballCompEng/dlc/FootballCompEng/data/Finance/ProfCWRelation.csv"
-                //, new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source lmod\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\Finance\ProfCWRelation.csv", FileMode.Open)).ReadToEnd()
-                , data
+                , new NativeReader(new FileStream(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Source lmod\dlc\dlc_FootballCompEng\dlc\FootballCompEng\data\Finance\ProfCWRelation.csv", FileMode.Open)).ReadToEnd()
+                //, data
                 , false
                 );
 
