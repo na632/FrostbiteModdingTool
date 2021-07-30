@@ -928,6 +928,7 @@ namespace FIFAModdingUI.Pages.Common
 							"INI",
 							"NAV",
 							"JSON",
+							"TXT",
 							"CSV"
 						};
 
