@@ -328,6 +328,24 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestLegacyMod_CM()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 5.fbproject");
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void TestLegacyMod_PlayerLUA()
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);

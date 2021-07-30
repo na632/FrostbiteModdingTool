@@ -556,11 +556,11 @@ namespace Frostbite.FileManagers
 			WriteAllLegacy();
 			//CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.Oodle;
 			//CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.ZStd;
-			CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.None;
+			//CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.None;
+			CompressionType compressionType = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Legacy);
 
-			ChunkBatch chunkBatch;
 			// get the chunk batch (the main batch with offsets etc)
-			chunkBatch = ChunkBatches.FirstOrDefault(x => x.ChunkAssetEntry.Id == chunkId);
+			ChunkBatch chunkBatch = ChunkBatches.FirstOrDefault(x => x.ChunkAssetEntry.Id == chunkId);
 			if (chunkBatch != null)
 			{
 

@@ -1033,8 +1033,8 @@ namespace FIFA21Plugin
 
                     var patch = true;
                     var catalog = tocSb.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
-                    //if (!tocSb.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
-                    //    patch = false;
+                    if (!tocSb.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
+                        patch = false;
                     //else
                     //    catalog = tocSb.TOCFile.TocChunks.Where(x=>x.ExtraData.IsPatch).Max(x => x.ExtraData.Catalog.Value);
 
@@ -1043,11 +1043,11 @@ namespace FIFA21Plugin
                     var cas = tocSb.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
                     //var casNext = tocSb.TOCFile.TocChunks.Max(x=> x.ExtraData.Cas.Value) + 1;
                     //var patch = directory == "native_patch";
-                    var nextCasPath = FileSystem.Instance.GetFilePath(
-                        catalog
-                        , cas
-                        , patch);
-                    nextCasPath = GetNextCasInCatalog(catalogInfo, cas, out int newCas);
+                    //var nextCasPath = FileSystem.Instance.GetFilePath(
+                    //    catalog
+                    //    , cas
+                    //    , patch);
+                    var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
 
                     //ProcessAddedTOCChunk(tocSb, location_toc_file_new, catalog, (ushort)newCas, patch);
 
@@ -1154,22 +1154,24 @@ namespace FIFA21Plugin
             }
         }
 
-        private string GetNextCasInCatalog(Catalog catalogInfo, int lastCas, out int newCas)
+        private string GetNextCasInCatalog(Catalog catalogInfo, int lastCas, bool patch, out int newCas)
         {
-            newCas = lastCas;
+            newCas = lastCas + 1;
+            //newCas = lastCas;
+            string stub = parent.fs.BasePath + $"ModData\\{(patch ? "Patch" : "Data")}\\" + catalogInfo.Name + "\\cas_";
 
-            string text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + (newCas).ToString("D2") + ".cas";
+            string text = stub + (newCas).ToString("D2") + ".cas";
 
             var fiCas = new FileInfo(text);
             while (fiCas.Exists && fiCas.Length > 1073741824)
             {
                 newCas++;
-                text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + (newCas).ToString("D2") + ".cas";
+                text = parent.fs.BasePath + stub + (newCas).ToString("D2") + ".cas";
                 fiCas = new FileInfo(text);
             } 
 
             if (!FrostyModExecutor.UseModData)
-                text = text.Replace("ModData\\patch\\", "patch\\", StringComparison.OrdinalIgnoreCase);
+                text = text.Replace("ModData", "", StringComparison.OrdinalIgnoreCase);
 
             fiCas = null;
             return text;

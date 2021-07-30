@@ -259,6 +259,8 @@ namespace FIFAModdingUI.Pages.Common
 			// -------------------------------- //
 
 			MemoryStream memoryStream = (MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry);
+			var bytes = memoryStream.ToArray();
+
 			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
 			if (imageFormat == TextureUtils.ImageFormat.DDS)
 			{
@@ -267,7 +269,7 @@ namespace FIFAModdingUI.Pages.Common
 			else
 			{
 				//DDSImage originalImage = new DDSImage();
-				ImageEngineImage originalImage = new ImageEngineImage(memoryStream.ToArray());
+				ImageEngineImage originalImage = new ImageEngineImage(bytes);
 
 				ImageEngineImage imageEngineImage = new ImageEngineImage(importFilePath);
 				//var imageBytes = imageEngineImage.Save(
@@ -275,47 +277,37 @@ namespace FIFAModdingUI.Pages.Common
 				//	, MipHandling.KeepTopOnly
 				//	, removeAlpha: false);
 
-				var imageBytes = imageEngineImage.Save(
-					new ImageFormats.ImageEngineFormatDetails(
-						ImageEngineFormat.DDS_DXT1
-						, originalImage.FormatDetails.DX10Format)
-					, MipHandling.KeepTopOnly
-					, removeAlpha: false);
+				if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT5
+							, originalImage.FormatDetails.DX10Format)
+						, MipHandling.KeepTopOnly
+						, removeAlpha: false);
+				}
+				else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT3
+							, originalImage.FormatDetails.DX10Format)
+						, MipHandling.KeepTopOnly
+						, removeAlpha: false);
+				}
+				else
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT1
+							, originalImage.FormatDetails.DX10Format)
+						, MipHandling.KeepTopOnly
+						, removeAlpha: false);
+				}
 
-				memoryStream = new MemoryStream(imageBytes);
             }
 
-			//if (imageFormat != TextureUtils.ImageFormat.DDS)
-			//{
-			//	memoryStream = new MemoryStream(pOutData.Data);
-			//}
-
-			//if (!Directory.Exists("Debugging"))
-			//	Directory.CreateDirectory("Debugging");
-
-			//if (!Directory.Exists("Debugging\\Other\\"))
-			//	Directory.CreateDirectory("Debugging\\Other\\");
-
-			//using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureImport.dat", FileMode.OpenOrCreate))
-			//{
-			//	memoryStream.CopyTo(fileStream);
-			//	fileStream.Flush();
-			//}
-			memoryStream.Position = 0;
-
-
-			//using (NativeReader nativeReader = new NativeReader(memoryStream))
-			//{
-			//	//TextureUtils.DDSHeader dDSHeader = new TextureUtils.DDSHeader();
-			//	//if (dDSHeader.Read(nativeReader))
-			//	//{
-
-			//	//}
-
-				//byte[] textureArray = new byte[nativeReader.Length - nativeReader.Position];
-				//nativeReader.Read(textureArray, 0, (int)(nativeReader.Length - nativeReader.Position));
-				AssetManager.Instance.ModifyLegacyAsset(lfe.Name, memoryStream.ToArray(), false);
-			//}
+			AssetManager.Instance.ModifyLegacyAsset(lfe.Name, bytes, false);
 
 		}
 
