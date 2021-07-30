@@ -295,11 +295,20 @@ namespace FIFAModdingUI.Pages.Common
 						, MipHandling.KeepTopOnly
 						, removeAlpha: false);
 				}
-				else
+				else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
 				{
 					bytes = imageEngineImage.Save(
 						new ImageFormats.ImageEngineFormatDetails(
 							ImageEngineFormat.DDS_DXT1
+							, originalImage.FormatDetails.DX10Format)
+						, MipHandling.KeepTopOnly
+						, removeAlpha: false);
+				}
+				else
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							originalImage.Format
 							, originalImage.FormatDetails.DX10Format)
 						, MipHandling.KeepTopOnly
 						, removeAlpha: false);
@@ -532,7 +541,7 @@ namespace FIFAModdingUI.Pages.Common
 				SaveFileDialog saveFileDialog = new SaveFileDialog();
 				var filt = "*." + SelectedLegacyEntry.Type;
 				if(SelectedLegacyEntry.Type == "DDS")
-					saveFileDialog.Filter = "Image files (*.dds,*.png)|*.dds;*.png;";
+					saveFileDialog.Filter = "Image files (*.png,*.dds)|*.png;*.dds;";
 				else
 					saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
 				
@@ -540,12 +549,9 @@ namespace FIFAModdingUI.Pages.Common
 
 				if (saveFileDialog.ShowDialog().Value)
 				{
-					var legacyData = (MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry);
+					var legacyData = ((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ToArray();
 					if (SelectedLegacyEntry.Type == "DDS" && saveFileDialog.FileName.Contains("PNG", StringComparison.OrdinalIgnoreCase))
 					{
-						//DDSImage image = new DDSImage(legacyData);
-						//image.Save(saveFileDialog.FileName);
-
 						ImageEngineImage originalImage = new ImageEngineImage(legacyData);
 
 						var imageBytes = originalImage.Save(
@@ -561,8 +567,17 @@ namespace FIFAModdingUI.Pages.Common
 						//DDSImage2 image2 = new DDSImage2(legacyData.ToArray());
 						//File.WriteAllBytes(saveFileDialog.FileName, image2.GetTextureData());
 
-						await legacyData.CopyToAsync(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate));
+						//await legacyData.CopyToAsync(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate));
+						//await File.WriteAllBytesAsync(saveFileDialog.FileName, legacyData);
+
 						//await File.WriteAllBytesAsync(saveFileDialog.FileName, pOutData.Data);
+
+						ImageEngineImage originalImage = new ImageEngineImage(legacyData);
+
+						await originalImage.Save(saveFileDialog.FileName
+							, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.DDS_DXT5)
+							, GenerateMips: MipHandling.KeepExisting
+							, removeAlpha: false);
 					}
 					MainEditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveFileDialog.FileName}");
 				}
