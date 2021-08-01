@@ -562,8 +562,8 @@ namespace FIFAModdingUI.Pages.Common
 
 						await File.WriteAllBytesAsync(saveFileDialog.FileName, imageBytes);
 					}
-					else
-                    {
+					else if (SelectedLegacyEntry.Type == "DDS" && saveFileDialog.FileName.Contains("PNG", StringComparison.OrdinalIgnoreCase))
+					{
 						//DDSImage2 image2 = new DDSImage2(legacyData.ToArray());
 						//File.WriteAllBytes(saveFileDialog.FileName, image2.GetTextureData());
 
@@ -578,6 +578,10 @@ namespace FIFAModdingUI.Pages.Common
 							, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.DDS_DXT5)
 							, GenerateMips: MipHandling.KeepExisting
 							, removeAlpha: false);
+					}
+					else
+                    {
+						await File.WriteAllBytesAsync(saveFileDialog.FileName, legacyData);
 					}
 					MainEditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveFileDialog.FileName}");
 				}

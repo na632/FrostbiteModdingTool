@@ -300,7 +300,7 @@ namespace FrostySdk
 					break;
 			}
 
-			switch(cf_text)
+			switch(cf_text.ToUpper())
             {
 				case "ZSTD":
 					return CompressionType.ZStd;
