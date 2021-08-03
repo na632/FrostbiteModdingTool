@@ -334,7 +334,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 5.fbproject");
             //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 6.fbproject");
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 6.1.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 6.2.fbproject");
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());

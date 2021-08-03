@@ -27,6 +27,19 @@ namespace FrostySdk.Managers
 
 		public bool IsTocChunk { get; set; }
 
+		public Guid? DuplicatedFromId 
+		{ 
+			get 
+			{ 
+				if(!string.IsNullOrEmpty(DuplicatedFromName))
+                {
+					return Guid.Parse(DuplicatedFromName);
+                }
+
+				return null;
+			} 
+		}
+
 		public override string Name => Id.ToString();
 
 		public override string Type => "Chunk";

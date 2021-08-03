@@ -2298,6 +2298,28 @@ namespace FrostySdk.Managers
 			}
 		}
 
+		public static MemoryStream CacheDecompress()
+        {
+			// Decompress the Cache File into a Memory Stream
+			Ionic.Zip.ZipFile zipCache = Ionic.Zip.ZipFile.Read(ApplicationDirectory + FileSystem.Instance.CacheName + ".cache");
+			Ionic.Zip.ZipEntry zipCacheEntry = zipCache.Entries.First();
+			var msCache = new MemoryStream();
+			zipCacheEntry.Extract(msCache);
+			msCache.Seek(0, SeekOrigin.Begin);
+			return msCache;
+		}
+
+		public static void CacheCompress(MemoryStream msCache)
+		{
+			msCache.Seek(0, SeekOrigin.Begin);
+			// Compress the Cache File into a Memory Stream
+			Ionic.Zip.ZipFile zipCache = new Ionic.Zip.ZipFile(ApplicationDirectory + FileSystem.Instance.CacheName + ".cache");
+			if (zipCache.ContainsEntry("cacheEntry"))
+				zipCache.RemoveEntry("cacheEntry");
+			zipCache.AddEntry("cacheEntry", msCache);
+			zipCache.Save();
+		}
+
 		private bool ReadFromCache(out List<EbxAssetEntry> prePatchCache)
 		{
 			prePatchCache = null;
@@ -2314,8 +2336,10 @@ namespace FrostySdk.Managers
 				return resultFromPlugin;
 			}
 
-			bool flag = false;
-			using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+
+            bool flag = false;
+			//using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+			using (NativeReader nativeReader = new NativeReader(CacheDecompress()))
 			{
 				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
 					return false;
@@ -2345,11 +2369,11 @@ namespace FrostySdk.Managers
 					}
 				}
 				count = nativeReader.ReadInt();
-                if (!ProfilesLibrary.IsFIFA21DataVersion() && count == 0)
-                {
-                    return false;
-                }
-                for (int j = 0; j < count; j++)
+				if (!ProfilesLibrary.IsFIFA21DataVersion() && count == 0)
+				{
+					return false;
+				}
+				for (int j = 0; j < count; j++)
 				{
 					BundleEntry bundleEntry = new BundleEntry();
 					bundleEntry.Name = nativeReader.ReadNullTerminatedString();
@@ -2406,9 +2430,12 @@ namespace FrostySdk.Managers
 						ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
 						ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
 						ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+
+						ebxAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
+
 					}
-     //               if (ProfilesLibrary.IsMadden21DataVersion())
-     //               {
+					//               if (ProfilesLibrary.IsMadden21DataVersion())
+					//               {
 					//	ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
 					//	ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
 					//}
@@ -2424,83 +2451,86 @@ namespace FrostySdk.Managers
 				count = nativeReader.ReadInt();
 				for (int n = 0; n < count; n++)
 				{
-					ResAssetEntry resAssetEntry = new ResAssetEntry();
-					resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
-					resAssetEntry.Sha1 = nativeReader.ReadSha1();
-					resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
-					resAssetEntry.Size = nativeReader.ReadLong();
-					resAssetEntry.OriginalSize = nativeReader.ReadLong();
-					resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-					resAssetEntry.IsInline = nativeReader.ReadBoolean();
-					resAssetEntry.ResRid = nativeReader.ReadULong();
-					resAssetEntry.ResType = nativeReader.ReadUInt();
-					resAssetEntry.ResMeta = nativeReader.ReadBytes(nativeReader.ReadInt());
-					if (nativeReader.ReadBoolean())
-					{
-						resAssetEntry.ExtraData = new AssetExtraData();
-						resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
-						resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-						resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-						resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-					}
+                    //ResAssetEntry resAssetEntry = JsonConvert.DeserializeObject<ResAssetEntry>(nativeReader.ReadLengthPrefixedString());
+                    //RES.Add(resAssetEntry.Name, resAssetEntry);
+                    //               if (resAssetEntry.ResRid != 0L)
+                    //               {
+                    //                   if (!resRidList.ContainsKey(resAssetEntry.ResRid))
+                    //                       resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+                    //               }
+
+                    ResAssetEntry resAssetEntry = new ResAssetEntry();
+                    resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
+                    resAssetEntry.Sha1 = nativeReader.ReadSha1();
+                    resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
+                    resAssetEntry.Size = nativeReader.ReadLong();
+                    resAssetEntry.OriginalSize = nativeReader.ReadLong();
+                    resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
+                    resAssetEntry.IsInline = nativeReader.ReadBoolean();
+                    resAssetEntry.ResRid = nativeReader.ReadULong();
+                    resAssetEntry.ResType = nativeReader.ReadUInt();
+                    resAssetEntry.ResMeta = nativeReader.ReadBytes(nativeReader.ReadInt());
+                    if (nativeReader.ReadBoolean())
+                    {
+                        resAssetEntry.ExtraData = new AssetExtraData();
+                        resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
+                        resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
+                        resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
+                        resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
+                        resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+                        resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+                    }
                     if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
                     {
-						if (nativeReader.ReadBoolean())
-							resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+                        if (nativeReader.ReadBoolean())
+                            resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+                        if (nativeReader.ReadBoolean())
+                            resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+                        if (nativeReader.ReadBoolean())
+                            resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-						resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+                        resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
                         resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
                         resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
                         resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+
+						resAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
                     }
-					if (ProfilesLibrary.IsMadden21DataVersion())
-					{
-						resAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-						resAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-					}
 
+                    int num3 = nativeReader.ReadInt();
+                    for (int num4 = 0; num4 < num3; num4++)
+                    {
+                        resAssetEntry.Bundles.Add(nativeReader.ReadInt());
+                    }
 
-
-					int num3 = nativeReader.ReadInt();
-					for (int num4 = 0; num4 < num3; num4++)
-					{
-						resAssetEntry.Bundles.Add(nativeReader.ReadInt());
-					}
-					
-					if (!flag || (CacheUpdate && resAssetEntry.ExtraData.CasPath.Contains("native_data", StringComparison.OrdinalIgnoreCase)))
-					{
-						RES.Add(resAssetEntry.Name, resAssetEntry);
-						if (resAssetEntry.ResRid != 0L)
-						{
-							if(!resRidList.ContainsKey(resAssetEntry.ResRid))
-								resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-						}
-					}
-				}
+                    if (!flag || (CacheUpdate && resAssetEntry.ExtraData.CasPath.Contains("native_data", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        RES.Add(resAssetEntry.Name, resAssetEntry);
+                        if (resAssetEntry.ResRid != 0L)
+                        {
+                            if (!resRidList.ContainsKey(resAssetEntry.ResRid))
+                                resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+                        }
+                    }
+                }
 				count = nativeReader.ReadInt();
 				for (int num5 = 0; num5 < count; num5++)
-                {
-                    ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-                    if (!flag)
+				{
+					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+					if (!flag)
 					{
-                        if (Chunks.ContainsKey(chunkAssetEntry.Id))
-                        {
-                            //chunkList.Remove(chunkAssetEntry.Id);
-                            Chunks.TryRemove(chunkAssetEntry.Id, out _);
-                        }
-                        //chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-                        Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
+						if (Chunks.ContainsKey(chunkAssetEntry.Id))
+						{
+							//chunkList.Remove(chunkAssetEntry.Id);
+							Chunks.TryRemove(chunkAssetEntry.Id, out _);
+						}
+						//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
+						Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
 						var entryAfter = Chunks[chunkAssetEntry.Id];
 						//if(chunkAssetEntry.Id.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
-      //                  {
+						//                  {
 
-      //                  }
+						//                  }
 
 						if (chunkAssetEntry.Id.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")
 						{
@@ -2513,28 +2543,28 @@ namespace FrostySdk.Managers
 
 						}
 
-						if(chunkAssetEntry.Id.ToString() == "2912b9ae-d22c-ac5a-9ff8-f81cf792c23d")
-                        {
+						if (chunkAssetEntry.Id.ToString() == "2912b9ae-d22c-ac5a-9ff8-f81cf792c23d")
+						{
 
-                        }
+						}
 					}
 				}
 
 				var ChunkListDupCount = nativeReader.ReadInt();
-                for (int cnklistindex = 0; cnklistindex < ChunkListDupCount; cnklistindex++)
-                {
-                    var chunkDupGuid = nativeReader.ReadGuid();
-                    var chunkDupCount = nativeReader.ReadInt();
+				for (int cnklistindex = 0; cnklistindex < ChunkListDupCount; cnklistindex++)
+				{
+					var chunkDupGuid = nativeReader.ReadGuid();
+					var chunkDupCount = nativeReader.ReadInt();
 
 					var lstOfChunks = new List<ChunkAssetEntry>();
-                    for (var chunkDupValueIndex = 0; chunkDupValueIndex < chunkDupCount; chunkDupValueIndex++)
-                    {
+					for (var chunkDupValueIndex = 0; chunkDupValueIndex < chunkDupCount; chunkDupValueIndex++)
+					{
 						lstOfChunks.Add(ReadChunkFromCache(nativeReader));
-                    }
+					}
 					ChunkListDuplicates.Add(chunkDupGuid, lstOfChunks);
 
 				}
-            }
+			}
 
 			AssetManager.Instance = this;
 			return !flag;
@@ -2542,6 +2572,7 @@ namespace FrostySdk.Managers
 
         private ChunkAssetEntry ReadChunkFromCache(NativeReader nativeReader)
         {
+            //ChunkAssetEntry chunkAssetEntry = JsonConvert.DeserializeObject<ChunkAssetEntry>(nativeReader.ReadLengthPrefixedString());
             ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
             chunkAssetEntry.Id = nativeReader.ReadGuid();
             chunkAssetEntry.Sha1 = nativeReader.ReadSha1();
@@ -2566,11 +2597,8 @@ namespace FrostySdk.Managers
                 chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
                 chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
             }
-			//else
-			//{
-			//	throw new Exception("No Extra Data!");
-			//}
-			if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+
+            if (ProfilesLibrary.IsFIFA21DataVersion() )
             {
                 if (nativeReader.ReadBoolean())
                     chunkAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
@@ -2587,12 +2615,12 @@ namespace FrostySdk.Managers
 
                 chunkAssetEntry.SB_LogicalOffset_Position = nativeReader.ReadUInt();
                 chunkAssetEntry.SB_LogicalSize_Position = nativeReader.ReadUInt();
-            }
-			if (ProfilesLibrary.IsMadden21DataVersion())
-			{
-				chunkAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-				chunkAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+
+				chunkAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
+
 			}
+
+
 			int chunkBundleCount = nativeReader.ReadInt();
             for (int chunkIndez = 0; chunkIndez < chunkBundleCount; chunkIndez++)
             {
@@ -2605,40 +2633,40 @@ namespace FrostySdk.Managers
 
 
         private void WriteToCache()
-		{
-			if(!string.IsNullOrEmpty(ProfilesLibrary.CacheWriter))
+        {
+            if (!string.IsNullOrEmpty(ProfilesLibrary.CacheWriter))
             {
-				((ICacheWriter)LoadTypeFromPlugin(ProfilesLibrary.CacheWriter)).Write();
-				return;
-			}
+                ((ICacheWriter)LoadTypeFromPlugin(ProfilesLibrary.CacheWriter)).Write();
+                return;
+            }
 
-			var msCache = new MemoryStream();
-			//using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
-			using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
-			{
-				nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
-				nativeWriter.Write(fs.Head);
-				if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-				{
-					nativeWriter.Write(0);
-				}
-				else
-				{
-					nativeWriter.Write(superBundles.Count);
-					foreach (SuperBundleEntry superBundle in superBundles)
-					{
-						nativeWriter.WriteNullTerminatedString(superBundle.Name);
-					}
-				}
-				nativeWriter.Write(bundles.Count);
-				foreach (BundleEntry bundle in bundles)
-				{
-					nativeWriter.WriteNullTerminatedString(bundle.Name);
-					nativeWriter.Write(bundle.SuperBundleId);
-				}
-				nativeWriter.Write(EBX.Values.Count);
-				foreach (EbxAssetEntry ebxEntry in EBX.Values)
-				{
+            var msCache = new MemoryStream();
+            //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
+            using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
+            {
+                nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
+                nativeWriter.Write(fs.Head);
+                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+                {
+                    nativeWriter.Write(0);
+                }
+                else
+                {
+                    nativeWriter.Write(superBundles.Count);
+                    foreach (SuperBundleEntry superBundle in superBundles)
+                    {
+                        nativeWriter.WriteNullTerminatedString(superBundle.Name);
+                    }
+                }
+                nativeWriter.Write(bundles.Count);
+                foreach (BundleEntry bundle in bundles)
+                {
+                    nativeWriter.WriteNullTerminatedString(bundle.Name);
+                    nativeWriter.Write(bundle.SuperBundleId);
+                }
+                nativeWriter.Write(EBX.Values.Count);
+                foreach (EbxAssetEntry ebxEntry in EBX.Values)
+                {
                     //var ebxJson = JsonConvert.SerializeObject(ebxEntry);
                     //nativeWriter.WriteLengthPrefixedString(ebxJson);
                     nativeWriter.WriteSizedString(ebxEntry.Name);
@@ -2670,7 +2698,7 @@ namespace FrostySdk.Managers
                         nativeWriter.Write(item);
                     }
 
-                    if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+                    if (ProfilesLibrary.IsFIFA21DataVersion())
                     {
                         nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
                         if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
@@ -2687,17 +2715,18 @@ namespace FrostySdk.Managers
                         nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
                         nativeWriter.Write(ebxEntry.SB_Sha1_Position);
                         nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
-                    }
-                    if (ProfilesLibrary.IsMadden21DataVersion())
-                    {
-                        nativeWriter.Write(ebxEntry.ParentBundleOffset);
-                        nativeWriter.Write(ebxEntry.ParentBundleSize);
-                    }
+
+						nativeWriter.WriteLengthPrefixedString(ebxEntry.DuplicatedFromName);
+
+					}
 
                 }
-				nativeWriter.Write(RES.Values.Count);
-				foreach (ResAssetEntry resEntry in RES.Values)
-				{
+
+                nativeWriter.Write(RES.Values.Count);
+                foreach (ResAssetEntry resEntry in RES.Values)
+                {
+                    //var resJson = JsonConvert.SerializeObject(resEntry);
+                    //nativeWriter.WriteLengthPrefixedString(resJson);
 
                     nativeWriter.WriteLengthPrefixedString(resEntry.Name);
                     nativeWriter.Write(resEntry.Sha1);
@@ -2719,7 +2748,7 @@ namespace FrostySdk.Managers
                         nativeWriter.Write(resEntry.ExtraData.IsPatch);
                         nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
                     }
-                    if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+                    if (ProfilesLibrary.IsFIFA21DataVersion())
                     {
                         nativeWriter.Write(!string.IsNullOrEmpty(resEntry.SBFileLocation));
                         if (!string.IsNullOrEmpty(resEntry.SBFileLocation))
@@ -2736,8 +2765,11 @@ namespace FrostySdk.Managers
                         nativeWriter.Write(resEntry.SB_CAS_Size_Position);
                         nativeWriter.Write(resEntry.SB_Sha1_Position);
                         nativeWriter.Write(resEntry.SB_OriginalSize_Position);
-                    }
-                    if (ProfilesLibrary.IsMadden21DataVersion())
+
+						nativeWriter.WriteLengthPrefixedString(resEntry.DuplicatedFromName);
+
+					}
+					if (ProfilesLibrary.IsMadden21DataVersion())
                     {
                         nativeWriter.Write(resEntry.ParentBundleOffset);
                         nativeWriter.Write(resEntry.ParentBundleSize);
@@ -2749,8 +2781,8 @@ namespace FrostySdk.Managers
                         nativeWriter.Write(bundle3);
                     }
                 }
-				nativeWriter.Write(Chunks.Count);
-				foreach (ChunkAssetEntry chunkEntry in Chunks.Values)
+                nativeWriter.Write(Chunks.Count);
+                foreach (ChunkAssetEntry chunkEntry in Chunks.Values)
                 {
                     WriteChunkToCache(nativeWriter, chunkEntry);
 
@@ -2762,23 +2794,27 @@ namespace FrostySdk.Managers
                     nativeWriter.Write(grp.Value.Count);
                     foreach (var chunkEntry in grp.Value)
                     {
-						WriteChunkToCache(nativeWriter, chunkEntry);
+                        WriteChunkToCache(nativeWriter, chunkEntry);
                     }
                 }
             }
 
-			using (NativeWriter nativeWriter = new NativeWriter(new FileStream(ApplicationDirectory + fs.CacheName + ".cache", FileMode.Create)))
-            {
-				nativeWriter.WriteBytes(msCache.ToArray());
-				nativeWriter.Flush();
-            }
+            //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(ApplicationDirectory + fs.CacheName + ".cache", FileMode.Create)))
+            //         {
+            //	nativeWriter.WriteBytes(msCache.ToArray());
+            //	nativeWriter.Flush();
+            //         }
 
-			msCache.Close();
-			msCache.Dispose();
+            CacheCompress(msCache);
 
-		}
+            msCache.Close();
+            msCache.Dispose();
 
-		public static string ApplicationDirectory
+        }
+
+       
+
+        public static string ApplicationDirectory
 		{
 			get
 			{
@@ -2812,11 +2848,8 @@ namespace FrostySdk.Managers
                 nativeWriter.Write(chunkEntry.ExtraData.IsPatch);
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.ExtraData.CasPath);
             }
-			//else
-   //         {
-			//	throw new Exception("No Extra Data!");
-   //         }
-            if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+           
+            if (ProfilesLibrary.IsFIFA21DataVersion())
             {
                 nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.SBFileLocation));
                 if (!string.IsNullOrEmpty(chunkEntry.SBFileLocation))
@@ -2836,16 +2869,11 @@ namespace FrostySdk.Managers
 
                 nativeWriter.Write(chunkEntry.SB_LogicalOffset_Position);
                 nativeWriter.Write(chunkEntry.SB_LogicalSize_Position);
-            }
-            if (ProfilesLibrary.IsMadden21DataVersion())
-            {
-                nativeWriter.Write(chunkEntry.ParentBundleOffset);
-                nativeWriter.Write(chunkEntry.ParentBundleSize);
-            }
-			if(chunkEntry.Id.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
-            {
 
-            }
+				nativeWriter.WriteLengthPrefixedString(chunkEntry.DuplicatedFromName);
+
+			}
+
             nativeWriter.Write(chunkEntry.Bundles.Count);
             foreach (int bundle in chunkEntry.Bundles)
             {

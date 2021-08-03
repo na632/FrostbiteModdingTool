@@ -13,8 +13,10 @@ namespace Madden21Plugin.Cache
     {
         public void Write()
         {
+            MemoryStream msCache = new MemoryStream();
             FileSystem fs = AssetManager.Instance.fs;
-            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
+            //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
+            using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
                 nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
                 nativeWriter.Write(fs.Head);
@@ -61,23 +63,23 @@ namespace Madden21Plugin.Cache
                         nativeWriter.Write(item);
                     }
 
-                        //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
-                        //if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
-                        //    nativeWriter.WriteLengthPrefixedString(ebxEntry.SBFileLocation);
-                        //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
-                        //if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
-                        //    nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
+                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
+                    //if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
+                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.SBFileLocation);
+                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
+                    //if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
+                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
 
-                        //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
-                        //if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
-                        //    nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
+                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
+                    //if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
+                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
 
-                        //nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
-                        //nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
-                        //nativeWriter.Write(ebxEntry.SB_Sha1_Position);
-                        //nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
-                        //nativeWriter.Write(ebxEntry.ParentBundleOffset);
-                        //nativeWriter.Write(ebxEntry.ParentBundleSize);
+                    //nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
+                    //nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
+                    //nativeWriter.Write(ebxEntry.SB_Sha1_Position);
+                    //nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
+                    //nativeWriter.Write(ebxEntry.ParentBundleOffset);
+                    //nativeWriter.Write(ebxEntry.ParentBundleSize);
                     //nativeWriter.WriteLengthPrefixedString(ebxEntry.Bundle);
 
 
@@ -131,7 +133,7 @@ namespace Madden21Plugin.Cache
                         nativeWriter.Write(bundle3);
                     }
 
-                    
+
                 }
 
                 nativeWriter.Write(AssetManager.Instance.Chunks.Count);
@@ -148,6 +150,8 @@ namespace Madden21Plugin.Cache
                 }
 
             }
+
+            AssetManager.CacheCompress(msCache);
         }
 
         private void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)

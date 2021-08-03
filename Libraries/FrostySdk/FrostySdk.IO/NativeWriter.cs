@@ -276,8 +276,15 @@ namespace FrostySdk.IO
 		}
 		public void WriteLengthPrefixedString(string str)
 		{
-			Write7BitEncodedInt(str.Length);
-			WriteString(str);
+			if (string.IsNullOrEmpty(str) || str.Length == 0)
+			{
+				Write7BitEncodedInt(0);
+			}
+			else
+			{
+				Write7BitEncodedInt(str.Length);
+				WriteString(str);
+			}
 		}
 
 		public void WriteFixedSizedString(string str, int size)

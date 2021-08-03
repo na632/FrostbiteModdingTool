@@ -155,7 +155,8 @@ namespace FIFAModdingUI.Windows
                     byte[] key = KeyManager.Instance.GetKey("Key1");
                     FileSystem.Initialize(key, patched);
 
-                    using (NativeReader nativeReader = new NativeReader(new FileStream(ProfilesLibrary.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+                    //using (NativeReader nativeReader = new NativeReader(new FileStream(ProfilesLibrary.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+                    using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
                     {
                         if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
                         {

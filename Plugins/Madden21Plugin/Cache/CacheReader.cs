@@ -16,7 +16,8 @@ namespace Madden21Plugin.Cache
         {
 			var fs = AssetManager.Instance.fs;
 			bool flag = false;
-			using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+			//using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+			using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
 			{
 				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
 					return false;
@@ -91,25 +92,25 @@ namespace Madden21Plugin.Cache
 					{
 						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
 					}
-						//if (nativeReader.ReadBoolean())
-						//	ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-						//if (nativeReader.ReadBoolean())
-						//	ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-						//if (nativeReader.ReadBoolean())
-						//	ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+					//if (nativeReader.ReadBoolean())
+					//	ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+					//if (nativeReader.ReadBoolean())
+					//	ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+					//if (nativeReader.ReadBoolean())
+					//	ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-						//ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-						//ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-						//ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-						//ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-						//ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-						//ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+					//ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+					//ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+					//ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+					//ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+					//ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
+					//ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
 					//ebxAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
 
 					if (flag)
 					{
 						ebxAssetEntry.Guid = guid;
-						
+
 					}
 					else
 					{
@@ -140,19 +141,19 @@ namespace Madden21Plugin.Cache
 						resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
 						resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 					}
-						if (nativeReader.ReadBoolean())
-							resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+					if (nativeReader.ReadBoolean())
+						resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+					if (nativeReader.ReadBoolean())
+						resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+					if (nativeReader.ReadBoolean())
+						resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-						resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-						resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-						resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-						resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-						resAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-						resAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+					resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+					resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+					resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+					resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+					resAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
+					resAssetEntry.ParentBundleSize = nativeReader.ReadInt();
 					//resAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
 
 
@@ -165,12 +166,12 @@ namespace Madden21Plugin.Cache
 
 
 					AssetManager.Instance.RES.Add(resAssetEntry.Name, resAssetEntry);
-						if (resAssetEntry.ResRid != 0L)
-						{
-							if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
+					if (resAssetEntry.ResRid != 0L)
+					{
+						if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
 							AssetManager.Instance.resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-						}
-					
+					}
+
 				}
 
 				// ------------------------------------------------------------------------
@@ -179,8 +180,8 @@ namespace Madden21Plugin.Cache
 				for (int num5 = 0; num5 < count; num5++)
 				{
 					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-                    AssetManager.Instance.AddChunk(chunkAssetEntry);
-                }
+					AssetManager.Instance.AddChunk(chunkAssetEntry);
+				}
 
 				// ------------------------------------------------------------------------
 				// Chunks in Bundles

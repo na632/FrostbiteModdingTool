@@ -84,6 +84,12 @@ namespace FrostySdk.Managers
 			set;
 		}
 
+		public virtual string DuplicatedFromName
+        {
+			get;
+			set;
+        }
+
 		public string FullPath
         {
 			get

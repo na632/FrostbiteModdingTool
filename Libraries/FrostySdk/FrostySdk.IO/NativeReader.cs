@@ -606,7 +606,8 @@ namespace FrostySdk.IO
 			int byteCount = Read7BitEncodedInt();
 			if (byteCount == 0)
 			{
-				return string.Empty;
+				//return string.Empty;
+				return null;
 			}
 			return ReadSizedString(byteCount);
 		}
@@ -629,6 +630,12 @@ namespace FrostySdk.IO
 			}
 			return array;
 		}
+
+		public byte[] ReadAll()
+        {
+			Position = 0;
+			return ReadToEnd();
+        }
 
 		public byte[] ReadBytes(int count)
 		{
