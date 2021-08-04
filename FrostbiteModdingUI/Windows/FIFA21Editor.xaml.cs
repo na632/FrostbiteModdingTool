@@ -381,7 +381,7 @@ namespace FIFAModdingUI.Windows
         public void LogError(string text, params object[] vars)
         {
             Debug.WriteLine("[ERROR] " + text);
-            LogAsync("[ERROR] " + text);
+            LogSync("[ERROR] " + text);
         }
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)

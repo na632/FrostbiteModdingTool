@@ -1,4 +1,5 @@
 ﻿using FrostbiteModdingUI.Models;
+using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.Frosty;
 using Microsoft.Win32;

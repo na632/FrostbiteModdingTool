@@ -976,7 +976,7 @@ namespace FIFA21Plugin
 
 
             ModifyTOCChunks();
-            AddTOCBundles();
+            //ModifyTOCCasBundles();
 
             return true;
             //}
@@ -987,16 +987,7 @@ namespace FIFA21Plugin
 
         }
 
-        private void AddTOCBundles()
-        {
 
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="directory"></param>
-        //private void ModifyTOCChunks(string directory = "native_data")
         private void ModifyTOCChunks(string directory = "native_patch")
         {
             foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
@@ -1030,6 +1021,8 @@ namespace FIFA21Plugin
 
                     // read the changed toc file in ModData
                     tocSb.Read(location_toc_file_new, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
+                    if (tocSb.TOCFile == null || !tocSb.TOCFile.TocChunks.Any())
+                        continue;
 
                     var patch = true;
                     var catalog = tocSb.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
@@ -1103,6 +1096,88 @@ namespace FIFA21Plugin
             if(directory == "native_patch")
                 ModifyTOCChunks("native_data");
         }
+
+
+        private void ModifyTOCCasBundles(string directory = "native_patch")
+        {
+            foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
+            {
+                byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
+                foreach (string key3 in catalogInfo.SuperBundles.Keys)
+                {
+                    string tocFile = key3;
+                    if (catalogInfo.SuperBundles[key3])
+                    {
+                        tocFile = key3.Replace("win32", catalogInfo.Name);
+                    }
+
+                    var tocFileRAW = $"{directory}/{tocFile}.toc";
+                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW).ToLower();
+                    TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21();
+                    tocSb.DoLogging = false;
+                    tocSb.ProcessData = false;
+
+                    var location_toc_file_new = UseModData
+                        ? location_toc_file
+                        .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
+                        .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
+                        : location_toc_file;
+
+                    // read the changed toc file in ModData
+                    tocSb.Read(location_toc_file_new, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
+                    if (tocSb.TOCFile == null || !tocSb.TOCFile.CasBundles.Any())
+                        continue;
+
+                //    var matchedObjects = tocSb.TOCFile.TOCObjects
+                //        .List.Where(x =>
+                //            parent.modifiedEbx.ContainsKey(((DbObject)x).GetValue<string>("name"))
+                //            || parent.modifiedRes.ContainsKey(((DbObject)x).GetValue<string>("name"))
+                //            || parent.ModifiedChunks.ContainsKey(((DbObject)x).GetValue<Guid>("id"))
+                //        );
+                //    if (!matchedObjects.Any())
+                //        continue;
+
+                //    foreach (DbObject tocObj in matchedObjects)
+                //    {
+                //        foreach (DbObject o in tocObj.GetValue<DbObject>("ebx"))
+                //        {
+                //            foreach (var modEbx in parent.modifiedEbx)
+                //            {
+                //                if(o.GetValue<string>("name") == modEbx.Key)
+                //                {
+
+                //                }
+                //            }
+                //        }
+                //        //foreach (DbObject o in tocObj.GetValue<DbObject>("res"))
+                //        //{
+                //        //    foreach (var mod in parent.modifiedRes)
+                //        //    {
+                //        //        if (o.GetValue<string>("name") == mod.Key)
+                //        //        {
+
+                //        //        }
+                //        //    }
+                //        //}
+                //        //foreach (DbObject o in tocObj.GetValue<DbObject>("chunks"))
+                //        //{
+                //        //    foreach (var mod in parent.ModifiedChunks)
+                //        //    {
+                //        //        if (o.GetValue<Guid>("id") == mod.Key)
+                //        //        {
+
+                //        //        }
+                //        //    }
+                //        //}
+                //    }
+
+                }
+            }
+
+            if (directory == "native_patch")
+                ModifyTOCCasBundles("native_data");
+        }
+
 
         private void ProcessAddedTOCChunk(TocSbReader_FIFA21 tocSb, string location_toc_file_new, ushort catalog, ushort cas, bool patch)
         {

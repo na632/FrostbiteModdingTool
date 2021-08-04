@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Windows.Markup;
 
 namespace FrostySdk
 {
@@ -129,12 +130,14 @@ namespace FrostySdk
             //return Convert.ToInt32(((((((((-21288 * 16777) ^ a.GetHashCode()) * 16777619) ^ b.GetHashCode()) * 16777619) ^ c.GetHashCode()) * 16777619) ^ d.GetHashCode()) * 16777619) ^ e.GetHashCode();
         }
 
+		static Random RandomByteCreator = new Random();
+
 		public static Sha1 Create()
 		{
-			return new Sha1(System.Security.Cryptography.SHA1.Create().Hash);
+			byte[] data = new byte[256];
+			RandomByteCreator.NextBytes(data);
+			return Create(data);
 		}
-
-
 
 		public static Sha1 Create(byte[] data)
 		{

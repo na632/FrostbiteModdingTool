@@ -78,6 +78,8 @@ namespace FrostySdk.Resources
 			}
 		}
 
+
+
 		public string PixelFormat
 		{
 			get
@@ -85,6 +87,7 @@ namespace FrostySdk.Resources
 				string text = "RenderFormat";
 				return Enum.Parse(TypeLibrary.GetType(text), pixelFormat.ToString()).ToString().Replace(text + "_", "");
 			}
+			
 		}
 
 		public TextureType Type => type;

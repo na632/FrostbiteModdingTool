@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FrostySdk
+namespace FrostbiteSdk
 {
 	public class FrostbiteModDetails
 	{
@@ -67,10 +67,6 @@ namespace FrostySdk
 		{
 		}
 
-		//public override int GetHashCode()
-		//{
-  //          return Convert.ToInt32((((((-212883103L * 16777619L) ^ title.GetHashCode()) * 16777619) ^ author.GetHashCode()) * 16777619) ^ version.GetHashCode());
-		//}
 
 	}
 }

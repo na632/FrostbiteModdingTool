@@ -1,3 +1,4 @@
+using FrostbiteSdk;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
 using FrostySdk;
@@ -139,12 +140,8 @@ namespace FrostySdk
 
 			public EbxResource(EbxAssetEntry entry, Manifest manifest)
 			{
-				CompressionType compressionOverride = CompressionType.Default;
-				//if (ProfilesLibrary.IsMadden21DataVersion())
-				//    compressionOverride = CompressionType.ZStd;
-				compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.EBX);
+				CompressionType compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.EBX);
 
-                byte[] array = null;
 				name = entry.Name.ToLower();
 				userData = entry.ModifiedEntry.UserData;
 
@@ -156,53 +153,14 @@ namespace FrostySdk
 					)
 
                     ? (EbxBaseWriter)new EbxWriterV2(new MemoryStream())
-                    //? (EbxBaseWriter)new EbxWriter_F21(new MemoryStream())
                     : ((EbxBaseWriter)new EbxWriter(new MemoryStream()));
-
-                //if (ProfilesLibrary.IsFIFA21DataVersion())
-                //    ebxBaseWriter = new EbxWriterV3(new MemoryStream());
-
-                //if (ProfilesLibrary.IsMadden21DataVersion())
-                //    ebxBaseWriter = new EbxWriter_F21(new MemoryStream());
-
-
-                // ------------------------------------------------------------------------------
-                // Temporary fix for movement cocking up skill moves
-                //if (
-                //    entry.Filename.Contains("movement") || entry.Filename.Contains("cpuai_shot")
-                //    && ProfilesLibrary.IsFIFA21DataVersion()
-                //    )
-                //    ebxBaseWriter = new EbxWriter_F21(new MemoryStream());
-
-                //if (
-                //	entry.Filename.Contains("ballhandler")
-                //	&& ProfilesLibrary.IsFIFA21DataVersion()
-                //	)
-                //	ebxBaseWriter = new EbxWriter_F21(new MemoryStream());
-
 
                 using (ebxBaseWriter)
 				{
-					
-					//if(ListOfEBXRawFilesToUse.Contains(entry.Filename))
-     //               {
-					//	var importerFile = "Debugging/EBX/Import/" + entry.Filename + ".dat";
-					//	if (File.Exists(importerFile))
-     //                   {
-     //                       var r = File.ReadAllBytes(importerFile);
-     //                       if (r != null && r.Length > 0)
-     //                       {
-     //                           array = Utils.CompressFile(r, null, ResourceType.Invalid, compressionOverride);
-     //                       }
-     //                   }
-     //               }
-					//else
-     //               {
-						//var ebx = new NativeReader(AssetManager.Instance.GetEbxStream(entry));
-						ebxBaseWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
+		
+					ebxBaseWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
 
-						array = Utils.CompressFile(((MemoryStream)ebxBaseWriter.BaseStream).ToArray(), null, ResourceType.Invalid, compressionOverride);
-					//}
+					byte[] array = Utils.CompressFile(((MemoryStream)ebxBaseWriter.BaseStream).ToArray(), null, ResourceType.Invalid, compressionOverride);
 
 					// this writes to Original Size not Size of the data ?!
 					//size = array.Length;
@@ -471,14 +429,6 @@ namespace FrostySdk
 			{
 				if (chunkEntry.HasModifiedData)
 				{
-					if(chunkEntry.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
-                    {
-
-                    }
-					if (chunkEntry.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
-					{
-
-					}
 					AddResource(new ChunkResource(chunkEntry, manifest));
 				}
 			}

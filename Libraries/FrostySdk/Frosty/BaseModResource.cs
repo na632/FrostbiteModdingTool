@@ -182,6 +182,12 @@ namespace FrostySdk
 			obj.Sha1 = sha1;
 			obj.OriginalSize = size;
 			obj.IsInline = ShouldInline;
+            if (!string.IsNullOrEmpty(userData))
+            {
+				if(obj.ModifiedEntry == null) obj.ModifiedEntry = new ModifiedAssetEntry();
+
+				obj.ModifiedEntry.UserData = userData;
+            }
 		}
 	}
 }

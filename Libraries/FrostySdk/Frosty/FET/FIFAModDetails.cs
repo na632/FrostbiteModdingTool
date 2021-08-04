@@ -7,6 +7,7 @@ using System.IO;
 using Modding.Categories;
 using FrostySdk.Frosty.FET;
 using FrostySdk;
+using FrostbiteSdk;
 
 public class FIFAModDetails : FrostbiteModDetails
 {

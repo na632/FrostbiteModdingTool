@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-namespace FrostySdk
+namespace FrostbiteSdk
 {
 	public class FrostbiteModReader : BaseModReader
 	{
@@ -26,7 +26,7 @@ namespace FrostySdk
 				superBundleName = reader.ReadInt32LittleEndian();
 			}
 
-			public void FillAssetEntry(object entry)
+			public override void FillAssetEntry(object entry)
 			{
 				BundleEntry obj = (BundleEntry)entry;
 				obj.Name = name;

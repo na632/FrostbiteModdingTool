@@ -672,8 +672,9 @@ namespace Frostbite.Textures
 					return (Format)27;
 				case "R8G8B8A8_SRGB":
 					return (Format)27;
-				case "B8G8R8A8_UNORM":
-					return (Format)90;
+				//case "B8G8R8A8_UNORM":
+				//	//return (Format)90;
+				//	return Format.B8G8R8A8_UNorm;
 				case "R10G10B10A2_UNORM":
 					return (Format)23;
 				case "L8":
@@ -686,8 +687,14 @@ namespace Frostbite.Textures
 					return (Format)33;
 				case "D16_UNORM":
 					return (Format)56;
+
+
+    //            case "B8G8R8A8_UNorm":
+    //                return Format.B8G8R8A8_UNorm;
+				//case "B8G8R8A8_SRGB":
+				//	return Format.B8G8R8A8_UNorm_SRgb;
 				default:
-					return (Format)0;
+					return (Format)Enum.Parse(typeof(Format), pixelFormat);
 			}
 		}
 

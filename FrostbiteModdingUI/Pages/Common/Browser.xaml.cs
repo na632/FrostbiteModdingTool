@@ -46,6 +46,9 @@ using v2k4FIFAModding;
 //using FMT.Util;
 using CSharpImageLibrary;
 using FMT;
+using System.Security.Cryptography;
+using SharpDX.DXGI;
+using static Frostbite.Textures.TextureUtils;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -236,91 +239,6 @@ namespace FIFAModdingUI.Pages.Common
 		}
 
 
-		public void DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
-		{
-			var extension = "DDS";
-			var spl = importFilePath.Split('.');
-			extension = spl[spl.Length - 1].ToUpper();
-
-			var compatible_extensions = new List<string>() { "DDS", "PNG" };
-			if (!compatible_extensions.Contains(extension))
-			{
-				throw new NotImplementedException("Incorrect file type used in Texture Importer");
-			}
-
-			// -------------------------------- //
-			// Gets Image Format from Extension //
-			TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.DDS;
-			imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
-			//if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
-			//{
-			//	MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!" + Environment.NewLine);
-			//}
-			// -------------------------------- //
-
-			MemoryStream memoryStream = (MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry);
-			var bytes = memoryStream.ToArray();
-
-			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
-			if (imageFormat == TextureUtils.ImageFormat.DDS)
-			{
-				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(importFilePath, FileMode.Open, FileAccess.Read)));
-			}
-			else
-			{
-				//DDSImage originalImage = new DDSImage();
-				ImageEngineImage originalImage = new ImageEngineImage(bytes);
-
-				ImageEngineImage imageEngineImage = new ImageEngineImage(importFilePath);
-				//var imageBytes = imageEngineImage.Save(
-				//	new ImageFormats.ImageEngineFormatDetails(originalImage.FormatDetails.Format)
-				//	, MipHandling.KeepTopOnly
-				//	, removeAlpha: false);
-
-				if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT5
-							, originalImage.FormatDetails.DX10Format)
-						, MipHandling.KeepTopOnly
-						, removeAlpha: false);
-				}
-				else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT3
-							, originalImage.FormatDetails.DX10Format)
-						, MipHandling.KeepTopOnly
-						, removeAlpha: false);
-				}
-				else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							ImageEngineFormat.DDS_DXT1
-							, originalImage.FormatDetails.DX10Format)
-						, MipHandling.KeepTopOnly
-						, removeAlpha: false);
-				}
-				else
-				{
-					bytes = imageEngineImage.Save(
-						new ImageFormats.ImageEngineFormatDetails(
-							originalImage.Format
-							, originalImage.FormatDetails.DX10Format)
-						, MipHandling.KeepTopOnly
-						, removeAlpha: false);
-				}
-
-            }
-
-			AssetManager.Instance.ModifyLegacyAsset(lfe.Name, bytes, false);
-
-		}
-
-
 		private async void btnImport_Click(object sender, RoutedEventArgs e)
 		{
 			var importStartTime = DateTime.Now;
@@ -351,8 +269,18 @@ namespace FIFAModdingUI.Pages.Common
 
 						if (isImage)
 						{
-							DoLegacyImageImport(openFileDialog.FileName, SelectedLegacyEntry);
-							BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+							if (AssetManager.Instance.DoLegacyImageImport(openFileDialog.FileName, SelectedLegacyEntry))
+							{
+								BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+							}
+                            else
+                            {
+								if (loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
+								{
+									loadingDialog.Close();
+								}
+								return;
+                            }
 						}
 						else
 						{

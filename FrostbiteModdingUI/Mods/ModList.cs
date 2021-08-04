@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿using FrostbiteSdk;
+using FrostySdk;
 using FrostySdk.Frosty;
 using MaterialDesignThemes.Wpf;
 using System;

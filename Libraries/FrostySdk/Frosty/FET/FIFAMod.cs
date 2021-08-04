@@ -1,4 +1,6 @@
-﻿using FrostySdk.IO;
+﻿using FrostySdk;
+using FrostbiteSdk;
+using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FrostySdk.Frosty
+namespace FrostbiteSdk
 {
 	public class FIFAMod : IFrostbiteMod
 	{

@@ -1,7 +1,9 @@
+using FrostbiteSdk;
 using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
+using FrostySdk.Ebx;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
@@ -13,17 +15,20 @@ using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Frostbite.Textures;
+using CSharpImageLibrary;
 
 namespace FrostySdk.Managers
 {
-	public interface IAssetLoader
-	{
+public interface IAssetLoader
+{
 		void Load(AssetManager parent, BinarySbDataHelper helper);
 	}
 	public interface IAssetCompiler
@@ -1319,6 +1324,71 @@ namespace FrostySdk.Managers
 			}
 		}
 
+		public void DuplicateEntry(AssetEntry EntryToDuplicate, string NewEntryPath, bool IsLegacy)
+		{
+			if (IsLegacy)
+			{
+				LegacyFileEntry ae = JsonConvert.DeserializeObject<LegacyFileEntry>(JsonConvert.SerializeObject(EntryToDuplicate));
+				ae.Name = NewEntryPath;
+				ICustomAssetManager customAssetManager = AssetManager.Instance.GetLegacyAssetManager();
+				customAssetManager.AddAsset(ae.Name, ae);
+			}
+			else
+			{
+
+				EbxAssetEntry ae = EntryToDuplicate.Clone() as EbxAssetEntry;
+				var originalEbxData = AssetManager.Instance.GetEbx(ae);
+
+				ae.Name = NewEntryPath;
+				ae.DuplicatedFromName = EntryToDuplicate.Name;
+				ae.Sha1 = Sha1.Create();
+				AssetManager.Instance.AddEbx(ae);
+
+				// Check for "Resource" property
+				if (Utilities.PropertyExists(originalEbxData.RootObject, "Resource"))
+				{
+					var dynamicRO = (dynamic)originalEbxData.RootObject;
+					ResAssetEntry resAssetEntry = AssetManager.Instance.GetResEntry(((dynamic)originalEbxData.RootObject).Resource);
+					var rae = resAssetEntry.Clone() as ResAssetEntry;
+					rae.Name = NewEntryPath;
+					rae.ResRid = GetNextRID();
+					rae.Sha1 = Sha1.Create();
+					rae.DuplicatedFromName = EntryToDuplicate.Name;
+
+					dynamicRO.Resource = new ResourceRef(rae.ResRid);
+
+					if (ae.Type == "TextureAsset")
+					{
+						using (Texture textureAsset = new Texture(rae))
+						{
+							var cae = textureAsset.ChunkEntry.Clone() as ChunkAssetEntry;
+							cae.Id = AssetManager.Instance.GenerateChunkId(cae);
+							textureAsset.ChunkId = cae.Id;
+							var newTextureData = textureAsset.ToBytes();
+							rae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + EntryToDuplicate.Name, Data = Utils.CompressFile(newTextureData, textureAsset) };
+							cae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + textureAsset.ChunkEntry.Name, Data = Utils.CompressFile(AssetManager.Instance.GetChunkData(cae)) };
+							cae.Sha1 = Sha1.Create();
+							cae.DuplicatedFromName = textureAsset.ChunkEntry.Name;
+							AssetManager.Instance.AddChunk(cae);
+						}
+					}
+
+					// Modify the newly Added EBX
+					AssetManager.Instance.ModifyEbx(NewEntryPath, originalEbxData);
+					ae.ModifiedEntry.UserData = "DUP;" + EntryToDuplicate.Name;
+					// Add the RESOURCE
+					AssetManager.Instance.AddRes(rae);
+				}
+
+
+			}
+		}
+
+		public ulong GetNextRID()
+		{
+			return AssetManager.Instance.resRidList.Keys.Max() + 1;
+		}
+
 		public IEnumerable<SuperBundleEntry> EnumerateSuperBundles(bool modifiedOnly = false)
 		{
 			foreach (SuperBundleEntry superBundle in superBundles)
@@ -2301,12 +2371,14 @@ namespace FrostySdk.Managers
 		public static MemoryStream CacheDecompress()
         {
 			// Decompress the Cache File into a Memory Stream
-			Ionic.Zip.ZipFile zipCache = Ionic.Zip.ZipFile.Read(ApplicationDirectory + FileSystem.Instance.CacheName + ".cache");
-			Ionic.Zip.ZipEntry zipCacheEntry = zipCache.Entries.First();
-			var msCache = new MemoryStream();
-			zipCacheEntry.Extract(msCache);
-			msCache.Seek(0, SeekOrigin.Begin);
-			return msCache;
+			using (Ionic.Zip.ZipFile zipCache = Ionic.Zip.ZipFile.Read(ApplicationDirectory + FileSystem.Instance.CacheName + ".cache"))
+			{
+				Ionic.Zip.ZipEntry zipCacheEntry = zipCache.Entries.First();
+				var msCache = new MemoryStream();
+				zipCacheEntry.Extract(msCache);
+				msCache.Seek(0, SeekOrigin.Begin);
+				return msCache;
+			}
 		}
 
 		public static void CacheCompress(MemoryStream msCache)
@@ -2812,9 +2884,119 @@ namespace FrostySdk.Managers
 
         }
 
-       
 
-        public static string ApplicationDirectory
+		public bool DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
+		{
+			var extension = "DDS";
+			var spl = importFilePath.Split('.');
+			extension = spl[spl.Length - 1].ToUpper();
+
+			var compatible_extensions = new List<string>() { "DDS", "PNG" };
+			if (!compatible_extensions.Contains(extension))
+			{
+				throw new NotImplementedException("Incorrect file type used in Texture Importer");
+			}
+
+			// -------------------------------- //
+			// Gets Image Format from Extension //
+			TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.DDS;
+			imageFormat = (TextureUtils.ImageFormat)Enum.Parse(imageFormat.GetType(), extension);
+			//if (MainEditorWindow != null && imageFormat == TextureUtils.ImageFormat.PNG)
+			//{
+			//	MainEditorWindow.LogWarning("Legacy PNG Image conversion is EXPERIMENTAL. Please dont use it in your production Mods!" + Environment.NewLine);
+			//}
+			// -------------------------------- //
+
+			MemoryStream memoryStream = (MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", lfe);
+			var bytes = memoryStream.ToArray();
+
+			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+			if (imageFormat == TextureUtils.ImageFormat.DDS)
+			{
+				ImageEngineImage originalImage = new ImageEngineImage(bytes);
+				ImageEngineImage newImage = new ImageEngineImage(importFilePath);
+				if (originalImage.Format != newImage.Format)
+				{
+					var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
+
+					bytes = newImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT1
+							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+						, mipHandling
+						, removeAlpha: false);
+				}
+				else
+                {
+					bytes = File.ReadAllBytes(importFilePath);
+				}
+			}
+			else
+			{
+				//TextureImporter textureImporter = new TextureImporter();
+    //            TextureUtils.DDSHeader originalImageHeader = textureImporter.GetDDSHeaderFromBytes(bytes);
+				//Texture originalTextureAsset = new Texture();
+				//textureImporter.ImportTextureFromStreamToTextureAsset(new MemoryStream(bytes), ref originalTextureAsset, out string message);
+				//TextureImporter.GetPixelFormat(originalImageHeader, originalTextureAsset, out string pixelFormat, out TextureFlags flags);
+				//DDSImage originalImage = new DDSImage();
+
+				ImageEngineImage originalImage = new ImageEngineImage(bytes);
+
+				ImageEngineImage imageEngineImage = new ImageEngineImage(importFilePath);
+				//var imageBytes = imageEngineImage.Save(
+				//	new ImageFormats.ImageEngineFormatDetails(originalImage.FormatDetails.Format)
+				//	, MipHandling.KeepTopOnly
+				//	, removeAlpha: false);
+
+				var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
+
+
+				if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT5
+							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM)
+						, mipHandling
+						, removeAlpha: false);
+				}
+				else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT3
+							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB)
+						, MipHandling.KeepTopOnly
+						, removeAlpha: false);
+				}
+				else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT1
+							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+						, mipHandling
+						, removeAlpha: false);
+				}
+				else
+				{
+					bytes = imageEngineImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.DDS_DXT1
+							, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+						, mipHandling
+						, removeAlpha: false);
+				}
+
+			}
+
+			AssetManager.Instance.ModifyLegacyAsset(lfe.Name, bytes, false);
+			return true;
+
+		}
+
+
+		public static string ApplicationDirectory
 		{
 			get
 			{

@@ -25,6 +25,7 @@ using FrostbiteSdk.Frosty.Abstract;
 using System.Text;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using System.Collections.Concurrent;
+using FrostbiteSdk;
 
 namespace paulv2k4ModdingExecuter
 {

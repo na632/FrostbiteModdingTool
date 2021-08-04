@@ -62,6 +62,18 @@ namespace Frostbite.Textures
 			ImportTextureFromFileToTextureAsset_Original(path, assetEntry, assetManager: AssetManager.Instance, ref textureAsset, out string message);
         }
 
+		public virtual TextureUtils.DDSHeader GetDDSHeaderFromBytes(byte[] bytes)
+		{
+			NativeReader nativeReader = new NativeReader(new MemoryStream(bytes));
+			TextureUtils.DDSHeader dDSHeader = new TextureUtils.DDSHeader();
+			if (dDSHeader.Read(nativeReader))
+			{
+				return dDSHeader;
+			}
+
+			return null;
+		}
+
 		[Obsolete("Not used in any useful capacity other than Testing")]
 		public virtual NativeReader ImportTextureFromFileToReaderWithHeader(string path, out string message)
 		{
@@ -618,9 +630,16 @@ namespace Frostbite.Textures
 			flags = (TextureFlags)0;
 			if (header.ddspf.dwFourCC == 0)
 			{
-				if (header.ddspf.dwRBitMask == 255 && header.ddspf.dwGBitMask == 65280 && header.ddspf.dwBBitMask == 16711680 && header.ddspf.dwABitMask == 4278190080u)
+				if (header.ddspf.dwRBitMask == 255
+					&& header.ddspf.dwGBitMask == 65280
+					&& header.ddspf.dwBBitMask == 16711680
+					&& header.ddspf.dwABitMask == 4278190080u)
 				{
 					pixelFormat = "R8G8B8A8_UNORM";
+				}
+				else
+				{
+					pixelFormat = "B8G8R8A8_UNorm";
 				}
 			}
 			else if (header.ddspf.dwFourCC == 827611204)
@@ -713,11 +732,15 @@ namespace Frostbite.Textures
 				{
 					pixelFormat = "R8G8B8A8_UNORM";
 				}
+				else if ((int)header.ExtendedHeader.dxgiFormat == 87)
+				{
+					pixelFormat = "B8G8R8A8_UNORM";
+				}
 				else if ((int)header.ExtendedHeader.dxgiFormat == 29)
 				{
 					pixelFormat = "R8G8B8A8_SRGB";
 				}
-				else if ((int)header.ExtendedHeader.dxgiFormat == 24)
+					else if ((int)header.ExtendedHeader.dxgiFormat == 24)
 				{
 					pixelFormat = "R10G10B10A2_UNORM";
 				}

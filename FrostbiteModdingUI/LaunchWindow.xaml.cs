@@ -5,6 +5,7 @@ using FIFAModdingUI.Windows.Profile;
 using FMT.Mods;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
+using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.Frosty;
 using FrostySdk.Interfaces;

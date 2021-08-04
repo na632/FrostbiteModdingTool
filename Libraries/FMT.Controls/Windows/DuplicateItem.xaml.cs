@@ -1,9 +1,11 @@
 ﻿using FrostySdk;
+using FrostySdk.Ebx;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,54 +43,16 @@ namespace FMT.Controls.Windows
             this.Close();
         }
 
+        public static Random ResRidRandomizer = new Random();
+
         private void btnDuplicate_Click(object sender, RoutedEventArgs e)
         {
-            //EbxAssetEntry ae = JsonConvert.DeserializeObject<EbxAssetEntry>(JsonConvert.SerializeObject(EntryToDuplicate));
-            if (IsLegacy)
-            {
-                LegacyFileEntry ae = JsonConvert.DeserializeObject<LegacyFileEntry>(JsonConvert.SerializeObject(EntryToDuplicate));
-                ae.Name = NewEntryPath;
-                ICustomAssetManager customAssetManager = AssetManager.Instance.GetLegacyAssetManager();
-                customAssetManager.AddAsset(ae.Name, ae);
-            }
-            else
-            {
-
-                EbxAssetEntry ae = EntryToDuplicate.Clone() as EbxAssetEntry;
-                var originalEbxData = AssetManager.Instance.GetEbx(ae);
-
-                ae.Name = NewEntryPath;
-                AssetManager.Instance.AddEbx(ae);
-
-                // Check for "Resource" property
-                if(v2k4Util.PropertyExists(originalEbxData.RootObject, "Resource"))
-                {
-                    ResAssetEntry resAssetEntry = AssetManager.Instance.GetResEntry(((dynamic)originalEbxData.RootObject).Resource);
-                    var rae = resAssetEntry.Clone() as ResAssetEntry;
-                    rae.Name = NewEntryPath;
-
-                    if (ae.Type == "TextureAsset")
-                    {
-                        using (Texture textureAsset = new Texture(rae))
-                        {
-                            var cae = textureAsset.ChunkEntry.Clone() as ChunkAssetEntry;
-                            cae.Id = AssetManager.Instance.GenerateChunkId(cae);
-                            textureAsset.ChunkId = cae.Id;
-                            var newTextureData = textureAsset.ToBytes();
-                            rae.ModifiedEntry = new ModifiedAssetEntry() { Data = Utils.CompressFile(newTextureData, textureAsset) };
-                            cae.ModifiedEntry = new ModifiedAssetEntry() { Data = Utils.CompressFile(AssetManager.Instance.GetChunkData(cae)) };
-                            AssetManager.Instance.AddChunk(cae);
-                        }
-                    }
-
-                    AssetManager.Instance.AddRes(rae);
-                }
-
-
-            }
+            AssetManager.Instance.DuplicateEntry(EntryToDuplicate, NewEntryPath, IsLegacy);
 
             DialogResult = true;
             this.Close();
         }
+
+       
     }
 }

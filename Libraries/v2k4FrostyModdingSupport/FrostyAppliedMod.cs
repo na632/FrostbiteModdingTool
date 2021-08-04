@@ -1,3 +1,4 @@
+using FrostbiteSdk;
 using FrostySdk;
 
 namespace Frosty.ModSupport

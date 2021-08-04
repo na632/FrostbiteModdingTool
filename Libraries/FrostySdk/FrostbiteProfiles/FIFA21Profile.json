@@ -61,6 +61,7 @@
   "CompressedFormatEBX": "Zstd",
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
-  "CompressedFormatLegacy": "Oodle"
+  //"CompressedFormatLegacy": "Oodle",
+  "CompressedFormatLegacy": "None"
 
 }

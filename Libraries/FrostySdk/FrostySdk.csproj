@@ -46,6 +46,10 @@
   </ItemGroup>
 	
 	<ItemGroup>
+	  <ProjectReference Include="..\CSIL\CSIL.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
 	  <None Update="FrostbiteKeys\fifa20.key">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

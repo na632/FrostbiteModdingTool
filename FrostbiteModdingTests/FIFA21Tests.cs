@@ -18,6 +18,7 @@ using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 using SdkGenerator;
 using FrostySdk.FrostySdk.Resources.Mesh2;
+using FrostySdk;
 
 namespace FrostbiteModdingTests
 {
@@ -310,6 +311,26 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestLegacyTextureImport()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            AssetManager.Instance.DoLegacyImageImport(@"G:\Work\FIFA Modding\Career Mod\st_bootflow_v2k4.png"
+                , (LegacyFileEntry)AssetManager.Instance.EnumerateCustomAssets("legacy")
+                .FirstOrDefault(x=>x.Name.Contains("st_bootflow", StringComparison.OrdinalIgnoreCase)));
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void TestLegacyMod()
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
@@ -348,8 +369,33 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestDuplicateEntry()
+        {
+            DeleteOldTestMods();
+
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            AssetManager.Instance.DuplicateEntry(
+                AssetManager.Instance.GetEbxEntry("content/character/kit/kit_0/aston_villa_2/home_0_0/jersey_2_0_0_color")
+                , "content/character/kit/kit_0/aston_villa_999999/home_0_0/jersey_999999_0_0_color"
+                , false);
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void TestLegacyMod_PlayerLUA()
         {
+            DeleteOldTestMods();
+
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\DynamicSystem\Paulv2k4 FIFA 21 Dynamic Mod - Version 6.fbproject");
@@ -371,6 +417,8 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestLegacyMod_CompressedAsset()
         {
+            DeleteOldTestMods();
+
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
 
@@ -401,6 +449,8 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestLegacyMod_PlayerValues()
         {
+            DeleteOldTestMods();
+
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
 
@@ -429,6 +479,8 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestLegacyMod_PlayerValues_999m()
         {
+            DeleteOldTestMods();
+
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
 
@@ -449,6 +501,14 @@ namespace FrostbiteModdingTests
                     "test.fbmod"
                 }.ToArray()).Wait();
 
+        }
+
+        public void DeleteOldTestMods()
+        {
+            foreach(var s in Directory.GetFiles("/", "*.fbmod"))
+            {
+                File.Delete(s);
+            }
         }
     }
 }

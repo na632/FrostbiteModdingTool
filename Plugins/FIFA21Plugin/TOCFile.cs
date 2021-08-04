@@ -164,6 +164,7 @@ namespace FIFA21Plugin
 			}
         }
 
+		public DbObject TOCObjects = new DbObject(false);
 		public int[] tocMetaData = new int[15];
 
 		public List<ChunkAssetEntry> TocChunks = new List<ChunkAssetEntry>();
@@ -467,7 +468,11 @@ namespace FIFA21Plugin
 					foreach (var ctb in CASToBundles)
 					{
 						CASDataLoader casDataLoader = new CASDataLoader(this);
-						casDataLoader.Load(ctb.Key, ctb.Value);
+						var dbo = casDataLoader.Load(ctb.Key, ctb.Value);
+						foreach(var d in dbo)
+                        {
+							TOCObjects.Add(d);
+						}
 					}
 				}
 			}

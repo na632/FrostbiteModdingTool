@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace FrostySdk
+namespace FrostbiteSdk
 {
 	public class FrostbiteMod : IFrostbiteMod
 	{
@@ -17,13 +17,8 @@ namespace FrostySdk
 
 		//public static uint Version = 3u;
 		//public static uint Version = 4u;
-		public static uint Version = 5u; // Version 5 includes Embedded File Entries
-
-		/// <summary>
-		/// Upgraded to 8u to support FIFA Editor Tool Versioning
-		/// </summary>
-		//public static uint Version = 8u;
-
+		//public static uint Version = 5u; // Version 5 includes Embedded File Entries
+		public static uint Version = 6u; // Version 6 includes Duplicate / Added entries
 
 		private string path;
 
