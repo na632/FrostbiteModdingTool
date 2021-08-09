@@ -57,9 +57,10 @@ namespace SdkGenerator
             //        || x.ProcessName.Contains("bf1", StringComparison.OrdinalIgnoreCase)
             //        );
 			var process = allProcesses.FirstOrDefault(x =>
-				   x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
+				   (x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
 				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase))
+				   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
 				   );
 			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
 			return process;
