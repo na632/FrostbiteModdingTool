@@ -167,9 +167,9 @@ namespace Madden21Plugin
                     Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
                     Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-                    logger.Log("Copying files from Data to ModData/Data");
+                    logger.Log($"Copying files from Data to {ModDirectory}/Data");
                     CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
-                    logger.Log("Copying files from Patch to ModData/Patch");
+                    logger.Log($"Copying files from Patch to {ModDirectory}/Patch");
                     CopyDataFolder(fs.BasePath + PatchDirectory, fs.BasePath + ModDirectory + "\\" + PatchDirectory, logger);
                 }
                 else
@@ -273,7 +273,7 @@ namespace Madden21Plugin
                             tocchunkposition = reader_original_toc_file.ReadUInt();
                             byte_array_of_original_toc_file = reader_original_toc_file.ReadToEnd();
                         }
-                        string location_toc_file_mod_data = location_toc_file.Replace("\\\\","\\").Replace("patch\\win32", "moddata\\patch\\win32", StringComparison.OrdinalIgnoreCase);
+                        string location_toc_file_mod_data = location_toc_file.Replace("\\\\","\\").Replace("patch\\win32", $"{ModDirectory}\\patch\\win32", StringComparison.OrdinalIgnoreCase);
                         
                         FileInfo fi_toc_file_mod_data = new FileInfo(location_toc_file_mod_data);
                         if (!Directory.Exists(fi_toc_file_mod_data.DirectoryName))
@@ -696,30 +696,11 @@ namespace Madden21Plugin
 
             string text = ModExecuter.fs.BasePath;
             if(path.Contains("/native_data/"))
-                text += path.Replace("/native_data/", "ModData\\", StringComparison.OrdinalIgnoreCase);
+                text += path.Replace("/native_data/", $"{ModDirectory}\\", StringComparison.OrdinalIgnoreCase);
             if(path.Contains("/native_patch/"))
-                text += path.Replace("/native_patch/", "ModData\\", StringComparison.OrdinalIgnoreCase);
+                text += path.Replace("/native_patch/", $"{ModDirectory}\\", StringComparison.OrdinalIgnoreCase);
             text = text.Replace("/", "\\");
 
-            //int num = 1;
-            //string text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + num.ToString("D2") + ".cas";
-
-            ////while (File.Exists(text))
-            ////{
-            ////    num++;
-            ////    text = parent.fs.BasePath + "ModData\\patch\\" + catalogInfo.Name + "\\cas_" + num.ToString("D2") + ".cas";
-            ////}
-            //lock (locker)
-            //{
-            //    //casFiles.Add(++CasFileCount, "/native_data/Patch/" + catalogInfo.Name + "/cas_" + num.ToString("D2") + ".cas");
-            //    casFileIndex = CasFileCount;
-            //    //casFileIndex = catalogInfo.PersistentIndex.Value;
-            //}
-            //FileInfo fileInfo = new FileInfo(text);
-            //if (!Directory.Exists(fileInfo.DirectoryName))
-            //{
-            //    Directory.CreateDirectory(fileInfo.DirectoryName);
-            //}
             var nw = new NativeWriter(new FileStream(text, FileMode.OpenOrCreate));
             nw.Position = nw.BaseStream.Length;
             return nw;
@@ -781,15 +762,15 @@ namespace Madden21Plugin
                 }
 
 
-                if (!finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                if (!finalDestinationPath.Contains(ModDirectory, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new Exception("Incorrect Copy of Files to ModData");
+                    throw new Exception("Incorrect Copy of Files to " + ModDirectory);
                 }
 
                 var fIDest = new FileInfo(finalDestinationPath);
                 var fIOrig = new FileInfo(originalFilePath);
 
-                if (fIDest.Exists && finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                if (fIDest.Exists && finalDestinationPath.Contains(ModDirectory, StringComparison.OrdinalIgnoreCase))
                 {
                     var isCas = fIDest.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase);
 
