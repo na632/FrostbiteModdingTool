@@ -598,70 +598,71 @@ namespace FrostySdk
 			}
 			else
 			{
-				long num = -1L;
-				using (FileStream fileStream = new FileStream("FrostySdk.Profiles.bin", FileMode.Open))
-				using (NativeReader nativeReader = new NativeReader(fileStream))
-				{
-					int num2 = nativeReader.ReadInt();
-					for (int i = 0; i < num2; i++)
-					{
-						string text = DecodeString(nativeReader);
-						long num3 = nativeReader.ReadLong();
-						if (text.Equals(profileKey, StringComparison.OrdinalIgnoreCase))
-						{
-							num = num3;
-							profileKey = text;
-						}
-					}
-					if (num == -1)
-					{
-						return false;
-					}
-					nativeReader.Position += num;
-					Profile profile = default(Profile);
-					profile.Name = profileKey;
-					profile.DisplayName = DecodeString(nativeReader);
-					profile.DataVersion = nativeReader.ReadInt();
-					profile.CacheName = DecodeString(nativeReader);
-					profile.Deobfuscator = DecodeString(nativeReader);
-					profile.AssetLoader = DecodeString(nativeReader);
-					profile.Sources = new List<FileSystemSource>();
-					profile.SharedBundles = new Dictionary<int, string>();
-					profile.IgnoredResTypes = new List<uint>();
-					int num4 = nativeReader.ReadInt();
-					for (int j = 0; j < num4; j++)
-					{
-						FileSystemSource item = default(FileSystemSource);
-						item.Path = DecodeString(nativeReader);
-						item.SubDirs = (nativeReader.ReadByte() == 1);
-						profile.Sources.Add(item);
-					}
-					profile.SDKFilename = DecodeString(nativeReader);
-					profile.Banner = nativeReader.ReadBytes(nativeReader.ReadInt());
-					profile.DefaultDiffuse = DecodeString(nativeReader);
-					profile.DefaultNormals = DecodeString(nativeReader);
-					profile.DefaultMask = DecodeString(nativeReader);
-					profile.DefaultTint = DecodeString(nativeReader);
-					int num5 = nativeReader.ReadInt();
-					for (int k = 0; k < num5; k++)
-					{
-						string text2 = DecodeString(nativeReader);
-						profile.SharedBundles.Add(Fnv1.HashString(text2.ToLower()), text2);
-					}
-					int num6 = nativeReader.ReadInt();
-					for (int l = 0; l < num6; l++)
-					{
-						profile.IgnoredResTypes.Add(nativeReader.ReadUInt());
-					}
-					profile.MustAddChunks = (nativeReader.ReadByte() == 1);
-					profile.EbxVersion = nativeReader.ReadByte();
-					profile.RequiresKey = (nativeReader.ReadByte() == 1);
-					profile.EnableExecution = (nativeReader.ReadByte() != 1);
+				throw new Exception($"Cannot find {profileKey}Profile.json. You have either installed FMT correctly or a Profile for this game doesn't exist!");
+				//long num = -1L;
+				//using (FileStream fileStream = new FileStream("FrostySdk.Profiles.bin", FileMode.Open))
+				//using (NativeReader nativeReader = new NativeReader(fileStream))
+				//{
+				//	int num2 = nativeReader.ReadInt();
+				//	for (int i = 0; i < num2; i++)
+				//	{
+				//		string text = DecodeString(nativeReader);
+				//		long num3 = nativeReader.ReadLong();
+				//		if (text.Equals(profileKey, StringComparison.OrdinalIgnoreCase))
+				//		{
+				//			num = num3;
+				//			profileKey = text;
+				//		}
+				//	}
+				//	if (num == -1)
+				//	{
+				//		return false;
+				//	}
+				//	nativeReader.Position += num;
+				//	Profile profile = default(Profile);
+				//	profile.Name = profileKey;
+				//	profile.DisplayName = DecodeString(nativeReader);
+				//	profile.DataVersion = nativeReader.ReadInt();
+				//	profile.CacheName = DecodeString(nativeReader);
+				//	profile.Deobfuscator = DecodeString(nativeReader);
+				//	profile.AssetLoader = DecodeString(nativeReader);
+				//	profile.Sources = new List<FileSystemSource>();
+				//	profile.SharedBundles = new Dictionary<int, string>();
+				//	profile.IgnoredResTypes = new List<uint>();
+				//	int num4 = nativeReader.ReadInt();
+				//	for (int j = 0; j < num4; j++)
+				//	{
+				//		FileSystemSource item = default(FileSystemSource);
+				//		item.Path = DecodeString(nativeReader);
+				//		item.SubDirs = (nativeReader.ReadByte() == 1);
+				//		profile.Sources.Add(item);
+				//	}
+				//	profile.SDKFilename = DecodeString(nativeReader);
+				//	profile.Banner = nativeReader.ReadBytes(nativeReader.ReadInt());
+				//	profile.DefaultDiffuse = DecodeString(nativeReader);
+				//	profile.DefaultNormals = DecodeString(nativeReader);
+				//	profile.DefaultMask = DecodeString(nativeReader);
+				//	profile.DefaultTint = DecodeString(nativeReader);
+				//	int num5 = nativeReader.ReadInt();
+				//	for (int k = 0; k < num5; k++)
+				//	{
+				//		string text2 = DecodeString(nativeReader);
+				//		profile.SharedBundles.Add(Fnv1.HashString(text2.ToLower()), text2);
+				//	}
+				//	int num6 = nativeReader.ReadInt();
+				//	for (int l = 0; l < num6; l++)
+				//	{
+				//		profile.IgnoredResTypes.Add(nativeReader.ReadUInt());
+				//	}
+				//	profile.MustAddChunks = (nativeReader.ReadByte() == 1);
+				//	profile.EbxVersion = nativeReader.ReadByte();
+				//	profile.RequiresKey = (nativeReader.ReadByte() == 1);
+				//	profile.EnableExecution = (nativeReader.ReadByte() != 1);
 
-					System.IO.File.WriteAllText(profileKey + "Profile.json", JsonConvert.SerializeObject(profile));
-					// Write out to json and reinit
-					return Initialize(profileKey);
-				}
+				//	System.IO.File.WriteAllText(profileKey + "Profile.json", JsonConvert.SerializeObject(profile));
+				//	// Write out to json and reinit
+				//	return Initialize(profileKey);
+				//}
 
 			}
 

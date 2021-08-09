@@ -568,7 +568,7 @@ public interface IAssetLoader
 
 		public static object LoadTypeFromPlugin(string className)
 		{
-			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains("Plugin")))
+			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
 			{
 				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
 				if (t != null)
@@ -603,12 +603,14 @@ public interface IAssetLoader
 					((IAssetLoader)Activator.CreateInstance(ProfilesLibrary.AssetLoader)).Load(this, binarySbDataHelper);
 				else
 				{
-					foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x=>x.FullName.Contains("Plugin")))
-					{
-						var t = a.GetTypes().FirstOrDefault(x => x.Name == ProfilesLibrary.AssetLoaderName);
-						if(t != null)
-							((IAssetLoader)Activator.CreateInstance(t)).Load(this, binarySbDataHelper);
-					}
+					((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
+
+					//foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x=>x.FullName.Contains("Plugin")))
+					//{
+					//	var t = a.GetTypes().FirstOrDefault(x => x.Name == ProfilesLibrary.AssetLoaderName);
+					//	if(t != null)
+					//		((IAssetLoader)Activator.CreateInstance(t)).Load(this, binarySbDataHelper);
+					//}
 				}
 				//binarySbDataHelper.WriteToCache(this);
 				GC.Collect();
@@ -621,36 +623,28 @@ public interface IAssetLoader
 			{
 				return;
 			}
-			foreach (BundleEntry bundle in bundles)
-			{
-				bundle.Type = BundleType.SharedBundle;
-				bundle.Blueprint = GetEbxEntry(bundle.Name.Remove(0, 6));
-				if (bundle.Blueprint == null)
-				{
-					bundle.Blueprint = GetEbxEntry(bundle.Name);
-				}
-				if (bundle.Blueprint != null)
-				{
-					bundle.Type = BundleType.SubLevel;
-					if (TypeLibrary.IsSubClassOf(bundle.Blueprint.Type, "BlueprintBundle"))
-					{
-						bundle.Type = BundleType.BlueprintBundle;
-					}
-				}
-			}
+			//foreach (BundleEntry bundle in bundles)
+			//{
+			//	bundle.Type = BundleType.SharedBundle;
+			//	bundle.Blueprint = GetEbxEntry(bundle.Name.Remove(0, 6));
+			//	if (bundle.Blueprint == null)
+			//	{
+			//		bundle.Blueprint = GetEbxEntry(bundle.Name);
+			//	}
+			//	if (bundle.Blueprint != null)
+			//	{
+			//		bundle.Type = BundleType.SubLevel;
+			//		if (TypeLibrary.IsSubClassOf(bundle.Blueprint.Type, "BlueprintBundle"))
+			//		{
+			//			bundle.Type = BundleType.BlueprintBundle;
+			//		}
+			//	}
+			//}
 			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				value.Initialize(logger);
 			}
 			
-			//if (ProfilesLibrary.IsFIFADataVersion() 
-			//	|| ProfilesLibrary.IsMaddenDataVersion()
-			//	|| ProfilesLibrary.IsFIFA21DataVersion()
-			//	)
-			//{
-			//	TypeLibrary.Reflection.LoadClassInfoAssets(this);
-			//}
-
 			TimeSpan timeSpan = DateTime.Now - now;
 			logger.Log($"Loading complete {timeSpan.ToString()}");
 
