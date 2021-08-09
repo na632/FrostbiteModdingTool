@@ -269,9 +269,17 @@
                                     </local2:FMTPropertyGrid>-->
 
 
-                                        <StackPanel Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
-                                            <TextBlock>The Editor currently doesn't support viewing of this Legacy File. Please Export and use an alternative Application.</TextBlock>
-                                        </StackPanel>
+                                        <DockingManager Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
+                                            <LayoutRoot>
+                                                <LayoutPanel>
+                                                    <LayoutDocumentPaneGroup x:Name="unknownFileDocumentsGroup">
+                                                        <LayoutDocumentPane x:Name="unknownFileDocumentsPane">
+                                                        </LayoutDocumentPane>
+                                                    </LayoutDocumentPaneGroup>
+                                                </LayoutPanel>
+                                            </LayoutRoot>
+                                        </DockingManager>
+
 
                                         <StackPanel  Grid.Row="1" x:Name="ModelDockingManager" Visibility="Hidden" Orientation="Horizontal"  >
                                             <hx:Viewport3DX

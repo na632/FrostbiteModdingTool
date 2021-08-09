@@ -49,6 +49,8 @@ using FMT;
 using System.Security.Cryptography;
 using SharpDX.DXGI;
 using static Frostbite.Textures.TextureUtils;
+using static FMT.Pages.Common.BrowserOfBIG;
+using AvalonDock.Layout;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -876,7 +878,10 @@ namespace FIFAModdingUI.Pages.Common
 							"NAV",
 							"JSON",
 							"TXT",
-							"CSV"
+							"CSV",
+							"TG", // some custom XML / JS / LUA file that is used in FIFA
+							"JLT", // some custom XML / LUA file that is used in FIFA
+							"PLS" // some custom XML / LUA file that is used in FIFA
 						};
 
 								List<string> imageViewers = new List<string>()
@@ -902,7 +907,8 @@ namespace FIFAModdingUI.Pages.Common
 									TextViewer.Visibility = Visibility.Visible;
 									using (var nr = new NativeReader(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
 									{
-										TextViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
+										//TextViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
+										TextViewer.Text = UTF8Encoding.UTF8.GetString(nr.ReadToEnd());
 									}
 								}
 								else if (imageViewers.Contains(legacyFileEntry.Type))
@@ -936,16 +942,31 @@ namespace FIFAModdingUI.Pages.Common
 								btnExport.IsEnabled = true;
 								btnRevert.IsEnabled = true;
                             }
-								else
-								{
-									MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
-									btnExport.IsEnabled = true;
-									btnRevert.IsEnabled = true;
+							else
+							{
+								MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
+								btnExport.IsEnabled = true;
+                                btnImport.IsEnabled = true;
+                                btnRevert.IsEnabled = true;
 
-									UnknownLegacyFileViewer.Visibility = Visibility.Visible;
-								}
+								unknownFileDocumentsPane.Children.Clear();
+								var newLayoutDoc = new LayoutDocument();
+								newLayoutDoc.Title = SelectedEntry.DisplayName;
+								WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
+                                using (var nr = new NativeReader(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+                                {
+                                    hexEditor.Stream = new MemoryStream(nr.ReadToEnd());
+                                }
+                                newLayoutDoc.Content = hexEditor;
+								hexEditor.BytesModified += HexEditor_BytesModified;
+								unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
+								unknownFileDocumentsPane.SelectedContentIndex = 0;
+							
 
+								UnknownLegacyFileViewer.Visibility = Visibility.Visible;
 							}
+
+						}
 
 					}
 				}
@@ -959,6 +980,23 @@ namespace FIFAModdingUI.Pages.Common
 
 			DataContext = null;
 			DataContext = this;
+		}
+
+        private void HexEditor_BytesModified(object sender, WpfHexaEditor.Core.EventArguments.ByteEventArgs e)
+        {
+			var hexEditor = sender as WpfHexaEditor.HexEditor;
+			if (hexEditor != null)
+			{
+				if(this.SelectedLegacyEntry != null)
+                {
+					AssetManager.Instance.ModifyLegacyAsset(this.SelectedLegacyEntry.Name, hexEditor.GetAllBytes(true), false);
+					UpdateAssetListView();
+                }
+                else
+                {
+
+                }
+			}
 		}
 
         private void BackupEBXViewer_PropertyChanged(object sender, PropertyChangedEventArgs e)

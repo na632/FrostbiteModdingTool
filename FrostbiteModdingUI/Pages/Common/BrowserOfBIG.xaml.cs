@@ -59,7 +59,7 @@ namespace FMT.Pages.Common
 
 			public string Type { get; set; }
 
-			public bool IsDirty { get; set; }
+			public bool IsModified { get; set; }
 
 			public BigFileEntry(string inName, uint inOffset, uint inSize, byte[] inData, string inType = "MISC")
 			{
@@ -418,7 +418,7 @@ namespace FMT.Pages.Common
 				}
 				entry.Data = data;
 				entry.Size = (uint)data.Length;
-			entry.IsDirty = true;
+			entry.IsModified = true;
 				Reconstruct(AssetEntry);
 		}
 
@@ -783,7 +783,7 @@ namespace FMT.Pages.Common
             {
 				bigFileEntry.Data = hexEditor.GetAllBytes(true);
 				bigFileEntry.Size = (uint)bigFileEntry.Data.Length;
-				bigFileEntry.IsDirty = true;
+				bigFileEntry.IsModified = true;
 				Reconstruct(AssetEntry);
 				if (ParentBrowser != null)
 				{
