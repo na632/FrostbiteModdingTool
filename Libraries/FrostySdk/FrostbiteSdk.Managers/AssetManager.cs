@@ -527,8 +527,12 @@ public interface IAssetLoader
 
         public void RegisterLegacyAssetManager()
         {
-
-			if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
+			if(!string.IsNullOrEmpty(ProfilesLibrary.LegacyFileManager))
+            {
+				var cam = (ICustomAssetManager)LoadTypeByName(ProfilesLibrary.LegacyFileManager);
+				CustomAssetManagers.Add("legacy", cam);
+			}
+			else if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
 			{
 				CustomAssetManagers.Add("legacy", new LegacyFileManager_FMTV2());
 			}
@@ -578,8 +582,19 @@ public interface IAssetLoader
 			throw new ArgumentNullException("Unable to find Plugin or Class");
 		}
 
+		public static object LoadTypeByName(string className)
+		{
+			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+			{
+				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
+				if (t != null)
+					return Activator.CreateInstance(t);
+			}
+			throw new ArgumentNullException("Unable to find Class");
+		}
 
-        public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
+
+		public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
 		{
 			logger.Log("Initialising Plugins");
 			if(!InitialisePlugins())
