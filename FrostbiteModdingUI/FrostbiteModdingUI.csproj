@@ -44,14 +44,6 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
-    <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA19Profile.json" Link="FrostbiteProfiles\FIFA19Profile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA20Profile.json" Link="FrostbiteProfiles\FIFA20Profile.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -257,7 +249,6 @@
 
   <ItemGroup>
     <Folder Include="Models\ThreeD\" />
-    <Folder Include="FrostbiteProfiles\" />
     <Folder Include="NewFolder\" />
     <Folder Include="Pages\Common\Property\" />
     <Folder Include="Pages\Gameplay\" />

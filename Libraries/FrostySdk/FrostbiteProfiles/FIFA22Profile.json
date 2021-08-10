@@ -1,15 +1,15 @@
 {
-  "Name": "FIFA21",
-  "DisplayName": "FIFA 21",
+  "Name": "FIFA22",
+  "DisplayName": "FIFA 22",
   "DataVersion": 20200929,
-  "CacheName": "fifa21",
+  "CacheName": "fifa22",
   "Deobfuscator": "NullDeobfuscator",
-  "KeyFile": "fifa21.key",
-  "AssetLoader": "FIFA21AssetLoader",
-  "AssetCompiler": "FIFA21AssetCompiler",
-  "EditorScreen": "FIFA21Editor",
+  "KeyFile": "fifa22.key",
+  "AssetLoader": "FIFA22AssetLoader",
+  "AssetCompiler": "FIFA22AssetCompiler",
+  "EditorScreen": "FIFA22Editor",
   // Texture Importer (Overriding the base Importer)
-  "TextureImporter": "FIFA21TextureImporter",
+  "TextureImporter": "FIFA22TextureImporter",
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)
@@ -31,17 +31,17 @@
     }
   ],
   // SDK Filename
-  "SDKFilename": "FIFA21SDK",
+  "SDKFilename": "FIFA22SDK",
   // SDK First Type Info (Only used if SDKAOBScan is not provided)
   "SDKFirstTypeInfo": null,
   // SDK Array of Bytes to scan to get first type info address
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
   // Supported Launcher Filetypes
-  "SupportedLauncherFileTypes": [ "lmod", "fbmod", "fifamod" ],
+  "SupportedLauncherFileTypes": [ "fbmod" ],
   // Will the Launcher support this Game?
-  "CanLaunchMods": true,
+  "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": true,
+  "CanEdit": false,
 
   "Banner": "",
   "EbxVersion": 4,
@@ -61,6 +61,7 @@
   "CompressedFormatEBX": "Zstd",
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
+  //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "None",
   "LegacyFileManager": "LegacyFileManager_FMTV2"
 

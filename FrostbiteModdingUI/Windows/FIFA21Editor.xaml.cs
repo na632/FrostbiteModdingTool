@@ -388,7 +388,7 @@ namespace FIFAModdingUI.Windows
         {
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_FMTV2.CleanUpChunks();
 
             try
             {
@@ -415,7 +415,7 @@ namespace FIFAModdingUI.Windows
         {
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_FMTV2.CleanUpChunks();
 
             try
             {
@@ -529,7 +529,7 @@ namespace FIFAModdingUI.Windows
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_FMTV2.CleanUpChunks();
 
             loadingDialog.Close();
 
@@ -570,7 +570,7 @@ namespace FIFAModdingUI.Windows
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks(true);
+            LegacyFileManager_FMTV2.CleanUpChunks(true);
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Project files|*.fbproject";
@@ -649,7 +649,7 @@ namespace FIFAModdingUI.Windows
 
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = true; });
 
-            LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_FMTV2.CleanUpChunks();
 
         }
 
@@ -701,7 +701,7 @@ namespace FIFAModdingUI.Windows
         private void btnProjectNew_Click(object sender, RoutedEventArgs e)
         {
             AssetManager.Instance.Reset();
-            LegacyFileManager_M21.CleanUpChunks(true);
+            LegacyFileManager_FMTV2.CleanUpChunks(true);
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             ProjectManagement.Project.ModifiedAssetEntries = null;
             lstProjectFiles.ItemsSource = null;
@@ -1020,7 +1020,7 @@ namespace FIFAModdingUI.Windows
         private void btnCleanUpLegacyFiles_Click(object sender, RoutedEventArgs e)
         {
             //LegacyFileManager_M21.CleanUpChunks();
-            LegacyFileManager_M21.CleanUpChunks(true);
+            LegacyFileManager_FMTV2.CleanUpChunks(true);
             Log("Legacy files have been cleaned");
         }
 
@@ -1078,7 +1078,7 @@ namespace FIFAModdingUI.Windows
         {
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_FMTV2.CleanUpChunks();
 
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -1109,7 +1109,7 @@ namespace FIFAModdingUI.Windows
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_M21.CleanUpChunks();
+            LegacyFileManager_FMTV2.CleanUpChunks();
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Project files|*.fifaproject";

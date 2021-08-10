@@ -149,6 +149,7 @@ namespace FrostySdk
 
 			public string SDKAOBScan { get; set; }
 
+			public string LegacyFileManager { get; set; }
 
 
 
@@ -273,6 +274,8 @@ namespace FrostySdk
 
 		public static bool CanImportMeshes => LoadedProfile.CanImportMeshes;
 		public static bool CanExportMeshes => LoadedProfile.CanExportMeshes;
+
+		public static string LegacyFileManager => LoadedProfile.LegacyFileManager;
 
 		public enum CompTypeArea
         {

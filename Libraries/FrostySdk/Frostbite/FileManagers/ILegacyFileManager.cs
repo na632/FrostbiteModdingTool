@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
+using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 
-namespace FrostySdk.Frostbite
+namespace Frostbite.FileManagers
 {
 	public interface ILegacyFileManager
 	{

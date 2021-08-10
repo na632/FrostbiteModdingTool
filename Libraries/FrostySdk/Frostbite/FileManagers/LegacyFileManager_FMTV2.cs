@@ -15,11 +15,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
-using static Frostbite.FileManagers.LegacyFileManager_M21;
 
 namespace Frostbite.FileManagers
 {
-	public class LegacyFileManager_M21 : ILegacyFileManager, ICustomAssetManager
+	public class LegacyFileManager_FMTV2 : ILegacyFileManager, ICustomAssetManager
 	{
 
 		public List<LegacyFileEntry> AddedFileEntries { get; set; }
@@ -156,11 +155,11 @@ namespace Frostbite.FileManagers
 		/// </summary>
 		public static List<ChunkBatch> ChunkBatches = new List<ChunkBatch>();
 
-		public LegacyFileManager_M21()
+		public LegacyFileManager_FMTV2()
 		{
 		}
 
-		public void Initialize(ILogger logger)
+		public virtual void Initialize(ILogger logger)
 		{
 			logger.Log("Loading legacy files");
 			AddedFileEntries = new List<LegacyFileEntry>();

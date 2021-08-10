@@ -956,7 +956,7 @@ namespace FrostySdk
 						//
 
 						// Count of Modified Legacy Files
-						var legacyFileManager = AssetManager.Instance.CustomAssetManagers["legacy"] as LegacyFileManager_M21;
+						var legacyFileManager = AssetManager.Instance.CustomAssetManagers["legacy"] as LegacyFileManager_FMTV2;
 						if (reader.Length > reader.Position)
 						{
 							count = reader.ReadInt();

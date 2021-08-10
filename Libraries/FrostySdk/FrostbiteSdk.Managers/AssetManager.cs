@@ -527,9 +527,10 @@ public interface IAssetLoader
 
         public void RegisterLegacyAssetManager()
         {
+
 			if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
 			{
-				CustomAssetManagers.Add("legacy", new LegacyFileManager_M21());
+				CustomAssetManagers.Add("legacy", new LegacyFileManager_FMTV2());
 			}
 			else
 			{
@@ -852,7 +853,7 @@ public interface IAssetLoader
 			}
 			EmbeddedFileEntries = new List<EmbeddedFileEntry>();
 
-			LegacyFileManager_M21.CleanUpChunks();
+			LegacyFileManager_FMTV2.CleanUpChunks();
 
 		}
 
@@ -896,7 +897,7 @@ public interface IAssetLoader
 			//	}
 			//}
 
-			var m21LAM = GetLegacyAssetManager() as LegacyFileManager_M21;
+			var m21LAM = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
 			if (m21LAM != null)
 			{
 				m21LAM.RevertAsset(entry);
@@ -1303,7 +1304,7 @@ public interface IAssetLoader
 
 		public void ModifyLegacyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
 		{
-			var lm = CustomAssetManagers["legacy"] as LegacyFileManager_M21;
+			var lm = CustomAssetManagers["legacy"] as LegacyFileManager_FMTV2;
 			if(lm != null)
             {
 				lm.ModifyAssets(data, true);

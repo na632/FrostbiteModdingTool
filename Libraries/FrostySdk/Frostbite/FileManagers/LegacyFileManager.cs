@@ -1,3 +1,4 @@
+using Frostbite.FileManagers;
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
@@ -32,7 +33,7 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 
         //public static AssetManager AssetManager { get; set; }
 
-		public void Initialize(ILogger logger)
+		public virtual void Initialize(ILogger logger)
 		{
 			logger.Log("Loading legacy files");
 			//var ebxChunks = AssetManager.EnumerateEbx().ToList();

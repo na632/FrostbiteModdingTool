@@ -38,5 +38,6 @@
   "SupportedLauncherFileTypes": null,
   "ModCompilerFileType": null,
   "CanEdit": false,
-  "CanLaunchMods": false
+  "CanLaunchMods": false,
+  "LegacyFileManager": "LegacyFileManager"
 }

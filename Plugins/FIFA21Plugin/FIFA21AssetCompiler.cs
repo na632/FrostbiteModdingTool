@@ -586,7 +586,7 @@ namespace FIFA21Plugin
                 }
 
                 //AssetManager.Instance.ModifyLegacyAssets(legacyData, true);
-                LegacyFileManager_M21 legacyFileManager = new LegacyFileManager_M21();
+                LegacyFileManager_FMTV2 legacyFileManager = new LegacyFileManager_FMTV2();
                 var modifiedLegacyAssets = legacyFileManager.ModifyAssets(legacyData, true);
                  
                 var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
