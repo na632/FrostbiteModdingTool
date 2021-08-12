@@ -46,6 +46,9 @@
     <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\Plugins\BF2042Plugin\bin\Debug\netcoreapp3.1\BF2042Plugin.dll" Link="Plugins\BF2042Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\Plugins\BF4Plugin\bin\Debug\netcoreapp3.1\BF4Plugin.dll" Link="Plugins\BF4Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,0 +1,67 @@
+{
+  "Name": "BF2042",
+  "DisplayName": "BF2042",
+  "DataVersion": 20210812,
+  "CacheName": "BF2042",
+  "Deobfuscator": "NullDeobfuscator",
+  "KeyFile": "FIFA21.key",
+  // If NULL it will try and find the plugin with the "Name" above
+  "PluginName": null,
+  // Your game's file system reader
+  //"AssetLoader": "Madden22AssetLoader",
+  "AssetLoader": "AssetLoader_BF2042",
+  // Your game's file system compiler / ModData builder
+  "AssetCompiler": "",
+  // Your WinForms Main Editor Form
+  "EditorScreen": "",
+  // Texture Importer (Overriding the base Importer)
+  "TextureImporter": "",
+  // Texture Exporter (Overriding the base Exporter)
+  "TextureExporter": "",
+  // EBX Reader (Overriding the base Reader)
+  "EBXReader": null,
+  // EBX Writer (Overriding the base Writer)
+  "EBXWriter": null,
+  // EBX Importer (Overriding the base Importer)
+  "EBXImporter": null,
+  // EBX Exporter (Overriding the base Exporter)
+  "EBXExporter": null,
+
+  // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
+  "CacheWriter": "CacheWriter",
+  // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
+  "CacheReader": "CacheReader",
+
+  "Sources": [
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+  "SDKFilename": "BF2042SDK",
+  "SDKFirstTypeInfo": null,
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  // Supported Launcher Filetypes
+  "SupportedLauncherFileTypes": [ "fbmod" ],
+  // File Type to save to when compiling a mod from the Editor
+  "ModCompilerFileType": "fbmod",
+  // Can the Launcher support this Game?
+  "CanLaunchMods": false,
+  // Can this Application Edit this Game?
+  "CanEdit": false,
+  "EbxVersion": 4,
+  "RequiresKey": true,
+  "MustAddChunks": false,
+  // Can this App import meshes into the Game?
+  "CanImportMeshes": false,
+  // Can this App export meshes from the Game?
+  "CanExportMeshes": false,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16,
+  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatRES": "Oodle",
+  "CompressedFormatChunk": "Oodle",
+  "CompressedFormatLegacy": "LZ4",
+  "LegacyFileManager": "LegacyFileManager_FMTV2"
+
+}
