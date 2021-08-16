@@ -13,9 +13,9 @@ namespace FrostySdk.IO
 	
 	public class EbxReaderV3 : EbxReader
 	{
-		internal static EbxSharedTypeDescriptors std;
+		internal static IEbxSharedTypeDescriptor std;
 
-		internal static EbxSharedTypeDescriptors patchStd;
+		internal static IEbxSharedTypeDescriptor patchStd;
 
 		public List<Guid> classGuids = new List<Guid>();
 
@@ -25,21 +25,32 @@ namespace FrostySdk.IO
 
 		public static void InitialiseStd()
 		{
-			if (std == null)
+			if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
 			{
-				std = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors.ebx", patch: false);
-			}
-
-			if (patchStd == null)
-			{
-				var allSTDs = FileSystem.Instance.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
-				if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+				if (std == null)
 				{
-					patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_patch.ebx", patch: true);
+					std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
 				}
-				if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+			}
+			else
+			{
+				if (std == null)
 				{
-					patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_Patch.ebx", patch: true);
+					std = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors.ebx", patch: false);
+				}
+
+				if (patchStd == null)
+				{
+					var allSTDs = FileSystem.Instance.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
+					if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+					{
+						patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_patch.ebx", patch: true);
+					}
+					if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+					{
+						patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_Patch.ebx", patch: true);
+					}
 				}
 			}
 		}

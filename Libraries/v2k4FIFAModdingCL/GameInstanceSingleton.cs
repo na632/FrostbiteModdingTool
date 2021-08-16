@@ -76,6 +76,7 @@ namespace v2k4FIFAModdingCL
             "FIFA19.exe",
             "FIFA21.exe",
             "Madden21.exe",
+            "Madden22.exe",
             "bf4.exe",
         };
 

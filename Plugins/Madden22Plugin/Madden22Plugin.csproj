@@ -12,4 +12,8 @@
     <ProjectReference Include="..\..\Libraries\FrostySdk\FrostySdk.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Windows\" />
+  </ItemGroup>
+
 </Project>

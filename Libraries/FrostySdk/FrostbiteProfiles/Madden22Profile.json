@@ -1,25 +1,25 @@
 {
   "Name": "MADDEN22",
-  "DisplayName": "MADDEN 21",
-  "DataVersion": 20200831,
+  "DisplayName": "MADDEN 22",
+  "DataVersion": 20210812,
   "CacheName": "MADDEN22",
   "Deobfuscator": "NullDeobfuscator",
-  "KeyFile": "MADDEN22.key",
+  "KeyFile": "FIFA21.key",
   // If NULL it will try and find the plugin with the "Name" above
   "PluginName": null,
   // Your game's file system reader
   //"AssetLoader": "Madden22AssetLoader",
-  "AssetLoader": "FifaAssetLoader",
+  "AssetLoader": "AssetLoader_Madden22",
   // Your game's file system compiler / ModData builder
-  "AssetCompiler": "Madden22AssetCompiler",
-  // Your WinForms Main Editor Form
+  "AssetCompiler": "",
+  // Your WPF Main Editor Form
   "EditorScreen": "Madden22Editor",
   // Texture Importer (Overriding the base Importer)
-  "TextureImporter": "M22TextureImporter",
+  "TextureImporter": "",
   // Texture Exporter (Overriding the base Exporter)
-  "TextureExporter": "TextureExporter",
+  "TextureExporter": "",
   // EBX Reader (Overriding the base Reader)
-  "EBXReader": null,
+  "EBXReader": "EBXReaderV4",
   // EBX Writer (Overriding the base Writer)
   "EBXWriter": null,
   // EBX Importer (Overriding the base Importer)
@@ -42,9 +42,17 @@
       "SubDirs": false
     }
   ],
+  // --------------------------------------------------------
+  // SDK Generating Info
+  //
   "SDKFilename": "MADDEN22SDK",
   "SDKFirstTypeInfo": null,
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  "SDKClassesFile": "M22.Classes.txt",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Madden21.ClassInfo",
+  "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
+  //
+  // --------------------------------------------------------
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "fbmod" ],
   // File Type to save to when compiling a mod from the Editor
@@ -52,7 +60,7 @@
   // Can the Launcher support this Game?
   "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
   "EbxVersion": 4,
   "RequiresKey": true,
   "MustAddChunks": false,
@@ -66,6 +74,6 @@
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "LZ4",
-  "LegacyFileManager": "LegacyFileManager_M21"
+  "LegacyFileManager": "LegacyFileManager_FMTV2"
 
 }

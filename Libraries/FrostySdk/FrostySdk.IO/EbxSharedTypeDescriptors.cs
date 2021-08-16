@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace FrostySdk.IO
 {
-	internal class EbxSharedTypeDescriptors
+	public class EbxSharedTypeDescriptors : IEbxSharedTypeDescriptor
 	{
 		private List<EbxClass?> classes = new List<EbxClass?>();
 
@@ -125,8 +125,8 @@ namespace FrostySdk.IO
 				EbxClass lastValue = new EbxClass();
 				for (int j = 0; j < stdClassCount; j++)
 				{
-					Guid guid = nativeReader.ReadGuid();
-					Guid b = nativeReader.ReadGuid();
+					Guid guid = nativeReader.ReadGuid(); // 16
+					Guid b = nativeReader.ReadGuid(); // 16
 					if (guid.Equals(b))
 					{
 						mapping.Add(guid, classes.Count);
@@ -138,12 +138,12 @@ namespace FrostySdk.IO
 					else
 					{
 						nativeReader.Position -= 16L;
-						uint nameHash2 = nativeReader.ReadUInt();
-						uint unkuint2  = nativeReader.ReadUInt();
-						int fieldCount = nativeReader.ReadByte();
-						byte alignment = nativeReader.ReadByte();
-						ushort type = nativeReader.ReadUShort();
-						uint size = nativeReader.ReadUInt();
+						uint nameHash2 = nativeReader.ReadUInt(); // 4
+						uint unkuint2  = nativeReader.ReadUInt(); // 8
+						int fieldCount = nativeReader.ReadByte(); // 9
+						byte alignment = nativeReader.ReadByte(); // 10
+						ushort type = nativeReader.ReadUShort(); // 12
+						uint size = nativeReader.ReadUInt(); // 16
 						if ((alignment & 0x80) != 0)
 						{
 							fieldCount += 256;

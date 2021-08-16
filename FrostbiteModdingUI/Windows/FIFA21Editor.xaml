@@ -103,6 +103,15 @@
                             </MenuItem.Header>
                         </MenuItem>
                         <Separator></Separator>
+                        <MenuItem x:Name="btnRebuildCacheSdk" Click="btnRebuildCacheSdk_Click">
+                            <MenuItem.Header>
+                                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="OpenInNew" VerticalAlignment="Center" />
+                                    <Label Content="Open Cache SDK Builder" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator></Separator>
                         <MenuItem Visibility="Collapsed">
                             <MenuItem.Header>
                                 <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">

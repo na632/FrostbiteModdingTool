@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -39,7 +39,6 @@
 
   <ItemGroup>
     <Folder Include="FrostbiteProfiles\" />
-    <Folder Include="Plugins\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,6 +61,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\Plugins\Madden21Plugin\bin\Debug\netcoreapp3.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Plugins\Madden22Plugin\bin\Debug\netcoreapp3.1\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

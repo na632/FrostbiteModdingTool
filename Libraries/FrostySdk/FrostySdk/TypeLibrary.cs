@@ -95,7 +95,11 @@ namespace FrostySdk
 					Type[] concreteTypes = GetConcreteTypes();
 					foreach (Type type in concreteTypes)
 					{
-						typeInfosByHash.Add((uint)Fnv1.HashString(type.Name), type);
+						var hashAttr = type.GetCustomAttribute<HashAttribute>();
+						if (hashAttr != null)
+						{
+							typeInfosByHash.Add((uint)hashAttr.ActualHash, type);
+						}
 					}
 				}
 				if (!typeInfosByHash.ContainsKey(hash))

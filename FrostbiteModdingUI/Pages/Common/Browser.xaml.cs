@@ -829,6 +829,24 @@ namespace FIFAModdingUI.Pages.Common
 							this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
 
 						}
+						else if (string.IsNullOrEmpty(ebxEntry.Type))
+                        {
+							btnExport.IsEnabled = true;
+							btnImport.IsEnabled = true;
+							btnRevert.IsEnabled = true;
+
+							unknownFileDocumentsPane.Children.Clear();
+							var newLayoutDoc = new LayoutDocument();
+							newLayoutDoc.Title = SelectedEntry.DisplayName;
+							WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
+							hexEditor.Stream = AssetManager.Instance.GetEbxStream(ebxEntry);
+							newLayoutDoc.Content = hexEditor;
+							hexEditor.BytesModified += HexEditor_BytesModified;
+							unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
+							unknownFileDocumentsPane.SelectedContentIndex = 0;
+
+							UnknownLegacyFileViewer.Visibility = Visibility.Visible;
+						}
 						else
 						{
 							if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")

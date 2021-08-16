@@ -61,7 +61,7 @@ namespace FrostbiteModdingUI.Windows
 
         public Madden21Editor()
         {
-            throw new Exception("Incorrect usage of Editor Windows");
+            //throw new Exception("Incorrect usage of Editor Windows");
         }
 
         public Madden21Editor(Window owner)
@@ -80,7 +80,7 @@ namespace FrostbiteModdingUI.Windows
 
         public string RecentFilesLocation => throw new NotImplementedException();
 
-        private void Madden21Editor_Loaded(object sender, RoutedEventArgs e)
+        public void Madden21Editor_Loaded(object sender, RoutedEventArgs e)
         {
             if (File.Exists(LastGameLocation))
             {
@@ -117,7 +117,7 @@ namespace FrostbiteModdingUI.Windows
             File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
         }
 
-        private void Madden21Editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        public void Madden21Editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (App.AppInsightClient != null)
             {

@@ -41,6 +41,7 @@ namespace SdkGenerator
         }
 
 		public string ProcessName = ProfilesLibrary.ProfileName;
+		public string OverrideProfileName = null;
 
 		public Process GetProcess()
         {
@@ -62,6 +63,16 @@ namespace SdkGenerator
 				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase))
 				   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
 				   );
+
+			if(process == null)
+            {
+				var psi = new System.Diagnostics.ProcessStartInfo() { FileName = @"F:\Origin Games\Battlefield 2042 Technical Playtest\bf.exe"
+							, UseShellExecute = true
+							, Verb = "runas"
+				};
+				process = System.Diagnostics.Process.Start(psi);
+				Thread.Sleep(3000);
+			}
 			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
 			return process;
 		}
@@ -79,7 +90,7 @@ namespace SdkGenerator
 			
 				if (SdkProcess != null)
 				{
-					string text = SdkProcess.MainModule?.ModuleName;
+					//string text = SdkProcess.MainModule?.ModuleName;
 				}
 				attemptToFindProcess++;
 				await Task.Delay(1000);
@@ -92,7 +103,7 @@ namespace SdkGenerator
 
 			if (SdkProcess != null)
 			{
-				ProfilesLibrary.Initialize(SdkProcess.ProcessName);
+				ProfilesLibrary.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName : OverrideProfileName);
 
 				Debug.WriteLine($"Process Found {SdkProcess.ProcessName}");
 				Trace.WriteLine($"Process Found {SdkProcess.ProcessName}");
@@ -172,7 +183,15 @@ namespace SdkGenerator
 			SdkUpdateState sdkUpdateState = state as SdkUpdateState;
 			if (SdkProcess != null)
 			{
-				long baseAddress = SdkProcess.MainModule.BaseAddress.ToInt64();
+				long baseAddress = 0;
+				try
+                {
+					baseAddress = SdkProcess.MainModule.BaseAddress.ToInt64();
+				}
+				catch (Exception)
+                {
+
+                }
 				MemoryReader memoryReader = new MemoryReader(SdkProcess, baseAddress);
 				sdkUpdateState.Process = SdkProcess;
 				if (memoryReader == null)

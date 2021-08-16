@@ -2,6 +2,7 @@
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SdkGenerator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -50,6 +51,22 @@ namespace FrostbiteModdingTests
         {
             var buildCache = new BuildCache();
             buildCache.LoadData("BF2042", GamePath, this, true, false);
+
+            var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
+            var resItems = AssetManager.Instance.EnumerateRes().ToList();
+            var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
+            var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+        }
+
+        [TestMethod]
+        public void BuildSDK()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("BF2042", GamePath, this, false);
+
+            var buildSDK = new BuildSDK();
+            buildSDK.OverrideProfileName = "BF2042";
+            buildSDK.Build().Wait();
 
             var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
             var resItems = AssetManager.Instance.EnumerateRes().ToList();

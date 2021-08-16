@@ -456,9 +456,9 @@ namespace FrostySdk.IO
 
 	public class EbxReaderV2 : EbxReader
 	{
-		internal static EbxSharedTypeDescriptors std;
+		internal static IEbxSharedTypeDescriptor std;
 
-		internal static EbxSharedTypeDescriptors patchStd;
+		internal static IEbxSharedTypeDescriptor patchStd;
 
 		public List<Guid> classGuids = new List<Guid>();
 
@@ -468,21 +468,34 @@ namespace FrostySdk.IO
 
 		public static void InitialiseStd()
 		{
-			if (std == null)
+			if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
 			{
-				std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
-			}
-
-			if (patchStd == null)
-			{
-				var allSTDs = AssetManager.Instance.fs.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
-				if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+				if (std == null)
 				{
-					patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", patch: true);
+					std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
+					//std = new EbxSharedTypeDescriptorV2(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
 				}
-				if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+			}
+			else
+			{
+
+				if (std == null)
 				{
-					patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors_Patch.ebx", patch: true);
+					std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
+				}
+
+				if (patchStd == null)
+				{
+					var allSTDs = AssetManager.Instance.fs.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
+					if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+					{
+						patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", patch: true);
+					}
+					if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+					{
+						patchStd = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors_Patch.ebx", patch: true);
+					}
 				}
 			}
 		}

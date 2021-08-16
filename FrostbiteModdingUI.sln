@@ -76,7 +76,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModExtractor", "FIFAMod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSIL", "Libraries\CSIL\CSIL.csproj", "{F84623CA-1E3B-48FF-B3BF-80F70EE7C7EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BF2042Plugin", "Plugins\BF2042Plugin\BF2042Plugin.csproj", "{A44C9674-C8FA-41D7-B0E6-08221055FB47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BF2042Plugin", "Plugins\BF2042Plugin\BF2042Plugin.csproj", "{A44C9674-C8FA-41D7-B0E6-08221055FB47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

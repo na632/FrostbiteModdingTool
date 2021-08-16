@@ -1,7 +1,7 @@
 {
   "Name": "BF2042",
   "DisplayName": "BF2042",
-  "DataVersion": 20210812,
+  "DataVersion": 20210811,
   "CacheName": "BF2042",
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "FIFA21.key",

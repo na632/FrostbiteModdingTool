@@ -25,7 +25,7 @@ namespace SdkGenerator
 
         public static EbxAssetEntry SelectedAsset;
 
-        public static string configFilename = "FrostyEditor.ini";
+        //public static string configFilename = "FrostyEditor.ini";
 
 
         
@@ -67,9 +67,10 @@ namespace SdkGenerator
             var names = executingAssembly.GetManifestResourceNames();
             //using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FrostyEditor.Classes.txt"))
             //using (Stream stream = executingAssembly.GetManifestResourceStream("v2k4FIFASDKGenerator.Classes.txt"))
-            if (ProfilesLibrary.IsMadden21DataVersion())
+
+            if (!string.IsNullOrEmpty(ProfilesLibrary.SDKClassesFile))
             {
-                using (FileStream stream = new FileStream("M21.Classes.txt", FileMode.Open))
+                using (FileStream stream = new FileStream(ProfilesLibrary.SDKClassesFile, FileMode.Open))
                 {
                     if (stream != null)
                     {
@@ -77,26 +78,49 @@ namespace SdkGenerator
                     }
                 }
             }
-            //else
-            //{
-            if (ProfilesLibrary.IsFIFA20DataVersion())
-            {
-                using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
+            else 
+            { 
+                if (ProfilesLibrary.IsMadden21DataVersion())
                 {
-                    if (stream != null)
+                    using (FileStream stream = new FileStream("M21.Classes.txt", FileMode.Open))
                     {
-                        classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                        if (stream != null)
+                        {
+                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                        }
                     }
                 }
-            }
-            //}
-            if (ProfilesLibrary.IsFIFA21DataVersion())
-            {
-                using (FileStream stream = new FileStream("FIFA21.Classes.txt", FileMode.Open))
+                if (ProfilesLibrary.IsMadden21DataVersion())
                 {
-                    if (stream != null)
+                    using (FileStream stream = new FileStream("M21.Classes.txt", FileMode.Open))
                     {
-                        classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                        if (stream != null)
+                        {
+                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                        }
+                    }
+                }
+                //else
+                //{
+                if (ProfilesLibrary.IsFIFA20DataVersion())
+                {
+                    using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
+                    {
+                        if (stream != null)
+                        {
+                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                        }
+                    }
+                }
+                //}
+                if (ProfilesLibrary.IsFIFA21DataVersion())
+                {
+                    using (FileStream stream = new FileStream("FIFA21.Classes.txt", FileMode.Open))
+                    {
+                        if (stream != null)
+                        {
+                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                        }
                     }
                 }
             }
@@ -243,8 +267,149 @@ namespace SdkGenerator
             return false;
         }
 
+        private void LoadSharedTypeDescriptors2(string name, Dictionary<string, Tuple<EbxClass, DbObject>> mapping, ref List<Guid> existingClasses)
+        {
+            Dictionary<ulong, DbObject> classDictionaryToHash = new Dictionary<ulong, DbObject>();
+            Dictionary<ulong, string> fieldDictionaryToHash = new Dictionary<ulong, string>();
+            foreach (DbObject @class in classList)
+            {
+                if (@class.GetValue<string>("name").Contains("blocking"))
+                {
+
+                }
+                if (!@class.HasValue("basic"))
+                {
+                    classDictionaryToHash.Add((ulong)@class.GetValue("nameHash", 0ul), @class);
+                    foreach (DbObject item4 in @class.GetValue<DbObject>("fields"))
+                    {
+                        if (!fieldDictionaryToHash.ContainsKey((ulong)item4.GetValue<ulong>("nameHash")))
+                        {
+                            fieldDictionaryToHash.Add((ulong)item4.GetValue<ulong>("nameHash"), item4.GetValue("name", ""));
+                        }
+                    }
+                }
+            }
+            EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2(FileSystem.Instance, name, name.Contains("patch", StringComparison.OrdinalIgnoreCase));
+            foreach (var g in std.Guids)
+            {
+                if (!existingClasses.Contains(g))
+                {
+                    existingClasses.Add(g);
+                }
+            }
+
+            for (int k = 0; k < std.Classes.Count; k++)
+            {
+                if (std.Classes[k].HasValue)
+                {
+                    EbxClass @class = std.Classes[k].Value;
+                    Guid guid = std.Guids[k];
+                    if (classDictionaryToHash.ContainsKey(@class.NameHash))
+                    {
+                        DbObject dbObject3 = classDictionaryToHash[@class.NameHash];
+                        if (mapping.ContainsKey(dbObject3.GetValue("name", "")))
+                        {
+                            mapping.Remove(dbObject3.GetValue("name", ""));
+                            fieldMapping.Remove(dbObject3.GetValue("name", ""));
+                        }
+                        if (!dbObject3.HasValue("typeInfoGuid"))
+                        {
+                            dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
+                        }
+                        if (dbObject3.GetValue<DbObject>("typeInfoGuid").FindIndex((object a) => (Guid)a == guid) == -1)
+                        {
+                            dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+                        }
+
+                        //if (!dbObject3.GetValue<DbObject>("typeInfoGuid").List.Any())
+                        //{
+                        //    dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+                        //}
+                        // PG: Change it to just overwrite the last one? 
+                        //dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
+                        //dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+
+
+                        EbxClass item2 = default(EbxClass);
+                        item2.Name = dbObject3.GetValue("name", "");
+                        if (item2.Name.Contains("blocking", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+                        item2.FieldCount = @class.FieldCount;
+                        item2.Alignment = @class.Alignment;
+                        item2.Size = @class.Size;
+                        item2.Type = (ushort)(@class.Type >> 1);
+                        item2.SecondSize = (ushort)dbObject3.GetValue("size", 0);
+                        mapping.Add(item2.Name, new Tuple<EbxClass, DbObject>(item2, dbObject3));
+                        fieldMapping.Add(item2.Name, new List<EbxField>());
+                        DbObject dbObjectFields = dbObject3.GetValue<DbObject>("fields");
+                        DbObject dbObject4 = DbObject.CreateList();
+                        if (@class.FieldCount > 0)
+                        {
+                            dbObject3.RemoveValue("fields");
+                            for (int l = 0; l < @class.FieldCount; l++)
+                            {
+                                EbxField field = std.Fields[@class.FieldIndex + l];
+
+                                bool flag = false;
+                                foreach (DbObject dbObjField in dbObjectFields)
+                                {
+                                    var dbObjName = dbObjField.GetValue<string>("name");
+                                    var dbObjNameHash = dbObjField.GetValue<ulong>("nameHash");
+                                    if (dbObjNameHash == field.NameHash)
+                                    {
+                                        dbObjField.SetValue("type", field.Type);
+                                        dbObjField.SetValue("offset", field.DataOffset);
+                                        dbObjField.SetValue("value", (int)field.DataOffset);
+                                        if (field.DebugType == EbxFieldType.Array)
+                                        {
+                                            Guid guid3 = std.Guids[@class.Index + (short)field.ClassRef];
+                                            dbObjField.SetValue("guid", guid3);
+                                        }
+
+                                        dbObject4.Add(dbObjField);
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                                if (!flag)
+                                {
+
+
+                                    //    uint num8 = 3109710567u;
+                                    //    if (field.NameHash != num8)
+                                    //    {
+                                    field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
+                                    DbObject dbObject6 = DbObject.CreateObject();
+                                    dbObject6.SetValue("name", field.Name);
+                                    dbObject6.SetValue("nameHash", field.NameHash);
+                                    dbObject6.SetValue("type", field.Type);
+                                    dbObject6.SetValue("flags", (ushort)0);
+                                    dbObject6.SetValue("offset", field.DataOffset);
+                                    dbObject6.SetValue("value", (int)field.DataOffset);
+                                    dbObject4.Add(dbObject6);
+                                    //    }
+                                }
+                                fieldMapping[item2.Name].Add(field);
+                            }
+                            dbObject3.SetValue("fields", dbObject4);
+                        }
+                    }
+                    else
+                    {
+                    }
+                }
+            }
+        }
+
         private void LoadSharedTypeDescriptors(string name, Dictionary<string, Tuple<EbxClass, DbObject>> mapping, ref List<Guid> existingClasses)
         {
+            if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
+            {
+                LoadSharedTypeDescriptors2(name, mapping, ref existingClasses);
+                return;
+            }
             byte[] fileFromMemoryFs = FileSystem.GetFileFromMemoryFs(name);
             if (fileFromMemoryFs != null)
             {
@@ -488,7 +653,7 @@ namespace SdkGenerator
             else
             {
                 List<EbxField> ebxFieldList = new List<EbxField>();
-                foreach (DbObject dbObject7 in dbObject3.List)
+                foreach (DbObject dbObject7 in dbObject3.List.Distinct())
                 {
                     ebxFieldList.Add(new EbxField
                     {
@@ -552,7 +717,7 @@ namespace SdkGenerator
                         {
                             foreach (EbxField field2 in fields)
                             {
-                                if (field2.Name.Equals(field.Name))
+                                if (!string.IsNullOrEmpty(field2.Name) && field2.Name.Equals(field.Name))
                                 {
                                     if (field.Type != field2.Type)
                                     {
@@ -728,40 +893,49 @@ namespace SdkGenerator
             //string typeStr = "SdkGenerator.Madden20.ClassInfo";
             string typeStr = "SdkGenerator.BaseInfo.ClassInfo";
 
-            //if (ProfilesLibrary.DataVersion == 20181207)
-            //{
-            //    str = "FrostyEditor.Anthem.";
-            //}
-            //else if (ProfilesLibrary.IsMadden20DataVersion())
-            //{
-            //    str = "FrostyEditor.Madden20.";
-            //}
-            //else if (ProfilesLibrary.DataVersion == 20190905)
-            //{
-            //    str = "FrostyEditor.Madden20.";
-            //}
-            //else 
-            switch (ProfilesLibrary.DataVersion) {
+            if (!string.IsNullOrEmpty(ProfilesLibrary.SDKGeneratorClassInfoType))
+            {
+                typeStr = ProfilesLibrary.SDKGeneratorClassInfoType;
+            }
+            else
+            {
 
-                case (int)ProfilesLibrary.DataVersions.FIFA19:
-                    typeStr = "SdkGenerator.BaseInfo.ClassInfo";
-                    break;
-                case (int)ProfilesLibrary.DataVersions.FIFA20:
-                    typeStr = "SdkGenerator.Madden20.ClassInfo";
-                break;
-                case (int)ProfilesLibrary.DataVersions.MADDEN20:
-                    typeStr = "SdkGenerator.Madden20.ClassInfo";
-                break;
-                case (int)ProfilesLibrary.DataVersions.FIFA21:
-                    typeStr = "SdkGenerator.FIFA21.ClassInfo";
-                break;
-                case (int)ProfilesLibrary.DataVersions.MADDEN21:
-                    typeStr = "SdkGenerator.Madden21.ClassInfo";
-                break;
-                default:
-                    typeStr = "SdkGenerator.BaseInfo.ClassInfo";
-                    break;
-                
+                //if (ProfilesLibrary.DataVersion == 20181207)
+                //{
+                //    str = "FrostyEditor.Anthem.";
+                //}
+                //else if (ProfilesLibrary.IsMadden20DataVersion())
+                //{
+                //    str = "FrostyEditor.Madden20.";
+                //}
+                //else if (ProfilesLibrary.DataVersion == 20190905)
+                //{
+                //    str = "FrostyEditor.Madden20.";
+                //}
+                //else 
+                switch (ProfilesLibrary.DataVersion)
+                {
+
+                    case (int)ProfilesLibrary.DataVersions.FIFA19:
+                        typeStr = "SdkGenerator.BaseInfo.ClassInfo";
+                        break;
+                    case (int)ProfilesLibrary.DataVersions.FIFA20:
+                        typeStr = "SdkGenerator.Madden20.ClassInfo";
+                        break;
+                    case (int)ProfilesLibrary.DataVersions.MADDEN20:
+                        typeStr = "SdkGenerator.Madden20.ClassInfo";
+                        break;
+                    case (int)ProfilesLibrary.DataVersions.FIFA21:
+                        typeStr = "SdkGenerator.FIFA21.ClassInfo";
+                        break;
+                    case (int)ProfilesLibrary.DataVersions.MADDEN21:
+                        typeStr = "SdkGenerator.Madden21.ClassInfo";
+                        break;
+                    default:
+                        typeStr = "SdkGenerator.BaseInfo.ClassInfo";
+                        break;
+
+                }
             }
           
 

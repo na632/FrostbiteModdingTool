@@ -582,13 +582,13 @@ public interface IAssetLoader
 			throw new ArgumentNullException("Unable to find Plugin or Class");
 		}
 
-		public static object LoadTypeByName(string className)
+		public static object LoadTypeByName(string className, params object[] args)
 		{
 			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
 			{
-				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
+				var t = a.GetTypes().FirstOrDefault(x => x.Name.Equals(className, StringComparison.OrdinalIgnoreCase));
 				if (t != null)
-					return Activator.CreateInstance(t);
+					return Activator.CreateInstance(type: t, args: args);
 			}
 			throw new ArgumentNullException("Unable to find Class");
 		}
@@ -694,6 +694,8 @@ public interface IAssetLoader
 
         public bool ForceChunkRemoval { get; set; }
 
+
+		public Type EbxReaderType { get; set; }
         public void UpdateEbxListItem(EbxAssetEntry ebx)
         {
 			
@@ -720,18 +722,38 @@ public interface IAssetLoader
 				{
 					if (ebxStream != null && ebxStream.Length > 0)
 					{
+						EbxReader ebxReader = null;
 						//EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
 						if (ProfilesLibrary.IsFIFA19DataVersion())
 						{
-							EbxReader ebxReader = new EbxReader(ebxStream, true);
+							ebxReader = new EbxReader(ebxStream, true);
 							EBX[ebx.Name].Type = ebxReader.RootType;
 							EBX[ebx.Name].Guid = ebxReader.FileGuid;
 						}
 						else
 						{
-							EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
-							EBX[ebx.Name].Type = ebxReader.RootType;
-							EBX[ebx.Name].Guid = ebxReader.FileGuid;
+							if (!string.IsNullOrEmpty(ProfilesLibrary.EBXReader))
+							{
+								if (EbxReaderType == null)
+								{
+									ebxReader = (EbxReader)LoadTypeByName(ProfilesLibrary.EBXReader, ebxStream, true);
+									EbxReaderType = ebxReader.GetType();
+								}
+								else
+                                {
+									ebxReader = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
+                                }
+
+								EBX[ebx.Name].Type = ebxReader.RootType;
+								EBX[ebx.Name].Guid = ebxReader.FileGuid;
+							}
+							else
+							{
+								//EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
+								ebxReader = new EbxReaderV3(ebxStream, true);
+								EBX[ebx.Name].Type = ebxReader.RootType;
+								EBX[ebx.Name].Guid = ebxReader.FileGuid;
+							}
 						}
 						return;
 					}
@@ -742,10 +764,10 @@ public interface IAssetLoader
             }
 
 
-			if (string.IsNullOrEmpty(ebx.Type))
-			{
-				EBX.TryRemove(ebx.Name, out _);
-			}
+			//if (string.IsNullOrEmpty(ebx.Type))
+			//{
+			//	EBX.TryRemove(ebx.Name, out _);
+			//}
 		}
 
 		
@@ -764,12 +786,12 @@ public interface IAssetLoader
 			ResourceManager.UseLastCasPath = true;
 
 			var ebxListValues = EBX.Values.ToList();
-            if (ProfilesLibrary.IsMadden21DataVersion()
-                || ProfilesLibrary.IsFIFA21DataVersion()
-                || ProfilesLibrary.IsFIFA20DataVersion()
-                || ProfilesLibrary.IsFIFA19DataVersion()
-                )
-            {
+            //if (ProfilesLibrary.IsMadden21DataVersion()
+            //    || ProfilesLibrary.IsFIFA21DataVersion()
+            //    || ProfilesLibrary.IsFIFA20DataVersion()
+            //    || ProfilesLibrary.IsFIFA19DataVersion()
+            //    )
+            //{
 
 				int ebxProgress = 0;
 
@@ -790,7 +812,7 @@ public interface IAssetLoader
 
 				}
 
-            }
+            //}
 
 			ResourceManager.UseLastCasPath = false;
 
@@ -1752,11 +1774,13 @@ public interface IAssetLoader
 				}
 			}
             bool inPatched = false;
-			if ( (ProfilesLibrary.IsFIFADataVersion() 
-				|| ProfilesLibrary.IsMadden21DataVersion() 
-				|| ProfilesLibrary.IsFIFA21DataVersion()
-				)
-				&& entry.ExtraData.CasPath.StartsWith("native_patch"))
+			if ( 
+				//(ProfilesLibrary.IsFIFADataVersion() 
+				//|| ProfilesLibrary.IsMadden21DataVersion() 
+				//|| ProfilesLibrary.IsFIFA21DataVersion()
+				//)
+				//&& 
+				entry.ExtraData.CasPath.StartsWith("native_patch"))
 			{
 				inPatched = true;
 			}
@@ -1773,34 +1797,46 @@ public interface IAssetLoader
 		}
 
 
-			public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
-        //public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = false)
+		public EbxAsset GetEbxAssetFromStream(Stream asset, bool inPatched = true)
         {
 			EbxReader ebxReader = null;
-			if (ProfilesLibrary.IsFIFA21DataVersion())
-			{
-                //ebxReader = new EbxReader_F21(asset, inPatched);
-                //ebxReader = new EbxReaderV2(asset, inPatched);
-                ebxReader = new EbxReaderV3(asset, inPatched);
 
-            }
-			else if (ProfilesLibrary.IsMadden21DataVersion())
+			if (!string.IsNullOrEmpty(ProfilesLibrary.EBXReader))
 			{
-				//ebxReader = new EbxReader_F21(asset, inPatched);
-				//ebxReader = new EbxReaderV2(asset, inPatched);
-				ebxReader = new EbxReaderV3(asset, inPatched);
+				//            if (ProfilesLibrary.EBXReader.Contains("V3", StringComparison.OrdinalIgnoreCase))
+				//            {
+				//	return new EbxReaderV3(asset, inPatched).ReadAsset();
+				//}
+				ebxReader = (EbxReader)LoadTypeByName(ProfilesLibrary.EBXReader, asset, inPatched);
+			}
+			else
+			{
 
+				if (ProfilesLibrary.IsFIFA21DataVersion())
+				{
+					//ebxReader = new EbxReader_F21(asset, inPatched);
+					//ebxReader = new EbxReaderV2(asset, inPatched);
+					ebxReader = new EbxReaderV3(asset, inPatched);
+
+				}
+				else if (ProfilesLibrary.IsMadden21DataVersion())
+				{
+					//ebxReader = new EbxReader_F21(asset, inPatched);
+					//ebxReader = new EbxReaderV2(asset, inPatched);
+					ebxReader = new EbxReaderV3(asset, inPatched);
+
+				}
+				else if (ProfilesLibrary.DataVersion == 20181207
+					|| ProfilesLibrary.IsFIFA20DataVersion()
+					|| ProfilesLibrary.DataVersion == 20190905)
+				{
+					ebxReader = new EbxReaderV2(asset, inPatched);
+				}
+				else
+				{
+					ebxReader = new EbxReader(asset);
+				}
 			}
-			else if (ProfilesLibrary.DataVersion == 20181207
-				|| ProfilesLibrary.IsFIFA20DataVersion()
-				|| ProfilesLibrary.DataVersion == 20190905)
-			{
-				ebxReader = new EbxReaderV2(asset, inPatched);
-			}
-            else
-            {
-                ebxReader = new EbxReader(asset);
-            }
 
             return ebxReader.ReadAsset();
 		}

@@ -148,6 +148,9 @@ namespace FrostySdk
 			public string SDKFirstTypeInfo { get; set; }
 
 			public string SDKAOBScan { get; set; }
+			public string SDKClassesFile { get; set; }
+			public string SDKGeneratorClassInfoType { get; set; }
+			public string EBXTypeDescriptor { get; set; }
 
 			public string LegacyFileManager { get; set; }
 
@@ -276,6 +279,9 @@ namespace FrostySdk
 		public static bool CanExportMeshes => LoadedProfile.CanExportMeshes;
 
 		public static string LegacyFileManager => LoadedProfile.LegacyFileManager;
+		public static string SDKClassesFile => LoadedProfile.SDKClassesFile;
+		public static string SDKGeneratorClassInfoType => LoadedProfile.SDKGeneratorClassInfoType;
+		public static string EBXTypeDescriptor => LoadedProfile.EBXTypeDescriptor;
 
 		public enum CompTypeArea
         {
@@ -601,7 +607,7 @@ namespace FrostySdk
 			}
 			else
 			{
-				throw new Exception($"Cannot find {profileKey}Profile.json. You have either installed FMT correctly or a Profile for this game doesn't exist!");
+				throw new Exception($"Cannot find {profileKey}Profile.json. You have either not installed FMT correctly or a Profile for this game doesn't exist!");
 				//long num = -1L;
 				//using (FileStream fileStream = new FileStream("FrostySdk.Profiles.bin", FileMode.Open))
 				//using (NativeReader nativeReader = new NativeReader(fileStream))

@@ -1136,5 +1136,12 @@ namespace FIFAModdingUI.Windows
             loadingDialog.Close();
             loadingDialog = null;
         }
+
+        private void btnRebuildCacheSdk_Click(object sender, RoutedEventArgs e)
+        {
+            BuildSDKAndCache buildSDKAndCache = new BuildSDKAndCache();
+            buildSDKAndCache.DoNotAutoRebuild = true;
+            buildSDKAndCache.Show();
+        }
     }
 }

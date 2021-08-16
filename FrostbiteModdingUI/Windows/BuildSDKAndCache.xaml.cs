@@ -34,6 +34,7 @@ namespace FIFAModdingUI.Windows
     {
 
         private BuildCache buildCache = new BuildCache();
+        public bool DoNotAutoRebuild = false;
 
         public BuildSDKAndCache()
         {
@@ -46,7 +47,8 @@ namespace FIFAModdingUI.Windows
         {
             base.OnContentRendered(e);
 
-            Rebuild();
+            if(!DoNotAutoRebuild)
+                Rebuild();
         }
 
         private async void BuildSDKAndCache_Loaded(object sender, RoutedEventArgs e)
