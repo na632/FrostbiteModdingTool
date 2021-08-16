@@ -73,10 +73,10 @@ namespace FrostbiteSdk
 			stream.Position = 0;
 			ModBytes = new NativeReader(stream).ReadToEnd();
 			stream.Position = 0;
-			
-			// Check for Zip Encryption
-			bool IsEncrypted = new NativeReader(stream).ReadShort() == 1;
-			if (IsEncrypted)
+
+			// Check for Zip or Zstd
+			int CompressType = new NativeReader(stream).ReadShort();
+			if (CompressType == 1)
 			{ 
 				var m = new MemoryStream(ModBytes, 2, ModBytes.Length-2);
 				using (ZipFile zipFileReader = ZipFile.Read(m))
@@ -87,6 +87,12 @@ namespace FrostbiteSdk
 					entryStream.Position = 0;
 					ModBytes = new NativeReader(entryStream).ReadToEnd();
 				}
+			}
+			else if(CompressType == 2)
+            {
+				var m = new MemoryStream(ModBytes, 2, ModBytes.Length - 2);
+				CasReader casReader = new CasReader(m);
+				ModBytes = casReader.Read();
 			}
 
 			// Read internal Bytes

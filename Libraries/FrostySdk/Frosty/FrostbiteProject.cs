@@ -453,17 +453,17 @@ namespace FrostySdk
 			memoryStream.Position = 0;
 			projectbytes = new NativeReader(memoryStream).ReadToEnd();
 
-            MemoryStream zipStream = new MemoryStream();
-            ZipFile pZip = new ZipFile();
-            pZip.AddEntry("mE", projectbytes);
-            pZip.Save(zipStream);
+			MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
+            //ZipFile pZip = new ZipFile();
+            //pZip.AddEntry("mE", projectbytes);
+            //pZip.Save(zipStream);
 
 			if (File.Exists(filename))
 				File.Delete(filename);
 
 			zipStream.Position = 0;
             NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-            nwFinal.Write((ushort)1);
+            nwFinal.Write((ushort)2);
             nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
             nwFinal.Close();
             nwFinal.Dispose();
