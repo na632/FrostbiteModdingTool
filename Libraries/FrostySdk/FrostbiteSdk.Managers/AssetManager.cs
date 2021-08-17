@@ -584,9 +584,12 @@ public interface IAssetLoader
 
 		public static object LoadTypeByName(string className, params object[] args)
 		{
-			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+			var currAss = AppDomain.CurrentDomain.GetAssemblies();
+			foreach (Assembly a in currAss)
 			{
-				var t = a.GetTypes().FirstOrDefault(x => x.Name.Equals(className, StringComparison.OrdinalIgnoreCase));
+				var t = a.GetTypes().FirstOrDefault(x => 
+					x.Name.Equals(className, StringComparison.OrdinalIgnoreCase)
+					|| x.FullName.Equals(className, StringComparison.OrdinalIgnoreCase));
 				if (t != null)
 					return Activator.CreateInstance(type: t, args: args);
 			}

@@ -1,11 +1,9 @@
-using FrostyEditor.IO;
 using FrostySdk;
 using System;
-using System.Diagnostics;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 
-namespace SdkGenerator.FIFA21
+namespace SdkGenerator.Madden22
 {
 	public class FieldInfo : IFieldInfo
 	{
@@ -28,9 +26,9 @@ namespace SdkGenerator.FIFA21
 		public int index { get; set; }
 
 
-		private FIFA21.TypeInfo parentTypeInfo { get; }
-		public FieldInfo(FIFA21.TypeInfo parentType)
-        {
+		private ITypeInfo parentTypeInfo { get; }
+		public FieldInfo(ITypeInfo parentType)
+		{
 			parentTypeInfo = parentType;
 
 		}
@@ -41,24 +39,15 @@ namespace SdkGenerator.FIFA21
 			name = reader.ReadNullTerminatedString();
 			if (string.IsNullOrEmpty(name))
 			{
-				//if (parentTypeInfo.array[1] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[1];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				//else 
-				if (parentTypeInfo.array[3] > 5000000000)
-				{
-					reader.Position = parentTypeInfo.array[3];
-					name = reader.ReadNullTerminatedString();
-				}
-
 				if (string.IsNullOrEmpty(name))
 				{
-					//name = "Unk" + RandomEmpty.Next().ToString();
-					//Debug.WriteLine($"[ERROR] {parentTypeInfo.name} (Type:{parentTypeInfo.Type.ToString()}) has unknown field with name {name}");
+					name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
 				}
 			}
+			//else
+            //{
+				ReadSuccessfully = true;
+			//}
 
 			//var index = 1;
 			//for(index = 1; string.IsNullOrEmpty(name) && index < 7; index++)
@@ -66,12 +55,31 @@ namespace SdkGenerator.FIFA21
 			//	reader.Position = parentTypeInfo.array[index];
 			//	name = reader.ReadNullTerminatedString();
 			//}
+			var nH = reader.ReadInt();
+			nameHash = (uint)nH;
+			if (nH == -237252713)
+			{
 
-			nameHash = reader.ReadUInt();
+			}
+			if (nameHash == 4057714583)
+			{
+
+			}
+
+
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();
 		}
+
+		//public override void Read(MemoryReader reader)
+		//{
+		//	name = reader.ReadNullTerminatedString();
+		//	nameHash = reader.ReadUInt();
+		//	flags = reader.ReadUShort();
+		//	offset = reader.ReadUShort();
+		//	typeOffset = reader.ReadLong();
+		//}
 
 		public void Modify(DbObject fieldObj)
 		{

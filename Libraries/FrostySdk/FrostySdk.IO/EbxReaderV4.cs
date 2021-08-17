@@ -98,23 +98,30 @@ namespace FrostySdk.IO
 			var unkh4 = ReadByte();
 
 			var fileItemStringOffsetFromThisPosition = ReadLong() + (InStream.Position - 8L);
-			var unkh7 = ReadULong();
-			var unkh8 = ReadULong();
+			var unkh7 = ReadUInt();
+			var unkh8 = ReadUInt();
 			var unkh9 = ReadULong();
 			var unkh10 = ReadULong();
 			var unkh11 = ReadULong();
+			var unkh12 = ReadULong();
 
 			InStream.Position = fileItemStringOffsetFromThisPosition;
 			fileName = ReadNullTerminatedString();
 			if (string.IsNullOrEmpty(fileName))
 				return;
 
-			if (!string.IsNullOrEmpty(fileName) && fileName.Contains("chunkfile",StringComparison.OrdinalIgnoreCase))
+			//var type_attempt_1 = TypeLibrary.GetType(fileGuid);
+
+			if (!string.IsNullOrEmpty(fileName) && fileName.Contains("content/characters/player/bodies/body_0_normal", StringComparison.OrdinalIgnoreCase))
 			{
-				var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
-				InStream.CopyTo(fsDump);
-				fsDump.Close();
-				fsDump.Dispose();
+				if (File.Exists("ebxV4.dat")) File.Delete("ebxV4.dat");
+				var sPositionBeforeDump = InStream.Position;
+				InStream.Position = 0;
+				using (var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate))
+				{
+					InStream.CopyTo(fsDump);
+				}
+				InStream.Position = sPositionBeforeDump;
 			}
 
 			//InStream.Position = afterStringsOffsetMinus4 + 4 + headerLength;
@@ -140,6 +147,13 @@ namespace FrostySdk.IO
 				{
 					dependencies.Add(ebxImportReference.FileGuid);
 				}
+
+				var type_attempt = TypeLibrary.GetType(guid);
+				if(type_attempt != null)
+                {
+
+                }
+
 			}
 			var unk1 = ReadUInt();
 			var t = TypeLibrary.GetType(unk1);
@@ -154,6 +168,18 @@ namespace FrostySdk.IO
 			classGuids.Add(item1);
 			Guid item2 = ReadGuid();
 			classGuids.Add(item2);
+
+			var t2 = TypeLibrary.GetType(item1);
+			var t3 = TypeLibrary.GetType(item2);
+			if(t2 != null)
+            {
+
+            }
+			if(t3 != null)
+            {
+
+            }
+
 			/*
 
 			stringsOffset = ReadUInt();

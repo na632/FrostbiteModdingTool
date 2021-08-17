@@ -1,3 +1,5 @@
+using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 using FrostyEditor.IO;
 using FrostySdk;
 using System;
@@ -5,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SdkGenerator.BaseInfo
 {
-    public class TypeInfo
+    public class TypeInfo : ISdkGenInfo
     {
         public string name;
 

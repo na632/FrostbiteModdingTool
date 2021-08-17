@@ -1,5 +1,6 @@
 using FrostyEditor.IO;
 using System;
+using FrostbiteSdk;
 
 namespace SdkGenerator.Madden20
 {

@@ -1,16 +1,30 @@
 using FrostyEditor.IO;
 using FrostySdk;
 using System;
+using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 
 namespace SdkGenerator.Madden21
 {
-	public class FieldInfo : BaseInfo.FieldInfo
+	public class FieldInfo : IFieldInfo
 	{
-		private uint nameHash;
+		public uint nameHash;
 
 		public static Random RandomEmpty = new Random();
 
 		public bool ReadSuccessfully = false;
+
+		public string name { get; set; }
+
+		public ushort flags { get; set; }
+
+		public uint offset { get; set; }
+
+		public ushort padding1 { get; set; }
+
+		public long typeOffset { get; set; }
+
+		public int index { get; set; }
 
 
 		private Madden21.TypeInfo parentTypeInfo { get; }
@@ -20,53 +34,15 @@ namespace SdkGenerator.Madden21
 
 		}
 
-		public override void Read(MemoryReader reader)
+		public void Read(MemoryReader reader)
 		{
 			var position = reader.Position;
 			name = reader.ReadNullTerminatedString();
 			if (string.IsNullOrEmpty(name))
 			{
-				//if (parentTypeInfo.array[0] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[0];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				//if (parentTypeInfo.array[1] > 5000000000)
-    //            {
-    //                reader.Position = parentTypeInfo.array[1];
-    //                name = reader.ReadNullTerminatedString();
-    //            }
-				//if (parentTypeInfo.array[2] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[2];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				//if (parentTypeInfo.array[3] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[3];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				//if (parentTypeInfo.array[4] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[4];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				//if (parentTypeInfo.array[5] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[5];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				//if (parentTypeInfo.array[6] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[6];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				
-
 				if (string.IsNullOrEmpty(name))
 				{
 					name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
-					//Debug.WriteLine($"[ERROR] {parentTypeInfo.name} (Type:{parentTypeInfo.Type.ToString()}) has unknown field with name {name}");
 				}
 			}
 			//else
@@ -80,8 +56,18 @@ namespace SdkGenerator.Madden21
 			//	reader.Position = parentTypeInfo.array[index];
 			//	name = reader.ReadNullTerminatedString();
 			//}
+			var nH = reader.ReadInt();
+			nameHash = (uint)nH;
+			if (nH == -237252713)
+			{
 
-			nameHash = reader.ReadUInt();
+			}
+			if (nameHash == 4057714583)
+			{
+
+			}
+
+
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();
@@ -96,7 +82,7 @@ namespace SdkGenerator.Madden21
 		//	typeOffset = reader.ReadLong();
 		//}
 
-		public override void Modify(DbObject fieldObj)
+		public void Modify(DbObject fieldObj)
 		{
 			fieldObj.SetValue("nameHash", nameHash);
 		}

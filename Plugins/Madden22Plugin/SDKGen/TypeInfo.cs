@@ -1,12 +1,11 @@
-using FrostyEditor.IO;
-using FrostySdk;
 using System.Text.RegularExpressions;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 using System.Collections.Generic;
 using System;
+using FrostySdk;
 
-namespace SdkGenerator.FIFA21
+namespace SdkGenerator.Madden22
 {
 	public class TypeInfo : ITypeInfo
 	{
@@ -37,39 +36,41 @@ namespace SdkGenerator.FIFA21
 
 		public int Type => (flags >> 4) & 0x1F;
 
-		public List<IFieldInfo> fields { get; set; }
+        public List<IFieldInfo> fields { get; set; }
 
-		public void Read(MemoryReader reader)
+        public void Read(MemoryReader reader)
 		{
 			fields = new List<IFieldInfo>();
 			name = reader.ReadNullTerminatedString();
-            if(name.Contains("AttribSchema_gp_positioning_defe"))
+			if(name.Equals("TextureAsset", System.StringComparison.OrdinalIgnoreCase))
             {
 
             }
-			nameHash = reader.ReadUInt();
+			//nameHash = reader.ReadUInt();
+			var h = reader.ReadInt();
+			if(h == -237252713)
+            {
+
+            }
+			nameHash = (uint)h;
+			if (nameHash == 4057714583)
+			{
+
+			}
 			flags = reader.ReadUShort();
 			flags >>= 1;
-            size = reader.ReadUInt();
-            reader.Position -= 4L;
             size = reader.ReadUShort();
 
-            //size = reader.ReadUShort();
-            //_ = reader.ReadUShort();
-
-            //_ = reader.ReadUInt();
-            //size = reader.ReadUShort();
-
-            guid = reader.ReadGuid();
-			if(!Regex.IsMatch(guid.ToString(), @"^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$"))
-            {
+			guid = reader.ReadGuid();
+			if (!Regex.IsMatch(guid.ToString(), @"^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$"))
+			{
 				throw new System.FormatException("Guid is not valid");
-            }
+			}
 
 			// Module 
 			long namespaceNamePosition = reader.ReadLong();
-			
-			// Unknown
+
+			// Unknown ?
 			long nextTypeInfo = reader.ReadLong();
 
 			// 
@@ -78,7 +79,7 @@ namespace SdkGenerator.FIFA21
 
 			// Padding
 			padding3 = reader.ReadUInt();
-			
+
 			array = new long[7];
 			for (int i = 0; i < 7; i++)
 			{
@@ -88,47 +89,57 @@ namespace SdkGenerator.FIFA21
 			nameSpace = reader.ReadNullTerminatedString();
 			bool flag = false;
 
-            parentClass = array[0];
-			//parentClass = 0L;
-            reader.Position = nextTypeInfo;
+			reader.Position = nextTypeInfo;
+
+			parentClass = array[0];
 
 			if (Type == 2)
 			{
-                reader.Position = array[6];
-				flag = fieldCount > 0;
+				reader.Position = array[6];
+				flag = true;
 			}
-			else if (Type == 3)
+            else if (Type == 3)
+            {
+                reader.Position = array[1];
+
+                //if (reader.Position != 0)
+                flag = true;
+            }
+            else if (Type == 4)
 			{
 				//parentClass = 0L;
-				if(fieldCount > 0)
-				{
-					reader.Position = array[1];
-					flag = true;
-				}
-				//reader.Position = array[1];
+				//reader.Position = array[0];
 				//if (reader.Position != 0)
-    //                flag = true;
-            }
+				//	flag = true;
+			}
 			else if (Type == 8)
 			{
-				parentClass = 0L;
-                reader.Position = array[0];
-     //           if (reader.Position != 0)
-				flag = fieldCount > 0;
+				//parentClass = 0L;
+				reader.Position = array[0];
+				if (reader.Position != 0)
+					flag = true;
 			}
 
-            if (flag)
-            {
-                for (int j = 0; j < fieldCount; j++)
+			if (flag)
+			{
+				for (int j = 0; j < fieldCount; j++)
 				{
 					FieldInfo fieldInfo = new FieldInfo(this);
 					fieldInfo.Read(reader);
 					fieldInfo.index = j;
-					fields.Add(fieldInfo);
+					if (fieldInfo.ReadSuccessfully)
+					{
+						fields.Add(fieldInfo);
+					}
 				}
-            }
-        }
-		
+
+
+				foreach(var f  in fields)
+                {
+                }
+			}
+		}
+
 
 		public void Modify(DbObject classObj)
 		{

@@ -1,9 +1,8 @@
-using FrostyEditor.IO;
-using System;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
+using System;
 
-namespace SdkGenerator.FIFA21
+namespace SdkGenerator.Madden22
 {
 	public class ClassInfo : IClassInfo
 	{
@@ -16,6 +15,7 @@ namespace SdkGenerator.FIFA21
 		public byte[] padding { get; set; }
 
 		public long parentClass { get; set; }
+
 		public long nextOffset { get; set; }
 
 		public void Read(MemoryReader reader)
@@ -24,7 +24,7 @@ namespace SdkGenerator.FIFA21
 
 			long typePosition = reader.ReadLong();
 			var previousOffset = reader.ReadLong();
-			long nextOffset = reader.ReadLong();
+			nextOffset = reader.ReadLong();
 
 			id = reader.ReadUShort();
 			//
@@ -52,10 +52,11 @@ namespace SdkGenerator.FIFA21
 				parentClass = 0L;
 			}
 
-			ClassesSdkCreator.offset = nextOffset;
+			//ClassesSdkCreator.offset = nextOffset;
+
 		}
 
-        public override string ToString()
+		public override string ToString()
         {
 			if(typeInfo!=null && !string.IsNullOrEmpty(typeInfo.name))
 				return typeInfo.name;

@@ -791,10 +791,9 @@ namespace FrostySdk
 				if (guidTypeMapping.TryGetValue(guid, out Type v))
 					return v;
 
-				if (guidTypeMapping.Count == 0 || v == null)
+				if (guidTypeMapping.Count == 0)
                 {
 					List<Type> exportedTypes = ExistingAssembly.GetExportedTypes().Where(x => x.GetCustomAttributes<TypeInfoGuidAttribute>().Any()).ToList();
-					var attribSchema = exportedTypes.Where(x => x.Name.Contains("AttribSchema_"));
 
                     foreach (Type type in exportedTypes)
                     {

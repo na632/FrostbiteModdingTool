@@ -38,7 +38,7 @@ namespace FrostbiteModdingUI.Windows
 
         public ProjectManagement ProjectManagement { get; private set; }
 
-        private string WindowEditorTitle = $"Madden 21 Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
+        private string WindowEditorTitle = $"Madden Editor - {ProfilesLibrary.ProfileName} - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
 
         private string _windowTitle;
         public string WindowTitle

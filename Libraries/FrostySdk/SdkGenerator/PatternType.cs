@@ -1,4 +1,4 @@
-namespace FrostyEditor.IO
+namespace FrostbiteSdk
 {
 	internal struct PatternType
 	{

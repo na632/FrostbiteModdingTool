@@ -1,9 +1,11 @@
+using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 using FrostyEditor.IO;
 using FrostySdk;
 
 namespace SdkGenerator.BaseInfo
 {
-    public class FieldInfo
+    public class FieldInfo : ISdkGenInfo
     {
         public string name;
 

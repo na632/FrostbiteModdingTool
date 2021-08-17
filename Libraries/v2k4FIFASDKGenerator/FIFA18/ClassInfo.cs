@@ -1,3 +1,4 @@
+using FrostbiteSdk;
 using FrostyEditor.IO;
 using FrostySdk;
 using System;

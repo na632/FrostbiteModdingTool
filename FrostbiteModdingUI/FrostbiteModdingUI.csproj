@@ -31,7 +31,7 @@
   </PropertyGroup>
 
 
-  <ItemGroup>
+     <ItemGroup>
     <Page Remove="Resources\Languages\Dictionary1.xaml" />
     <Page Remove="Resources\Languages\English.xaml" />
     <Page Remove="Resources\Languages\German.xaml" />
@@ -64,6 +64,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Include="Resources\images\Madden22Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -247,7 +251,8 @@
     </None>
     <None Update="SDK\MADDEN22SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
   </ItemGroup>
 
   <ItemGroup>

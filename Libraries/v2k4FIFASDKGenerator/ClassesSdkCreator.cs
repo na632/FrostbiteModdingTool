@@ -1,4 +1,6 @@
-﻿using FrostyEditor;
+﻿using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
+using FrostyEditor;
 using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
@@ -32,11 +34,11 @@ namespace SdkGenerator
 
         public static long offset;
 
-        private List<ClassInfo> classInfos = new List<ClassInfo>();
+        private List<IClassInfo> classInfos = new List<IClassInfo>();
 
         private List<string> alreadyProcessedClasses = new List<string>();
 
-        private Dictionary<long, ClassInfo> offsetClassInfoMapping = new Dictionary<long, ClassInfo>();
+        private Dictionary<long, IClassInfo> offsetClassInfoMapping = new Dictionary<long, IClassInfo>();
 
         private List<EbxClass> processed = new List<EbxClass>();
 
@@ -928,9 +930,9 @@ namespace SdkGenerator
                     case (int)ProfilesLibrary.DataVersions.FIFA21:
                         typeStr = "SdkGenerator.FIFA21.ClassInfo";
                         break;
-                    case (int)ProfilesLibrary.DataVersions.MADDEN21:
-                        typeStr = "SdkGenerator.Madden21.ClassInfo";
-                        break;
+                    //case (int)ProfilesLibrary.DataVersions.MADDEN21:
+                    //    typeStr = "SdkGenerator.Madden21.ClassInfo";
+                    //    break;
                     default:
                         typeStr = "SdkGenerator.BaseInfo.ClassInfo";
                         break;
@@ -960,29 +962,43 @@ namespace SdkGenerator
             }
             offset = typeInfoOffset;
             int num = 0;
+
+            //var t = AssetManager.LoadTypeByName(typeStr);
+            //IClassInfo classInfo = (IClassInfo)t;
             while (offset != 0L)
             {
                 task.StatusMessage = $"Found {++num} type(s)";
                 memoryReader.Position = offset;
-                var t = Type.GetType(typeStr);
-                ClassInfo classInfo = (ClassInfo)Activator.CreateInstance(t);
+                //var t = Type.GetType(typeStr);
+                //IClassInfo classInfo = (IClassInfo)Activator.CreateInstance(t);
+                var t = AssetManager.LoadTypeByName(typeStr);
+                IClassInfo classInfo = (IClassInfo)t;
                 classInfo.Read(memoryReader);
                 classInfos.Add(classInfo);
                 offsetClassInfoMapping.Add(typeInfoOffset, classInfo);
-                if (offset != 0L)
+                //if (offset != 0L)
+                //{
+                //    typeInfoOffset = offset;
+                //}
+                if (classInfo.nextOffset != 0L)
                 {
+                    offset = classInfo.nextOffset;
                     typeInfoOffset = offset;
+                }
+                else
+                {
+                    break;
                 }
             }
             Debug.WriteLine(task.StatusMessage);
             
             memoryReader.Dispose();
             DbObject result = new DbObject(bObject: false);
-            classInfos.Sort((ClassInfo a, ClassInfo b) => a.typeInfo.name.CompareTo(b.typeInfo.name));
+            classInfos.Sort((IClassInfo a, IClassInfo b) => a.typeInfo.name.CompareTo(b.typeInfo.name));
 
             var findSomeStuffTest = classInfos.Where(x => x.typeInfo.name.ToLower().Contains("lua")).ToList();
 
-            foreach (ClassInfo classInfo2 in classInfos)
+            foreach (IClassInfo classInfo2 in classInfos)
             {
                 if (classInfo2.typeInfo.Type == 2
                     || classInfo2.typeInfo.Type == 3
@@ -1003,7 +1019,7 @@ namespace SdkGenerator
             return result;
         }
 
-        private void CreateBasicClassObject(ClassInfo classInfo, ref DbObject classList)
+        private void CreateBasicClassObject(IClassInfo classInfo, ref DbObject classList)
         {
             int alignment = classInfo.typeInfo.alignment;
             int size = (int)classInfo.typeInfo.size;
@@ -1026,11 +1042,11 @@ namespace SdkGenerator
             classList.Add(dbObject);
         }
 
-        private void CreateClassObject(ClassInfo classInfo, ref DbObject classList)
+        private void CreateClassObject(IClassInfo classInfo, ref DbObject classList)
         {
             if (!alreadyProcessedClasses.Contains(classInfo.typeInfo.name))
             {
-                ClassInfo classInfo2 = offsetClassInfoMapping.ContainsKey(classInfo.parentClass) ? offsetClassInfoMapping[classInfo.parentClass] : null;
+                IClassInfo classInfo2 = offsetClassInfoMapping.ContainsKey(classInfo.parentClass) ? offsetClassInfoMapping[classInfo.parentClass] : null;
                 if (classInfo2 != null)
                 {
                     CreateClassObject(classInfo2, ref classList);
@@ -1053,7 +1069,7 @@ namespace SdkGenerator
                 }
                 classInfo.typeInfo.Modify(dbObject);
                 DbObject dbObject2 = new DbObject(bObject: false);
-                foreach (BaseInfo.FieldInfo field in classInfo.typeInfo.fields)
+                foreach (IFieldInfo field in classInfo.typeInfo.fields)
                 {
                     DbObject dbObject3 = new DbObject();
                     if (classInfo.typeInfo.Type == 8)
@@ -1063,7 +1079,7 @@ namespace SdkGenerator
                     }
                     else if(offsetClassInfoMapping.ContainsKey(field.typeOffset))
                     {
-                        ClassInfo classInfo3 = offsetClassInfoMapping[field.typeOffset];
+                        IClassInfo classInfo3 = offsetClassInfoMapping[field.typeOffset];
                         dbObject3.AddValue("name", field.name);
                         dbObject3.AddValue("type", classInfo3.typeInfo.Type);
                         dbObject3.AddValue("flags", (int)classInfo3.typeInfo.flags);

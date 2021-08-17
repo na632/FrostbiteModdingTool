@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace FrostyEditor.IO
+namespace FrostbiteSdk
 {
 	public class MemoryReader : IDisposable
 	{
@@ -43,7 +43,7 @@ namespace FrostyEditor.IO
 		[DllImport("kernel32.dll", SetLastError = true)]
 		private static extern bool CloseHandle(IntPtr hObject);
 
-		internal MemoryReader()
+		public MemoryReader()
 		{
 		}
 
