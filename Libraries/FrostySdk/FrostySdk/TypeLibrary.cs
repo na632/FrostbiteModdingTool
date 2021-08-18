@@ -734,7 +734,7 @@ namespace FrostySdk
 			return CreateObject(type);
 		}
 
-		internal static Type AddEnum(string name, List<Tuple<string, int>> values, EbxClass classInfo)
+		public static Type AddEnum(string name, List<Tuple<string, int>> values, EbxClass classInfo)
 		{
 			Type type = GetType(name);
 			if (type != null)
@@ -750,7 +750,7 @@ namespace FrostySdk
 			return enumBuilder.CreateTypeInfo();// CreateType();
 		}
 
-		internal static Type AddType(string name, Guid? guid = null)
+		public static Type AddType(string name, Guid? guid = null)
 		{
 			if (name == "" || name == null)
 			{
@@ -759,12 +759,12 @@ namespace FrostySdk
 			return CreateType(name, guid);
 		}
 
-		internal static Type FinalizeStruct(string name, List<FieldType> fields, EbxClass classInfo)
+		public static Type FinalizeStruct(string name, List<FieldType> fields, EbxClass classInfo)
 		{
 			return FinalizeType(name, fields, typeof(object), classInfo);
 		}
 
-		internal static Type FinalizeClass(string name, List<FieldType> fields, Type parentType, EbxClass classInfo, MetaDataType? metaData = null)
+		public static Type FinalizeClass(string name, List<FieldType> fields, Type parentType, EbxClass classInfo, MetaDataType? metaData = null)
 		{
 			return FinalizeType(name, fields, parentType, classInfo, metaData);
 		}
@@ -816,12 +816,12 @@ namespace FrostySdk
 			return Reflection.LookupType(hash);
 		}
 
-		internal static dynamic CreateObject(Type inType)
+		public static dynamic CreateObject(Type inType)
 		{
 			return Activator.CreateInstance(inType);
 		}
 
-		internal static void InitializeArrays(object obj)
+		public static void InitializeArrays(object obj)
 		{
 			PropertyInfo[] properties = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (PropertyInfo propertyInfo in properties)

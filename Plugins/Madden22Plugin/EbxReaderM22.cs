@@ -1,17 +1,20 @@
-﻿using FrostySdk.Attributes;
+﻿using FrostySdk;
+using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.FrostySdk.IO;
+using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.Resources;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace FrostySdk.IO
+namespace Madden22Plugin
 {
 	
-	public class EbxReaderV3 : EbxReader
+	public class EbxReaderM22 : EbxReader
 	{
 		public static IEbxSharedTypeDescriptor std;
 
@@ -21,7 +24,11 @@ namespace FrostySdk.IO
 
 		public bool patched;
 
-		public override string RootType => TypeLibrary.GetType(classGuids[instances[0].ClassRef])?.Name ?? string.Empty;
+		public override string RootType => classGuids.Count > 0 && instances.Count > 0 
+							? TypeLibrary.GetType(classGuids[instances[0].ClassRef])?.Name 
+							: string.Empty;
+
+		public string fileName { get; set; }
 
 		public static void InitialiseStd()
 		{
@@ -55,16 +62,128 @@ namespace FrostySdk.IO
 			}
 		}
 
-		public EbxReaderV3(Stream InStream, bool inPatched)
+		public EbxReaderM22(Stream InStream, bool inPatched)
 			: base(InStream, passthru: true)
 		{
 			InitialiseStd();
+
+			//var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
+			//InStream.CopyTo(fsDump);
+			//fsDump.Close();
+			//fsDump.Dispose();
+
+			InStream.Position = 0;
+
+			var headerLength = 16;
+
 			patched = inPatched;
+			// RIFF
 			magic = (EbxVersion)ReadUInt();
-			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
-			{
+
+			var fileLengthMinus4 = (uint)ReadUInt();
+
+			var ebxHeaderName = ReadNullTerminatedString();
+			if (!string.IsNullOrEmpty(ebxHeaderName) && ebxHeaderName != "EBX")
 				return;
+
+			var ebxHeaderEndBit = ReadUInt();
+
+			// 
+			var afterStringsOffsetMinus4 = (uint)ReadUInt();
+			InStream.Position += 12;
+			fileGuid = ReadGuid();
+			InStream.Position += 16;
+			guidCount = ReadUInt();
+			var unkh1 = ReadByte();
+			var unkh2 = ReadByte();
+			var unkh3 = ReadByte();
+			var unkh4 = ReadByte();
+
+			var fileItemStringOffsetFromThisPosition = ReadLong() + (InStream.Position - 8L);
+			var unkh7 = ReadUInt();
+			var unkh8 = ReadUInt();
+			var unkh9 = ReadULong();
+			var unkh10 = ReadULong();
+			var unkh11 = ReadULong();
+			var unkh12 = ReadULong();
+
+			InStream.Position = fileItemStringOffsetFromThisPosition;
+			fileName = ReadNullTerminatedString();
+			if (string.IsNullOrEmpty(fileName))
+				return;
+
+			//var type_attempt_1 = TypeLibrary.GetType(fileGuid);
+
+			if (!string.IsNullOrEmpty(fileName) && fileName.Equals("content/characters/player/bodies/body_0_normal", StringComparison.OrdinalIgnoreCase))
+			{
+				if (File.Exists("ebxV4.dat")) File.Delete("ebxV4.dat");
+				var sPositionBeforeDump = InStream.Position;
+				InStream.Position = 0;
+				using (var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate))
+				{
+					InStream.CopyTo(fsDump);
+				}
+				InStream.Position = sPositionBeforeDump;
 			}
+
+			//InStream.Position = afterStringsOffsetMinus4 + 4 + headerLength;
+			while (InStream.Position % 2 != 0) InStream.Position++;
+			// Read "EFIX"
+			InStream.Position += 4;
+			// Read string position
+			//var stringPos = ReadUInt();
+			//InStream.Position = stringPos + 32;
+			//var name = ReadNullTerminatedString();
+			var offset = ReadUInt();
+			for (var i = 0; i < guidCount; i++)
+			{
+				var guid = ReadGuid();
+				var count = ReadUInt();
+				EbxImportReference ebxImportReference = new EbxImportReference
+				{
+					FileGuid = guid,
+					ClassGuid = guid
+				};
+				imports.Add(ebxImportReference);
+				if (!dependencies.Contains(ebxImportReference.FileGuid))
+				{
+					dependencies.Add(ebxImportReference.FileGuid);
+				}
+
+				var type_attempt = TypeLibrary.GetType(guid);
+				if(type_attempt != null)
+                {
+
+                }
+
+			}
+			var unk1 = ReadUInt();
+			var t = TypeLibrary.GetType(unk1);
+			ReadUInt();
+			ReadUInt();
+			ReadUInt();
+			ReadUInt();
+			ReadUInt();
+			ReadUInt();
+			ReadUInt();
+			Guid item1 = ReadGuid();
+			classGuids.Add(item1);
+			Guid item2 = ReadGuid();
+			classGuids.Add(item2);
+
+			var t2 = TypeLibrary.GetType(item1);
+			var t3 = TypeLibrary.GetType(item2);
+			if(t2 != null)
+            {
+
+            }
+			if(t3 != null)
+            {
+
+            }
+
+			/*
+
 			stringsOffset = ReadUInt();
 			stringsAndDataLen = ReadUInt();
 			guidCount = ReadUInt();
@@ -78,7 +197,7 @@ namespace FrostySdk.IO
 			arrayCount = ReadUInt();
 			dataLen = ReadUInt();
 			arraysOffset = stringsOffset + stringsLen + dataLen;
-			fileGuid = ReadGuid();
+			//fileGuid = ReadGuid();
 			boxedValuesCount = ReadUInt();
 			boxedValuesOffset = ReadUInt();
 			boxedValuesOffset += stringsOffset + stringsLen;
@@ -161,6 +280,7 @@ namespace FrostySdk.IO
 			}
 			base.Position = stringsOffset + stringsLen;
 			isValid = true;
+			*/
 		}
 
 		public override void InternalReadObjects()

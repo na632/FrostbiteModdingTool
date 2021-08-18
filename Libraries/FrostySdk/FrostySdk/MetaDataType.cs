@@ -1,6 +1,6 @@
 namespace FrostySdk
 {
-	internal struct MetaDataType
+	public struct MetaDataType
 	{
 		private DbObject meta;
 

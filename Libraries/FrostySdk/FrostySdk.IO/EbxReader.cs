@@ -26,62 +26,62 @@ namespace FrostySdk.IO
 			return reader;
 		}
 
-		internal List<EbxField> fieldTypes = new List<EbxField>();
+		public List<EbxField> fieldTypes = new List<EbxField>();
 
 		private List<EbxClass> classTypes = new List<EbxClass>();
 
-		internal List<EbxInstance> instances = new List<EbxInstance>();
+		public List<EbxInstance> instances = new List<EbxInstance>();
 
-		internal List<EbxArray> arrays = new List<EbxArray>();
+		public List<EbxArray> arrays = new List<EbxArray>();
 
-		internal List<EbxImportReference> imports = new List<EbxImportReference>();
+		public List<EbxImportReference> imports = new List<EbxImportReference>();
 
-		internal List<Guid> dependencies = new List<Guid>();
+		public List<Guid> dependencies = new List<Guid>();
 
-		internal List<object> objects = new List<object>();
+		public List<object> objects = new List<object>();
 
-		internal List<int> refCounts = new List<int>();
+		public List<int> refCounts = new List<int>();
 
 		protected List<BoxedValueRef> boxedValueRefs = new List<BoxedValueRef>();
 
-		internal List<EbxBoxedValue> boxedValues = new List<EbxBoxedValue>();
+		public List<EbxBoxedValue> boxedValues = new List<EbxBoxedValue>();
 
 
-		internal Guid fileGuid;
+		public Guid fileGuid;
 
-		internal long arraysOffset;
+		public long arraysOffset;
 
-		internal long stringsOffset;
+		public long stringsOffset;
 
-		internal long stringsAndDataLen;
+		public long stringsAndDataLen;
 
-		internal uint guidCount;
+		public uint guidCount;
 
-		internal ushort instanceCount;
+		public ushort instanceCount;
 
-		internal ushort exportedCount;
+		public ushort exportedCount;
 
-		internal ushort uniqueClassCount;
+		public ushort uniqueClassCount;
 
-		internal ushort classTypeCount;
+		public ushort classTypeCount;
 
-		internal ushort fieldTypeCount;
+		public ushort fieldTypeCount;
 
-		internal ushort typeNamesLen;
+		public ushort typeNamesLen;
 
-		internal uint stringsLen;
+		public uint stringsLen;
 
-		internal uint arrayCount;
+		public uint arrayCount;
 
-		internal uint dataLen;
+		public uint dataLen;
 
-		internal uint boxedValuesCount;
+		public uint boxedValuesCount;
 
-		internal long boxedValuesOffset;
+		public long boxedValuesOffset;
 
-		internal EbxVersion magic;
+		public EbxVersion magic;
 
-		internal bool isValid;
+		public bool isValid;
 
 		public Guid FileGuid => fileGuid;
 
@@ -95,7 +95,7 @@ namespace FrostySdk.IO
 
 		public List<EbxClass> ClassTypes => classTypes;
 
-		internal EbxReader(Stream inStream, bool passthru)
+		public EbxReader(Stream inStream, bool passthru)
 			: base(inStream)
 		{
 		}
@@ -108,13 +108,13 @@ namespace FrostySdk.IO
 
 		public virtual void InitialRead(Stream InStream, bool inPatched)
         {
-			FileStream fileStreamFromCas = new FileStream($"Debugging/EBX/FromCas_", FileMode.OpenOrCreate);
-			var pos = InStream.Position;
-			InStream.Position = 0;
-			InStream.CopyTo(fileStreamFromCas);
-			InStream.Position = pos;
-			fileStreamFromCas.Close();
-			fileStreamFromCas.Dispose();
+			//FileStream fileStreamFromCas = new FileStream($"Debugging/EBX/FromCas_", FileMode.OpenOrCreate);
+			//var pos = InStream.Position;
+			//InStream.Position = 0;
+			//InStream.CopyTo(fileStreamFromCas);
+			//InStream.Position = pos;
+			//fileStreamFromCas.Close();
+			//fileStreamFromCas.Dispose();
 
 			magic = (EbxVersion)ReadUInt();
 			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
@@ -318,7 +318,7 @@ namespace FrostySdk.IO
 			}
 		}
 
-		internal virtual object ReadClass(EbxClass classType, object obj, long startOffset)
+		public virtual object ReadClass(EbxClass classType, object obj, long startOffset)
 		{
 			 /// DEBUG STREAM OUT
 			//var pos = stream.Position;
@@ -421,27 +421,27 @@ namespace FrostySdk.IO
 			return null;
 		}
 
-		internal virtual PropertyInfo GetProperty(Type objType, EbxField field)
+		public virtual PropertyInfo GetProperty(Type objType, EbxField field)
 		{
 			return objType.GetProperty(field.Name);
 		}
 
-		internal virtual EbxClass GetClass(EbxClass? parentClass, int index)
+		public virtual EbxClass GetClass(EbxClass? parentClass, int index)
 		{
 			return classTypes[index];
 		}
 
-		internal virtual EbxField GetField(EbxClass classType, int index)
+		public virtual EbxField GetField(EbxClass classType, int index)
 		{
 			return fieldTypes[index];
 		}
 
-		internal virtual object CreateObject(EbxClass classType)
+		public virtual object CreateObject(EbxClass classType)
 		{
 			return TypeLibrary.CreateObject(classType.Name);
 		}
 
-		internal object ReadField(EbxClass parentClass, EbxField fieldType, bool dontRefCount = false)
+		public virtual object ReadField(EbxClass parentClass, EbxField fieldType, bool dontRefCount = false)
 		{
 			switch (fieldType.DebugType)
 			{
@@ -520,7 +520,7 @@ namespace FrostySdk.IO
 			}
 		}
 
-		internal Type ParseClass(EbxClass classType)
+		public virtual Type ParseClass(EbxClass classType)
 		{
 			Type type = TypeLibrary.AddType(classType.Name);
 			if (type != null)
@@ -547,7 +547,7 @@ namespace FrostySdk.IO
 			return TypeLibrary.FinalizeClass(classType.Name, list, parentType, classType);
 		}
 
-		internal Type GetTypeFromEbxField(EbxField fieldType)
+		public Type GetTypeFromEbxField(EbxField fieldType)
 		{
 			switch (fieldType.DebugType)
 			{
@@ -615,7 +615,7 @@ namespace FrostySdk.IO
 			}
 		}
 
-		internal string ReadString(uint offset)
+		public string ReadString(uint offset)
 		{
 			if (offset == uint.MaxValue || offset > Length || stringsOffset + offset > Length || offset < 0)
 			{
@@ -628,7 +628,7 @@ namespace FrostySdk.IO
 			return result;
 		}
 
-		internal CString ReadCString(uint offset)
+		public CString ReadCString(uint offset)
 		{
 			//if(offset > Length)
    //         {
@@ -644,19 +644,19 @@ namespace FrostySdk.IO
 			return new CString(ReadString(offset));
 		}
 
-		internal ResourceRef ReadResourceRef()
+		public ResourceRef ReadResourceRef()
 		{
 			return new ResourceRef(ReadULong());
 		}
 
-		internal FileRef ReadFileRef()
+		public FileRef ReadFileRef()
 		{
 			uint offset = ReadUInt();
 			Position += 4L;
 			return new FileRef(ReadString(offset));
 		}
 
-		internal TypeRef ReadTypeRef()
+		public TypeRef ReadTypeRef()
 		{
 			string text = ReadString(ReadUInt());
 			Position += 4L;
@@ -672,7 +672,7 @@ namespace FrostySdk.IO
 			return new TypeRef(text);
 		}
 
-		internal BoxedValueRef ReadBoxedValueRef()
+		public BoxedValueRef ReadBoxedValueRef()
 		{
 			int num = ReadInt();
 			if (num > Length || num < 0)
@@ -686,7 +686,7 @@ namespace FrostySdk.IO
 			return new BoxedValueRef(num, inData);
 		}
 
-		internal int HashString(string strToHash)
+		public int HashString(string strToHash)
 		{
 			int num = 5381;
 			for (int i = 0; i < strToHash.Length; i++)

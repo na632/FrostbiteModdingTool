@@ -320,7 +320,7 @@ namespace FrostySdk.IO
 			}
 		}
 
-		internal EbxClass GetClass(Type objType)
+		public EbxClass GetClass(Type objType)
 		{
 			EbxClass? ebxClass = null;
 			foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in objType.GetCustomAttributes(typeof(TypeInfoGuidAttribute), inherit: true).Cast<TypeInfoGuidAttribute>())
@@ -341,7 +341,7 @@ namespace FrostySdk.IO
 			return ebxClass.Value;
 		}
 
-		internal override PropertyInfo GetProperty(Type objType, EbxField field)
+		public override PropertyInfo GetProperty(Type objType, EbxField field)
 		{
 			if (field.NameHash == 3109710567u)
 			{
@@ -359,7 +359,7 @@ namespace FrostySdk.IO
 			return null;
 		}
 
-		internal override EbxClass GetClass(EbxClass? classType, int index)
+		public override EbxClass GetClass(EbxClass? classType, int index)
 		{
 			EbxClass? ebxClass = null;
 			Guid? guid = null;
@@ -385,7 +385,7 @@ namespace FrostySdk.IO
 			return ebxClass.Value;
 		}
 
-		internal override EbxField GetField(EbxClass classType, int index)
+		public override EbxField GetField(EbxClass classType, int index)
 		{
 			if (classType.SecondSize == 1)
 			{
@@ -394,7 +394,7 @@ namespace FrostySdk.IO
 			return std.GetField(index).Value;
 		}
 
-		internal override object CreateObject(EbxClass classType)
+		public override object CreateObject(EbxClass classType)
 		{
 			if (classType.SecondSize == 1)
 			{
@@ -403,7 +403,7 @@ namespace FrostySdk.IO
 			return TypeLibrary.CreateObject(std.GetGuid(classType).Value);
 		}
 
-		internal object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
+		public object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
 		{
 			if (obj == null)
 			{
@@ -457,7 +457,7 @@ namespace FrostySdk.IO
 			return null;
 		}
 
-		internal object ReadField(EbxFieldType type, Type baseType, bool dontRefCount = false)
+		public object ReadField(EbxFieldType type, Type baseType, bool dontRefCount = false)
 		{
 			switch (type)
 			{

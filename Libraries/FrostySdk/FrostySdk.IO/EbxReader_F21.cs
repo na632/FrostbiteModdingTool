@@ -274,7 +274,7 @@ namespace FrostySdk.IO
 			}
 		}
 
-		internal override EbxField GetField(EbxClass classType, int index)
+		public override EbxField GetField(EbxClass classType, int index)
 		{
 			if (classType.SecondSize == 1)
 			{
@@ -283,7 +283,7 @@ namespace FrostySdk.IO
 			return std.GetField(index).Value;
 		}
 
-		internal object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
+		public object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
 		{
 			if (obj == null)
 			{

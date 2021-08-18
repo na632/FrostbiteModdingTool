@@ -283,6 +283,7 @@
 	  </None>
 	  <None Include="..\Plugins\Madden22Plugin\bin\Debug\netcoreapp3.1\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
     <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

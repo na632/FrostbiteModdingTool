@@ -3,7 +3,7 @@ using System;
 
 namespace FrostySdk
 {
-	internal struct FieldType
+	public struct FieldType
 	{
 		private string name;
 
@@ -29,7 +29,7 @@ namespace FrostySdk
 
 		public MetaDataType? MetaData => metaData;
 
-		internal FieldType(string inName, Type inType, Type inBaseType, EbxField? inFieldType, EbxField? inArrayType = null, MetaDataType? inMetaData = null)
+		public FieldType(string inName, Type inType, Type inBaseType, EbxField? inFieldType, EbxField? inArrayType = null, MetaDataType? inMetaData = null)
 		{
 			name = inName;
 			type = inType;
