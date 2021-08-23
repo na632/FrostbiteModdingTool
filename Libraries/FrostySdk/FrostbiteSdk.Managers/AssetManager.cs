@@ -897,6 +897,17 @@ public interface IAssetLoader
 
 		}
 
+		public void FullReset()
+        {
+			EBX.Clear();
+			RES.Clear();
+			resRidList.Clear();
+			Chunks.Clear();
+			LegacyFileManager_FMTV2.LegacyEntries.Clear();
+			LegacyFileManager_FMTV2.ChunkBatches.Clear();
+			LegacyFileManager_FMTV2.ModifiedChunks.Clear();
+		}
+
 		public void RevertAsset(AssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
 		{
 			if (!entry.IsModified)

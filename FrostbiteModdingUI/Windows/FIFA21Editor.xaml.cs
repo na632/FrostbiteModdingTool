@@ -202,28 +202,26 @@ namespace FIFAModdingUI.Windows
 
         public static ProjectManagement ProjectManagement { get; set; }
 
-        public void InitialiseOfSelectedGame(string filePath)
+        public async Task InitialiseOfSelectedGame(string filePath)
         {
             GameInstanceSingleton.InitializeSingleton(filePath);
             GameInstanceSingleton.Logger = this;
             lstProjectFiles.Items.Clear();
             lstProjectFiles.ItemsSource = null;
 
-            bool? result = false;
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
             if(buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
             {
-                result = buildSDKAndCacheWindow.ShowDialog();
+                buildSDKAndCacheWindow.ShowDialog();
             }
 
-            Task.Run(() =>
+            await Task.Run(
+                () =>
             {
 
                 ProjectManagement = new ProjectManagement(filePath, this);
                 ProjectManagement.StartNewProject();
                 InitialiseBrowsers();
-
-                //playerEditor.InitPlayerSearch();
 
                 Dispatcher.Invoke(() =>
                 {
@@ -231,12 +229,6 @@ namespace FIFAModdingUI.Windows
                     miMod.IsEnabled = true;
                     miProjectConverter.IsEnabled = true;
 
-                    //btnProjectNew.IsEnabled = true;
-                    //btnProjectOpen.IsEnabled = true;
-                    //btnProjectSave.IsEnabled = true;
-                    //btnProjectWriteToMod.IsEnabled = true;
-                    ////btnProjectWriteToFIFAMod.IsEnabled = true;
-                    //btnOpenModDetailsPanel.IsEnabled = true;
                     var wt = WindowTitle;
                     WindowTitle = "New Project";
                     ProjectManagement.Project.ModifiedAssetEntries = null;
@@ -320,10 +312,15 @@ namespace FIFAModdingUI.Windows
             return image;
         }
 
+        public bool DoNotLog { get; set; }
+
         public string LogText { get; set; }
 
         public void LogSync(string text)
         {
+            if (DoNotLog)
+                return;
+
             var stringBuilder = new StringBuilder();
 
             var txt = string.Empty;
@@ -343,11 +340,17 @@ namespace FIFAModdingUI.Windows
 
         public void Log(string text, params object[] vars)
         {
+            if (DoNotLog)
+                return;
+
             LogAsync(text);
         }
 
         public async void LogAsync(string in_text)
         {
+            if (DoNotLog)
+                return;
+
             var txt = string.Empty;
             Dispatcher.Invoke(() => {
                 txt = txtLog.Text;
@@ -372,7 +375,10 @@ namespace FIFAModdingUI.Windows
         }
 
         public void LogWarning(string text, params object[] vars)
-        {       
+        {
+            if (DoNotLog)
+                return;
+
             Debug.WriteLine("[WARNING] " + text);
             //LogAsync("[WARNING] " + text);
             LogSync("[WARNING] " + text);
@@ -380,6 +386,9 @@ namespace FIFAModdingUI.Windows
 
         public void LogError(string text, params object[] vars)
         {
+            if (DoNotLog)
+                return;
+
             Debug.WriteLine("[ERROR] " + text);
             LogSync("[ERROR] " + text);
         }

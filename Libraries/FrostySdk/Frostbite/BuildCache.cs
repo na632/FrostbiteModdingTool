@@ -80,7 +80,7 @@ namespace FrostySdk.Frostbite
 
 						logger.Log("Loaded Type Library SDK");
 
-						AssetManagerImportResult result = new AssetManagerImportResult();
+						//AssetManagerImportResult result = new AssetManagerImportResult();
 
 						var FileSystem = new FileSystem(GameLocation);
 
@@ -109,7 +109,7 @@ namespace FrostySdk.Frostbite
 							var assetManager = new AssetManager(FileSystem, resourceManager);
 							assetManager.RegisterLegacyAssetManager();
 							assetManager.SetLogger(logger);
-							assetManager.Initialize(additionalStartup: true, result);
+							assetManager.Initialize(additionalStartup: true);
 
 							logger.Log("Initialised Asset Manager");
 
