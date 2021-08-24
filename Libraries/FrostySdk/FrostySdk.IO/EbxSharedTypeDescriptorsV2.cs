@@ -99,8 +99,8 @@ namespace FrostySdk.IO
 				{
 					for (var i = 0; i < countGuidClasses; i++)
 					{
-						var hash1 = nativeReader.ReadUInt();
 						var guid1 = nativeReader.ReadGuid();
+						var hash1 = nativeReader.ReadUInt();
 						Guids.Add(guid1);
 					}
 					var countClasses = nativeReader.ReadUInt();

@@ -894,9 +894,12 @@ namespace Frostbite.FileManagers
 			{
 				foreach (var lfe in group.Value)
 				{
-					LegacyEntries[lfe.Name].ModifiedEntry = new ModifiedAssetEntry()
+					if (LegacyEntries.ContainsKey(lfe.Name))
 					{
-						Data = lfe.ModifiedEntry.Data
+						LegacyEntries[lfe.Name].ModifiedEntry = new ModifiedAssetEntry()
+						{
+							Data = lfe.ModifiedEntry.Data
+						};
 					};
 				}
 			}

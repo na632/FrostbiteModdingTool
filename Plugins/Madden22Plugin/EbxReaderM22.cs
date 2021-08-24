@@ -24,9 +24,12 @@ namespace Madden22Plugin
 
 		public bool patched;
 
-		public override string RootType => classGuids.Count > 0 && instances.Count > 0 
-							? TypeLibrary.GetType(classGuids[instances[0].ClassRef])?.Name 
-							: string.Empty;
+		public Type EBXType = null;
+
+		//public override string RootType => classGuids.Count > 0 && instances.Count > 0 
+		//					? TypeLibrary.GetType(classGuids[instances[0].ClassRef])?.Name 
+		//					: string.Empty;
+		public override string RootType => EBXType != null ? EBXType.Name : string.Empty;
 
 		public string fileName { get; set; }
 
@@ -67,12 +70,12 @@ namespace Madden22Plugin
 		{
 			InitialiseStd();
 
-			//var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
-			//InStream.CopyTo(fsDump);
-			//fsDump.Close();
-			//fsDump.Dispose();
+            //var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
+            //InStream.CopyTo(fsDump);
+            //fsDump.Close();
+            //fsDump.Dispose();
 
-			InStream.Position = 0;
+            InStream.Position = 0;
 
 			var headerLength = 16;
 
@@ -92,6 +95,7 @@ namespace Madden22Plugin
 			var afterStringsOffsetMinus4 = (uint)ReadUInt();
 			InStream.Position += 12;
 			fileGuid = ReadGuid();
+			var stdClassFile = std.GetClass(fileGuid);
 			InStream.Position += 16;
 			guidCount = ReadUInt();
 			var unkh1 = ReadByte();
@@ -138,6 +142,11 @@ namespace Madden22Plugin
 			for (var i = 0; i < guidCount; i++)
 			{
 				var guid = ReadGuid();
+				var stdClass = std.GetClass(guid);
+				if(stdClass != null)
+                {
+					EBXType = TypeLibrary.GetType(stdClass.Value.NameHash);
+                }
 				var count = ReadUInt();
 				EbxImportReference ebxImportReference = new EbxImportReference
 				{
@@ -156,6 +165,7 @@ namespace Madden22Plugin
 
                 }
 
+				classGuids.Add(guid);
 			}
 			var unk1 = ReadUInt();
 			var t = TypeLibrary.GetType(unk1);
@@ -170,6 +180,10 @@ namespace Madden22Plugin
 			classGuids.Add(item1);
 			Guid item2 = ReadGuid();
 			classGuids.Add(item2);
+
+			var stdClassItem1 = std.GetClass(item1);
+			var stdClassItem2 = std.GetClass(item2);
+
 
 			var t2 = TypeLibrary.GetType(item1);
 			var t3 = TypeLibrary.GetType(item2);
