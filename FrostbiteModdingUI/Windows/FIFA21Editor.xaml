@@ -143,15 +143,15 @@
                                 <Label Content="Open Mod Bundler" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>-->
-                        <Button x:Name="btnProjectWriteToLegacyMod"  Height="30" Click="btnProjectWriteToLegacyMod_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <!--<Button x:Name="btnProjectWriteToLegacyMod"  Height="30" Click="btnProjectWriteToLegacyMod_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
                                 <Label Content="Save Legacy Mod (*.lmod)" VerticalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                        </Button>-->
                         
                     </MenuItem>
-                    <MenuItem x:Name="miProjectConverter" Header="FIFA Project Converters" IsEnabled="False">
+                    <!--<MenuItem x:Name="miProjectConverter" Header="FIFA Project Converters" IsEnabled="False">
                         <Button x:Name="btnProjectOpenFIFAProject"  Height="30" Click="btnProjectOpenFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />
@@ -164,7 +164,7 @@
                                 <Label Content="Save *.fifaproject" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                    </MenuItem>
+                    </MenuItem>-->
 
                 </Menu>
 
