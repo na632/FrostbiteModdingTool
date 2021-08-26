@@ -62,6 +62,56 @@ namespace Frostbite.Textures
 			ImportTextureFromFileToTextureAsset_Original(path, assetEntry, assetManager: AssetManager.Instance, ref textureAsset, out string message);
         }
 
+		public void DoImportFromPNGMemoryStream(MemoryStream stream, EbxAssetEntry assetEntry, ref Texture textureAsset)
+		{
+			TextureUtils.ImageFormat imageFormat = TextureUtils.ImageFormat.PNG;
+			TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+
+			TextureUtils.TextureImportOptions options = default(TextureUtils.TextureImportOptions);
+			options.type = textureAsset.Type;
+			options.format = TextureUtils.ToShaderFormat(textureAsset.PixelFormat, (textureAsset.Flags & TextureFlags.SrgbGamma) != 0);
+			options.generateMipmaps = (textureAsset.MipCount > 1);
+			options.mipmapsFilter = 0;
+			options.resizeTexture = true;
+			options.resizeFilter = 0;
+			options.resizeHeight = textureAsset.Height;
+			options.resizeWidth = textureAsset.Width;
+			if (textureAsset.Type == TextureType.TT_2d)
+			{
+				byte[] pngarray = stream.ToArray();
+				TextureUtils.ConvertImageToDDS(pngarray, pngarray.Length, imageFormat, options, ref pOutData);
+			}
+			else
+			{
+				throw new NotImplementedException("Unable to process PNG into non-2D texture");
+			}
+
+			stream = new MemoryStream(pOutData.Data);
+			stream.Position = 0;
+			using (NativeReader nativeReader = new NativeReader(stream))
+			{
+				TextureUtils.DDSHeader dDSHeader = new TextureUtils.DDSHeader();
+				if (dDSHeader.Read(nativeReader))
+				{
+
+				}
+
+				var ebxAsset = AssetManager.Instance.GetEbx(assetEntry);
+				ulong resRid = ((dynamic)ebxAsset.RootObject).Resource;
+				ResAssetEntry resEntry = AssetManager.Instance.GetResEntry(resRid);
+				ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(textureAsset.ChunkId);
+				byte[] textureArray = new byte[nativeReader.Length - nativeReader.Position];
+				nativeReader.Read(textureArray, 0, (int)(nativeReader.Length - nativeReader.Position));
+				AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray, textureAsset);
+				AssetManager.Instance.ModifyRes(resRid, textureAsset.ToBytes());
+				AssetManager.Instance.ModifyEbx(assetEntry.Name, ebxAsset);
+				resEntry.LinkAsset(chunkEntry);
+				assetEntry.LinkAsset(resEntry);
+			}
+
+		}
+
+
 		public virtual TextureUtils.DDSHeader GetDDSHeaderFromBytes(byte[] bytes)
 		{
 			NativeReader nativeReader = new NativeReader(new MemoryStream(bytes));

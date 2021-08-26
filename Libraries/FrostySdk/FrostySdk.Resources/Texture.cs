@@ -78,6 +78,13 @@ namespace FrostySdk.Resources
 			}
 		}
 
+		public int PixelFormatNumber
+        {
+			get
+            {
+				return pixelFormat;
+            }
+        }
 
 
 		public string PixelFormat

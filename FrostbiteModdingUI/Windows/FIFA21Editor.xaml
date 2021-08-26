@@ -165,7 +165,14 @@
                             </StackPanel>
                         </Button>
                     </MenuItem>-->
-
+                    <MenuItem x:Name="miImportKitCreator" Header="Kit Creator" IsEnabled="False">
+                        <Button x:Name="btnImportKitCreatorZip"  Height="30" Click="btnImportKitCreatorZip_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ZipDisk" VerticalAlignment="Center" />
+                                <Label Content="Import Kit Creator Zip" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </MenuItem>
                 </Menu>
 
             </StackPanel>

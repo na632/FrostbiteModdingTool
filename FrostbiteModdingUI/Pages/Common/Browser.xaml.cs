@@ -51,6 +51,8 @@ using SharpDX.DXGI;
 using static Frostbite.Textures.TextureUtils;
 using static FMT.Pages.Common.BrowserOfBIG;
 using AvalonDock.Layout;
+using FolderBrowserEx;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -273,7 +275,7 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							if (AssetManager.Instance.DoLegacyImageImport(openFileDialog.FileName, SelectedLegacyEntry))
 							{
-								BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+								BuildTextureViewerFromStream((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
 							}
                             else
                             {
@@ -936,7 +938,7 @@ namespace FIFAModdingUI.Pages.Common
 									btnExport.IsEnabled = true;
 									ImageViewerScreen.Visibility = Visibility.Visible;
 
-									BuildTextureViewerFromStream(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry), legacyFileEntry);
+									BuildTextureViewerFromStream((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry));
 
 
 								}
@@ -1083,12 +1085,15 @@ namespace FIFAModdingUI.Pages.Common
 					TextureExporter textureExporter = new TextureExporter();
 					MemoryStream memoryStream = new MemoryStream();
 
-					Stream expToStream = null;
-					try
+                    Stream expToStream = null;
+                    try
 					{
-						expToStream = textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG);
+                        expToStream = textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG);
+						expToStream.Position = 0;
+                        //var ddsData = textureExporter.WriteToDDS(textureAsset);
+                        //BuildTextureViewerFromStream(new MemoryStream(ddsData));
 
-					}
+                    }
 					catch (Exception exception_ToStream)
 					{
 						MainEditorWindow.LogError($"Error loading texture with message :: {exception_ToStream.Message}");
@@ -1100,14 +1105,15 @@ namespace FIFAModdingUI.Pages.Common
 						return;
 					}
 
-					using var nr = new NativeReader(expToStream);
-					nr.Position = 0;
-					var textureBytes = nr.ReadToEnd();
+					//using var nr = new NativeReader(expToStream);
+					//nr.Position = 0;
+					//var textureBytes = nr.ReadToEnd();
 
-					ImageViewer.Source = LoadImage(textureBytes);
+					//ImageViewer.Source = LoadImage(textureBytes);
+					ImageViewer.Source = LoadImage(((MemoryStream)expToStream).ToArray());
 					ImageViewerScreen.Visibility = Visibility.Visible;
 
-					btnExport.IsEnabled = true;
+                    btnExport.IsEnabled = true;
 					btnImport.IsEnabled = true;
 					btnRevert.IsEnabled = true;
 
@@ -1123,8 +1129,8 @@ namespace FIFAModdingUI.Pages.Common
 
 		public string CurrentDDSImageFormat { get; set; }
 
-        private void BuildTextureViewerFromStream(Stream stream, AssetEntry assetEntry = null)
-        //private void BuildTextureViewerFromStream(MemoryStream stream)
+        //private void BuildTextureViewerFromStream(Stream stream, AssetEntry assetEntry = null)
+        private void BuildTextureViewerFromStream(MemoryStream stream)
         {
 
 			try
@@ -1201,7 +1207,7 @@ namespace FIFAModdingUI.Pages.Common
 				if(SelectedLegacyEntry.Type == "DDS")
                 {
 					//BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
-					BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
+					BuildTextureViewerFromStream((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
                 }
             }
 
@@ -1311,6 +1317,55 @@ namespace FIFAModdingUI.Pages.Common
         {
 
         }
+
+		private void btnImportFolder_Click(object sender, RoutedEventArgs e)
+		{
+			MenuItem parent = sender as MenuItem;
+			if (parent != null)
+			{
+				var assetPath = parent.Tag as AssetPath;
+
+				FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+				folderBrowserDialog.AllowMultiSelect = false;
+				folderBrowserDialog.InitialFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
+				if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				{
+					string folder = folderBrowserDialog.SelectedFolder;
+					foreach (string fileName in Directory.GetFiles(folder, "*.png", SearchOption.TopDirectoryOnly))
+					{
+						var importFileInfo = new FileInfo(fileName);
+						var importFileInfoSplit = importFileInfo.Name.Split("_");
+						if (importFileInfoSplit.Length > 1)
+						{
+							importFileInfoSplit[1] = importFileInfoSplit[1].Replace(".png", "");
+							var resEntryPath = AssetManager.Instance.RES.Keys.FirstOrDefault(
+								x => x.StartsWith(assetPath.FullPath.Substring(1))
+								&& x.Contains(importFileInfoSplit[0])
+								&& x.Contains(importFileInfoSplit[1])
+								&& !x.Contains("brand")
+								&& !x.Contains("crest")
+								);
+							var resEntry = AssetManager.Instance.GetResEntry(resEntryPath);
+							if (resEntry != null)
+							{
+								Texture texture = new Texture(resEntry);
+								TextureImporter textureImporter = new TextureImporter();
+								EbxAssetEntry ebxAssetEntry = AssetManager.Instance.GetEbxEntry(resEntryPath);
+
+								if (ebxAssetEntry != null)
+								{
+									textureImporter.Import(fileName, ebxAssetEntry, ref texture);
+									MainEditorWindow.Log($"Imported {fileName} to {resEntryPath}");
+								}
+
+
+							}
+						}
+					}
+				}
+			}
+		}
+
     }
 
     internal class AssetPath

@@ -47,7 +47,16 @@
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                             <TextBlock Text="{Binding PathName}"
-                                   Tag="{Binding}"></TextBlock>
+                                                    Tag="{Binding}">
+                                                    <TextBlock.ContextMenu>
+                                                        <ContextMenu >
+                                                            <MenuItem Header="Import Folder"
+                                                                     x:Name="btnImportFolder" Tag="{Binding}"
+                                                                              Click="btnImportFolder_Click" />
+                                                        </ContextMenu>
+                                                    </TextBlock.ContextMenu>
+
+                                                </TextBlock>
                                         </HierarchicalDataTemplate>
                                     </TreeView.ItemTemplate>
                                 </TreeView>

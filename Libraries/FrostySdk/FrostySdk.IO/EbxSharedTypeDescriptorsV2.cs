@@ -34,7 +34,7 @@ namespace FrostySdk.IO
 				//{
 					var t = EbxClassesTypes.FirstOrDefault(t =>
 							t.GetCustomAttribute<HashAttribute>() != null
-							&& t.GetCustomAttribute<HashAttribute>().Hash == nameHash);
+							&& Convert.ToUInt32(t.GetCustomAttribute<HashAttribute>().Hash) == nameHash);
 					if(t != null)
                     {
 						return t.Name;
@@ -53,26 +53,48 @@ namespace FrostySdk.IO
 
 		public static string GetPropertyName(uint nameHash)
 		{
+			if(EbxClassesAssembly == null)
+				EbxClassesAssembly = AppDomain.CurrentDomain
+									.GetAssemblies().FirstOrDefault(x => x.FullName.Contains("EbxClasses", StringComparison.OrdinalIgnoreCase));
+
 			if (EbxClassesAssembly != null)
 			{
 				if (EbxClassesTypes == null)
 					EbxClassesTypes = EbxClassesAssembly.GetTypes();
 
-				var types = EbxClassesTypes;
-				for (var i = 0; i < types.Length; i++)
+				if (EbxClassesTypes != null && EbxClassesTypes.Any())
 				{
-					var t = types[i];
-					PropertyInfo[] properties = t.GetProperties();
-					var hashAttrbProps = properties.ToList().Where(x => x.GetCustomAttribute<HashAttribute>() != null).ToList();
-					foreach (PropertyInfo propertyInfo in hashAttrbProps)
-					{
-						HashAttribute customAttribute = propertyInfo.GetCustomAttribute<HashAttribute>();
-						if (customAttribute != null && customAttribute.Hash == nameHash)
+					foreach(var t in EbxClassesTypes) 
+					{ 
+						if(t.Name.Contains("ballrules", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+
+						PropertyInfo[] properties = t.GetProperties();
+                        var hashAttrbProps = properties.Where(x => x.GetCustomAttribute<HashAttribute>() != null).ToList();
+                        //var hashAttrbProps = properties.ToList();
+						foreach (PropertyInfo propertyInfo in hashAttrbProps)
 						{
-							return propertyInfo.Name;
+							HashAttribute customAttribute = propertyInfo.GetCustomAttribute<HashAttribute>();
+							if (customAttribute != null && Convert.ToUInt32(customAttribute.Hash) == nameHash)
+							{
+								return propertyInfo.Name;
+							}
 						}
+
+						List<MemberInfo> members = t.GetMembers().Where(x => x.GetCustomAttribute<HashAttribute>() != null).ToList();
+						foreach (MemberInfo memberInfo in members)
+						{
+							HashAttribute customAttribute = memberInfo.GetCustomAttribute<HashAttribute>();
+							if (customAttribute != null && Convert.ToUInt32(customAttribute.Hash) == nameHash)
+							{
+								return memberInfo.Name;
+							}
+						}
+
+						return null;
 					}
-					return null;
 				}
 			}
 
@@ -147,6 +169,9 @@ namespace FrostySdk.IO
 
 						var unk1 = nativeReader.ReadUInt();
 
+						actualfieldname = GetPropertyName(unk1);
+
+
 						// group of 4
 						ushort fieldType = (ushort)(nativeReader.ReadUShort() >> 1);
 						var fieldClassRef = nativeReader.ReadUShort();
@@ -164,8 +189,15 @@ namespace FrostySdk.IO
 					for (var i = 0; i < countFields2; i++)
 					{
 						var hash = nativeReader.ReadUInt();
+						string actualfieldname = GetPropertyName(hash);
+
 						var unk1 = nativeReader.ReadUInt();
+						actualfieldname = GetPropertyName(hash);
+
 						var unk2 = nativeReader.ReadUInt();
+
+						actualfieldname = GetPropertyName(hash);
+
 						if (Fields.Any(x => x.NameHash == hash))
 						{
 

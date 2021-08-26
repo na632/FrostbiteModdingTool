@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Frostbite.Textures
 {
@@ -155,7 +156,8 @@ namespace Frostbite.Textures
 					dDSHeader.ExtendedHeader.arraySize = 1u;
 					break;
 			}
-			string pxFormat = textureAsset.PixelFormat;
+			string pxFormat = textureAsset.PixelFormat;// ((Format)int.Parse(textureAsset.PixelFormat)).ToString();
+			Vortice.DXGI.Format vorticeFormat = (Vortice.DXGI.Format)textureAsset.PixelFormatNumber;
 			if (pxFormat.StartsWith("BC") && textureAsset.Flags.HasFlag(TextureFlags.SrgbGamma))
 			{
 				pxFormat = pxFormat.Replace("UNORM", "SRGB");
@@ -170,29 +172,29 @@ namespace Frostbite.Textures
 					break;
 				case "BC1A_SRGB":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)72;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)72;
 					break;
 				case "BC1A_UNORM":
 					dDSHeader.ddspf.dwFourCC = 827611204;
 					break;
 				case "BC1_SRGB":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)72;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)72;
 					break;
 				case "BC1_UNORM":
 					dDSHeader.ddspf.dwFourCC = 827611204;
 					break;
 				case "BC2_SRGB":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)75;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)75;
 					break;
 				case "BC3_SRGB":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)78;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)78;
 					break;
 				case "BC3A_SRGB":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)78;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)78;
 					break;
 				case "BC3_UNORM":
 					dDSHeader.ddspf.dwFourCC = 894720068;
@@ -208,71 +210,74 @@ namespace Frostbite.Textures
 					break;
 				case "BC6U_FLOAT":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)95;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)95;
 					break;
 				case "BC7":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)98;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)98;
 					break;
 				case "BC7_SRGB":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)99;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)99;
 					break;
 				case "BC7_UNORM":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)98;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)98;
 					break;
 				case "R8_UNORM":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)61;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)61;
 					break;
 				case "R16G16B16A16_FLOAT":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)10;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)10;
 					break;
 				case "ARGB32F":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)2;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)2;
 					break;
 				case "R32G32B32A32_FLOAT":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)2;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)2;
 					break;
 				case "R9G9B9E5F":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)67;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)67;
 					break;
 				case "R9G9B9E5_FLOAT":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)67;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)67;
 					break;
 				case "R8G8B8A8_UNORM":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)28;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)28;
 					break;
 				case "R8G8B8A8_SRGB":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)29;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)29;
 					break;
 				case "R10G10B10A2_UNORM":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)24;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)24;
 					break;
 				case "L8":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)61;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)61;
 					break;
 				case "L16":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)56;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)56;
 					break;
 				case "ARGB8888":
 					dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = (Format)28;
+					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)28;
 					break;
 				default:
-					dDSHeader.ddspf.dwFourCC = 0;
-					break;
+                    dDSHeader.HasExtendedHeader = true;
+					dDSHeader.ExtendedHeader.dxgiFormat = vorticeFormat;
+                    //dDSHeader.ddspf.dwFourCC = BitConverter.ToInt32(Encoding.UTF8.GetBytes("DX10"));
+                    //dDSHeader.ddspf.dwFourCC = 0;
+                    break;
 			}
 			if (dDSHeader.HasExtendedHeader)
 			{
@@ -280,7 +285,7 @@ namespace Frostbite.Textures
 			}
 			MemoryStream memoryStream = textureAsset.Data as MemoryStream;
 			memoryStream.Position = 0L;
-			byte[] array = null;
+			//byte[] array = null;
 			using (NativeWriter nativeWriter = new NativeWriter(new MemoryStream()))
 			{
 				dDSHeader.Write(nativeWriter);
@@ -368,7 +373,7 @@ namespace Frostbite.Textures
 
 		public struct DDSHeaderDX10
 		{
-			public Format dxgiFormat;
+			public Vortice.DXGI.Format dxgiFormat;
 
 			public ResourceDimension resourceDimension;
 
@@ -530,7 +535,7 @@ namespace Frostbite.Textures
 				if (ddspf.dwFourCC == 808540228)
 				{
 					HasExtendedHeader = true;
-					ExtendedHeader.dxgiFormat = (Format)reader.ReadUInt();
+					ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)reader.ReadUInt();
 					ExtendedHeader.resourceDimension = (ResourceDimension)reader.ReadUInt();
 					ExtendedHeader.miscFlag = reader.ReadUInt();
 					ExtendedHeader.arraySize = reader.ReadUInt();

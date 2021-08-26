@@ -767,11 +767,11 @@ public interface IAssetLoader
             }
 
 
-			//if (string.IsNullOrEmpty(ebx.Type))
-			//{
-			//	EBX.TryRemove(ebx.Name, out _);
-			//}
-		}
+            if (string.IsNullOrEmpty(ebx.Type))
+            {
+                EBX.TryRemove(ebx.Name, out _);
+            }
+        }
 
 		
 
@@ -2944,6 +2944,57 @@ public interface IAssetLoader
 
         }
 
+		public bool DoLegacyImageImport(MemoryStream stream, LegacyFileEntry lfe)
+		{
+			var bytes = ((MemoryStream)GetCustomAsset("legacy", lfe)).ToArray();
+			ImageEngineImage originalImage = new ImageEngineImage(bytes);
+
+			ImageEngineImage newImage = new ImageEngineImage(stream);
+
+			var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
+
+
+			if (originalImage.Format == ImageEngineFormat.DDS_DXT5)
+			{
+				bytes = newImage.Save(
+					new ImageFormats.ImageEngineFormatDetails(
+						ImageEngineFormat.DDS_DXT5
+						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC3_UNORM)
+					, mipHandling
+					, removeAlpha: false);
+			}
+			else if (originalImage.Format == ImageEngineFormat.DDS_DXT3)
+			{
+				bytes = newImage.Save(
+					new ImageFormats.ImageEngineFormatDetails(
+						ImageEngineFormat.DDS_DXT3
+						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC2_UNORM_SRGB)
+					, MipHandling.KeepTopOnly
+					, removeAlpha: false);
+			}
+			else if (originalImage.Format == ImageEngineFormat.DDS_DXT1)
+			{
+				bytes = newImage.Save(
+					new ImageFormats.ImageEngineFormatDetails(
+						ImageEngineFormat.DDS_DXT1
+						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+					, mipHandling
+					, removeAlpha: false);
+			}
+			else
+			{
+				bytes = newImage.Save(
+					new ImageFormats.ImageEngineFormatDetails(
+						ImageEngineFormat.DDS_DXT1
+						, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_BC1_UNORM_SRGB)
+					, mipHandling
+					, removeAlpha: false);
+			}
+
+
+			ModifyLegacyAsset(lfe.Name, bytes, false);
+			return true;
+		}
 
 		public bool DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
 		{

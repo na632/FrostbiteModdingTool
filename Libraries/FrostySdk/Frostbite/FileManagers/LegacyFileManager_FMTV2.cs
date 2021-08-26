@@ -166,6 +166,7 @@ namespace Frostbite.FileManagers
 
 			ChunkBatches = new List<ChunkBatch>();
 
+
 			foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
 			//foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("CFC_GM_Launch"))
 			{

@@ -88,7 +88,7 @@ namespace FrostbiteModdingTests
         public void ReadSharedTypeDescriptor()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData("Madden22", GamePath, this, false);
+            buildCache.LoadData("Madden22", GamePath, this, false, true);
             EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2(FileSystem.Instance, "SharedTypeDescriptors.ebx", false);
         }
 
@@ -98,6 +98,9 @@ namespace FrostbiteModdingTests
             var buildCache = new BuildCache();
             buildCache.LoadData("Madden22", GamePath, this, false, true);
 
+            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
+            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("file", StringComparison.OrdinalIgnoreCase));
+            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("collector", StringComparison.OrdinalIgnoreCase));
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
     }

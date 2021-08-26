@@ -1,6 +1,7 @@
 ﻿using FIFAModdingUI.Models;
 using FIFAModdingUI.Pages.Common;
 using FMT;
+using FMT.Windows;
 using FolderBrowserEx;
 using Frostbite.FileManagers;
 using Frostbite.Textures;
@@ -227,7 +228,8 @@ namespace FIFAModdingUI.Windows
                 {
                     miProject.IsEnabled = true;
                     miMod.IsEnabled = true;
-                    miProjectConverter.IsEnabled = true;
+                    //miProjectConverter.IsEnabled = true;
+                    miImportKitCreator.IsEnabled = true;
 
                     var wt = WindowTitle;
                     WindowTitle = "New Project";
@@ -1151,6 +1153,12 @@ namespace FIFAModdingUI.Windows
             BuildSDKAndCache buildSDKAndCache = new BuildSDKAndCache();
             buildSDKAndCache.DoNotAutoRebuild = true;
             buildSDKAndCache.Show();
+        }
+
+        private void btnImportKitCreatorZip_Click(object sender, RoutedEventArgs e)
+        {
+            KitCreatorImport kitCreatorImport= new KitCreatorImport();
+            kitCreatorImport.ShowDialog();
         }
     }
 }
