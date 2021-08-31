@@ -56,8 +56,9 @@ namespace FrostySdk.IO
 		}
 
 		public EbxReaderV3(Stream InStream, bool inPatched)
-			: base(InStream, passthru: true)
-		{
+            //: base(InStream)
+            : base(InStream, passthru: true)
+        {
 			InitialiseStd();
 			patched = inPatched;
 			magic = (EbxVersion)ReadUInt();

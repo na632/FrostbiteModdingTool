@@ -224,6 +224,9 @@ namespace Frostbite.Textures
 					dDSHeader.HasExtendedHeader = true;
 					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)98;
 					break;
+
+			
+
 				case "R8_UNORM":
 					dDSHeader.HasExtendedHeader = true;
 					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)61;
@@ -272,13 +275,26 @@ namespace Frostbite.Textures
 					dDSHeader.HasExtendedHeader = true;
 					dDSHeader.ExtendedHeader.dxgiFormat = (Vortice.DXGI.Format)28;
 					break;
+				//default:
+				//                dDSHeader.HasExtendedHeader = true;
+				//	dDSHeader.ExtendedHeader.dxgiFormat = vorticeFormat;
+				//                //dDSHeader.ddspf.dwFourCC = BitConverter.ToInt32(Encoding.UTF8.GetBytes("DX10"));
+				//                //dDSHeader.ddspf.dwFourCC = 0;
+				//                break;
 				default:
-                    dDSHeader.HasExtendedHeader = true;
-					dDSHeader.ExtendedHeader.dxgiFormat = vorticeFormat;
-                    //dDSHeader.ddspf.dwFourCC = BitConverter.ToInt32(Encoding.UTF8.GetBytes("DX10"));
-                    //dDSHeader.ddspf.dwFourCC = 0;
-                    break;
+					dDSHeader.ddspf.dwFourCC = 0;
+					break;
 			}
+
+			//switch(vorticeFormat)
+   //         {
+			//	default:
+			//		dDSHeader.HasExtendedHeader = true;
+			//		dDSHeader.ExtendedHeader.dxgiFormat = vorticeFormat;
+			//		dDSHeader.ddspf.dwFourCC = 808540228;
+			//		break;
+			//}
+
 			if (dDSHeader.HasExtendedHeader)
 			{
 				dDSHeader.ddspf.dwFourCC = 808540228;

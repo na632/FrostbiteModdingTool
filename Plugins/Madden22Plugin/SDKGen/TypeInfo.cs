@@ -46,17 +46,13 @@ namespace SdkGenerator.Madden22
             {
 
             }
-			//nameHash = reader.ReadUInt();
-			var h = reader.ReadInt();
-			if(h == -237252713)
-            {
 
-            }
-			nameHash = (uint)h;
-			if (nameHash == 4057714583)
+			if (name.Equals("RenderFormat", System.StringComparison.OrdinalIgnoreCase))
 			{
 
 			}
+			var h = reader.ReadInt();
+			nameHash = (uint)h;
 			flags = reader.ReadUShort();
 			flags >>= 1;
             size = reader.ReadUShort();
@@ -100,24 +96,22 @@ namespace SdkGenerator.Madden22
 			}
             else if (Type == 3)
             {
-                reader.Position = array[1];
-
-                //if (reader.Position != 0)
-                flag = true;
-            }
+				if (fieldCount > 0)
+				{
+					reader.Position = array[1];
+					flag = true;
+				}
+			}
             else if (Type == 4)
 			{
-				//parentClass = 0L;
-				//reader.Position = array[0];
-				//if (reader.Position != 0)
-				//	flag = true;
+				
 			}
 			else if (Type == 8)
 			{
-				//parentClass = 0L;
+				parentClass = 0L;
 				reader.Position = array[0];
-				if (reader.Position != 0)
-					flag = true;
+				flag = fieldCount > 0;
+
 			}
 
 			if (flag)

@@ -18,7 +18,7 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 
 		public static ILegacyFileManager Instance = null;
 
-		private Dictionary<int, LegacyFileEntry> legacyEntries = new Dictionary<int, LegacyFileEntry>();
+		private Dictionary<string, LegacyFileEntry> legacyEntries = new Dictionary<string, LegacyFileEntry>();
 
 		private Dictionary<Guid, byte[]> cachedChunks = new Dictionary<Guid, byte[]>();
 
@@ -36,7 +36,6 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 		public virtual void Initialize(ILogger logger)
 		{
 			logger.Log("Loading legacy files");
-			//var ebxChunks = AssetManager.EnumerateEbx().ToList();
 
 			foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
 			{
@@ -45,6 +44,9 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 				{
 					dynamic rootObject = ebx.RootObject;
 					dynamic val = rootObject.Manifest;
+					if (!Utilities.PropertyExists(val, "ChunkId"))
+						continue;
+
 					ChunkAssetEntry chunkAssetEntry = AssetManager.GetChunkEntry(val.ChunkId);
 					if (chunkAssetEntry != null)
 					{
@@ -62,17 +64,16 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 									nativeReader.Position = position;
 									string text = nativeReader.ReadNullTerminatedString();
 									nativeReader.Position = position2;
-									int key = Fnv1.HashString(text);
 									LegacyFileEntry legacyFileEntry = null;
-									if (!legacyEntries.ContainsKey(key))
+									if (!legacyEntries.ContainsKey(text))
 									{
 										legacyFileEntry = new LegacyFileEntry();
 										legacyFileEntry.Name = text;
-										legacyEntries.Add(key, legacyFileEntry);
+										legacyEntries.Add(text, legacyFileEntry);
 									}
 									else
 									{
-										legacyFileEntry = legacyEntries[key];
+										legacyFileEntry = legacyEntries[text];
 									}
 									LegacyFileEntry.ChunkCollectorInstance chunkCollectorInstance = new LegacyFileEntry.ChunkCollectorInstance();
 									chunkCollectorInstance.CompressedOffset = nativeReader.ReadLong();
@@ -82,6 +83,8 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 									chunkCollectorInstance.ChunkId = nativeReader.ReadGuid();
 									chunkCollectorInstance.Entry = item;
 									legacyFileEntry.CollectorInstances.Add(chunkCollectorInstance);
+									legacyFileEntry.ChunkId = chunkCollectorInstance.ChunkId;
+
 								}
 							}
 						}
@@ -114,20 +117,18 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 
 		public AssetEntry GetAssetEntry(string key)
 		{
-			int key2 = Fnv1.HashString(key);
-			if (legacyEntries.ContainsKey(key2))
+			if (legacyEntries.ContainsKey(key))
 			{
-				return legacyEntries[key2];
+				return legacyEntries[key];
 			}
 			return null;
 		}
 
 		public LegacyFileEntry GetLFEntry(string key)
 		{
-			int key2 = Fnv1.HashString(key);
-			if (legacyEntries.ContainsKey(key2))
+			if (legacyEntries.ContainsKey(key))
 			{
-				return legacyEntries[key2];
+				return legacyEntries[key];
 			}
 			return null;
 		}
@@ -150,10 +151,9 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 
 		public void ModifyAsset(string key, byte[] data)
 		{
-			int key2 = Fnv1.HashString(key);
-			if (legacyEntries.ContainsKey(key2))
+			if (legacyEntries.ContainsKey(key))
 			{
-				LegacyFileEntry legacyFileEntry = legacyEntries[key2];
+				LegacyFileEntry legacyFileEntry = legacyEntries[key];
 				MemoryStream memoryStream = new MemoryStream();
 				using (NativeWriter nativeWriter = new NativeWriter(memoryStream, leaveOpen: true))
 				{

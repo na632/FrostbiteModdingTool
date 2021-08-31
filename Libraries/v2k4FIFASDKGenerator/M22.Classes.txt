@@ -42,9 +42,9 @@ BeginClass LinearTransform
 			return string.Format("({0:0.##}/{1:0.##}/{2:0.##}) ({3:0.##}/{4:0.##}/{5:0.##}) ({6:0.##}/{7:0.##}/{8:0.##})", x, y, z, sx,sy,sz, _trans.x, _trans.y, _trans.z);
 		}
 	EndFunctions
-	BeginFields 6
+	BeginFields 7
 		BeginField right
-			Added=True
+			Added=False
 			Transient=True
 			Index=0
 			Type=Struct,Vec3
@@ -52,37 +52,37 @@ BeginClass LinearTransform
 		BeginField up
 			Added=True
 			Transient=True
-			Index=0
+			Index=1
 			Type=Struct,Vec3
 		EndField
 		BeginField forward
 			Added=True
 			Transient=True
-			Index=0
+			Index=2
 			Type=Struct,Vec3
 		EndField
 		BeginField trans
 			Added=True
 			Transient=True
-			Index=0
+			Index=3
 			Type=Struct,Vec3
 		EndField
 		BeginField Translate
 			Added=True
 			Transient=True
-			Index=0
+			Index=4
 			Type=Struct,Vec3
 		EndField
 		BeginField Rotation
 			Added=True
 			Transient=True
-			Index=1
+			Index=5
 			Type=Struct,Vec3
 		EndField
 		BeginField Scale
 			Added=True
 			Transient=True
-			Index=2
+			Index=6
 			Type=Struct,Vec3
 		EndField
 	EndFields
@@ -90,7 +90,7 @@ EndClass
 BeginClass Vec3
 	BeginFields 3
 		BeginField x
-			Added=True
+			Added=False
 			Transient=True
 			Index=0
 			Type=Struct,float
@@ -103,7 +103,7 @@ BeginClass Vec3
 		EndField
 		BeginField z
 			Added=True
-			Transient=True
+			Transient=False
 			Index=2
 			Type=Struct,float
 		EndField
@@ -142,12 +142,7 @@ BeginClass Asset
 	EndFields
 EndClass
 BeginClass EventSpec
-	BeginFields 2
-		BeginField Id
-			Added=True
-			Transient=True
-			Type=Struct,int
-		EndField
+	BeginFields 1
 		BeginField Name
 			Added=True
 			Transient=True

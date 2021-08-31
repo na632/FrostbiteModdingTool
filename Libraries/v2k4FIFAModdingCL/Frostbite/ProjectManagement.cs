@@ -24,11 +24,12 @@ namespace v2k4FIFAModding.Frosty
         public static ProjectManagement Instance;
 
         public FrostbiteProject Project { get; set; }
-        public string FilePath { get; set; }
 
         public ILogger Logger = null;
 
         string lastMessage = null;
+
+
 
         /// <summary>
         /// Sets up all the Singleton Paths

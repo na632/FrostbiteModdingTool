@@ -154,8 +154,10 @@ namespace FrostySdk
 
 			public string LegacyFileManager { get; set; }
 
+			public bool DoesNotUsePlugin { get; set; }
 
-
+			public string EBXSharedTypeDescriptorNameInMemory { get; set; }
+			
 		}
 
 		public static IEnumerable<Profile> EditorProfiles 
@@ -282,6 +284,8 @@ namespace FrostySdk
 		public static string SDKClassesFile => LoadedProfile.SDKClassesFile;
 		public static string SDKGeneratorClassInfoType => LoadedProfile.SDKGeneratorClassInfoType;
 		public static string EBXTypeDescriptor => LoadedProfile.EBXTypeDescriptor;
+		public static bool DoesNotUsePlugin => LoadedProfile.DoesNotUsePlugin;
+		public static string EBXSharedTypeDescriptorNameInMemory => LoadedProfile.EBXSharedTypeDescriptorNameInMemory;
 
 		public enum CompTypeArea
         {

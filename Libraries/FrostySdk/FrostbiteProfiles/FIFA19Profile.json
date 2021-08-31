@@ -31,13 +31,14 @@
   "TextureImporter": null,
   "TextureExporter": null,
   "EditorScreen": "FIFA19Editor",
-  "EBXReader": null,
-  "EBXWriter": null,
+  "EBXReader": "EbxReader",
+  "EBXWriter": "EbxWriter",
   "CacheWriter": null,
   "CacheReader": null,
   "SupportedLauncherFileTypes": null,
   "ModCompilerFileType": null,
   "CanEdit": false,
   "CanLaunchMods": false,
-  "LegacyFileManager": "LegacyFileManager"
+  "LegacyFileManager": "",
+  "DoesNotUsePlugin": true
 }

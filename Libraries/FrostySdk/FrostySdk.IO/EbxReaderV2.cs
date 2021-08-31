@@ -38,7 +38,10 @@ namespace FrostySdk.IO
 
 				if (std == null)
 				{
-					std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
+					if(ProfilesLibrary.IsFIFA19DataVersion())
+						std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "Dictionaries/ebx.dict", patch: false);
+					else
+						std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
 				}
 
 				if (patchStd == null)

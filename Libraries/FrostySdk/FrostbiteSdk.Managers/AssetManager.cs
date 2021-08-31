@@ -548,14 +548,13 @@ public interface IAssetLoader
 		public static bool InitialisePlugins()
         {
 
-			if (Directory.Exists("Plugins"))
+			if (Directory.Exists("Plugins") && !ProfilesLibrary.DoesNotUsePlugin)
 			{
 				foreach (var p in Directory.EnumerateFiles("Plugins"))
 				{
 					if (p.ToLower().EndsWith(".dll") && p.ToLower().Contains(ProfilesLibrary.ProfileName.ToLower()))
 					{
                         if (Assembly.UnsafeLoadFrom(p) != null)
-                        //if (Assembly.LoadFrom(p) != null)
                         {
 							if (!PluginAssemblies.Contains(p))
 								PluginAssemblies.Add(p);
@@ -600,7 +599,7 @@ public interface IAssetLoader
 		public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
 		{
 			logger.Log("Initialising Plugins");
-			if(!InitialisePlugins())
+			if(!InitialisePlugins() && !ProfilesLibrary.DoesNotUsePlugin)
             {
 				throw new Exception("Plugins could not be initialised!");
             }				
@@ -727,14 +726,14 @@ public interface IAssetLoader
 					{
 						EbxReader ebxReader = null;
 						//EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
-						if (ProfilesLibrary.IsFIFA19DataVersion())
-						{
-							ebxReader = new EbxReader(ebxStream, true);
-							EBX[ebx.Name].Type = ebxReader.RootType;
-							EBX[ebx.Name].Guid = ebxReader.FileGuid;
-						}
-						else
-						{
+						//if (ProfilesLibrary.IsFIFA19DataVersion())
+						//{
+						//	ebxReader = new EbxReader(ebxStream, true);
+						//	EBX[ebx.Name].Type = ebxReader.RootType;
+						//	EBX[ebx.Name].Guid = ebxReader.FileGuid;
+						//}
+						//else
+						//{
 							if (!string.IsNullOrEmpty(ProfilesLibrary.EBXReader))
 							{
 								if (EbxReaderType == null)
@@ -742,10 +741,8 @@ public interface IAssetLoader
 									ebxReader = (EbxReader)LoadTypeByName(ProfilesLibrary.EBXReader, ebxStream, true);
 									EbxReaderType = ebxReader.GetType();
 								}
-								else
-                                {
-									ebxReader = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
-                                }
+							ebxStream.Position = 0;
+								ebxReader = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
 
 								EBX[ebx.Name].Type = ebxReader.RootType;
 								EBX[ebx.Name].Guid = ebxReader.FileGuid;
@@ -757,7 +754,7 @@ public interface IAssetLoader
 								EBX[ebx.Name].Type = ebxReader.RootType;
 								EBX[ebx.Name].Guid = ebxReader.FileGuid;
 							}
-						}
+						//}
 						return;
 					}
 				}
@@ -1378,6 +1375,7 @@ public interface IAssetLoader
 				ae.Name = NewEntryPath;
 				ICustomAssetManager customAssetManager = AssetManager.Instance.GetLegacyAssetManager();
 				customAssetManager.AddAsset(ae.Name, ae);
+				customAssetManager.ModifyAsset(ae.Name, ((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", ae)).ToArray());
 			}
 			else
 			{

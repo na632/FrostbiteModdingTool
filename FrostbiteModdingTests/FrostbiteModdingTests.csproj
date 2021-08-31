@@ -60,12 +60,6 @@
     <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netcoreapp3.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\Plugins\Madden21Plugin\bin\Debug\netcoreapp3.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Plugins\Madden22Plugin\bin\Debug\netcoreapp3.1\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

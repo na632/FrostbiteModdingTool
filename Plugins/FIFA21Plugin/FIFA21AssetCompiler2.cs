@@ -107,7 +107,7 @@ namespace FIFA21Plugin
                     TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21();
                     tocSb.DoLogging = false;
                     tocSb.ProcessData = false;
-                    tocSb.Read(location_toc_file, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
+                    tocSb.Read(location_toc_file, 0, tocFileRAW);
 
                     var location_toc_file_new = UseModData 
                         ? location_toc_file

@@ -202,6 +202,10 @@ namespace SdkGenerator
             foreach (DbObject @class in classList)
             {
                 var className = @class.GetValue<string>("name");
+                if(className.Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
                 if (!fieldMapping.ContainsKey(className))
                 {
                     if ((byte)((@class.GetValue("flags", 0) >> 4) & 0x1F) == 3 && @class.GetValue("alignment", 0) == 0)
@@ -220,8 +224,8 @@ namespace SdkGenerator
                         EbxField ebxField = default(EbxField);
                         ebxField.Name = fieldInList.GetValue<string>("name");
                         ebxField.Type = (ushort)fieldInList.GetValue("flags", 0);
-                        //ebxField.NameHash = (uint)fieldInList.GetValue("nameHash",0);
-                        ebxField.NameHash = (ulong)fieldInList.GetValue("nameHash",0ul);
+                        ebxField.NameHash = (uint)fieldInList.GetValue("nameHash", 0u);
+                        //ebxField.NameHash = (ulong)fieldInList.GetValue("nameHash",0ul);
                         fieldList.Add(ebxField);
                     }
                     if(ebxClass.Name.ToLower().Contains("blocking"))
@@ -275,6 +279,11 @@ namespace SdkGenerator
             Dictionary<ulong, string> fieldDictionaryToHash = new Dictionary<ulong, string>();
             foreach (DbObject @class in classList)
             {
+                if (@class.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
+
                 if (@class.GetValue<string>("name").Contains("blocking"))
                 {
 
@@ -338,6 +347,11 @@ namespace SdkGenerator
                         {
 
                         }
+                        if (item2.Name.Contains("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+
                         item2.FieldCount = @class.FieldCount;
                         item2.Alignment = @class.Alignment;
                         item2.Size = @class.Size;
@@ -359,6 +373,7 @@ namespace SdkGenerator
                                 {
                                     var dbObjName = dbObjField.GetValue<string>("name");
                                     var dbObjNameHash = dbObjField.GetValue<ulong>("nameHash");
+                                    //if (dbObjName.Equals(field.Name, StringComparison.OrdinalIgnoreCase))
                                     if (dbObjNameHash == field.NameHash)
                                     {
                                         dbObjField.SetValue("type", field.Type);
@@ -661,9 +676,9 @@ namespace SdkGenerator
                     {
                         Name = dbObject7.GetValue<string>("name"),
                         Type = (ushort)dbObject7.GetValue<int>("flags"),
-                        DataOffset = (uint)dbObject7.GetValue<int>("offset"),
-                        //NameHash = (uint)dbObject7.GetValue<int>("nameHash")
-                        NameHash = dbObject7.GetValue<ulong>("nameHash")
+                        DataOffset = (uint)dbObject7.GetValue<uint>("offset"),
+                        NameHash = (uint)dbObject7.GetValue<uint>("nameHash")
+                        //NameHash = dbObject7.GetValue<ulong>("nameHash")
                     });
                 }
                 ebxFieldList.Sort((EbxField a, EbxField b) => a.DataOffset.CompareTo(b.DataOffset));
@@ -993,6 +1008,8 @@ namespace SdkGenerator
             Debug.WriteLine(task.StatusMessage);
             
             memoryReader.Dispose();
+            memoryReader = null;
+
             DbObject result = new DbObject(bObject: false);
             classInfos.Sort((IClassInfo a, IClassInfo b) => a.typeInfo.name.CompareTo(b.typeInfo.name));
 
@@ -1000,6 +1017,11 @@ namespace SdkGenerator
 
             foreach (IClassInfo classInfo2 in classInfos)
             {
+                if(classInfo2.typeInfo.name.Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
+
                 if (classInfo2.typeInfo.Type == 2
                     || classInfo2.typeInfo.Type == 3
                     || classInfo2.typeInfo.Type == 8

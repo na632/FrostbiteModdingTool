@@ -95,9 +95,15 @@ namespace FrostySdk.IO
 
 		public List<EbxClass> ClassTypes => classTypes;
 
+		public EbxReader() : base(new MemoryStream())
+        {
+
+        }
+
 		public EbxReader(Stream inStream, bool passthru)
 			: base(inStream)
 		{
+			//InitialRead(inStream, false);
 		}
 
 		public EbxReader(Stream InStream)
@@ -106,16 +112,10 @@ namespace FrostySdk.IO
 			InitialRead(InStream, false);
 		}
 
+		
+
 		public virtual void InitialRead(Stream InStream, bool inPatched)
         {
-			//FileStream fileStreamFromCas = new FileStream($"Debugging/EBX/FromCas_", FileMode.OpenOrCreate);
-			//var pos = InStream.Position;
-			//InStream.Position = 0;
-			//InStream.CopyTo(fileStreamFromCas);
-			//InStream.Position = pos;
-			//fileStreamFromCas.Close();
-			//fileStreamFromCas.Dispose();
-
 			magic = (EbxVersion)ReadUInt();
 			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
 			{

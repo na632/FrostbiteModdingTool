@@ -142,11 +142,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libraries\CSIL\CSIL.csproj"  >
+    <ProjectReference Include="..\Libraries\CSIL\CSIL.csproj">
 		  
 	  </ProjectReference>
     <ProjectReference Include="..\Libraries\FMT.Controls\FMT.Controls.csproj" />
-	  <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj" >
+	  <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj">
 	  </ProjectReference>
     <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
     <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
@@ -266,6 +266,7 @@
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Util\" />
+    <Folder Include="Windows\Editors\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -811,7 +811,11 @@ namespace FIFAModdingUI.Pages.Common
 
 			await Task.Run(() =>
 			{
-				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+				try
+				{
+					FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+                }
+                catch { }
 				//FrostyProject.Save("GameplayProject.fbproject", true);
 			});
 

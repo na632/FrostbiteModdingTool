@@ -42,21 +42,30 @@ namespace FIFA21Plugin
 
         public string SbPath = string.Empty;
 
-        public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false, string nativePath = null)
+
+        public TocSbReader_FIFA21()
+        {
+
+        }
+
+        public TocSbReader_FIFA21(in bool processData, in bool doLogging)
+        {
+            ProcessData = processData;
+            DoLogging = doLogging;
+        }
+
+        public List<DbObject> Read(string tocPath, int sbIndex, string SBName, bool native_data = false, string nativePath = null)
         {
             SBIndex = sbIndex;
 
             if (AssetManager == null)
                 AssetManager = AssetManager.Instance;
 
-            //byte[] key = KeyManager.Instance.GetKey("Key2");
             if (tocPath != "")
             {
                 SbPath = tocPath.Replace(".toc", ".sb");
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
-                //if (!tocPath.Contains("globals.toc"))
-                //{
                 List<DbObject> objs = new List<DbObject>();
                 using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
                 {
@@ -66,18 +75,16 @@ namespace FIFA21Plugin
                     TOCFile.SuperBundleName = SBName;
                     TOCFile.NativeFileLocation = nativePath;
                     TOCFile.FileLocation = tocPath;
-                    //TOCFile.SuperBundleName = Guid.NewGuid().ToString();
                     TOCFile.DoLogging = DoLogging;
                     TOCFile.ProcessData = ProcessData;
                     TOCFile.Read(nativeReader);
 
                     // SB File
-                    var rObjs = ReadSB(SbPath, helper, nativePath != null ? nativePath.Replace(".toc", ".sb") : null);
+                    var rObjs = ReadSB(SbPath, nativePath != null ? nativePath.Replace(".toc", ".sb") : null);
                     if (rObjs != null)
                         objs.AddRange(rObjs);
 
                     return objs;
-                    //}
                 }
             }
 
@@ -89,7 +96,7 @@ namespace FIFA21Plugin
 
         
 
-        public List<DbObject> ReadSB(string sbPath, BinarySbDataHelper helper, string nativeSBPath = null)
+        public List<DbObject> ReadSB(string sbPath, string nativeSBPath = null)
         {
             //Debug.WriteLine($"[DEBUG] Loading SB File: {sbPath}");
             //if(sbPath.Contains("contentlaunchsb", StringComparison.OrdinalIgnoreCase))

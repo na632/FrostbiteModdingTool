@@ -61,7 +61,7 @@
   // Can the Launcher support this Game?
   "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": true,
+  "CanEdit": false,
   "EbxVersion": 4,
   "RequiresKey": true,
   "MustAddChunks": false,

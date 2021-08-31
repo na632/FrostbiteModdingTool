@@ -151,14 +151,25 @@ namespace FrostySdk
 			}
 		}
 
+		public ChunkAssetEntry ChunkEntry
+        {
+            get
+            {
+				return AssetManager.Instance.GetChunkEntry(ChunkId);
+			}
+        }
+
 		public override bool IsDirty
 		{
 			get
 			{
-                if (AssetManager.Instance.GetChunkEntry(ChunkId).IsDirty)
-                {
-                    return true;
-                }
+				if (ChunkEntry != null) 
+				{
+					if (ChunkEntry.IsDirty)
+					{
+						return true;
+					}
+				}
                 return false;
             }
 		}

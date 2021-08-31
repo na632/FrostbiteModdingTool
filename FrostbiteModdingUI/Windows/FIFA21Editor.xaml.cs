@@ -243,7 +243,8 @@ namespace FIFAModdingUI.Windows
             });
 
             var presence = new DiscordRPC.RichPresence();
-            presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
+            presence.Details = "In Editor [" + GameInstanceSingleton.GAMEVERSION + "]";
+            presence.State = "V." + App.ProductVersion;
             App.DiscordRpcClient.SetPresence(presence);
             App.DiscordRpcClient.Invoke();
 
@@ -565,6 +566,12 @@ namespace FIFAModdingUI.Windows
 
                     WindowTitle = saveFileDialog.FileName;
 
+                    var presence = new DiscordRPC.RichPresence();
+                    presence.Details = "In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName;
+                    presence.State = "V." + App.ProductVersion;
+                    App.DiscordRpcClient.SetPresence(presence);
+                    App.DiscordRpcClient.Invoke();
+
 
                 }
             }
@@ -607,7 +614,14 @@ namespace FIFAModdingUI.Windows
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
                     WindowTitle = openFileDialog.FileName;
-                    
+
+                    var presence = new DiscordRPC.RichPresence();
+                    presence.Details = "In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName;
+                    presence.State = "V." + App.ProductVersion;
+                    App.DiscordRpcClient.SetPresence(presence);
+                    App.DiscordRpcClient.Invoke();
+
+
                 }
             }
             loadingDialog.Close();
@@ -620,17 +634,25 @@ namespace FIFAModdingUI.Windows
         {
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = false; });
 
-            Log("Autosaving Project");
-            await Task.Run(() =>
+            if (!string.IsNullOrEmpty(ProjectManagement.Project.Filename))
             {
+                Log("Autosaving Project");
+                bool saved = await Task.Run(() =>
+                {
                 // Delete old Autosaves
-                foreach (var tFile in Directory.GetFiles(App.ApplicationDirectory, "*.fbproject")) 
-                { 
-                    if(File.GetLastWriteTime(tFile) < DateTime.Now.AddDays(-2))
-                        File.Delete(tFile);
-                };
-                ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString() + ".fbproject");
-            });
+                    foreach (var tFile in Directory.GetFiles(App.ApplicationDirectory, "*.fbproject"))
+                    {
+                        if (File.GetLastWriteTime(tFile) < DateTime.Now.AddDays(-2))
+                            File.Delete(tFile);
+                    };
+                    var fnBeforeAutoSave = ProjectManagement.Project.Filename;
+                    var result = ProjectManagement.Project.Save("Autosave-" + RandomSaver.Next().ToString() + ".fbproject");
+                    //return ProjectManagement.Project.Save(fnBeforeAutoSave);
+                    ProjectManagement.Project.Filename = fnBeforeAutoSave;
+                    return result;
+                });
+            }
+
 
             //Log("Deleting old test mods");
             foreach (var tFile in Directory.GetFiles(App.ApplicationDirectory, "*.fbmod")) { File.Delete(tFile); };
@@ -642,9 +664,12 @@ namespace FIFAModdingUI.Windows
             var desc = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
             var title = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
             var version = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
-            ProjectManagement.Project.WriteToMod(testmodname
-                , new ModSettings() { Author = author, Category = category, Description = desc, Title = title, Version = version });
 
+            await Task.Run(() =>
+            {
+                ProjectManagement.Project.WriteToMod(testmodname
+                    , new ModSettings() { Author = author, Category = category, Description = desc, Title = title, Version = version });
+            });
 
             var useModData = swUseModData.IsOn;
             await Task.Run(() =>

@@ -4372,14 +4372,14 @@ namespace paulv2k4ModdingExecuter
             });
             Process[] processes = Process.GetProcesses();
             string profileName = ProfilesLibrary.ProfileName;
-            Process[] array = processes;
-            foreach (Process process in array)
+            foreach (Process process in processes)
             {
                 if (process.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase))
                 {
                     throw new Exception("Game process is already running, please close and relaunch");
                 }
             }
+            processes = null;
 
             Logger.Log("Initializing resources");
 
@@ -4538,43 +4538,48 @@ namespace paulv2k4ModdingExecuter
                         }
 
 
-
-
-                        if (resource.Type == ModResourceType.Ebx)
+                        switch (resource.Type)
                         {
-                            if (modifiedEbx.ContainsKey(resource.Name))
-                            {
-                                EbxAssetEntry ebxAssetEntry = modifiedEbx[resource.Name];
-                                if (ebxAssetEntry.Sha1 == resource.Sha1)
+                            case ModResourceType.Ebx:
+                                if (modifiedEbx.ContainsKey(resource.Name))
                                 {
-                                    //continue;
+                                    EbxAssetEntry ebxAssetEntry = modifiedEbx[resource.Name];
+                                    if (ebxAssetEntry.Sha1 == resource.Sha1)
+                                    {
+                                        //continue;
+                                    }
+                                    archiveData[ebxAssetEntry.Sha1].RefCount--;
+                                    if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
+                                    {
+                                        archiveData.TryRemove(ebxAssetEntry.Sha1, out _);
+                                    }
+                                    modifiedEbx.Remove(resource.Name);
                                 }
-                                archiveData[ebxAssetEntry.Sha1].RefCount--;
-                                if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
+                                EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
+                                resource.FillAssetEntry(ebxAssetEntry2);
+                                ebxAssetEntry2.Size = resourceData.Length;
+                                modifiedEbx.Add(ebxAssetEntry2.Name, ebxAssetEntry2);
+                                if (!archiveData.ContainsKey(ebxAssetEntry2.Sha1))
                                 {
-                                    archiveData.TryRemove(ebxAssetEntry.Sha1, out _);
+                                    archiveData.TryAdd(ebxAssetEntry2.Sha1, new ArchiveInfo
+                                    {
+                                        Data = resourceData,
+                                        RefCount = 1
+                                    });
                                 }
-                                modifiedEbx.Remove(resource.Name);
-                            }
-                            //byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                            EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
-                            resource.FillAssetEntry(ebxAssetEntry2);
-                            ebxAssetEntry2.Size = resourceData.Length;
-                            modifiedEbx.Add(ebxAssetEntry2.Name, ebxAssetEntry2);
-                            if (!archiveData.ContainsKey(ebxAssetEntry2.Sha1))
-                            {
-                                archiveData.TryAdd(ebxAssetEntry2.Sha1, new ArchiveInfo
+                                else
                                 {
-                                    Data = resourceData,
-                                    RefCount = 1
-                                });
-                            }
-                            else
-                            {
-                                archiveData[ebxAssetEntry2.Sha1].RefCount++;
-                            }
+                                    archiveData[ebxAssetEntry2.Sha1].RefCount++;
+                                }
+                                break;
                         }
-                        else if (resource.Type == ModResourceType.Res)
+
+                        //if (resource.Type == ModResourceType.Ebx)
+                        //{
+                            
+                        //}
+                        //else
+                        if (resource.Type == ModResourceType.Res)
                         {
                             if (resource.HasHandler)
                             {
@@ -4702,58 +4707,12 @@ namespace paulv2k4ModdingExecuter
                 Logger.Log("Cleaning up mod data directory");
                 //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
                 fs.ResetManifest();
-                //if (!DeleteSelectFiles(modPath + patchPath))
-                //if (FrostyModsFound)
-                {
-                    //Directory.Delete(modPath, true);
-
-                    //if (Directory.Exists(modPath))
-                    //{
-                    //    foreach (string file in Directory.EnumerateFiles(modPath, "*.*", SearchOption.AllDirectories))
-                    //    {
-                    //        if (FileIsSymbolic(file))
-                    //        {
-
-                    //        }
-                    //        if (file.Contains(modPath))
-                    //        {
-
-                    //        }
-                    //    }
-                    //}
+                
 
                     Logger.Log("Creating mod data directory");
                     Directory.CreateDirectory(modPath);
 
-                    // Symbolic link the Data folder
-                    //if (UseSymbolicLinks)
-                    //{
-                    //    SymbolicLinkList.Add(new SymLinkStruct(modPath + "Data", fs.BasePath + "Data", inFolder: true));
-                    //}
-
-                    //if (!ProfilesLibrary.IsFIFA21DataVersion() && !ProfilesLibrary.IsMadden21DataVersion())
-                    //{
-                    //    foreach (string casFileLocation in Directory.EnumerateFiles(fs.BasePath + patchPath, "*.cas", SearchOption.AllDirectories))
-                    //    {
-                    //        FileInfo fileInfo3 = new FileInfo(casFileLocation);
-                    //        string text3 = fileInfo3.Directory.FullName.ToLower().Replace("\\" + patchPath.ToLower(), "\\" + modDirName.ToLower() + "\\" + patchPath.ToLower());
-                    //        string inDst = Path.Combine(text3, fileInfo3.Name);
-                    //        if (!Directory.Exists(text3))
-                    //        {
-                    //            Directory.CreateDirectory(text3);
-                    //        }
-                    //        SymbolicLinkList.Add(new SymLinkStruct(inDst, fileInfo3.FullName, inFolder: false));
-                    //    }
-                    //}
-
-                    //if (SymbolicLinkList.Count > 0)
-                    //{
-                    //    if (!RunSymbolicLinkProcess(SymbolicLinkList))
-                    //    {
-                    //        Directory.Delete(modPath, recursive: true);
-                    //        throw new FrostySymLinkException();
-                    //    }
-                    //}
+                    
                     int workerThreads = 0;
                     int completionPortThreads = 0;
                     ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
@@ -4858,10 +4817,7 @@ namespace paulv2k4ModdingExecuter
                             dbWriter.Write(layoutToc);
                         }
                     }
-                    //if (!ProfilesLibrary.IsFIFA21DataVersion() && SymbolicLinkList.Count > 0)
-                    //{
-                    //    RunSymbolicLinkProcess(SymbolicLinkList);
-                    //}
+                   
 
                     if (UseModData)
                     {
@@ -4869,7 +4825,6 @@ namespace paulv2k4ModdingExecuter
 
                         CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
                     }
-                }
 
             }
 
@@ -4958,14 +4913,19 @@ namespace paulv2k4ModdingExecuter
         {
 
             Logger = inLogger;
-            fs = new FileSystem(gameRootPath);
-            fs.Initialize();
+
+            if (FileSystem.Instance != null)
+            {
+                fs = FileSystem.Instance;
+            }
+            else
+            {
+                fs = new FileSystem(gameRootPath);
+                fs.Initialize();
+            }
 
             string modPath = fs.BasePath + modDirName + "\\";
 
-            //if(UseLegacyLauncher)
-            //    BuildModData_FrostyVersion(inFs, inLogger, rootPath, additionalArgs, modPaths);
-            //else
             var foundFrostyMods = false;
             var lastModPaths = new Dictionary<string, DateTime>();
             if (File.Exists(LastLaunchedModsPath))

@@ -95,7 +95,8 @@ namespace FrostySdk.IO
             if (File.Exists("Debugging/" + name + ".dat"))
                 File.Delete("Debugging/" + name + ".dat");
 
-            using (NativeWriter nativeWriter = new NativeWriter(new FileStream("Debugging/" + name + ".dat", FileMode.OpenOrCreate)))
+			Directory.CreateDirectory(name);
+            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(name + "ebxDict.dat", FileMode.OpenOrCreate)))
             {
                 nativeWriter.Write(ebxtys);
             }

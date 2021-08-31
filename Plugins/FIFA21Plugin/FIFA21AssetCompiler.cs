@@ -482,7 +482,7 @@ namespace FIFA21Plugin
                 }
                 else
                 {
-                    AddedChunks.Add(modChunks.Value);
+                    //AddedChunks.Add(modChunks.Value);
                     //parent.Logger.LogWarning($"This mod compiler cannot handle Added Chunks. {modChunks.Key} will be ignored.");
                     //ErrorCounts[ModType.CHUNK]++;
 
@@ -587,24 +587,28 @@ namespace FIFA21Plugin
 
                 //AssetManager.Instance.ModifyLegacyAssets(legacyData, true);
                 LegacyFileManager_FMTV2 legacyFileManager = new LegacyFileManager_FMTV2();
-                var modifiedLegacyAssets = legacyFileManager.ModifyAssets(legacyData, true);
+                legacyFileManager.ModifyAssets(legacyData, true);
                  
                 var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
-                foreach (var modLegChunk in modifiedLegacyChunks)
+                foreach (var modLegChunk in modifiedLegacyChunks.Where(x => !parent.ModifiedChunks.ContainsKey(x.Id)))
                 {
                     if(modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
                     {
 
                     }
+                    if (modLegChunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                    {
+
+                    }
                     modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
-                    if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
-                    {
+                    //if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
+                    //{
                         parent.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
-                    }
-                    else
-                    {
-                        parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
-                    }
+                    //}
+                    //else
+                    //{
+                    //    parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
+                    //}
                     countLegacyChunksModified++;
                 }
 
@@ -615,6 +619,10 @@ namespace FIFA21Plugin
                     {
 
                     }
+                    if (chunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                    {
+
+                    }
 
                     if (parent.archiveData.ContainsKey(chunk.Sha1))
                         parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
@@ -622,20 +630,6 @@ namespace FIFA21Plugin
                         parent.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                 }
                 parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
-
-                var legacyFilesToAdd = modifiedLegacyAssets.Where(x => x.ModifiedEntry.AddToChunkBundle).ToList();
-                if(legacyFilesToAdd.Any())
-                {
-                    foreach(var legacyFile in legacyFilesToAdd)
-                    {
-                        AddedChunks.Add(new ChunkAssetEntry() 
-                        { 
-                            Id = legacyFile.ChunkId,
-                            ModifiedEntry = new ModifiedAssetEntry() 
-                            { Data = Utils.CompressFile(legacyData[legacyFile.Name], compressionOverride: CompressionType.Oodle) } 
-                        });
-                    }
-                }
 
             }
         }
@@ -667,8 +661,11 @@ namespace FIFA21Plugin
             if (parent.modifiedEbx.Count == 0 && parent.modifiedRes.Count == 0 && parent.ModifiedChunks.Count == 0 && parent.modifiedLegacy.Count == 0)
                 return true;
 
-            BuildCache buildCache = new BuildCache();
-            buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true);
+            if (AssetManager.Instance == null)
+            {
+                BuildCache buildCache = new BuildCache();
+                buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true);
+            }
 
             parent.Logger.Log("Loading Cached Super Bundles.");
 
@@ -734,7 +731,7 @@ namespace FIFA21Plugin
 
                             if (modItem.NamePath.Contains("3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d"))
                             {
-
+                                //continue;
                             }
 
                             if (modItem.NamePath.Contains("f0ca4187-b95e-5153-a1eb-1e0a7fff6371"))
@@ -816,6 +813,8 @@ namespace FIFA21Plugin
 
                     }
 
+                    // Missing texture issue caused by BELOW!!!
+                    //continue;
 
                     if (EntriesToNewPosition == null)
                         continue;
@@ -830,11 +829,14 @@ namespace FIFA21Plugin
                     foreach (var sbGroup in groupedBySB)
                     {
                         var sbpath = sbGroup.Key;
-                        sbpath = parent.fs.ResolvePath(sbpath).ToLower();
+                        if (string.IsNullOrEmpty(sbpath))
+                            continue;
+
+                        sbpath = parent.fs.ResolvePath(sbpath);
                         if (UseModData)
                         {
-                            sbpath = sbpath.ToLower().Replace("\\patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
-                            sbpath = sbpath.ToLower().Replace("\\data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
+                            sbpath = sbpath.Replace("\\Patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
+                            sbpath = sbpath.Replace("\\Data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
                         }
                         else
                         {
@@ -848,15 +850,12 @@ namespace FIFA21Plugin
                             if (File.Exists(originalFile))
                                 File.Copy(originalFile, sbpath, true);
                         }
-                        if (UseModData && !sbpath.ToLower().Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                        if (UseModData && !sbpath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                         {
                             throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
                         }
 
-                        var tocSbReader = new TocSbReader_FIFA21();
-                        tocSbReader.DoLogging = false;
-                        tocSbReader.ProcessData = false;
-
+                        var tocSbReader = new TocSbReader_FIFA21(false, false);
 
                         DbObject dboOriginal = null;
                         if (!SbToDbObject.ContainsKey(sbGroup.Key)//)
@@ -865,20 +864,16 @@ namespace FIFA21Plugin
                         {
                             var timeStarted = DateTime.Now;
                             
-                            var dboOriginal2 = tocSbReader.Read(sbpath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, new BinarySbDataHelper(AssetManager.Instance), sbpath);
+                            var dboOriginal2 = tocSbReader.Read(sbpath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, sbpath);
 
                             SbToDbObject.Add(sbGroup.Key, new DbObject(dboOriginal2));
                             Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
                         }
-                        //else if (!SbToDbObject.ContainsKey(sbGroup.Key) && sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
-                        //{
-
-                        //}
-
-
 
                         if (SbToDbObject.ContainsKey(sbGroup.Key))
                             dboOriginal = SbToDbObject[sbGroup.Key];
+
+                        
 
                         using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
                         {
@@ -905,10 +900,6 @@ namespace FIFA21Plugin
                                     {
                                         nw_sb.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
                                         nw_sb.WriteBytes(parent.modifiedRes[assetBundle.Key.Name].ResMeta);
-                                    }
-                                    else if (origResDbo != null)
-                                    {
-
                                     }
 
                                     var origChunkBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("chunks")).Select(x => ((DbObject)x).GetValue<DbObject>("chunks")).ToList();
@@ -937,7 +928,7 @@ namespace FIFA21Plugin
                                 var originalSizeOfData = assetBundle.Value.Item3;
                                 var sha = assetBundle.Value.Item4;
 
-                                var sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
+                                int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
                                 var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
                                 nw_sb.BaseStream.Position = sb_cas_offset_position;
                                 nw_sb.Write((uint)positionOfNewData, Endian.Big);
@@ -976,7 +967,7 @@ namespace FIFA21Plugin
 
 
             ModifyTOCChunks();
-            //ModifyTOCCasBundles();
+
 
             return true;
             //}
@@ -992,7 +983,6 @@ namespace FIFA21Plugin
         {
             foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
             {
-                byte[] key_2_from_key_manager = KeyManager.Instance.GetKey("Key2");
                 foreach (string key3 in catalogInfo.SuperBundles.Keys)
                 {
                     string tocFile = key3;
@@ -1008,19 +998,17 @@ namespace FIFA21Plugin
                     }
 
                     var tocFileRAW = $"{directory}/{tocFile}.toc";
-                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW).ToLower();
-                    TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21();
-                    tocSb.DoLogging = false;
-                    tocSb.ProcessData = false;
+                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW);
+                    TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21(false, false);
 
-                    var location_toc_file_new = UseModData
+                    var locationTocFileInModData = UseModData
                         ? location_toc_file
                         .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
                         .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
                         : location_toc_file;
 
                     // read the changed toc file in ModData
-                    tocSb.Read(location_toc_file_new, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
+                    tocSb.Read(locationTocFileInModData, 0, tocFileRAW);
                     if (tocSb.TOCFile == null || !tocSb.TOCFile.TocChunks.Any())
                         continue;
 
@@ -1028,23 +1016,12 @@ namespace FIFA21Plugin
                     var catalog = tocSb.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
                     if (!tocSb.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
                         patch = false;
-                    //else
-                    //    catalog = tocSb.TOCFile.TocChunks.Where(x=>x.ExtraData.IsPatch).Max(x => x.ExtraData.Catalog.Value);
-
-                    //var catalog = tocSb.TOCFile.TocChunks.Last().ExtraData.Catalog.Value;
-                    //var cas = tocSb.TOCFile.TocChunks.Last().ExtraData.Cas.Value;
+                    
                     var cas = tocSb.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
-                    //var casNext = tocSb.TOCFile.TocChunks.Max(x=> x.ExtraData.Cas.Value) + 1;
-                    //var patch = directory == "native_patch";
-                    //var nextCasPath = FileSystem.Instance.GetFilePath(
-                    //    catalog
-                    //    , cas
-                    //    , patch);
+                   
                     var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
 
-                    //ProcessAddedTOCChunk(tocSb, location_toc_file_new, catalog, (ushort)newCas, patch);
-
-                    using (NativeWriter nw_toc = new NativeWriter(new FileStream(location_toc_file_new, FileMode.Open)))
+                    using (NativeWriter nw_toc = new NativeWriter(new FileStream(locationTocFileInModData, FileMode.Open)))
                     {
                         foreach (var modChunk in parent.ModifiedChunks)
                         {
@@ -1056,7 +1033,6 @@ namespace FIFA21Plugin
                                 if(chunkIndex != -1)
                                 {
                                     var data = parent.archiveData[modChunk.Value.Sha1].Data;
-                                    //var data = parent.archiveData[modChunk.Value.ModifiedEntry.Sha1].Data;
 
                                     var chunkGuid = tocSb.TOCFile.TocChunkGuids[chunkIndex];
 
@@ -1081,7 +1057,6 @@ namespace FIFA21Plugin
 
                                         nw_toc.Position = chunk.SB_CAS_Size_Position;
                                         nw_toc.Write((uint)data.Length, Endian.Big);
-                                        //nw_toc.Write((uint)modChunk.Value.ModifiedEntry.Size, Endian.Big);
                                     }
                                 }
                             }
@@ -1112,7 +1087,7 @@ namespace FIFA21Plugin
                     }
 
                     var tocFileRAW = $"{directory}/{tocFile}.toc";
-                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW).ToLower();
+                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW);
                     TocSbReader_FIFA21 tocSb = new TocSbReader_FIFA21();
                     tocSb.DoLogging = false;
                     tocSb.ProcessData = false;
@@ -1124,52 +1099,9 @@ namespace FIFA21Plugin
                         : location_toc_file;
 
                     // read the changed toc file in ModData
-                    tocSb.Read(location_toc_file_new, 0, new BinarySbDataHelper(AssetManager.Instance), tocFileRAW);
+                    tocSb.Read(location_toc_file_new, 0, tocFileRAW);
                     if (tocSb.TOCFile == null || !tocSb.TOCFile.CasBundles.Any())
                         continue;
-
-                //    var matchedObjects = tocSb.TOCFile.TOCObjects
-                //        .List.Where(x =>
-                //            parent.modifiedEbx.ContainsKey(((DbObject)x).GetValue<string>("name"))
-                //            || parent.modifiedRes.ContainsKey(((DbObject)x).GetValue<string>("name"))
-                //            || parent.ModifiedChunks.ContainsKey(((DbObject)x).GetValue<Guid>("id"))
-                //        );
-                //    if (!matchedObjects.Any())
-                //        continue;
-
-                //    foreach (DbObject tocObj in matchedObjects)
-                //    {
-                //        foreach (DbObject o in tocObj.GetValue<DbObject>("ebx"))
-                //        {
-                //            foreach (var modEbx in parent.modifiedEbx)
-                //            {
-                //                if(o.GetValue<string>("name") == modEbx.Key)
-                //                {
-
-                //                }
-                //            }
-                //        }
-                //        //foreach (DbObject o in tocObj.GetValue<DbObject>("res"))
-                //        //{
-                //        //    foreach (var mod in parent.modifiedRes)
-                //        //    {
-                //        //        if (o.GetValue<string>("name") == mod.Key)
-                //        //        {
-
-                //        //        }
-                //        //    }
-                //        //}
-                //        //foreach (DbObject o in tocObj.GetValue<DbObject>("chunks"))
-                //        //{
-                //        //    foreach (var mod in parent.ModifiedChunks)
-                //        //    {
-                //        //        if (o.GetValue<Guid>("id") == mod.Key)
-                //        //        {
-
-                //        //        }
-                //        //    }
-                //        //}
-                //    }
 
                 }
             }
@@ -1178,7 +1110,7 @@ namespace FIFA21Plugin
                 ModifyTOCCasBundles("native_data");
         }
 
-
+        /*
         private void ProcessAddedTOCChunk(TocSbReader_FIFA21 tocSb, string location_toc_file_new, ushort catalog, ushort cas, bool patch)
         {
             foreach (var aChunk in AddedChunks)
@@ -1228,7 +1160,7 @@ namespace FIFA21Plugin
                 tocSb.TOCFile.Read(new NativeReader(msNewFile));
             }
         }
-
+        */
         private string GetNextCasInCatalog(Catalog catalogInfo, int lastCas, bool patch, out int newCas)
         {
             newCas = lastCas + 1;

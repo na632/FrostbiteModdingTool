@@ -303,7 +303,7 @@ namespace FIFA21Plugin
 						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 						{
 							var chunkAssetEntry = TocChunks[chunkIndex];
-							if (AssetManager.Instance != null)
+							if (AssetManager.Instance != null && ProcessData)
 								AssetManager.Instance.AddChunk(chunkAssetEntry);
 
 						}

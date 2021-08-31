@@ -5,10 +5,10 @@ namespace FrostySdk.IO
     {
 		public string Name;
 
-		//public uint NameHash;
-		public ulong NameHash;
+        public uint NameHash;
+        //public ulong NameHash;
 
-		public ushort Type;
+        public ushort Type;
 
 		public ushort ClassRef;
 

@@ -1009,6 +1009,7 @@ namespace Frostbite.FileManagers
 			{
 				lfe.Value.ModifiedEntry = null;
 			}
+			// 3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d
 
 			// Revert all the chunks
 			foreach (EbxAssetEntry item in AssetManager.Instance.EnumerateEbx("ChunkFileCollector"))
