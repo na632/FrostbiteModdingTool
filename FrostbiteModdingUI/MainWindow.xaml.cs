@@ -40,11 +40,13 @@ namespace FMT
         public List<Profile> ProfilesWithEditor
         {
             get {
-            
-                if(profiles == null)
+
+#pragma warning disable CA1416 // Validate platform compatibility
+                if (profiles == null || !profiles.Any())
                     profiles = ProfilesLibrary.EditorProfiles.ToList();
-                return profiles; 
-            
+                return profiles;
+#pragma warning restore CA1416 // Validate platform compatibility
+
             }
             set { profiles = value; }
         }
@@ -52,31 +54,17 @@ namespace FMT
         public string WindowTitle { get; set; }
 
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MainWindow()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             InitializeComponent();
 
             var assembly = Assembly.GetExecutingAssembly();
-            WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+            //WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+            WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.AppContext.BaseDirectory + assembly.ManifestModule.Name).ProductVersion;
 
-            App.AppInsightClient.TrackPageView("MainWindow");
-
-            // ------------------------------------------
-            // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
-
-            //foreach (var profile in ProfilesLibrary.AvailableProfiles.Where(x=>x.EditorScreen != null))
-            //{
-            //    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-            //    {
-            //        var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(profile.EditorScreen, StringComparison.OrdinalIgnoreCase));
-            //        if (t != null)
-            //        {
-            //            //var ew = (Window)Activator.CreateInstance(t);
-            //            //EditorWindows.Add(ew);
-            //            ProfilesWithEditorScreen.Add(profile);
-            //        }
-            //    }
-            //}
+            //App.AppInsightClient.TrackPageView("MainWindow");
 
             // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
             DataContext = this;

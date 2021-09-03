@@ -45,8 +45,6 @@ namespace FMT.Windows
             OwnerWindow = owner;
             Owner = owner;
 
-            App.AppInsightClient.TrackRequest("Madden22Editor Window", DateTimeOffset.Now,
-                    TimeSpan.FromMilliseconds(230), "200", true);
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using CSharpImageLibrary;
 using Frostbite.Textures;
+using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Frosty;

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Security;
 using System.Text;
 using System.Threading;
@@ -17,9 +18,13 @@ namespace v2k4FIFAModdingCL
 {
     public static class GameInstanceSingleton
     {
+        [SupportedOSPlatform("windows")]
         public static bool INITIALIZED = false;
 
+        [SupportedOSPlatform("windows")]
         private static string fifaVersion;
+
+        [SupportedOSPlatform("windows")]
         public static string GAMEVERSION { set { fifaVersion = value; INITIALIZED = !string.IsNullOrEmpty(value); } get { return fifaVersion; } }
         public static string FIFAVERSION_NODEMO { get { return !string.IsNullOrEmpty(GAMEVERSION) ? GAMEVERSION.Replace("_demo", "") : null; } }
 
@@ -38,6 +43,7 @@ namespace v2k4FIFAModdingCL
 
         public static string ModDataPath { get { return GAMERootPath + "\\ModData\\"; } }
 
+        [SupportedOSPlatform("windows")]
         public static bool InitializeSingleton(string filePath)
         {
             if(!string.IsNullOrEmpty(filePath))
@@ -59,6 +65,7 @@ namespace v2k4FIFAModdingCL
             return INITIALIZED;
         }
 
+        [SupportedOSPlatform("windows")]
         public static IEnumerable<string> CompatibleGameVersions
         {
             get
@@ -70,6 +77,7 @@ namespace v2k4FIFAModdingCL
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public static List<string> CompatibleGameFBModVersions = new List<string>()
         {
             //"FIFA20.exe",
@@ -85,12 +93,14 @@ namespace v2k4FIFAModdingCL
             return CompatibleGameFBModVersions.Any(x => x.Contains(GAMEVERSION, StringComparison.OrdinalIgnoreCase));
         }
 
+        [SupportedOSPlatform("windows")]
         public static List<string> CompatibleGameLegacyModVersions = new List<string>()
         {
             "FIFA20.exe",
             "FIFA21.exe"
         };
 
+        [SupportedOSPlatform("windows")]
         public static bool IsCompatibleWithLegacyMod()
         {
             return CompatibleGameLegacyModVersions.Any(x => x.Contains(GAMEVERSION, StringComparison.OrdinalIgnoreCase));

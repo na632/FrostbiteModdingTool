@@ -401,18 +401,24 @@ namespace FIFAModdingUI.Pages.Common
 										PointsTreeViewParent.Header = "Points";
 										propTreeViewParent.Items.Add(PointsTreeViewParent);
 
+									
+
 										// Number of Points
 										var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = FloatCurve.Points.Count.ToString() };
 										txtNumberOfPoints.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
 										{
 											AssetHasChanged(sender as TextBox, p.PropertyName);
 										};
-										PointsTreeViewParent.Items.Add(txtNumberOfPoints);
 
-									var btnNumberOfPointsSub = new Button() { Name = "btn_" + p.PropertyName + "_NumberOfPoints_Sub", Content = "-" };
-										PointsTreeViewParent.Items.Add(btnNumberOfPointsSub);
-									var btnNumberOfPointsAdd = new Button() { Name = "btn_" + p.PropertyName + "_NumberOfPoints_Add", Content = "+" };
-									PointsTreeViewParent.Items.Add(btnNumberOfPointsAdd);
+									Grid gridNumberOfPoints = new Grid();
+									gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
+									gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
+									Label lblNumberOfPoints = new Label() { Content = "Point Count: " };
+									Grid.SetColumn(lblNumberOfPoints, 0);
+									Grid.SetColumn(txtNumberOfPoints, 1);
+									gridNumberOfPoints.Children.Add(lblNumberOfPoints);
+									gridNumberOfPoints.Children.Add(txtNumberOfPoints);
+									PointsTreeViewParent.Items.Add(gridNumberOfPoints);
 
 									for (var i = 0; i < FloatCurve.Points.Count; i++)
 										{
@@ -661,45 +667,40 @@ namespace FIFAModdingUI.Pages.Common
 									var fcp = floatCurve.GetPropertyValue("Points");
 									var pntsType = fcp.GetType();
 
-									//var fpc = TypeLibrary.CreateObject("FrostySdk.Ebx.FloatCurvePoint");
-
-									//var dataType = new Type[] { typeof(fpc) };
-									//var genericBase = typeof(List<>);
-									//var combinedType = genericBase.MakeGenericType(dataType);
-									//var listStringInstance = Activator.CreateInstance(combinedType);
-									//var addMethod = listStringInstance.GetType().GetMethod("Add");
-									//addMethod.Invoke(genericInstance, new object[] { "Hello World" });
-
-									var Points = ((IEnumerable<object>)floatCurve.GetPropertyValue("Points")).ToList();
+									var Points = ((IList)floatCurve.GetPropertyValue("Points"));
 									if (Points != null) 
 									{
 										if (int.TryParse(sender.Text, out int numberOfNewPoints))
 										{
-											var lastPoint = Points.Last();
+											var lastPoint = Points[Points.Count - 1];
 
-											if (numberOfNewPoints == 0)
+											if (numberOfNewPoints <= 0)
 											{
 												Points.Clear();
-												Points.Add(lastPoint);
+												Points.Insert(0, lastPoint);
 											}
 											else
                                             {
 												if(numberOfNewPoints < Points.Count)
                                                 {
-													Points = Points.Take(numberOfNewPoints).ToList();
-                                                }
+													for (var iPoint = 0; iPoint < numberOfNewPoints; iPoint++)
+													{
+														Points.RemoveAt(Points.Count - 1);
+													}
+												}
 												else
                                                 {
 													for(var iPoint = Points.Count; iPoint < numberOfNewPoints; iPoint++)
                                                     {
-														Points.Add(lastPoint);
-                                                    }
-                                                }
+														Points.Insert(Points.Count - 1, Points[Points.Count - 1]);
+													}
+												}
                                             }
 										}
-										v2k4Util.SetPropertyValue(floatCurve, "Points", Points.AsEnumerable());
+										v2k4Util.SetPropertyValue<IList>(floatCurve, "Points", Points);
 
 										SaveToRootObject();
+										//LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
 									}
 								}
                             }
@@ -800,14 +801,14 @@ namespace FIFAModdingUI.Pages.Common
 				EditorWindow.UpdateAllBrowsers();
 		}
 
-        public async void SaveToRootObject()
+        public async Task SaveToRootObject()
         {
 			LoadingDialog loadingDialog = null;
-			await Dispatcher.InvokeAsync(() =>
-			{
-				loadingDialog = new LoadingDialog("Saving hotspot", "Saving hotspot");
-				loadingDialog.Show();
-			});
+			//await Dispatcher.InvokeAsync(() =>
+			//{
+			//	loadingDialog = new LoadingDialog("Saving hotspot", "Saving hotspot");
+			//	loadingDialog.Show();
+			//});
 
 			await Task.Run(() =>
 			{
@@ -819,7 +820,7 @@ namespace FIFAModdingUI.Pages.Common
 				//FrostyProject.Save("GameplayProject.fbproject", true);
 			});
 
-			await loadingDialog.UpdateAsync("Saving hotspot", "Updating browsers");
+			//await loadingDialog.UpdateAsync("Saving hotspot", "Updating browsers");
 
             await Dispatcher.InvokeAsync(() =>
             {
@@ -829,13 +830,20 @@ namespace FIFAModdingUI.Pages.Common
 
             await Dispatcher.InvokeAsync(() =>
 			{
-				loadingDialog.Close();
-				loadingDialog = null;
+				if (loadingDialog != null)
+				{
+					loadingDialog.Close();
+					loadingDialog = null;
+				}
 			});
+
+			await LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
+			//await CreateEditor(RootObjectProperties.OrderBy(x => x.PropertyName), TreeView1);
+
 		}
 
 
-        private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
+		private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
         {
 			var listoffiles = FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse;
 

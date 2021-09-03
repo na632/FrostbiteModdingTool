@@ -89,10 +89,6 @@ namespace FrostbiteModdingUI.Windows
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            if (App.AppInsightClient != null)
-            {
-                App.AppInsightClient.Flush();
-            }
 
             ProjectManagement = null;
             ProjectManagement.Instance = null;
@@ -163,11 +159,6 @@ namespace FrostbiteModdingUI.Windows
                 });
 
             });
-
-            var presence = new DiscordRPC.RichPresence();
-            presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
-            App.DiscordRpcClient.SetPresence(presence);
-            App.DiscordRpcClient.Invoke();
         }
 
         public void UpdateAllBrowsers()

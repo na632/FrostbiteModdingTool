@@ -241,11 +241,6 @@
                                         </StackPanel>
                                     </TabItem.Header>
                                     <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="35" MaxHeight="35" MinHeight="35"></RowDefinition>
-                                            <RowDefinition></RowDefinition>
-                                        </Grid.RowDefinitions>
-                                        <Label Grid.Row="0" Background="Yellow" Content="WARNING: Legacy editing is in Beta. Use with caution." Margin="5"></Label>
                                         <localControls:Browser Grid.Row="1" x:Name="legacyBrowser"></localControls:Browser>
                                     </Grid>
                                 </TabItem>

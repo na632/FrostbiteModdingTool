@@ -298,7 +298,6 @@ namespace FIFAModdingUI.Pages.Common
 						}
 
 						MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedLegacyEntry.Filename}");
-						App.AppInsightClient.TrackRequest("Import Legacy Asset", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
 					}
 				}
 				else if (SelectedEntry != null)
@@ -325,7 +324,6 @@ namespace FIFAModdingUI.Pages.Common
 								BuildTextureViewerFromAssetEntry(resEntry);
 
 								MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
-								App.AppInsightClient.TrackRequest("Import Texture", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
 
 							}
 						}
@@ -360,7 +358,6 @@ namespace FIFAModdingUI.Pages.Common
 								UpdateAssetListView();
 								//EBXViewer = new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
 								EBXViewer.LoadEbx(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-								App.AppInsightClient.TrackRequest("Import Hotspots", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
 
 							}
 						}
@@ -415,13 +412,11 @@ namespace FIFAModdingUI.Pages.Common
 									MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
 
 									UpdateAssetListView();
-									App.AppInsightClient.TrackRequest("Import Skinned Mesh", importStartTime, TimeSpan.FromMilliseconds((DateTime.Now - importStartTime).Milliseconds), "200", true);
 									OpenAsset(SelectedEntry);
 								}
 								catch (Exception ImportException)
 								{
 									MainEditorWindow.LogError(ImportException.Message);
-									App.AppInsightClient.TrackException(ImportException);
 
 								}
 
@@ -449,9 +444,6 @@ namespace FIFAModdingUI.Pages.Common
 			catch(Exception ex)
             {
 				MainEditorWindow.LogError(ex.Message);
-
-				App.AppInsightClient.TrackException(ex);
-
 			}
 			UpdateAssetListView();
 

@@ -35,9 +35,10 @@ namespace FrostbiteModdingUI.Models
 
         public static async Task<LauncherOptions> LoadAsync()
         {
-            if (File.Exists(App.ApplicationDirectory + "\\LauncherOptions.json"))
+            if (File.Exists(AppContext.BaseDirectory + "LauncherOptions.json"))
             {
-                var loText = await File.ReadAllTextAsync(App.ApplicationDirectory + "\\LauncherOptions.json");
+                var loText = File.ReadAllText(AppContext.BaseDirectory + "LauncherOptions.json");
+                //var loText = await File.ReadAllTextAsync(AppContext.BaseDirectory + "LauncherOptions.json");
                 return JsonConvert.DeserializeObject<LauncherOptions>(loText);
             }
             return new LauncherOptions();

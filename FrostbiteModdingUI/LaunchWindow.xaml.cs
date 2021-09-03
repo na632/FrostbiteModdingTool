@@ -22,6 +22,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -46,18 +47,17 @@ namespace FMT
     {
         public string WindowTitle { get; set; }
 
-        public ModListProfile Profile { get; set; }
+        public ModListProfile? Profile { get; set; }
 
         public LaunchWindow(Window owner)
         {
             Owner = owner;
             InitializeComponent();
 
-            var assembly = Assembly.GetExecutingAssembly();
-            WindowTitle = "FMT Launcher - " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+            WindowTitle = "FMT Launcher - " + App.ProductVersion;
             DataContext = this;
 
-            App.AppInsightClient.TrackPageView("Launcher Window - " + WindowTitle);
+            //App.AppInsightClient.TrackPageView("Launcher Window - " + WindowTitle);
             
 
             try
@@ -67,13 +67,13 @@ namespace FMT
                 //    AppSettings.Settings.FIFAInstallEXEPath = null;
                 //}
 
-                if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
-                {
-                    //txtFIFADirectory.Text = AppSettings.Settings.GameInstallEXEPath;
-                    InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
-                }
-                else
-                {
+                //if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+                //{
+                //    //txtFIFADirectory.Text = AppSettings.Settings.GameInstallEXEPath;
+                //    InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                //}
+                //else
+                //{
                     var bS = new FindGameEXEWindow().ShowDialog();
                     if (bS.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
                     {
@@ -83,7 +83,7 @@ namespace FMT
                     {
                         throw new Exception("Unable to start up Game");
                     }
-                }
+                //}
             }
             catch (Exception e)
             {
@@ -394,11 +394,15 @@ namespace FMT
                     Log("Mod Compiler Started for " + GameInstanceSingleton.GAMEVERSION);
 
                     Dispatcher.Invoke(() => {
-                        var presence = new DiscordRPC.RichPresence();
-                        presence.Details = "Launching " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods";
-                        presence.State = "V." + App.ProductVersion;
-                        App.DiscordRpcClient.SetPresence(presence);
-                        App.DiscordRpcClient.Invoke();
+
+                        DiscordInterop.DiscordRpcClient.UpdateDetails("Launching " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods");
+                        DiscordInterop.DiscordRpcClient.UpdateState("V." + App.ProductVersion);
+
+                        //var presence = new DiscordRPC.RichPresence();
+                        //presence.Details = ;
+                        //presence.State = "V." + App.ProductVersion;
+                        //App.DiscordRpcClient.SetPresence(presence);
+                        //App.DiscordRpcClient.Invoke();
                     });
 
                     var launchSuccess = false;
@@ -415,18 +419,18 @@ namespace FMT
                             , useModData);
                         launchSuccess = await launchTask;
 
-                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,
-                            TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
+                        //App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,
+                        //    TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
                     }
                     catch(Exception launchException)
                     {
                         Log("[ERROR] Error caught in Launch Task. You must fix the error before using this Launcher.");
                         LogError(launchException.ToString());
 
-                        App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Launch Error", launchStartTime,
-                            TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
+                        //App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Launch Error", launchStartTime,
+                        //    TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
 
-                        App.AppInsightClient.TrackException(launchException);
+                        //App.AppInsightClient.TrackException(launchException);
 
                     }
                     if (launchSuccess)
@@ -479,8 +483,8 @@ namespace FMT
                                     LogError("Launcher could not inject Live Legacy File Support");
                                     LogError(InjectDLLException.ToString());
 
-                                    App.AppInsightClient.TrackException(InjectDLLException);
-                                    App.AppInsightClient.TrackException(new Exception(JsonConvert.SerializeObject(Process.GetProcesses().Select(x => x.ProcessName))));
+                                    //App.AppInsightClient.TrackException(InjectDLLException);
+                                    //App.AppInsightClient.TrackException(new Exception(JsonConvert.SerializeObject(Process.GetProcesses().Select(x => x.ProcessName))));
                                 }
                             }
                         }
@@ -523,12 +527,15 @@ namespace FMT
                             switchForceReinstallMods.IsEnabled = true;
                         });
                         Dispatcher.Invoke(() => {
-                            var presence = new DiscordRPC.RichPresence();
-                            presence.Details = "Playing " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods";
-                            presence.State = "V." + App.ProductVersion;
+                            //var presence = new DiscordRPC.RichPresence();
+                            //presence.Details = "Playing " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods";
+                            //presence.State = "V." + App.ProductVersion;
 
-                            App.DiscordRpcClient.SetPresence(presence);
-                            App.DiscordRpcClient.Invoke();
+                            //App.DiscordRpcClient.SetPresence(presence);
+                            //App.DiscordRpcClient.Invoke();
+
+                            DiscordInterop.DiscordRpcClient.UpdateDetails("Playing " + GameInstanceSingleton.GAMEVERSION + " with " + ListOfMods.Count + " mods");
+
                         });
 
                         if (AssetManager.Instance != null)
@@ -547,12 +554,7 @@ namespace FMT
                     else
                     {
                         Dispatcher.Invoke(() => {
-                            var presence = new DiscordRPC.RichPresence();
-                            presence.Details = "In Launcher - " + GameInstanceSingleton.GAMEVERSION;
-                            presence.State = "V." + App.ProductVersion;
-
-                            App.DiscordRpcClient.SetPresence(presence);
-                            App.DiscordRpcClient.Invoke();
+                            DiscordInterop.DiscordRpcClient.ClearPresence();
                         });
                     }
 
@@ -658,93 +660,91 @@ namespace FMT
 
         private void InitialiseSelectedGame(string filePath)
         {
-            if(!File.Exists(filePath))
-            {
-                LogError($"Game EXE Path {filePath} doesn't exist!");
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                this.DataContext = this;
-                AppSettings.Settings.GameInstallEXEPath = filePath;
-
-                File.WriteAllText(LastGamePathLocation, AppSettings.Settings.GameInstallEXEPath);
-
-                //AppSettings.Settings.Save();
-
-                if (GameInstanceSingleton.InitializeSingleton(filePath))
+                if (!File.Exists(filePath))
                 {
-                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+                    LogError($"Game EXE Path {filePath} doesn't exist!");
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    this.DataContext = this;
+                    AppSettings.Settings.GameInstallEXEPath = filePath;
+
+                    File.WriteAllText(LastGamePathLocation, AppSettings.Settings.GameInstallEXEPath);
+
+                    //AppSettings.Settings.Save();
+
+                    if (GameInstanceSingleton.InitializeSingleton(filePath))
                     {
-                        throw new Exception("Unable to Initialize Profile");
+                        if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+                        {
+                            throw new Exception("Unable to Initialize Profile");
+                        }
+                        btnLaunch.IsEnabled = true;
+                        GameInstanceSingleton.Logger = this;
+
                     }
-                    btnLaunch.IsEnabled = true;
-                    GameInstanceSingleton.Logger = this;
+                    else
+                    {
+                        throw new Exception("Unsupported Game EXE Selected");
+                    }
 
-                }
-                else
-                {
-                    throw new Exception("Unsupported Game EXE Selected");
-                }
-
-                var presence = new DiscordRPC.RichPresence();
-                presence.State = "In Launcher - " + GameInstanceSingleton.GAMEVERSION;
-                App.DiscordRpcClient.SetPresence(presence);
-                App.DiscordRpcClient.Invoke();
+                DiscordInterop.DiscordRpcClient.UpdateDetails("In Launcher - " + GameInstanceSingleton.GAMEVERSION);
 
                 if (ProfilesLibrary.IsFIFA21DataVersion())
-                {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    switchUseSymbolicLink.IsOn = false;
-                    btnLaunchOtherTool.Visibility = Visibility.Visible;
+                    {
+                        switchUseSymbolicLink.Visibility = Visibility.Collapsed;
+                        switchUseSymbolicLink.IsOn = false;
+                        btnLaunchOtherTool.Visibility = Visibility.Visible;
 
-                    btnOpenCEMWindow.Visibility = Visibility.Visible;
+                        btnOpenCEMWindow.Visibility = Visibility.Visible;
+                    }
+
+                    if (ProfilesLibrary.IsMadden21DataVersion())
+                    {
+                        switchUseSymbolicLink.Visibility = Visibility.Collapsed;
+                        switchUseSymbolicLink.IsOn = false;
+                    }
+
+                    switchCleanLegacyModDirectory.IsOn = false;
+                    switchCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
+
+                    switchUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
+                    //switchUseLegacyModSupport.IsOn = GameInstanceSingleton.IsCompatibleWithLegacyMod();
+                    switchUseLegacyModSupport.IsOn = false;
+
+                    switchInstallEmbeddedFiles.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+                    switchUseLiveEditor.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+
+                    if (GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
+                    {
+                        listMods.IsEnabled = true;
+
+                        Profile = new ModListProfile(GameInstanceSingleton.GAMEVERSION);
+                        GetListOfModsAndOrderThem();
+                    }
+                    else
+                    {
+                        btnAdd.IsEnabled = false;
+                        btnRemove.IsEnabled = false;
+                        btnUp.IsEnabled = false;
+                        btnDown.IsEnabled = false;
+                        listMods.IsEnabled = false;
+                        //listMods.Items.Clear();
+                        new Mods.ModList();
+                    }
+
+                    launcherOptions = LauncherOptions.LoadAsync().Result;
+                    switchUseModData.IsOn = launcherOptions.UseModData.HasValue ? launcherOptions.UseModData.Value : true;
+                    switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue ? launcherOptions.UseLegacyModSupport.Value : true;
+                    switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;
+                    switchUseLiveEditor.IsOn = launcherOptions.UseLiveEditor.HasValue ? launcherOptions.UseLiveEditor.Value : false;
+
                 }
 
-                if (ProfilesLibrary.IsMadden21DataVersion())
-                {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    switchUseSymbolicLink.IsOn = false;
-                }
-
-                switchCleanLegacyModDirectory.IsOn = false;
-                switchCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
-
-                switchUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
-                switchUseLegacyModSupport.IsOn = GameInstanceSingleton.IsCompatibleWithLegacyMod();
-
-                switchInstallEmbeddedFiles.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
-                switchUseLiveEditor.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
-
-                if (GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
-                {
-                    listMods.IsEnabled = true;
-
-                    Profile = new ModListProfile(GameInstanceSingleton.GAMEVERSION);
-                    GetListOfModsAndOrderThem();
-                }
-                else
-                {
-                    btnAdd.IsEnabled = false;
-                    btnRemove.IsEnabled = false;
-                    btnUp.IsEnabled = false;
-                    btnDown.IsEnabled = false;
-                    listMods.IsEnabled = false;
-                    //listMods.Items.Clear();
-                    new Mods.ModList();
-                }
-
-                launcherOptions = LauncherOptions.LoadAsync().Result;
-                switchUseModData.IsOn = launcherOptions.UseModData.HasValue ? launcherOptions.UseModData.Value : true;
-                switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue ? launcherOptions.UseLegacyModSupport.Value : true;
-                switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;
-                switchUseLiveEditor.IsOn = launcherOptions.UseLiveEditor.HasValue ? launcherOptions.UseLiveEditor.Value : false;
-                
-            }
-
-            DataContext = null;
-            DataContext = this;
+                DataContext = null;
+                DataContext = this;
         }
 
         public LauncherOptions launcherOptions { get; set; }

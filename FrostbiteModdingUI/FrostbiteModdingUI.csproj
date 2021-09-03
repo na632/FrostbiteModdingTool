@@ -1,24 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-	<TargetFramework>netcoreapp3.1</TargetFramework>
-	  <!--<TargetFramework>net6.0-windows</TargetFramework>-->
-	  <!--<TargetFramework>net5.0-windows</TargetFramework>-->
-    <UseWPF>true</UseWPF>
+	  <OutputType>WinExe</OutputType>
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <!--<Nullable>enable</Nullable>-->
+	  <UseWPF>true</UseWPF>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Optimize>false</Optimize>
     <PublishTrimmed>false</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    
     <PublishReadyToRun>false</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
     <Company>PARGSoft</Company>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>paulv2k4.ico</ApplicationIcon>
-    <PlatformTarget>x64</PlatformTarget>
+   
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-	
-<PropertyGroup>
+  
   <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   <Deterministic>false</Deterministic>
   <AssemblyName>FMT</AssemblyName>
@@ -29,6 +28,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+
+	<ItemGroup>
+		<SupportedPlatform Include="windows" />
+	</ItemGroup>
+	<PropertyGroup>
+		<EnableNETAnalyzers>false</EnableNETAnalyzers>
+	</PropertyGroup>
 
 
      <ItemGroup>
@@ -113,7 +119,6 @@
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
-    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
     <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
 	  <PackageReference Include="HelixToolkit" Version="2.10.0" />
@@ -126,6 +131,7 @@
     <PackageReference Include="MaterialDesignThemes.MahApps" Version="0.1.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
+    <PackageReference Include="NetDiscordRpc" Version="1.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
@@ -247,11 +253,6 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
-    <None Update="SDK\MADDEN21SDK.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
     <None Update="SDK\MADDEN22SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -280,15 +281,6 @@
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
 	</None>
-	  <None Include="..\Plugins\Madden21Plugin\bin\Debug\netcoreapp3.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	  </None>
-	  <None Include="..\Plugins\Madden22Plugin\bin\Debug\netcoreapp3.1\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </None>
     <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

@@ -74,6 +74,15 @@ namespace v2k4FIFAModding
             }
         }
 
+        public static void SetPropertyValue<T>(object obj, string propName, T value)
+        {
+            Type t = obj.GetType();
+            Type t2 = value.GetType();
+            var p = t.GetProperty(propName);
+            if (propName != "BaseField")
+                p.SetValue(obj, value);
+        }
+
         public static bool HasProperty(object obj, string propName)
         {
             return obj.GetType().GetProperty(propName) != null;

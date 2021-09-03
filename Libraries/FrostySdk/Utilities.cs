@@ -97,6 +97,8 @@ namespace FrostbiteSdk
                 var s = JsonConvert.SerializeObject(obj);
                 return JsonConvert.DeserializeObject<T>(s);
             }
+
+
     }
 
 }

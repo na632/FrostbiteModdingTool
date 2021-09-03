@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+	  <TargetFramework>net6.0-windows</TargetFramework>
     <PackageId>paulv2k4FrostyModdingSupport</PackageId>
     <Authors>paulv2k4 - Paul Garlick</Authors>
     <Company>paulv2k4</Company>

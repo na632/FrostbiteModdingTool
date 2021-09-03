@@ -16,8 +16,7 @@ namespace v2k4FIFAModding.Frosty
 {
 
     /// <summary>
-    /// Project Management
-    /// !Is a singleton class! Cannot create 2 instances of this class.
+    /// Project Management is a singleton class. Cannot create 2 instances of this class.
     /// </summary>
     public class ProjectManagement : ILogger
     {

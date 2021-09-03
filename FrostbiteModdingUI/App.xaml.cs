@@ -6,9 +6,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using FrostbiteSdk;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 //using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
@@ -31,12 +33,16 @@ namespace FMT
 
         public static IPublicClientApplication PublicClientApp { get { return _clientApp; } }
 
+        [SupportedOSPlatform("windows")]
         public static Window MainEditorWindow;
 
-        public static DiscordRPC.DiscordRpcClient DiscordRpcClient;
+        //[SupportedOSPlatform("windows")]
+        //public static DiscordRPC.DiscordRpcClient DiscordRpcClient;
 
-        public static TelemetryClient AppInsightClient = new TelemetryClient();
+        //[SupportedOSPlatform("windows")]
+        //public static TelemetryClient AppInsightClient = new TelemetryClient();
 
+        [SupportedOSPlatform("windows")]
         public static string ApplicationDirectory
         {
             get
@@ -45,12 +51,17 @@ namespace FMT
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public static string ProductVersion
         {
             get
             {
                 var assembly = Assembly.GetExecutingAssembly();
-                return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+                if (assembly != null && AppContext.BaseDirectory != null)
+                {
+                    return FileVersionInfo.GetVersionInfo(AppContext.BaseDirectory + assembly.ManifestModule.Name).ProductVersion;
+                }
+                return string.Empty;
             }
         }
 
@@ -77,7 +88,7 @@ namespace FMT
 
             // --------------------------------------------------------------
             // Application Insights
-            StartApplicationInsights();
+            //StartApplicationInsights();
 
             // --------------------------------------------------------------
             // Language Settings
@@ -88,57 +99,58 @@ namespace FMT
             base.OnStartup(e);
         }
 
-        private async void StartDiscordRPC()
+        private async Task StartDiscordRPC()
         {
-            DiscordRpcClient = new DiscordRPC.DiscordRpcClient("836520037208686652");
-            DiscordRpcClient.Initialize();
-            var presence = new DiscordRPC.RichPresence();
-            presence.State = "In Main Menu";
-            DiscordRpcClient.SetPresence(presence);
-            DiscordRpcClient.Invoke();
+            //DiscordRpcClient = new DiscordRPC.DiscordRpcClient("836520037208686652");
+            //DiscordRpcClient.Initialize();
+            //var presence = new DiscordRPC.RichPresence();
+            //presence.State = "In Main Menu";
+            //DiscordRpcClient.SetPresence(presence);
+            //DiscordRpcClient.Invoke();
 
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
+            await new DiscordInterop().StartDiscordClient();
         }
 
-        private async void StartApplicationInsights()
-        {
-            try
-            {
-                // Create a TelemetryConfiguration instance.
-                TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
-                config.InstrumentationKey = "92c621ff-61c0-43a2-a2d6-e539b359f053";
-                //QuickPulseTelemetryProcessor quickPulseProcessor = null;
-                //config.DefaultTelemetrySink.TelemetryProcessorChainBuilder
-                //    .Use((next) =>
-                //    {
-                //        quickPulseProcessor = new QuickPulseTelemetryProcessor(next);
-                //        return quickPulseProcessor;
-                //    })
-                //    .Build();
+        //private async void StartApplicationInsights()
+        //{
+        //    try
+        //    {
+        //        // Create a TelemetryConfiguration instance.
+        //        TelemetryConfiguration config = TelemetryConfiguration.CreateDefault();
+        //        config.InstrumentationKey = "92c621ff-61c0-43a2-a2d6-e539b359f053";
+        //        //QuickPulseTelemetryProcessor quickPulseProcessor = null;
+        //        //config.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+        //        //    .Use((next) =>
+        //        //    {
+        //        //        quickPulseProcessor = new QuickPulseTelemetryProcessor(next);
+        //        //        return quickPulseProcessor;
+        //        //    })
+        //        //    .Build();
 
-                //var quickPulseModule = new QuickPulseTelemetryModule();
+        //        //var quickPulseModule = new QuickPulseTelemetryModule();
 
-                // Secure the control channel.
-                // This is optional, but recommended.
-                //quickPulseModule.AuthenticationApiKey = "YOUR-API-KEY-HERE";
-                //quickPulseModule.Initialize(config);
-                //quickPulseModule.RegisterTelemetryProcessor(quickPulseProcessor);
+        //        // Secure the control channel.
+        //        // This is optional, but recommended.
+        //        //quickPulseModule.AuthenticationApiKey = "YOUR-API-KEY-HERE";
+        //        //quickPulseModule.Initialize(config);
+        //        //quickPulseModule.RegisterTelemetryProcessor(quickPulseProcessor);
 
-                // Create a TelemetryClient instance. It is important
-                // to use the same TelemetryConfiguration here as the one
-                // used to setup Live Metrics.
-                AppInsightClient = new TelemetryClient(config);
-            }
-            catch (Exception ex)
-            {
+        //        // Create a TelemetryClient instance. It is important
+        //        // to use the same TelemetryConfiguration here as the one
+        //        // used to setup Live Metrics.
+        //        //AppInsightClient = new TelemetryClient(config);
+        //    }
+        //    catch (Exception)
+        //    {
 
-            }
-            await Task.Delay(1000);
-        }
+        //    }
+        //    await Task.Delay(100);
+        //}
 
         private async void UnblockAllDLL()
         {
-            var loc = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
+            var loc = AppContext.BaseDirectory;
             var psCommmand = $"dir \"{loc}\" -Recurse|Unblock-File";
             var psCommandBytes = System.Text.Encoding.Unicode.GetBytes(psCommmand);
             var psCommandBase64 = Convert.ToBase64String(psCommandBytes);
@@ -160,7 +172,7 @@ namespace FMT
         {
             base.OnExit(e);
 
-            foreach (var file in new DirectoryInfo(ApplicationDirectory).GetFiles())
+            foreach (var file in new DirectoryInfo(AppContext.BaseDirectory).GetFiles())
             {
                 if(file.Name.Contains("temp_") && file.Name.Contains(".DDS"))
                 {

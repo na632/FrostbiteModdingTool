@@ -79,7 +79,7 @@ namespace FrostbiteModdingUI.Windows
         public CEMWindow()
         {
 
-            App.AppInsightClient.TrackEvent("CEMWindow Opened");
+            //App.AppInsightClient.TrackEvent("CEMWindow Opened");
             //
             ContentRendered += CEMWindow_ContentRendered;
             Closing += CEMWindow_Closing;
@@ -408,7 +408,7 @@ namespace FrostbiteModdingUI.Windows
 
         private async void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
-            App.AppInsightClient.TrackEvent("CEM Stats Refreshed");
+            //App.AppInsightClient.TrackEvent("CEM Stats Refreshed");
 
             LoadingDialog loadingDialog = new LoadingDialog("Career file", "Loading Career File");
             loadingDialog.Show();
@@ -459,7 +459,7 @@ namespace FrostbiteModdingUI.Windows
 
         private async void btnSaveToCSV_Click(object sender, RoutedEventArgs e)
         {
-            App.AppInsightClient.TrackEvent("CEM Stats Saved to CSV");
+            //App.AppInsightClient.TrackEvent("CEM Stats Saved to CSV");
 
             LoadingDialog loadingDialog = new LoadingDialog("Getting Player Stats", "");
             loadingDialog.Show();

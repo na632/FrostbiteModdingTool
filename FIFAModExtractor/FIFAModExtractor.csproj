@@ -1,31 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-
-	 <TargetFramework>netcoreapp3.1</TargetFramework>
-	  <PublishTrimmed>false</PublishTrimmed>
-	  <PublishSingleFile>true</PublishSingleFile>
-	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-	  <PublishReadyToRun>false</PublishReadyToRun>
-	  <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
-
-	<PropertyGroup>
+	  <OutputType>WinExe</OutputType>
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <Nullable>enable</Nullable>
+	  <UseWPF>true</UseWPF>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Optimize>false</Optimize>
+  
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<Deterministic>false</Deterministic>
 		<AssemblyName>FrostbiteModExtractor</AssemblyName>
 		<RootNamespace>FrostbiteModExtractor</RootNamespace>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <Optimize>false</Optimize>
 	</PropertyGroup>
 
 
@@ -56,11 +42,6 @@
 
 	</None>
     <None Include="..\FrostbiteModdingUI\SDK\FIFA21SDK.dll" Link="SDK\FIFA21SDK.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
-	</None>
-    <None Include="..\FrostbiteModdingUI\SDK\MADDEN21SDK.dll" Link="SDK\MADDEN21SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 

@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -189,6 +190,7 @@ namespace FrostySdk
 			}
 		}
 
+        [SupportedOSPlatform("windows")]
 		public static Profile LoadedProfile;
 
 		private static string DeobfuscatorNamespace = typeof(NullDeobfuscator).Namespace;
@@ -253,6 +255,7 @@ namespace FrostySdk
 			}
 		};
 
+        [SupportedOSPlatform("windows")]
 		public static string ProfileName => LoadedProfile.Name;
 
 		public static string DisplayName => LoadedProfile.DisplayName;
@@ -332,6 +335,7 @@ namespace FrostySdk
 		/// 20190911 - FIFA 20
 		/// 
 		/// </summary>
+        [SupportedOSPlatform("windows")]
 		public static int DataVersion => LoadedProfile.DataVersion;
 
 		public enum DataVersions : int
@@ -378,6 +382,7 @@ namespace FrostySdk
 			return isFIFA;
 		}
 
+		[SupportedOSPlatform("windows")]
 		public static bool IsFIFA21DataVersion()
 		{
 
@@ -579,6 +584,7 @@ namespace FrostySdk
 			}
 		}
 
+        [SupportedOSPlatform("windows")]
 		public static bool Initialize(string profileKey)
 		{
 			if (!Directory.Exists("Debugging"))

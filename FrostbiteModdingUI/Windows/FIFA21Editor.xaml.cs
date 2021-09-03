@@ -7,6 +7,7 @@ using Frostbite.FileManagers;
 using Frostbite.Textures;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
+using FrostbiteSdk;
 using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Ebx;
@@ -104,7 +105,7 @@ namespace FIFAModdingUI.Windows
             }
         }
 
-        private void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
+        private async void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {
             if (File.Exists(LastGameLocation))
             {
@@ -121,7 +122,7 @@ namespace FIFAModdingUI.Windows
 
             if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {
-                InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                await InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
             }
             else
             {
@@ -129,7 +130,7 @@ namespace FIFAModdingUI.Windows
                 var result = findGameEXEWindow.ShowDialog();
                 if (result.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
                 {
-                    InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                    await InitialiseOfSelectedGame(AppSettings.Settings.GameInstallEXEPath);
                 }
                 else
                 {
@@ -162,10 +163,6 @@ namespace FIFAModdingUI.Windows
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            if (App.AppInsightClient != null)
-            {
-                App.AppInsightClient.Flush();
-            }
 
             ProjectManagement = null;
             ProjectManagement.Instance = null;
@@ -180,7 +177,7 @@ namespace FIFAModdingUI.Windows
             Owner.Visibility = Visibility.Visible;
         }
 
-        private string WindowFIFAEditorTitle = $"FMT FIFA Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
+        private string WindowFIFAEditorTitle = $"FMT FIFA Editor - {App.ProductVersion} - ";
 
         private string _windowTitle;
         public string WindowTitle 
@@ -242,11 +239,7 @@ namespace FIFAModdingUI.Windows
 
             });
 
-            var presence = new DiscordRPC.RichPresence();
-            presence.Details = "In Editor [" + GameInstanceSingleton.GAMEVERSION + "]";
-            presence.State = "V." + App.ProductVersion;
-            App.DiscordRpcClient.SetPresence(presence);
-            App.DiscordRpcClient.Invoke();
+            DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "]");
 
             LauncherOptions = LauncherOptions.LoadAsync().Result;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
@@ -566,11 +559,8 @@ namespace FIFAModdingUI.Windows
 
                     WindowTitle = saveFileDialog.FileName;
 
-                    var presence = new DiscordRPC.RichPresence();
-                    presence.Details = "In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName;
-                    presence.State = "V." + App.ProductVersion;
-                    App.DiscordRpcClient.SetPresence(presence);
-                    App.DiscordRpcClient.Invoke();
+                    DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
+
 
 
                 }
@@ -615,11 +605,8 @@ namespace FIFAModdingUI.Windows
 
                     WindowTitle = openFileDialog.FileName;
 
-                    var presence = new DiscordRPC.RichPresence();
-                    presence.Details = "In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName;
-                    presence.State = "V." + App.ProductVersion;
-                    App.DiscordRpcClient.SetPresence(presence);
-                    App.DiscordRpcClient.Invoke();
+                    DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
+
 
 
                 }
@@ -1006,7 +993,7 @@ namespace FIFAModdingUI.Windows
 
             var gpBrowserData = ProjectManagement.Project.AssetManager
                                   .EnumerateEbx()
-                                  .Where(x => x.Path.Contains("fifa/attribulator/gameplay", StringComparison.OrdinalIgnoreCase))
+                                  .Where(x => x.Path.Contains("fifa/attribulator", StringComparison.OrdinalIgnoreCase))
                                   .OrderBy(x => x.Path)
                                   .Select(x => (IAssetEntry)x).ToList();
 

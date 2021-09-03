@@ -3,6 +3,7 @@ using FIFAModdingUI.Windows;
 using FMT;
 using Frostbite.FileManagers;
 using FrostbiteModdingUI.Models;
+using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
@@ -72,8 +73,6 @@ namespace FrostbiteModdingUI.Windows
             OwnerWindow = owner;
             Owner = owner;
 
-            App.AppInsightClient.TrackRequest("Madden21Editor Window", DateTimeOffset.Now,
-                    TimeSpan.FromMilliseconds(230), "200", true);
         }
 
         public string LastGameLocation => App.ApplicationDirectory + "MADDEN21LastLocation.json";
@@ -119,11 +118,6 @@ namespace FrostbiteModdingUI.Windows
 
         public void Madden21Editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (App.AppInsightClient != null)
-            {
-                App.AppInsightClient.Flush();
-            }
-
             ProjectManagement.Instance = null;
             if (AssetManager.Instance != null)
             {
@@ -215,10 +209,7 @@ namespace FrostbiteModdingUI.Windows
 
             });
 
-            var presence = new DiscordRPC.RichPresence();
-            presence.State = "In Editor - " + GameInstanceSingleton.GAMEVERSION;
-            App.DiscordRpcClient.SetPresence(presence);
-            App.DiscordRpcClient.Invoke();
+            DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "]");
         }
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
