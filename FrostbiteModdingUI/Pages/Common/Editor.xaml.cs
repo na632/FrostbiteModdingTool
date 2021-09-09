@@ -405,7 +405,7 @@ namespace FIFAModdingUI.Pages.Common
 
 										// Number of Points
 										var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = FloatCurve.Points.Count.ToString() };
-										txtNumberOfPoints.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
+										txtNumberOfPoints.TextChanged += (object sender, TextChangedEventArgs e) =>
 										{
 											AssetHasChanged(sender as TextBox, p.PropertyName);
 										};
@@ -431,7 +431,7 @@ namespace FIFAModdingUI.Pages.Common
 
 												var txtPointX = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_X"
 													, Text = FloatCurve.Points[i].X.ToString() };
-												txtPointX.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
+												txtPointX.LostFocus += (object sender, RoutedEventArgs e) =>
 												{
 													AssetHasChanged(sender as TextBox, p.PropertyName);
 												};
@@ -639,12 +639,7 @@ namespace FIFAModdingUI.Pages.Common
 			return success;
 		}
 
-        private void Chk_Checked(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AssetHasChanged(TextBox sender, string propName)
+        public async Task AssetHasChanged(TextBox sender, string propName)
 		{
 			if (string.IsNullOrEmpty(sender.Text))
 				return;
@@ -699,7 +694,7 @@ namespace FIFAModdingUI.Pages.Common
 										}
 										v2k4Util.SetPropertyValue<IList>(floatCurve, "Points", Points);
 
-										SaveToRootObject();
+										await SaveToRootObject(true);
 										//LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
 									}
 								}
@@ -733,7 +728,7 @@ namespace FIFAModdingUI.Pages.Common
 										v2k4Util.SetPropertyValue(FloatCurve.Points[index], "Y", fcPoint.Y);
 									}
 
-									SaveToRootObject();
+									await SaveToRootObject();
 
 
 								}
@@ -801,7 +796,7 @@ namespace FIFAModdingUI.Pages.Common
 				EditorWindow.UpdateAllBrowsers();
 		}
 
-        public async Task SaveToRootObject()
+        public async Task SaveToRootObject(bool forceReload = false)
         {
 			LoadingDialog loadingDialog = null;
 			//await Dispatcher.InvokeAsync(() =>
@@ -837,7 +832,10 @@ namespace FIFAModdingUI.Pages.Common
 				}
 			});
 
-			await LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
+			if (forceReload)
+			{
+				await LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
+			}
 			//await CreateEditor(RootObjectProperties.OrderBy(x => x.PropertyName), TreeView1);
 
 		}

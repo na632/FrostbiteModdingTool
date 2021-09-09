@@ -11,6 +11,10 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+        
+        xmlns:FMTControlsPages="clr-namespace:FMT.Controls.Pages;assembly=FMT.Controls"
+        xmlns:FMTControlsWindows="clr-namespace:FMT.Controls.Windows;assembly=FMT.Controls"
+        
        
         Title="{Binding Path=WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
         Height="720" Width="1280"
@@ -269,7 +273,14 @@
                                     <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
                                 </TabItem>
 
-                                <TabItem x:Name="TabTeams" Header="Teams" Visibility="Collapsed">
+                                <TabItem x:Name="TabTeams">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="MicrosoftTeams" VerticalAlignment="Center" />
+                                            <Label>Teams</Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
+                                    <FMTControlsPages:FIFADBTeamsEditor></FMTControlsPages:FIFADBTeamsEditor>
                                 </TabItem>
 
                                 <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">

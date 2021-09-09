@@ -19,6 +19,8 @@ using v2k4FIFAModdingCL;
 using SdkGenerator;
 using FrostySdk.FrostySdk.Resources.Mesh2;
 using FrostySdk;
+using FrostbiteSdk.Frostbite.FileManagers;
+using Frostbite.FileManagers;
 
 namespace FrostbiteModdingTests
 {
@@ -503,7 +505,32 @@ namespace FrostbiteModdingTests
 
         }
 
-        public void DeleteOldTestMods()
+
+        /// <summary>
+        /// This tests a more complex "compressed" asset
+        /// </summary>
+        [TestMethod]
+        public void TestLegacyModRewrite()
+        {
+            DeleteOldTestMods();
+
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostbiteProject();
+
+            LegacyFileManager_FMTV2 fileManager = new LegacyFileManager_FMTV2();
+            fileManager.WriteAllLegacy();
+
+            projectManagement.Project.WriteToMod("test.fbmod", new ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+            public void DeleteOldTestMods()
         {
             foreach(var s in Directory.GetFiles("/", "*.fbmod"))
             {

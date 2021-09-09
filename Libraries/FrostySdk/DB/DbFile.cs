@@ -302,6 +302,15 @@ namespace FrostbiteSdk
             return true;
         }
 
+        public MemoryStream SaveDbToStream()
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            DbWriter dbWriter = new DbWriter(memoryStream, m_Platform);
+            SaveDb(dbWriter);
+            ComputeAllCrc();
+            return memoryStream;
+        }
+
         public bool SaveDb(DbWriter w)
         {
             w.Write(m_Signature);

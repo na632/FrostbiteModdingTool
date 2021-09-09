@@ -29,10 +29,6 @@ namespace Frostbite.FileManagers
 
 		public static List<ChunkAssetEntry> ModifiedChunks = new List<ChunkAssetEntry>();
 
-		//private Dictionary<Guid, byte[]> cachedChunks = new Dictionary<Guid, byte[]>();
-
-		//private bool cacheMode;
-
 		Dictionary<Guid, List<LegacyFileEntry>> LegacyChunksToParent = new Dictionary<Guid, List<LegacyFileEntry>>();
 
 		public AssetManager AssetManager => AssetManager.Instance;
@@ -248,12 +244,12 @@ namespace Frostbite.FileManagers
 								legacyFileEntry = LegacyEntries[name];
 							}
 
-							if (name.Contains("playervalues.ini", StringComparison.OrdinalIgnoreCase))
-							{
-								var chunkStreamTestPV = GetChunkStream(legacyFileEntry);
-								var assetStreamTestPV = GetAsset(legacyFileEntry);
+							//if (name.Contains("playervalues.ini", StringComparison.OrdinalIgnoreCase))
+							//{
+							//	var chunkStreamTestPV = GetChunkStream(legacyFileEntry);
+							//	var assetStreamTestPV = GetAsset(legacyFileEntry);
 
-							}
+							//}
 
 							nativeReader.Position = chunkBatch.Offset2_Files + ((8 + 8 + 8 + 8 + 8 + 16) * (index + 1));
 
@@ -271,7 +267,11 @@ namespace Frostbite.FileManagers
 								var unknumber2 = nativeReader.ReadUInt();
 								nativeReader.Position = nameOffset3;
 								var unkName2 = nativeReader.ReadNullTerminatedString();
+								if (nativeReader.Position > chunkBatch.EndOfStrings)
+									chunkBatch.EndOfStrings = (int)nativeReader.Position;
+
 								nativeReader.Position = chunkBatch.BootableItemOffset + (16 * (j + 1));
+
 
 								ChunkBatch.BootableItem bootableItem = new ChunkBatch.BootableItem()
 								{
@@ -286,9 +286,10 @@ namespace Frostbite.FileManagers
 							nativeReader.Position = chunkBatch.LinkedChunkOffset;
 							for (uint i = 0u; i < chunkBatch.LinkedChunkCount; i++)
 							{
-								var chunkSize = nativeReader.ReadLong();
+								var chunkOriginalSize = nativeReader.ReadLong();
 								var chunkGuid = nativeReader.ReadGuid();
 								var otherChunk = AssetManager.Instance.GetChunkEntry(chunkGuid);
+								otherChunk.OriginalSize = chunkOriginalSize;
 								chunkBatch.LinkedChunks.Add(otherChunk);
 							}
 
@@ -312,11 +313,13 @@ namespace Frostbite.FileManagers
 			LegacyFileManager.Instance = this;
 		}
 
-		public void WriteAllLegacy()
+		public void WriteAllLegacy(bool assertEquivalent = false)
 		{
 			// A chunk batch corresponds to each Ebx in the CFC
 			foreach (ChunkBatch chunkBatch in ChunkBatches)
 			{
+				var originalData = (AssetManager.Instance.GetChunk(chunkBatch.ChunkAssetEntry) as MemoryStream).ToArray();
+
 				MemoryStream ms_newChunkBatch = new MemoryStream();
 				using (NativeWriter nw = new NativeWriter(ms_newChunkBatch, true))
 				{
@@ -342,17 +345,15 @@ namespace Frostbite.FileManagers
 					// Quick write before Strings
 					foreach (var item in chunkBatch.BatchLegacyFiles)
 					{
-						nw.Write(item.FileNameInBatchOffset);
-						nw.Write(item.CompressedOffset);
-						nw.Write(item.CompressedOffsetEnd);
-						nw.Write(item.ExtraData.DataOffset);
-						nw.Write(item.Size);
+						nw.Write((ulong)item.FileNameInBatchOffset);
+						nw.Write((ulong)item.CompressedOffset);
+						nw.Write((ulong)item.CompressedOffsetEnd);
+						nw.Write((ulong)item.ExtraData.DataOffset);
+						nw.Write((ulong)item.Size);
 						nw.Write(item.ChunkId);
 					}
 
-					
-
-					
+					nw.WritePadding(16);
 
 					chunkBatch.BootableItemOffset = nw.Position;
 					if (chunkBatch.BootableItems.Any())
@@ -372,10 +373,14 @@ namespace Frostbite.FileManagers
 					{
 						foreach (var item in chunkBatch.LinkedChunks)
 						{
-							nw.Write(item.Size);
+							nw.Write((long)item.OriginalSize);
 							nw.Write(item.Id);
 						}
 					}
+
+					nw.WritePadding(16);
+					nw.WriteNullTerminatedString("Source/runtime/fifa/pc64");
+					nw.WriteNullTerminatedString("Source/runtime/fifa/cmn");
 
 					// Strings
 					foreach (var item in chunkBatch.BatchLegacyFiles)
@@ -383,12 +388,14 @@ namespace Frostbite.FileManagers
 						item.FileNameInBatchOffset = nw.Position;
 						nw.WriteNullTerminatedString(item.Name);
 					}
-					foreach (var item in chunkBatch.BootableItems)
-					{
-						item.NameOffset = nw.Position;
-						nw.WriteNullTerminatedString(item.Name);
-					}
-					var endOfStrings = nw.Position;
+                    foreach (var item in chunkBatch.BootableItems)
+                    {
+                        item.NameOffset = nw.Position;
+                        nw.WriteNullTerminatedString(item.Name);
+                    }
+
+                    nw.WritePadding(16);
+                    var endOfStrings = nw.Position;
 
 					nw.Position = chunkBatch.BootableItemOffset;
 					foreach (var item in chunkBatch.BootableItems)
@@ -398,35 +405,6 @@ namespace Frostbite.FileManagers
 						nw.Write(item.Active);
 					}
 
-
-					//nw.Position = chunkBatch.FileFirstPosition;
-					//// Rewrite String and Changed Stuff
-					//foreach (var item in chunkBatch.BatchLegacyFiles)
-					//{
-					//	nw.Write(item.FileNameInBatchOffset);
-
-					//	if (item.ModifiedEntry != null && item.ModifiedEntry.CompressedOffset.HasValue)
-					//		nw.Write((long)item.ModifiedEntry.CompressedOffset.Value);
-					//	else
-					//		nw.Write((long)item.CompressedOffset);
-
-					//	if (item.ModifiedEntry != null && item.ModifiedEntry.CompressedOffsetEnd.HasValue)
-					//		nw.Write((long)item.ModifiedEntry.CompressedOffsetEnd.Value);
-					//	else
-					//		nw.Write((long)item.CompressedOffsetEnd);
-
-					//	if (item.ModifiedEntry != null && item.ModifiedEntry.NewOffset.HasValue)
-					//		nw.Write((long)item.ModifiedEntry.NewOffset.Value);
-					//	else
-					//		nw.Write((long)item.ExtraData.DataOffset);
-
-					//	if (item.ModifiedEntry != null && item.ModifiedEntry.Size != 0)
-					//		nw.Write((long)item.ModifiedEntry.Size);
-					//	else
-					//		nw.Write((long)item.Size);
-
-					//	nw.Write(item.ChunkId);
-					//}
 
 					nw.Position = 0;
 					nw.Write(chunkBatch.UnkCount1);
@@ -445,9 +423,13 @@ namespace Frostbite.FileManagers
                     }
 
 				}
+				
+				
+				File.WriteAllBytes("_debug_legacy_old_" + chunkBatch.EbxAssetEntry.Name.Replace(@"/", "_") + ".dat", originalData);
 				File.WriteAllBytes("_debug_legacy_new_" + chunkBatch.EbxAssetEntry.Name.Replace(@"/", "_") + ".dat", ms_newChunkBatch.ToArray());
 
-				//AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, ms_newChunkBatch.ToArray(), null, CompressionType.Oodle);
+
+				AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, ms_newChunkBatch.ToArray(), null, ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Legacy));
 				//AssetManager.Instance.ModifyEbx(chunkBatch.EbxAssetEntry.Name, chunkBatch.EbxAsset);
 			}
 		}

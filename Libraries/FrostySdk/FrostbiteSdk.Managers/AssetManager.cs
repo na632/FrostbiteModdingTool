@@ -520,10 +520,10 @@ public interface IAssetLoader
 			}
 		}
 
-		public void RegisterCustomAssetManager(string type, Type managerType)
-		{
-			CustomAssetManagers.Add(type, (ICustomAssetManager)Activator.CreateInstance(managerType));
-		}
+		//public void RegisterCustomAssetManager(string type, Type managerType)
+		//{
+		//	CustomAssetManagers.Add(type, (ICustomAssetManager)Activator.CreateInstance(managerType));
+		//}
 
         public void RegisterLegacyAssetManager()
         {
@@ -622,15 +622,7 @@ public interface IAssetLoader
 				else
 				{
 					((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
-
-					//foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x=>x.FullName.Contains("Plugin")))
-					//{
-					//	var t = a.GetTypes().FirstOrDefault(x => x.Name == ProfilesLibrary.AssetLoaderName);
-					//	if(t != null)
-					//		((IAssetLoader)Activator.CreateInstance(t)).Load(this, binarySbDataHelper);
-					//}
 				}
-				//binarySbDataHelper.WriteToCache(this);
 				GC.Collect();
 				WriteToCache();
 			}
@@ -641,23 +633,6 @@ public interface IAssetLoader
 			{
 				return;
 			}
-			//foreach (BundleEntry bundle in bundles)
-			//{
-			//	bundle.Type = BundleType.SharedBundle;
-			//	bundle.Blueprint = GetEbxEntry(bundle.Name.Remove(0, 6));
-			//	if (bundle.Blueprint == null)
-			//	{
-			//		bundle.Blueprint = GetEbxEntry(bundle.Name);
-			//	}
-			//	if (bundle.Blueprint != null)
-			//	{
-			//		bundle.Type = BundleType.SubLevel;
-			//		if (TypeLibrary.IsSubClassOf(bundle.Blueprint.Type, "BlueprintBundle"))
-			//		{
-			//			bundle.Type = BundleType.BlueprintBundle;
-			//		}
-			//	}
-			//}
 			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				value.Initialize(logger);
@@ -666,7 +641,17 @@ public interface IAssetLoader
 			TimeSpan timeSpan = DateTime.Now - now;
 			logger.Log($"Loading complete {timeSpan.ToString()}");
 
+			if(AssetManagerInitialised != null)
+            {
+				AssetManagerInitialised();
+            }
 		}
+
+		public delegate void AssetManagerModifiedHandler();
+
+		public static event AssetManagerModifiedHandler AssetManagerInitialised;
+
+		public static event AssetManagerModifiedHandler AssetManagerModified;
 
 		public void SetLogger(ILogger inLogger)
 		{
@@ -1348,6 +1333,11 @@ public interface IAssetLoader
 			{
 				CustomAssetManagers["legacy"].ModifyAsset(name, data, rebuildChunk);
 			}
+
+			if (AssetManagerModified != null)
+			{
+				AssetManagerModified();
+			}
 		}
 
 		public void ModifyLegacyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
@@ -1658,6 +1648,15 @@ public interface IAssetLoader
 			return CustomAssetManagers[type].GetAssetEntry(key);
 		}
 
+		public async Task<AssetEntry> GetCustomAssetEntryAsync(string type, string key)
+		{
+			return await Task.Run(() => {
+
+				return GetCustomAssetEntry(type, key);
+			
+			});
+		}
+
 		public T GetCustomAssetEntry<T>(string type, string key) where T : AssetEntry
 		{
 			return (T)GetCustomAssetEntry(type, key);
@@ -1758,6 +1757,13 @@ public interface IAssetLoader
 			}
 			return CustomAssetManagers[type].GetAsset(entry);
 		}
+
+		public async Task<MemoryStream> GetCustomAssetAsync(string type, AssetEntry entry)
+        {
+			return await Task.Run(() => {
+				return GetCustomAsset(type, entry) as MemoryStream;
+			});
+        }
 
 		public EbxAsset GetEbx(EbxAssetEntry entry, bool getModified = true)
 		{

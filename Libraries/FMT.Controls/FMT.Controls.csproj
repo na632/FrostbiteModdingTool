@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
     <ProjectReference Include="..\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
   </ItemGroup>
