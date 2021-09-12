@@ -849,6 +849,11 @@ public interface IAssetLoader
 			return (uint)EmbeddedFileEntries.Count();
 		}
 
+		public Task ResetAsync()
+        {
+			return Task.Run(() => { Reset(); });
+        }
+
 		public void Reset()
 		{
 			List<EbxAssetEntry> list = EBX.Values.ToList();
@@ -875,7 +880,7 @@ public interface IAssetLoader
 			}
 			EmbeddedFileEntries = new List<EmbeddedFileEntry>();
 
-			LegacyFileManager_FMTV2.CleanUpChunks();
+			LegacyFileManager_FMTV2.CleanUpChunks(true);
 
 		}
 
@@ -885,9 +890,14 @@ public interface IAssetLoader
 			RES.Clear();
 			resRidList.Clear();
 			Chunks.Clear();
-			LegacyFileManager_FMTV2.LegacyEntries.Clear();
-			LegacyFileManager_FMTV2.ChunkBatches.Clear();
-			LegacyFileManager_FMTV2.ModifiedChunks.Clear();
+
+			var lam = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+			if (lam != null)
+			{
+				lam.LegacyEntries.Clear();
+				lam.ChunkBatches.Clear();
+				lam.ModifiedChunks.Clear();
+			}
 		}
 
 		public void RevertAsset(AssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
@@ -3115,7 +3125,7 @@ public interface IAssetLoader
 		{
 			get
 			{
-				return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\";
+				return AppContext.BaseDirectory + "\\";
 			}
 		}
 

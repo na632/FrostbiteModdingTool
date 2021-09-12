@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
@@ -98,7 +99,13 @@ namespace FrostbiteSdk
                 return JsonConvert.DeserializeObject<T>(s);
             }
 
-
+        public static string ApplicationDirectory
+        {
+            get
+            {
+                return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\";
+            }
+        }
     }
 
 }

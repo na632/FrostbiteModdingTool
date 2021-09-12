@@ -60,18 +60,9 @@ namespace FMT
         {
             InitializeComponent();
 
-            var assembly = Assembly.GetExecutingAssembly();
-            //WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
-            WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.AppContext.BaseDirectory + assembly.ManifestModule.Name).ProductVersion;
+            WindowTitle = "Frostbite Modding Tool " + App.ProductVersion;
 
-            //App.AppInsightClient.TrackPageView("MainWindow");
-
-            // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
             DataContext = this;
-
-            // ------------------------------------------
-
-
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -83,13 +74,6 @@ namespace FMT
             }
 
             EditorWindows.Clear();
-
-            //foreach (var pr in ProfilesWithEditorScreen)
-            //{
-
-            //}
-
-            //ProfilesWithEditorScreen.Clear();
 
             if (App.MainEditorWindow != null)
                 App.MainEditorWindow.Close();
@@ -137,8 +121,19 @@ namespace FMT
 
         private void btnLauncher_Click(object sender, RoutedEventArgs e)
         {
-            new LaunchWindow(this).Show();
-            this.Visibility = Visibility.Hidden;
+            var lw = new LaunchWindow(this);
+            try
+            {
+                if (lw != null)
+                {
+                    lw.Show();
+                    this.Visibility = Visibility.Hidden;
+                }
+            }
+            catch
+            {
+
+            }
         }
 
         private void btnBF4Editor_Click(object sender, RoutedEventArgs e)

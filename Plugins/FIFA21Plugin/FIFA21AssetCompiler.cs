@@ -586,51 +586,53 @@ namespace FIFA21Plugin
                 }
 
                 //AssetManager.Instance.ModifyLegacyAssets(legacyData, true);
-                LegacyFileManager_FMTV2 legacyFileManager = new LegacyFileManager_FMTV2();
-                legacyFileManager.ModifyAssets(legacyData, true);
-                 
-                var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
-                foreach (var modLegChunk in modifiedLegacyChunks.Where(x => !parent.ModifiedChunks.ContainsKey(x.Id)))
+                LegacyFileManager_FMTV2 legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+                if (legacyFileManager != null)
                 {
-                    if(modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
-                    {
+                    legacyFileManager.ModifyAssets(legacyData, true);
 
-                    }
-                    if (modLegChunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                    var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
+                    foreach (var modLegChunk in modifiedLegacyChunks.Where(x => !parent.ModifiedChunks.ContainsKey(x.Id)))
                     {
+                        if (modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+                        {
 
-                    }
-                    modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
-                    //if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
-                    //{
+                        }
+                        if (modLegChunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                        {
+
+                        }
+                        modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+                        //if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
+                        //{
                         parent.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
-                    //}
-                    //else
-                    //{
-                    //    parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
-                    //}
-                    countLegacyChunksModified++;
-                }
-
-                var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
-                foreach (var chunk in modifiedChunks)
-                {
-                    if (chunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
-                    {
-
-                    }
-                    if (chunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
-                    {
-
+                        //}
+                        //else
+                        //{
+                        //    parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
+                        //}
+                        countLegacyChunksModified++;
                     }
 
-                    if (parent.archiveData.ContainsKey(chunk.Sha1))
-                        parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
-                    else
-                        parent.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
-                }
-                parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
+                    var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
+                    foreach (var chunk in modifiedChunks)
+                    {
+                        if (chunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+                        {
 
+                        }
+                        if (chunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                        {
+
+                        }
+
+                        if (parent.archiveData.ContainsKey(chunk.Sha1))
+                            parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
+                        else
+                            parent.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                    }
+                    parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
+                }
             }
         }
 

@@ -24,25 +24,8 @@ namespace FMT
     /// </summary>
     public partial class App : Application
     {
-        private static string ClientId = "2b99df49-736b-4b7c-8e9d-bdaa87859b0b";
-        //private static string ClientId = "f947871b-8962-4fbe-9444-45ad2ade761f";
-
-        //private static string Tenant = "common";
-
-        private static IPublicClientApplication _clientApp;
-
-        public static IPublicClientApplication PublicClientApp { get { return _clientApp; } }
-
-        [SupportedOSPlatform("windows")]
         public static Window MainEditorWindow;
 
-        //[SupportedOSPlatform("windows")]
-        //public static DiscordRPC.DiscordRpcClient DiscordRpcClient;
-
-        //[SupportedOSPlatform("windows")]
-        //public static TelemetryClient AppInsightClient = new TelemetryClient();
-
-        [SupportedOSPlatform("windows")]
         public static string ApplicationDirectory
         {
             get
@@ -51,17 +34,18 @@ namespace FMT
             }
         }
 
-        [SupportedOSPlatform("windows")]
         public static string ProductVersion
         {
             get
             {
-                var assembly = Assembly.GetExecutingAssembly();
-                if (assembly != null && AppContext.BaseDirectory != null)
-                {
-                    return FileVersionInfo.GetVersionInfo(AppContext.BaseDirectory + assembly.ManifestModule.Name).ProductVersion;
-                }
-                return string.Empty;
+                //var assembly = Assembly.GetExecutingAssembly();
+                //if (assembly != null && AppContext.BaseDirectory != null)
+                //{
+                //    return FileVersionInfo.GetVersionInfo(AppContext.BaseDirectory + assembly.ManifestModule.Name).ProductVersion;
+                //}
+                //return string.Empty;
+
+                return Assembly.GetEntryAssembly().GetName().Version.ToString();
             }
         }
 
@@ -109,7 +93,7 @@ namespace FMT
             //DiscordRpcClient.Invoke();
 
             //await Task.Delay(1000);
-            await new DiscordInterop().StartDiscordClient();
+            await new DiscordInterop().StartDiscordClient("V." + ProductVersion);
         }
 
         //private async void StartApplicationInsights()

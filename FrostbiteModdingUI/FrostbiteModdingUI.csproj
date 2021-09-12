@@ -111,9 +111,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\_FIFA20_base.ini" />
-    <EmbeddedResource Include="Resources\Classes.txt">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -276,10 +273,9 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
-    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netcoreapp3.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\net6.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-
 	</None>
     <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

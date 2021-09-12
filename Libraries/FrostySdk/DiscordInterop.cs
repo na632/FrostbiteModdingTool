@@ -2,7 +2,9 @@
 using NetDiscordRpc.RPC;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +16,7 @@ namespace FrostbiteSdk
     {
         public static DiscordRPC DiscordRpcClient;
 
-        public async Task<DiscordRPC> StartDiscordClient()
+        public async Task<DiscordRPC> StartDiscordClient(string productVersion = "")
         {
             return await Task.Run(() =>
             {
@@ -26,7 +28,7 @@ namespace FrostbiteSdk
                     DiscordRpcClient.SetPresence(new RichPresence()
                     {
                         Details = "In Main Menu",
-                        State = "In Main Menu",
+                        State = productVersion,
                     });
                     DiscordRpcClient.Invoke();
 

@@ -71,6 +71,7 @@ namespace FrostbiteModdingUI.Windows
                     {
                         throw new Exception("Unable to Initialize Profile");
                     }
+                    DialogResult = true;
                 }
                 else
                 {

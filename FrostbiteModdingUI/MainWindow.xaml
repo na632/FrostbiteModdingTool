@@ -12,7 +12,7 @@
         Title="{Binding WindowTitle}" Height="400" Width="350" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="110"></RowDefinition>
+            <RowDefinition Height="90"></RowDefinition>
             <RowDefinition Height="5"></RowDefinition>
             <RowDefinition Height="50"></RowDefinition>
             <RowDefinition></RowDefinition>
@@ -22,7 +22,9 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Image Grid.Row="0" Source="/Resources/images/PAULV2K4MODDINGTOOL4.png" Stretch="Fill" />
+        <DockPanel Background="Black">
+            <TextBlock Text="Paulv2k4 FMT" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="40" FontFamily="Arial Bold" Foreground="LightBlue"></TextBlock>
+        </DockPanel>
         <ComboBox Width="100" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,20,20" x:Name="cbLanguageSelection" SelectionChanged="cbLanguageSelection_SelectionChanged">
             <ComboBoxItem></ComboBoxItem>
             <ComboBoxItem>English</ComboBoxItem>
@@ -33,7 +35,7 @@
                     Click="btnLauncher_Click"
                     ToolTip="Game Mod Launcher">
             <StackPanel VerticalAlignment="Center"  HorizontalAlignment="Left" Orientation="Horizontal">
-                <MaterialDesign:PackIcon Kind="PlayBox" Width="50" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <MaterialDesign:PackIcon Kind="PlayBox" Width="50" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 <Label Content="{DynamicResource textLauncher}" VerticalAlignment="Center" FontSize="20" />
             </StackPanel>
         </Button>

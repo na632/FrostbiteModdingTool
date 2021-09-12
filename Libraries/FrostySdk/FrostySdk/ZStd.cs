@@ -1,3 +1,4 @@
+using FrostbiteSdk;
 using System;
 using System.Runtime.InteropServices;
 
@@ -83,6 +84,9 @@ namespace FrostySdk
 
 		public static void Bind()
 		{
+			if (handle != null)
+				return;
+
 			//if ((ProfilesLibrary.DataVersion != 20170321
 			//	&& ProfilesLibrary.DataVersion != 20160927
 			//	&& ProfilesLibrary.DataVersion != 20170929
@@ -98,23 +102,23 @@ namespace FrostySdk
 			//{
 			//	return;
 			//}
-			string lib = "thirdparty/libzstd.1.1.5.dll";
-			if (ProfilesLibrary.DataVersion == 20180914 
-				|| ProfilesLibrary.IsFIFA20DataVersion()
-				//|| ProfilesLibrary.IsMadden21DataVersion()
-				//|| ProfilesLibrary.IsFIFA21DataVersion()
-				)
-			{
-				lib = "thirdparty/libzstd.1.3.4.dll";
-			}
-            else if (ProfilesLibrary.IsFIFA21DataVersion()
-				|| ProfilesLibrary.IsMadden21DataVersion()
-				)
-			{
-                //lib = "thirdparty/libzstd.1.4.5.dll";
-                lib = "thirdparty/libzstd.1.5.0.dll";
-            }
-            handle = new LoadLibraryHandle(lib);
+			string parentDirectory = Utilities.ApplicationDirectory + "thirdparty/";
+			//string lib = "libzstd.1.1.5.dll";
+			//if (ProfilesLibrary.DataVersion == 20180914 
+			//	|| ProfilesLibrary.IsFIFA20DataVersion()
+			//	//|| ProfilesLibrary.IsMadden21DataVersion()
+			//	//|| ProfilesLibrary.IsFIFA21DataVersion()
+			//	)
+			//{
+			//	lib = "libzstd.1.3.4.dll";
+			//}
+   //         else if (ProfilesLibrary.IsFIFA21DataVersion()
+			//	|| ProfilesLibrary.IsMadden21DataVersion()
+			//	)
+			//{
+                string lib = "libzstd.1.5.0.dll";
+            //}
+            handle = new LoadLibraryHandle(parentDirectory + lib);
 			if (handle == IntPtr.Zero)
 			{
 				return;

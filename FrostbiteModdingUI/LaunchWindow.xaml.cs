@@ -47,58 +47,47 @@ namespace FMT
     {
         public string WindowTitle { get; set; }
 
-        public ModListProfile? Profile { get; set; }
+        public ModListProfile Profile { get; set; }
 
         public LaunchWindow(Window owner)
         {
             Owner = owner;
             InitializeComponent();
+            Loaded += LaunchWindow_Loaded;
+        }
 
+        private async void LaunchWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             WindowTitle = "FMT Launcher - " + App.ProductVersion;
             DataContext = this;
 
             //App.AppInsightClient.TrackPageView("Launcher Window - " + WindowTitle);
-            
 
             try
             {
-                //if (!File.Exists(AppSettings.Settings.FIFAInstallEXEPath))
-                //{
-                //    AppSettings.Settings.FIFAInstallEXEPath = null;
-                //}
-
-                //if (!string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
-                //{
-                //    //txtFIFADirectory.Text = AppSettings.Settings.GameInstallEXEPath;
-                //    InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
-                //}
-                //else
-                //{
-                    var bS = new FindGameEXEWindow().ShowDialog();
-                    if (bS.HasValue && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
-                    {
-                        InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
-                    }
-                    else
-                    {
-                        throw new Exception("Unable to start up Game");
-                    }
-                //}
+                var bS = new FindGameEXEWindow().ShowDialog();
+                if (bS.HasValue && bS.Value == true && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+                {
+                    await InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+                }
+                else
+                {
+                    MessageBox.Show("You must select an EXE to launch a game. Close this screen and reopen to select one");
+                    throw new Exception("Unable to start up Game");
+                }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                //txtFIFADirectory.Text = "";
-                Trace.WriteLine(e.ToString());
+                Trace.WriteLine(ex.ToString());
+                //this.Close();
+                return;
             }
 
-            bool? result = false;
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
             if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
             {
-                result = buildSDKAndCacheWindow.ShowDialog();
+                buildSDKAndCacheWindow.ShowDialog();
             }
-
-
         }
 
         protected override void OnClosed(EventArgs e)
@@ -658,7 +647,7 @@ namespace FMT
         public string LastGamePathLocation => App.ApplicationDirectory + "\\" + GameInstanceSingleton.GAMEVERSION + "LastLocation.json";
 
 
-        private void InitialiseSelectedGame(string filePath)
+        private async Task InitialiseSelectedGame(string filePath)
         {
                 if (!File.Exists(filePath))
                 {

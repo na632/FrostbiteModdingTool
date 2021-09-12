@@ -23,11 +23,11 @@ namespace Frostbite.FileManagers
 
 		public List<LegacyFileEntry> AddedFileEntries { get; set; }
 
-		public static List<LegacyFileEntry> OriginalLegacyEntries = new List<LegacyFileEntry>();
+		public List<LegacyFileEntry> OriginalLegacyEntries = new List<LegacyFileEntry>();
 
-		public static Dictionary<string, LegacyFileEntry> LegacyEntries = new Dictionary<string, LegacyFileEntry>();
+		public Dictionary<string, LegacyFileEntry> LegacyEntries = new Dictionary<string, LegacyFileEntry>();
 
-		public static List<ChunkAssetEntry> ModifiedChunks = new List<ChunkAssetEntry>();
+		public List<ChunkAssetEntry> ModifiedChunks = new List<ChunkAssetEntry>();
 
 		Dictionary<Guid, List<LegacyFileEntry>> LegacyChunksToParent = new Dictionary<Guid, List<LegacyFileEntry>>();
 
@@ -54,7 +54,12 @@ namespace Frostbite.FileManagers
 			{
 				get
 				{
-					return LegacyEntries.Values.Where(x => x.ParentGuid == ChunkAssetEntry.Id);
+					var lam = (LegacyFileManager_FMTV2)AssetManager.Instance.GetLegacyAssetManager();
+					if(lam != null)
+                    {
+						return lam.LegacyEntries.Values.Where(x => x.ParentGuid == ChunkAssetEntry.Id);
+					}
+					return null;
 				}
 			}
 
@@ -149,7 +154,7 @@ namespace Frostbite.FileManagers
 		/// <summary>
 		/// Chunk Batches are the entire batch of chunks and locations of the chunks. Each is an EBX
 		/// </summary>
-		public static List<ChunkBatch> ChunkBatches = new List<ChunkBatch>();
+		public List<ChunkBatch> ChunkBatches = new List<ChunkBatch>();
 
 		public LegacyFileManager_FMTV2()
 		{
@@ -158,13 +163,13 @@ namespace Frostbite.FileManagers
 		public virtual void Initialize(ILogger logger)
 		{
 			logger.Log("Loading legacy files");
-			AddedFileEntries = new List<LegacyFileEntry>();
+            AddedFileEntries = new List<LegacyFileEntry>();
 
-			ChunkBatches = new List<ChunkBatch>();
+            //ChunkBatches = new List<ChunkBatch>();
+            //LegacyEntries = new Dictionary<string, LegacyFileEntry>();
 
 
-			foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
-			//foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("CFC_GM_Launch"))
+            foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
 			{
 				GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
 				if (chunkAssetEntry == null)
@@ -346,10 +351,14 @@ namespace Frostbite.FileManagers
 					foreach (var item in chunkBatch.BatchLegacyFiles)
 					{
 						nw.Write((ulong)item.FileNameInBatchOffset);
-						nw.Write((ulong)item.CompressedOffset);
-						nw.Write((ulong)item.CompressedOffsetEnd);
-						nw.Write((ulong)item.ExtraData.DataOffset);
-						nw.Write((ulong)item.Size);
+						// compressed
+						nw.Write(item.ModifiedEntry != null && item.ModifiedEntry.CompressedOffset.HasValue ? (ulong)item.ModifiedEntry.CompressedOffset : (ulong)item.CompressedOffset );
+						// compressed end
+						nw.Write(item.ModifiedEntry != null && item.ModifiedEntry.CompressedOffsetEnd.HasValue ? (ulong)item.ModifiedEntry.CompressedOffsetEnd : (ulong)item.CompressedOffsetEnd);
+						// data offset
+						nw.Write(item.ModifiedEntry != null && item.ModifiedEntry.NewOffset.HasValue ? (ulong)item.ModifiedEntry.NewOffset : (ulong)item.ExtraData.DataOffset);
+						// data size
+						nw.Write(item.ModifiedEntry != null ? (ulong)item.ModifiedEntry.Size : (ulong)item.Size);
 						nw.Write(item.ChunkId);
 					}
 
@@ -979,9 +988,15 @@ namespace Frostbite.FileManagers
 
 		}
 
+		public static Task ResetAsync(bool fullReset = false)
+		{
+			return Task.Run(() => { CleanUpChunks(fullReset); });
+		}
+
 		public static void CleanUpChunks(bool fullReset = false)
 		{
-			var movedEntries = LegacyEntries.Where(x => x.Value.ModifiedEntry != null
+			var lam = (LegacyFileManager_FMTV2)AssetManager.Instance.GetLegacyAssetManager();
+			var movedEntries = lam.LegacyEntries.Where(x => x.Value.ModifiedEntry != null
 					&& x.Value.ModifiedEntry.Data == null
 					&& x.Value.ModifiedEntry.NewOffset.HasValue
 					);
@@ -991,7 +1006,6 @@ namespace Frostbite.FileManagers
 			{
 				lfe.Value.ModifiedEntry = null;
 			}
-			// 3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d
 
 			// Revert all the chunks
 			foreach (EbxAssetEntry item in AssetManager.Instance.EnumerateEbx("ChunkFileCollector"))
@@ -1004,19 +1018,23 @@ namespace Frostbite.FileManagers
 				AssetManager.Instance.RevertAsset(item);
 			}
 
-			foreach (ChunkAssetEntry assetEntry in ModifiedChunks)
+			foreach (ChunkAssetEntry assetEntry in lam.ModifiedChunks)
 			{
 				assetEntry.ModifiedEntry = null;
 			}
-			ModifiedChunks.Clear();
+			lam.ModifiedChunks.Clear();
 
 			// Revert all legacy files
 			if (fullReset)
 			{
-				foreach (var lfe in LegacyEntries)
+				var resetEntryCount = 0;
+				var modifiedEntries = lam.LegacyEntries.Where(x => x.Value.ModifiedEntry != null).Select(x => x.Value);
+				foreach (var lfe in modifiedEntries)
 				{
-					lfe.Value.ModifiedEntry = null;
+					lfe.ModifiedEntry = null;
+					resetEntryCount++;
 				}
+				AssetManager.Instance.logger.Log($"Reset {resetEntryCount} legacy files");
 			}
 		}
 

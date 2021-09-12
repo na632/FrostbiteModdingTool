@@ -144,6 +144,8 @@ namespace FrostySdk.IO
 
 		private byte[] DecompressBlockZStd(int bufferSize, int decompressedSize, bool useDictionary, bool unobfuscate)
 		{
+			ZStd.Bind();
+
 			byte[] array = ReadBytes(bufferSize);
 			if (unobfuscate)
 			{

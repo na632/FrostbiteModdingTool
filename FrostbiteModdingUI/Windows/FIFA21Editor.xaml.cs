@@ -578,7 +578,7 @@ namespace FIFAModdingUI.Windows
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_FMTV2.CleanUpChunks(true);
+            //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Project files|*.fbproject";
@@ -588,7 +588,8 @@ namespace FIFAModdingUI.Windows
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
                     await loadingDialog.UpdateAsync("Loading Project", "Resetting files");
-                    AssetManager.Instance.Reset();
+            await AssetManager.Instance.ResetAsync();
+                    //AssetManager.Instance.Reset();
 
                     await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
 
@@ -597,7 +598,7 @@ namespace FIFAModdingUI.Windows
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 
-                    await new TaskFactory().StartNew(() =>
+                    await Task.Run(() =>
                     {
                         InitialiseBrowsers();
                     });
@@ -685,11 +686,11 @@ namespace FIFAModdingUI.Windows
                     string legacyModSupportFile = null;
                     if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
                     {
-                        legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA20Legacy.dll";
+                        legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA20Legacy.dll";
                     }
                     else if (ProfilesLibrary.IsFIFA21DataVersion())
                     {
-                        legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
+                        legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA.dll";
                     }
 
                     if (!string.IsNullOrEmpty(legacyModSupportFile))
@@ -721,10 +722,10 @@ namespace FIFAModdingUI.Windows
             return false;
         }
 
-        private void btnProjectNew_Click(object sender, RoutedEventArgs e)
+        private async void btnProjectNew_Click(object sender, RoutedEventArgs e)
         {
-            AssetManager.Instance.Reset();
-            LegacyFileManager_FMTV2.CleanUpChunks(true);
+            await AssetManager.Instance.ResetAsync();
+            //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             ProjectManagement.Project.ModifiedAssetEntries = null;
             lstProjectFiles.ItemsSource = null;

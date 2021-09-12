@@ -58,7 +58,7 @@
     <None Include="..\Plugins\FIFA20Plugin\bin\Debug\netcoreapp3.1\FIFA20Plugin.dll" Link="Plugins\FIFA20Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netcoreapp3.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\net6.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

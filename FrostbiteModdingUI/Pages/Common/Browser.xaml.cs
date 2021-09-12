@@ -357,7 +357,7 @@ namespace FIFAModdingUI.Pages.Common
 								// Update the Viewers
 								UpdateAssetListView();
 								//EBXViewer = new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-								EBXViewer.LoadEbx(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+								await EBXViewer.LoadEbx(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
 
 							}
 						}

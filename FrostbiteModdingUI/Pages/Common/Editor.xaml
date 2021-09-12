@@ -5,19 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:src="clr-namespace:Frosty;assembly=FrostySdk"
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
-             mc:Ignorable="d" 
-             DataContext="{Binding}" >
+             mc:Ignorable="d" >
     <Grid DataContext="{Binding}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock Text="{Binding Path=AssetEntry.Name}"></TextBlock>
         <DockingManager Grid.Row="1">
             <LayoutRoot>
                 <LayoutPanel>
                     <LayoutAnchorablePane  >
-                        <LayoutAnchorable Title="Modded" >
+                        <LayoutAnchorable Title="Modded" CanClose="False" CanHide="False" >
                             <TreeView x:Name="TreeView1" VerticalContentAlignment="Top" VerticalAlignment="Top"
                                     ScrollViewer.VerticalScrollBarVisibility="Visible"
                                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
