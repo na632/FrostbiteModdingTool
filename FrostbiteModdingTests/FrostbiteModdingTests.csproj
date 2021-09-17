@@ -19,6 +19,9 @@
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA20Profile.json" Link="FrostbiteProfiles\FIFA20Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA21Profile.json" Link="FrostbiteProfiles\FIFA21Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

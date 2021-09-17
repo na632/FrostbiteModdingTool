@@ -57,6 +57,7 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\CSIL\CSIL.csproj" />
+	  <ProjectReference Include="..\FifaLibrary\FifaLibrary.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

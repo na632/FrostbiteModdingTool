@@ -1002,7 +1002,7 @@ namespace SdkGenerator
                 }
                 else
                 {
-                    break;
+                    typeInfoOffset = offset;
                 }
             }
             Debug.WriteLine(task.StatusMessage);

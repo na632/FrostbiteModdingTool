@@ -588,13 +588,18 @@ namespace FIFAModdingUI.Windows
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
                     await loadingDialog.UpdateAsync("Loading Project", "Resetting files");
-            await AssetManager.Instance.ResetAsync();
+                    await AssetManager.Instance.ResetAsync();
                     //AssetManager.Instance.Reset();
 
                     await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
 
                     ProjectManagement.Project.ModifiedAssetEntries = null;
                     await ProjectManagement.Project.LoadAsync(openFileDialog.FileName);
+                    // A chunk clean up of bad and broken projects
+                    await Task.Run(() =>
+                    {
+                        LegacyFileManager_FMTV2.CleanUpChunks();
+                    });
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
 

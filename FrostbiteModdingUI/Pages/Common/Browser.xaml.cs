@@ -917,7 +917,7 @@ namespace FIFAModdingUI.Pages.Common
 									btnRevert.IsEnabled = true;
 
 									TextViewer.Visibility = Visibility.Visible;
-									using (var nr = new NativeReader(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+									using (var nr = new NativeReader(AssetManager.Instance.GetCustomAsset("legacy", legacyFileEntry)))
 									{
 										//TextViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
 										TextViewer.Text = UTF8Encoding.UTF8.GetString(nr.ReadToEnd());

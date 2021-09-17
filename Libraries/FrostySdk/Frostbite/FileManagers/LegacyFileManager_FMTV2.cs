@@ -511,7 +511,10 @@ namespace Frostbite.FileManagers
 		public Stream GetAsset(AssetEntry entry)
 		{
 			LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
-			if (legacyFileEntry.HasModifiedData)
+			if (legacyFileEntry == null)
+				return null;
+
+			if (legacyFileEntry.ModifiedEntry != null && legacyFileEntry.ModifiedEntry.Data != null)
 			{
 				return new MemoryStream(legacyFileEntry.ModifiedEntry.Data);
 			}
@@ -923,40 +926,15 @@ namespace Frostbite.FileManagers
 
 		private Stream GetChunkStream(LegacyFileEntry lfe)
 		{
-			//if (cacheMode)
-			//{
-			//	if (!cachedChunks.ContainsKey(lfe.ChunkId))
-			//	{
-			//		using (Stream stream = AssetManager.GetChunk(AssetManager.GetChunkEntry(lfe.ChunkId)))
-			//		{
-			//			if (stream == null)
-			//			{
-			//				return null;
-			//			}
-			//			cachedChunks.Add(lfe.ChunkId, ((MemoryStream)stream).ToArray());
-			//		}
-			//	}
-			//	return new MemoryStream(cachedChunks[lfe.ChunkId]);
-			//}
-			return AssetManager.GetChunk(AssetManager.GetChunkEntry(lfe.ChunkId));
-		}
-
-		public void OnCommand(string command, params object[] value)
-		{
-			if (!(command == "SetCacheModeEnabled"))
-			{
-				if (command == "FlushCache")
-				{
-					FlushCache();
-				}
+			var chunkEntry = AssetManager.GetChunkEntry(lfe.ChunkId);
+			if(chunkEntry.ModifiedEntry != null && chunkEntry.ModifiedEntry.Data != null)
+            {
+				return new MemoryStream(chunkEntry.ModifiedEntry.Data);
 			}
-			else
-			{
-				SetCacheModeEnabled((bool)value[0]);
-			}
+
+			var chunkStream = AssetManager.GetChunk(chunkEntry);
+			return chunkStream;
 		}
-
-
 
 		/// <summary>
 		/// Cleans up asset and associated chunks (chunks should not be modified but this checks them over)
@@ -1129,8 +1107,11 @@ namespace Frostbite.FileManagers
 			return guid;
 		}
 
-
-	}
+        public void OnCommand(string command, params object[] value)
+        {
+            //throw new NotImplementedException();
+        }
+    }
 
 
 }

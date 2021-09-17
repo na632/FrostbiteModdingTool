@@ -83,17 +83,17 @@ namespace FIFA21Plugin
 							});
 							sbIndex = parent.superBundles.Count - 1;
 						}
-						// Test to fix Arsenal Kit -- CareerSBA is useless anyway
-						if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
-							continue;
+                        // Test to fix Arsenal Kit -- CareerSBA is useless anyway
+                        //if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
+                        //	continue;
 
-						if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
-							continue;
+                        if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
+                            continue;
 
-						if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
-							continue;
+                        //if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                        //	continue;
 
-						parent.logger.Log($"Loading data ({sbName})");
+                        parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
 						if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
 						{
@@ -151,17 +151,17 @@ namespace FIFA21Plugin
 							sbIndex = parent.superBundles.Count - 1;
 						}
 
-						// Test to fix Arsenal Kit -- CareerSBA is useless anyway
-						if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
-							continue;
+                        // Test to fix Arsenal Kit -- CareerSBA is useless anyway
+                        //if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
+                        //	continue;
 
-						if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
-							continue;
+                        if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
+                            continue;
 
-						if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
-							continue;
+                        //if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                        //	continue;
 
-						parent.logger.Log($"Loading data ({sbName})");
+                        parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
 						if (parent.fs.ResolvePath("native_patch/" + tocFile + ".toc") == "")
 						{

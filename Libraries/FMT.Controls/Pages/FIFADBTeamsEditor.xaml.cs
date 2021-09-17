@@ -1,10 +1,12 @@
 ﻿using CSharpImageLibrary;
+using FifaLibrary;
 using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -73,7 +75,6 @@ namespace FMT.Controls.Pages
 
         ICollection<LeagueTeamLinkItem> LeagueTeamLinkItems = new List<LeagueTeamLinkItem>();
 
-
         public FIFADBTeamsEditor()
         {
             InitializeComponent();
@@ -83,6 +84,12 @@ namespace FMT.Controls.Pages
             DataContext = this;
         }
 
+        ~FIFADBTeamsEditor()
+        {
+            AssetManager.AssetManagerInitialised -= AssetManagerInitialised;
+            AssetManager.AssetManagerModified -= AssetManagerInitialised;
+        }
+
         private async Task Load()
         {
             await LoadDbFromLegacy();
@@ -90,7 +97,14 @@ namespace FMT.Controls.Pages
 
         private async void AssetManagerInitialised()
         {
-            await Load();
+            try
+            {
+                await Load();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
         private async Task LoadDbFromLegacy()
@@ -101,9 +115,7 @@ namespace FMT.Controls.Pages
             var dbMeta = await AssetManager.Instance.GetCustomAssetEntryAsync("legacy", "data/db/fifa_ng_db-meta.xml") as LegacyFileEntry;
             DBMetaAssetStream = await AssetManager.Instance.GetCustomAssetAsync("legacy", dbMeta);
 
-            DB = new DbFile();
-            DB.LoadXml(DBMetaAssetStream);
-            DB.LoadDb(DBAssetStream);
+            DB = new DbFile(DBAssetStream, DBMetaAssetStream);
 
             await RefreshTeamList();
             await RefreshLeagueList();

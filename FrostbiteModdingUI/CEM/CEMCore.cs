@@ -1,4 +1,5 @@
 ﻿using CareerExpansionMod.CEM.FIFA;
+using FifaLibrary;
 using FrostbiteModdingUI.CEM;
 using FrostbiteSdk;
 using Frosty;
@@ -16,7 +17,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using v2k4FIFAModding.Career.CME.FIFA;
-using v2k4FIFAModdingCL.CGFE;
 using v2k4FIFAModdingCL.MemHack.Core;
 
 namespace CareerExpansionMod.CEM
@@ -304,79 +304,87 @@ namespace CareerExpansionMod.CEM
 
         public static CareerFile SetupCareerFile(string inCareerFilePath)
         {
-            var CareerFile = new CareerFile(inCareerFilePath, CEMInternalDataDirectory + "fifa_ng_db-meta.XML");
-
-            // Setup Internal Career Entities
-            CareerDB1.Current = new CareerDB1();
-            CareerDB1.Current.ParentDataSet = CareerFile.Databases[0].ConvertToDataSet();
-            CareerDB2.Current = new CareerDB2();
-            CareerDB2.Current.ParentDataSet = CareerFile.Databases[1].ConvertToDataSet();
-            //});
-            //CareerFileThread.Start();
-            //CareerFileThread.Join();
-
-            if (CareerFile.Databases.Length > 0)
+            using (var fs = new FileStream(inCareerFilePath, FileMode.Open)) 
             {
+                using (var xmlFS = new FileStream(CEMInternalDataDirectory + "fifa_ng_db-meta.XML", FileMode.Open)) 
+                { 
+                    var CareerFile = new CareerFile(fs, xmlFS);
+
+                // Setup Internal Career Entities
+                CareerDB1.Current = new CareerDB1();
+                CareerDB1.Current.ParentDataSet = CareerFile.Databases[0].ConvertToDataSet();
+                CareerDB2.Current = new CareerDB2();
+                CareerDB2.Current.ParentDataSet = CareerFile.Databases[1].ConvertToDataSet();
+                    //});
+                    //CareerFileThread.Start();
+                    //CareerFileThread.Join();
+
+                    if (CareerFile.Databases.Length > 0)
+                    {
 
 
-                if (CareerDB1.FIFAUser == null)
-                {
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
+                        if (CareerDB1.FIFAUser == null)
+                        {
+                            Stopwatch swTeams = new Stopwatch();
+                            swTeams.Start();
 
-                    var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
-                    // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
-                    CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
+                            var usersDt = CareerFile.Databases[0].Table[3].ConvertToDataTable();
+                            // Read User. Set ClubTeamId to 1 less. Don't know why I have to do this!
+                            CareerDB1.FIFAUser = CreateItemFromRow<FIFAUsers>(usersDt.Rows[0]);
 
-                    swTeams.Stop();
-                    Debug.WriteLine("User took: " + swTeams.Elapsed + " to build");
-                    Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                            swTeams.Stop();
+                            Debug.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                            Trace.WriteLine("User took: " + swTeams.Elapsed + " to build");
+                        }
+
+                        if (CareerDB2.Current != null && (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null))
+                        {
+                            Stopwatch swTeams = new Stopwatch();
+                            swTeams.Start();
+
+                            var dbTeams = CareerFile.Databases[1].GetTable("teams");
+                            CareerDB2.Current.teams = dbTeams.ConvertToDataTable();
+                            var firstteam = CareerDB2.Current.teams.Rows[0];
+                            var teams = (from myRow in CareerDB2.Current.teams.AsEnumerable()
+                                         where myRow.Field<int>("teamid") == CareerDB1.FIFAUser.clubteamid
+                                         select myRow);
+                            var team = teams.FirstOrDefault();
+                            if (team != null)
+                                CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
+
+                            swTeams.Stop();
+                            Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
+                        }
+
+                        if (CareerDB2.Current.players == null)
+                        {
+
+                            Stopwatch swTeams = new Stopwatch();
+                            swTeams.Start();
+
+                            CareerDB2.Current.players = CareerFile.Databases[1].GetTable("players").ConvertToDataTable().AsEnumerable();
+                            CareerDB2.Current.teamplayerlinks = CareerFile.Databases[1].GetTable("teamplayerlinks").ConvertToDataTable().AsEnumerable();
+                            CareerDB2.Current.editedplayernames = CareerFile.Databases[1].GetTable("editedplayernames").ConvertToDataTable().AsEnumerable();
+                            CareerDB2.Current.leagues = CareerFile.Databases[1].GetTable("leagues").ConvertToDataTable().AsEnumerable();
+                            CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
+                            CareerDB2.Current.teamsEnumerable = CareerFile.Databases[1].GetTable("teams").ConvertToDataTable().AsEnumerable();
+
+
+                            swTeams.Stop();
+                            Debug.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
+                        }
+
+                        if (CareerDB2.Current.leagueteamlinks == null)
+                        {
+                            CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
+                        }
+
+                    }
+                    return CareerFile;
+
                 }
-
-                if (CareerDB2.Current != null && (CareerDB2.Current.teams == null || CareerDB1.UserTeam == null))
-                {
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
-
-                    var dbTeams = CareerFile.Databases[1].GetTable("teams");
-                    CareerDB2.Current.teams = dbTeams.ConvertToDataTable();
-                    var firstteam = CareerDB2.Current.teams.Rows[0];
-                    var teams = (from myRow in CareerDB2.Current.teams.AsEnumerable()
-                                 where myRow.Field<int>("teamid") == CareerDB1.FIFAUser.clubteamid
-                                 select myRow);
-                    var team = teams.FirstOrDefault();
-                    if (team != null)
-                        CareerDB1.UserTeam = CreateItemFromRow<FIFATeam>(team);
-
-                    swTeams.Stop();
-                    Debug.WriteLine("Teams took: " + swTeams.Elapsed + " to build");
-                }
-
-                if (CareerDB2.Current.players == null)
-                {
-
-                    Stopwatch swTeams = new Stopwatch();
-                    swTeams.Start();
-
-                    CareerDB2.Current.players = CareerFile.Databases[1].GetTable("players").ConvertToDataTable().AsEnumerable();
-                    CareerDB2.Current.teamplayerlinks = CareerFile.Databases[1].GetTable("teamplayerlinks").ConvertToDataTable().AsEnumerable();
-                    CareerDB2.Current.editedplayernames = CareerFile.Databases[1].GetTable("editedplayernames").ConvertToDataTable().AsEnumerable();
-                    CareerDB2.Current.leagues = CareerFile.Databases[1].GetTable("leagues").ConvertToDataTable().AsEnumerable();
-                    CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
-                    CareerDB2.Current.teamsEnumerable = CareerFile.Databases[1].GetTable("teams").ConvertToDataTable().AsEnumerable();
-
-
-                    swTeams.Stop();
-                    Debug.WriteLine("Team Player Links took: " + swTeams.Elapsed + " to build");
-                }
-
-                if (CareerDB2.Current.leagueteamlinks == null)
-                {
-                    CareerDB2.Current.leagueteamlinks = CareerFile.Databases[1].GetTable("leagueteamlinks").ConvertToDataTable().AsEnumerable();
-                }
-
             }
-            return CareerFile;
+            return null;
         }
 
         public bool SetupCareerFile(DateTime currentGameDate)

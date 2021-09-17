@@ -731,6 +731,24 @@ namespace FIFA21Plugin
                             if (originalEntry == null)
                                 continue;
 
+                            if (originalEntry.SBFileLocation != null &&
+                                (
+                                    originalEntry.SBFileLocation.Contains("story", StringComparison.OrdinalIgnoreCase)
+                                    || originalEntry.SBFileLocation.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
+                                    || originalEntry.SBFileLocation.Contains("careersba", StringComparison.OrdinalIgnoreCase)
+                                    )
+                                )
+                                continue;
+
+                            if (originalEntry.TOCFileLocation != null &&
+                                (
+                                    originalEntry.TOCFileLocation.Contains("story", StringComparison.OrdinalIgnoreCase)
+                                    || originalEntry.TOCFileLocation.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
+                                    || originalEntry.TOCFileLocation.Contains("careersba", StringComparison.OrdinalIgnoreCase)
+                                    )
+                                )
+                                continue;
+
                             if (modItem.NamePath.Contains("3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d"))
                             {
                                 //continue;
@@ -1175,7 +1193,7 @@ namespace FIFA21Plugin
             while (fiCas.Exists && fiCas.Length > 1073741824)
             {
                 newCas++;
-                text = parent.fs.BasePath + stub + (newCas).ToString("D2") + ".cas";
+                text = stub + (newCas).ToString("D2") + ".cas";
                 fiCas = new FileInfo(text);
             } 
 

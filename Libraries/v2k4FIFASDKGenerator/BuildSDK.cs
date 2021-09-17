@@ -254,7 +254,7 @@ namespace SdkGenerator
 
 					if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo))
 					{
-						sdkUpdateState.TypeInfoOffset = long.Parse(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo);
+						sdkUpdateState.TypeInfoOffset = Convert.ToInt64(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo, 16);
 
 						Debug.WriteLine("Attempting to use Profile TypeInfoOffset :: " + ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo);
 					}

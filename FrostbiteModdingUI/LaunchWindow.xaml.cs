@@ -681,6 +681,11 @@ namespace FMT
 
                 DiscordInterop.DiscordRpcClient.UpdateDetails("In Launcher - " + GameInstanceSingleton.GAMEVERSION);
 
+                // -------------------------------------
+                // V11.9 - Temporarily disable CEM due to changes for DB/Squad files
+                btnOpenCEMWindow.IsEnabled = false;
+                // -------------------------------------
+
                 if (ProfilesLibrary.IsFIFA21DataVersion())
                     {
                         switchUseSymbolicLink.Visibility = Visibility.Collapsed;
