@@ -68,6 +68,7 @@
                             <LayoutAnchorable  CanAutoHide="False" CanClose="False" CanHide="False">
 
                                 <ListView VerticalAlignment="Stretch"  Grid.Column="0" Grid.Row="2" x:Name="assetListView" 
+                                          ScrollViewer.CanContentScroll="True"
                       ScrollViewer.VerticalScrollBarVisibility="Visible" 
                       ScrollViewer.HorizontalScrollBarVisibility="Visible" 
                       BorderBrush="LightGray" 
@@ -76,6 +77,16 @@
                       SelectionChanged="assetListView_SelectionChanged"
                       
                       >
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <!--<StackPanel/>
+                    If StackPanel was used, the memory consumed was over 2GB and dead slow.
+                    -->
+                                            <VirtualizingStackPanel>
+                                                <!--Memory footprint is only 200 mb-->
+                                            </VirtualizingStackPanel>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
                                     <ListView.View>
                                         <GridView  >
                                             <GridViewColumn Width="200" Header="Name">

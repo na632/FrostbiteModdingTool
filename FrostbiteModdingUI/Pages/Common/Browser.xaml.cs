@@ -1323,34 +1323,61 @@ namespace FIFAModdingUI.Pages.Common
 				if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				{
 					string folder = folderBrowserDialog.SelectedFolder;
-					foreach (string fileName in Directory.GetFiles(folder, "*.png", SearchOption.TopDirectoryOnly))
+					foreach (string fileName in Directory.GetFiles(folder, "*.*", SearchOption.TopDirectoryOnly))
 					{
-						var importFileInfo = new FileInfo(fileName);
-						var importFileInfoSplit = importFileInfo.Name.Split("_");
-						if (importFileInfoSplit.Length > 1)
+						FileInfo fi = new FileInfo(fileName);
+						if (fi.Extension.Contains(".png"))
 						{
-							importFileInfoSplit[1] = importFileInfoSplit[1].Replace(".png", "");
-							var resEntryPath = AssetManager.Instance.RES.Keys.FirstOrDefault(
-								x => x.StartsWith(assetPath.FullPath.Substring(1))
-								&& x.Contains(importFileInfoSplit[0])
-								&& x.Contains(importFileInfoSplit[1])
-								&& !x.Contains("brand")
-								&& !x.Contains("crest")
-								);
-							var resEntry = AssetManager.Instance.GetResEntry(resEntryPath);
-							if (resEntry != null)
+							var importFileInfo = new FileInfo(fileName);
+							var importFileInfoSplit = importFileInfo.Name.Split("_");
+							if (importFileInfoSplit.Length > 1)
 							{
-								Texture texture = new Texture(resEntry);
-								TextureImporter textureImporter = new TextureImporter();
-								EbxAssetEntry ebxAssetEntry = AssetManager.Instance.GetEbxEntry(resEntryPath);
-
-								if (ebxAssetEntry != null)
+								importFileInfoSplit[1] = importFileInfoSplit[1].Replace(".png", "");
+								var resEntryPath = AssetManager.Instance.RES.Keys.FirstOrDefault(
+									x => x.StartsWith(assetPath.FullPath.Substring(1))
+									&& x.Contains(importFileInfoSplit[0])
+									&& x.Contains(importFileInfoSplit[1])
+									&& !x.Contains("brand")
+									&& !x.Contains("crest")
+									);
+								var resEntry = AssetManager.Instance.GetResEntry(resEntryPath);
+								if (resEntry != null)
 								{
-									textureImporter.Import(fileName, ebxAssetEntry, ref texture);
-									MainEditorWindow.Log($"Imported {fileName} to {resEntryPath}");
+									Texture texture = new Texture(resEntry);
+									TextureImporter textureImporter = new TextureImporter();
+									EbxAssetEntry ebxAssetEntry = AssetManager.Instance.GetEbxEntry(resEntryPath);
+
+									if (ebxAssetEntry != null)
+									{
+										textureImporter.Import(fileName, ebxAssetEntry, ref texture);
+										MainEditorWindow.Log($"Imported {fileName} to {resEntryPath}");
+									}
 								}
+								else
+                                {
+									var legAssetPath = assetPath.FullPath.Substring(1, assetPath.FullPath.Length-1) + "/" + fi.Name.Substring(0, fi.Name.LastIndexOf(".")) + fi.Extension.ToLower();
+									var legEntry = (LegacyFileEntry)AssetManager.Instance.GetCustomAssetEntry("legacy", legAssetPath);
+									if(legEntry != null)
+                                    {
+										var isImage = legEntry.Type == "DDS";
+										if (isImage)
+										{
+											AssetManager.Instance.DoLegacyImageImport(fileName, legEntry);
+											MainEditorWindow.Log($"Imported {fileName} to {legAssetPath}");
+										}
 
-
+									}
+								}
+							}
+						}
+						else
+                        {
+							var legAssetPath = assetPath.FullPath.Substring(1, assetPath.FullPath.Length-1) + "/" + fi.Name.Substring(0, fi.Name.LastIndexOf(".")) + fi.Extension.ToLower();
+							var legEntry = (LegacyFileEntry)AssetManager.Instance.GetCustomAssetEntry("legacy", legAssetPath);
+							if (legEntry != null)
+							{
+								AssetManager.Instance.ModifyLegacyAsset(legEntry.Name, File.ReadAllBytes(fileName), false);
+								MainEditorWindow.Log($"Imported {fileName} to {legAssetPath}");
 							}
 						}
 					}
