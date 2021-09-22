@@ -227,41 +227,39 @@
                                                 </StackPanel>
                                             </Button>
                                         </Grid>
-                                        <Grid Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition MinWidth="256"></ColumnDefinition>
-                                                <ColumnDefinition></ColumnDefinition>
-                                            </Grid.ColumnDefinitions>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="*"></RowDefinition>
-                                                <RowDefinition Height="*"></RowDefinition>
-                                                <RowDefinition Height="*"></RowDefinition>
-                                            </Grid.RowDefinitions>
-                                            <!-- <StackPanel Grid.Row="0" Background="White" Orientation="Horizontal">
-                                    <Label>Name:</Label>
-                                    <Label x:Name="lblImageName"></Label>
-                                    <Label>DDS Type:</Label>
-                                    <Label x:Name="lblImageDDSType"></Label>
-                                    <Label>RES Image Type:</Label>
-                                    <Label x:Name="lblImageRESType"></Label>
-                                    <Label>Image Size:</Label>
-                                    <Label x:Name="lblImageSize"></Label>
-                                </StackPanel>-->
-                                            <Image  x:Name="ImageViewer" Grid.RowSpan="3" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
+                                            <DockingManager Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
+                                                <LayoutRoot>
+                                                    <LayoutPanel>
+                                                        <LayoutAnchorablePane>
+                                                            <LayoutAnchorable Title="Image">
+                                                                <Image  x:Name="ImageViewer" Grid.RowSpan="3" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
 
-                                            </Image>
-
-                                            <xctk:PropertyGrid  Grid.Column="1" VerticalContentAlignment="Stretch" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
-                                            </xctk:PropertyGrid>
-                                            <xctk:PropertyGrid Grid.Row="1" Grid.Column="1"
-                                                           VerticalContentAlignment="Stretch"
-                                                           VerticalAlignment="Stretch" SelectedObject="{Binding SelectedEbxAsset.RootObject}"
-                                                           IsReadOnly="True"
-                                                           AutoGenerateProperties="True">
-                                            </xctk:PropertyGrid>
-                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentDDSImageFormat}"></TextBlock>
-
-                                        </Grid>
+                                                                </Image>
+                                                            </LayoutAnchorable>
+                                                            <LayoutAnchorable Title="Details" CanFloat="False" CanClose="False" CanHide="False">
+                                                                <Grid>
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition></RowDefinition>
+                                                                        <RowDefinition></RowDefinition>
+                                                                        <RowDefinition></RowDefinition>
+                                                                    </Grid.RowDefinitions>
+                                                                        <xctk:PropertyGrid  Grid.Column="1" VerticalContentAlignment="Stretch" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
+                                                                        </xctk:PropertyGrid>
+                                                                        <xctk:PropertyGrid Grid.Row="1" Grid.Column="1"
+                                                               VerticalContentAlignment="Stretch"
+                                                               VerticalAlignment="Stretch" SelectedObject="{Binding SelectedEbxAsset.RootObject}"
+                                                               IsReadOnly="True"
+                                                               AutoGenerateProperties="True">
+                                                                        </xctk:PropertyGrid>
+                                                                        <TextBlock Grid.Row="2" Grid.Column="1" Background="White" Text="{Binding CurrentDDSImageFormat}"></TextBlock>
+                                                                </Grid>
+                                                                
+                                                            </LayoutAnchorable>
+                                                        </LayoutAnchorablePane>
+                                                    </LayoutPanel>
+                                                </LayoutRoot>
+                                            </DockingManager>
+                                          
 
                                         <TextBox Grid.Row="1" x:Name="TextViewer" MaxLines="999999" 
                      Visibility="Collapsed"
