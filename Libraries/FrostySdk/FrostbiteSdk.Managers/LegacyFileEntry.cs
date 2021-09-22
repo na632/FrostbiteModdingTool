@@ -195,5 +195,7 @@ namespace FrostySdk
             }
             return base.ToString();
         }
+
+		public new bool IsLegacy = true;
     }
 }

@@ -90,8 +90,8 @@ namespace FIFA21Plugin
                         if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
                             continue;
 
-                        //if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
-                        //	continue;
+                        if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                            continue;
 
                         parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
@@ -158,8 +158,8 @@ namespace FIFA21Plugin
                         if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
                             continue;
 
-                        //if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
-                        //	continue;
+                        if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                            continue;
 
                         parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");

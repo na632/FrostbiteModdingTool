@@ -82,14 +82,16 @@ namespace FifaLibrary
 		}
 
 		Stream DBStream;
+		Stream XmlStream;
 
 		
 		public DbFile(Stream dbStream, Stream xmlStream)
 		{
 			DBStream = dbStream;
+			XmlStream = xmlStream;
 			m_DescriptorDataSet = null;
 			m_Platform = FifaPlatform.PC;
-			LoadXml(xmlStream);
+			LoadXml(XmlStream);
 			LoadDb(DBStream);
 		}
 
@@ -215,6 +217,7 @@ namespace FifaLibrary
 
 		public bool LoadXml(Stream xmlStream)
 		{
+			XmlStream = xmlStream;
 			m_NeedToSaveXmlFile = false;
 			m_DescriptorDataSet = new DataSet("XML_Descriptor");
 			xmlStream.Position = 0;	
@@ -417,17 +420,38 @@ namespace FifaLibrary
 
         public void Dispose()
         {
-			//if (DBStream != null && DBStream.CanSeek)
-			//{
-			//	DBStream.Close();
-			//	DBStream.Dispose();
-			//}
+			// Dispose of unmanaged resources.
+			Dispose(true);
+			// Suppress finalization.
+			GC.SuppressFinalize(this);
+        }
 
-			//if (DBStream != null && DBStream.CanSeek)
-			//{
-			//	DBStream.Close();
-			//	DBStream.Dispose();
-			//}
+		~DbFile() => Dispose(false);
+
+		// To detect redundant calls
+		private bool _disposed = false;
+		protected virtual void Dispose(bool disposing)
+		{
+			if (_disposed)
+			{
+				return;
+			}
+
+			// Managed Resources
+			if (disposing)
+			{
+				if (DBStream != null && DBStream.CanSeek)
+				{
+					DBStream.Close();
+					DBStream.Dispose();
+				}
+
+				if (XmlStream != null && XmlStream.CanSeek)
+				{
+					XmlStream.Close();
+					XmlStream.Dispose();
+				}
+			}
 		}
-    }
+	}
 }

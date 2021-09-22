@@ -75,6 +75,18 @@ namespace FIFA21Plugin
                         //DbObject obj = new DbObject();
 
                         //var dbObj = new DbObject();
+                        
+                        if (AssetManager.Instance != null && AssociatedTOCFile.ProcessData)
+                        {
+                            BundleEntry bundleEntry = new BundleEntry
+                            {
+                                Name = AssociatedTOCFile.NativeFileLocation + "-" + BundleEntry.PersistedIndexCount,
+                                PersistedIndex = BundleEntry.PersistedIndexCount
+                            };
+                            AssetManager.Instance.bundles.Add(bundleEntry);
+                            BundleEntry.PersistedIndexCount++;
+                            FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex++;
+                        }
 
                         var binaryReader = new BinaryReader_FIFA21();
                         var binaryObject = new DbObject();
@@ -107,10 +119,9 @@ namespace FIFA21Plugin
                                 ebxobjectinlist.SetValue("catalog", casBundle.TOCCatalog[i]);
                                 ebxobjectinlist.SetValue("patch", casBundle.TOCPatch[i]);
 
-                                //var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
-                                //bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
-
                                 ebxobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
+
+                               
 
                             }
                             for (var i = 0; i < resCount; i++)
@@ -153,11 +164,15 @@ namespace FIFA21Plugin
 
                             }
 
+                            binaryObject.SetValue("ebx", EbxObjectList);
+                            binaryObject.SetValue("res", ResObjectList);
+                            binaryObject.SetValue("chunks", ChunkObjectList);
                             dboAll.Add(binaryObject);
 
                             if (AssociatedTOCFile.ProcessData)
                             {
 
+                                var bundleId = AssetManager.Instance.bundles.Count - 1;
 
                                 foreach (DbObject item in EbxObjectList)
                                 {
@@ -183,6 +198,9 @@ namespace FIFA21Plugin
                                     ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
                                     ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
+
+                                    ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                                    ebxAssetEntry.Bundles.Add(bundleId);
 
                                     if (AssociatedTOCFile.ProcessData)
                                         AssetManager.Instance.AddEbx(ebxAssetEntry);
@@ -216,6 +234,9 @@ namespace FIFA21Plugin
                                     resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                                     resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+
+                                    resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                                    resAssetEntry.Bundles.Add(bundleId);
 
                                     if (AssociatedTOCFile.ProcessData)
                                         AssetManager.Instance.AddRes(resAssetEntry);
@@ -253,6 +274,9 @@ namespace FIFA21Plugin
                                     chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                                     chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+
+                                    chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                                    chunkAssetEntry.Bundles.Add(bundleId);
 
                                     if (AssociatedTOCFile.ProcessData)
                                         AssetManager.Instance.AddChunk(chunkAssetEntry);

@@ -118,7 +118,7 @@ namespace FIFA21Plugin
 
                 BundleEntry bundleEntry = new BundleEntry
                 {
-                    Name = Guid.NewGuid().ToString(),
+                    Name = AssociatedTOCFile.NativeFileLocation + "-" + BundleEntry.PersistedIndexCount,
                     SuperBundleId = SuperBundleIndex,
                     PersistedIndex = BundleEntry.PersistedIndexCount
                 };

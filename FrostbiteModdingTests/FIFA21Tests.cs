@@ -357,7 +357,30 @@ namespace FrostbiteModdingTests
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 5.fbproject");
             //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 6.fbproject");
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 6.2.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 12.fbproject");
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestLegacyMod_DupEntry()
+        {
+            DeleteOldTestMods();
+
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            AssetManager.Instance.DuplicateEntry(
+                AssetManager.Instance.GetCustomAssetEntry("legacy", "data/ui/imgAssets/heads/p102064.dds")
+                , "data/ui/imgAssets/heads/p258487.dds"
+                , true);
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());

@@ -45,5 +45,6 @@ namespace FrostySdk.Managers
 		public override string Type => "Chunk";
 
 		public override string AssetType => "chunk";
+
 	}
 }

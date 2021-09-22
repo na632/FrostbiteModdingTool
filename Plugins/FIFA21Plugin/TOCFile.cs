@@ -79,12 +79,12 @@ namespace FIFA21Plugin
 		public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
 
-		public Guid[] TocChunkGuids;
+		public Guid[] TocChunkGuids { get; set; }
 
-		public string SuperBundleName;
+		public string SuperBundleName { get; set; }
 
-		private TocSbReader_FIFA21 ParentReader;
-		
+		private TocSbReader_FIFA21 ParentReader { get; set; }
+
 		/// <summary>
 		/// Only for testing
 		/// </summary>
@@ -175,7 +175,7 @@ namespace FIFA21Plugin
 
 		public Dictionary<Guid, DbObject> TocChunkInfo = new Dictionary<Guid, DbObject>();
 
-		public void Read(NativeReader nativeReader)
+		public List<DbObject> Read(NativeReader nativeReader)
 		{
 			TocChunks.Clear();
 			ChunkIndexToChunkId.Clear();
@@ -304,7 +304,9 @@ namespace FIFA21Plugin
 						{
 							var chunkAssetEntry = TocChunks[chunkIndex];
 							if (AssetManager.Instance != null && ProcessData)
+							{
 								AssetManager.Instance.AddChunk(chunkAssetEntry);
+							}
 
 						}
 					}
@@ -339,6 +341,8 @@ namespace FIFA21Plugin
 
 				}
 			}
+
+			return TOCObjects.List.Select(o => (DbObject)o).ToList();
 		}
 
 		public static int CalculateChunkIndexFromListIndex(int listIndex)

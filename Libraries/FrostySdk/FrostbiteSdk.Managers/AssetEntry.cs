@@ -281,6 +281,10 @@ namespace FrostySdk.Managers
 		public int ParentBundleOffset { get; set; }
 		public int ParentBundleSize { get; set; }
 
+
+		public bool IsLegacy = false;
+
+
 		// ---- -----------------------------------------------------------------
 		// ---- -----------------------------------------------------------------
 

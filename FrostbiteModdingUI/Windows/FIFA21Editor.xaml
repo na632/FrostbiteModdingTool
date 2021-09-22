@@ -322,6 +322,13 @@
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
+                                                <GridViewColumn Width="auto" Header="Is Legacy">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding IsLegacy}" />
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
                                                 <GridViewColumn Width="auto" Header="Revert">
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>

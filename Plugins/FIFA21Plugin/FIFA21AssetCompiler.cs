@@ -733,8 +733,9 @@ namespace FIFA21Plugin
 
                             if (originalEntry.SBFileLocation != null &&
                                 (
-                                    originalEntry.SBFileLocation.Contains("story", StringComparison.OrdinalIgnoreCase)
-                                    || originalEntry.SBFileLocation.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
+                                    //originalEntry.SBFileLocation.Contains("story", StringComparison.OrdinalIgnoreCase)
+                                    //|| 
+                                    originalEntry.SBFileLocation.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
                                     || originalEntry.SBFileLocation.Contains("careersba", StringComparison.OrdinalIgnoreCase)
                                     )
                                 )
@@ -742,22 +743,23 @@ namespace FIFA21Plugin
 
                             if (originalEntry.TOCFileLocation != null &&
                                 (
-                                    originalEntry.TOCFileLocation.Contains("story", StringComparison.OrdinalIgnoreCase)
-                                    || originalEntry.TOCFileLocation.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
+                                    //originalEntry.TOCFileLocation.Contains("story", StringComparison.OrdinalIgnoreCase)
+                                    //|| 
+                                    originalEntry.TOCFileLocation.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
                                     || originalEntry.TOCFileLocation.Contains("careersba", StringComparison.OrdinalIgnoreCase)
                                     )
                                 )
                                 continue;
 
-                            if (modItem.NamePath.Contains("3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d"))
-                            {
-                                //continue;
-                            }
+                            //if (modItem.NamePath.Contains("3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d"))
+                            //{
+                            //    //continue;
+                            //}
 
-                            if (modItem.NamePath.Contains("f0ca4187-b95e-5153-a1eb-1e0a7fff6371"))
-                            {
+                            //if (modItem.NamePath.Contains("f0ca4187-b95e-5153-a1eb-1e0a7fff6371"))
+                            //{
 
-                            }
+                            //}
 
                             if (originalEntry != null && parent.archiveData.ContainsKey(modItem.Sha1))
                             {
@@ -832,9 +834,6 @@ namespace FIFA21Plugin
                         }
 
                     }
-
-                    // Missing texture issue caused by BELOW!!!
-                    //continue;
 
                     if (EntriesToNewPosition == null)
                         continue;

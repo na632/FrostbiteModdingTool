@@ -729,8 +729,15 @@ public interface IAssetLoader
 							ebxStream.Position = 0;
 								ebxReader = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
 
-								EBX[ebx.Name].Type = ebxReader.RootType;
-								EBX[ebx.Name].Guid = ebxReader.FileGuid;
+								try
+								{
+									EBX[ebx.Name].Type = ebxReader.RootType;
+									EBX[ebx.Name].Guid = ebxReader.FileGuid;
+								}
+								catch(Exception)
+								{
+
+								}
 							}
 							else
 							{
@@ -1376,6 +1383,8 @@ public interface IAssetLoader
 				ICustomAssetManager customAssetManager = AssetManager.Instance.GetLegacyAssetManager();
 				customAssetManager.AddAsset(ae.Name, ae);
 				customAssetManager.ModifyAsset(ae.Name, ((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", ae)).ToArray());
+				ae.ModifiedEntry.ChunkId = Guid.NewGuid();
+
 			}
 			else
 			{
@@ -1958,8 +1967,9 @@ public interface IAssetLoader
 			{
 				foreach (DbObject item in sb.GetValue<DbObject>("ebx"))
 				{
-					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfilesLibrary.IsMadden21DataVersion());
-					if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+                    EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfilesLibrary.IsMadden21DataVersion());
+                    //EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
+                    if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
 					{
 						ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
 						ebxAssetEntry.Size = item.GetValue("size", 0L);
@@ -2007,11 +2017,20 @@ public interface IAssetLoader
 
 					ebxAssetEntry.Bundles.Add(bundleId);
 
+					if (item.HasValue("cas"))
+					{
+						ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+						ebxAssetEntry.ExtraData = new AssetExtraData();
+						ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+						ebxAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : fs.GetFilePath(item.GetValue("cas", 0)));
+						ebxAssetEntry.ExtraData.IsPatch = item.HasValue("patch") ? item.GetValue<bool>("patch") : false;
+					}
+
 					if (item.HasValue("Bundle"))
 					{
 						ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
 					}
-					else
+					else if (AssetManager.Instance.bundles.Count < bundleId)
 					{
 						ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
 					}
@@ -2084,7 +2103,7 @@ public interface IAssetLoader
 						{
 							resAssetEntry.Bundle = item.GetValue<string>("Bundle");
 						}
-						else
+						else if (AssetManager.Instance.bundles.Count < bundleId)
 						{
 							resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
 						}
@@ -2175,7 +2194,7 @@ public interface IAssetLoader
 					{
 						chunkAssetEntry.Bundle = item.GetValue<string>("Bundle");
 					}
-					else
+					else if (AssetManager.Instance.bundles.Count < bundleId)
 					{
 						chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
 					}
@@ -2266,7 +2285,8 @@ public interface IAssetLoader
 				ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
 				ebxAssetEntry.ExtraData = new AssetExtraData();
 				ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
-				ebxAssetEntry.ExtraData.CasPath = (ebx.HasValue("catalog") ? fs.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.HasValue("patch")) : fs.GetFilePath(ebx.GetValue("cas", 0)));
+				//ebxAssetEntry.ExtraData.CasPath = (ebx.HasValue("catalog") ? fs.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.HasValue("patch")) : fs.GetFilePath(ebx.GetValue("cas", 0)));
+				ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.GetValue("patch", false));
 				ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
 			}
 			else if (ebx.GetValue("sb", defaultValue: false))
