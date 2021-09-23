@@ -107,7 +107,7 @@ namespace FIFA22Plugin
 			ReadGuid(); // 16 bytes of random empty data
 
 			ReadLong(); // Get past 02 00 00 00 00 B1 00 00
-			var stringPosition = ReadLong();
+			var stringPosition = ReadUInt();
 			InStream.Position = stringPosition + 72;
 			var name = ReadNullTerminatedString();
 
