@@ -108,191 +108,313 @@ namespace FrostySdk.IO
 
 		public void Read(in byte[] data, in bool patch)
         {
-			using (NativeReader nativeReader = new NativeReader(new MemoryStream(data)))
+			using (NativeReader reader = new NativeReader(new MemoryStream(data)))
 			{
-				nativeReader.Position = 0;
-				var magic1 = nativeReader.ReadUInt();
-				var count1 = nativeReader.ReadUInt();
-				nativeReader.Position += 8;
-				var fileLengthExcludingTop = nativeReader.ReadUInt();
-				var fileLength = fileLengthExcludingTop + 20;
-				var countGuidClasses = nativeReader.ReadUInt();
-				if (count1 > 0 && fileLengthExcludingTop > 0 && countGuidClasses > 0)
+				reader.Position = 0;
+				var magic1 = reader.ReadUInt();
+				reader.ReadUInt32LittleEndian();
+				reader.ReadUInt32LittleEndian();
+				reader.ReadUInt32LittleEndian();
+				reader.ReadUInt32LittleEndian();
+				List<(Guid, uint)> list1 = new List<(Guid, uint)>();
+				uint count = reader.ReadUInt32LittleEndian();
+				for (int m = 0; m < count; m++)
 				{
-					for (var i = 0; i < countGuidClasses; i++)
+					uint unk1 = reader.ReadUInt32LittleEndian();
+					Guid guid = reader.ReadGuid();
+					list1.Add((guid, unk1));
+					Guids.Add(guid);
+				}
+				List<(uint, uint, int, ushort, uint, byte)> list2 = new List<(uint, uint, int, ushort, uint, byte)>();
+				count = reader.ReadUInt32LittleEndian();
+				for (int l = 0; l < count; l++)
+				{
+					uint nameHash = reader.ReadUInt32LittleEndian();
+					uint fieldIndex = reader.ReadUInt32LittleEndian();
+					int fieldCount = reader.ReadByte();
+					byte alignment = reader.ReadByte();
+					ushort classType = reader.ReadUInt16LittleEndian();
+					uint size = reader.ReadUInt32LittleEndian();
+					list2.Add((nameHash, fieldIndex, fieldCount, classType, size, alignment));
+					if ((alignment & 0x80u) != 0)
 					{
-						var guid1 = nativeReader.ReadGuid();
-						var hash1 = nativeReader.ReadUInt();
-						Guids.Add(guid1);
+						fieldCount += 256;
+						alignment = (byte)(alignment & 0x7Fu);
 					}
-					var countClasses = nativeReader.ReadUInt();
-					for (var i = 0; i < countClasses; i++)
+					EbxClass ebxClass = default(EbxClass);
+					ebxClass.NameHash = nameHash;
+					ebxClass.FieldIndex = (int)fieldIndex;
+					ebxClass.FieldCount = (byte)fieldCount;
+					ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
+					ebxClass.Size = (ushort)size;
+					//ebxClass.Type = (forSdkGen ? classType : ((ushort)(classType >> 1)));
+					ebxClass.Type = classType;
+					ebxClass.Index = l;
+					EbxClass value = ebxClass;
+					if (patch)
 					{
-						uint nameHash2 = nativeReader.ReadUInt();
-						uint unkuint2 = nativeReader.ReadUInt();
-						int fieldCount = nativeReader.ReadByte();
-						byte alignment = nativeReader.ReadByte();
-						ushort type = nativeReader.ReadUShort();
-						uint size = nativeReader.ReadUInt();
-						if ((alignment & 0x80) != 0)
-						{
-							fieldCount += 256;
-							alignment = (byte)(alignment & 0x7F);
-						}
-						EbxClass value = new EbxClass
-						{
-							NameHash = nameHash2,
-							FieldIndex = TotalFieldCount,
-							FieldCount = (byte)fieldCount,
-							Alignment = (alignment == 0 ? Convert.ToByte(8) : alignment),
-							Size = (ushort)size,
-							Type = (ushort)(type >> 1),
-							Index = i
-						};
-						if (patch)
-						{
-							value.SecondSize = 1;
-						}
-						Mapping.Add(Guids[i], Classes.Count);
-						Classes.Add(value);
-						//guids.Add(guid);
-						TotalFieldCount += fieldCount;
+						value.SecondSize = 1;
 					}
-					var countFields = nativeReader.ReadUInt();
-					for (var i = 0; i < countFields; i++)
+					Mapping.Add(Guids[l], Classes.Count);
+					Classes.Add(value);
+				}
+				List<(uint, uint, ushort, short)> list3 = new List<(uint, uint, ushort, short)>();
+				count = reader.ReadUInt32LittleEndian();
+				for (int k = 0; k < count; k++)
+				{
+					uint nameHash2 = reader.ReadUInt32LittleEndian();
+					uint dataOffset = reader.ReadUInt32LittleEndian();
+					ushort type = reader.ReadUInt16LittleEndian();
+					short classRef = reader.ReadShort();// reader.ReadInt16LittleEndian();
+					list3.Add((nameHash2, dataOffset, type, classRef));
+					EbxField ebxField = default(EbxField);
+					ebxField.NameHash = nameHash2;
+					ebxField.Type = (ushort)(type >> 1);
+					ebxField.ClassRef = (ushort)classRef;
+					ebxField.DataOffset = dataOffset;
+					ebxField.SecondOffset = 0u;
+					EbxField item = ebxField;
+					Fields.Add(item);
+				}
+				List<(uint, uint, uint)> list4 = new List<(uint, uint, uint)>();
+				count = reader.ReadUInt32LittleEndian();
+				for (int j = 0; j < count; j++)
+				{
+					uint nameHash3 = reader.ReadUInt32LittleEndian();
+					uint unk2 = reader.ReadUInt32LittleEndian();
+					uint unk3 = reader.ReadUInt32LittleEndian();
+					list4.Add((nameHash3, unk2, unk3));
+				}
+				count = reader.ReadUInt32LittleEndian();
+				for (int i = 0; i < count; i++)
+				{
+					uint nameHash4 = reader.ReadUInt32LittleEndian();
+					uint dataOffset2 = reader.ReadUInt32LittleEndian();
+					for (int n = 0; n < Fields.Count; n++)
 					{
-						// 12 bytes
-						//nativeReader.Position += 12;
-
-						uint nameHash = nativeReader.ReadUInt();
-						string actualfieldname = GetPropertyName(nameHash);
-
-						var unk1 = nativeReader.ReadUInt();
-
-						actualfieldname = GetPropertyName(unk1);
-
-
-						// group of 4
-						ushort fieldType = (ushort)(nativeReader.ReadUShort() >> 1);
-						var fieldClassRef = nativeReader.ReadUShort();
-						// 
-						Fields.Add(new EbxField() { 
-						
-							NameHash = nameHash,
-							Type = fieldType,
-							ClassRef = fieldClassRef,
-							//DataOffset = unk1
-						
-						});
-					}
-					var countFields2 = nativeReader.ReadUInt();
-					for (var i = 0; i < countFields2; i++)
-					{
-						var hash = nativeReader.ReadUInt();
-						string actualfieldname = GetPropertyName(hash);
-
-						var unk1 = nativeReader.ReadUInt();
-						actualfieldname = GetPropertyName(hash);
-
-						var unk2 = nativeReader.ReadUInt();
-
-						actualfieldname = GetPropertyName(hash);
-
-						if (Fields.Any(x => x.NameHash == hash))
+						EbxField field = Fields[n];
+						if (field.NameHash == nameHash4)
 						{
-
-						}
-						if (Classes.Any(x => x.Value.NameHash == hash))
-						{
-
-						}
-					}
-
-					var countFields3 = nativeReader.ReadUInt();
-					for (var i = 0; i < countFields3; i++)
-					{
-						var hash = nativeReader.ReadUInt();
-						var offset = nativeReader.ReadUInt();
-						if (Fields.Any(x => x.NameHash == hash))
-						{
-							EbxField f = Fields.FirstOrDefault(x => x.NameHash == hash);
-							var nField = new EbxField() { NameHash = hash, DataOffset = offset, Type = f.Type, ClassRef = f.ClassRef };
-							Fields = Fields.Where(x=> x.NameHash != hash).ToList();
-							Fields.Add(nField);
+							field.DataOffset = dataOffset2;
+							Fields[n] = field;
 						}
 					}
 				}
-
-				//nativeReader.Position = 0;
-
-				//var magic = nativeReader.ReadUInt();
-				//ushort stdClassCount = nativeReader.ReadUShort();
-				//ushort stdFieldCount = nativeReader.ReadUShort();
-				//for (int i = 0; i < stdFieldCount; i++)
-				//{
-				//	uint nameHash = nativeReader.ReadUInt(); // 4
-				//	string actualfieldname = GetPropertyName(nameHash);
-				//	EbxField item = new EbxField
-				//	{
-				//		NameHash = nameHash,
-				//		Type = (ushort)(nativeReader.ReadUShort() >> 1), // 6
-				//		ClassRef = nativeReader.ReadUShort(), // 8
-				//		DataOffset = nativeReader.ReadUInt(), // 12
-				//		SecondOffset = nativeReader.ReadUInt() // 16
-				//	};
-				//	fields.Add(item);
-				//}
-				//int totalFieldCount = 0;
-				//EbxClass lastValue = new EbxClass();
-				//for (int j = 0; j < stdClassCount; j++)
-				//{
-				//	Guid guid = nativeReader.ReadGuid();
-				//	Guid b = nativeReader.ReadGuid();
-				//	if (guid.Equals(b))
-				//	{
-				//		mapping.Add(guid, classes.Count);
-				//                    classes.Add(null);
-				//                    //classes.Add(lastValue);
-				//                    guids.Add(guid);
-				//		continue;
-				//	}
-				//	else
-				//	{
-				//		nativeReader.Position -= 16L;
-				//		uint nameHash2 = nativeReader.ReadUInt();
-				//		uint unkuint2  = nativeReader.ReadUInt();
-				//		int fieldCount = nativeReader.ReadByte();
-				//		byte alignment = nativeReader.ReadByte();
-				//		ushort type = nativeReader.ReadUShort();
-				//		uint size = nativeReader.ReadUInt();
-				//		if ((alignment & 0x80) != 0)
-				//		{
-				//			fieldCount += 256;
-				//			alignment = (byte)(alignment & 0x7F);
-				//		}
-				//		EbxClass value = new EbxClass
-				//		{
-				//			//Name = GetClassName(nameHash2),
-				//			NameHash = nameHash2,
-				//			FieldIndex = totalFieldCount,
-				//			FieldCount = (byte)fieldCount,
-				//			Alignment = alignment,
-				//			Size = (ushort)size,
-				//			Type = (ushort)(type >> 1),
-				//			Index = j
-				//		};
-				//		lastValue = value;
-				//		if (patch)
-				//		{
-				//			value.SecondSize = 1;
-				//		}
-				//		mapping.Add(guid, classes.Count);
-				//		classes.Add(value);
-				//		guids.Add(guid);
-				//		totalFieldCount += fieldCount;
-				//	}
-				//}
 			}
+			//using (NativeReader nativeReader = new NativeReader(new MemoryStream(data)))
+			//{
+			//	nativeReader.Position = 0;
+			//	var magic1 = nativeReader.ReadUInt();
+			//	var count1 = nativeReader.ReadUInt();
+			//	nativeReader.Position += 8;
+			//	var fileLengthExcludingTop = nativeReader.ReadUInt();
+			//	var fileLength = fileLengthExcludingTop + 20;
+			//	var countGuidClasses = nativeReader.ReadUInt();
+			//	if (count1 > 0 && fileLengthExcludingTop > 0 && countGuidClasses > 0)
+			//	{
+			//		for (var i = 0; i < countGuidClasses; i++)
+			//		{
+			//			var guid1 = nativeReader.ReadGuid();
+			//			var hash1 = nativeReader.ReadUInt();
+			//			Guids.Add(guid1);
+			//		}
+			//		var countClasses = nativeReader.ReadUInt();
+			//		for (var i = 0; i < countClasses; i++)
+			//		{
+			//			uint nameHash2 = nativeReader.ReadUInt();
+			//			uint unkuint2 = nativeReader.ReadUInt();
+			//			int fieldCount = nativeReader.ReadByte();
+			//			byte alignment = nativeReader.ReadByte();
+			//			ushort type = nativeReader.ReadUShort();
+			//			uint size = nativeReader.ReadUInt();
+			//			if ((alignment & 0x80) != 0)
+			//			{
+			//				fieldCount += 256;
+			//				alignment = (byte)(alignment & 0x7F);
+			//			}
+			//			EbxClass value = new EbxClass
+			//			{
+			//				NameHash = nameHash2,
+			//				FieldIndex = TotalFieldCount,
+			//				FieldCount = (byte)fieldCount,
+			//				Alignment = (alignment == 0 ? Convert.ToByte(8) : alignment),
+			//				Size = (ushort)size,
+			//				Type = (ushort)(type >> 1),
+			//				Index = i
+			//			};
+			//			if (patch)
+			//			{
+			//				value.SecondSize = 1;
+			//			}
+			//			Mapping.Add(Guids[i], Classes.Count);
+			//			Classes.Add(value);
+			//			//guids.Add(guid);
+			//			TotalFieldCount += fieldCount;
+			//		}
+			//		var countFields = nativeReader.ReadUInt();
+			//		for (var i = 0; i < countFields; i++)
+			//		{
+			//			// 12 bytes
+			//			//nativeReader.Position += 12;
+
+			//			uint nameHash = nativeReader.ReadUInt();
+			//			string actualfieldname = GetPropertyName(nameHash);
+
+			//			var unk1 = nativeReader.ReadUInt();
+
+			//			actualfieldname = GetPropertyName(unk1);
+
+
+			//			// group of 4
+			//			ushort fieldType = (ushort)(nativeReader.ReadUShort() >> 1);
+			//			var fieldClassRef = nativeReader.ReadUShort();
+			//			// 
+			//			Fields.Add(new EbxField() { 
+
+			//				NameHash = nameHash,
+			//				Type = fieldType,
+			//				ClassRef = fieldClassRef,
+			//				//DataOffset = unk1
+
+			//			});
+			//			Fields.Add(new EbxField()
+			//			{
+
+			//				NameHash = unk1,
+			//				Type = fieldType,
+			//				ClassRef = fieldClassRef,
+			//				//DataOffset = unk1
+
+			//			});
+			//		}
+			//		var countFields2 = nativeReader.ReadUInt();
+			//		for (var i = 0; i < countFields2; i++)
+			//		{
+			//			var hash = nativeReader.ReadUInt();
+			//			string actualfieldname = GetPropertyName(hash);
+
+			//			var unk1 = nativeReader.ReadUInt();
+			//			actualfieldname = GetPropertyName(hash);
+
+			//			var unk2 = nativeReader.ReadUInt();
+
+			//			actualfieldname = GetPropertyName(hash);
+
+			//			Fields.Add(new EbxField()
+			//			{
+
+			//				NameHash = hash,
+
+			//			});
+			//			Fields.Add(new EbxField()
+			//			{
+
+			//				NameHash = unk1,
+
+			//			});
+			//			Fields.Add(new EbxField()
+			//			{
+
+			//				NameHash = unk2,
+
+			//			});
+
+			//			if (Fields.Any(x => x.NameHash == hash))
+			//			{
+
+			//			}
+
+			//			if (Classes.Any(x => x.Value.NameHash == hash))
+			//			{
+
+			//			}
+			//		}
+
+			//		var countFields3 = nativeReader.ReadUInt();
+			//		for (var i = 0; i < countFields3; i++)
+			//		{
+			//			var hash = nativeReader.ReadUInt();
+			//			var offset = nativeReader.ReadUInt();
+			//			if (Fields.Any(x => x.NameHash == hash))
+			//			{
+			//				EbxField f = Fields.FirstOrDefault(x => x.NameHash == hash);
+			//				var nField = new EbxField() { NameHash = hash, DataOffset = offset, Type = f.Type, ClassRef = f.ClassRef };
+			//				Fields = Fields.Where(x=> x.NameHash != hash).ToList();
+			//				Fields.Add(nField);
+			//			}
+			//		}
+			//	}
+
+			//	//nativeReader.Position = 0;
+
+			//	//var magic = nativeReader.ReadUInt();
+			//	//ushort stdClassCount = nativeReader.ReadUShort();
+			//	//ushort stdFieldCount = nativeReader.ReadUShort();
+			//	//for (int i = 0; i < stdFieldCount; i++)
+			//	//{
+			//	//	uint nameHash = nativeReader.ReadUInt(); // 4
+			//	//	string actualfieldname = GetPropertyName(nameHash);
+			//	//	EbxField item = new EbxField
+			//	//	{
+			//	//		NameHash = nameHash,
+			//	//		Type = (ushort)(nativeReader.ReadUShort() >> 1), // 6
+			//	//		ClassRef = nativeReader.ReadUShort(), // 8
+			//	//		DataOffset = nativeReader.ReadUInt(), // 12
+			//	//		SecondOffset = nativeReader.ReadUInt() // 16
+			//	//	};
+			//	//	fields.Add(item);
+			//	//}
+			//	//int totalFieldCount = 0;
+			//	//EbxClass lastValue = new EbxClass();
+			//	//for (int j = 0; j < stdClassCount; j++)
+			//	//{
+			//	//	Guid guid = nativeReader.ReadGuid();
+			//	//	Guid b = nativeReader.ReadGuid();
+			//	//	if (guid.Equals(b))
+			//	//	{
+			//	//		mapping.Add(guid, classes.Count);
+			//	//                    classes.Add(null);
+			//	//                    //classes.Add(lastValue);
+			//	//                    guids.Add(guid);
+			//	//		continue;
+			//	//	}
+			//	//	else
+			//	//	{
+			//	//		nativeReader.Position -= 16L;
+			//	//		uint nameHash2 = nativeReader.ReadUInt();
+			//	//		uint unkuint2  = nativeReader.ReadUInt();
+			//	//		int fieldCount = nativeReader.ReadByte();
+			//	//		byte alignment = nativeReader.ReadByte();
+			//	//		ushort type = nativeReader.ReadUShort();
+			//	//		uint size = nativeReader.ReadUInt();
+			//	//		if ((alignment & 0x80) != 0)
+			//	//		{
+			//	//			fieldCount += 256;
+			//	//			alignment = (byte)(alignment & 0x7F);
+			//	//		}
+			//	//		EbxClass value = new EbxClass
+			//	//		{
+			//	//			//Name = GetClassName(nameHash2),
+			//	//			NameHash = nameHash2,
+			//	//			FieldIndex = totalFieldCount,
+			//	//			FieldCount = (byte)fieldCount,
+			//	//			Alignment = alignment,
+			//	//			Size = (ushort)size,
+			//	//			Type = (ushort)(type >> 1),
+			//	//			Index = j
+			//	//		};
+			//	//		lastValue = value;
+			//	//		if (patch)
+			//	//		{
+			//	//			value.SecondSize = 1;
+			//	//		}
+			//	//		mapping.Add(guid, classes.Count);
+			//	//		classes.Add(value);
+			//	//		guids.Add(guid);
+			//	//		totalFieldCount += fieldCount;
+			//	//	}
+			//	//}
+			//}
 		}
 
 		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch)

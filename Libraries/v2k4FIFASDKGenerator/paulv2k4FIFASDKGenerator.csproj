@@ -5,7 +5,7 @@
 	  <TargetFramework>net6.0-windows</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup >
+  <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>DEBUG</DefineConstants>
@@ -15,7 +15,6 @@
     <None Remove="FIFA20.Classes.txt" />
     <None Remove="FIFA21.Classes.txt" />
     <None Remove="M21.Classes.txt" />
-    <None Remove="M22.Classes.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,10 +22,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
-    <Content Include="M22.Classes.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</Content>
 	<Content Include="M21.Classes.txt">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -48,6 +43,13 @@
 
   <ItemGroup>
     <Folder Include="NewFolder\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="M22.Classes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
   </ItemGroup>
 
 </Project>

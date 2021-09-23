@@ -137,6 +137,8 @@ namespace FrostySdk
 					|| ProfilesLibrary.DataVersion == 20180914 
 					|| ProfilesLibrary.IsFIFA20DataVersion() // FIFA 20
 					|| ProfilesLibrary.IsFIFA21DataVersion() // FIFA 21
+					|| ProfilesLibrary.DataVersion == 20200922 // FIFA 22
+
 					)
 				{
 					DecompressUsingDict = Marshal.GetDelegateForFunctionPointer<DecompressUsingDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_decompress_usingDDict"));

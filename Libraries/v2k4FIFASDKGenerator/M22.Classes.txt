@@ -50,19 +50,19 @@ BeginClass LinearTransform
 			Type=Struct,Vec3
 		EndField
 		BeginField up
-			Added=True
+			Added=False
 			Transient=True
 			Index=1
 			Type=Struct,Vec3
 		EndField
 		BeginField forward
-			Added=True
+			Added=False
 			Transient=True
 			Index=2
 			Type=Struct,Vec3
 		EndField
 		BeginField trans
-			Added=True
+			Added=False
 			Transient=True
 			Index=3
 			Type=Struct,Vec3
@@ -96,13 +96,13 @@ BeginClass Vec3
 			Type=Struct,float
 		EndField
 		BeginField y
-			Added=True
+			Added=False
 			Transient=True
 			Index=1
 			Type=Struct,float
 		EndField
 		BeginField z
-			Added=True
+			Added=False
 			Transient=False
 			Index=2
 			Type=Struct,float
@@ -150,8 +150,8 @@ BeginClass EventSpec
 			BeginAccessor
 				get 
 				{
-					if (_Name.IsNull())
-						_Name = Utils.GetString(_Id);
+					// if (_Name.IsNull())
+					//	_Name = Utils.GetString(_Id);
 					return _Name; 
 				}
 				set 
@@ -162,10 +162,10 @@ BeginClass EventSpec
 					if (strValue.StartsWith("0x"))
 					{
 						strValue = strValue.Remove(0, 2);
-						_Id = int.Parse(strValue, System.Globalization.NumberStyles.HexNumber);
+						// _Id = int.Parse(strValue, System.Globalization.NumberStyles.HexNumber);
 						return;
 					}
-					_Id=Utils.HashString(strValue); 
+					// _Id=Utils.HashString(strValue); 
 				}
 			EndAccessor
 		EndField

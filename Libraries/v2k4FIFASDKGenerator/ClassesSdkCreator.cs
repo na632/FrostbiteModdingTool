@@ -284,6 +284,11 @@ namespace SdkGenerator
 
                 }
 
+                if (@class.GetValue<string>("name").Contains("goalkeeper", StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
+
                 if (@class.GetValue<string>("name").Contains("blocking"))
                 {
 
@@ -308,6 +313,19 @@ namespace SdkGenerator
                     existingClasses.Add(g);
                 }
             }
+            for (int i = 0; i < std.Fields.Count; i++)
+            {
+                EbxField field = std.Fields[i];
+                if (fieldDictionaryToHash.TryGetValue(field.NameHash, out var fieldName))
+                {
+                    field.Name = fieldName;
+                }
+                else
+                {
+                    field.Name = string.Empty;
+                }
+                std.Fields[i] = field;
+            }
 
             for (int k = 0; k < std.Classes.Count; k++)
             {
@@ -317,67 +335,78 @@ namespace SdkGenerator
                     Guid guid = std.Guids[k];
                     if (classDictionaryToHash.ContainsKey(@class.NameHash))
                     {
-                        DbObject dbObject3 = classDictionaryToHash[@class.NameHash];
-                        if (mapping.ContainsKey(dbObject3.GetValue("name", "")))
+                        DbObject dboClass = classDictionaryToHash[@class.NameHash];
+                        if (mapping.ContainsKey(dboClass.GetValue("name", "")))
                         {
-                            mapping.Remove(dbObject3.GetValue("name", ""));
-                            fieldMapping.Remove(dbObject3.GetValue("name", ""));
+                            mapping.Remove(dboClass.GetValue("name", ""));
+                            fieldMapping.Remove(dboClass.GetValue("name", ""));
                         }
-                        if (!dbObject3.HasValue("typeInfoGuid"))
+                        if (!dboClass.HasValue("typeInfoGuid"))
                         {
-                            dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
+                            dboClass.SetValue("typeInfoGuid", DbObject.CreateList());
                         }
-                        if (dbObject3.GetValue<DbObject>("typeInfoGuid").FindIndex((object a) => (Guid)a == guid) == -1)
+                        if (dboClass.GetValue<DbObject>("typeInfoGuid").FindIndex((object a) => (Guid)a == guid) == -1)
                         {
-                            dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
+                            dboClass.GetValue<DbObject>("typeInfoGuid").Add(guid);
                         }
 
-                        //if (!dbObject3.GetValue<DbObject>("typeInfoGuid").List.Any())
-                        //{
-                        //    dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
-                        //}
-                        // PG: Change it to just overwrite the last one? 
-                        //dbObject3.SetValue("typeInfoGuid", DbObject.CreateList());
-                        //dbObject3.GetValue<DbObject>("typeInfoGuid").Add(guid);
-
-
-                        EbxClass item2 = default(EbxClass);
-                        item2.Name = dbObject3.GetValue("name", "");
-                        if (item2.Name.Contains("blocking", StringComparison.OrdinalIgnoreCase))
+                        EbxClass ebxClassItem = default(EbxClass);
+                        ebxClassItem.Name = dboClass.GetValue("name", "");
+                        if (ebxClassItem.Name.Contains("blocking", StringComparison.OrdinalIgnoreCase))
                         {
 
                         }
-                        if (item2.Name.Contains("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                        if (ebxClassItem.Name.Contains("RenderFormat", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+                        if (ebxClassItem.Name.Contains("goalkeeper", StringComparison.OrdinalIgnoreCase))
                         {
 
                         }
 
-                        item2.FieldCount = @class.FieldCount;
-                        item2.Alignment = @class.Alignment;
-                        item2.Size = @class.Size;
-                        item2.Type = (ushort)(@class.Type >> 1);
-                        item2.SecondSize = (ushort)dbObject3.GetValue("size", 0);
-                        mapping.Add(item2.Name, new Tuple<EbxClass, DbObject>(item2, dbObject3));
-                        fieldMapping.Add(item2.Name, new List<EbxField>());
-                        DbObject dbObjectFields = dbObject3.GetValue<DbObject>("fields");
+                        ebxClassItem.FieldCount = @class.FieldCount;
+                        ebxClassItem.Alignment = @class.Alignment;
+                        ebxClassItem.Size = @class.Size;
+                        ebxClassItem.Type = (ushort)(@class.Type >> 1);
+                        ebxClassItem.SecondSize = (ushort)dboClass.GetValue("size", 0);
+                        mapping.Add(ebxClassItem.Name, new Tuple<EbxClass, DbObject>(ebxClassItem, dboClass));
+                        fieldMapping.Add(ebxClassItem.Name, new List<EbxField>());
+                        DbObject sdkFields = dboClass.GetValue<DbObject>("fields");
                         DbObject dbObject4 = DbObject.CreateList();
                         if (@class.FieldCount > 0)
                         {
-                            dbObject3.RemoveValue("fields");
+                            foreach(DbObject sdkField in sdkFields)
+                            {
+                                EbxField field = new EbxField();
+                                field.Type = sdkField.GetValue<ushort>("type");
+                                field.DataOffset = sdkField.GetValue<uint>("offset");
+                                field.NameHash = sdkField.GetValue<uint>("nameHash");
+                                fieldMapping[ebxClassItem.Name].Add(field);
+                            }
+                            //dbObject3.RemoveValue("fields");
                             for (int l = 0; l < @class.FieldCount; l++)
                             {
                                 EbxField field = std.Fields[@class.FieldIndex + l];
 
                                 bool flag = false;
-                                foreach (DbObject dbObjField in dbObjectFields)
+                                foreach (DbObject dbObjField in sdkFields)
                                 {
                                     var dbObjName = dbObjField.GetValue<string>("name");
                                     var dbObjNameHash = dbObjField.GetValue<ulong>("nameHash");
-                                    //if (dbObjName.Equals(field.Name, StringComparison.OrdinalIgnoreCase))
                                     if (dbObjNameHash == field.NameHash)
                                     {
+                                        var fieldMapIndex = fieldMapping[ebxClassItem.Name].FindIndex(x => x.NameHash == dbObjNameHash);
+                                        if(fieldMapIndex > -1)
+                                        {
+                                            var fieldInMapping = fieldMapping[ebxClassItem.Name][fieldMapIndex];
+                                            fieldInMapping.Type = field.Type;
+                                            fieldInMapping.DataOffset = field.DataOffset;
+                                            fieldMapping[ebxClassItem.Name][fieldMapIndex] = fieldInMapping;
+                                        }
                                         dbObjField.SetValue("type", field.Type);
-                                        dbObjField.SetValue("offset", field.DataOffset);
+                                        if(field.DataOffset > 0)
+                                            dbObjField.SetValue("offset", field.DataOffset);
                                         dbObjField.SetValue("value", (int)field.DataOffset);
                                         if (field.DebugType == EbxFieldType.Array)
                                         {
@@ -385,18 +414,13 @@ namespace SdkGenerator
                                             dbObjField.SetValue("guid", guid3);
                                         }
 
-                                        dbObject4.Add(dbObjField);
+                                        //dbObject4.Add(dbObjField);
                                         flag = true;
                                         break;
                                     }
                                 }
                                 if (!flag)
                                 {
-
-
-                                    //    uint num8 = 3109710567u;
-                                    //    if (field.NameHash != num8)
-                                    //    {
                                     field.Name = ((field.Name != "") ? field.Name : ("Unknown_" + field.NameHash.ToString("x8")));
                                     DbObject dbObject6 = DbObject.CreateObject();
                                     dbObject6.SetValue("name", field.Name);
@@ -406,12 +430,11 @@ namespace SdkGenerator
                                     dbObject6.SetValue("offset", field.DataOffset);
                                     dbObject6.SetValue("value", (int)field.DataOffset);
                                     dbObject4.Add(dbObject6);
-                                    //    }
                                 }
-                                fieldMapping[item2.Name].Add(field);
+                                //    fieldMapping[ebxClassItem.Name].Add(field);
+                                }
+                                //dbObject3.SetValue("fields", dbObject4);
                             }
-                            dbObject3.SetValue("fields", dbObject4);
-                        }
                     }
                     else
                     {
@@ -990,7 +1013,10 @@ namespace SdkGenerator
                 IClassInfo classInfo = (IClassInfo)t;
                 classInfo.Read(memoryReader);
                 classInfos.Add(classInfo);
-                offsetClassInfoMapping.Add(typeInfoOffset, classInfo);
+                if (!offsetClassInfoMapping.ContainsKey(typeInfoOffset))
+                    offsetClassInfoMapping.Add(typeInfoOffset, classInfo);
+                else
+                    break;
                 //if (offset != 0L)
                 //{
                 //    typeInfoOffset = offset;
@@ -1000,7 +1026,7 @@ namespace SdkGenerator
                     offset = classInfo.nextOffset;
                     typeInfoOffset = offset;
                 }
-                else
+                else if(offset != 0)
                 {
                     typeInfoOffset = offset;
                 }

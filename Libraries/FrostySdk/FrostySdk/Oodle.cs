@@ -27,13 +27,13 @@ namespace FrostySdk
 
 		public static void Bind(string basePath)
 		{
-			if (!ProfilesLibrary.IsFIFADataVersion()
-				&& !ProfilesLibrary.IsMadden21DataVersion()
-				&& !ProfilesLibrary.IsFIFA21DataVersion()
-				)
-			{
-				return;
-			}
+			//if (!ProfilesLibrary.IsFIFADataVersion()
+			//	&& !ProfilesLibrary.IsMadden21DataVersion()
+			//	&& !ProfilesLibrary.IsFIFA21DataVersion()
+			//	)
+			//{
+			//	return;
+			//}
 
 			string lib = Directory.EnumerateFiles(basePath, "oo2core_*").FirstOrDefault();
 

@@ -1,21 +1,21 @@
 {
   "Name": "FIFA22",
   "DisplayName": "FIFA 22",
-  "DataVersion": 20200929,
+  "DataVersion": 20200922,
   "CacheName": "fifa22",
   "Deobfuscator": "NullDeobfuscator",
-  "KeyFile": "fifa22.key",
-  "AssetLoader": "FIFA22AssetLoader",
-  "AssetCompiler": "FIFA22AssetCompiler",
+  "KeyFile": "fifa21.key",
+  "AssetLoader": "AssetLoader_Fifa22",
+  "AssetCompiler": "Fifa22AssetCompiler",
   "EditorScreen": "FIFA22Editor",
   // Texture Importer (Overriding the base Importer)
   "TextureImporter": "FIFA22TextureImporter",
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)
-  "EBXReader": "EBXReaderV3",
+  "EBXReader": "EbxReader2022",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EBXWriterV2",
+  "EBXWriter": "EbxWriter2022",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
@@ -30,18 +30,31 @@
       "SubDirs": false
     }
   ],
-  // SDK Filename
+
+  // --------------------------------------------------------
+  // SDK Generating Info
+  //
   "SDKFilename": "FIFA22SDK",
-  // SDK First Type Info (Only used if SDKAOBScan is not provided)
   "SDKFirstTypeInfo": null,
-  // SDK Array of Bytes to scan to get first type info address
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  "SDKClassesFile": "M22.Classes.txt",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa22.ClassInfo",
+  //"SDKGeneratorClassInfoType": "SdkGenerator.Madden20.ClassInfo",
+  "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
+  //
+
+
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "fbmod" ],
   // Will the Launcher support this Game?
   "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
+
+  // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
+  "CacheWriter": "CacheWriter",
+  // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
+  "CacheReader": "CacheReader",
 
   "Banner": "",
   "EbxVersion": 4,

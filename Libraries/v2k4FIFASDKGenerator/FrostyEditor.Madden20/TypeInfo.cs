@@ -1,12 +1,26 @@
 using FrostyEditor.IO;
 using FrostySdk;
 using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 
 namespace SdkGenerator.Madden20
 {
-	public class TypeInfo : BaseInfo.TypeInfo
+	public class TypeInfo : BaseInfo.TypeInfo, ITypeInfo
 	{
 		private uint nameHash;
+
+        string ITypeInfo.name { get; set; }
+
+        ushort ITypeInfo.flags { get; set; }
+		uint ITypeInfo.size { get; set; }
+		Guid ITypeInfo.guid { get; set; }
+		ushort ITypeInfo.padding1 { get; set; }
+		string ITypeInfo.nameSpace { get; set; }
+		ushort ITypeInfo.alignment { get; set; }
+		uint ITypeInfo.fieldCount { get; set; }
+		uint ITypeInfo.padding3 { get; set; }
+		long ITypeInfo.parentClass { get; set; }
+		List<IFieldInfo> ITypeInfo.fields { get; set; }
 
 		public override void Read(MemoryReader reader)
 		{

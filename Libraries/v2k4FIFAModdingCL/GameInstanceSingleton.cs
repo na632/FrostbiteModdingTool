@@ -51,12 +51,12 @@ namespace v2k4FIFAModdingCL
                 var GameDirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
                 GAMERootPath = GameDirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                if (!string.IsNullOrEmpty(fileName) && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
+                if (!string.IsNullOrEmpty(fileName))// && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
                 {
                     GAMEVERSION = fileName.Replace(".exe", "");
                     INITIALIZED = true;
                 }
-                if(ProfilesLibrary.ProfileName == null)
+                if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(GAMEVERSION))
                 {
                     ProfilesLibrary.Initialize(GAMEVERSION);
                 }

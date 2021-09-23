@@ -111,9 +111,14 @@ namespace FMT.Controls.Pages
         {
             DBAssetEntry = await AssetManager.Instance.GetCustomAssetEntryAsync("legacy", "data/db/fifa_ng_db.db") as LegacyFileEntry;
             DBAssetStream = await AssetManager.Instance.GetCustomAssetAsync("legacy", DBAssetEntry);
+            if (DBAssetStream == null)
+                return;
 
             var dbMeta = await AssetManager.Instance.GetCustomAssetEntryAsync("legacy", "data/db/fifa_ng_db-meta.xml") as LegacyFileEntry;
             DBMetaAssetStream = await AssetManager.Instance.GetCustomAssetAsync("legacy", dbMeta);
+
+            if (DBMetaAssetStream == null)
+                return;
 
             DB = new DbFile(DBAssetStream, DBMetaAssetStream);
 

@@ -22,6 +22,21 @@
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA21Profile.json" Link="FrostbiteProfiles\FIFA21Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA22Profile.json" Link="FrostbiteProfiles\FIFA22Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\FIFA20.Classes.txt" Link="FIFA20.Classes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\FIFA21.Classes.txt" Link="FIFA21.Classes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\M21.Classes.txt" Link="M21.Classes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\M22.Classes.txt" Link="M22.Classes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -62,6 +77,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\Plugins\FIFA21Plugin\bin\Debug\net6.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\net6.0-windows\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
