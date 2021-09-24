@@ -60,15 +60,15 @@
   "EbxVersion": 4,
   "RequiresKey": true,
   "MustAddChunks": false,
-  "EnableExecution": true,
+  "EnableExecution": false,
   "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
   "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
   "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
   "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
   "SharedBundles": {},
   "IgnoredResTypes": [],
-  "CanImportMeshes": true,
-  "CanExportMeshes": true,
+  "CanImportMeshes": false,
+  "CanExportMeshes": false,
   // GeometryDeclarationDesc stream count
   "GDDMaxStreams": 16,
   "CompressedFormatEBX": "Zstd",
@@ -76,6 +76,6 @@
   "CompressedFormatChunk": "Oodle",
   //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "None",
-  "LegacyFileManager": "LegacyFileManager_FMTV2"
+  "LegacyFileManager": "LFM_Fifa22"
 
 }

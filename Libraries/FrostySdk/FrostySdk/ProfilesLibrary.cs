@@ -345,6 +345,7 @@ namespace FrostySdk
 			FIFA19 = 20180914,
 			FIFA20 = 20190911,
 			FIFA21 = 20200929,
+			FIFA22 = 20200929,
 
 			MADDEN20 = 20190729,
 			MADDEN21 = 20200831
@@ -389,6 +390,16 @@ namespace FrostySdk
 			bool isFIFA = false;
 
 			isFIFA = (ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA21);
+
+			return isFIFA;
+		}
+
+		public static bool IsFIFA22DataVersion()
+		{
+
+			bool isFIFA = false;
+
+			isFIFA = (ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA22);
 
 			return isFIFA;
 		}

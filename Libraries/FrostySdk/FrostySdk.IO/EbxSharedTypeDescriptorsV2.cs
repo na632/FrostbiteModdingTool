@@ -457,7 +457,7 @@ namespace FrostySdk.IO
 
 		public EbxClass? GetClass(int index)
 		{
-			return Classes[index];
+			return Classes.Count > index ? Classes[index] : null;
 		}
 
 		public Guid? GetGuid(EbxClass classType)

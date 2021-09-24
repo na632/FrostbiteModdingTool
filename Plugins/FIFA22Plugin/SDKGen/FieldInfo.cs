@@ -35,42 +35,18 @@ namespace SdkGenerator.Fifa22
 
 		public void Read(MemoryReader reader)
 		{
-			var position = reader.Position;
 			name = reader.ReadNullTerminatedString();
 			if (string.IsNullOrEmpty(name))
 			{
-				if (string.IsNullOrEmpty(name))
-				{
-					name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
-				}
+				name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
 			}
-			//else
-            //{
-				ReadSuccessfully = true;
-			//}
-
-			//var index = 1;
-			//for(index = 1; string.IsNullOrEmpty(name) && index < 7; index++)
-			//         {
-			//	reader.Position = parentTypeInfo.array[index];
-			//	name = reader.ReadNullTerminatedString();
-			//}
-			var nH = reader.ReadInt();
-			nameHash = (uint)nH;
-			if (nH == -237252713)
-			{
-
-			}
-			if (nameHash == 4057714583)
-			{
-
-			}
-
-
+			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();
+			ReadSuccessfully = true;
 		}
+
 
 		//public override void Read(MemoryReader reader)
 		//{

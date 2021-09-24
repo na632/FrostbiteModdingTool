@@ -527,10 +527,22 @@ public interface IAssetLoader
 
         public void RegisterLegacyAssetManager()
         {
-			if(!string.IsNullOrEmpty(ProfilesLibrary.LegacyFileManager))
+			if (!InitialisePlugins() && !ProfilesLibrary.DoesNotUsePlugin)
+			{
+				throw new Exception("Plugins could not be initialised!");
+			}
+
+			if (!string.IsNullOrEmpty(ProfilesLibrary.LegacyFileManager))
             {
-				var cam = (ICustomAssetManager)LoadTypeByName(ProfilesLibrary.LegacyFileManager);
-				CustomAssetManagers.Add("legacy", cam);
+				ICustomAssetManager cam;
+				cam = (ICustomAssetManager)LoadTypeFromPlugin(ProfilesLibrary.LegacyFileManager);
+				if(cam == null)
+					cam = (ICustomAssetManager)LoadTypeByName(ProfilesLibrary.LegacyFileManager);
+
+
+				if(cam != null)
+					CustomAssetManagers.Add("legacy", cam);
+
 			}
 			else if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
 			{
@@ -578,7 +590,7 @@ public interface IAssetLoader
 				if (t != null)
 					return Activator.CreateInstance(t);
 			}
-			throw new ArgumentNullException("Unable to find Plugin or Class");
+			return null;
 		}
 
 		public static object LoadTypeByName(string className, params object[] args)

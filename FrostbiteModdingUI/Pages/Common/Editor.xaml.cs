@@ -127,13 +127,15 @@ namespace FIFAModdingUI.Pages.Common
 				if (_rootObjProps == null)
 				{
 					_rootObjProps = new List<ModdableProperty>();
-
-					foreach (var p in RootObject.GetType().GetProperties())
+					if (RootObject != null)
 					{
-						var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null), Modprop_PropertyChanged);
-						_rootObjProps.Add(modprop);
+						foreach (var p in RootObject.GetType().GetProperties())
+						{
+							var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null), Modprop_PropertyChanged);
+							_rootObjProps.Add(modprop);
+						}
+						return _rootObjProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 					}
-					return _rootObjProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 				}
 				return _rootObjProps;
 			}

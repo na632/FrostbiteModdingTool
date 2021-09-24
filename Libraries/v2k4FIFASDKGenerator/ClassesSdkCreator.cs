@@ -404,8 +404,8 @@ namespace SdkGenerator
                                             fieldInMapping.DataOffset = field.DataOffset;
                                             fieldMapping[ebxClassItem.Name][fieldMapIndex] = fieldInMapping;
                                         }
-                                        dbObjField.SetValue("type", field.Type);
-                                        if(field.DataOffset > 0)
+                                        //dbObjField.SetValue("type", field.Type);
+                                        if(field.DataOffset >= 0)
                                             dbObjField.SetValue("offset", field.DataOffset);
                                         dbObjField.SetValue("value", (int)field.DataOffset);
                                         if (field.DebugType == EbxFieldType.Array)

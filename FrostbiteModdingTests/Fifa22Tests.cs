@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using v2k4FIFAModding.Frosty;
 
 namespace FrostbiteModdingTests
 {
@@ -90,6 +91,17 @@ namespace FrostbiteModdingTests
             var buildCache = new BuildCache();
             buildCache.LoadData("Fifa22", GamePath, this, false, false);
             EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2(FileSystem.Instance, "SharedTypeDescriptors.ebx", false);
+        }
+
+        [TestMethod]
+        public void ReadSimpleGPFile()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var simpleEbxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_facialanim_runtime");
+            Assert.IsNotNull(simpleEbxEntry);
+            var simpleAsset = AssetManager.Instance.GetEbx(simpleEbxEntry);
         }
 
         [TestMethod]
