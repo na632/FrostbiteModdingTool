@@ -18,14 +18,11 @@ namespace v2k4FIFAModdingCL
 {
     public static class GameInstanceSingleton
     {
-        [SupportedOSPlatform("windows")]
         public static bool INITIALIZED = false;
 
-        [SupportedOSPlatform("windows")]
-        private static string fifaVersion;
+        private static string gameVersion;
 
-        [SupportedOSPlatform("windows")]
-        public static string GAMEVERSION { set { fifaVersion = value; INITIALIZED = !string.IsNullOrEmpty(value); } get { return fifaVersion; } }
+        public static string GAMEVERSION { set { gameVersion = value; INITIALIZED = !string.IsNullOrEmpty(value); } get { return gameVersion; } }
         public static string FIFAVERSION_NODEMO { get { return !string.IsNullOrEmpty(GAMEVERSION) ? GAMEVERSION.Replace("_demo", "") : null; } }
 
         public static string GAMERootPath = "";
@@ -43,7 +40,6 @@ namespace v2k4FIFAModdingCL
 
         public static string ModDataPath { get { return GAMERootPath + "\\ModData\\"; } }
 
-        [SupportedOSPlatform("windows")]
         public static bool InitializeSingleton(string filePath)
         {
             if(!string.IsNullOrEmpty(filePath))
@@ -65,7 +61,11 @@ namespace v2k4FIFAModdingCL
             return INITIALIZED;
         }
 
-        [SupportedOSPlatform("windows")]
+        public static string GetGameVersion()
+        {
+            return GAMEVERSION;
+        }
+
         public static IEnumerable<string> CompatibleGameVersions
         {
             get
@@ -77,12 +77,12 @@ namespace v2k4FIFAModdingCL
             }
         }
 
-        [SupportedOSPlatform("windows")]
         public static List<string> CompatibleGameFBModVersions = new List<string>()
         {
             //"FIFA20.exe",
             "FIFA19.exe",
             "FIFA21.exe",
+            "FIFA22.exe",
             "Madden21.exe",
             "Madden22.exe",
             "bf4.exe",

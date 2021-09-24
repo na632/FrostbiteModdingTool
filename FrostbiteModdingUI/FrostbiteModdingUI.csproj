@@ -229,9 +229,14 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
-    <None Update="Resources\images\PAUL-TOOL-COVER.jpg">
+    <None Update="Resources\images\FIFA22Cover.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+	<None Update="Resources\images\PAUL-TOOL-COVER.jpg">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
     <None Update="SDK\BF4SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -282,15 +287,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
-    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\net6.0-windows\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll" >
+    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\net6.0-windows\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
-    <None Include="..\Plugins\Madden21Plugin\bin\Debug\net6.0-windows\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll" >
+    <None Include="..\Plugins\Madden21Plugin\bin\Debug\net6.0-windows\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
-    <None Include="..\Plugins\Madden22Plugin\bin\Debug\net6.0-windows\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll" >
+    <None Include="..\Plugins\Madden22Plugin\bin\Debug\net6.0-windows\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>

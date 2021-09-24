@@ -177,25 +177,30 @@ namespace FIFAModdingUI.Windows
             Owner.Visibility = Visibility.Visible;
         }
 
-        private string WindowFIFAEditorTitle = $"FMT FIFA Editor - {App.ProductVersion} - ";
-
-        private string _windowTitle;
+        public string AdditionalTitle { get; set; }
         public string WindowTitle 
         { 
             get 
             {
+                var gv = GameInstanceSingleton.GetGameVersion() ?? "FIFA";
+                var initialTitle = $"FMT [{gv}] Editor - {App.ProductVersion} - ";
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.Append(WindowFIFAEditorTitle);
-                stringBuilder.Append(_windowTitle);
+                stringBuilder.Append(initialTitle);
+                stringBuilder.Append("[" + AdditionalTitle + "]");
+                if(!ProfilesLibrary.EnableExecution)
+                {
+                    stringBuilder.Append(" (Read Only)");
+                }
                 return stringBuilder.ToString();
             }
-            set
-            {
-                _windowTitle = "[" + value + "]";
-                this.DataContext = null;
-                this.DataContext = this;
-                this.UpdateLayout();
-            }
+        }
+
+        public void UpdateWindowTitle(string additionalText)
+        {
+            AdditionalTitle = additionalText;
+            this.DataContext = null;
+            this.DataContext = this;
+            this.UpdateLayout();
         }
 
         public static ProjectManagement ProjectManagement { get; set; }
@@ -206,12 +211,14 @@ namespace FIFAModdingUI.Windows
             GameInstanceSingleton.Logger = this;
             lstProjectFiles.Items.Clear();
             lstProjectFiles.ItemsSource = null;
+            
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
             if(buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
             {
                 buildSDKAndCacheWindow.ShowDialog();
             }
+
 
             await Task.Run(
                 () =>
@@ -227,9 +234,7 @@ namespace FIFAModdingUI.Windows
                     miMod.IsEnabled = true;
                     //miProjectConverter.IsEnabled = true;
                     miImportKitCreator.IsEnabled = true;
-
-                    var wt = WindowTitle;
-                    WindowTitle = "New Project";
+                    
                     ProjectManagement.Project.ModifiedAssetEntries = null;
                     this.DataContext = null;
                     this.DataContext = this;
@@ -243,6 +248,11 @@ namespace FIFAModdingUI.Windows
 
             LauncherOptions = LauncherOptions.LoadAsync().Result;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
+
+            btnLaunchFIFAInEditor.IsEnabled = ProfilesLibrary.EnableExecution;
+
+            UpdateWindowTitle("New Project");
+
         }
 
         private void InitialiseBrowsers()
@@ -557,7 +567,7 @@ namespace FIFAModdingUI.Windows
                     RecentProjectFiles.Add(new FileInfo(saveFileDialog.FileName));
                     RecentProjectFiles = recentProjectFiles;
 
-                    WindowTitle = saveFileDialog.FileName;
+                    UpdateWindowTitle(saveFileDialog.FileName);
 
                     DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
 
@@ -609,7 +619,7 @@ namespace FIFAModdingUI.Windows
                     });
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
-                    WindowTitle = openFileDialog.FileName;
+                    UpdateWindowTitle(openFileDialog.FileName);
 
                     DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
 
@@ -734,7 +744,8 @@ namespace FIFAModdingUI.Windows
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             ProjectManagement.Project.ModifiedAssetEntries = null;
             lstProjectFiles.ItemsSource = null;
-            WindowTitle = "New Project";
+            UpdateWindowTitle("New Project");
+
             Log("New Project Created");
         }
 
@@ -1158,7 +1169,7 @@ namespace FIFAModdingUI.Windows
 
                     Log("Opened project successfully from " + openFileDialog.FileName);
 
-                    WindowTitle = openFileDialog.FileName;
+                    UpdateWindowTitle(openFileDialog.FileName);
 
                 }
             }

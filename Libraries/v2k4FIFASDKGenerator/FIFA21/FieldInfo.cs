@@ -41,36 +41,13 @@ namespace SdkGenerator.FIFA21
 			name = reader.ReadNullTerminatedString();
 			if (string.IsNullOrEmpty(name))
 			{
-				//if (parentTypeInfo.array[1] > 5000000000)
-				//{
-				//	reader.Position = parentTypeInfo.array[1];
-				//	name = reader.ReadNullTerminatedString();
-				//}
-				//else 
-				if (parentTypeInfo.array[3] > 5000000000)
-				{
-					reader.Position = parentTypeInfo.array[3];
-					name = reader.ReadNullTerminatedString();
-				}
-
-				if (string.IsNullOrEmpty(name))
-				{
-					//name = "Unk" + RandomEmpty.Next().ToString();
-					//Debug.WriteLine($"[ERROR] {parentTypeInfo.name} (Type:{parentTypeInfo.Type.ToString()}) has unknown field with name {name}");
-				}
+				name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
 			}
-
-			//var index = 1;
-			//for(index = 1; string.IsNullOrEmpty(name) && index < 7; index++)
-			//         {
-			//	reader.Position = parentTypeInfo.array[index];
-			//	name = reader.ReadNullTerminatedString();
-			//}
-
 			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();
+			ReadSuccessfully = true;
 		}
 
 		public void Modify(DbObject fieldObj)
