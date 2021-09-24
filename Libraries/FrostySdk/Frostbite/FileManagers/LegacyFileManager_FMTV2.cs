@@ -119,12 +119,12 @@ namespace Frostbite.FileManagers
 				return BatchLegacyFiles.FirstOrDefault(x => x.Name == name);
 			}
 
-			public int EndOfStrings { get; internal set; }
-			public byte[] EndData { get; internal set; }
-			public long BootableItemOffset { get; internal set; }
-			public uint LinkedChunkCount { get; internal set; }
-			public long LinkedChunkOffset { get; internal set; }
-			public EbxAsset EbxAsset { get; internal set; }
+			public int EndOfStrings { get; set; }
+			public byte[] EndData { get; set; }
+			public long BootableItemOffset { get; set; }
+			public uint LinkedChunkCount { get; set; }
+			public long LinkedChunkOffset { get; set; }
+			public EbxAsset EbxAsset { get; set; }
 
 			public List<ChunkAssetEntry> CompressedItemChunks = new List<ChunkAssetEntry>();
 
@@ -147,7 +147,7 @@ namespace Frostbite.FileManagers
 			public class UnknownItem
             {
 				public long Offset { get; set; }
-                public string Name { get; internal set; }
+                public string Name { get; set; }
             }
 		}
 
@@ -165,9 +165,11 @@ namespace Frostbite.FileManagers
 			logger.Log("Loading legacy files");
             AddedFileEntries = new List<LegacyFileEntry>();
 
-            //ChunkBatches = new List<ChunkBatch>();
-            //LegacyEntries = new Dictionary<string, LegacyFileEntry>();
+			//ChunkBatches = new List<ChunkBatch>();
+			//LegacyEntries = new Dictionary<string, LegacyFileEntry>();
 
+			var chAttempt1 = AssetManager.Instance.GetChunkEntry(Guid.Parse("FA40D5B2-358C-B8BF-DACA-B7EA34EF1F45"));
+			var chAttempt2 = AssetManager.Instance.GetChunkEntry(Guid.Parse("FA40D5B2-358C-B8BF-DACA-B7EA34EF1F45"));
 
             foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
 			{

@@ -3,7 +3,22 @@ namespace FrostySdk.IO
     public struct EbxField
     //public class EbxField
     {
-		public string Name;
+        private string name;
+
+        public string Name
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(EbxSharedTypeDescriptors.GetPropertyName(NameHash)))
+                {
+                    name = EbxSharedTypeDescriptors.GetPropertyName(NameHash);
+                }
+
+                return name;
+
+            }
+            set { name = value; }
+        }
 
         public uint NameHash;
         //public ulong NameHash;

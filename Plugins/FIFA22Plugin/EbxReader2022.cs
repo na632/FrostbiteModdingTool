@@ -69,6 +69,7 @@ namespace FIFA22Plugin
 			}
 		}
 
+		public long PositionBeforeStringSearch { get; set; }
 		public long AfterStringsOffset { get; set; }
 		public uint FileLength { get; set; }
 
@@ -77,150 +78,125 @@ namespace FIFA22Plugin
 
 		public EbxReader2022(Stream InStream, bool inPatched)
 			: base(InStream, passthru: true)
-        {
-            InitialiseStd();
+		{
+			InitialiseStd();
 
-            //var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
-            //InStream.CopyTo(fsDump);
-            //fsDump.Close();
-            //fsDump.Dispose();
+			//var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
+			//InStream.CopyTo(fsDump);
+			//fsDump.Close();
+			//fsDump.Dispose();
 
-            InStream.Position = 0;
+			InStream.Position = 0;
 
-            var headerLength = 16;
+			var headerLength = 16;
 
-            patched = inPatched;
-            // RIFF
-            magic = (EbxVersion)ReadUInt();
-            Efix.block_header = (uint)magic;
+			patched = inPatched;
+			// RIFF
+			magic = (EbxVersion)ReadUInt();
+			Efix.block_header = (uint)magic;
 
-            FileLength = (uint)ReadUInt();
-            Efix.block_size = FileLength;
+			FileLength = (uint)ReadUInt();
+			Efix.block_size = FileLength;
 
-            var ebxHeaderName = ReadUInt(); // EBX Bla
+			var ebxHeaderName = ReadUInt(); // EBX Bla
 
-            var ebxHeaderEndBit = ReadUInt(); // EBXD
+			var ebxHeaderEndBit = ReadUInt(); // EBXD
 
-            // 
-            AfterStringsOffset = (uint)ReadULong() + 20;
+			// 
+			AfterStringsOffset = (uint)ReadULong() + 20;
 
-            InStream.Position += 8;
-            fileGuid = ReadGuid();
-            Efix.file_Guid = fileGuid;
-            ReadBytes(16); // 16 bytes of random empty data
+			InStream.Position += 8;
+			fileGuid = ReadGuid();
+			Efix.file_Guid = fileGuid;
+			ReadBytes(16); // 16 bytes of random empty data
 
-            ReadLong(); // Get past 02 00 00 00 00 B1 00 00
-            var stringPosition = ReadUInt();
-			var positionBeforeStringSearch = InStream.Position;
-            InStream.Position = stringPosition + 72;
-            var name = ReadNullTerminatedString();
-            Strings.Add(name);
-            if (FirstStringName.Contains("gp_"))
-            {
-                var currentPositionBeforeDump = InStream.Position;
-                InStream.Position = 0;
-                var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
-                InStream.CopyTo(fsDump);
-                fsDump.Close();
-                fsDump.Dispose();
-                InStream.Position = currentPositionBeforeDump;
-            }
-
-
-            // jump to EFIX
-            InStream.Position = AfterStringsOffset;
-            Pad(2);
-            var efixWord = Encoding.UTF8.GetString(ReadBytes(4));// ReadUInt(); // EFIX
-            if (efixWord != "EFIX") 
-            {
-                throw new Exception("Not proper EBX file");
-            }
-
-            Efix.block_size = (uint)ReadUInt();
-            Efix.file_Guid = ReadGuid();
-
-            Efix.class_type_count = ReadUInt();
-            for (var i = 0; i < Efix.class_type_count; i++)
-            {
-                Efix.class_types.Add(ReadGuid());
-				classGuids.Add(Efix.class_types[i]);
-            }
-
-            guidCount = ReadUInt();
-            Efix.type_info_Guid_count = guidCount;
-
-            for (var i = 0; i < Efix.type_info_Guid_count; i++)
-                Efix.type_info_Guids.Add(ReadUInt());
-
-            CreateTypeFromEfix();
-
-            Efix.data_offset_count = ReadUInt();
-            Efix.unk3_count = ReadUInt();
-
-            for (var i = 0; i < Efix.data_offset_count; i++)
-                Efix.data_offsets.Add(ReadUInt());
-
-            for (var i = 0; i < Efix.unk3_count - Efix.data_offset_count; i++)
-                Efix.unk3s.Add(ReadUInt());
-
-            Efix.unk4_count = ReadUInt();
-            for (var i = 0; i < Efix.unk4_count; i++)
-                Efix.unk4s.Add(ReadUInt());
-
-            Efix.unk5_count = ReadUInt();
-            for (var i = 0; i < Efix.unk5_count; i++)
-                Efix.unk5s.Add(ReadUInt());
-
-            Efix.import_reference_count = ReadUInt();
-            for (var i = 0; i < Efix.import_reference_count; i++)
-            {
-                Efix.import_reference.Add(new EFIX.IMPORT_REFERENCE()
-                {
-                    file_Guid = ReadGuid(),
-                    class_Guid = ReadGuid(),
-                });
-				imports.Add(new EbxImportReference() { FileGuid = Efix.import_reference[i].file_Guid, ClassGuid = Efix.import_reference[i].class_Guid });
-            }
-
-            Efix.unk6_count = ReadUInt();
-            for (var i = 0; i < Efix.unk6_count; i++)
-                Efix.unk6s.Add(ReadUInt());
-
-            Efix.unk7_count = ReadUInt();
-            for (var i = 0; i < Efix.unk7_count; i++)
-                Efix.unk7s.Add(ReadUInt());
-
-            Efix.data_size = ReadUInt();
-            Efix.total_ebx_data_size = ReadUInt();
-            Efix.total_ebx_data_size_2 = ReadUInt();
-
-
-			for (var i = 0; i < RealClassGuids.Count; i++)
+			ReadLong(); // Get past 02 00 00 00 00 B1 00 00
+			PositionBeforeStringSearch = InStream.Position;
+			var stringPosition = ReadUInt();
+			InStream.Position = stringPosition + 72;
+			var name = ReadNullTerminatedString();
+			Strings.Add(name);
+			if (FirstStringName.Contains("gp_") || FirstStringName.Contains("ChunkFileCollector"))
 			{
-				var ebxClass = std.GetClass(RealClassGuids[i]);
-				Type type = TypeLibrary.GetType(ebxClass.Value.NameHash);
-				objects.Add(TypeLibrary.CreateObject(type));
-				InStream.Position = positionBeforeStringSearch;
-				InStream.Position += Efix.data_offsets[i];
-				//for (int x = 0; x < ebxClass.Value.FieldCount; x++)
-				//{
-				//	EbxField field = GetField(ebxClass.Value, ebxClass.Value.FieldIndex + x);
-				//	PropertyInfo property = GetProperty(type, field);
-    //                if (property != null)
-    //                {
-    //                    try
-    //                    {
-    //                        object value = ReadField(ebxClass.Value, field, false);
-    //                        property.SetValue(objects[i], value);
-    //                    }
-    //                    catch (Exception)
-    //                    {
-    //                    }
-    //                }
-    //            }
-				this.ReadClass(ebxClass.Value, objects[i], Efix.data_offsets[i]);
-
+				var currentPositionBeforeDump = InStream.Position;
+				InStream.Position = 0;
+				var fsDump = new FileStream("ebxV4.dat", FileMode.OpenOrCreate);
+				InStream.CopyTo(fsDump);
+				fsDump.Close();
+				fsDump.Dispose();
+				InStream.Position = currentPositionBeforeDump;
 			}
+
+
+			// jump to EFIX
+			InStream.Position = AfterStringsOffset;
+			Pad(2);
+			var efixWord = Encoding.UTF8.GetString(ReadBytes(4));// ReadUInt(); // EFIX
+			if (efixWord != "EFIX")
+			{
+				throw new Exception("Not proper EBX file");
+			}
+
+			Efix.block_size = (uint)ReadUInt();
+			Efix.file_Guid = ReadGuid();
+
+			Efix.class_type_count = ReadUInt();
+			for (var i = 0; i < Efix.class_type_count; i++)
+			{
+				Efix.class_types.Add(ReadGuid());
+				classGuids.Add(Efix.class_types[i]);
+			}
+
+			guidCount = ReadUInt();
+			Efix.type_info_Guid_count = guidCount;
+
+			for (var i = 0; i < Efix.type_info_Guid_count; i++)
+				Efix.type_info_Guids.Add(ReadUInt());
+
+			CreateTypeFromEfix();
+
+			Efix.data_offset_count = ReadUInt();
+			Efix.unk3_count = ReadUInt();
+
+			for (var i = 0; i < Efix.data_offset_count; i++)
+				Efix.data_offsets.Add(ReadUInt());
+
+			for (var i = 0; i < Efix.unk3_count - Efix.data_offset_count; i++)
+				Efix.unk3s.Add(ReadUInt());
+
+			Efix.unk4_count = ReadUInt();
+			for (var i = 0; i < Efix.unk4_count; i++)
+				Efix.unk4s.Add(ReadUInt());
+
+			Efix.unk5_count = ReadUInt();
+			for (var i = 0; i < Efix.unk5_count; i++)
+				Efix.unk5s.Add(ReadUInt());
+
+			Efix.import_reference_count = ReadUInt();
+			for (var i = 0; i < Efix.import_reference_count; i++)
+			{
+				Efix.import_reference.Add(new EFIX.IMPORT_REFERENCE()
+				{
+					file_Guid = ReadGuid(),
+					class_Guid = ReadGuid(),
+				});
+				imports.Add(new EbxImportReference() { FileGuid = Efix.import_reference[i].file_Guid, ClassGuid = Efix.import_reference[i].class_Guid });
+			}
+
+			Efix.unk6_count = ReadUInt();
+			for (var i = 0; i < Efix.unk6_count; i++)
+				Efix.unk6s.Add(ReadUInt());
+
+			Efix.unk7_count = ReadUInt();
+			for (var i = 0; i < Efix.unk7_count; i++)
+				Efix.unk7s.Add(ReadUInt());
+
+			Efix.data_size = ReadUInt();
+			Efix.total_ebx_data_size = ReadUInt();
+			Efix.total_ebx_data_size_2 = ReadUInt();
+
+
+			
 		}
 		public List<Guid> RealClassGuids = new List<Guid>();
 
@@ -260,41 +236,63 @@ namespace FIFA22Plugin
 
         public override void InternalReadObjects()
 		{
-			foreach (EbxInstance ebxInstance in instances)
+			for (var i = 0; i < RealClassGuids.Count; i++)
 			{
-				Type type = TypeLibrary.GetType(classGuids[ebxInstance.ClassRef]);
-				for (int i = 0; i < ebxInstance.Count; i++)
-				{
-					objects.Add(TypeLibrary.CreateObject(type));
-					refCounts.Add(0);
-				}
+				var ebxClass = std.GetClass(RealClassGuids[i]);
+				Type type = TypeLibrary.GetType(ebxClass.Value.NameHash);
+				objects.Add(TypeLibrary.CreateObject(type));
 			}
-			int num = 0;
-			int num2 = 0;
-			foreach (EbxInstance ebxInstance2 in instances)
+
+			for (var i = 0; i < RealClassGuids.Count; i++)
 			{
-				for (int j = 0; j < ebxInstance2.Count; j++)
-				{
-					dynamic obj = objects[num++];
-					Type objType = obj.GetType();
-					EbxClass @class = GetClass(objType);
-					while (base.Position % (long)@class.Alignment != 0L)
-					{
-						base.Position++;
-					}
-					Guid inGuid = Guid.Empty;
-					if (ebxInstance2.IsExported)
-					{
-						inGuid = ReadGuid();
-					}
-					if (@class.Alignment != 4)
-					{
-						base.Position += 8L;
-					}
-					obj.SetInstanceGuid(new AssetClassGuid(inGuid, num2++));
-					this.ReadClass(@class, obj, base.Position - 8);
-				}
+				var ebxClass = std.GetClass(RealClassGuids[i]);
+				Position = PositionBeforeStringSearch;
+				Position += Efix.data_offsets[i];
+				this.ReadClass(ebxClass.Value, objects[i], Efix.data_offsets[i]);
 			}
+
+			if (EBXType.Name.Contains("ChunkFileCollector"))
+			{
+				dynamic obj = objects[0];
+				Position = 96;
+				obj.Manifest.ChunkId = ReadGuid();
+			}
+
+			//foreach (EbxInstance ebxInstance in instances)
+			//{
+			//	Type type = TypeLibrary.GetType(classGuids[ebxInstance.ClassRef]);
+			//	for (int i = 0; i < ebxInstance.Count; i++)
+			//	{
+			//		objects.Add(TypeLibrary.CreateObject(type));
+			//		refCounts.Add(0);
+			//	}
+			//}
+			//int num = 0;
+			//int num2 = 0;
+			//foreach (EbxInstance ebxInstance2 in instances)
+			//{
+			//	for (int j = 0; j < ebxInstance2.Count; j++)
+			//	{
+			//		dynamic obj = objects[num++];
+			//		Type objType = obj.GetType();
+			//		EbxClass @class = GetClass(objType);
+			//		while (base.Position % (long)@class.Alignment != 0L)
+			//		{
+			//			base.Position++;
+			//		}
+			//		Guid inGuid = Guid.Empty;
+			//		if (ebxInstance2.IsExported)
+			//		{
+			//			inGuid = ReadGuid();
+			//		}
+			//		if (@class.Alignment != 4)
+			//		{
+			//			base.Position += 8L;
+			//		}
+			//		obj.SetInstanceGuid(new AssetClassGuid(inGuid, num2++));
+			//		this.ReadClass(@class, obj, base.Position - 8);
+			//	}
+			//}
 		}
 
 		public EbxClass GetClass(Type objType)
@@ -359,7 +357,7 @@ namespace FIFA22Plugin
 			{
 				TypeLibrary.AddType(ebxClass.Value.Name, guid);
 			}
-			return ebxClass.Value;
+			return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
 		}
 
 		public override EbxField GetField(EbxClass classType, int index)
@@ -518,7 +516,7 @@ namespace FIFA22Plugin
 			}
 		}
 
-		public virtual object ReadClass(EbxClass classType, object obj, long startOffset)
+		public override object ReadClass(EbxClass classType, object obj, long startOffset)
 		{
 			/// DEBUG STREAM OUT
 			//var pos = stream.Position;
@@ -542,19 +540,41 @@ namespace FIFA22Plugin
 			Type type = obj.GetType();
 			try
 			{
+				List<Tuple<EbxField, PropertyInfo>> properties = new List<Tuple<EbxField, PropertyInfo>>();
 				for (int i = 0; i < classType.FieldCount; i++)
 				{
-
 					EbxField field = GetField(classType, classType.FieldIndex + i);
 					PropertyInfo property = GetProperty(type, field);
+					properties.Add(new Tuple<EbxField, PropertyInfo>(field, property));
+				}
+
+				//for (int i = 0; i < classType.FieldCount; i++)
+				//{
+				//	EbxField field = GetField(classType, classType.FieldIndex + i);
+				//	PropertyInfo property = GetProperty(type, field);
+				foreach(var t in properties.OrderByDescending(x=>x.Item1.DataOffset))
+				{
+					EbxField field = t.Item1;
+					PropertyInfo property = t.Item2;
+
+					IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
+					if (field.DebugType == EbxFieldType.Inherited)
+					{
+						var eClass = GetClass(classType, field.ClassRef);
+						if (string.IsNullOrEmpty(eClass.Name))
+							continue;
+
+						ReadClass(eClass, obj, startOffset);
+						continue;
+					}
 					if (property != null)
 					{
-						IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
-						if (field.DebugType == EbxFieldType.Inherited)
-						{
-							ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
-							continue;
-						}
+						//IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
+						//if (field.DebugType == EbxFieldType.Inherited)
+						//{
+						//	ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
+						//	continue;
+						//}
 						if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)
 						{
 							while (Position % 8 != 0L)
@@ -599,10 +619,14 @@ namespace FIFA22Plugin
 						}
 						else
 						{
-							object value = ReadField(classType, field, false);
+							object value = ReadField(classType, field, true);
 							property.SetValue(obj, value);
 						}
 					}
+                    else
+                    {
+						Position += 4;
+                    }
 				}
 				while (Position % (long)classType.Alignment != 0L)
 				{
@@ -615,6 +639,94 @@ namespace FIFA22Plugin
             }
 			return null;
 		}
+
+		public override object ReadField(EbxClass parentClass, EbxField fieldType, bool dontRefCount = false)
+		{
+			switch (fieldType.DebugType)
+			{
+				case EbxFieldType.Boolean:
+					return (ReadByte() > 0) ? true : false;
+				case EbxFieldType.Int8:
+					return (sbyte)ReadByte();
+				case EbxFieldType.UInt8:
+					return ReadByte();
+				case EbxFieldType.Int16:
+					return ReadShort();
+				case EbxFieldType.UInt16:
+					return ReadUShort();
+				case EbxFieldType.Int32:
+					return ReadInt();
+				case EbxFieldType.UInt32:
+					return ReadUInt();
+				case EbxFieldType.Int64:
+					return ReadLong();
+				case EbxFieldType.UInt64:
+					return ReadULong();
+				case EbxFieldType.Float32:
+					return ReadFloat();
+				case EbxFieldType.Float64:
+					return ReadDouble();
+				case EbxFieldType.Guid:
+					return ReadGuid();
+				case EbxFieldType.ResourceRef:
+					return ReadResourceRef();
+				case EbxFieldType.Sha1:
+					return ReadSha1();
+				case EbxFieldType.String:
+					return ReadSizedString(32);
+				case EbxFieldType.CString:
+					return ReadCString(ReadUInt());
+				case EbxFieldType.FileRef:
+					return ReadFileRef();
+				case EbxFieldType.TypeRef:
+					return ReadTypeRef();
+				case EbxFieldType.BoxedValueRef:
+					return ReadBoxedValueRef();
+				case EbxFieldType.Struct:
+					{
+						EbxClass @class = GetClass(parentClass, fieldType.ClassRef);
+						while (Position % (long)@class.Alignment != 0L)
+						{
+							Position++;
+						}
+						object obj = CreateObject(@class);
+						ReadClass(@class, obj, Position);
+						return obj;
+					}
+				case EbxFieldType.Enum:
+					return ReadInt();
+				case EbxFieldType.Pointer:
+					{
+						uint num = ReadUInt();
+						int importsV = (int)(num & int.MaxValue);
+						if (num >> 31 == 1)
+						{
+							return new PointerRef(imports[importsV]);
+						}
+						else if (num == 0)
+						{
+							return default(PointerRef);
+						}
+						if (!dontRefCount)
+						{
+							refCounts[(int)(num - 1)]++;
+						}
+						if (objects.Count > num)
+						{
+							return new PointerRef(objects[(int)(num - 1)]);
+						}
+						else
+                        {
+							return default(PointerRef);
+						}
+					}
+				case EbxFieldType.DbObject:
+					throw new InvalidDataException("DbObject");
+				default:
+					throw new InvalidDataException("Unknown");
+			}
+		}
+
 	}
 
 }

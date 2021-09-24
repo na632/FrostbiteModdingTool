@@ -499,9 +499,10 @@ namespace FrostySdk.IO
 			case EbxFieldType.Pointer:
 			{
 				uint num = ReadUInt();
+				int importsV = (int)(num & int.MaxValue);
 				if (num >> 31 == 1)
 				{
-					return new PointerRef(imports[(int)(num & int.MaxValue)]);
+					return new PointerRef(imports[importsV]);
 				}
 				else if (num == 0)
 				{

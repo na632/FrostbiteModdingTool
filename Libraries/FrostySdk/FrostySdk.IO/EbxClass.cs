@@ -2,9 +2,25 @@ namespace FrostySdk.IO
 {
 	public struct EbxClass
 	{
-		public string Name;
+        private string name;
 
-		public uint NameHash;
+        public string Name
+        {
+            get 
+            {
+                if (string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(EbxSharedTypeDescriptors.GetClassName(NameHash)))
+                {
+                    name = EbxSharedTypeDescriptors.GetClassName(NameHash);
+                }
+    
+                return name; 
+            
+            }
+            set { name = value; }
+        }
+
+
+        public uint NameHash;
 
 		public int FieldIndex;
 

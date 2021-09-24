@@ -68,7 +68,7 @@ namespace FrostySdk.IO
 					foreach (PropertyInfo propertyInfo in hashAttrbProps)
 					{
 						HashAttribute customAttribute = propertyInfo.GetCustomAttribute<HashAttribute>();
-						if (customAttribute != null && customAttribute.Hash == nameHash)
+						if (customAttribute != null && (uint)customAttribute.Hash == (uint)nameHash)
 						{
 							return propertyInfo.Name;
 						}
