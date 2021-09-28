@@ -51,6 +51,12 @@ namespace FrostySdk.IO
 
 		public List<Guid> Dependencies => dependencies;
 
+		public EbxWriter(Stream inStream, EbxWriteFlags inFlags = EbxWriteFlags.None)
+			: base(inStream, inFlags)
+		{
+			flags = inFlags;
+		}
+
 		public EbxWriter(Stream inStream, EbxWriteFlags inFlags = EbxWriteFlags.None, bool leaveOpen = false)
 			: base(inStream, inFlags)
 		{

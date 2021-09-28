@@ -46,5 +46,35 @@ namespace FrostySdk.Managers
 
 		public override string AssetType => "chunk";
 
+		public override string ToString()
+		{
+			if (!string.IsNullOrEmpty(Name))
+			{
+				if(LinkedAssets.Any())
+                {
+					var firstLinkedAsst = LinkedAssets.FirstOrDefault();
+					if (firstLinkedAsst != null)
+                    {
+						return Name + "[" + firstLinkedAsst.Name + "]";
+                    }
+                }
+
+				if(AssetManager.Instance != null)
+                {
+					if(AssetManager.Instance.EnumerateCustomAssets("legacy", false).Any())
+                    {
+						var legAsset = AssetManager.Instance.GetCustomAssetEntry("legacy", Name);
+						if (legAsset != null)
+                        {
+							return Name + "[" + legAsset.Name + "]";
+                        }
+
+					}
+                }
+
+				return Name;
+			}
+			return base.ToString();
+		}
 	}
 }

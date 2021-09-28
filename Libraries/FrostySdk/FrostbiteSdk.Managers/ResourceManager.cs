@@ -55,7 +55,7 @@ namespace FrostySdk.Managers
 				|| ProfilesLibrary.IsFIFADataVersion()
 				|| ProfilesLibrary.IsFIFA21DataVersion()
 				//|| ProfilesLibrary.IsMadden21DataVersion()
-				|| ProfilesLibrary.DataVersion == 20200922 // FIFA 22
+				|| ProfilesLibrary.IsFIFA22DataVersion() // FIFA 22
 				)
 				&& fs.HasFileInMemoryFs("Dictionaries/ebx.dict")
 				)

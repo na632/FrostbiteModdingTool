@@ -73,7 +73,6 @@ namespace FIFAModdingUI.Windows
         public virtual string RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
         //public virtual string RecentFilesLocation => App.ApplicationDirectory + ProfilesLibrary.ProfileName + "RecentFilesLocation.json";
 
-
         private List<FileInfo> recentProjectFiles;
 
         public List<FileInfo> RecentProjectFiles
@@ -248,6 +247,15 @@ namespace FIFAModdingUI.Windows
 
             LauncherOptions = LauncherOptions.LoadAsync().Result;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
+            
+            if(ProfilesLibrary.IsFIFA22DataVersion())
+            {
+                swUseModData.IsOn = false;
+                swUseModData.IsEnabled = false;
+
+                swEnableLegacyInjection.IsOn = false;
+                swEnableLegacyInjection.IsEnabled = false;
+            }
 
             btnLaunchFIFAInEditor.IsEnabled = ProfilesLibrary.EnableExecution;
 

@@ -49,14 +49,10 @@ namespace FIFA22Plugin
             if (AssetManager == null)
                 AssetManager = AssetManager.Instance;
 
-            //byte[] key = KeyManager.Instance.GetKey("Key2");
             if (tocPath != "")
             {
-                SbPath = tocPath.Replace(".toc", ".sb");
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
-                //if (!tocPath.Contains("globals.toc"))
-                //{
                 List<DbObject> objs = new List<DbObject>();
                 using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
                 {

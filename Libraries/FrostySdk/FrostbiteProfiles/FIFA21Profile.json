@@ -33,9 +33,11 @@
   // SDK Filename
   "SDKFilename": "FIFA21SDK",
   // SDK First Type Info (Only used if SDKAOBScan is not provided)
-  "SDKFirstTypeInfo": "14993C7D0",
+  "SDKFirstTypeInfo": null,
   // SDK Array of Bytes to scan to get first type info address
-  "SDKAOBScan": null,
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  "SDKClassesFile": "M22.Classes.txt",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa21.ClassInfo",
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "lmod", "fbmod", "fifamod" ],
   // Will the Launcher support this Game?

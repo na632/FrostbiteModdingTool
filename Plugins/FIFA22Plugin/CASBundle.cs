@@ -32,7 +32,7 @@ namespace FIFA22Plugin
 
         public List<int> Offsets = new List<int>();
 
-        public List<dynamic> Entries = new List<dynamic>();
+        public List<CASBundleEntry> Entries = new List<CASBundleEntry>();
 
         public long TotalSize
         { 
@@ -90,5 +90,17 @@ namespace FIFA22Plugin
         {
             return base.GetHashCode();
         }
+    }
+
+    public class CASBundleEntry
+    {
+        public int unk { get; set; }
+        public bool isInPatch { get; set; }
+        public int catalog { get; set; }
+        public int cas { get; set; }
+        public int bundleSizeInCas { get; set; }
+        public long locationOfSize  { get; set; }
+        public int bundleOffsetInCas { get; set; }
+        public long locationOfOffset { get; set; }
     }
 }

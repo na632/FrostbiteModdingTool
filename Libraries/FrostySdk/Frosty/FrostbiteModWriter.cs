@@ -145,20 +145,31 @@ namespace FrostySdk
 				name = entry.Name.ToLower();
 				userData = entry.ModifiedEntry.UserData;
 
-				EbxBaseWriter ebxBaseWriter =
+				EbxBaseWriter ebxBaseWriter = null;
+				if (!string.IsNullOrEmpty(ProfilesLibrary.EBXWriter))
+				{
+					ebxBaseWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXWriter
+						, new MemoryStream(), EbxWriteFlags.None, false);
+				}
+				else
+				{
+					ebxBaseWriter =
 					(
 					ProfilesLibrary.IsFIFA20DataVersion()
 					|| ProfilesLibrary.IsFIFA21DataVersion()
 					|| ProfilesLibrary.IsMadden21DataVersion()
 					)
 
-                    ? (EbxBaseWriter)new EbxWriterV2(new MemoryStream())
-                    : ((EbxBaseWriter)new EbxWriter(new MemoryStream()));
+					? (EbxBaseWriter)new EbxWriterV2(new MemoryStream(), EbxWriteFlags.None, false)
+					: ((EbxBaseWriter)new EbxWriter(new MemoryStream(), EbxWriteFlags.None, false));
+				}
 
                 using (ebxBaseWriter)
 				{
-		
-					ebxBaseWriter.WriteAsset(entry.ModifiedEntry.DataObject as EbxAsset);
+
+					var newAsset = entry.ModifiedEntry.DataObject as EbxAsset;
+					newAsset.ParentEntry = entry;
+					ebxBaseWriter.WriteAsset(newAsset);
 
 					byte[] array = Utils.CompressFile(((MemoryStream)ebxBaseWriter.BaseStream).ToArray(), null, ResourceType.Invalid, compressionOverride);
 

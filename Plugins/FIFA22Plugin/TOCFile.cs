@@ -78,12 +78,12 @@ namespace FIFA22Plugin
 		public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
 
-		public Guid[] TocChunkGuids;
+		public Guid[] TocChunkGuids { get; set; }
 
-		public string SuperBundleName;
+		public string SuperBundleName { get; set; }
 
-		private TocSbReader_Fifa22 ParentReader;
-		
+		private TocSbReader_Fifa22 ParentReader { get; set; }
+
 		/// <summary>
 		/// Only for testing
 		/// </summary>
@@ -174,7 +174,7 @@ namespace FIFA22Plugin
 
 		public Dictionary<Guid, DbObject> TocChunkInfo = new Dictionary<Guid, DbObject>();
 
-		public void Read(NativeReader nativeReader)
+		public List<DbObject> Read(NativeReader nativeReader)
 		{
 			TocChunks.Clear();
 			ChunkIndexToChunkId.Clear();
@@ -216,9 +216,10 @@ namespace FIFA22Plugin
 					};
 					Bundles.Add(newBundleInfo);
 				}
+			}
 				nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
-				if (MetaData.ChunkFlagOffsetPosition != 0 && MetaData.ChunkFlagOffsetPosition != 32)
-				{
+				//if (MetaData.ChunkFlagOffsetPosition != 0 && MetaData.ChunkFlagOffsetPosition != 32)
+				//{
 					if (MetaData.ChunkCount > 0)
 					{
 						if (DoLogging && AssetManager.Instance != null)
@@ -302,8 +303,10 @@ namespace FIFA22Plugin
 						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 						{
 							var chunkAssetEntry = TocChunks[chunkIndex];
-							if (AssetManager.Instance != null)
+							if (AssetManager.Instance != null && ProcessData)
+							{
 								AssetManager.Instance.AddChunk(chunkAssetEntry);
+							}
 
 						}
 					}
@@ -312,7 +315,6 @@ namespace FIFA22Plugin
 					nativeReader.Position = 556 + MetaData.Unk7_Offset;
 					for (int k = 0; k < MetaData.Unk7_Count; k++)
 					{
-                        //Unk7Values[k] = nativeReader.ReadInt(Endian.Big);
                         Unk7Values[k] = (int)nativeReader.ReadUInt(Endian.Big);
                     }
 
@@ -320,7 +322,6 @@ namespace FIFA22Plugin
 					nativeReader.Position = 556 + MetaData.Unk12_Offset;
 					for (int j = 0; j < MetaData.Unk12_Count; j++)
 					{
-                        //Unk12Values[j] = nativeReader.ReadInt(Endian.Big);
                         Unk12Values[j] = (int)nativeReader.ReadUInt(Endian.Big);
                     }
 
@@ -329,15 +330,10 @@ namespace FIFA22Plugin
 					{
 						LoadCasBundles(nativeReader);
 					}
+				//}
+			//}
 
-
-					//var PositionAfterCasBundle = nativeReader.Position;
-					//nativeReader.Position = CasBundlePosition;
-					//CasBundleData = nativeReader.ReadBytes(Convert.ToInt32(PositionAfterCasBundle - CasBundlePosition));
-
-
-				}
-			}
+			return TOCObjects.List.Select(o => (DbObject)o).ToList();
 		}
 
 		public static int CalculateChunkIndexFromListIndex(int listIndex)
@@ -345,9 +341,15 @@ namespace FIFA22Plugin
 			return ((listIndex * 3) + 16777216);
 		}
 
-		public List<CASBundle> CasBundles = new List<CASBundle>();
+        private List<CASBundle> casBundles = new List<CASBundle>();
 
-		public Dictionary<string, List<CASBundle>> CASToBundles = new Dictionary<string, List<CASBundle>>();
+        public List<CASBundle> CasBundles
+        {
+            get { return casBundles; }
+            set { casBundles = value; }
+        }
+
+        public Dictionary<string, List<CASBundle>> CASToBundles = new Dictionary<string, List<CASBundle>>();
 
 		public long CasBundlePosition { get; set; }
 		public byte[] CasBundleData { get; set; }
@@ -421,8 +423,8 @@ namespace FIFA22Plugin
 							bundle.TOCCatalog.Add(catalog);
 							bundle.TOCPatch.Add(isInPatch);
 						}
-						bundle.Entries.Add(new 
-							{
+						bundle.Entries.Add(new CASBundleEntry()
+						{
 							unk = unk,
 								isInPatch = isInPatch,
 							catalog = catalog,
@@ -468,8 +470,6 @@ namespace FIFA22Plugin
 					{
 						CASDataLoader casDataLoader = new CASDataLoader(this);
 						var dbo = casDataLoader.Load(ctb.Key, ctb.Value);
-						if (dbo == null)
-							continue;
 						foreach(var d in dbo)
                         {
 							TOCObjects.Add(d);

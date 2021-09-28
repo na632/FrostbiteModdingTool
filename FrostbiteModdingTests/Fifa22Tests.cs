@@ -1,8 +1,10 @@
-﻿using FrostySdk;
+﻿using Frostbite.Textures;
+using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SdkGenerator;
 using System;
@@ -12,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using v2k4FIFAModding.Frosty;
+using v2k4FIFAModdingCL;
 
 namespace FrostbiteModdingTests
 {
@@ -54,7 +57,8 @@ namespace FrostbiteModdingTests
         public void BuildCache()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData("Fifa22", GamePath, this, true, false);
+            //buildCache.LoadData("Fifa22", GamePath, this, true, false);
+            buildCache.LoadData("Fifa22", GamePath, this, true, true);
 
             var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
             var resItems = AssetManager.Instance.EnumerateRes().ToList();
@@ -105,6 +109,50 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ReadComplexGPFile()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+        }
+
+        [TestMethod]
+        public void TestArsenalKitMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+
+            var name = "content/character/kit/kit_0/arsenal_1/home_0_0/jersey_1_0_0_color";
+            var ebxEntry = AssetManager.Instance.GetEbxEntry(name);
+            var resEntry = AssetManager.Instance.GetResEntry(name);
+            if (resEntry != null)
+            {
+                Texture texture = new Texture(resEntry);
+                TextureImporter textureImporter = new TextureImporter();
+
+                if (ebxEntry != null)
+                {
+                    textureImporter.Import(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Kits\Chelsea\Home\jersey_5_0_0_color.png", ebxEntry, ref texture);
+                }
+            }
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void LoadLegacy()
         {
             var buildCache = new BuildCache();
@@ -114,6 +162,57 @@ namespace FrostbiteModdingTests
             var ebxFile = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("file", StringComparison.OrdinalIgnoreCase));
             var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("collector", StringComparison.OrdinalIgnoreCase));
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+        }
+
+        [TestMethod]
+        public void LaunchVanillaFromModData()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+        }
+
+        [TestMethod]
+        public void LaunchVanillaFromNormalFS()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+        }
+
+        [TestMethod]
+        public void LaunchCareerMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-22-Career-Mod\Paulv2k4 FIFA 22 Career Mod - Alpha 2.fbproject");
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
         }
     }
 }

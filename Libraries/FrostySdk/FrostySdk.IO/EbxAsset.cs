@@ -1,5 +1,6 @@
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
+using FrostySdk.Managers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ namespace FrostySdk.IO
 	[Serializable]
 	public class EbxAsset
 	{
+		public EbxAssetEntry ParentEntry { get; set; }
+
 		internal Guid fileGuid;
 
 		internal List<object> objects;

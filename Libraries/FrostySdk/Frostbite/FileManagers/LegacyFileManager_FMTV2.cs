@@ -476,6 +476,7 @@ namespace Frostbite.FileManagers
 		public static EbxAsset GetEbxAssetForEbx(EbxAssetEntry ebxAssetEntry)
 		{
 			EbxAsset ebx = AssetManager.Instance.GetEbx(ebxAssetEntry);
+			ebx.ParentEntry = ebxAssetEntry;
 			return ebx;
 		}
 
@@ -532,6 +533,10 @@ namespace Frostbite.FileManagers
 			{
 				legacyFileEntry = LegacyEntries[key];
 			}
+			else if (Guid.TryParse(key, out Guid keyGuid) && LegacyEntries.Any(x=> x.Value.ChunkId == Guid.Parse(key)))
+			{
+				legacyFileEntry = LegacyEntries.First(x => x.Value.ChunkId == keyGuid).Value;
+			}
 			return legacyFileEntry;
 		}
 
@@ -580,15 +585,11 @@ namespace Frostbite.FileManagers
 		//}
 
 
-		public List<LegacyFileEntry> RebuildEntireChunk(Guid chunkId, List<LegacyFileEntry> replaceFileEntries, List<LegacyFileEntry> newFileEntries = null)
+		public virtual List<LegacyFileEntry> RebuildEntireChunk(Guid chunkId, List<LegacyFileEntry> replaceFileEntries, List<LegacyFileEntry> newFileEntries = null)
 		{
 
 			replaceFileEntries.ForEach(x => { if(x.ModifiedEntry != null && x.ModifiedEntry.ChunkId.HasValue) x.ModifiedEntry.ChunkId = null; });
 
-
-            //CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.Oodle;
-            //CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.ZStd;
-            //CompressionType compressionType = ProfilesLibrary.IsMadden21DataVersion() ? CompressionType.LZ4 : CompressionType.None;
             CompressionType compressionType = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Legacy);
 
             // get the chunk batch (the main batch with offsets etc)
@@ -698,7 +699,8 @@ namespace Frostbite.FileManagers
 								Size = newChunkAlreadyCompressed.newChunk.Length,
 								LogicalSize = (uint)newChunkAlreadyCompressed.newChunk.Length,
 								OriginalSize = newChunkAlreadyCompressed.newChunk.Length,
-								Sha1 = AssetManager.Instance.GenerateSha1(newChunkAlreadyCompressed.newChunk),
+								//Sha1 = AssetManager.Instance.GenerateSha1(newChunkAlreadyCompressed.newChunk),
+								Sha1 = oldEntry.Sha1,
 								AddToChunkBundle = true,
 								AddToTOCChunks = true
 							};

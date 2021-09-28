@@ -102,6 +102,7 @@ namespace FrostySdk.IO
 					
 		}
 
+		public bool ReflectionTypeDescripter = false;
 		public readonly bool IsPatch;
 
 		public int TotalFieldCount = 0;
@@ -112,29 +113,29 @@ namespace FrostySdk.IO
 			{
 				reader.Position = 0;
 				var magic1 = reader.ReadUInt();
-				reader.ReadUInt32LittleEndian();
-				reader.ReadUInt32LittleEndian();
-				reader.ReadUInt32LittleEndian();
-				reader.ReadUInt32LittleEndian();
+				reader.ReadUInt();
+				reader.ReadUInt();
+				reader.ReadUInt();
+				reader.ReadUInt();
 				List<(Guid, uint)> list1 = new List<(Guid, uint)>();
-				uint count = reader.ReadUInt32LittleEndian();
+				uint count = reader.ReadUInt();
 				for (int m = 0; m < count; m++)
 				{
-					uint unk1 = reader.ReadUInt32LittleEndian();
+					uint unk1 = reader.ReadUInt();
 					Guid guid = reader.ReadGuid();
 					list1.Add((guid, unk1));
 					Guids.Add(guid);
 				}
 				List<(uint, uint, int, ushort, uint, byte)> list2 = new List<(uint, uint, int, ushort, uint, byte)>();
-				count = reader.ReadUInt32LittleEndian();
+				count = reader.ReadUInt();
 				for (int l = 0; l < count; l++)
 				{
-					uint nameHash = reader.ReadUInt32LittleEndian();
-					uint fieldIndex = reader.ReadUInt32LittleEndian();
+					uint nameHash = reader.ReadUInt();
+					uint fieldIndex = reader.ReadUInt();
 					int fieldCount = reader.ReadByte();
 					byte alignment = reader.ReadByte();
-					ushort classType = reader.ReadUInt16LittleEndian();
-					uint size = reader.ReadUInt32LittleEndian();
+					ushort classType = reader.ReadUShort();
+					uint size = reader.ReadUInt();
 					list2.Add((nameHash, fieldIndex, fieldCount, classType, size, alignment));
 					if ((alignment & 0x80u) != 0)
 					{
@@ -148,7 +149,7 @@ namespace FrostySdk.IO
 					ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
 					ebxClass.Size = (ushort)size;
 					//ebxClass.Type = (forSdkGen ? classType : ((ushort)(classType >> 1)));
-					ebxClass.Type = classType;
+					ebxClass.Type = ReflectionTypeDescripter ? ((ushort)(classType >> 1)) : classType;
 					ebxClass.Index = l;
 					EbxClass value = ebxClass;
 					if (patch)
@@ -159,12 +160,12 @@ namespace FrostySdk.IO
 					Classes.Add(value);
 				}
 				List<(uint, uint, ushort, short)> list3 = new List<(uint, uint, ushort, short)>();
-				count = reader.ReadUInt32LittleEndian();
+				count = reader.ReadUInt();
 				for (int k = 0; k < count; k++)
 				{
-					uint nameHash2 = reader.ReadUInt32LittleEndian();
-					uint dataOffset = reader.ReadUInt32LittleEndian();
-					ushort type = reader.ReadUInt16LittleEndian();
+					uint nameHash2 = reader.ReadUInt();
+					uint dataOffset = reader.ReadUInt();
+					ushort type = reader.ReadUShort();
 					short classRef = reader.ReadShort();// reader.ReadInt16LittleEndian();
 					list3.Add((nameHash2, dataOffset, type, classRef));
 					EbxField ebxField = default(EbxField);
@@ -177,19 +178,19 @@ namespace FrostySdk.IO
 					Fields.Add(item);
 				}
 				List<(uint, uint, uint)> list4 = new List<(uint, uint, uint)>();
-				count = reader.ReadUInt32LittleEndian();
+				count = reader.ReadUInt();
 				for (int j = 0; j < count; j++)
 				{
-					uint nameHash3 = reader.ReadUInt32LittleEndian();
-					uint unk2 = reader.ReadUInt32LittleEndian();
-					uint unk3 = reader.ReadUInt32LittleEndian();
+					uint nameHash3 = reader.ReadUInt();
+					uint unk2 = reader.ReadUInt();
+					uint unk3 = reader.ReadUInt();
 					list4.Add((nameHash3, unk2, unk3));
 				}
-				count = reader.ReadUInt32LittleEndian();
+				count = reader.ReadUInt();
 				for (int i = 0; i < count; i++)
 				{
-					uint nameHash4 = reader.ReadUInt32LittleEndian();
-					uint dataOffset2 = reader.ReadUInt32LittleEndian();
+					uint nameHash4 = reader.ReadUInt();
+					uint dataOffset2 = reader.ReadUInt();
 					for (int n = 0; n < Fields.Count; n++)
 					{
 						EbxField field = Fields[n];
@@ -417,7 +418,7 @@ namespace FrostySdk.IO
 			//}
 		}
 
-		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch)
+		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch, bool instantRead = true, bool viaReflection = false)
 		{
             IsPatch = patch;
             if (IsPatch)
@@ -434,7 +435,10 @@ namespace FrostySdk.IO
                 nativeWriter.Write(ebxtys);
             }
 
-			Read(ebxtys, false);
+			ReflectionTypeDescripter = viaReflection;
+
+			if (instantRead)
+				Read(ebxtys, false);
 		}
 
 		public bool HasClass(Guid guid)

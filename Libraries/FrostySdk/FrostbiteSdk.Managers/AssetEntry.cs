@@ -384,5 +384,14 @@ namespace FrostySdk.Managers
         {
 			return this.MemberwiseClone() as AssetEntry;
         }
+
+        public override string ToString()
+        {
+			if(!string.IsNullOrEmpty(Name))
+            {
+				return Name;
+            }
+            return base.ToString();
+        }
     }
 }

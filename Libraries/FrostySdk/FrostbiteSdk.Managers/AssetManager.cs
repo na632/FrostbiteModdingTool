@@ -582,19 +582,36 @@ public interface IAssetLoader
 
 		public static bool CacheUpdate = false;
 
-		public static object LoadTypeFromPlugin(string className)
+		public object LoadTypeFromPlugin(string className, params object[] args)
 		{
+			if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
+			{
+				var t = CachedTypes[className];
+				return Activator.CreateInstance(type: t, args: args);
+			}
+
 			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
 			{
 				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
 				if (t != null)
-					return Activator.CreateInstance(t);
+				{
+					CachedTypes.Add(className, t);
+					return Activator.CreateInstance(t, args: args);
+				}
 			}
 			return null;
 		}
 
-		public static object LoadTypeByName(string className, params object[] args)
+		public Dictionary<string,Type> CachedTypes = new Dictionary<string,Type>();
+
+		public object LoadTypeByName(string className, params object[] args)
 		{
+			if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
+			{
+				var t = CachedTypes[className];
+				return Activator.CreateInstance(type: t, args: args);
+			}
+
 			var currAss = AppDomain.CurrentDomain.GetAssemblies();
 			foreach (Assembly a in currAss)
 			{
@@ -602,7 +619,10 @@ public interface IAssetLoader
 					x.Name.Equals(className, StringComparison.OrdinalIgnoreCase)
 					|| x.FullName.Equals(className, StringComparison.OrdinalIgnoreCase));
 				if (t != null)
+				{
+					CachedTypes.Add(className, t);
 					return Activator.CreateInstance(type: t, args: args);
+				}
 			}
 			throw new ArgumentNullException("Unable to find Class");
 		}
@@ -1809,7 +1829,10 @@ public interface IAssetLoader
 					}
 					else
 					{
-						return entry.ModifiedEntry.DataObject as EbxAsset;
+						var r = entry.ModifiedEntry.DataObject as EbxAsset;
+						r.ParentEntry = entry;
+
+						return r;
 					}
 				}
 			}
@@ -3041,6 +3064,11 @@ public interface IAssetLoader
 			ModifyLegacyAsset(lfe.Name, bytes, false);
 			return true;
 		}
+
+		public async Task<bool> DoLegacyImageImportAsync(string importFilePath, LegacyFileEntry lfe)
+        {
+			return await Task.Run(() => { return DoLegacyImageImport(importFilePath, lfe); });
+        }
 
 		public bool DoLegacyImageImport(string importFilePath, LegacyFileEntry lfe)
 		{

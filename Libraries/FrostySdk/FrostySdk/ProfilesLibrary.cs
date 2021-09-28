@@ -158,7 +158,10 @@ namespace FrostySdk
 			public bool DoesNotUsePlugin { get; set; }
 
 			public string EBXSharedTypeDescriptorNameInMemory { get; set; }
-			
+
+			public string ProjectEbxWriter { get; set; }
+			public string ProjectEbxReader { get; set; }
+
 		}
 
 		public static IEnumerable<Profile> EditorProfiles 
@@ -345,10 +348,11 @@ namespace FrostySdk
 			FIFA19 = 20180914,
 			FIFA20 = 20190911,
 			FIFA21 = 20200929,
-			FIFA22 = 20200929,
+			FIFA22 = 20210922,
 
 			MADDEN20 = 20190729,
-			MADDEN21 = 20200831
+			MADDEN21 = 20200831,
+			MADDEN22 = 20210812
 		}
 
 		public static bool IsFIFADataVersion()
@@ -357,7 +361,8 @@ namespace FrostySdk
 			bool isFIFA = (LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA17
 				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA18
 				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA19
-				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA20);
+				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA20)
+				;
 
 			return isFIFA;
 		}

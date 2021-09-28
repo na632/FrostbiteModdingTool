@@ -1,6 +1,7 @@
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.FrostySdk.IO;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -229,9 +230,10 @@ namespace FrostySdk.IO
 			isValid = true;
 		}
 
-		public EbxAsset ReadAsset()
+		public EbxAsset ReadAsset(EbxAssetEntry entry = null)
 		{
 			EbxAsset ebxAsset = new EbxAsset();
+			ebxAsset.ParentEntry = entry;
 			InternalReadObjects();
 			ebxAsset.fileGuid = fileGuid;
 			ebxAsset.objects = objects;

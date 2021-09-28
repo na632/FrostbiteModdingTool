@@ -34,7 +34,7 @@ namespace FrostySdk.IO
 			{
 				if (std == null)
 				{
-					std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+					std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
 						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
 				}
 			}

@@ -66,7 +66,8 @@ namespace FrostySdk
 						|| ProfilesLibrary.DataVersion == 20190905
                          || ProfilesLibrary.IsFIFA21DataVersion()
                          || ProfilesLibrary.IsMadden21DataVersion()
-                        )
+                         || ProfilesLibrary.IsFIFA22DataVersion()
+						)
 					{
 						Compress2 = Marshal.GetDelegateForFunctionPointer<CompressFunc2>(Kernel32.GetProcAddress(handle, "OodleLZ_Compress"));
 					}

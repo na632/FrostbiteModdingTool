@@ -4907,7 +4907,7 @@ namespace paulv2k4ModdingExecuter
             set { useModData = value; }
         }
 
-        public bool GameWasPatched { get; private set; }
+        public bool GameWasPatched { get; set; }
 
         public async Task<bool> Run(ILogger inLogger, string gameRootPath, string modsRootPath, params string[] modPaths)
         {
@@ -5039,17 +5039,52 @@ namespace paulv2k4ModdingExecuter
 
             }
 
+            if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
+            {
+                var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
+                if (configIni.Exists)
+                {
+                    StringBuilder newConfig = new StringBuilder();
+                    newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
+                    newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
+                    newConfig.AppendLine("AUTO_LAUNCH = 1");
+                    File.WriteAllText(configIni.FullName, newConfig.ToString());
+                }
 
-            if (foundFrostyMods)// || sameAsLast)
+
+            }
+
+
+            if (foundFrostyMods && UseModData)// || sameAsLast)
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
+            }
+            else if (foundFrostyMods && !UseModData)
             {
                 Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
             else
             {
                 Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
+
+            _ = Task.Delay(60000).ContinueWith((x) =>
+              {
+                  if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
+                  {
+                      var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
+                      if (configIni.Exists)
+                      {
+                          StringBuilder newConfig = new StringBuilder();
+                          newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
+                          newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
+                          File.WriteAllText(configIni.FullName, newConfig.ToString());
+                      }
+                  }
+              });
 
             //});
             return true;

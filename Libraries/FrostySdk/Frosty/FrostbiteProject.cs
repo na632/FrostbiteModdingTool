@@ -282,9 +282,21 @@ namespace FrostySdk
 							nativeWriter.WriteNullTerminatedString(AssetManager.GetBundleEntry(addBundle).Name);
 						}
 						EbxAsset asset = ebxItem.ModifiedEntry.DataObject as EbxAsset;
-                        using (EbxWriter ebxWriter = new EbxWriter(new MemoryStream(), EbxWriteFlags.IncludeTransient))
+
+						EbxBaseWriter ebxWriter = null;
+						if(!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.ProjectEbxWriter))
+                        {
+							ebxWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(
+								ProfilesLibrary.LoadedProfile.ProjectEbxWriter
+								, new MemoryStream(), EbxWriteFlags.IncludeTransient, false);
+						}
+
+						if (ebxWriter == null)
+							ebxWriter = new EbxWriter(new MemoryStream(), EbxWriteFlags.IncludeTransient, false);
+
                         //using (EbxWriterV2 ebxWriter = new EbxWriterV2(new MemoryStream(), EbxWriteFlags.IncludeTransient))
                         {
+							asset.ParentEntry = ebxItem;
 							ebxWriter.WriteAsset(asset);
 							byte[] array = ((MemoryStream)ebxWriter.BaseStream).ToArray();
 							nativeWriter.Write(array.Length);
@@ -736,10 +748,22 @@ namespace FrostySdk
 									ebxEntry.ModifiedEntry.IsTransientModified = isTransientModified;
 									ebxEntry.ModifiedEntry.UserData = userData;
 									EbxReader ebxReader = null;
-									if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
-										ebxReader = new EbxReaderV2(new MemoryStream(buffer), inPatched: false);
-									else
-										ebxReader = new EbxReader(new MemoryStream(buffer));
+									
+									if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.ProjectEbxWriter))
+									{
+										ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
+											ProfilesLibrary.LoadedProfile.ProjectEbxReader,
+											new MemoryStream(buffer), false);
+									}
+
+									if(ebxReader == null)
+                                    {
+                                        if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
+                                            ebxReader = new EbxReaderV2(new MemoryStream(buffer), inPatched: false);
+                                        else
+                                            ebxReader = new EbxReader(new MemoryStream(buffer));
+                                    }
+
 
 									using (
 										ebxReader

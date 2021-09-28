@@ -1,7 +1,7 @@
 {
   "Name": "FIFA22",
   "DisplayName": "FIFA 22",
-  "DataVersion": 20200922,
+  "DataVersion": 20210922,
   "CacheName": "fifa22",
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
@@ -15,11 +15,16 @@
   // EBX Reader (Overriding the base Reader)
   "EBXReader": "EbxReader2022",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EbxWriter2022",
+  "EBXWriter": "EBXWriterDummy",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
+
+  "ProjectEbxWriter": "EBXWriterDummy",
+  "ProjectEbxReader": "EbxReader2022",
+
+
   "Sources": [
     {
       "Path": "Patch",
@@ -47,7 +52,7 @@
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "fbmod" ],
   // Will the Launcher support this Game?
-  "CanLaunchMods": false,
+  "CanLaunchMods": true,
   // Can this Application Edit this Game?
   "CanEdit": true,
 
@@ -60,7 +65,7 @@
   "EbxVersion": 4,
   "RequiresKey": true,
   "MustAddChunks": false,
-  "EnableExecution": false,
+  "EnableExecution": true,
   "SharedBundles": {},
   "IgnoredResTypes": [],
   "CanImportMeshes": false,
@@ -70,8 +75,8 @@
   "CompressedFormatEBX": "Zstd",
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
-  //"CompressedFormatLegacy": "Oodle",
-  "CompressedFormatLegacy": "None",
+  "CompressedFormatLegacy": "Oodle",
+  //"CompressedFormatLegacy": "None",
   "LegacyFileManager": "LFM_Fifa22"
 
 }

@@ -18,11 +18,19 @@ namespace Frostbite.Textures
 {
 	public class TextureImporter : ITextureImporter
 	{
-		public void Import(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
+		public async Task<bool> ImportAsync(string path, EbxAssetEntry assetEntry, Texture textureAsset)
+        {
+			var ta = textureAsset;
+			return await Task.Run(() => { return Import(path, assetEntry, ref ta); });
+        }
+
+		public bool Import(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
 		{
+			bool run = false;
 			if (ProfilesLibrary.TextureImporter == null)
             {
 				DoImport(path, assetEntry, ref textureAsset);
+				run = true;
             }
 			else
 			{
@@ -40,6 +48,7 @@ namespace Frostbite.Textures
 									if (t.Name == ProfilesLibrary.TextureImporter)
 									{
 										((ITextureImporter)Activator.CreateInstance(t)).DoImport(path, assetEntry, ref textureAsset);
+										run = true;
 									}
 								}
 								catch
@@ -50,6 +59,7 @@ namespace Frostbite.Textures
 					}
 				}
 			}
+			return run;
 		}
 
 		public void DoImport(string path, AssetEntry assetEntry)

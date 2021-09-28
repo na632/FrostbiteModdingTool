@@ -82,57 +82,57 @@ namespace FrostySdk.Managers
 		/// <summary>
 		/// 
 		/// </summary>
-		public byte[] CompressedDataOodle
-        {
-            get
-            {
-				if(Data != null)
-                {
-					return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.Oodle);
+		//public byte[] CompressedDataOodle
+  //      {
+  //          get
+  //          {
+		//		if(Data != null)
+  //              {
+		//			return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.Oodle);
 
-				}
-				else
-                {
-					return null;
-                }
+		//		}
+		//		else
+  //              {
+		//			return null;
+  //              }
 
-            }
-        }
+  //          }
+  //      }
 
-		public byte[] CompressedDataZstd
-		{
-			get
-			{
-				if (Data != null)
-				{
-					return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.ZStd);
+		//public byte[] CompressedDataZstd
+		//{
+		//	get
+		//	{
+		//		if (Data != null)
+		//		{
+		//			return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.ZStd);
 
-				}
-				else
-				{
-					return null;
-				}
+		//		}
+		//		else
+		//		{
+		//			return null;
+		//		}
 
-			}
-		}
+		//	}
+		//}
 
-		public byte[] CompressedDataNone
-		{
-			get
-			{
-				if (Data != null)
-				{
-					return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.None);
+		//public byte[] CompressedDataNone
+		//{
+		//	get
+		//	{
+		//		if (Data != null)
+		//		{
+		//			return Utils.CompressFile(Data, null, ResourceType.Invalid, CompressionType.None);
 
-				}
-				else
-				{
-					return null;
-				}
+		//		}
+		//		else
+		//		{
+		//			return null;
+		//		}
 
-			}
-		}
+		//	}
+		//}
 
-        public Guid? ChunkId { get; internal set; }
+        public Guid? ChunkId { get; set; }
     }
 }

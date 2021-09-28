@@ -7,6 +7,7 @@ using FrostySdk.Managers;
 using FrostySdk.Resources;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -43,8 +44,8 @@ namespace FIFA22Plugin
 			{
 				if (std == null)
 				{
-					std = (IEbxSharedTypeDescriptor)AssetManager.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
-						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
+					std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false, true, true);
 				}
 			}
 			else
@@ -154,6 +155,7 @@ namespace FIFA22Plugin
 				Efix.type_info_Guids.Add(ReadUInt());
 
 			CreateTypeFromEfix();
+			//RealClassGuids.Reverse();
 
 			Efix.data_offset_count = ReadUInt();
 			Efix.unk3_count = ReadUInt();
@@ -204,7 +206,7 @@ namespace FIFA22Plugin
         {
             for (var i = 0; i < Efix.class_type_count; i++)
             {
-				if (Efix.class_types.Count > i - 1 && Efix.type_info_Guids.Count > i - 1)
+				if (Efix.class_types.Count > i && Efix.type_info_Guids.Count > i)
 				{
 					var bytesOfGuidA = Efix.class_types[i].ToByteArray();
 					var bytesOfGuidB = BitConverter.GetBytes(Efix.type_info_Guids[i]);
@@ -236,27 +238,31 @@ namespace FIFA22Plugin
 
         public override void InternalReadObjects()
 		{
+			EbxClass? ebxClass = default(EbxClass);
 			for (var i = 0; i < RealClassGuids.Count; i++)
 			{
-				var ebxClass = std.GetClass(RealClassGuids[i]);
+				ebxClass = std.GetClass(RealClassGuids[i]);
 				Type type = TypeLibrary.GetType(ebxClass.Value.NameHash);
 				objects.Add(TypeLibrary.CreateObject(type));
 			}
+			dynamic obj = objects[0];
+			obj.Name = FirstStringName;
 
-			for (var i = 0; i < RealClassGuids.Count; i++)
-			{
-				var ebxClass = std.GetClass(RealClassGuids[i]);
+			//for (var i = 0; i < RealClassGuids.Count; i++)
+			//{
+
+			// read core class
+			ebxClass = std.GetClass(RealClassGuids[0]);
 				Position = PositionBeforeStringSearch;
-				Position += Efix.data_offsets[i];
-				this.ReadClass(ebxClass.Value, objects[i], Efix.data_offsets[i]);
-			}
+				this.ReadClass(ebxClass.Value, objects[0], 32 + Efix.data_offsets[0]);
 
-			if (EBXType.Name.Contains("ChunkFileCollector"))
-			{
-				dynamic obj = objects[0];
-				Position = 96;
-				obj.Manifest.ChunkId = ReadGuid();
-			}
+			//}
+
+			//if (EBXType.Name.Contains("ChunkFileCollector"))
+			//{
+			//	Position = 96;
+			//	obj.Manifest.ChunkId = ReadGuid();
+			//}
 
 			//foreach (EbxInstance ebxInstance in instances)
 			//{
@@ -334,31 +340,37 @@ namespace FIFA22Plugin
 			return null;
 		}
 
-		public override EbxClass GetClass(EbxClass? classType, int index)
+		public override EbxClass GetClass(EbxClass? parentClass, int index)
 		{
-			EbxClass? ebxClass = null;
-			Guid? guid = null;
-			int index2 = (short)index + (classType.HasValue ? classType.Value.Index : 0);
-			guid = std.GetGuid(index2);
-			if (classType.HasValue && classType.Value.SecondSize == 1)
-			{
-				guid = patchStd.GetGuid(index2);
-				ebxClass = patchStd.GetClass(index2);
-				if (!ebxClass.HasValue)
-				{
-					ebxClass = std.GetClass(guid.Value);
-				}
-			}
-			else
-			{
-				ebxClass = std.GetClass(index2);
-			}
-			if (ebxClass.HasValue)
-			{
-				TypeLibrary.AddType(ebxClass.Value.Name, guid);
-			}
-			return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
+			int index2 = (short)index;// + parentClass.Value.Index;
+			return std.GetClass(index2).Value;
 		}
+
+		//public override EbxClass GetClass(EbxClass? classType, int index)
+		//{
+		//	EbxClass? ebxClass = null;
+		//	Guid? guid = null;
+		//	int index2 = (short)index + (classType.HasValue ? classType.Value.Index : 0);
+		//	guid = std.GetGuid(index2);
+		//	if (classType.HasValue && classType.Value.SecondSize == 1)
+		//	{
+		//		guid = patchStd.GetGuid(index2);
+		//		ebxClass = patchStd.GetClass(index2);
+		//		if (!ebxClass.HasValue)
+		//		{
+		//			ebxClass = std.GetClass(guid.Value);
+		//		}
+		//	}
+		//	else
+		//	{
+		//		ebxClass = std.GetClass(index2);
+		//	}
+		//	if (ebxClass.HasValue)
+		//	{
+		//		TypeLibrary.AddType(ebxClass.Value.Name, guid);
+		//	}
+		//	return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
+		//}
 
 		public override EbxField GetField(EbxClass classType, int index)
 		{
@@ -474,7 +486,8 @@ namespace FIFA22Plugin
 				case EbxFieldType.String:
 					return ReadSizedString(32);
 				case EbxFieldType.CString:
-					return ReadCString(ReadUInt());
+					//return ReadCString(ReadUInt());
+					return ReadCString(ReadUInt() + 48);
 				case EbxFieldType.Enum:
 					return ReadInt32LittleEndian();
 				case EbxFieldType.FileRef:
@@ -516,8 +529,11 @@ namespace FIFA22Plugin
 			}
 		}
 
+
 		public override object ReadClass(EbxClass classType, object obj, long startOffset)
 		{
+			Position = startOffset;
+
 			/// DEBUG STREAM OUT
 			//var pos = stream.Position;
 			//var out_file = new FileStream("testReadClass.dat", FileMode.OpenOrCreate);
@@ -527,19 +543,8 @@ namespace FIFA22Plugin
 			//stream.Position = pos;
 
 			// END OF DEBUG
-
-			if (obj == null)
-			{
-				Position += classType.Size;
-				while (Position % (long)classType.Alignment != 0L)
-				{
-					Position++;
-				}
-				return null;
-			}
 			Type type = obj.GetType();
-			try
-			{
+			
 				List<Tuple<EbxField, PropertyInfo>> properties = new List<Tuple<EbxField, PropertyInfo>>();
 				for (int i = 0; i < classType.FieldCount; i++)
 				{
@@ -548,14 +553,18 @@ namespace FIFA22Plugin
 					properties.Add(new Tuple<EbxField, PropertyInfo>(field, property));
 				}
 
-				//for (int i = 0; i < classType.FieldCount; i++)
-				//{
-				//	EbxField field = GetField(classType, classType.FieldIndex + i);
-				//	PropertyInfo property = GetProperty(type, field);
-				foreach(var t in properties.OrderByDescending(x=>x.Item1.DataOffset))
+			//for (int i = 0; i < classType.FieldCount; i++)
+			//{
+			//	EbxField field = GetField(classType, classType.FieldIndex + i);
+			//	PropertyInfo property = GetProperty(type, field);
+			foreach (var t in properties)
+			{
+				try
 				{
+
 					EbxField field = t.Item1;
 					PropertyInfo property = t.Item2;
+					Position = startOffset + field.DataOffset;
 
 					IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
 					if (field.DebugType == EbxFieldType.Inherited)
@@ -569,12 +578,6 @@ namespace FIFA22Plugin
 					}
 					if (property != null)
 					{
-						//IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
-						//if (field.DebugType == EbxFieldType.Inherited)
-						//{
-						//	ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
-						//	continue;
-						//}
 						if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)
 						{
 							while (Position % 8 != 0L)
@@ -623,20 +626,21 @@ namespace FIFA22Plugin
 							property.SetValue(obj, value);
 						}
 					}
-                    else
-                    {
+					else
+					{
 						Position += 4;
-                    }
+					}
 				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
+			}
 				while (Position % (long)classType.Alignment != 0L)
 				{
 					Position++;
 				}
-			}
-			catch (Exception ex)
-            {
-
-            }
+			
 			return null;
 		}
 
@@ -699,7 +703,7 @@ namespace FIFA22Plugin
 					{
 						uint num = ReadUInt();
 						int importsV = (int)(num & int.MaxValue);
-						if (num >> 31 == 1)
+						if (num >> 31 == 1 && imports.Count > importsV) // temp measure
 						{
 							return new PointerRef(imports[importsV]);
 						}

@@ -53,6 +53,9 @@
                                                             <MenuItem Header="Import Folder"
                                                                      x:Name="btnImportFolder" Tag="{Binding}"
                                                                               Click="btnImportFolder_Click" />
+                                                            <MenuItem Header="Export Folder"
+                                                                     x:Name="btnExportFolder" Tag="{Binding}"
+                                                                              Click="btnExportFolder_Click" />
                                                         </ContextMenu>
                                                     </TextBlock.ContextMenu>
 

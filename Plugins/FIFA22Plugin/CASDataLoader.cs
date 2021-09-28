@@ -42,12 +42,8 @@ namespace FIFA22Plugin
             if (string.IsNullOrEmpty(path))
                 return null;
 
-            using (NativeReader nr_cas = new NativeReader(
-                new FileStream(path, FileMode.Open, FileAccess.Read)
-                )
-                )
+            using (NativeReader nr_cas = new NativeReader(path))
             {
-
                 nr_cas.Position = 0;
                 int index = 0;
                 foreach (CASBundle casBundle in casBundles.Where(x=>x.TotalSize > 0))
@@ -101,6 +97,8 @@ namespace FIFA22Plugin
                                 ebxobjectinlist.SetValue("offset", casBundle.Offsets[i]);
                                 ebxobjectinlist.SetValue("size", casBundle.Sizes[i]);
 
+                                ebxobjectinlist.SetValue("CASFileLocation", NativeFileLocation);
+
                                 ebxobjectinlist.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 ebxobjectinlist.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[i]);
                                 ebxobjectinlist.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[i]);
@@ -123,6 +121,8 @@ namespace FIFA22Plugin
                                 resobjectinlist.SetValue("offset", casBundle.Offsets[ebxCount + i]);
                                 resobjectinlist.SetValue("size", casBundle.Sizes[ebxCount + i]);
 
+                                resobjectinlist.SetValue("CASFileLocation", NativeFileLocation);
+
                                 resobjectinlist.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 resobjectinlist.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + i]);
                                 resobjectinlist.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + i]);
@@ -141,6 +141,9 @@ namespace FIFA22Plugin
 
                                 chunkObjectInList.SetValue("offset", casBundle.Offsets[ebxCount + resCount + i]);
                                 chunkObjectInList.SetValue("size", casBundle.Sizes[ebxCount + resCount + i]);
+
+                                chunkObjectInList.SetValue("CASFileLocation", NativeFileLocation);
+
 
                                 chunkObjectInList.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 chunkObjectInList.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
@@ -268,8 +271,6 @@ namespace FIFA22Plugin
                 }
             }
 
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
             return dboAll;
         }
 

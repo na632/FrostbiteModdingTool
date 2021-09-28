@@ -395,7 +395,8 @@ namespace FrostySdk
 				|| ProfilesLibrary.DataVersion == 20190905
                 || ProfilesLibrary.IsMadden21DataVersion()
                 || ProfilesLibrary.IsFIFA21DataVersion()
-                )
+                || ProfilesLibrary.IsFIFA22DataVersion()
+				)
 			{
 				compressCode = 4464;
 				num = (ulong)Oodle.Compress2(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L, 0L, 0L, 0L);

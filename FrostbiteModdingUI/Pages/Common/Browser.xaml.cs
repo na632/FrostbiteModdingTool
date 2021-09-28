@@ -473,41 +473,7 @@ namespace FIFAModdingUI.Pages.Common
 
 				if (saveFileDialog.ShowDialog().Value)
 				{
-					var legacyData = ((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ToArray();
-					if (SelectedLegacyEntry.Type == "DDS" && saveFileDialog.FileName.Contains("PNG", StringComparison.OrdinalIgnoreCase))
-					{
-						ImageEngineImage originalImage = new ImageEngineImage(legacyData);
-
-						var imageBytes = originalImage.Save(
-							new ImageFormats.ImageEngineFormatDetails(
-								ImageEngineFormat.PNG)
-							, MipHandling.KeepTopOnly
-							, removeAlpha: false);
-
-						await File.WriteAllBytesAsync(saveFileDialog.FileName, imageBytes);
-					}
-					else if (SelectedLegacyEntry.Type == "DDS" && saveFileDialog.FileName.Contains("PNG", StringComparison.OrdinalIgnoreCase))
-					{
-						//DDSImage2 image2 = new DDSImage2(legacyData.ToArray());
-						//File.WriteAllBytes(saveFileDialog.FileName, image2.GetTextureData());
-
-						//await legacyData.CopyToAsync(new FileStream(saveFileDialog.FileName, FileMode.OpenOrCreate));
-						//await File.WriteAllBytesAsync(saveFileDialog.FileName, legacyData);
-
-						//await File.WriteAllBytesAsync(saveFileDialog.FileName, pOutData.Data);
-
-						ImageEngineImage originalImage = new ImageEngineImage(legacyData);
-
-						await originalImage.Save(saveFileDialog.FileName
-							, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.DDS_DXT5)
-							, GenerateMips: MipHandling.KeepExisting
-							, removeAlpha: false);
-					}
-					else
-                    {
-						await File.WriteAllBytesAsync(saveFileDialog.FileName, legacyData);
-					}
-					MainEditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveFileDialog.FileName}");
+					await ExportAsset(SelectedLegacyEntry, saveFileDialog.FileName);
 				}
 			}
 			else if (SelectedEntry != null)
@@ -522,21 +488,23 @@ namespace FIFAModdingUI.Pages.Common
 					saveFileDialog.AddExtension = true;
 					if (saveFileDialog.ShowDialog().Value)
 					{
-						var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(SelectedEntry.Name);
-						if (resEntry != null)
-						{
+						await ExportAsset(SelectedEntry, saveFileDialog.FileName);
 
-							using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(resEntry))
-							{
-								Texture texture = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager);
-								var extractedExt = saveFileDialog.FileName.Substring(saveFileDialog.FileName.Length - 3, 3);
-								TextureExporter textureExporter = new TextureExporter();
-								textureExporter.Export(texture, saveFileDialog.FileName, "*." + extractedExt);
-								MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
-							}
+						//var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(SelectedEntry.Name);
+						//if (resEntry != null)
+						//{
+
+						//	using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(resEntry))
+						//	{
+						//		Texture texture = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager);
+						//		var extractedExt = saveFileDialog.FileName.Substring(saveFileDialog.FileName.Length - 3, 3);
+						//		TextureExporter textureExporter = new TextureExporter();
+						//		textureExporter.Export(texture, saveFileDialog.FileName, "*." + extractedExt);
+						//		MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+						//	}
 
 
-						}
+						//}
 					}
 				}
 
@@ -578,27 +546,27 @@ namespace FIFAModdingUI.Pages.Common
 
 							var skeletonEntryText = "content/character/rig/skeleton/player/skeleton_player";
 							var fifaMasterSkeleton = AssetManager.Instance.EBX.ContainsKey(skeletonEntryText);
-							if(!fifaMasterSkeleton)
-                            {
+							if (!fifaMasterSkeleton)
+							{
 								MeshSkeletonSelector meshSkeletonSelector = new MeshSkeletonSelector();
 								var meshSelectorResult = meshSkeletonSelector.ShowDialog();
-								if(meshSelectorResult.HasValue && meshSelectorResult.Value)
-                                {
-                                    if (!meshSelectorResult.Value)
-                                    {
+								if (meshSelectorResult.HasValue && meshSelectorResult.Value)
+								{
+									if (!meshSelectorResult.Value)
+									{
 										MessageBox.Show("Cannot export without a Skeleton");
 										return;
-                                    }
+									}
 
 									skeletonEntryText = meshSkeletonSelector.AssetEntry.Name;
 
-                                }
-                                else
-                                {
+								}
+								else
+								{
 									MessageBox.Show("Cannot export without a Skeleton");
 									return;
 								}
-                            }
+							}
 
 							SaveFileDialog saveFileDialog = new SaveFileDialog();
 							var filt = "*.fbx";
@@ -611,8 +579,8 @@ namespace FIFAModdingUI.Pages.Common
 								exporter.Export(AssetManager.Instance
 									, skinnedMeshEbx.RootObject
 									, saveFileDialog.FileName, "FBX_2012", "Meters", true, skeletonEntryText, "*.fbx", meshSet);
-								
-								
+
+
 								MainEditorWindow.Log($"Exported {SelectedEntry.Name} to {saveFileDialog.FileName}");
 
 
@@ -622,7 +590,7 @@ namespace FIFAModdingUI.Pages.Common
 				}
 
 				else
-                {
+				{
 					var ebx = AssetManager.Instance.GetEbxStream((EbxAssetEntry)SelectedEntry);
 					if (ebx != null)
 					{
@@ -644,6 +612,94 @@ namespace FIFAModdingUI.Pages.Common
 				}
 			}
 		}
+
+		private async Task ExportAsset(AssetEntry assetEntry, string saveLocation)
+        {
+			bool isFolder = false;
+			if (new DirectoryInfo(saveLocation).Exists)
+			{
+				saveLocation += "\\" + assetEntry.Filename;
+				isFolder = true;
+			}
+
+			if (assetEntry is LegacyFileEntry)
+            {
+				var legacyData = ((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ToArray();
+				if (SelectedLegacyEntry.Type == "DDS" 
+					&& 
+					(saveLocation.Contains("PNG", StringComparison.OrdinalIgnoreCase)
+					 || isFolder)
+					)
+				{
+					if(isFolder)
+                    {
+						saveLocation += ".png";
+                    }
+
+					ImageEngineImage originalImage = new ImageEngineImage(legacyData);
+
+					var imageBytes = originalImage.Save(
+						new ImageFormats.ImageEngineFormatDetails(
+							ImageEngineFormat.PNG)
+						, MipHandling.KeepTopOnly
+						, removeAlpha: false);
+
+					await File.WriteAllBytesAsync(saveLocation, imageBytes);
+				}
+				else if (SelectedLegacyEntry.Type == "DDS" && saveLocation.Contains("DDS", StringComparison.OrdinalIgnoreCase))
+				{
+					ImageEngineImage originalImage = new ImageEngineImage(legacyData);
+
+					await originalImage.Save(saveLocation
+						, new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.DDS_DXT5)
+						, GenerateMips: MipHandling.KeepExisting
+						, removeAlpha: false);
+				}
+				else
+				{
+					if (isFolder)
+						saveLocation += "." + SelectedLegacyEntry.Type;
+
+					await File.WriteAllBytesAsync(saveLocation, legacyData);
+				}
+				MainEditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveLocation}");
+			}
+			else if(assetEntry is EbxAssetEntry)
+            {
+				if (assetEntry.Type == "TextureAsset")
+				{
+					var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(assetEntry.Name);
+					if (resEntry != null)
+					{
+						using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(resEntry))
+						{
+							Texture texture = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager);
+							TextureExporter textureExporter = new TextureExporter();
+							if (isFolder)
+								saveLocation += ".png";
+							textureExporter.Export(texture, saveLocation, "*.png");
+							MainEditorWindow.Log($"Exported {assetEntry.Filename} to {saveLocation}");
+						}
+					}
+				}
+				else
+				{
+					var ebx = AssetManager.Instance.GetEbxStream((EbxAssetEntry)assetEntry);
+					if (ebx != null)
+					{
+						if (isFolder)
+							saveLocation += ".bin";
+						File.WriteAllBytes(saveLocation, ((MemoryStream)ebx).ToArray());
+							MainEditorWindow.Log($"Exported {assetEntry.Filename} to {saveLocation}");
+						
+					}
+					else
+					{
+						MainEditorWindow.Log("Failed to export file");
+					}
+				}
+			}
+        }
 
 		AssetPath SelectedAssetPath = null;
 
@@ -1305,13 +1361,14 @@ namespace FIFAModdingUI.Pages.Common
 			dupWindow = null;
         }
 
-        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        private async void btnDelete_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
-		private void btnImportFolder_Click(object sender, RoutedEventArgs e)
+		private async void btnImportFolder_Click(object sender, RoutedEventArgs e)
 		{
+			bool importedSomething = false;
 			MenuItem parent = sender as MenuItem;
 			if (parent != null)
 			{
@@ -1319,7 +1376,6 @@ namespace FIFAModdingUI.Pages.Common
 
 				FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
 				folderBrowserDialog.AllowMultiSelect = false;
-				folderBrowserDialog.InitialFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
 				if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				{
 					string folder = folderBrowserDialog.SelectedFolder;
@@ -1333,13 +1389,27 @@ namespace FIFAModdingUI.Pages.Common
 							if (importFileInfoSplit.Length > 1)
 							{
 								importFileInfoSplit[1] = importFileInfoSplit[1].Replace(".png", "");
+
 								var resEntryPath = AssetManager.Instance.RES.Keys.FirstOrDefault(
-									x => x.StartsWith(assetPath.FullPath.Substring(1))
-									&& x.Contains(importFileInfoSplit[0])
-									&& x.Contains(importFileInfoSplit[1])
-									&& !x.Contains("brand")
-									&& !x.Contains("crest")
+									x=> x.EndsWith(
+										"/" + importFileInfo.Name.Replace(".png","", StringComparison.OrdinalIgnoreCase)
+										, StringComparison.OrdinalIgnoreCase)
 									);
+
+								if (resEntryPath == null)
+								{
+									resEntryPath = AssetManager.Instance.RES.Keys.FirstOrDefault(
+										x => x.StartsWith(assetPath.FullPath.Substring(1))
+										&& x.Contains(importFileInfoSplit[0])
+										&& x.Contains(importFileInfoSplit[1])
+										&& !x.Contains("brand")
+										&& !x.Contains("crest")
+										);
+								}
+
+								if (resEntryPath == null)
+									continue;
+
 								var resEntry = AssetManager.Instance.GetResEntry(resEntryPath);
 								if (resEntry != null)
 								{
@@ -1349,8 +1419,8 @@ namespace FIFAModdingUI.Pages.Common
 
 									if (ebxAssetEntry != null)
 									{
-										textureImporter.Import(fileName, ebxAssetEntry, ref texture);
-										MainEditorWindow.Log($"Imported {fileName} to {resEntryPath}");
+										await textureImporter.ImportAsync(fileName, ebxAssetEntry, texture);
+										importedSomething = true;
 									}
 								}
 								else
@@ -1362,8 +1432,8 @@ namespace FIFAModdingUI.Pages.Common
 										var isImage = legEntry.Type == "DDS";
 										if (isImage)
 										{
-											AssetManager.Instance.DoLegacyImageImport(fileName, legEntry);
-											MainEditorWindow.Log($"Imported {fileName} to {legAssetPath}");
+											await AssetManager.Instance.DoLegacyImageImportAsync(fileName, legEntry);
+										importedSomething = true;
 										}
 
 									}
@@ -1377,14 +1447,50 @@ namespace FIFAModdingUI.Pages.Common
 							if (legEntry != null)
 							{
 								AssetManager.Instance.ModifyLegacyAsset(legEntry.Name, File.ReadAllBytes(fileName), false);
-								MainEditorWindow.Log($"Imported {fileName} to {legAssetPath}");
+										importedSomething = true;
 							}
 						}
 					}
+
+
+
+					if (importedSomething)
+					{
+						MainEditorWindow.Log($"Imported {folder} to {assetPath.FullPath}");
+					}
+				}
+			}
+
+			
+
+		}
+
+		private async void btnExportFolder_Click(object sender, RoutedEventArgs e)
+		{
+			MenuItem parent = sender as MenuItem;
+			if (parent != null)
+			{
+				var assetPath = parent.Tag as AssetPath;
+
+				FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+				folderBrowserDialog.AllowMultiSelect = false;
+				if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				{
+					string folder = folderBrowserDialog.SelectedFolder;
+					var ebxInPath = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.Contains(assetPath.FullPath.Substring(1)));
+                    if (ebxInPath.Any())
+                    {
+						foreach(var ebx in ebxInPath)
+                        {
+							await ExportAsset(ebx, folder);
+                        }
+                    }
+
+					MainEditorWindow.Log($"Exported {assetPath.FullPath} to {folder}");
+
 				}
 			}
 		}
-
     }
 
     internal class AssetPath
