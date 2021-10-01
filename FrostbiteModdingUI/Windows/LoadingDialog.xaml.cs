@@ -39,6 +39,11 @@ namespace FrostbiteModdingUI.Windows
 
         }
 
+        public void SetProgressBarMaximum(int maximum)
+        {
+            pbar.Maximum = maximum;
+        }
+
         public void Update(int progress)
         {
             Dispatcher.Invoke(() => {
@@ -46,11 +51,10 @@ namespace FrostbiteModdingUI.Windows
                 pring.Visibility = Visibility.Collapsed;
                 pbar.Visibility = Visibility.Visible;
                 pbar.Value = progress;
-
             });
         }
 
-        public async void UpdateAsync(int progress)
+        public async Task UpdateAsync(int progress)
         {
             await Task.Run(() => { Update(progress); });
         }

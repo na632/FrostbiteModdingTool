@@ -624,8 +624,8 @@ namespace FIFAModdingUI.Pages.Common
 
 			if (assetEntry is LegacyFileEntry)
             {
-				var legacyData = ((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", SelectedLegacyEntry)).ToArray();
-				if (SelectedLegacyEntry.Type == "DDS" 
+				var legacyData = ((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", assetEntry)).ToArray();
+				if (assetEntry.Type == "DDS" 
 					&& 
 					(saveLocation.Contains("PNG", StringComparison.OrdinalIgnoreCase)
 					 || isFolder)
@@ -646,7 +646,7 @@ namespace FIFAModdingUI.Pages.Common
 
 					await File.WriteAllBytesAsync(saveLocation, imageBytes);
 				}
-				else if (SelectedLegacyEntry.Type == "DDS" && saveLocation.Contains("DDS", StringComparison.OrdinalIgnoreCase))
+				else if (assetEntry.Type == "DDS" && saveLocation.Contains("DDS", StringComparison.OrdinalIgnoreCase))
 				{
 					ImageEngineImage originalImage = new ImageEngineImage(legacyData);
 
@@ -658,20 +658,20 @@ namespace FIFAModdingUI.Pages.Common
 				else
 				{
 					if (isFolder)
-						saveLocation += "." + SelectedLegacyEntry.Type;
+						saveLocation += "." + assetEntry.Type;
 
 					await File.WriteAllBytesAsync(saveLocation, legacyData);
 				}
-				MainEditorWindow.Log($"Exported {SelectedLegacyEntry.Filename} to {saveLocation}");
+				MainEditorWindow.Log($"Exported {assetEntry.Filename} to {saveLocation}");
 			}
 			else if(assetEntry is EbxAssetEntry)
             {
 				if (assetEntry.Type == "TextureAsset")
 				{
-					var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(assetEntry.Name);
+					var resEntry = AssetManager.Instance.GetResEntry(assetEntry.Name);
 					if (resEntry != null)
 					{
-						using (var resStream = ProjectManagement.Instance.Project.AssetManager.GetRes(resEntry))
+						using (var resStream = AssetManager.Instance.GetRes(resEntry))
 						{
 							Texture texture = new Texture(resStream, ProjectManagement.Instance.Project.AssetManager);
 							TextureExporter textureExporter = new TextureExporter();
@@ -1368,19 +1368,29 @@ namespace FIFAModdingUI.Pages.Common
 
 		private async void btnImportFolder_Click(object sender, RoutedEventArgs e)
 		{
+
 			bool importedSomething = false;
 			MenuItem parent = sender as MenuItem;
 			if (parent != null)
 			{
 				var assetPath = parent.Tag as AssetPath;
+				LoadingDialog loadingDialog = new LoadingDialog($"Importing into {assetPath.FullPath}", "Import Started");
 
 				FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
 				folderBrowserDialog.AllowMultiSelect = false;
 				if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				{
 					string folder = folderBrowserDialog.SelectedFolder;
-					foreach (string fileName in Directory.GetFiles(folder, "*.*", SearchOption.TopDirectoryOnly))
+					var filesGathered = Directory.GetFiles(folder, "*.*", SearchOption.TopDirectoryOnly);
+					var filesImportAttempted = 0;
+					loadingDialog.SetProgressBarMaximum(filesGathered.Length);
+					loadingDialog.Show();
+
+					foreach (string fileName in filesGathered)
 					{
+						filesImportAttempted++;
+						await loadingDialog.UpdateAsync(filesImportAttempted);
+
 						FileInfo fi = new FileInfo(fileName);
 						if (fi.Extension.Contains(".png"))
 						{
@@ -1407,33 +1417,40 @@ namespace FIFAModdingUI.Pages.Common
 										);
 								}
 
-								if (resEntryPath == null)
-									continue;
-
-								var resEntry = AssetManager.Instance.GetResEntry(resEntryPath);
-								if (resEntry != null)
+								if (resEntryPath != null)
 								{
-									Texture texture = new Texture(resEntry);
-									TextureImporter textureImporter = new TextureImporter();
-									EbxAssetEntry ebxAssetEntry = AssetManager.Instance.GetEbxEntry(resEntryPath);
 
-									if (ebxAssetEntry != null)
+									var resEntry = AssetManager.Instance.GetResEntry(resEntryPath);
+									if (resEntry != null)
 									{
-										await textureImporter.ImportAsync(fileName, ebxAssetEntry, texture);
-										importedSomething = true;
+										Texture texture = new Texture(resEntry);
+										TextureImporter textureImporter = new TextureImporter();
+										EbxAssetEntry ebxAssetEntry = AssetManager.Instance.GetEbxEntry(resEntryPath);
+
+										if (ebxAssetEntry != null)
+										{
+											await textureImporter.ImportAsync(fileName, ebxAssetEntry, texture);
+											importedSomething = true;
+										}
 									}
+
 								}
 								else
-                                {
-									var legAssetPath = assetPath.FullPath.Substring(1, assetPath.FullPath.Length-1) + "/" + fi.Name.Substring(0, fi.Name.LastIndexOf(".")) + fi.Extension.ToLower();
-									var legEntry = (LegacyFileEntry)AssetManager.Instance.GetCustomAssetEntry("legacy", legAssetPath);
-									if(legEntry != null)
-                                    {
+								{
+									var ext = fi.Extension.ToLower();
+									if (ext == ".png")
+										ext = ".dds";
+
+									var legAssetPath = assetPath.FullPath.Substring(1, assetPath.FullPath.Length - 1) + "/" + fi.Name.Substring(0, fi.Name.LastIndexOf(".")) + ext;
+
+									var legEntry = (LegacyFileEntry)AssetManager.Instance.EnumerateCustomAssets("legacy").FirstOrDefault(x => x.Name.EndsWith(legAssetPath));
+									if (legEntry != null)
+									{
 										var isImage = legEntry.Type == "DDS";
 										if (isImage)
 										{
 											await AssetManager.Instance.DoLegacyImageImportAsync(fileName, legEntry);
-										importedSomething = true;
+											importedSomething = true;
 										}
 
 									}
@@ -1452,7 +1469,7 @@ namespace FIFAModdingUI.Pages.Common
 						}
 					}
 
-
+					loadingDialog.Close();
 
 					if (importedSomething)
 					{
@@ -1488,6 +1505,14 @@ namespace FIFAModdingUI.Pages.Common
 
 					MainEditorWindow.Log($"Exported {assetPath.FullPath} to {folder}");
 
+					var legacyInPath = AssetManager.Instance.EnumerateCustomAssets("legacy").Where(x => x.Name.Contains(assetPath.FullPath.Substring(1)));
+					if (legacyInPath.Any())
+					{
+						foreach (var l in legacyInPath)
+						{
+							await ExportAsset(l, folder);
+						}
+					}
 				}
 			}
 		}

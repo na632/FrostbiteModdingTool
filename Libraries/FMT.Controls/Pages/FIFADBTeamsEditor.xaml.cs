@@ -78,16 +78,34 @@ namespace FMT.Controls.Pages
         public FIFADBTeamsEditor()
         {
             InitializeComponent();
-            AssetManager.AssetManagerInitialised += AssetManagerInitialised;
-            AssetManager.AssetManagerModified += AssetManagerInitialised;
+            AttachToAssetManager();
             DataContext = null;
             DataContext = this;
         }
 
         ~FIFADBTeamsEditor()
         {
+            DetachFromAssetManager();
+
+            if(DB != null)
+                DB.Dispose();
+
+            DBAssetEntry = null;
+            DBAssetStream = null;
+            DBMetaAssetStream = null;
+            DB = null;
+        }
+
+        public void AttachToAssetManager()
+        {
+            AssetManager.AssetManagerInitialised += AssetManagerInitialised;
+            //AssetManager.AssetManagerModified += AssetManagerInitialised;
+        }
+
+        public void DetachFromAssetManager()
+        {
             AssetManager.AssetManagerInitialised -= AssetManagerInitialised;
-            AssetManager.AssetManagerModified -= AssetManagerInitialised;
+            //AssetManager.AssetManagerModified -= AssetManagerInitialised;
         }
 
         private async Task Load()

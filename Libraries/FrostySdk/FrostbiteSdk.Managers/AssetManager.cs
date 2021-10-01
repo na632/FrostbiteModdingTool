@@ -1749,6 +1749,9 @@ public interface IAssetLoader
 
 		public ResAssetEntry GetResEntry(string name)
 		{
+			if (string.IsNullOrEmpty(name))
+				return null;
+
 			name = name.ToLower();
 			if (!RES.ContainsKey(name))
 			{

@@ -19,7 +19,7 @@ namespace SdkGenerator
 {
     public class ClassesSdkCreator
     {
-        public static AssetManager AssetManager;
+        public readonly static AssetManager AssetManager = AssetManager.Instance;
 
         public static ResourceManager ResourceManager;
 
@@ -1009,7 +1009,7 @@ namespace SdkGenerator
                 memoryReader.Position = offset;
                 //var t = Type.GetType(typeStr);
                 //IClassInfo classInfo = (IClassInfo)Activator.CreateInstance(t);
-                var t = AssetManager.LoadTypeByName(typeStr);
+                var t = AssetManager.Instance.LoadTypeByName(typeStr);
                 IClassInfo classInfo = (IClassInfo)t;
                 classInfo.Read(memoryReader);
                 classInfos.Add(classInfo);
