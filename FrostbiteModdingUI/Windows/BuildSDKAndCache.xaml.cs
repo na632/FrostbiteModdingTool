@@ -184,8 +184,8 @@ namespace FIFAModdingUI.Windows
                         {
                             return true;
                         }
-                        var cacheHead = nativeReader.ReadUInt();
-                        if (cacheHead != FileSystem.Head)
+                        var cacheHead = nativeReader.ReadULong();
+                        if (cacheHead != FileSystem.SystemIteration)
                         {
                             return true;
                         }

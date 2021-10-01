@@ -10,7 +10,7 @@ using System.Text;
 
 namespace FIFA22Plugin.Cache
 {
-    public class CacheReader : ICacheReader
+    public class Fifa22CacheReader : ICacheReader
     {
         public bool Read()
         {
@@ -22,8 +22,8 @@ namespace FIFA22Plugin.Cache
 				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
 					return false;
 
-				var cacheHead = nativeReader.ReadUInt();
-				if (cacheHead != fs.Head)
+				var cacheHead = nativeReader.ReadULong();
+				if (cacheHead != fs.SystemIteration)
 				{
 					flag = true;
 				}

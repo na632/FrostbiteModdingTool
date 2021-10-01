@@ -9,7 +9,7 @@ using System.Text;
 
 namespace FIFA22Plugin.Cache
 {
-    public class CacheWriter : ICacheWriter
+    public class Fifa22CacheWriter : ICacheWriter
     {
         public void Write()
         {
@@ -19,7 +19,7 @@ namespace FIFA22Plugin.Cache
             using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
                 nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
-                nativeWriter.Write(fs.Head);
+                nativeWriter.Write(fs.SystemIteration);
                 nativeWriter.Write(AssetManager.Instance.superBundles.Count);
                 foreach (SuperBundleEntry superBundle in AssetManager.Instance.superBundles)
                 {
@@ -62,26 +62,6 @@ namespace FIFA22Plugin.Cache
                     {
                         nativeWriter.Write(item);
                     }
-
-                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
-                    //if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
-                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.SBFileLocation);
-                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
-                    //if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
-                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
-
-                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
-                    //if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
-                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
-
-                    //nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
-                    //nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
-                    //nativeWriter.Write(ebxEntry.SB_Sha1_Position);
-                    //nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
-                    //nativeWriter.Write(ebxEntry.ParentBundleOffset);
-                    //nativeWriter.Write(ebxEntry.ParentBundleSize);
-                    //nativeWriter.WriteLengthPrefixedString(ebxEntry.Bundle);
-
 
                 }
                 nativeWriter.Write(AssetManager.Instance.RES.Values.Count);

@@ -644,7 +644,7 @@ public interface IAssetLoader
 			DateTime now = DateTime.Now;
 			List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
 
-			if (!ReadFromCache(out prePatchCache))
+			if (!CacheRead(out prePatchCache))
 			{
 				logger.Log($"Cache Needs to Built/Updated");
 
@@ -656,7 +656,7 @@ public interface IAssetLoader
 					((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
 				}
 				GC.Collect();
-				WriteToCache();
+				CacheWrite();
 			}
 			
 			DoEbxIndexing();
@@ -831,7 +831,7 @@ public interface IAssetLoader
 						WriteToLog($"Initial load - Indexing data ({Math.Round(((double)ebxProgress / (double)count * 100.0), 1)}%)");
 					});
 
-					WriteToCache();
+					CacheWrite();
 					WriteToLog("Initial load - Indexing complete");
 
 				}
@@ -2524,7 +2524,7 @@ public interface IAssetLoader
 			zipCache.Save();
 		}
 
-		private bool ReadFromCache(out List<EbxAssetEntry> prePatchCache)
+		private bool CacheRead(out List<EbxAssetEntry> prePatchCache)
 		{
 			prePatchCache = null;
 			if (!File.Exists(fs.CacheName + ".cache"))
@@ -2548,8 +2548,8 @@ public interface IAssetLoader
 				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
 					return false;
 
-				var cacheHead = nativeReader.ReadUInt();
-				if (cacheHead != fs.Head)
+				var cacheHead = nativeReader.ReadULong();
+				if (cacheHead != fs.SystemIteration)
 				{
 					flag = true;
 					prePatchCache = new List<EbxAssetEntry>();
@@ -2836,7 +2836,7 @@ public interface IAssetLoader
 
 
 
-        private void WriteToCache()
+        private void CacheWrite()
         {
             if (!string.IsNullOrEmpty(ProfilesLibrary.CacheWriter))
             {
@@ -2849,7 +2849,7 @@ public interface IAssetLoader
             using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
                 nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
-                nativeWriter.Write(fs.Head);
+                nativeWriter.Write(fs.SystemIteration);
                 if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
                 {
                     nativeWriter.Write(0);

@@ -57,9 +57,9 @@
   "CanEdit": true,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
-  "CacheWriter": "CacheWriter",
+  "CacheWriter": "Fifa22CacheWriter",
   // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
-  "CacheReader": "CacheReader",
+  "CacheReader": "Fifa22CacheReader",
 
   "Banner": "",
   "EbxVersion": 4,

@@ -38,6 +38,11 @@ namespace FrostySdk
 
 		private uint headNum;
 
+		/// <summary>
+		/// A combination calculation of baseNum + headNum + lastAccessDate of the EXE
+		/// </summary>
+		public ulong SystemIteration;
+
 		private List<ManifestBundleInfo> manifestBundles = new List<ManifestBundleInfo>();
 
 		private List<ManifestChunkInfo> manifestChunks = new List<ManifestChunkInfo>();
@@ -620,6 +625,8 @@ namespace FrostySdk
 				ProcessCatalogs(dataLayoutTOC);
 				ProcessManifest(dataLayoutTOC);
 			}
+
+			SystemIteration = (uint)baseNum + (uint)headNum + (ulong)new FileInfo(Directory.GetFiles(basePath, "*.exe").First()).LastWriteTime.Ticks;
 		}
 
 		private void ProcessCatalogs(DbObject patchLayout)
