@@ -106,6 +106,8 @@ namespace FrostySdk
 
         public static FileSystem Instance;
 
+		public string LocaleIniPath => ResolvePath("native_data/locale.ini");
+
 		public FileSystem(string inBasePath)
 		{
 			if (string.IsNullOrEmpty(inBasePath))
@@ -125,10 +127,15 @@ namespace FrostySdk
 			cacheName = ProfilesLibrary.CacheName;
 			deobfuscatorType = ProfilesLibrary.Deobfuscator;
 
-            Instance = this;
+
+			LoadLocaleINI();
+
+			Instance = this;
 		}
 
-		private byte[] LoadKey()
+		
+
+		public byte[] LoadKey()
 		{
 			if (ProfilesLibrary.RequiresKey)
 			{
@@ -398,6 +405,47 @@ namespace FrostySdk
 		public string GetCasFilePath(int catalog, int cas, bool patch)
 		{
 			return GetFilePath(catalog, cas, patch);
+		}
+
+		byte[] lKeyABC = new byte[] { 0x27, 0x0E, 0xCC, 0xA9, 0x96, 0x7E, 0x96, 0xBA, 0x35, 0x7E, 0x90, 0x90, 0xE6, 0x29, 0x9D, 0x36, 0x9D, 0xF8, 0x42, 0xA3, 0x3E, 0xBB, 0x08, 0xFB, 0x67, 0x85, 0x07, 0xA7, 0x80, 0x0A, 0xBA, 0x11, 0xA0, 0x51, 0x02, 0xF5, 0x40, 0xE4, 0x12, 0x91, 0x27, 0x89, 0x3D, 0x15, 0xF4, 0x50, 0x7A, 0x8E };
+		public bool LocaleIsEncrypted;
+
+		public byte[] LoadLocaleINI()
+		{
+			if (!string.IsNullOrEmpty(LocaleIniPath))
+			{
+				var data = File.ReadAllBytes(LocaleIniPath);
+				if (!File.ReadAllText(LocaleIniPath).StartsWith("[LOCALE]"))
+				{
+					LocaleIsEncrypted = true;
+					 
+					//var key = LoadKey();
+					var key = lKeyABC;
+					using (Aes aes = Aes.Create())
+					{
+						aes.Key = key.AsSpan(0, 0x20).ToArray();
+						aes.IV = key.AsSpan(32, 16).ToArray();
+						ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
+						var value = data;
+						using (MemoryStream stream = new MemoryStream(value))
+						{
+							using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
+							{
+								cryptoStream.Read(value, 0, value.Length);
+							}
+						}
+
+						if (File.Exists("locale_decrypt.ini"))
+							File.Delete("locale_decrypt.ini");
+
+						File.WriteAllBytes("locale_decrypt.ini", value);
+					}
+				}
+
+				return data;
+			}
+
+			return null;
 		}
 
 		public DbObject LoadInitfs(byte[] key, bool patched = true)
