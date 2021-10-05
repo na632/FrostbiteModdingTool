@@ -36,8 +36,8 @@ namespace CareerExpansionMod.CEM.FIFA
             using (var reader = new StreamReader(fulllocation))
             using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
             {
-                csv.Configuration.HeaderValidated = null;
-                csv.Configuration.MissingFieldFound = null;
+                //csv.Configuration.HeaderValidated = null;
+                //csv.Configuration.MissingFieldFound = null;
                 pnames = csv.GetRecords<FIFAPlayerName>().ToList();
             }
 
@@ -49,8 +49,8 @@ namespace CareerExpansionMod.CEM.FIFA
             using (var reader = new StreamReader(fulllocation))
             using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
             {
-                csv.Configuration.HeaderValidated = null;
-                csv.Configuration.MissingFieldFound = null;
+                //csv.Configuration.HeaderValidated = null;
+                //csv.Configuration.MissingFieldFound = null;
                 pnames.AddRange(csv.GetRecords<FIFAPlayerName>().ToList());
             }
 

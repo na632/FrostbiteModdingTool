@@ -544,6 +544,10 @@ namespace FIFA22Plugin
             MetaData.ChunkEntryOffset = (int)writer.Position - (int)actualInternalPos;
             foreach (var chunk in TocChunks)
 			{
+				if(chunk.Id.ToString() == "3e581c92-cf9f-778a-df7c-7adc10e845a3")
+                {
+
+                }
 				writer.Write((byte)chunk.ExtraData.Unk);
 				writer.Write((byte)(chunk.ExtraData.IsPatch ? 1 : 0));
 				writer.Write((byte)chunk.ExtraData.Catalog.Value);
@@ -627,8 +631,8 @@ namespace FIFA22Plugin
             MetaData.Write(writer);
 
 			writer.Position = 0;
-            using (var fs = new FileStream("_TestNewToc.dat", FileMode.Create))
-                writer.BaseStream.CopyTo(fs);
+   //         using (var fs = new FileStream("_TestNewToc.dat", FileMode.Create))
+   //             writer.BaseStream.CopyTo(fs);
         }
 
 		public static int CreateCasInt(byte unk, bool isPatch, byte catalog, byte cas)

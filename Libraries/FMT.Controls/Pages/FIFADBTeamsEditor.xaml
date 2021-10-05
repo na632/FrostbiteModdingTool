@@ -8,11 +8,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Button x:Name="btnSaveDb" Content="Save">
-        </Button>
         <DockingManager Grid.Row="1">
             <LayoutRoot>
                 <LayoutPanel>

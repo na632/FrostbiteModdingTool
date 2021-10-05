@@ -1197,5 +1197,43 @@ namespace FIFAModdingUI.Windows
             KitCreatorImport kitCreatorImport= new KitCreatorImport();
             kitCreatorImport.ShowDialog();
         }
+
+        private async void btnProjectMerge_Click(object sender, RoutedEventArgs e)
+        {
+            LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "");
+            loadingDialog.Show();
+            await Task.Delay(100);
+            
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Project files|*.fbproject";
+            var result = openFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                if (!string.IsNullOrEmpty(openFileDialog.FileName))
+                {
+                    await loadingDialog.UpdateAsync("Loading Project", "Loading and Merging Project File");
+
+                    ProjectManagement.Project.ModifiedAssetEntries = null;
+
+                    var mergerProject = new FrostbiteProject();
+                    await mergerProject.LoadAsync(openFileDialog.FileName);
+                    // A chunk clean up of bad and broken projects
+                    await Task.Run(() =>
+                    {
+                        LegacyFileManager_FMTV2.CleanUpChunks();
+                    });
+                    lstProjectFiles.ItemsSource = null;
+                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
+
+                    await Task.Run(() =>
+                    {
+                        InitialiseBrowsers();
+                    });
+                    Log($"Merged project successfully with {mergerProject.EBXCount} EBX, {mergerProject.RESCount} RES, {mergerProject.ChunkCount} Chunks, {mergerProject.LegacyCount} Legacy files");
+                }
+            }
+            loadingDialog.Close();
+            loadingDialog = null;
+        }
     }
 }

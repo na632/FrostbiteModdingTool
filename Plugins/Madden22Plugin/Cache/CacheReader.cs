@@ -22,33 +22,21 @@ namespace Madden22Plugin.Cache
 				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
 					return false;
 
-				var cacheHead = nativeReader.ReadUInt();
-				if (cacheHead != fs.Head)
+				var cacheHead = nativeReader.ReadULong();
+				if (cacheHead != fs.SystemIteration)
 				{
 					flag = true;
 				}
 				int count = nativeReader.ReadInt();
-				if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+				
+				for (int i = 0; i < count; i++)
 				{
-					AssetManager.Instance.superBundles.Add(new SuperBundleEntry
-					{
-						Name = "<none>"
-					});
-				}
-				else
-				{
-					for (int i = 0; i < count; i++)
-					{
-						SuperBundleEntry superBundleEntry = new SuperBundleEntry();
-						superBundleEntry.Name = nativeReader.ReadNullTerminatedString();
-						AssetManager.Instance.superBundles.Add(superBundleEntry);
-					}
+					SuperBundleEntry superBundleEntry = new SuperBundleEntry();
+					superBundleEntry.Name = nativeReader.ReadNullTerminatedString();
+					AssetManager.Instance.superBundles.Add(superBundleEntry);
 				}
 				count = nativeReader.ReadInt();
-				//if (!ProfilesLibrary.IsFIFA21DataVersion() && count == 0)
-				//{
-				//	return false;
-				//}
+				
 				for (int j = 0; j < count; j++)
 				{
 					BundleEntry bundleEntry = new BundleEntry();

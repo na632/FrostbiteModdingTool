@@ -618,6 +618,11 @@ namespace FrostySdk
 			}
 		}
 
+		public int EBXCount;
+		public int RESCount;
+		public int ChunkCount;
+		public int LegacyCount;
+
 		private bool InternalLoad(NativeReader reader)
 		{
 			uint num = reader.ReadUInt();
@@ -705,13 +710,11 @@ namespace FrostySdk
 							//AssetManager.ForceChunkRemoval = false;
 						}
 						count = reader.ReadInt();
+						EBXCount = count;
 						for (int n = 0; n < count; n++)
 						{
 							string name2 = reader.ReadNullTerminatedString();
-							if(name2.Contains("v2k4"))
-                            {
-
-                            }
+							
 							List<AssetEntry> collection = LoadLinkedAssets(reader);
 							bool flag = reader.ReadBoolean();
 							bool isTransientModified = false;
@@ -786,6 +789,8 @@ namespace FrostySdk
 							}
 						}
 						count = reader.ReadInt();
+						RESCount = count;
+
 						for (int num6 = 0; num6 < count; num6++)
 						{
 							string text = reader.ReadNullTerminatedString();
@@ -917,6 +922,8 @@ namespace FrostySdk
 							}
 						}
 						count = reader.ReadInt();
+						ChunkCount = count;
+
 						for (int iModifiedChunk = 0; iModifiedChunk < count; iModifiedChunk++)
 						{
 							Guid id = reader.ReadGuid();
@@ -984,6 +991,8 @@ namespace FrostySdk
 						if (reader.Length > reader.Position)
 						{
 							count = reader.ReadInt();
+							LegacyCount = count;
+
 							if (legacyFileManager != null)
 							{
 								List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);
@@ -1007,6 +1016,8 @@ namespace FrostySdk
 							if (addedLegacyFiles)
 							{
 								count = reader.ReadInt();
+								LegacyCount += count;
+
 								if (legacyFileManager != null)
 								{
 									List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);

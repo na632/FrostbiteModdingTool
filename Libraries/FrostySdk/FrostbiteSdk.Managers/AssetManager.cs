@@ -671,7 +671,7 @@ public interface IAssetLoader
 			}
 			
 			TimeSpan timeSpan = DateTime.Now - now;
-			logger.Log($"Loading complete {timeSpan.ToString()}");
+			logger.Log($"Loading complete {timeSpan.ToString(@"mm\:ss")}");
 
 			if(AssetManagerInitialised != null)
             {
@@ -2177,13 +2177,15 @@ public interface IAssetLoader
                     }
 
 					item.SetValue("bundleIndex", bundleId);
-					ChunkAssetEntry chunkAssetEntry = AddChunk(item, ProfilesLibrary.IsMadden21DataVersion());
-					
-					//if (item.GetValue("cache", defaultValue: false) && chunkAssetEntry.Location != AssetDataLocation.Cache)
-					//{
-					//	helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
-					//}
-					if (chunkAssetEntry.Size == 0L)
+                    ChunkAssetEntry chunkAssetEntry = AddChunk(item, ProfilesLibrary.IsMadden21DataVersion());
+                    //ChunkAssetEntry chunkAssetEntry = AddChunk(item
+                    //	, ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion());
+
+                    //if (item.GetValue("cache", defaultValue: false) && chunkAssetEntry.Location != AssetDataLocation.Cache)
+                    //{
+                    //	helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
+                    //}
+                    if (chunkAssetEntry.Size == 0L)
 					{
 						chunkAssetEntry.Size = item.GetValue("size", 0L);
 						chunkAssetEntry.LogicalOffset = item.GetValue("logicalOffset", 0u);

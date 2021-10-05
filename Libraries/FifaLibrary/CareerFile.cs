@@ -111,6 +111,7 @@ namespace FifaLibrary
 		public CareerFile(Stream careerStream, Stream xmlStream)
 		{
 			DbStream = careerStream;
+			DbStream.Position = 0;
 			XmlStream = XmlStream;
 			m_DescriptorDataSet = null;
 			LoadXml(xmlStream);
@@ -121,6 +122,7 @@ namespace FifaLibrary
 		public bool LoadXml(Stream inStream)
 		{
 			XmlStream = inStream;
+			XmlStream.Position = 0;
 			m_DescriptorDataSet = new DataSet("XML_Descriptor");
 			m_DescriptorDataSet.ReadXml(inStream);
 			return true;

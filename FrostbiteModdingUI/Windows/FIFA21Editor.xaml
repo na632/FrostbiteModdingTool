@@ -80,6 +80,14 @@
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
+                        <MenuItem x:Name="btnProjectMerge" Click="btnProjectMerge_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />
+                                    <Label Content="Merge Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                         <Separator></Separator>
                         <MenuItem x:Name="btnCompileLegacyModFromFolder"  Click="btnCompileLegacyModFromFolder_Click">
                             <MenuItem.Header>
@@ -101,7 +109,7 @@
                         <MenuItem x:Name="btnOpenEmbeddedFilesWindow" Click="btnOpenEmbeddedFilesWindow_Click">
                             <MenuItem.Header>
                                 <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                    <MaterialDesign:PackIcon Kind="OpenInNew" VerticalAlignment="Center" />
+                                    <MaterialDesign:PackIcon Kind="FolderZip" VerticalAlignment="Center" />
                                     <Label Content="Manage Embedded Files" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
@@ -204,8 +212,8 @@
                                 <TabItem x:Name="TabDataBrowser" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                                            <MaterialDesign:PackIcon Kind="Database" VerticalAlignment="Center" />
-                                            <Label Content="{DynamicResource textData}"></Label>
+                                            <MaterialDesign:PackIcon Kind="ArrowAll" VerticalAlignment="Center" />
+                                            <Label Content="{DynamicResource textEverything}"></Label>
                                         </StackPanel>
                                     </TabItem.Header>
                                     <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
@@ -214,7 +222,7 @@
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                             <MaterialDesign:PackIcon Kind="Paint" VerticalAlignment="Center" />
-                                            <Label>Textures</Label>
+                                            <Label Content="{DynamicResource textTextures}"></Label>
                                         </StackPanel>
                                     </TabItem.Header>
                                     <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
@@ -277,10 +285,20 @@
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                             <MaterialDesign:PackIcon Kind="MicrosoftTeams" VerticalAlignment="Center" />
-                                            <Label>Teams</Label>
+                                            <Label Content="{DynamicResource textTeams}"></Label>
                                         </StackPanel>
                                     </TabItem.Header>
                                     <FMTControlsPages:FIFADBTeamsEditor></FMTControlsPages:FIFADBTeamsEditor>
+                                </TabItem>
+
+                                <TabItem x:Name="TabDB">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="DatabaseEdit" VerticalAlignment="Center" />
+                                            <Label Content="{DynamicResource textDatabase}"></Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
+                                    <FMTControlsPages:FIFADBEditor></FMTControlsPages:FIFADBEditor>
                                 </TabItem>
 
                                 <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">

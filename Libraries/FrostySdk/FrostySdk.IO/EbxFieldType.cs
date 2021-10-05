@@ -29,4 +29,11 @@ namespace FrostySdk.IO
 		TypeRef = 25,
 		BoxedValueRef = 26
 	}
+
+	public enum EbxFieldType22 : int
+	{
+		Inherited = 1,
+		Float32 = 307,
+		Array = 308,
+	}
 }

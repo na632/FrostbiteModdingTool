@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="Bleak" Version="2.6.3" />
-    <PackageReference Include="CsvHelper" Version="15.0.4" />
+    <PackageReference Include="CsvHelper" Version="27.1.1" />
     <PackageReference Include="Lunar-RPatch" Version="1.1.0" />
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

@@ -32,6 +32,8 @@ namespace FrostySdk.IO
 		public uint SecondOffset;
 
 		public EbxFieldType DebugType => (EbxFieldType)((Type >> 4) & 0x1F);
+		public EbxFieldType DebugType2 => (EbxFieldType)((Type >> 4));
+        public EbxFieldType22 DebugType22 => (EbxFieldType22)Type;
 
         public override bool Equals(object obj)
         {

@@ -119,11 +119,11 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	  <None Update="FrostbiteProfiles\Madden22Profile.json">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	  <None Update="FrostbiteProfiles\Madden21Profile.json">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	</ItemGroup>

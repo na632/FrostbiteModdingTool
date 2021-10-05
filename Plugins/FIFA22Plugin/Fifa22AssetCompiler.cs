@@ -202,12 +202,19 @@ namespace FIFA22Plugin
                 ProcessLegacyFiles();
                 ProcessBundles();
 
+                ModExecuter.Logger.Log($"Modified {ModifiedCount_EBX} ebx, {ModifiedCount_RES} res, {ModifiedCount_Chunks} chunks");
+
+
                 return true;
             }
             return false;
         }
 
-            private class BundleFileEntry
+        public int ModifiedCount_EBX = 0;
+        public int ModifiedCount_RES = 0;
+        public int ModifiedCount_Chunks = 0;
+
+        private class BundleFileEntry
             {
                 public int CasIndex;
 
@@ -257,165 +264,200 @@ namespace FIFA22Plugin
                     }
                     var tocFileRAW = $"{folder}{tocFile}.toc";
                     string location_toc_file = ModExecuter.fs.ResolvePath(tocFileRAW);
-                    if (location_toc_file != "")
+
+                    if (string.IsNullOrEmpty(location_toc_file))
+                        continue;
+
+                    parent.Logger.Log($"Compiling: {location_toc_file}");
+                    var msNewTOCFile = new MemoryStream();
+
+                    TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22();
+                    tocSbReader.ProcessData = false;
+                    tocSbReader.DoLogging = false;
+
+                    tocSbReader.Read(location_toc_file, 0, null, null, true, tocFile);
+
+                    //if (!FrostyModExecutor.UseModData && !File.Exists(location_toc_file + ".ebak"))
+                    //    File.Copy(location_toc_file, location_toc_file + ".ebak");
+
+                    if (tocSbReader.TOCFile.TOCObjects != null && tocSbReader.TOCFile.TOCObjects.List.Any())
                     {
-                        parent.Logger.Log($"Compiling: {location_toc_file}");
-                        var msNewTOCFile = new MemoryStream();
+                        Dictionary<string, List<(DbObject, AssetEntry)>> modToCas = new Dictionary<string, List<(DbObject, AssetEntry)>>();
 
-                        TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22();
-                        tocSbReader.ProcessData = false;
-                        tocSbReader.DoLogging = false;
-
-                        //// Only handle Legacy stuff right now
-                        //if (!tocFile.Contains("globals", StringComparison.OrdinalIgnoreCase)
-                        //    && !tocFile.Contains("content", StringComparison.OrdinalIgnoreCase)
-                        //    )
-                        //{
-                        //    continue;
-                        //}
-
-                        tocSbReader.Read(location_toc_file, 0, null, null, true, tocFile);
-
-                        if (!FrostyModExecutor.UseModData && !File.Exists(location_toc_file + ".ebak"))
-                            File.Copy(location_toc_file, location_toc_file + ".ebak");
-
-                        if (tocSbReader.TOCFile.TOCObjects != null && tocSbReader.TOCFile.TOCObjects.List.Any())
+                        foreach (DbObject o in tocSbReader.TOCFile.TOCObjects.List)
                         {
-                            foreach (DbObject o in tocSbReader.TOCFile.TOCObjects.List)
+                            DbObject res = o.GetValue<DbObject>("res");
+                            if (res != null && parent.modifiedRes.Any())
                             {
-                                DbObject chunks = o.GetValue<DbObject>("chunks");
-                                if (chunks != null)
+
+                                var resNames = res.List.Select(x => ((DbObject)x).GetValue<string>("name"));
+                                if (resNames != null)
                                 {
-                                    Dictionary<string, List<(DbObject, ChunkAssetEntry)>> modChunksToCas = new Dictionary<string, List<(DbObject, ChunkAssetEntry)>>(); 
-
-                                    var chunkIds = chunks.List.Select(x => ((DbObject)x).GetValue<Guid>("id"));
-                                    if (chunkIds != null)
+                                    if (resNames.Any(x => parent.modifiedRes.ContainsKey(x)))
                                     {
-                                        if (chunkIds.Any(x => parent.ModifiedChunks.ContainsKey(x)))
+                                        for (var dboI = 0; dboI < res.Count; dboI++)
                                         {
-                                            for (var dboChunkI = 0; dboChunkI < chunks.Count; dboChunkI++)
+                                            for (var modChunkI = 0; modChunkI < parent.ModifiedChunks.Count; modChunkI++)
                                             {
-                                                for (var modChunkI = 0; modChunkI < parent.ModifiedChunks.Count; modChunkI++)
+                                                var dboItem = res.List[dboI] as DbObject;
+                                                var dboName = dboItem.GetValue<string>("name");
+                                                if (parent.modifiedRes.ContainsKey(dboName))
                                                 {
-                                                    var dboC = chunks.List[dboChunkI] as DbObject;
-                                                    var dboCGuid = dboC.GetValue<Guid>("id");
-                                                    if (parent.ModifiedChunks.ContainsKey(dboCGuid))
-                                                    {
-                                                        var modC = parent.ModifiedChunks[dboCGuid];
+                                                    var modItem = parent.modifiedRes[dboName];
 
-                                                        var dboCCas = dboC.GetValue<int>("cas");
-                                                        var dboCCatalog = dboC.GetValue<int>("catalog");
-                                                        var dboCPatch = dboC.GetValue<bool>("patch");
-                                                        var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+                                                    var dboCCas = dboItem.GetValue<int>("cas");
+                                                    var dboCCatalog = dboItem.GetValue<int>("catalog");
+                                                    var dboCPatch = dboItem.GetValue<bool>("patch");
+                                                    var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
 
-                                                        if (!modChunksToCas.ContainsKey(dboRawFilePath))
-                                                            modChunksToCas.Add(dboRawFilePath, new List<(DbObject, ChunkAssetEntry)>());
+                                                    if (!modToCas.ContainsKey(dboRawFilePath))
+                                                        modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
 
-                                                        if (modChunksToCas.ContainsKey(dboRawFilePath))
-                                                            modChunksToCas[dboRawFilePath].Add((dboC, modC));
-                                                    }
+                                                    if (modToCas.ContainsKey(dboRawFilePath))
+                                                        modToCas[dboRawFilePath].Add((dboItem, modItem));
 
+                                                    ModifiedCount_RES++;
                                                 }
+
                                             }
-                                        }
-                                    }
-
-                                    foreach(var mcToCas in modChunksToCas)
-                                    {
-                                        var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key);
-                                        if(resolvedPath != null)
-                                        {
-                                            using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
-                                            {
-                                                nwCas.Position = nwCas.Length;
-                                                foreach (var t in mcToCas.Value)
-                                                {
-                                                    var data = parent.archiveData[t.Item2.Sha1].Data;
-                                                    if(data != null)
-                                                    {
-                                                        var newDataPosition = nwCas.Position;
-                                                        nwCas.Write(data);
-                                                        t.Item1.SetValue("originalSize", new CasReader(new MemoryStream(data)).Read().Length);
-                                                        var cBundle = tocSbReader.TOCFile.CasBundles.FirstOrDefault(
-                                                             x => x.Entries.Any(
-                                                                 y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
-                                                                 ));
-                                                        var cEntry = cBundle.Entries.FirstOrDefault(
-                                                                 y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
-                                                                 );
-                                                        if (cEntry != null)
-                                                        {
-                                                            cEntry.bundleSizeInCas = data.Length;
-                                                            cEntry.bundleOffsetInCas = (int)newDataPosition;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-
-                                }
-                            }
-                        }
-
-                        if (tocSbReader.TOCFile.TocChunks != null && tocSbReader.TOCFile.TocChunks.Any())
-                        {
-                            var patch = true;
-                            var catalog = tocSbReader.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
-                            if (!tocSbReader.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
-                                patch = false;
-
-                            var cas = tocSbReader.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
-                            //var cas = 1;
-                            //var newCas = 1;
-
-                            var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
-                            //var nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false)); // GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
-
-                            // Modified Toc chunks
-                            foreach (var modChunk in parent.ModifiedChunks)
-                            {
-                                if (tocSbReader.TOCFile.TocChunkGuids.Contains(modChunk.Key))
-                                {
-                                    var chunkIndex = tocSbReader.TOCFile.TocChunks.FindIndex(x => x.Id == modChunk.Key
-                                        && modChunk.Value.ModifiedEntry != null
-                                        && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
-                                    if (chunkIndex != -1)
-                                    {
-                                        var data = parent.archiveData[modChunk.Value.Sha1].Data;
-
-                                        var chunkGuid = tocSbReader.TOCFile.TocChunkGuids[chunkIndex];
-
-                                        var chunk = tocSbReader.TOCFile.TocChunks[chunkIndex];
-                                        DbObject dboChunk = tocSbReader.TOCFile.TocChunkInfo[modChunk.Key];
-
-                                        using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
-                                        {
-                                            nw_cas.Position = nw_cas.Length;
-                                            var newPosition = nw_cas.Position;
-                                            nw_cas.WriteBytes(data);
-                                            chunk.ExtraData.IsPatch = patch;
-                                            chunk.ExtraData.Catalog = catalog;
-                                            chunk.ExtraData.Cas = (ushort)newCas;
-                                            chunk.ExtraData.DataOffset = (uint)newPosition;
-                                            chunk.Size = data.Length;
-                                            tocSbReader.TOCFile.TocChunks[chunkIndex] = chunk;
                                         }
                                     }
                                 }
                             }
+
+                            DbObject chunks = o.GetValue<DbObject>("chunks");
+                            if (chunks != null && parent.ModifiedChunks.Any())
+                            {
+
+                                var chunkIds = chunks.List.Select(x => ((DbObject)x).GetValue<Guid>("id"));
+                                if (chunkIds != null)
+                                {
+                                    if (chunkIds.Any(x => parent.ModifiedChunks.ContainsKey(x)))
+                                    {
+                                        for (var dboChunkI = 0; dboChunkI < chunks.Count; dboChunkI++)
+                                        {
+                                            for (var modChunkI = 0; modChunkI < parent.ModifiedChunks.Count; modChunkI++)
+                                            {
+                                                var dboC = chunks.List[dboChunkI] as DbObject;
+                                                var dboCGuid = dboC.GetValue<Guid>("id");
+                                                if (parent.ModifiedChunks.ContainsKey(dboCGuid))
+                                                {
+                                                    var modC = parent.ModifiedChunks[dboCGuid];
+
+                                                    var dboCCas = dboC.GetValue<int>("cas");
+                                                    var dboCCatalog = dboC.GetValue<int>("catalog");
+                                                    var dboCPatch = dboC.GetValue<bool>("patch");
+                                                    var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+
+                                                    if (!modToCas.ContainsKey(dboRawFilePath))
+                                                        modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+
+                                                    if (modToCas.ContainsKey(dboRawFilePath))
+                                                        modToCas[dboRawFilePath].Add((dboC, modC));
+
+                                                    ModifiedCount_Chunks++;
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+
+
+                            }
+
+
+                            foreach (var mcToCas in modToCas)
+                            {
+                                var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key);
+                                if (resolvedPath != null)
+                                {
+                                    using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
+                                    {
+                                        nwCas.Position = nwCas.Length;
+                                        foreach (var t in mcToCas.Value)
+                                        {
+                                            var data = parent.archiveData[t.Item2.Sha1].Data;
+                                            if (data != null)
+                                            {
+                                                var newDataPosition = nwCas.Position;
+                                                nwCas.Write(data);
+                                                t.Item1.SetValue("originalSize", new CasReader(new MemoryStream(data)).Read().Length);
+                                                var cBundle = tocSbReader.TOCFile.CasBundles.FirstOrDefault(
+                                                     x => x.Entries.Any(
+                                                         y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                                                         ));
+                                                var cEntry = cBundle.Entries.FirstOrDefault(
+                                                         y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                                                         );
+                                                if (cEntry != null)
+                                                {
+                                                    cEntry.bundleSizeInCas = data.Length;
+                                                    cEntry.bundleOffsetInCas = (int)newDataPosition;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                         }
+                    }
 
+                    if (tocSbReader.TOCFile.TocChunks != null && tocSbReader.TOCFile.TocChunks.Any())
+                    {
+                        var patch = true;
+                        var catalog = tocSbReader.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
+                        if (!tocSbReader.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
+                            patch = false;
 
+                        var cas = tocSbReader.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
 
-                        tocSbReader.TOCFile.Write(msNewTOCFile);
+                        var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
 
-
-                        if (msNewTOCFile != null && msNewTOCFile.Length > 0)
+                        // Modified Toc chunks
+                        foreach (var modChunk in parent.ModifiedChunks)
                         {
-                            File.WriteAllBytes(location_toc_file, msNewTOCFile.ToArray());
+                            if (tocSbReader.TOCFile.TocChunkGuids.Contains(modChunk.Key))
+                            {
+                                var chunkIndex = tocSbReader.TOCFile.TocChunks.FindIndex(x => x.Id == modChunk.Key
+                                    && modChunk.Value.ModifiedEntry != null
+                                    && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
+                                if (chunkIndex != -1)
+                                {
+                                    var data = parent.archiveData[modChunk.Value.Sha1].Data;
+
+                                    var chunkGuid = tocSbReader.TOCFile.TocChunkGuids[chunkIndex];
+
+                                    var chunk = tocSbReader.TOCFile.TocChunks[chunkIndex];
+                                    DbObject dboChunk = tocSbReader.TOCFile.TocChunkInfo[modChunk.Key];
+
+                                    using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
+                                    {
+                                        nw_cas.Position = nw_cas.Length;
+                                        var newPosition = nw_cas.Position;
+                                        nw_cas.WriteBytes(data);
+                                        chunk.ExtraData.IsPatch = patch;
+                                        chunk.ExtraData.Catalog = catalog;
+                                        chunk.ExtraData.Cas = (ushort)newCas;
+                                        chunk.ExtraData.DataOffset = (uint)newPosition;
+                                        chunk.Size = data.Length;
+                                        tocSbReader.TOCFile.TocChunks[chunkIndex] = chunk;
+
+                                        ModifiedCount_Chunks++;
+
+                                    }
+                                }
+                            }
                         }
+                    }
+
+                    tocSbReader.TOCFile.Write(msNewTOCFile);
+
+
+                    if (msNewTOCFile != null && msNewTOCFile.Length > 0)
+                    {
+                        File.WriteAllBytes(location_toc_file, msNewTOCFile.ToArray());
                     }
                 }
                 if (writer_new_cas_file != null)
@@ -431,39 +473,6 @@ namespace FIFA22Plugin
         }
 
         DbObject layoutToc = null;
-
-        private NativeWriter GetNextCas(out int casFileIndex)
-        {
-
-            if (layoutToc == null)
-            {
-                using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(FileSystem.Instance.BasePath + "/Patch/layout.toc", FileMode.Open, FileAccess.Read), FileSystem.Instance.CreateDeobfuscator()))
-                {
-                    layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
-                }
-            }
-            DbObject installManifest = layoutToc["installManifest"] as DbObject;
-            DbObject installChunks = installManifest["installChunks"] as DbObject;
-            DbObject installChunk = installChunks.List.FirstOrDefault(x => catalogInfo.Name.Contains(x.ToString())) as DbObject;
-            DbObject installChunkFiles = installChunk["files"] as DbObject;
-            //DbObject firstCas = installChunkFiles.List.First() as DbObject;
-            //casFileIndex = firstCas.GetValue<int>("id");
-            //string path = firstCas.GetValue<string>("path");
-            DbObject lastCas = installChunkFiles.List.Last() as DbObject;
-            casFileIndex = lastCas.GetValue<int>("id");
-            string path = lastCas.GetValue<string>("path");
-
-            string text = ModExecuter.fs.BasePath;
-            if(path.Contains("/native_data/"))
-                text += path.Replace("/native_data/", $"{ModDirectory}\\", StringComparison.OrdinalIgnoreCase);
-            if(path.Contains("/native_patch/"))
-                text += path.Replace("/native_patch/", $"{ModDirectory}\\", StringComparison.OrdinalIgnoreCase);
-            text = text.Replace("/", "\\");
-
-            var nw = new NativeWriter(new FileStream(text, FileMode.OpenOrCreate));
-            nw.Position = nw.BaseStream.Length;
-            return nw;
-        }
 
         private string GetNextCasInCatalog(Catalog catalogInfo, int lastCas, bool patch, out int newCas)
         {

@@ -19,8 +19,8 @@ namespace FrostbiteModdingTests
     {
         private string prevText = string.Empty;
 
-        public const string GamePath = @"F:\Origin Games\Madden NFL 22\";
-        public const string GamePathEXE = @"F:\Origin Games\Madden NFL 22\Madden22.exe";
+        public const string GamePath = @"K:\Origin Games\Madden NFL 22\";
+        public const string GamePathEXE = @"K:\Origin Games\Madden NFL 22\Madden22.exe";
 
         public void Log(string text, params object[] vars)
         {
@@ -73,7 +73,7 @@ namespace FrostbiteModdingTests
         public void BuildSDK()
         {
             var buildCache = new BuildCache();
-            buildCache.LoadData("Madden22", GamePath, this, false);
+            buildCache.LoadData("Madden22", GamePath, this, false, false);
 
             var buildSDK = new BuildSDK();
             buildSDK.Build().Wait();

@@ -16,8 +16,13 @@
 
 
 
+    <system:String x:Key="textEverything">Everything</system:String>
     <system:String x:Key="textData">Data</system:String>
+    <system:String x:Key="textTextures">Textures</system:String>
     <system:String x:Key="textGameplay">Gameplay</system:String>
     <system:String x:Key="textKits">Kits</system:String>
     <system:String x:Key="textFaces">Faces</system:String>
+    <system:String x:Key="textTeams">Teams</system:String>
+    <system:String x:Key="textDatabase">Database</system:String>
+
 </ResourceDictionary>

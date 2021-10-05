@@ -227,5 +227,16 @@ namespace FifaLibrary
 			m_XmlDataRow["rangelow"] = m_RangeLow.ToString();
 			return Expand(depth);
 		}
-	}
+
+        public override string ToString()
+        {
+
+
+			if (!string.IsNullOrEmpty(FieldName))
+				return FieldName + "{ " + FieldShortName + " }";
+
+
+            return base.ToString();
+        }
+    }
 }

@@ -21,7 +21,7 @@ namespace FifaLibrary
 
 		private uint[] m_TableOffset;
 
-		private Table[] m_Table;
+		private FifaTable[] m_Table;
 
 		protected int m_NTables;
 
@@ -43,7 +43,7 @@ namespace FifaLibrary
 			}
 		}
 
-		public Table[] Table
+		public FifaTable[] Table
 		{
 			get
 			{
@@ -194,13 +194,13 @@ namespace FifaLibrary
 			m_NTables = r.ReadInt32();
 			m_TableOffset = new uint[m_NTables];
 			TableDescriptor.DescriptorDataSet = m_DescriptorDataSet;
-			m_Table = new Table[m_NTables];
+			m_Table = new FifaTable[m_NTables];
 			
 			m_CrcHeaderPosition = r.BaseStream.Position;
 			m_CrcHeader = r.ReadUInt32();
 			for (int i = 0; i < m_NTables; i++)
 			{
-				m_Table[i] = new Table();
+				m_Table[i] = new FifaTable();
 				m_Table[i].LoadTableName(r);
 				m_TableOffset[i] = r.ReadUInt32();
 			}
@@ -397,7 +397,7 @@ namespace FifaLibrary
 
 		private bool RecalculateFieldOffset(string tableName)
 		{
-			Table table = GetTable(tableName);
+			FifaTable table = GetTable(tableName);
 			if (table == null)
 			{
 				return false;
@@ -406,7 +406,15 @@ namespace FifaLibrary
 			return true;
 		}
 
-		public Table GetTable(string longName)
+		public IEnumerable<FifaTable> GetTables()
+		{
+			for (int i = 0; i < m_NTables; i++)
+			{
+				yield return m_Table[i];
+			}
+		}
+
+		public FifaTable GetTable(string longName)
 		{
 			for (int i = 0; i < m_NTables; i++)
 			{

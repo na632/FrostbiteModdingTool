@@ -348,19 +348,19 @@ namespace FifaLibrary
 			int[] array = new int[NFields];
 			int num = 0;
 			uint num2 = 0u;
-			uint num3 = 0u;
+			uint nRecords = 0u;
 			do
 			{
-				num3 = m_NBitRecords;
+				nRecords = m_NBitRecords;
 				for (int i = 0; i < NFields; i++)
 				{
-					if (FieldDescriptors[i].BitOffset >= num2 && FieldDescriptors[i].BitOffset < num3)
+					if (FieldDescriptors[i].BitOffset >= num2 && FieldDescriptors[i].BitOffset < nRecords)
 					{
 						array[num] = i;
-						num3 = (uint)FieldDescriptors[i].BitOffset;
+						nRecords = (uint)FieldDescriptors[i].BitOffset;
 					}
 				}
-				num2 = num3 + 1;
+				num2 = nRecords + 1;
 				num++;
 			}
 			while (num < NFields);
@@ -398,12 +398,20 @@ namespace FifaLibrary
 					break;
 				}
 			}
-			int num4 = (int)((num2 + 7) / 8u);
-			if (num4 > m_RecordSize)
+			int l = (int)((num2 + 7) / 8u);
+			if (l > m_RecordSize)
 			{
-				m_RecordSize = (num4 + 3) / 4 * 4;
+				m_RecordSize = (l + 3) / 4 * 4;
 				m_NBitRecords = (uint)(m_RecordSize * 8 - 1);
 			}
 		}
-	}
+
+        public override string ToString()
+        {
+			if(!string.IsNullOrEmpty(TableName))
+				return TableName;
+
+            return base.ToString();
+        }
+    }
 }

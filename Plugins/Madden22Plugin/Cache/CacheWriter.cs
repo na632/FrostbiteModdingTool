@@ -19,7 +19,7 @@ namespace Madden22Plugin.Cache
             using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
                 nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
-                nativeWriter.Write(fs.Head);
+                nativeWriter.Write(fs.SystemIteration);
                 nativeWriter.Write(AssetManager.Instance.superBundles.Count);
                 foreach (SuperBundleEntry superBundle in AssetManager.Instance.superBundles)
                 {
