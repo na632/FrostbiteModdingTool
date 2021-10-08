@@ -249,6 +249,7 @@ namespace FrostySdk.Frostbite.IO.Output
 					|| ProfilesLibrary.DataVersion == 20180628
 					|| ProfilesLibrary.IsFIFA20DataVersion()
 					|| ProfilesLibrary.IsFIFA21DataVersion()
+					|| ProfilesLibrary.IsFIFA22DataVersion()
 					)
 				{
 					boneList.Clear();

@@ -96,9 +96,9 @@ namespace FrostbiteModdingTests
 
             if (!string.IsNullOrEmpty(legacyModSupportFile))
             {
-                File.Copy(legacyModSupportFile, @GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll", true);
+                File.Copy(legacyModSupportFile, @GameInstanceSingleton.Instance.GAMERootPath + "v2k4LegacyModSupport.dll", true);
 
-                var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                var legmodsupportdllpath = @GameInstanceSingleton.Instance.GAMERootPath + @"v2k4LegacyModSupport.dll";
                 GameInstanceSingleton.InjectDLL(legmodsupportdllpath);
             }
 
@@ -179,7 +179,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     @"test.fbmod"
                 }.ToArray()).Wait();
@@ -234,7 +234,7 @@ namespace FrostbiteModdingTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "", 
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", 
                 new System.Collections.Generic.List<string>() {
                     //@"C:\Users\paula\Downloads\Villalibre Molina.fifamod"
                     //@"E:\Origin Games\FIFA 21\fet gp change.fifamod"
@@ -255,7 +255,7 @@ namespace FrostbiteModdingTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     @"G:\Work\FIFA Modding\GraphicMod\FIFA 21\ALP 3.7.fifamod"
                 }.ToArray()).Wait();
@@ -287,7 +287,7 @@ namespace FrostbiteModdingTests
             
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
                     //"test.fbmod"
@@ -307,7 +307,7 @@ namespace FrostbiteModdingTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -327,7 +327,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -345,7 +345,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -365,7 +365,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -388,7 +388,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -411,7 +411,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -431,7 +431,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testModFile, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testModFile
                 }.ToArray()).Wait();
@@ -463,7 +463,7 @@ namespace FrostbiteModdingTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     "test.fbmod"
                 }.ToArray()).Wait();
@@ -493,7 +493,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     "test.fbmod"
                 }.ToArray()).Wait();
@@ -523,7 +523,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     "test.fbmod"
                 }.ToArray()).Wait();
@@ -548,7 +548,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod("test.fbmod", new ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     "test.fbmod"
                 }.ToArray()).Wait();

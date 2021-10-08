@@ -328,8 +328,8 @@ namespace FrostySdk.Resources
 				//}
 				if (am != null)
 				{
-					if (am.logger != null)
-						am.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+					//if (am.logger != null)
+					//	am.logger.Log($"Texture: Loading ChunkId: {chunkId}");
 
 					ChunkEntry = am.GetChunkEntry(chunkId);
 					data = am.GetChunk(ChunkEntry);

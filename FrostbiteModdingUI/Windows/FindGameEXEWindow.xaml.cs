@@ -67,7 +67,7 @@ namespace FrostbiteModdingUI.Windows
 
                 if (GameInstanceSingleton.InitializeSingleton(filePath))
                 {
-                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
                     {
                         throw new Exception("Unable to Initialize Profile");
                     }

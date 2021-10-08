@@ -1,6 +1,7 @@
 ﻿using Frostbite.Textures;
 using FrostySdk;
 using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -145,7 +146,7 @@ namespace FrostbiteModdingTests
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -174,7 +175,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -191,7 +192,7 @@ namespace FrostbiteModdingTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
@@ -209,10 +210,32 @@ namespace FrostbiteModdingTests
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
-            frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "",
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
                 }.ToArray()).Wait();
+        }
+
+        [TestMethod]
+        public void ExportFaceMesh()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            var project = projectManagement.StartNewProject();
+            var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_10264_0_0_mesh")).FirstOrDefault();
+            if (skinnedMeshEntry != null)
+            {
+                var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
+                if (skinnedMeshEbx != null)
+                {
+                    var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
+                    var res = project.AssetManager.GetRes(resentry);
+
+                    var exporter1 = new MeshSetToFbxExport();
+                    MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
+
+                    exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+                }
+            }
         }
     }
 }

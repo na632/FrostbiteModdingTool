@@ -12,25 +12,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="FIFA20.Classes.txt" />
-    <None Remove="FIFA21.Classes.txt" />
-    <None Remove="M21.Classes.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="FIFA21.Classes.txt">
+	  <None Include="SdkGen\FIFA21.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-	<Content Include="M21.Classes.txt">
+    </None>
+	  <None Include="SdkGen\M21.Classes.txt">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</Content>
-	<Content Include="FIFA20.Classes.txt">
+	</None>
+	  <None Include="SdkGen\FIFA20.Classes.txt">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</Content>
-  </ItemGroup>
+	</None>
+	  <None Update="SdkGen\M22.Classes.txt">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
@@ -45,11 +43,6 @@
     <Folder Include="NewFolder\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="M22.Classes.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
-  </ItemGroup>
+  
 
 </Project>

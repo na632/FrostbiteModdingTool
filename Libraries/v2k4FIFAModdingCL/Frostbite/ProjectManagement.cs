@@ -41,11 +41,13 @@ namespace v2k4FIFAModding.Frosty
                 if (!File.Exists(filePath))
                     throw new FileNotFoundException("File path / Game EXE doesn't exist");
 
+                GameInstanceSingleton.InitializeSingleton(filePath);
+
                 var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                GameInstanceSingleton.GAMERootPath = FIFADirectory;
+                GameInstanceSingleton.Instance.GAMERootPath = FIFADirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
-                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+                GameInstanceSingleton.Instance.GAMEVERSION = fileName.Replace(".exe", "");
+                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
                 {
                     throw new Exception("Unable to Initialize Profile");
                 }
@@ -73,20 +75,20 @@ namespace v2k4FIFAModding.Frosty
 
         private void Initialize()
         {
-            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
+            if (string.IsNullOrEmpty(GameInstanceSingleton.Instance.GAMERootPath))
                 throw new Exception("Game path has not been selected or initialized");
 
-            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION))
+            if (string.IsNullOrEmpty(GameInstanceSingleton.Instance.GAMEVERSION))
                 throw new Exception("Game EXE has not been selected or initialized");
 
-            if (PreviousGameVersion != GameInstanceSingleton.GAMEVERSION || AssetManager.Instance == null)
+            if (PreviousGameVersion != GameInstanceSingleton.Instance.GAMEVERSION || AssetManager.Instance == null)
             {
                 var buildCache = new BuildCache();
-                buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, logger: this, loadSDK: true);
+                buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, logger: this, loadSDK: true);
                 //if (!File.Exists(FIFAInstanceSingleton.V))
                 //    var buildSDK = new BuildSDK();
                 //var b = buildSDK.Build().Result;
-                PreviousGameVersion = GameInstanceSingleton.GAMEVERSION;
+                PreviousGameVersion = GameInstanceSingleton.Instance.GAMEVERSION;
             }
         }
 
@@ -198,7 +200,7 @@ namespace v2k4FIFAModding.Frosty
             if(AssetManager.Instance == null)
             {
                 BuildCache buildCache = new BuildCache();
-                buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, Logger, false, true);
+                buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, Logger, false, true);
             }
 
             Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);

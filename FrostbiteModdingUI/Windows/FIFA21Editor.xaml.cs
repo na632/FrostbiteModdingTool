@@ -67,7 +67,17 @@ namespace FIFAModdingUI.Windows
             Owner = owner;
         }
 
-        public virtual string LastGameLocation => App.ApplicationDirectory + "FIFA21LastLocation.json";
+        public virtual string LastGameLocation
+        {
+            get
+            {
+                var dir = ProfilesLibrary.GetModProfileParentDirectoryPath() + "\\FIFA21\\";
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                
+                return dir + "LastLocation.json";
+            }
+        }
         //public virtual string LastGameLocation => App.ApplicationDirectory + ProfilesLibrary.ProfileName + "LastLocation.json";
 
         public virtual string RecentFilesLocation => App.ApplicationDirectory + "FIFA21RecentFilesLocation.json";
@@ -163,6 +173,7 @@ namespace FIFAModdingUI.Windows
         {
             base.OnClosed(e);
 
+            GameInstanceSingleton.Instance = null;
             ProjectManagement = null;
             ProjectManagement.Instance = null;
             if (AssetManager.Instance != null)
@@ -210,10 +221,10 @@ namespace FIFAModdingUI.Windows
             GameInstanceSingleton.Logger = this;
             lstProjectFiles.Items.Clear();
             lstProjectFiles.ItemsSource = null;
-            
+
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
-            if(buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
+            if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
             {
                 buildSDKAndCacheWindow.ShowDialog();
             }
@@ -233,7 +244,7 @@ namespace FIFAModdingUI.Windows
                     miMod.IsEnabled = true;
                     //miProjectConverter.IsEnabled = true;
                     miImportKitCreator.IsEnabled = true;
-                    
+
                     ProjectManagement.Project.ModifiedAssetEntries = null;
                     this.DataContext = null;
                     this.DataContext = this;
@@ -243,24 +254,27 @@ namespace FIFAModdingUI.Windows
 
             });
 
-            DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "]");
+            DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
 
-            LauncherOptions = LauncherOptions.LoadAsync().Result;
+            LauncherOptions = await LauncherOptions.LoadAsync();
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
-            
-            if(ProfilesLibrary.IsFIFA22DataVersion())
+
+            Dispatcher.Invoke(() =>
             {
-                swUseModData.IsOn = false;
-                swUseModData.IsEnabled = false;
+                if (ProfilesLibrary.IsFIFA22DataVersion())
+                {
+                    swUseModData.IsOn = false;
+                    swUseModData.IsEnabled = false;
 
-                swEnableLegacyInjection.IsOn = false;
-                swEnableLegacyInjection.IsEnabled = false;
-            }
+                    swEnableLegacyInjection.IsOn = false;
+                    swEnableLegacyInjection.IsEnabled = false;
+                }
 
-            btnLaunchFIFAInEditor.IsEnabled = ProfilesLibrary.EnableExecution;
+                btnLaunchFIFAInEditor.IsEnabled = ProfilesLibrary.EnableExecution;
 
-            UpdateWindowTitle("New Project");
+                UpdateWindowTitle("New Project");
 
+            });
         }
 
         private void InitialiseBrowsers()
@@ -577,7 +591,7 @@ namespace FIFAModdingUI.Windows
 
                     UpdateWindowTitle(saveFileDialog.FileName);
 
-                    DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
+                    DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
 
 
 
@@ -629,7 +643,7 @@ namespace FIFAModdingUI.Windows
 
                     UpdateWindowTitle(openFileDialog.FileName);
 
-                    DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
+                    DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "] - " + ProjectManagement.Project.DisplayName);
 
 
 
@@ -689,7 +703,7 @@ namespace FIFAModdingUI.Windows
                 paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = useModData;
                 frostyModExecutor.UseSymbolicLinks = false;
                 frostyModExecutor.ForceRebuildOfMods = true;
-                frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
+                frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
             });
 
             await InjectLegacyDLL();
@@ -707,7 +721,7 @@ namespace FIFAModdingUI.Windows
                 if (swEnableLegacyInjection.IsOn)
                 {
                     string legacyModSupportFile = null;
-                    if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
+                    if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA20")
                     {
                         legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA20Legacy.dll";
                     }
@@ -721,14 +735,14 @@ namespace FIFAModdingUI.Windows
 
                         if (File.Exists(legacyModSupportFile))
                         {
-                            if (File.Exists(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll"))
-                                File.Delete(GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
+                            if (File.Exists(GameInstanceSingleton.Instance.GAMERootPath + "v2k4LegacyModSupport.dll"))
+                                File.Delete(GameInstanceSingleton.Instance.GAMERootPath + "v2k4LegacyModSupport.dll");
 
-                            File.Copy(legacyModSupportFile, GameInstanceSingleton.GAMERootPath + "v2k4LegacyModSupport.dll");
+                            File.Copy(legacyModSupportFile, GameInstanceSingleton.Instance.GAMERootPath + "v2k4LegacyModSupport.dll");
 
-                            if (File.Exists(@GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll"))
+                            if (File.Exists(@GameInstanceSingleton.Instance.GAMERootPath + @"v2k4LegacyModSupport.dll"))
                             {
-                                var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                                var legmodsupportdllpath = @GameInstanceSingleton.Instance.GAMERootPath + @"v2k4LegacyModSupport.dll";
                                 return await GameInstanceSingleton.InjectDLLAsync(legmodsupportdllpath);
                             }
                         }

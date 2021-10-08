@@ -1,5 +1,6 @@
 ﻿using FIFAModdingUI;
 using FMT;
+using FrostySdk;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace FrostbiteModdingUI.Models
         public bool? InstallEmbeddedFiles { get; set; }
         public bool? CleanLegacyMods { get; set; }
 
-        private bool? useModData = true;
+        private bool? useModData;
 
         public bool? UseModData
         {
@@ -23,7 +24,7 @@ namespace FrostbiteModdingUI.Models
         }
 
 
-        private bool? useLegacyModSupport = true;
+        private bool? useLegacyModSupport;
 
         public bool? UseLegacyModSupport
         {
@@ -33,20 +34,50 @@ namespace FrostbiteModdingUI.Models
 
         public bool? UseLiveEditor { get; internal set; }
 
-        public static async Task<LauncherOptions> LoadAsync()
+        public static string OldSaveFileLocation
         {
-            if (File.Exists(AppContext.BaseDirectory + "LauncherOptions.json"))
+            get
             {
-                var loText = File.ReadAllText(AppContext.BaseDirectory + "LauncherOptions.json");
-                //var loText = await File.ReadAllTextAsync(AppContext.BaseDirectory + "LauncherOptions.json");
+                return AppContext.BaseDirectory + "LauncherOptions.json";
+
+            }
+        }
+        public static string SaveFileLocation 
+        { 
+            get 
+            {
+                var dir = AppContext.BaseDirectory + "/Mods/Profiles/" + ProfilesLibrary.ProfileName + "/";
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                return dir + "/LauncherOptions.json";
+
+            } 
+        }
+
+        public static LauncherOptions Load()
+        {
+            if (File.Exists(OldSaveFileLocation) && !File.Exists(SaveFileLocation))
+            {
+                File.Move(OldSaveFileLocation, SaveFileLocation);
+            }
+
+            if (File.Exists(SaveFileLocation))
+            {
+                var loText = File.ReadAllText(SaveFileLocation);
                 return JsonConvert.DeserializeObject<LauncherOptions>(loText);
             }
             return new LauncherOptions();
         }
 
+        public static async Task<LauncherOptions> LoadAsync()
+        {
+            return await Task.Run(() => { return Load(); });
+        }
+
         public void Save()
         {
-            File.WriteAllText(App.ApplicationDirectory + "\\LauncherOptions.json", JsonConvert.SerializeObject(this));
+            File.WriteAllText(SaveFileLocation, JsonConvert.SerializeObject(this));
         }
     }
 }

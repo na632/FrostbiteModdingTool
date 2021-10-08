@@ -23,5 +23,9 @@ namespace FrostySdk.Managers
 		IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly);
 
 		void OnCommand(string command, params object[] value);
+
+		void Reset();
+
+		void ResetAndDispose();
 	}
 }

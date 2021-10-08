@@ -162,7 +162,7 @@ public class FIFAPlayerStat
 
 
 			var ingamedate = new DateTime(2019, 1, 1);
-			switch(GameInstanceSingleton.GAMEVERSION)
+			switch(GameInstanceSingleton.Instance.GAMEVERSION)
             {
 				case "FIFA20":
 					break;

@@ -59,12 +59,12 @@ namespace FrostbiteModdingUI.Windows
                     LogAsync("Legacy Injection - Tool running location is " + runningLocation);
 
                     string legacyModSupportFile = null;
-                    if (GameInstanceSingleton.GAMEVERSION == "FIFA20")
+                    if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA20")
                     {
                         LogAsync("Legacy Injection - FIFA 20 found. Using FIFA20Legacy.DLL.");
                         legacyModSupportFile = runningLocation + @"\FIFA20Legacy.dll";
                     }
-                    else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.GAMEVERSION == "FIFA21")
+                    else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                     {
                         LogAsync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
                         legacyModSupportFile = runningLocation + @"\FIFA.dll";
@@ -76,7 +76,7 @@ namespace FrostbiteModdingUI.Windows
                     }
                     else
                     {
-                        var legmodsupportdllpath = @GameInstanceSingleton.GAMERootPath + @"v2k4LegacyModSupport.dll";
+                        var legmodsupportdllpath = @GameInstanceSingleton.Instance.GAMERootPath + @"v2k4LegacyModSupport.dll";
 
                         LogAsync("Copying " + legacyModSupportFile + " to " + legmodsupportdllpath);
                         await Task.Delay(500);

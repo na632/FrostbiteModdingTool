@@ -31,16 +31,16 @@
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\Madden22Profile.json" Link="FrostbiteProfiles\Madden22Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Libraries\v2k4FIFASDKGenerator\FIFA20.Classes.txt" Link="FIFA20.Classes.txt">
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\SdkGen\FIFA20.Classes.txt" Link="SdkGen\FIFA20.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Libraries\v2k4FIFASDKGenerator\FIFA21.Classes.txt" Link="FIFA21.Classes.txt">
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\SdkGen\FIFA21.Classes.txt" Link="SdkGen\FIFA21.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Libraries\v2k4FIFASDKGenerator\M21.Classes.txt" Link="M21.Classes.txt">
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\SdkGen\M21.Classes.txt" Link="SdkGen\M21.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Libraries\v2k4FIFASDKGenerator\M22.Classes.txt" Link="M22.Classes.txt">
+    <Content Include="..\Libraries\v2k4FIFASDKGenerator\SdkGen\M22.Classes.txt" Link="SdkGen\M22.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -64,6 +64,7 @@
 
   <ItemGroup>
     <Folder Include="FrostbiteProfiles\" />
+    <Folder Include="SdkGen\" />
   </ItemGroup>
 
   <ItemGroup>

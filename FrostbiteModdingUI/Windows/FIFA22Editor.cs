@@ -1,7 +1,9 @@
 ﻿using FIFAModdingUI;
 using FIFAModdingUI.Windows;
+using FrostySdk;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows;
 
@@ -14,6 +16,16 @@ namespace FMT.Windows
 
         }
 
-        public override string LastGameLocation => App.ApplicationDirectory + "FIFA22LastLocation.json";
+        public override string LastGameLocation
+        {
+            get
+            {
+                var dir = ProfilesLibrary.GetModProfileParentDirectoryPath() + "\\FIFA22\\";
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                return dir + "LastLocation.json";
+            }
+        }
     }
 }

@@ -91,7 +91,7 @@ namespace FrostbiteModdingUI.Windows
 
             Task.Run(() =>
             {
-                CEMCore = new CEMCore2(GameInstanceSingleton.GAMEVERSION);
+                CEMCore = new CEMCore2(GameInstanceSingleton.Instance.GAMEVERSION);
                 CEMCore.FileSystemWatcher.Created += FileSystemWatcher_Created;
                 CEMCore.FileSystemWatcher.Changed += FileSystemWatcher_Changed;
                 SaveGameName = CEMCore2.CurrentCareerFile.InGameName;

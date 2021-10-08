@@ -73,7 +73,7 @@ namespace FIFAModdingUI.Windows
 
                 // -----------------------------------------
                 //
-                await buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, true, false);
+                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, true, false);
 
                 Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building SDK. Please wait 1-2 minutes to complete!"; });
 
@@ -82,7 +82,7 @@ namespace FIFAModdingUI.Windows
                 // Turned off until I get it past the issue with the assembly being loaded when it shouldnt have been before this process
                 //
                 //Dispatcher.Invoke(() => { txtOuputMessage.Text = "Cache Build Complete. Launching the Game."; });
-                //if(GameInstanceSingleton.GAMEVERSION.Contains("FIFA", StringComparison.OrdinalIgnoreCase))
+                //if(GameInstanceSingleton.Instance.GAMEVERSION.Contains("FIFA", StringComparison.OrdinalIgnoreCase))
                 //    Dispatcher.Invoke(() => { txtOutputSubMessage.Text = "FIFA will require you to start the game from launcher"; });
 
                 //Process.Start(GameInstanceSingleton.GameEXE);
@@ -113,7 +113,7 @@ namespace FIFAModdingUI.Windows
                 AssetManager.Instance.Dispose();
                 AssetManager.Instance = null;  
                 
-                await buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, false, true);
+                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, false, true);
 
 
                 await Task.Delay(2000);
@@ -131,10 +131,10 @@ namespace FIFAModdingUI.Windows
 
         public bool DoesCacheNeedsRebuilding()
         {
-            if (!GameInstanceSingleton.INITIALIZED)
+            if (!GameInstanceSingleton.Instance.INITIALIZED)
                 throw new Exception("Game has not been selected");
 
-            if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+            if (ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
             {
                 if (!File.Exists(ProfilesLibrary.CacheName + ".cache"))
                 {
@@ -164,7 +164,7 @@ namespace FIFAModdingUI.Windows
                         KeyManager.Instance.AddKey("Key3", array2);
                     }
 
-                    var FileSystem = new FileSystem(GameInstanceSingleton.GAMERootPath);
+                    var FileSystem = new FileSystem(GameInstanceSingleton.Instance.GAMERootPath);
 
                     bool patched = false;
 
@@ -237,7 +237,7 @@ namespace FIFAModdingUI.Windows
         {
             try
             {
-                await buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, true);
+                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, true);
             }
             catch(Exception ex)
             {

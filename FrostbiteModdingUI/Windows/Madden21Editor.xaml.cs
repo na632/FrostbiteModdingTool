@@ -209,7 +209,7 @@ namespace FrostbiteModdingUI.Windows
 
             });
 
-            DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.GAMEVERSION + "]");
+            DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
         }
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
@@ -349,7 +349,7 @@ namespace FrostbiteModdingUI.Windows
                 paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
                 frostyModExecutor.UseSymbolicLinks = false;
                 frostyModExecutor.ForceRebuildOfMods = true;
-                frostyModExecutor.Run(this, GameInstanceSingleton.GAMERootPath, "", new System.Collections.Generic.List<string>() { testfbmodname }.ToArray()).Wait();
+                frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testfbmodname }.ToArray()).Wait();
             });
 
             await Dispatcher.InvokeAsync(() => { btnLaunchGameInEditor.IsEnabled = true; });

@@ -16,54 +16,63 @@ using System.Threading.Tasks;
 
 namespace v2k4FIFAModdingCL
 {
-    public static class GameInstanceSingleton
+    public class GameInstanceSingleton : IDisposable
     {
-        public static bool INITIALIZED = false;
+        public static GameInstanceSingleton Instance { get; set; }
 
-        private static string gameVersion;
+        public bool INITIALIZED = false;
 
-        public static string GAMEVERSION { set { gameVersion = value; INITIALIZED = !string.IsNullOrEmpty(value); } get { return gameVersion; } }
-        public static string FIFAVERSION_NODEMO { get { return !string.IsNullOrEmpty(GAMEVERSION) ? GAMEVERSION.Replace("_demo", "") : null; } }
+        private string gameVersion;
 
-        public static string GAMERootPath = "";
+        public string GAMEVERSION { set { gameVersion = value; INITIALIZED = !string.IsNullOrEmpty(value); } get { return gameVersion; } }
+        public string FIFAVERSION_NODEMO { get { return !string.IsNullOrEmpty(GAMEVERSION) ? GAMEVERSION.Replace("_demo", "") : null; } }
 
-        public static string GameDataPath { get { return GAMERootPath + "\\Data\\"; } }
+        public string GAMERootPath = "";
 
-        public static string FIFALocaleINIPath { get { return GAMERootPath + "\\Data\\locale.ini"; } }
-        public static string FIFALocaleINIModDataPath { get { return ModDataPath + "\\Data\\locale.ini"; } }
-        public static string GamePatchPath { get { return GAMERootPath + "\\Patch\\"; } }
-        public static string FIFA_INITFS_Win32 { get { return GamePatchPath + "\\initfs_Win32"; } }
+        public string GameDataPath { get { return GAMERootPath + "\\Data\\"; } }
 
-        public static string LegacyModsPath { get { return GAMERootPath + "\\LegacyMods\\Legacy\\"; } }
+        public string FIFALocaleINIPath { get { return GAMERootPath + "\\Data\\locale.ini"; } }
+        public string FIFALocaleINIModDataPath { get { return ModDataPath + "\\Data\\locale.ini"; } }
+        public string GamePatchPath { get { return GAMERootPath + "\\Patch\\"; } }
+        public string FIFA_INITFS_Win32 { get { return GamePatchPath + "\\initfs_Win32"; } }
 
-        public static string GameEXE { get { return GAMERootPath + "\\" + GAMEVERSION + ".exe"; } }
+        public string LegacyModsPath { get { return GAMERootPath + "\\LegacyMods\\Legacy\\"; } }
 
-        public static string ModDataPath { get { return GAMERootPath + "\\ModData\\"; } }
+        public string GameEXE { get { return GAMERootPath + "\\" + GAMEVERSION + ".exe"; } }
+
+        public string ModDataPath { get { return GAMERootPath + "\\ModData\\"; } }
 
         public static bool InitializeSingleton(string filePath)
         {
+            if (Instance != null)
+            {
+                Instance.Dispose();
+                Instance = null;
+            }
+
             if(!string.IsNullOrEmpty(filePath))
             {
+                Instance = new GameInstanceSingleton();
                 var GameDirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                GAMERootPath = GameDirectory;
+                Instance.GAMERootPath = GameDirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
                 if (!string.IsNullOrEmpty(fileName))// && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
                 {
-                    GAMEVERSION = fileName.Replace(".exe", "");
-                    INITIALIZED = true;
+                    Instance.GAMEVERSION = fileName.Replace(".exe", "");
+                    Instance.INITIALIZED = true;
                 }
-                if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(GAMEVERSION))
+                if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
                 {
-                    ProfilesLibrary.Initialize(GAMEVERSION);
+                    ProfilesLibrary.Initialize(Instance.GAMEVERSION);
                 }
             }
 
-            return INITIALIZED;
+            return Instance.INITIALIZED;
         }
 
         public static string GetGameVersion()
         {
-            return GAMEVERSION;
+            return Instance != null ? Instance.GAMEVERSION : string.Empty;
         }
 
         public static IEnumerable<string> CompatibleGameVersions
@@ -90,20 +99,18 @@ namespace v2k4FIFAModdingCL
 
         public static bool IsCompatibleWithFbMod()
         {
-            return CompatibleGameFBModVersions.Any(x => x.Contains(GAMEVERSION, StringComparison.OrdinalIgnoreCase));
+            return CompatibleGameFBModVersions.Any(x => x.Contains(Instance.GAMEVERSION, StringComparison.OrdinalIgnoreCase));
         }
 
-        [SupportedOSPlatform("windows")]
         public static List<string> CompatibleGameLegacyModVersions = new List<string>()
         {
             "FIFA20.exe",
             "FIFA21.exe"
         };
 
-        [SupportedOSPlatform("windows")]
         public static bool IsCompatibleWithLegacyMod()
         {
-            return CompatibleGameLegacyModVersions.Any(x => x.Contains(GAMEVERSION, StringComparison.OrdinalIgnoreCase));
+            return CompatibleGameLegacyModVersions.Any(x => x.Contains(Instance.GAMEVERSION, StringComparison.OrdinalIgnoreCase));
         }
 
         public static ILogger Logger;
@@ -164,12 +171,12 @@ namespace v2k4FIFAModdingCL
             bool ModuleLoaded = !LegacyInjectionExtraAssertions;
 
 
-            int? proc = await GetProcIDFromName(GAMEVERSION);
+            int? proc = await GetProcIDFromName(Instance.GAMEVERSION);
             while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 300)
             {
-                Debug.WriteLine($"Waiting for {GAMEVERSION} to appear");
+                Debug.WriteLine($"Waiting for {Instance.GAMEVERSION} to appear");
                 await Task.Delay(1000);
-                proc = await GetProcIDFromName(GAMEVERSION);
+                proc = await GetProcIDFromName(Instance.GAMEVERSION);
                 if (proc.HasValue)
                 {
                     if (LegacyInjectionExtraAssertions)
@@ -513,5 +520,32 @@ namespace v2k4FIFAModdingCL
         [SuppressUnmanagedCodeSecurity]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool CloseHandle(IntPtr hObject);
+
+        // To detect redundant calls
+        private bool _disposed = false;
+
+        ~GameInstanceSingleton() => Dispose(false);
+
+        public void Dispose()
+        {
+            // Dispose of unmanaged resources.
+            Dispose(true);
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            // Managed Resources
+            if (disposing)
+            {
+                GAMEVERSION = null;
+            }
+        }
     }
 }

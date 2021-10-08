@@ -29,7 +29,7 @@ namespace CareerExpansionMod.CEM.FIFA
             var dlllocation = CEMCore.GetApplicationDirectory();
             
             var fulllocation = dlllocation + "\\CEM\\Data\\playernames.csv";
-            if(GameInstanceSingleton.GAMEVERSION == "FIFA21")
+            if(GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                 fulllocation = dlllocation + "\\CEM\\Data\\playernames_f21.csv";
 
 
@@ -43,7 +43,7 @@ namespace CareerExpansionMod.CEM.FIFA
 
             // DLC / Squad File Names
             fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames.csv";
-            if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
+            if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                 fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames_f21.csv";
 
             using (var reader = new StreamReader(fulllocation))

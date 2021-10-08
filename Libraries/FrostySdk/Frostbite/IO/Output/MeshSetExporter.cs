@@ -8,7 +8,7 @@ namespace Fifa_Tool.Exporters
 		{
 			ulong resRid = ((dynamic)rootObject).MeshSetResource;
 			MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(resRid)));
-			_ = assetManager.GetEbxEntry(meshSet.FullName).Guid;
+			//_ = assetManager.GetEbxEntry(meshSet.FullName).Guid;
 			return meshSet;
 		}
 	}

@@ -106,7 +106,7 @@ namespace FrostySdk.Resources
 			Type = (MeshType)reader.ReadUInt32LittleEndian();
 			maxInstances = reader.ReadUInt32LittleEndian();
 			uint num = reader.ReadUInt32LittleEndian();
-			reader.ReadInt64LittleEndian();
+			var unk1 = reader.ReadInt64LittleEndian();
 			for (uint num3 = 0u; num3 < num; num3++)
 			{
 				Sections.Add(null);

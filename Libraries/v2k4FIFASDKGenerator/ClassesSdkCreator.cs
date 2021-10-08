@@ -72,7 +72,7 @@ namespace SdkGenerator
 
             if (!string.IsNullOrEmpty(ProfilesLibrary.SDKClassesFile))
             {
-                using (FileStream stream = new FileStream(ProfilesLibrary.SDKClassesFile, FileMode.Open))
+                using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/" + ProfilesLibrary.SDKClassesFile, FileMode.Open))
                 {
                     if (stream != null)
                     {
@@ -84,7 +84,7 @@ namespace SdkGenerator
             { 
                 if (ProfilesLibrary.IsMadden21DataVersion())
                 {
-                    using (FileStream stream = new FileStream("M21.Classes.txt", FileMode.Open))
+                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/M21.Classes.txt", FileMode.Open))
                     {
                         if (stream != null)
                         {
@@ -92,21 +92,12 @@ namespace SdkGenerator
                         }
                     }
                 }
-                if (ProfilesLibrary.IsMadden21DataVersion())
-                {
-                    using (FileStream stream = new FileStream("M21.Classes.txt", FileMode.Open))
-                    {
-                        if (stream != null)
-                        {
-                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                        }
-                    }
-                }
+             
                 //else
                 //{
                 if (ProfilesLibrary.IsFIFA20DataVersion())
                 {
-                    using (FileStream stream = new FileStream("FIFA20.Classes.txt", FileMode.Open))
+                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA20.Classes.txt", FileMode.Open))
                     {
                         if (stream != null)
                         {
@@ -117,7 +108,7 @@ namespace SdkGenerator
                 //}
                 if (ProfilesLibrary.IsFIFA21DataVersion())
                 {
-                    using (FileStream stream = new FileStream("FIFA21.Classes.txt", FileMode.Open))
+                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA21.Classes.txt", FileMode.Open))
                     {
                         if (stream != null)
                         {

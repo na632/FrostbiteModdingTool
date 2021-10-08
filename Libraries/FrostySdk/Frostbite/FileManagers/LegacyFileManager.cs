@@ -245,5 +245,13 @@ namespace FrostbiteSdk.Frostbite.FileManagers
         {
             throw new NotImplementedException();
         }
+
+        public void Reset()
+        {
+        }
+
+        public void ResetAndDispose()
+        {
+        }
     }
 }

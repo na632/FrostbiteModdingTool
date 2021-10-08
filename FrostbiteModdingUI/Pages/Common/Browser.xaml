@@ -310,6 +310,8 @@
             EffectsManager="{Binding EffectsManager}"
             EnableSSAO="True"
             FXAALevel="Medium"
+                                                 BackgroundColor="Gray"
+                                                Background="Gray"
               
             ShowFrameDetails="False"
                  EnableDeferredRendering="True">

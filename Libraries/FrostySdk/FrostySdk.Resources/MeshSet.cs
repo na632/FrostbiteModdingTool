@@ -243,6 +243,7 @@ public class MeshSet
 			case 20171210:
 				unknownUInts.Add(nativeReader.ReadUShort());
 				break;
+			case (int)ProfilesLibrary.DataVersions.FIFA22:
 			case (int)ProfilesLibrary.DataVersions.FIFA21:
 			case 20170929:
 			case 20180807:
@@ -273,6 +274,7 @@ public class MeshSet
 					}
 					break;
 				}
+			case (int)ProfilesLibrary.DataVersions.MADDEN22:
 			case (int)ProfilesLibrary.DataVersions.MADDEN21:
 			case 20190729:
 				{

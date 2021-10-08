@@ -33,7 +33,14 @@ namespace FrostySdk.IO
 	public enum EbxFieldType22 : int
 	{
 		Inherited = 1,
+		Pointer = 49,
 		Float32 = 307,
+		ArrayOfCString = 116,
+		ArrayOfStructs = 36,
 		Array = 308,
+
+		ArrayOfInt2 = 244,
+		ArrayOfUInt = 260,
+
 	}
 }

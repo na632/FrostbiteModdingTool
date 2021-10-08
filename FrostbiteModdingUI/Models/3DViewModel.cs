@@ -117,9 +117,9 @@ namespace FrostbiteModdingUI.Models
                                         PhongMaterial material = new PhongMaterial
                                         {
                                             AmbientColor = Colors.Gray.ToColor4(),
-                                            DiffuseColor = Colors.White.ToColor4(),
+                                            DiffuseColor = Colors.Gray.ToColor4(),
                                             SpecularColor = Colors.Black.ToColor4(),
-                                            SpecularShininess = 0.002f
+                                            SpecularShininess = 0.0015f
                                         };
 
                                         if (textureDDSStreamColour != null)

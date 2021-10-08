@@ -505,6 +505,10 @@ public interface IAssetLoader
 			// Managed Resources
 			if (disposing)
 			{
+				//foreach (var cam in CustomAssetManagers)
+				//{
+				//	cam.Value.Reset();
+				//}
 				bundles.Clear();
 				bundles = null;
 				EBX.Clear();
@@ -1722,14 +1726,13 @@ public interface IAssetLoader
 		//	return ebxGuidList[ebxGuid];
 		//}
 
-		public EbxAssetEntry GetEbxEntry(string name)
+		public EbxAssetEntry GetEbxEntry(ReadOnlySpan<char> name)
 		{
-			name = name.ToLower();
-			if (!EBX.ContainsKey(name))
+			if (!EBX.ContainsKey(name.ToString()))
 			{
 				return null;
 			}
-			return EBX[name];
+			return EBX[name.ToString()];
 		}
 
 		public EbxAssetEntry GetEbxEntry(Guid id)

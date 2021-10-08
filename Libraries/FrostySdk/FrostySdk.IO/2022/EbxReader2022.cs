@@ -119,7 +119,11 @@ namespace FrostbiteSdk.IO
 			InStream.Position = stringPosition + 72;
 			var name = ReadNullTerminatedString();
 			Strings.Add(name);
-			if (FirstStringName.Contains("gp_") || FirstStringName.Contains("ChunkFileCollector"))
+			if (FirstStringName.Contains("gp_")
+				|| FirstStringName.Contains("ChunkFileCollector")
+				|| FirstStringName.Contains("skeleton")
+				|| FirstStringName.Contains("mesh")
+				)
 			{
 				var currentPositionBeforeDump = InStream.Position;
 				InStream.Position = 0;
@@ -142,6 +146,7 @@ namespace FrostbiteSdk.IO
 
 			Efix.block_size = (uint)ReadUInt();
 			Efix.file_Guid = ReadGuid();
+			fileGuid = Efix.file_Guid;
 
 			Efix.class_type_count = ReadUInt();
 			for (var i = 0; i < Efix.class_type_count; i++)
@@ -199,9 +204,47 @@ namespace FrostbiteSdk.IO
 			Efix.total_ebx_data_size = ReadUInt();
 			Efix.total_ebx_data_size_2 = ReadUInt();
 
+			// EBXX
+			var ebxxWord = Encoding.UTF8.GetString(ReadBytes(4));
+			if (ebxxWord != "EBXX")
+			{
+				throw new Exception("Not proper EBX file");
+			}
+			uint ebxxSizeExcludingSelf4 = ReadUInt();
+			uint ebxxUnk2 = ReadUInt();
+			uint ebxxUnk3 = ReadUInt();
+			for(var iEbxx = 0; iEbxx < ebxxUnk2; iEbxx++)
+            {
+				var ebxxOff = ReadUInt();
+				var ebxxType = ReadUInt();
+				var ebxxClass = std.GetClass((int)ebxxType);
+				if(ebxxClass!= null)
+                {
 
-			
+                }
+
+				//var pClass = GetClass(EBXType);
+				//ebxxClass = GetClass(pClass, (int)ebxxType);
+				//if (ebxxClass != null)
+				//{
+
+				//}
+
+				//var ebxxField = GetField(pClass, (int)ebxxType);
+
+				var ebxxHash = ReadUInt();
+				//var test1 = EbxSharedTypeDescriptorV2.GetClassName(ebxxHash);
+				//var test2 = EbxSharedTypeDescriptorV2.GetPropertyName(ebxxHash);
+
+				Type ebxxType2 = TypeLibrary.GetType(ebxxHash);
+				if (ebxxType2 != null)
+                {
+
+                }
+				var ebxxUnk1 = ReadUInt();
+			}
 		}
+
 		public List<Guid> RealClassGuids = new List<Guid>();
 
         private void CreateTypeFromEfix()
@@ -256,7 +299,7 @@ namespace FrostbiteSdk.IO
 			// read core class
 			ebxClass = std.GetClass(RealClassGuids[0]);
 
-			for (var i = 0; i < objects.Count; i++)
+			for (var i = 0; i < objects.Count && i < Efix.data_offsets.Count; i++)
 			{
 				Position = PositionBeforeStringSearch;
 				this.ReadClass(ebxClass.Value, objects[i], 32 + Efix.data_offsets[i]);
@@ -455,18 +498,18 @@ namespace FrostbiteSdk.IO
 			{
 				case EbxFieldType.DbObject:
 					throw new InvalidDataException("DbObject");
-				case EbxFieldType.Struct:
-					{
-						object obj = TypeLibrary.CreateObject(baseType);
-						EbxClassMetaAttribute customAttribute = obj.GetType().GetCustomAttribute<EbxClassMetaAttribute>();
-						while (base.Position % (long)customAttribute.Alignment != 0L)
-						{
-							base.Position++;
-						}
+                case EbxFieldType.Struct:
+                    {
+                        object obj = TypeLibrary.CreateObject(baseType);
+                        EbxClassMetaAttribute customAttribute = obj.GetType().GetCustomAttribute<EbxClassMetaAttribute>();
+                        while (base.Position % (long)customAttribute.Alignment != 0L)
+                        {
+                            base.Position++;
+                        }
 						ReadClass(customAttribute, obj, obj.GetType(), base.Position);
-						return obj;
-					}
-				case EbxFieldType.Pointer:
+                        return obj;
+                    }
+                case EbxFieldType.Pointer:
 					{
 						uint num = ReadUInt();
 						if (num >> 31 == 1)
@@ -493,7 +536,8 @@ namespace FrostbiteSdk.IO
 				case EbxFieldType.CString:
 					//return ReadCString(ReadUInt());
 					//return ReadCString(ReadUInt() + 48);
-					return ReadCString(ReadUInt() + 48);
+					var cPos = ReadUInt();
+					return ReadCString(cPos);
 				case EbxFieldType.Enum:
 					return ReadInt32LittleEndian();
 				case EbxFieldType.FileRef:
@@ -566,7 +610,13 @@ namespace FrostbiteSdk.IO
 
 					EbxField field = t.Item1;
 					PropertyInfo property = t.Item2;
+
 					var propTypeString = property != null ? property.PropertyType.FullName : string.Empty;
+					var propertyName = property != null ? property.Name : string.Empty;
+					if(propertyName.Contains("localPose", StringComparison.OrdinalIgnoreCase))
+                    {
+
+                    }
 					Position = startOffset + field.DataOffset;
 
 					IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
@@ -596,55 +646,98 @@ namespace FrostbiteSdk.IO
 							}
 						}
 						if (field.DebugType == EbxFieldType.Array
-							|| propTypeString.Contains("List", StringComparison.OrdinalIgnoreCase)
 							|| field.DebugType22 == EbxFieldType22.Array
+							|| field.DebugType22 == EbxFieldType22.ArrayOfUInt
+							|| field.DebugType22 == EbxFieldType22.ArrayOfInt2
 							)
 						{
-							while (Position % 4 != 0L)
-							{
-								Position++;
-							}
-							Position += 16;
+							Position = startOffset + field.DataOffset;
+							long arrayOffset = ReadLong();
+							Position = startOffset + field.DataOffset + arrayOffset - 4;
 
 							var countArray = ReadInt();
-                            for (int j = 0; j < countArray; j++)
-                            {
+							for (int j = 0; j < countArray; j++)
+							{
 								object obj2 = ReadField(field.DebugType, property.PropertyType);
 
 								var arrayAddMethod = property.GetValue(obj).GetType().GetMethod("Add");
 								arrayAddMethod.Invoke(property.GetValue(obj), new object[] { obj2 });
-                                    //.Invoke(property.GetValue(obj), new object[1]
-                                    //{
-                                        
-                                    //});
-                            }
-                        //}
+							}
+						}
+						else if (
+							field.DebugType22 == EbxFieldType22.ArrayOfCString
+							&& property.PropertyType.ToString().Contains("List", StringComparison.OrdinalIgnoreCase)
+							)
+						{
+							Position = startOffset + field.DataOffset;
+							long arrayOffset = ReadLong();
+							Position = startOffset + field.DataOffset + arrayOffset - 4;
 
-							//EbxClass @class = GetClass(classType, field.ClassRef);
-							//int index = 0;
-							//do
-							//{
-							//	index = ReadInt();
-							//} while (index > arrays.Count - 1 || index < 0);
-							//EbxArray ebxArray = arrays[index];
-							//long position = Position;
-							//Position = arraysOffset + ebxArray.Offset;
-							//for (int j = 0; j < ebxArray.Count; j++)
-							//{
-							//	object obj2 = ReadField(@class, GetField(@class, @class.FieldIndex), isReferenceAttribute != null);
+							var countArray = ReadInt();
+							var cStringPos = ReadLong() + startOffset + field.DataOffset + arrayOffset;
+							Position = cStringPos;
 
-							//	property.GetValue(obj).GetType().GetMethod("Add")
-							//		.Invoke(property.GetValue(obj), new object[1]
-							//		{
-							//		obj2
-							//		});
-							//}
-							//Position = position;
+							for (int j = 0; j < countArray; j++)
+							{ 
+								// This is wrong! Should be using the numbers below
+								//Position = startOffset + field.DataOffset + arrayOffset;// + (j * 8);
+								//var cStringPos = ReadLong() + startOffset + field.DataOffset + arrayOffset;
+								//if (cStringPos > 0 && cStringPos < base.Length)
+								{
+									object obj2 = new CString(ReadNullTerminatedString());
 
-							//if (Position > boxedValuesOffset)
-							//{
-							//	boxedValuesOffset = Position;
-							//}
+									var arrayAddMethod = property.GetValue(obj).GetType().GetMethod("Add");
+									arrayAddMethod.Invoke(property.GetValue(obj), new object[1] { obj2 });
+								}
+
+							}
+
+						}
+						else if (field.DebugType22 == EbxFieldType22.ArrayOfStructs
+							)
+						{
+							Position = startOffset + field.DataOffset;
+							long arrayOffset = ReadLong();
+							Position = startOffset + field.DataOffset + arrayOffset - 4;
+
+							var countArray = ReadInt();
+							var lClassType = ReadULong();
+							if ((ulong)objects.Count > lClassType)
+							{
+								var arrayObject = objects[(int)lClassType];
+								for (int j = 0; j < countArray; j++)
+								{
+									object obj2 = ReadField(field.DebugType, arrayObject.GetType());
+
+									var arrayAddMethod = property.GetValue(obj).GetType().GetMethod("Add");
+									arrayAddMethod.Invoke(property.GetValue(obj), new object[] { obj2 });
+								}
+							}
+							else
+                            {
+								Position -= 8;
+								var arrayType = property.GetValue(obj).GetType().GetGenericArguments().FirstOrDefault();
+								if (arrayType != null)
+                                {
+									for (int j = 0; j < countArray; j++)
+									{
+										object obj2 = ReadField(field.DebugType, arrayType);
+
+										var arrayAddMethod = property.GetValue(obj).GetType().GetMethod("Add");
+										arrayAddMethod.Invoke(property.GetValue(obj), new object[] { obj2 });
+									}
+								}
+
+							}
+						}
+						else if (field.DebugType == EbxFieldType.Pointer
+							|| field.DebugType22 == EbxFieldType22.Pointer
+							)
+						{
+							Position = startOffset + field.DataOffset;
+
+							object value = ReadField(classType, field, true);
+							property.SetValue(obj, value);
 						}
 						else
 						{
@@ -724,22 +817,31 @@ namespace FrostbiteSdk.IO
 				case EbxFieldType.Pointer:
 					{
 						uint num = ReadUInt();
-						int importsV = (int)(num & int.MaxValue);
-						if (num >> 31 == 1 && imports.Count > importsV) // temp measure
+						int importsV = (int)(num & int.MaxValue) - 1;
+						if (importsV >= 0 && imports.Count > importsV)
+                        {
+                            return new PointerRef(imports[importsV]);
+                        }
+						Position -= 4;
+						Position += num;
+						num = ReadUInt();
+						
+						if (num >= 0 && objects.Count > num)
 						{
-							return new PointerRef(imports[importsV]);
-						}
-						else if (num == 0)
-						{
-							return default(PointerRef);
-						}
-						if (!dontRefCount)
-						{
-							refCounts[(int)(num - 1)]++;
-						}
-						if (objects.Count > num)
-						{
-							return new PointerRef(objects[(int)(num - 1)]);
+							var objInternal = objects[(int)(num)];
+							try
+							{
+								var g = RealClassGuids[(int)(num)];
+								var gClass = std.GetClass(g);
+								if(gClass.HasValue)
+									ReadClass(gClass.Value, objInternal, Position - 4);
+							}
+                            catch
+                            {
+
+                            }
+
+							return new PointerRef(objInternal);
 						}
 						else
                         {

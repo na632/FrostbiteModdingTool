@@ -163,6 +163,24 @@ namespace FrostySdk
 			public string ProjectEbxReader { get; set; }
 
 		}
+		public static string GetModProfileParentDirectoryPath()
+		{
+			var dir = AppContext.BaseDirectory + "\\Mods\\Profiles\\";
+			if (!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+
+			return dir;
+		}
+
+
+		public static string GetModProfileDirectoryPath()
+        {
+			var dir = AppContext.BaseDirectory + "/Mods/Profiles/" + ProfileName + "/";
+			if (!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+
+			return dir;
+		}
 
 		public static IEnumerable<Profile> EditorProfiles 
 		{ 

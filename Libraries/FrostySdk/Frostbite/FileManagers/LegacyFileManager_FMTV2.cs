@@ -1128,7 +1128,26 @@ namespace Frostbite.FileManagers
         {
             //throw new NotImplementedException();
         }
-    }
+
+		public void Reset()
+		{
+			//if (LegacyEntries != null)
+			//{
+			//	ResetAsync(true).Wait();
+			//}
+		}
+
+		public void ResetAndDispose()
+        {
+			//Reset();
+
+			//if (LegacyEntries != null)
+			//{
+			//	LegacyEntries.Clear();
+			//	LegacyEntries = null;
+			//}
+        }
+	}
 
 
 }
