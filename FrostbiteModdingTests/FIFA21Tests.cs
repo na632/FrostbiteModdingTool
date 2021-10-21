@@ -23,6 +23,7 @@ using FrostbiteSdk.Frostbite.FileManagers;
 using Frostbite.FileManagers;
 using FifaLibrary;
 using System.Data;
+using System.Collections.Generic;
 
 namespace FrostbiteModdingTests
 {
@@ -293,6 +294,28 @@ namespace FrostbiteModdingTests
                     //"test.fbmod"
                 }.ToArray()).Wait();
 
+        }
+
+        [TestMethod]
+        public void TestGPReadWriteSimple()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            var simpleebxgpname = "fifa/attribulator/gameplay/groups/gp_actor/gp_actor_facialanim_runtime";
+            var ebx = AssetManager.Instance.GetEbx(AssetManager.Instance.GetEbxEntry(simpleebxgpname));
+            AssetManager.Instance.ModifyEbx(simpleebxgpname, ebx);
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+        }
+
+        [TestMethod]
+        public void TestGPReadWriteComplex()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            var simpleebxgpname = "fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime";
+            var ebx = AssetManager.Instance.GetEbx(AssetManager.Instance.GetEbxEntry(simpleebxgpname));
+            AssetManager.Instance.ModifyEbx(simpleebxgpname, ebx);
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
         }
 
         [TestMethod]

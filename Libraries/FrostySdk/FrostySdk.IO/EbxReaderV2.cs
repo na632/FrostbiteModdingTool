@@ -32,13 +32,21 @@ namespace FrostySdk.IO
 						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
 					//std = new EbxSharedTypeDescriptorV2(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
 				}
+				if (patchStd == null)
+				{
+					if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+					{
+						patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+						, AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", true);
+					}
+				}
 			}
 			else
 			{
 
 				if (std == null)
 				{
-					if(ProfilesLibrary.IsFIFA19DataVersion())
+					if (ProfilesLibrary.IsFIFA19DataVersion())
 						std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "Dictionaries/ebx.dict", patch: false);
 					else
 						std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
@@ -76,8 +84,8 @@ namespace FrostySdk.IO
 			//	}
 			//}
 			patched = inPatched;
-			magic = (EbxVersion)ReadUInt32LittleEndian();
-			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
+			ebxVersion = (EbxVersion)ReadUInt32LittleEndian();
+			if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
 			{
 				return;
 			}
@@ -123,7 +131,7 @@ namespace FrostySdk.IO
 			{
 				EbxField item = default(EbxField);
 				int key2 = ReadInt32LittleEndian();
-				item.Type = ((magic == EbxVersion.Version2) ? ReadUInt16LittleEndian() : ((ushort)(ReadUInt16LittleEndian() >> 1)));
+				item.Type = ((ebxVersion == EbxVersion.Version2) ? ReadUInt16LittleEndian() : ((ushort)(ReadUInt16LittleEndian() >> 1)));
 				item.ClassRef = ReadUInt16LittleEndian();
 				item.DataOffset = ReadUInt32LittleEndian();
 				item.SecondOffset = ReadUInt32LittleEndian();

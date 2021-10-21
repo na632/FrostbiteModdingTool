@@ -221,6 +221,14 @@ namespace FrostySdk.Frostbite.IO.Output
 
 				}
 
+				reader.Position = 0;
+				var debugMeshesChunkDataPath = "MeshesChunkData_" + ProfilesLibrary.ProfileName + ".dat";
+				if(File.Exists(debugMeshesChunkDataPath))
+					File.Delete(debugMeshesChunkDataPath);
+
+				File.WriteAllBytes(debugMeshesChunkDataPath, reader.ReadToEnd());
+				reader.Position = 0;
+
 
 				FbxNode fbxNode2 = FBXExportSubObject(scene, section, lod.VertexBufferSize, indexSize, reader);
 				if (flattenHierarchy)

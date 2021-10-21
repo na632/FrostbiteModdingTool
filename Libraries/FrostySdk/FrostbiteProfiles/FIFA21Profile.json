@@ -13,9 +13,9 @@
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)
-  "EBXReader": "EBXReaderV3",
+  "EBXReader": "EBXReader2021",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EBXWriterV2",
+  "EBXWriter": "EBXWriter2021",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
@@ -44,6 +44,7 @@
   "CanLaunchMods": true,
   // Can this Application Edit this Game?
   "CanEdit": true,
+  //"EBXTypeDescriptor": "EbxSharedTypeDescriptors",
 
   "Banner": "",
   "EbxVersion": 4,

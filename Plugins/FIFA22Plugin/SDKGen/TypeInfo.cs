@@ -51,10 +51,11 @@ namespace SdkGenerator.Fifa22
 			{
 
 			}
-			var h = reader.ReadInt();
-			nameHash = (uint)h;
+			//var h = reader.ReadInt();
+			//nameHash = (uint)h;
+			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
-			flags >>= 1;
+            flags >>= 1;
             size = reader.ReadUShort();
 
 			guid = reader.ReadGuid();

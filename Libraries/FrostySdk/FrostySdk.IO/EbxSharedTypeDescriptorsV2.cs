@@ -9,13 +9,16 @@ namespace FrostySdk.IO
 {
 	public class EbxSharedTypeDescriptorV2 : IEbxSharedTypeDescriptor
 	{
-		public List<EbxClass?> Classes = new List<EbxClass?>();
+		private List<EbxClass?> classes = new List<EbxClass?>();
+		public List<EbxClass?> Classes { get { return classes; } }
+		public Dictionary<Guid, int> mapping = new Dictionary<Guid, int>();
+		public Dictionary<Guid, int> Mapping { get { return mapping; } }
 
-		public Dictionary<Guid, int> Mapping = new Dictionary<Guid, int>();
+		private List<EbxField> fields = new List<EbxField>();
+		public List<EbxField> Fields { get { return fields; } }
 
-		public List<EbxField> Fields = new List<EbxField>();
-
-		public List<Guid> Guids = new List<Guid>();
+		private List<Guid> guids = new List<Guid>();
+		public List<Guid> Guids { get { return guids; } }
 
 
 		private static Assembly EbxClassesAssembly;
@@ -142,6 +145,10 @@ namespace FrostySdk.IO
 					uint fieldIndex = reader.ReadUInt();
 					int fieldCount = reader.ReadByte();
 					byte alignment = reader.ReadByte();
+					if (alignment == 0)
+					{
+
+					}
 					ushort classType = reader.ReadUShort();
 					uint size = reader.ReadUInt();
 					//list2.Add((nameHash, fieldIndex, fieldCount, classType, size, alignment));
@@ -154,10 +161,13 @@ namespace FrostySdk.IO
 					ebxClass.NameHash = nameHash;
 					ebxClass.FieldIndex = (int)fieldIndex;
 					ebxClass.FieldCount = (byte)fieldCount;
-					ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
+					//ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
+					ebxClass.Alignment = (byte)((alignment == 0) ? 4 : alignment);
+					
 					ebxClass.Size = (ushort)size;
 					//ebxClass.Type = (forSdkGen ? classType : ((ushort)(classType >> 1)));
-					ebxClass.Type = ReflectionTypeDescripter ? ((ushort)(classType >> 1)) : classType;
+					//ebxClass.Type = ReflectionTypeDescripter ? ((ushort)(classType >> 1)) : classType;
+					ebxClass.Type = ReflectionTypeDescripter ? classType : ((ushort)(classType >> 1));
 					ebxClass.Index = l;
 					EbxClass value = ebxClass;
 					if (patch)
@@ -168,23 +178,23 @@ namespace FrostySdk.IO
 					Classes.Add(value);
 				}
 				//List<(uint, uint, ushort, short)> list3 = new List<(uint, uint, ushort, short)>();
-				count = reader.ReadUInt();
-				for (int k = 0; k < count; k++)
+				var fieldCountInDescriptor = reader.ReadUInt();
+				for (int k = 0; k < fieldCountInDescriptor; k++)
 				{
 					uint fieldNameHash = reader.ReadUInt();
 					uint dataOffset = reader.ReadUInt();
 					ushort type = reader.ReadUShort();
-					short classRef = reader.ReadShort();// reader.ReadInt16LittleEndian();
+					ushort classRef = reader.ReadUShort();// reader.ReadInt16LittleEndian();
 					//list3.Add((nameHash2, dataOffset, type, classRef));
 					EbxField ebxField = default(EbxField);
 					ebxField.NameHash = fieldNameHash;
-					//ebxField.Type = (ushort)(type >> 1);
-					ebxField.Type = ReflectionTypeDescripter ? ((ushort)(type >> 1)) : type;
-					ebxField.ClassRef = (ushort)classRef;
+                    //ebxField.Type = (ushort)(type >> 1);
+                    ebxField.Type = ReflectionTypeDescripter ? ((ushort)(type >> 1)) : type;
+                    ebxField.ClassRef = (ushort)classRef;
 					ebxField.DataOffset = dataOffset;
 					ebxField.SecondOffset = 0u;
 					EbxField item = ebxField;
-					Fields.Add(item);
+					fields.Add(item);
 				}
 				//List<(uint, uint, uint)> list4 = new List<(uint, uint, uint)>();
 				count = reader.ReadUInt();
@@ -199,13 +209,14 @@ namespace FrostySdk.IO
 						if (field.NameHash == nameHash3)
 						{
 							field.SecondOffset = dataOffset2;
-							Fields[n] = field;
+							field.Unk3 = unk3;
+							fields[n] = field;
 						}
 					}
 					//list4.Add((nameHash3, unk2, unk3));
 				}
-				count = reader.ReadUInt();
-				for (int i = 0; i < count; i++)
+				var arrayValueCount = reader.ReadUInt();
+				for (int i = 0; i < arrayValueCount; i++)
 				{
                     uint nameHash4 = reader.ReadUInt();
                     uint dataOffset2 = reader.ReadUInt();
@@ -215,11 +226,15 @@ namespace FrostySdk.IO
                         if (field.NameHash == nameHash4)
                         {
                             field.ThirdOffset = dataOffset2;
-                            Fields[n] = field;
+                            fields[n] = field;
                         }
                     }
                 }
 			}
+		}
+
+		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch) : this(fs, name, patch, true, true)
+		{
 		}
 
 		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch, bool instantRead = true, bool viaReflection = false)
@@ -295,10 +310,20 @@ namespace FrostySdk.IO
 
     public interface IEbxSharedTypeDescriptor
     {
+		public List<EbxClass?> Classes { get; }
+
+		public Dictionary<Guid, int> Mapping { get; }
+
+		public List<EbxField> Fields { get; }
+
+		public List<Guid> Guids { get; }
+
 		public EbxClass? GetClass(Guid guid);
 		public EbxClass? GetClass(int index);
 		public Guid? GetGuid(EbxClass classType);
 		public Guid? GetGuid(int index);
 		public EbxField? GetField(int index);
+
+		public void Read(in byte[] data, in bool patch);
 	}
 }

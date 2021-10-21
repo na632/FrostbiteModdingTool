@@ -7,5 +7,8 @@ namespace FrostySdk.IO
 		public uint Offset;
 
 		public uint Count;
-	}
+
+        public uint PathDepth { get; internal set; }
+        public int TypeFlags { get; internal set; }
+    }
 }

@@ -236,21 +236,27 @@ namespace Frostbite.FileManagers
 
 							legacyFileEntry.ChunkIdPosition = nativeReader.Position;
 							var chunkId = nativeReader.ReadGuid();
-							legacyFileEntry.ChunkId = chunkId;
-
-							nativeReader.Position = legacyFileEntry.FileNameInBatchOffset;
-							string name = nativeReader.ReadNullTerminatedString();
-							if(nativeReader.Position > chunkBatch.EndOfStrings)
-								chunkBatch.EndOfStrings = (int)nativeReader.Position;
-
-							if (!LegacyEntries.ContainsKey(name))
+							if (chunkId != Guid.Empty)
 							{
-								legacyFileEntry.Name = name;
-								LegacyEntries.Add(name, legacyFileEntry);
-							}
-							else
-							{
-								legacyFileEntry = LegacyEntries[name];
+								var cha = AssetManager.Instance.GetChunkEntry(chunkId);
+								cha.IsLegacy = true;
+
+								legacyFileEntry.ChunkId = chunkId;
+
+								nativeReader.Position = legacyFileEntry.FileNameInBatchOffset;
+								string name = nativeReader.ReadNullTerminatedString();
+								//if (nativeReader.Position > chunkBatch.EndOfStrings)
+								//	chunkBatch.EndOfStrings = (int)nativeReader.Position;
+
+								if (!LegacyEntries.ContainsKey(name))
+								{
+									legacyFileEntry.Name = name;
+									LegacyEntries.Add(name, legacyFileEntry);
+								}
+								else
+								{
+									legacyFileEntry = LegacyEntries[name];
+								}
 							}
 
 							//if (name.Contains("playervalues.ini", StringComparison.OrdinalIgnoreCase))
@@ -908,12 +914,18 @@ namespace Frostbite.FileManagers
 				{
 					if (LegacyEntries.ContainsKey(lfe.Name))
 					{
-						LegacyEntries[lfe.Name].ModifiedEntry = new ModifiedAssetEntry()
-						{
-							Data = lfe.ModifiedEntry.Data
-						};
-					};
+                        LegacyEntries[lfe.Name].ModifiedEntry = new ModifiedAssetEntry()
+                        {
+                            Data = lfe.ModifiedEntry.Data
+                        };
+                    };
 				}
+			}
+
+			// Reset Chunks broken by patches
+			foreach (var chunk in LegacyFileManager.LegacyChunks)
+			{
+				AssetManager.Instance.RevertAsset(chunk);
 			}
 		}
 
@@ -931,10 +943,7 @@ namespace Frostbite.FileManagers
 					LegacyEntries[lfe.Name].ModifiedEntry = new ModifiedAssetEntry()
 					{
 						Data = lfe.ModifiedEntry.Data
-						,
-						NewOffset = lfe.ModifiedEntry.NewOffset
 					};
-					LegacyEntries[lfe.Name].ExtraData.DataOffset = Convert.ToUInt32(lfe.ModifiedEntry.NewOffset.HasValue ? lfe.ModifiedEntry.NewOffset.Value : lfe.ExtraData.DataOffset);
 
 				}
 			}
@@ -960,7 +969,7 @@ namespace Frostbite.FileManagers
 		public void RevertAsset(AssetEntry entry)
 		{
 			LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
-			if (legacyFileEntry != null)
+			if (legacyFileEntry != null && AssetManager.Instance != null)
 			{
 				legacyFileEntry.ModifiedEntry = null;
 				legacyFileEntry.IsDirty = false;

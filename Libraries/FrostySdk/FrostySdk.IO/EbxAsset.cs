@@ -26,6 +26,8 @@ namespace FrostySdk.IO
 
 		private static Type ValueType = typeof(ValueType);
 
+		public List<EbxArray> arrays;
+
 		public Guid FileGuid => fileGuid;
 
 		public Guid RootInstanceGuid => ((AssetClassGuid)((dynamic)RootObject).GetInstanceGuid()).ExportedGuid;

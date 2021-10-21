@@ -95,8 +95,8 @@ namespace FrostbiteSdk.IO
 
 			patched = inPatched;
 			// RIFF
-			magic = (EbxVersion)ReadUInt();
-			Efix.block_header = (uint)magic;
+			ebxVersion = (EbxVersion)ReadUInt();
+			Efix.block_header = (uint)ebxVersion;
 
 			FileLength = (uint)ReadUInt();
 			Efix.block_size = FileLength;
@@ -120,7 +120,7 @@ namespace FrostbiteSdk.IO
 			var name = ReadNullTerminatedString();
 			Strings.Add(name);
 			if (FirstStringName.Contains("gp_")
-				|| FirstStringName.Contains("ChunkFileCollector")
+				//|| FirstStringName.Contains("ChunkFileCollector")
 				|| FirstStringName.Contains("skeleton")
 				|| FirstStringName.Contains("mesh")
 				)
@@ -354,7 +354,7 @@ namespace FrostbiteSdk.IO
 			EbxClass? ebxClass = null;
 			foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in objType.GetCustomAttributes(typeof(TypeInfoGuidAttribute), inherit: true).Cast<TypeInfoGuidAttribute>())
 			{
-				if (classGuids.Contains(typeInfoGuidAttribute.Guid))
+				//if (classGuids.Contains(typeInfoGuidAttribute.Guid))
 				{
 					if (patched && patchStd != null)
 					{
@@ -506,12 +506,14 @@ namespace FrostbiteSdk.IO
                         {
                             base.Position++;
                         }
-						ReadClass(customAttribute, obj, obj.GetType(), base.Position);
+						//ReadClass(customAttribute, obj, obj.GetType(), base.Position);
+						ReadClass(GetClass(baseType), obj, base.Position - 8);
                         return obj;
                     }
                 case EbxFieldType.Pointer:
 					{
-						uint num = ReadUInt();
+						//uint num = ReadUInt();
+						uint num = (uint)ReadULong();
 						if (num >> 31 == 1)
 						{
 							EbxImportReference ebxImportReference = imports[(int)(num & 0x7FFFFFFF)];
@@ -622,11 +624,16 @@ namespace FrostbiteSdk.IO
 					IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
 					if (field.DebugType == EbxFieldType.Inherited)
 					{
-						var eClass = GetClass(classType, field.ClassRef);
-						if (string.IsNullOrEmpty(eClass.Name))
-							continue;
+						var inheritedClass = GetClass(classType, field.ClassRef);
+						var inheritedObject = TypeLibrary.GetType(inheritedClass.NameHash);
+						if(inheritedObject != null)
+                        {
+							ReadClass(inheritedClass, obj, startOffset + field.DataOffset);
+						}
+						//if (string.IsNullOrEmpty(eClass.Name))
+						//	continue;
 
-						ReadClass(eClass, obj, startOffset);
+						//ReadClass(eClass, obj, startOffset);
 						continue;
 					}
 					if (property != null)
@@ -704,6 +711,7 @@ namespace FrostbiteSdk.IO
 							var lClassType = ReadULong();
 							if ((ulong)objects.Count > lClassType)
 							{
+								//base.Position -= 4;
 								var arrayObject = objects[(int)lClassType];
 								for (int j = 0; j < countArray; j++)
 								{
@@ -751,10 +759,10 @@ namespace FrostbiteSdk.IO
 					Debug.WriteLine(ex.ToString());
 				}
 			}
-				while (Position % (long)classType.Alignment != 0L)
-				{
-					Position++;
-				}
+				//while (Position % (long)classType.Alignment != 0L)
+				//{
+				//	Position++;
+				//}
 			
 			return null;
 		}
@@ -809,6 +817,7 @@ namespace FrostbiteSdk.IO
 							Position++;
 						}
 						object obj = CreateObject(@class);
+						//ReadClass(@class, obj, Position);
 						ReadClass(@class, obj, Position);
 						return obj;
 					}
@@ -833,8 +842,16 @@ namespace FrostbiteSdk.IO
 							{
 								var g = RealClassGuids[(int)(num)];
 								var gClass = std.GetClass(g);
-								if(gClass.HasValue)
-									ReadClass(gClass.Value, objInternal, Position - 4);
+                                if (gClass.HasValue)
+                                {
+									Position -= 4;
+									//Position += 16; // get past class identifier
+									//Position += 8; // get past 02 00 00 00 00 B1 00 00
+
+									//var readHashOrPosition = ReadULong();
+									//ReadClass(gClass.Value, objInternal, (long)readHashOrPosition);
+									ReadClass(gClass.Value, objInternal, (long)Position);
+								}
 							}
                             catch
                             {

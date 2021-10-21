@@ -50,7 +50,7 @@ namespace FrostySdk.IO
 
 		public Guid fileGuid;
 
-		public long arraysOffset;
+		public long arraysOffset { get; set; }
 
 		public long stringsOffset;
 
@@ -80,7 +80,7 @@ namespace FrostySdk.IO
 
 		public long boxedValuesOffset;
 
-		public EbxVersion magic;
+		public EbxVersion ebxVersion;
 
 		public bool isValid;
 
@@ -117,8 +117,8 @@ namespace FrostySdk.IO
 
 		public virtual void InitialRead(Stream InStream, bool inPatched)
         {
-			magic = (EbxVersion)ReadUInt();
-			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
+			ebxVersion = (EbxVersion)ReadUInt();
+			if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
 			{
 				return;
 			}
@@ -136,7 +136,7 @@ namespace FrostySdk.IO
 			dataLen = ReadUInt();
 			arraysOffset = stringsOffset + stringsLen + dataLen;
 			fileGuid = ReadGuid();
-			if (magic == EbxVersion.Version4)
+			if (ebxVersion == EbxVersion.Version4)
 			{
 				boxedValuesCount = ReadUInt();
 				boxedValuesOffset = ReadUInt();
@@ -177,7 +177,7 @@ namespace FrostySdk.IO
 			{
 				EbxField item2 = default(EbxField);
 				int key2 = ReadInt();
-				item2.Type = ((magic == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
+				item2.Type = ((ebxVersion == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
 				item2.ClassRef = ReadUShort();
 				item2.DataOffset = ReadUInt();
 				item2.SecondOffset = ReadUInt();
@@ -191,7 +191,7 @@ namespace FrostySdk.IO
 				item3.FieldIndex = ReadInt();
 				item3.FieldCount = ReadByte();
 				item3.Alignment = ReadByte();
-				item3.Type = ((magic == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
+				item3.Type = ((ebxVersion == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
 				item3.Size = ReadUShort();
 				item3.SecondSize = ReadUShort();
 				item3.Name = dictionary[key3];
@@ -320,25 +320,115 @@ namespace FrostySdk.IO
 			}
 		}
 
+		//public virtual object ReadClass(EbxClass classType, object obj, long startOffset)
+		//{
+		//	 /// DEBUG STREAM OUT
+		//	//var pos = stream.Position;
+		//	//var out_file = new FileStream("testReadClass.dat", FileMode.OpenOrCreate);
+		//	//stream.CopyTo(out_file);
+		//	//out_file.Close();
+		//	//out_file.Dispose();
+		//	//stream.Position = pos;
+
+		//	// END OF DEBUG
+
+		//	if (obj == null)
+		//	{
+		//		Position += classType.Size;
+		//		while (Position % (long)classType.Alignment != 0L)
+		//		{
+		//			Position++;
+		//		}
+		//		return null;
+		//	}
+		//	Type type = obj.GetType();
+		//	for (int i = 0; i < classType.FieldCount; i++)
+		//	{
+		//		EbxField field = GetField(classType, classType.FieldIndex + i);
+		//		PropertyInfo property = GetProperty(type, field);
+		//		IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
+		//		if (field.DebugType == EbxFieldType.Inherited)
+		//		{
+		//			ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
+		//			continue;
+		//		}
+		//		if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)
+		//		{
+		//			while (Position % 8 != 0L)
+		//			{
+		//				Position++;
+		//			}
+		//		}
+		//		else if (field.DebugType == EbxFieldType.Array || field.DebugType == EbxFieldType.Pointer)
+		//		{
+		//			while (Position % 4 != 0L)
+		//			{
+		//				Position++;
+		//			}
+		//		}
+		//		if (field.DebugType == EbxFieldType.Array)
+		//		{
+		//			EbxClass @class = GetClass(classType, field.ClassRef);
+		//			int index = 0;
+		//			do
+		//			{
+		//				index = ReadInt();
+		//			} while (index > arrays.Count-1 || index < 0);
+		//			EbxArray ebxArray = arrays[index];
+		//			long position = Position;
+		//			Position = arraysOffset + ebxArray.Offset;
+		//			for (int j = 0; j < ebxArray.Count; j++)
+		//			{
+		//				object obj2 = ReadField(@class, GetField(@class, @class.FieldIndex), isReferenceAttribute != null);
+		//				if (property != null)
+		//				{
+		//					try
+		//					{
+		//						property.GetValue(obj).GetType().GetMethod("Add")
+		//							.Invoke(property.GetValue(obj), new object[1]
+		//							{
+		//								obj2
+		//							});
+		//					}
+		//					catch (Exception)
+		//					{
+		//					}
+		//				}
+		//			}
+		//			if (Position > boxedValuesOffset)
+		//			{
+		//				boxedValuesOffset = Position;
+		//			}
+		//			Position = position;
+		//		}
+		//		else
+		//		{
+		//			object value = ReadField(classType, field, isReferenceAttribute != null);
+		//			if (property != null)
+		//			{
+		//				try
+		//				{
+		//					property.SetValue(obj, value);
+		//				}
+		//				catch (Exception)
+		//				{
+		//				}
+		//			}
+		//		}
+		//	}
+		//	while (Position % (long)classType.Alignment != 0L)
+		//	{
+		//		Position++;
+		//	}
+		//	return null;
+		//}
+
 		public virtual object ReadClass(EbxClass classType, object obj, long startOffset)
 		{
-			 /// DEBUG STREAM OUT
-			//var pos = stream.Position;
-			//var out_file = new FileStream("testReadClass.dat", FileMode.OpenOrCreate);
-			//stream.CopyTo(out_file);
-			//out_file.Close();
-			//out_file.Dispose();
-			//stream.Position = pos;
-
-			// END OF DEBUG
-
 			if (obj == null)
 			{
-				Position += classType.Size;
-				while (Position % (long)classType.Alignment != 0L)
-				{
-					Position++;
-				}
+				base.Position += classType.Size;
+				Pad(classType.Alignment);
 				return null;
 			}
 			Type type = obj.GetType();
@@ -346,80 +436,51 @@ namespace FrostySdk.IO
 			{
 				EbxField field = GetField(classType, classType.FieldIndex + i);
 				PropertyInfo property = GetProperty(type, field);
-				IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
+				IsReferenceAttribute isReferenceAttribute = ((property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null);
 				if (field.DebugType == EbxFieldType.Inherited)
 				{
 					ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
 					continue;
 				}
-				if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)
+				EbxFieldType debugType = field.DebugType;
+				if (debugType == EbxFieldType.ResourceRef || debugType == EbxFieldType.TypeRef || debugType == EbxFieldType.FileRef || debugType == EbxFieldType.BoxedValueRef || debugType == EbxFieldType.UInt64 || debugType == EbxFieldType.Int64 || debugType == EbxFieldType.Float64)
 				{
-					while (Position % 8 != 0L)
-					{
-						Position++;
-					}
-				}
-				else if (field.DebugType == EbxFieldType.Array || field.DebugType == EbxFieldType.Pointer)
-				{
-					while (Position % 4 != 0L)
-					{
-						Position++;
-					}
-				}
-				if (field.DebugType == EbxFieldType.Array)
-				{
-					EbxClass @class = GetClass(classType, field.ClassRef);
-					int index = 0;
-					do
-					{
-						index = ReadInt();
-					} while (index > arrays.Count-1 || index < 0);
-					EbxArray ebxArray = arrays[index];
-					long position = Position;
-					Position = arraysOffset + ebxArray.Offset;
-					for (int j = 0; j < ebxArray.Count; j++)
-					{
-						object obj2 = ReadField(@class, GetField(@class, @class.FieldIndex), isReferenceAttribute != null);
-						if (property != null)
-						{
-							try
-							{
-								property.GetValue(obj).GetType().GetMethod("Add")
-									.Invoke(property.GetValue(obj), new object[1]
-									{
-										obj2
-									});
-							}
-							catch (Exception)
-							{
-							}
-						}
-					}
-					if (Position > boxedValuesOffset)
-					{
-						boxedValuesOffset = Position;
-					}
-					Position = position;
+					Pad(8);
 				}
 				else
 				{
-					object value = ReadField(classType, field, isReferenceAttribute != null);
-					if (property != null)
+					debugType = field.DebugType;
+					if (debugType == EbxFieldType.Array || debugType == EbxFieldType.Pointer)
 					{
-						try
-						{
-							property.SetValue(obj, value);
-						}
-						catch (Exception)
-						{
-						}
+						Pad(4);
+					}
+				}
+				if (ebxVersion == EbxVersion.Riff)
+				{
+					base.Position = field.DataOffset + startOffset;
+				}
+				if (IsFieldInClassAnArray(classType, field))
+				{
+					ReadArray(obj, property, classType, field, isReferenceAttribute != null);
+					continue;
+				}
+				object value = ReadField(classType, field.DebugType, field.ClassRef, isReferenceAttribute != null);
+				if (property != null)
+				{
+					try
+					{
+						property.SetValue(obj, value);
+					}
+					catch (Exception)
+					{
 					}
 				}
 			}
-			while (Position % (long)classType.Alignment != 0L)
+			if (ebxVersion == EbxVersion.Riff)
 			{
-				Position++;
+				base.Position = startOffset + classType.Size;
 			}
+			Pad(classType.Alignment);
 			return null;
 		}
 
@@ -661,6 +722,25 @@ namespace FrostySdk.IO
 
 		public TypeRef ReadTypeRef()
 		{
+			if (ebxVersion == EbxVersion.Riff)
+			{
+				uint value = ReadUInt();
+				if (value == uint.MaxValue)
+				{
+					return new TypeRef();
+				}
+				if ((value & 0x80000000u) == 2147483648u)
+				{
+					value &= 0x7FFFFFFFu;
+					Type type = TypeLibrary.Reflection.LookupTypeByTypeCode((EbxFieldType)((value >> 5) & 0x1Fu));
+					if (type == null)
+					{
+						return new TypeRef();
+					}
+					return new TypeRef(type?.Name ?? "");
+				}
+				return new TypeRef();
+			}
 			string text = ReadString(ReadUInt());
 			Position += 4L;
 			if (text == "")
@@ -698,6 +778,116 @@ namespace FrostySdk.IO
 				num = ((num * 33) ^ b);
 			}
 			return num;
+		}
+
+		public virtual object ReadField(EbxClass? parentClass, EbxFieldType fieldType, ushort fieldClassRef, bool dontRefCount = false)
+		{
+			switch (fieldType)
+			{
+				case EbxFieldType.Boolean:
+					return ReadByte() > 0;
+				case EbxFieldType.Int8:
+					return (sbyte)ReadByte();
+				case EbxFieldType.UInt8:
+					return ReadByte();
+				case EbxFieldType.Int16:
+					return ReadShort();
+				case EbxFieldType.UInt16:
+					return ReadUInt16LittleEndian();
+				case EbxFieldType.Int32:
+					return ReadInt32LittleEndian();
+				case EbxFieldType.UInt32:
+					return ReadUInt();
+				case EbxFieldType.Int64:
+					return ReadInt64LittleEndian();
+				case EbxFieldType.UInt64:
+					return ReadUInt64LittleEndian();
+				case EbxFieldType.Float32:
+					return ReadSingleLittleEndian();
+				case EbxFieldType.Float64:
+					return ReadDoubleLittleEndian();
+				case EbxFieldType.Guid:
+					return ReadGuid();
+				case EbxFieldType.ResourceRef:
+					return ReadResourceRef();
+				case EbxFieldType.Sha1:
+					return ReadSha1();
+				case EbxFieldType.String:
+					return ReadSizedString(32);
+				case EbxFieldType.CString:
+					return ReadCString(ReadUInt());
+				case EbxFieldType.FileRef:
+					return ReadFileRef();
+				case EbxFieldType.TypeRef:
+					return ReadTypeRef();
+				case EbxFieldType.BoxedValueRef:
+					return ReadBoxedValueRef();
+				case EbxFieldType.Struct:
+					{
+						EbxClass @class = GetClass(parentClass, fieldClassRef);
+						Pad(@class.Alignment);
+						object obj = CreateObject(@class);
+						ReadClass(@class, obj, base.Position);
+						return obj;
+					}
+				case EbxFieldType.Enum:
+					return ReadInt32LittleEndian();
+				case EbxFieldType.Pointer:
+					{
+						uint num = ReadUInt();
+						if (num >> 31 == 1)
+						{
+							return new PointerRef(imports[(int)(num & 0x7FFFFFFF)]);
+						}
+						if (num == 0)
+						{
+							return default(PointerRef);
+						}
+						if (!dontRefCount)
+						{
+							refCounts[(int)(num - 1)]++;
+						}
+						return new PointerRef(objects[(int)(num - 1)]);
+					}
+				case EbxFieldType.DbObject:
+					throw new InvalidDataException("DbObject");
+				default:
+					throw new InvalidDataException($"Unknown field type {fieldType}");
+			}
+		}
+
+		protected virtual void ReadArray(object obj, PropertyInfo property, EbxClass classType, EbxField field, bool isReference)
+		{
+			EbxClass @class = GetClass(classType, field.ClassRef);
+			int index = ReadInt();
+			EbxArray ebxArray = arrays[index];
+			long position = base.Position;
+			base.Position = arraysOffset + ebxArray.Offset;
+			for (int i = 0; i < ebxArray.Count; i++)
+			{
+				EbxField field2 = GetField(@class, @class.FieldIndex);
+				object obj2 = ReadField(@class, field2.DebugType, field2.ClassRef, isReference);
+				if (property != null)
+				{
+					try
+					{
+						property.GetValue(obj)!.GetType().GetMethod("Add")!.Invoke(property.GetValue(obj), new object[1] { obj2 });
+					}
+					catch (Exception)
+					{
+					}
+				}
+			}
+			base.Position = position;
+		}
+
+		protected virtual bool IsFieldInClassAnArray(EbxClass @class, EbxField field)
+		{
+			if (ebxVersion == EbxVersion.Riff)
+			{
+				return field.Category == EbxFieldCategory.Array;
+			}
+			return field.DebugType == EbxFieldType.Array;
 		}
 	}
 }

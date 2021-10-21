@@ -110,6 +110,9 @@ namespace SdkGenerator
 			stringBuilder.AppendLine("{");
 			foreach (DbObject @class in classList)
 			{
+				if (@class.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+				{
+				}
 				EbxFieldType ebxFieldType = (EbxFieldType)@class.GetValue("type", 0);
 				switch (ebxFieldType)
 				{
@@ -280,6 +283,10 @@ namespace SdkGenerator
 
 		private string WriteEnum(DbObject enumObj)
 		{
+			if (enumObj.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+			{
+			}
+
 			StringBuilder stringBuilder = new StringBuilder();
 
 			stringBuilder.Append(WriteClassAttributes(enumObj));
@@ -364,6 +371,8 @@ namespace SdkGenerator
 			if (classObj.GetValue<string>("name") == "AgentsClassSettingsFillerData")
 			{
 			}
+
+			
 
 			var class_fields = classObj.GetValue<DbObject>("fields").list.OrderBy(x => ((DbObject)x).GetValue<int>("offset"));
 			foreach (DbObject item in class_fields)
@@ -578,7 +587,7 @@ namespace SdkGenerator
 			EbxFieldType ebxFieldType = (EbxFieldType)fieldObj.GetValue("type", 0);
 			int num = fieldObj.GetValue("arrayFlags", 0);
 			string baseType = (ebxFieldType == EbxFieldType.Pointer || ebxFieldType == EbxFieldType.Array) ? fieldObj.GetValue("baseType", "null") : "null";
-			int num2 = fieldObj.GetValue("flags", 0);
+			int flags = fieldObj.GetValue("flags", 0);
 			//if (ebxFieldType == EbxFieldType.Array && fieldObj.HasValue("guid"))
 			if (fieldObj.HasValue("guid"))
 			{
@@ -590,7 +599,7 @@ namespace SdkGenerator
 				DbObject value2 = value.GetValue<DbObject>("type");
 				if (value2 != null)
 				{
-					num2 = value2.GetValue("flags", 0) << 4;
+					flags = value2.GetValue("flags", 0) << 4;
 					if (value2.HasValue("baseType"))
 					{
 						baseType = value2.GetValue<string>("baseType");
@@ -602,7 +611,7 @@ namespace SdkGenerator
 				}
 				else if (value.HasValue("transient"))
 				{
-					num2 = 240;
+					flags = 240;
 				}
 			}
 			if (baseType != "null")
@@ -612,17 +621,23 @@ namespace SdkGenerator
 			int value3 = fieldObj.GetValue("index", 0);
 			if (fieldObj.HasValue("nameHash"))
 			{
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");
+				//stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<uint>("nameHash", 0u) + ")]");
 			}
 			// PG - Added this hack for a quick fix
-			if (fieldObj.GetValue("offset", 0) < 0)
-			{
-				stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(" + num2 + ", " + 3 + ", " + baseType + ", " + (ebxFieldType == EbxFieldType.Array).ToString().ToLower() + ", " + num + ")]");
-			}
-			else
-            {
-				stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(" + num2 + ", " + fieldObj.GetValue("offset", 0) + ", " + baseType + ", " + (ebxFieldType == EbxFieldType.Array).ToString().ToLower() + ", " + num + ")]");
-			}
+			//if (fieldObj.GetValue("offset", 0) < 0)
+			//{
+			//	stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(" + num2 + ", " + 3 + ", " + baseType + ", " + (ebxFieldType == EbxFieldType.Array).ToString().ToLower() + ", " + num + ")]");
+			//}
+			//else
+   //         {
+				stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name 
+					+ "(" + flags + ", " 
+					+ fieldObj.GetValue("offset", 0) + ", " 
+					+ baseType + ", " 
+					+ (ebxFieldType == EbxFieldType.Array).ToString().ToLowerInvariant() + ", " 
+					+ num + ")]");
+			//}
 			if (value != null)
 			{
 				if (value.HasValue("displayName"))

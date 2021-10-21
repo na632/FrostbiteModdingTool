@@ -108,6 +108,38 @@ namespace FrostySdk
 				}
 				return typeInfosByHash[hash];
 			}
+
+			public static Type LookupTypeByTypeCode(EbxFieldType typeCode)
+			{
+				string typeName = typeCode switch
+				{
+					EbxFieldType.DbObject => "DbObject",
+					EbxFieldType.Pointer => "DataContainer",
+					EbxFieldType.CString => "CString",
+					EbxFieldType.Boolean => "Boolean",
+					EbxFieldType.Int8 => "Int8",
+					EbxFieldType.UInt8 => "Uint8",
+					EbxFieldType.Int16 => "Int16",
+					EbxFieldType.UInt16 => "Uint16",
+					EbxFieldType.Int32 => "Int32",
+					EbxFieldType.UInt32 => "Uint32",
+					EbxFieldType.Int64 => "Int64",
+					EbxFieldType.UInt64 => "Uint64",
+					EbxFieldType.Float32 => "Float32",
+					EbxFieldType.Float64 => "Float64",
+					EbxFieldType.Guid => "Guid",
+					EbxFieldType.Sha1 => "SHA1",
+					EbxFieldType.ResourceRef => "ResourceRef",
+					EbxFieldType.TypeRef => "TypeRef",
+					EbxFieldType.BoxedValueRef => "BoxedValueRef",
+					_ => null,
+				};
+				if (typeName == null)
+				{
+					return null;
+				}
+				return LookupType((uint)Fnv1.HashString(typeName));
+			}
 		}
 
 		private const string ModuleName = "EbxClasses";

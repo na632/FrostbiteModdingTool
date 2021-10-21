@@ -6,9 +6,9 @@ namespace FrostySdk.Attributes
 	[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 	public class EbxFieldMetaAttribute : Attribute
 	{
-		public EbxFieldType Type => (EbxFieldType)((Flags >> 4) & 0x1F);
+		public EbxFieldType Type => (EbxFieldType)((uint)(Flags >> 4) & 0x1Fu);
 
-		public EbxFieldType ArrayType => (EbxFieldType)((ArrayFlags >> 4) & 0x1F);
+		public EbxFieldType ArrayType => (EbxFieldType)((uint)(ArrayFlags >> 4) & 0x1Fu);
 
 		public ushort Flags
 		{

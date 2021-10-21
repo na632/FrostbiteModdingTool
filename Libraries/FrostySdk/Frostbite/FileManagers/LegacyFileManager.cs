@@ -14,6 +14,14 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 {
 	public class LegacyFileManager : ICustomAssetManager, ILegacyFileManager
 	{
+		public static IEnumerable<ChunkAssetEntry> LegacyChunks
+        {
+			get
+            {
+				return AssetManager.Instance.EnumerateChunks().Where(x => x.IsLegacy);
+            }
+        }
+
 		public List<LegacyFileEntry> AddedFileEntries { get; set; }
 
 		public static ILegacyFileManager Instance = null;

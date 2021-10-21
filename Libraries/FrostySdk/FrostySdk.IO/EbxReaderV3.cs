@@ -13,9 +13,9 @@ namespace FrostySdk.IO
 	
 	public class EbxReaderV3 : EbxReader
 	{
-		public static IEbxSharedTypeDescriptor std;
+        public static IEbxSharedTypeDescriptor std => EbxReader2021.std;
 
-		public static IEbxSharedTypeDescriptor patchStd;
+        public static IEbxSharedTypeDescriptor patchStd => EbxReader2021.patchStd;
 
 		public List<Guid> classGuids = new List<Guid>();
 
@@ -23,47 +23,47 @@ namespace FrostySdk.IO
 
 		public override string RootType => TypeLibrary.GetType(classGuids[instances[0].ClassRef])?.Name ?? string.Empty;
 
-		public static void InitialiseStd()
-		{
-			if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
-			{
-				if (std == null)
-				{
-					std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
-						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
-				}
-			}
-			else
-			{
-				if (std == null)
-				{
-					std = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors.ebx", patch: false);
-				}
+		//public static void InitialiseStd()
+		//{
+		//	if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
+		//	{
+		//		if (std == null)
+		//		{
+		//			std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+		//				, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
+		//		}
+		//	}
+		//	else
+		//	{
+		//		if (std == null)
+		//		{
+		//			std = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors.ebx", patch: false);
+		//		}
 
-				if (patchStd == null)
-				{
-					var allSTDs = FileSystem.Instance.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
-					if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
-					{
-						patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_patch.ebx", patch: true);
-					}
-					if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
-					{
-						patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_Patch.ebx", patch: true);
-					}
-				}
-			}
-		}
+		//		if (patchStd == null)
+		//		{
+		//			var allSTDs = FileSystem.Instance.memoryFs.Where(x => x.Key.Contains("SharedTypeDescriptors", StringComparison.OrdinalIgnoreCase)).ToList();
+		//			if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+		//			{
+		//				patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_patch.ebx", patch: true);
+		//			}
+		//			if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+		//			{
+		//				patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_Patch.ebx", patch: true);
+		//			}
+		//		}
+		//	}
+		//}
 
 		public EbxReaderV3(Stream InStream, bool inPatched)
             //: base(InStream)
             : base(InStream, passthru: true)
         {
 			InStream.Position = 0;
-			InitialiseStd();
+			EbxReaderV2.InitialiseStd();
 			patched = inPatched;
-			magic = (EbxVersion)ReadUInt();
-			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
+			ebxVersion = (EbxVersion)ReadUInt();
+			if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
 			{
 				return;
 			}
@@ -109,7 +109,7 @@ namespace FrostySdk.IO
 			{
 				EbxField item = default(EbxField);
 				int key2 = ReadInt32LittleEndian();
-				item.Type = ((magic == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
+				item.Type = ((ebxVersion == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
 				item.ClassRef = ReadUShort();
 				item.DataOffset = ReadUInt();
 				item.SecondOffset = ReadUInt();

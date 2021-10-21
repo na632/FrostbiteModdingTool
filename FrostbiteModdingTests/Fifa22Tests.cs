@@ -121,6 +121,34 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ModComplexGPFile()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+            var dyn = (dynamic)complexAsset.RootObject;
+            dyn.ATTR_DribbleJogSpeed = 0.005f;
+            dyn.ATTR_JogSpeed = 0.005f;
+            AssetManager.Instance.ModifyEbx("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime", complexAsset);
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            //paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            //frostyModExecutor.ForceRebuildOfMods = true;
+            //frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+            //    new System.Collections.Generic.List<string>() {
+            //        testR
+            //    }.ToArray()).Wait();
+
+
+        }
+
+        [TestMethod]
         public void TestArsenalKitMod()
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);

@@ -12,7 +12,7 @@ using System.Text;
 
 namespace FrostySdk.IO
 {
-	public class EbxReader_F21 : EbxReaderV2
+	public class EbxReader_F21 : EbxReader2021
 	{
 		public string CasPath { get; set; }
 
@@ -77,7 +77,7 @@ namespace FrostySdk.IO
 
 		public override void InitialRead(Stream InStream, bool inPatched)
 		{
-			InitialiseStd();
+			EbxReaderV2.InitialiseStd();
 			//if (!string.IsNullOrEmpty(InBoundName) && InBoundName.Contains("gp_"))
 			//{
 			//}
@@ -95,8 +95,8 @@ namespace FrostySdk.IO
 			//	}
 			//}
 			patched = inPatched;
-			magic = (EbxVersion)ReadUInt();
-			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
+			ebxVersion = (EbxVersion)ReadUInt();
+			if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
 			{
 				//throw new Exception("Magic is not found");
 				Debug.WriteLine("-- Magic is not found");
@@ -147,7 +147,7 @@ namespace FrostySdk.IO
 			{
 				EbxField item2 = default(EbxField);
 				int key2 = ReadInt();
-				item2.Type = ((magic == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
+				item2.Type = ((ebxVersion == EbxVersion.Version2) ? ReadUShort() : ((ushort)(ReadUShort() >> 1)));
 				item2.ClassRef = ReadUShort();
 				item2.DataOffset = ReadUInt();
 				item2.SecondOffset = ReadUInt();

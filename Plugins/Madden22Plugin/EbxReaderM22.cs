@@ -81,7 +81,7 @@ namespace Madden22Plugin
 
 			patched = inPatched;
 			// RIFF
-			magic = (EbxVersion)ReadUInt();
+			ebxVersion = (EbxVersion)ReadUInt();
 
 			var fileLengthMinus4 = (uint)ReadUInt();
 

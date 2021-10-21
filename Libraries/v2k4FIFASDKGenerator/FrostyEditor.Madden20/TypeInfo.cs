@@ -2,6 +2,8 @@ using FrostyEditor.IO;
 using FrostySdk;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
+using System;
+using System.Collections.Generic;
 
 namespace SdkGenerator.Madden20
 {

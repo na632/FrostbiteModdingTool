@@ -601,7 +601,7 @@ namespace FrostySdk.FrostySdk.IO
 							break;
 						case EbxFieldType.Struct:
 							{
-								EbxClass value = EbxReaderV2.std.GetClass(classType.Index + (short)field.ClassRef).Value;
+								EbxClass value = EbxReader2021.std.GetClass(classType.Index + (short)field.ClassRef).Value;
 								writer.WritePadding(value.Alignment);
 								writer.WriteBytes(new byte[value.Size]);
 								break;

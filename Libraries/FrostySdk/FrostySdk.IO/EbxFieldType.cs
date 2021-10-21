@@ -30,7 +30,7 @@ namespace FrostySdk.IO
 		BoxedValueRef = 26
 	}
 
-	public enum EbxFieldType22 : int
+	public enum EbxFieldType22 : short
 	{
 		Inherited = 1,
 		Pointer = 49,
@@ -41,6 +41,20 @@ namespace FrostySdk.IO
 
 		ArrayOfInt2 = 244,
 		ArrayOfUInt = 260,
+
+	}
+
+	public enum EbxFieldCategory : short
+	{
+		NotApplicable,
+		Class,
+		Value,
+		Primitive,
+		Array,
+		Enum,
+		Function,
+		Interface,
+		Delegate
 
 	}
 }

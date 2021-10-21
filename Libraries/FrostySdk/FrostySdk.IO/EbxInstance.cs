@@ -7,5 +7,7 @@ namespace FrostySdk.IO
 		public ushort Count;
 
 		public bool IsExported;
+
+		public object InstanceObject;
 	}
 }

@@ -286,6 +286,44 @@ namespace FIFA22Plugin
 
                         foreach (DbObject o in tocSbReader.TOCFile.TOCObjects.List)
                         {
+                            DbObject ebx = o.GetValue<DbObject>("ebx");
+                            if (ebx != null && parent.modifiedEbx.Any())
+                            {
+                                var ebxNames = ebx.List.Select(x => ((DbObject)x).GetValue<string>("name"));
+                                if (ebxNames != null)
+                                {
+                                    if (ebxNames.Any(x => parent.modifiedEbx.ContainsKey(x)))
+                                    {
+                                        for (var dboI = 0; dboI < ebx.List.Count; dboI++)
+                                        {
+                                            //for (var modEbxI = 0; modEbxI < parent.modifiedEbx.Count; modEbxI++)
+                                            {
+                                                var dboItem = ebx.List[dboI] as DbObject;
+                                                var dboName = dboItem.GetValue<string>("name");
+                                                if (parent.modifiedEbx.ContainsKey(dboName))
+                                                {
+                                                    var modItem = parent.modifiedEbx[dboName];
+
+                                                    var dboCCas = dboItem.GetValue<int>("cas");
+                                                    var dboCCatalog = dboItem.GetValue<int>("catalog");
+                                                    var dboCPatch = dboItem.GetValue<bool>("patch");
+                                                    var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+
+                                                    if (!modToCas.ContainsKey(dboRawFilePath))
+                                                        modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+
+                                                    if (modToCas.ContainsKey(dboRawFilePath))
+                                                        modToCas[dboRawFilePath].Add((dboItem, modItem));
+
+                                                    ModifiedCount_EBX++;
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             DbObject res = o.GetValue<DbObject>("res");
                             if (res != null && parent.modifiedRes.Any())
                             {
@@ -295,9 +333,9 @@ namespace FIFA22Plugin
                                 {
                                     if (resNames.Any(x => parent.modifiedRes.ContainsKey(x)))
                                     {
-                                        for (var dboI = 0; dboI < res.Count; dboI++)
+                                        for (var dboI = 0; dboI < res.List.Count; dboI++)
                                         {
-                                            for (var modChunkI = 0; modChunkI < parent.ModifiedChunks.Count; modChunkI++)
+                                            //for (var modChunkI = 0; modChunkI < parent.modifiedRes.Count; modChunkI++)
                                             {
                                                 var dboItem = res.List[dboI] as DbObject;
                                                 var dboName = dboItem.GetValue<string>("name");
@@ -336,7 +374,7 @@ namespace FIFA22Plugin
                                     {
                                         for (var dboChunkI = 0; dboChunkI < chunks.Count; dboChunkI++)
                                         {
-                                            for (var modChunkI = 0; modChunkI < parent.ModifiedChunks.Count; modChunkI++)
+                                            //for (var modChunkI = 0; modChunkI < parent.ModifiedChunks.Count; modChunkI++)
                                             {
                                                 var dboC = chunks.List[dboChunkI] as DbObject;
                                                 var dboCGuid = dboC.GetValue<Guid>("id");

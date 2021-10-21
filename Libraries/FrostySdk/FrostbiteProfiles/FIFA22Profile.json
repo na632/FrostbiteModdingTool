@@ -13,16 +13,16 @@
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)
-  "EBXReader": "EbxReader2022",
+  "EBXReader": "EbxReader2022V2",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EBXWriterDummy",
+  "EBXWriter": "EbxWriter2022",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
 
-  "ProjectEbxWriter": "EBXWriterDummy",
-  "ProjectEbxReader": "EbxReader2022",
+  "ProjectEbxWriter": "EbxWriter2022",
+  "ProjectEbxReader": "EbxReader2022V2",
 
 
   "Sources": [

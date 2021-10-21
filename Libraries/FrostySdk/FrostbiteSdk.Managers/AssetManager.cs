@@ -634,6 +634,8 @@ public interface IAssetLoader
 
 		public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
 		{
+			DateTime dtAtStart = DateTime.Now;
+
 			logger.Log("Initialising Plugins");
 			if(!InitialisePlugins() && !ProfilesLibrary.DoesNotUsePlugin)
             {
@@ -645,7 +647,6 @@ public interface IAssetLoader
 				logger.Log($"Plugins and SDK {"SDK/" + ProfilesLibrary.SDKFilename + ".dll"} Initialised");
 			}
 
-			DateTime now = DateTime.Now;
 			List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
 
 			if (!CacheRead(out prePatchCache))
@@ -674,7 +675,7 @@ public interface IAssetLoader
 				value.Initialize(logger);
 			}
 			
-			TimeSpan timeSpan = DateTime.Now - now;
+			TimeSpan timeSpan = DateTime.Now - dtAtStart;
 			logger.Log($"Loading complete {timeSpan.ToString(@"mm\:ss")}");
 
 			if(AssetManagerInitialised != null)

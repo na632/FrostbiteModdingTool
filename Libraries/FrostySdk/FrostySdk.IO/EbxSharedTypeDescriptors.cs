@@ -10,14 +10,16 @@ namespace FrostySdk.IO
 	public class EbxSharedTypeDescriptors : IEbxSharedTypeDescriptor
 	{
 		private List<EbxClass?> classes = new List<EbxClass?>();
+		public List<EbxClass?> Classes { get { return classes; } }
 
-		private Dictionary<Guid, int> mapping = new Dictionary<Guid, int>();
+		public Dictionary<Guid, int> mapping = new Dictionary<Guid, int>();
+		public Dictionary<Guid, int> Mapping { get { return mapping; } }
 
 		private List<EbxField> fields = new List<EbxField>();
+		public List<EbxField> Fields { get { return fields; } }
 
 		private List<Guid> guids = new List<Guid>();
-
-		public int ClassCount => classes.Count;
+		public List<Guid> Guids { get { return guids; } }
 
 		private static Assembly EbxClassesAssembly;
 		private static Type[] EbxClassesTypes;
@@ -35,7 +37,7 @@ namespace FrostySdk.IO
 				//{
 					var t = EbxClassesTypes.FirstOrDefault(t =>
 							t.GetCustomAttribute<HashAttribute>() != null
-							&& t.GetCustomAttribute<HashAttribute>().Hash == nameHash);
+							&& (uint)t.GetCustomAttribute<HashAttribute>().Hash == (uint)nameHash);
 					if(t != null)
                     {
 						return t.Name;
@@ -120,7 +122,7 @@ namespace FrostySdk.IO
 						DataOffset = nativeReader.ReadUInt(),
 						SecondOffset = nativeReader.ReadUInt()
 					};
-					fields.Add(item);
+					Fields.Add(item);
 				}
 				int totalFieldCount = 0;
 				EbxClass lastValue = new EbxClass();
@@ -130,9 +132,8 @@ namespace FrostySdk.IO
 					Guid b = nativeReader.ReadGuid(); // 16
 					if (guid.Equals(b))
 					{
-						mapping.Add(guid, classes.Count);
+						mapping.Add(guid, Classes.Count);
                         classes.Add(null);
-                        //classes.Add(lastValue);
                         guids.Add(guid);
 						continue;
 					}
@@ -166,7 +167,7 @@ namespace FrostySdk.IO
 						{
 							value.SecondSize = 1;
 						}
-						mapping.Add(guid, classes.Count);
+						mapping.Add(guid, Classes.Count);
 						classes.Add(value);
 						guids.Add(guid);
 						totalFieldCount += fieldCount;
@@ -177,49 +178,52 @@ namespace FrostySdk.IO
 
 		public bool HasClass(Guid guid)
 		{
-			return mapping.ContainsKey(guid);
+			return Mapping.ContainsKey(guid);
 		}
 
 		public EbxClass? GetClass(Guid guid)
 		{
-			if (!mapping.ContainsKey(guid))
+			if (!Mapping.ContainsKey(guid))
 			{
 				return null;
 			}
-			var mappedGuid = mapping[guid];
-			EbxClass? c = classes.ElementAt(mappedGuid);
-			//if (!c.HasValue)
-			//	c = classes.ElementAt(mappedGuid - 1);
+			var mappedGuid = Mapping[guid];
+			EbxClass? c = Classes.ElementAt(mappedGuid);
 			return c;
 		}
 
 		public EbxClass? GetClass(int index)
 		{
-			return classes[index];
+			return Classes[index];
 		}
 
 		public Guid? GetGuid(EbxClass classType)
 		{
-			if(guids.Count > classType.Index)
-				return guids[classType.Index];
+			if(Guids.Count > classType.Index)
+				return Guids[classType.Index];
 
 			return null;
 		}
 
 		public Guid? GetGuid(int index)
 		{
-			if(guids.Count > index)
-				return guids[index];
+			if(Guids.Count > index)
+				return Guids[index];
 
 			return null;
 		}
 
 		public EbxField? GetField(int index)
 		{
-			if(fields.Count > index)
-				return fields[index];
+			if(Fields.Count > index)
+				return Fields[index];
 
 			return null;
 		}
-	}
+
+        public void Read(in byte[] data, in bool patch)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

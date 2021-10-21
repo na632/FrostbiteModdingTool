@@ -8,12 +8,11 @@ namespace FrostySdk.IO
         {
             get 
             {
-                if (string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(EbxSharedTypeDescriptors.GetClassName(NameHash)))
-                {
-                    name = EbxSharedTypeDescriptors.GetClassName(NameHash);
-                }
-    
-                return name; 
+                if(!string.IsNullOrEmpty(name))
+                    return name;
+
+                name = this.ToString();
+                return !string.IsNullOrEmpty(name) && !name.Contains("EbxClass") ? name : string.Empty;
             
             }
             set { name = value; }
@@ -38,7 +37,8 @@ namespace FrostySdk.IO
 
 		public int Index;
 
-		public EbxFieldType DebugType => (EbxFieldType)((Type >> 4) & 0x1F);
+        public EbxFieldType DebugType => (EbxFieldType)((uint)(Type >> 4) & 0x1Fu);
+        public EbxFieldCategory Category => (EbxFieldCategory)((uint)(Type >> 4) & 0x1Fu);
 
         public override string ToString()
         {

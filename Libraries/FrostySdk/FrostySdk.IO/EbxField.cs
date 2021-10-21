@@ -1,7 +1,6 @@
 namespace FrostySdk.IO
 {
     public struct EbxField
-    //public class EbxField
     {
         private string name;
 
@@ -34,8 +33,12 @@ namespace FrostySdk.IO
 		public uint ThirdOffset;
 
         public EbxFieldType DebugType => (EbxFieldType)((Type >> 4) & 0x1F);
-		public EbxFieldType DebugType2 => (EbxFieldType)((Type >> 4));
+        public EbxFieldType InternalType => DebugType;
         public EbxFieldType22 DebugType22 => (EbxFieldType22)Type;
+
+        public EbxFieldCategory Category => (EbxFieldCategory)(Type & 0xFu);
+
+        public uint Unk3 { get; internal set; }
 
         public override bool Equals(object obj)
         {
@@ -54,6 +57,10 @@ namespace FrostySdk.IO
         }
         public override string ToString()
         {
+            if(!string.IsNullOrEmpty(Name))
+            {
+                return Name;
+            }
             return base.ToString();
         }
     }
