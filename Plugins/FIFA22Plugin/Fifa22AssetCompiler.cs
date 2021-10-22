@@ -240,7 +240,7 @@ namespace FIFA22Plugin
 
 
         Catalog catalogInfo;
-        public void ProcessBundles(bool bundlesInPatch = false)
+        public void ProcessBundles(bool bundlesInPatch = true)
         {
             var folder = bundlesInPatch ? "native_patch" : "native_data";
 
@@ -286,6 +286,7 @@ namespace FIFA22Plugin
 
                         foreach (DbObject o in tocSbReader.TOCFile.TOCObjects.List)
                         {
+                            List<string> ebxToRemove = new List<string>();
                             DbObject ebx = o.GetValue<DbObject>("ebx");
                             if (ebx != null && parent.modifiedEbx.Any())
                             {
@@ -316,6 +317,7 @@ namespace FIFA22Plugin
                                                         modToCas[dboRawFilePath].Add((dboItem, modItem));
 
                                                     ModifiedCount_EBX++;
+                                                    ebxToRemove.Add(dboName);
                                                 }
 
                                             }
@@ -323,6 +325,9 @@ namespace FIFA22Plugin
                                     }
                                 }
                             }
+
+                            foreach (var item in ebxToRemove)
+                                parent.modifiedEbx.Remove(item);
 
                             DbObject res = o.GetValue<DbObject>("res");
                             if (res != null && parent.modifiedRes.Any())
@@ -432,7 +437,16 @@ namespace FIFA22Plugin
                                                 {
                                                     cEntry.bundleSizeInCas = data.Length;
                                                     cEntry.bundleOffsetInCas = (int)newDataPosition;
+
+
+                                                    // write original size etc.
+                                                    // 
+                                                    nwCas.Position = t.Item1.GetValue<uint>("SB_OriginalSize_Position");
+                                                    nwCas.Write((uint)t.Item1.GetValue<uint>("originalSize"));
+
                                                 }
+
+
                                             }
                                         }
                                     }
@@ -507,7 +521,7 @@ namespace FIFA22Plugin
             }
 
             if (!bundlesInPatch)
-                ProcessBundles(true);
+                ProcessBundles(false);
         }
 
         DbObject layoutToc = null;

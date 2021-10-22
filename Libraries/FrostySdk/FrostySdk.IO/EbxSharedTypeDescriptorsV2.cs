@@ -1,4 +1,5 @@
 using FrostySdk.Attributes;
+using FrostySdk.FrostySdk.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -122,8 +123,8 @@ namespace FrostySdk.IO
 			{
 				reader.Position = 0;
 				var magic1 = reader.ReadUInt();
-				reader.ReadUInt();
-				reader.ReadUInt();
+				FourCC riffType = reader.ReadUInt();
+				riffType = reader.ReadUInt();
 				reader.ReadUInt();
 				reader.ReadUInt();
 				//List<(Guid, uint)> list1 = new List<(Guid, uint)>();
@@ -143,15 +144,10 @@ namespace FrostySdk.IO
 				{
 					uint nameHash = reader.ReadUInt();
 					uint fieldIndex = reader.ReadUInt();
-					int fieldCount = reader.ReadByte();
-					byte alignment = reader.ReadByte();
-					if (alignment == 0)
-					{
-
-					}
+					ushort fieldCount = reader.ReadUShort();
 					ushort classType = reader.ReadUShort();
-					uint size = reader.ReadUInt();
-					//list2.Add((nameHash, fieldIndex, fieldCount, classType, size, alignment));
+					ushort size = reader.ReadUShort();
+					ushort alignment = reader.ReadUShort();
 					if ((alignment & 0x80u) != 0)
 					{
 						fieldCount += 256;
@@ -161,10 +157,10 @@ namespace FrostySdk.IO
 					ebxClass.NameHash = nameHash;
 					ebxClass.FieldIndex = (int)fieldIndex;
 					ebxClass.FieldCount = (byte)fieldCount;
-					//ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
-					ebxClass.Alignment = (byte)((alignment == 0) ? 4 : alignment);
-					
-					ebxClass.Size = (ushort)size;
+                    ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
+                    //ebxClass.Alignment = (byte)((alignment == 0) ? 4 : alignment);
+
+                    ebxClass.Size = (ushort)size;
 					//ebxClass.Type = (forSdkGen ? classType : ((ushort)(classType >> 1)));
 					//ebxClass.Type = ReflectionTypeDescripter ? ((ushort)(classType >> 1)) : classType;
 					ebxClass.Type = ReflectionTypeDescripter ? classType : ((ushort)(classType >> 1));

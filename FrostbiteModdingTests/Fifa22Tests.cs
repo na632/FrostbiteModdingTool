@@ -137,13 +137,13 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            //paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
-            //frostyModExecutor.ForceRebuildOfMods = true;
-            //frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
-            //    new System.Collections.Generic.List<string>() {
-            //        testR
-            //    }.ToArray()).Wait();
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
 
 
         }

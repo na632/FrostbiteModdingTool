@@ -450,6 +450,16 @@ namespace FrostySdk
 			return isMadden;
 		}
 
+		public static bool IsMadden22DataVersion()
+		{
+
+			bool isMadden = false;
+
+			isMadden = ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.MADDEN22;
+
+			return isMadden;
+		}
+
 		public static bool IsMadden20DataVersion()
 		{
 

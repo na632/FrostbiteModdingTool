@@ -818,22 +818,24 @@ namespace FrostySdk.Frostbite.IO.Output
 			return fbxNode;
 		}
 
-		public MeshSet LoadMeshSet(AssetManager assetManager, object rootObject)
+		//public MeshSet LoadMeshSet(AssetManager assetManager, object rootObject)
+		//{
+		//	MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(((dynamic)rootObject).Name)));
+		//	return meshSet;
+		//}
+		public MeshSet LoadMeshSet(AssetManager assetManager, string resName)
 		{
-			MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(((dynamic)rootObject).Name)));
+			//MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(((dynamic)rootObject).Name)));
+			MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(resName)));
 			return meshSet;
 		}
+
 		public MeshSet LoadMeshSet(EbxAssetEntry ebx)
 		{
 			EbxAsset ebxAsset = AssetManager.Instance.GetEbx(ebx);
-			return LoadMeshSet(AssetManager.Instance, ebxAsset.RootObject);
+			//return LoadMeshSet(AssetManager.Instance, ebxAsset.RootObject);
+			return LoadMeshSet(AssetManager.Instance, ebx.Name);
 		}
 
-		public MeshSet2 LoadMeshSet2(EbxAssetEntry ebx)
-		{
-			EbxAsset ebxAsset = AssetManager.Instance.GetEbx(ebx);
-			MeshSet2 meshSet = new MeshSet2(AssetManager.Instance.GetRes(AssetManager.Instance.GetResEntry(((dynamic)ebxAsset.RootObject).Name)), AssetManager.Instance);
-			return meshSet;
-		}
 	}
 }

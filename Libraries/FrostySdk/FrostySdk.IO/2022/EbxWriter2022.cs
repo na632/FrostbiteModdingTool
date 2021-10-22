@@ -102,28 +102,23 @@ namespace FrostySdk.FrostySdk.IO
 			originalAssetArrays = asset.arrays;
 			WriteEbxObjects(asset.RootObjects, asset.FileGuid);
 
-			var original = AssetManager.Instance.GetEbxEntry(asset.FileGuid);
-			if (original != null) 
-			{
-				var originalEbx = AssetManager.Instance.GetEbx(original);
-			}
-			// ---------------------
-			// Debugging
-			//
-			if (File.Exists("ebxV4Out.dat"))
-				File.Delete("ebxV4Out.dat");
 
-			var endPos = Position;
-			Position = 0;
-			using (var fsOut = new FileStream("ebxV4Out.dat", FileMode.CreateNew))
-				BaseStream.CopyToAsync(fsOut);
-			Position = endPos;
-			//
-			// ---------------------
+            // ---------------------
+            // Debugging
+            //
+            if (File.Exists("ebxV4Out.dat"))
+                File.Delete("ebxV4Out.dat");
 
-		}
+            var endPos = Position;
+            Position = 0;
+            using (var fsOut = new FileStream("ebxV4Out.dat", FileMode.CreateNew))
+                BaseStream.CopyToAsync(fsOut);
+            Position = endPos;
+            //
+            // ---------------------
+        }
 
-		public void WriteEbxObjects(IEnumerable<object> objects, Guid fileGuid)
+        public void WriteEbxObjects(IEnumerable<object> objects, Guid fileGuid)
 		{
 			if (objects == null)
 			{
@@ -263,7 +258,7 @@ namespace FrostySdk.FrostySdk.IO
 				ProcessType(j);
 			}
 			ProcessData();
-			Write((int)1179011410);
+			WriteInt32LittleEndian(1179011410);
 			long riffChunkDataLengthOffset = base.Position;
 			WriteUInt32LittleEndian(0u);
 			WriteUInt32LittleEndian(5784133u);
@@ -279,73 +274,55 @@ namespace FrostySdk.FrostySdk.IO
 			long efixChunkDataLengthOffset = base.Position;
 			WriteUInt32LittleEndian(0u);
 			WriteGuid(fileGuid);
-			Write((int)classGuids.Count);
+			WriteInt32LittleEndian(classGuids.Count);
 			foreach (Guid classGuid in classGuids)
 			{
 				WriteGuid(classGuid);
 			}
-			Write((int)typeInfoSignatures.Count);
+			WriteInt32LittleEndian(typeInfoSignatures.Count);
 			foreach (uint signature in typeInfoSignatures)
 			{
 				WriteUInt32LittleEndian(signature);
 			}
-			Write((int)exportedCount);
-			Write((int)instances.Count);
+			WriteInt32LittleEndian(exportedCount);
+			WriteInt32LittleEndian(instances.Count);
 			for (int i = 0; i < instances.Count; i++)
 			{
-				Write((int)dataContainerOffsets[i]);
+				WriteInt32LittleEndian(dataContainerOffsets[i]);
 			}
 			patchedPointerOffsets.Sort();
-			Write((int)patchedPointerOffsets.Count);
+			WriteInt32LittleEndian(patchedPointerOffsets.Count);
 			foreach (int pointerOffset in patchedPointerOffsets)
 			{
-				Write((int)pointerOffset);
+				WriteInt32LittleEndian(pointerOffset);
 			}
-			Write((int)patchedResourceRefOffsets.Count);
+			WriteInt32LittleEndian(patchedResourceRefOffsets.Count);
 			foreach (int resourceRefOffset in patchedResourceRefOffsets)
 			{
-				Write((int)resourceRefOffset);
+				WriteInt32LittleEndian(resourceRefOffset);
 			}
-			Write((int)imports.Count);
+			WriteInt32LittleEndian(imports.Count);
 			foreach (EbxImportReference import in imports)
 			{
 				WriteGuid(import.FileGuid);
 				WriteGuid(import.ClassGuid);
 			}
-			Write((int)patchedImportOffsets.Count);
+			WriteInt32LittleEndian(patchedImportOffsets.Count);
 			foreach (int importOffset in patchedImportOffsets)
 			{
-				Write((int)importOffset);
+				WriteInt32LittleEndian(importOffset);
 			}
-			Write((int)0);
-			Write((int)arraysPosition);
-			Write((int)boxedValuesPosition);
-			Write((int)stringTablePosition);
+			WriteInt32LittleEndian(0);
+			WriteInt32LittleEndian(arraysPosition);
+			WriteInt32LittleEndian(boxedValuesPosition);
+			WriteInt32LittleEndian(stringTablePosition);
 			long efixChunkLength = base.Position - efixChunkDataLengthOffset - 4;
-			Write(1482179141u);
-
-			var fetsucksassholeandforgottodothisshit = base.Position;
-			// Size
-			Write(0u);
-			Write((uint)arrays.Count);
-			Write((uint)boxedValues.Count);
-			foreach(var a in arrays)
-			{
-				Write((uint)a.Offset);
-				Write((uint)a.Count);
-				Write((uint)a.PathDepth);
-				Write((ushort)a.TypeFlags);
-				Write((ushort)a.ClassRef);
-			}
-			//int ebxxSize = 8;
-			//Write((int)ebxxSize);
-			//Write((int)0);
-			//Write((int)0);
-			long ebxxChunkLength = base.Position - fetsucksassholeandforgottodothisshit - 4;
-			long riffChunkLength = base.Position - 8;
-			base.Position = fetsucksassholeandforgottodothisshit;
-			Write((int)ebxxChunkLength);
-
+			WriteUInt32LittleEndian(1482179141u);
+			int ebxxSize = 8;
+			WriteInt32LittleEndian(ebxxSize);
+			WriteInt32LittleEndian(0);
+			WriteInt32LittleEndian(0);
+			long riffChunkLength = base.Position - riffChunkDataLengthOffset - 4;
 			base.Position = riffChunkDataLengthOffset;
 			WriteUInt32LittleEndian((uint)riffChunkLength);
 			base.Position = ebxdChunkDataLengthOffset;
@@ -431,11 +408,19 @@ namespace FrostySdk.FrostySdk.IO
 		{
 			Type type = typesToProcess[index];
 			EbxClass ebxClass = classTypes[index];
-			if (type.Name == "List`1" || ebxClass.DebugType == EbxFieldType.Array)
-			{
+            if (type.Name == "List`1" || ebxClass.DebugType == EbxFieldType.Array)
+            {
 				EbxFieldMetaAttribute ebxFieldMetaAttribute = arrayTypes[0];
 				arrayTypes.RemoveAt(0);
-				ushort classIndex = (ushort)FindExistingClass(type.GenericTypeArguments[0]);
+				ushort classIndex = 0;
+				if (type.GenericTypeArguments.Length > 0)
+				{
+					classIndex = (ushort)FindExistingClass(type.GenericTypeArguments[0]);
+				}
+				else
+                {
+					classIndex = (ushort)FindExistingClass(type);
+				}
 				if (classIndex == ushort.MaxValue)
 				{
 					classIndex = 0;
@@ -533,15 +518,14 @@ namespace FrostySdk.FrostySdk.IO
 					nativeWriter.WriteGuid(assetClassGuid.ExportedGuid);
 				}
 				dataContainerOffsets.Add((int)nativeWriter.Position);
-				nativeWriter.Write((int)classIndex);
-				nativeWriter.WritePadding(16);
-				//if (ebxClass.Alignment != 4)
-				//{
-					//nativeWriter.Write(0uL);
-				//}
-				//nativeWriter.WriteUInt32LittleEndian(2u);
-				//nativeWriter.WriteUInt32LittleEndian(45312u);
-				nativeWriter.Write(194613558116354ul);
+				nativeWriter.WriteInt32LittleEndian(classIndex);
+				nativeWriter.WritePadding(8);
+				if (ebxClass.Alignment != 4)
+				{
+					nativeWriter.WriteUInt64LittleEndian(0uL);
+				}
+				nativeWriter.WriteUInt32LittleEndian(2u);
+				nativeWriter.WriteUInt32LittleEndian(45312u);
 				WriteClass(sortedObjs[i], type, nativeWriter);
 				EbxInstance ebxInstance = default(EbxInstance);
 				ebxInstance.ClassRef = (ushort)classIndex;
@@ -552,7 +536,7 @@ namespace FrostySdk.FrostySdk.IO
 			}
 			nativeWriter.WritePadding(16);
 			arraysPosition = (int)nativeWriter.Position;
-			nativeWriter.Write(new byte[32]);
+			nativeWriter.WriteEmpty(32);
 			foreach (var unpatchedArray2 in unpatchedArrayInfo)
 			{
 				EbxArray arrayInfo = arrays[unpatchedArray2.arrayIndex];
@@ -567,7 +551,7 @@ namespace FrostySdk.FrostySdk.IO
 					nativeWriter.WritePadding(16);
 					if (nativeWriter.Position - beforePaddingPosition < 4)
 					{
-						nativeWriter.Write(new byte[16]);
+						nativeWriter.WriteEmpty(16);
 					}
 					nativeWriter.Position -= 4L;
 					nativeWriter.WriteUInt32LittleEndian(arrayInfo.Count);
@@ -601,7 +585,7 @@ namespace FrostySdk.FrostySdk.IO
 						nativeWriter.Position = cStringOffset + arrays[realArrayIndex6].Offset;
 					}
 					int offset = (int)(stringPosition - nativeWriter.Position);
-					nativeWriter.Write((int)offset);
+					nativeWriter.WriteInt32LittleEndian(offset);
 				}
 				nativeWriter.Position = afterStringPosition;
 			}
@@ -619,7 +603,7 @@ namespace FrostySdk.FrostySdk.IO
 					nativeWriter.Position = arrayPointerOffset;
 				}
 				int relativeOffset = (int)(ebxArray.Offset - nativeWriter.Position);
-				nativeWriter.Write((int)relativeOffset);
+				nativeWriter.WriteInt32LittleEndian(relativeOffset);
 			}
 			foreach (KeyValuePair<(int, int), int> item2 in pointerRefPositionToDataContainerIndex)
 			{
@@ -637,7 +621,7 @@ namespace FrostySdk.FrostySdk.IO
 					int realArrayIndex4 = arrayIndicesMap[containingArrayIndex4];
 					nativeWriter.Position = pointerRefPosition + arrays[realArrayIndex4].Offset;
 				}
-				nativeWriter.Write((int)(int)(dataContainerOffsets[dataContainerIndex] - nativeWriter.Position));
+				nativeWriter.WriteInt32LittleEndian((int)(dataContainerOffsets[dataContainerIndex] - nativeWriter.Position));
 			}
 			foreach (var (pointerOffset, containingArrayIndex3) in pointerOffsets)
 			{
@@ -706,18 +690,18 @@ namespace FrostySdk.FrostySdk.IO
 				if (propertyInfo == null)
 				{
 					EbxFieldType debugType = field2.DebugType;
-					//if (debugType == EbxFieldType.ResourceRef || debugType == EbxFieldType.TypeRef || debugType == EbxFieldType.FileRef || debugType == EbxFieldType.BoxedValueRef || debugType == EbxFieldType.UInt64 || debugType == EbxFieldType.Int64 || debugType == EbxFieldType.Float64)
-					//{
-					//	writer.WritePadding(8);
-					//}
-					//else
-					//{
-					//	debugType = field2.DebugType;
-					//	if (debugType == EbxFieldType.Array || debugType == EbxFieldType.Pointer)
-					//	{
-					//		writer.WritePadding(4);
-					//	}
-					//}
+					if (debugType == EbxFieldType.ResourceRef || debugType == EbxFieldType.TypeRef || debugType == EbxFieldType.FileRef || debugType == EbxFieldType.BoxedValueRef || debugType == EbxFieldType.UInt64 || debugType == EbxFieldType.Int64 || debugType == EbxFieldType.Float64)
+					{
+						writer.WritePadding(8);
+					}
+					else
+					{
+						debugType = field2.DebugType;
+						if (debugType == EbxFieldType.Array || debugType == EbxFieldType.Pointer)
+						{
+							writer.WritePadding(4);
+						}
+					}
 					switch (field2.DebugType)
 					{
 						case EbxFieldType.TypeRef:
@@ -736,14 +720,14 @@ namespace FrostySdk.FrostySdk.IO
 							{
 								EbxClass value = GetClass(classType, field2);
 								writer.WritePadding(value.Alignment);
-								writer.Write(new byte[value.Size]);
+								writer.WriteEmpty(value.Size);
 								break;
 							}
 						case EbxFieldType.Array:
 							writer.WriteInt64LittleEndian(0L);
 							break;
 						case EbxFieldType.Enum:
-							writer.Write((int)0);
+							writer.WriteInt32LittleEndian(0);
 							break;
 						case EbxFieldType.Float32:
 							writer.WriteSingleLittleEndian(0f);
@@ -767,7 +751,7 @@ namespace FrostySdk.FrostySdk.IO
 							writer.WriteUInt16LittleEndian(0);
 							break;
 						case EbxFieldType.Int32:
-							writer.Write((int)0);
+							writer.WriteInt32LittleEndian(0);
 							break;
 						case EbxFieldType.UInt32:
 							writer.WriteUInt32LittleEndian(0u);
@@ -801,10 +785,6 @@ namespace FrostySdk.FrostySdk.IO
 					bool isReference = propertyInfo.GetCustomAttribute<IsReferenceAttribute>() != null;
 					if (ebxFieldMetaAttribute.IsArray)
 					{
-						if(ebxFieldMetaAttribute.ArrayType == EbxFieldType.DbObject)
-                        {
-
-                        }
 						int fieldNameHash = propertyInfo.GetCustomAttribute<HashAttribute>()!.Hash;
 						WriteArray(propertyInfo.GetValue(obj), ebxFieldMetaAttribute.ArrayType, fieldNameHash, classType, classType.Alignment, writer, isReference);
 					}
@@ -814,8 +794,7 @@ namespace FrostySdk.FrostySdk.IO
 					}
 				}
 			}
-			//writer.WritePadding(classType.Alignment);
-			writer.WritePadding(8);
+			writer.WritePadding(classType.Alignment);
 		}
 
 		private void WriteField(object obj, EbxFieldType ebxType, byte classAlignment, FileWriter writer, bool isReference)
@@ -845,8 +824,7 @@ namespace FrostySdk.FrostySdk.IO
 				case EbxFieldType.CString:
 					pointerOffsets.Add(((int)writer.Position, currentArrayIndex));
 					AddString((CString)obj, (int)writer.Position);
-					writer.Write((int)0);
-					//writer.WriteUInt64LittleEndian(0uL);
+					writer.WriteUInt64LittleEndian(0uL);
 					break;
 				case EbxFieldType.Pointer:
 					{
@@ -871,7 +849,6 @@ namespace FrostySdk.FrostySdk.IO
 						writer.WriteUInt64LittleEndian(pointerRefValue);
 						break;
 					}
-				case EbxFieldType.DbObject:
 				case EbxFieldType.Struct:
 					{
 						Type structObjType = obj.GetType();
@@ -882,7 +859,7 @@ namespace FrostySdk.FrostySdk.IO
 						break;
 					}
 				case EbxFieldType.Enum:
-					writer.Write((int)(int)obj);
+					writer.WriteInt32LittleEndian((int)obj);
 					break;
 				case EbxFieldType.Float32:
 					writer.WriteSingleLittleEndian((float)obj);
@@ -906,7 +883,7 @@ namespace FrostySdk.FrostySdk.IO
 					writer.WriteUInt16LittleEndian((ushort)obj);
 					break;
 				case EbxFieldType.Int32:
-					writer.Write((int)(int)obj);
+					writer.WriteInt32LittleEndian((int)obj);
 					break;
 				case EbxFieldType.UInt32:
 					writer.WriteUInt32LittleEndian((uint)obj);
@@ -930,8 +907,12 @@ namespace FrostySdk.FrostySdk.IO
 					resourceRefOffsets.Add(((int)writer.Position, currentArrayIndex));
 					writer.WriteUInt64LittleEndian((ResourceRef)obj);
 					break;
-				case EbxFieldType.BoxedValueRef:
-				case EbxFieldType.Delegate:
+				//case EbxFieldType.BoxedValueRef:
+				//	throw new NotSupportedException("The asset contains a BoxedValueRef field, which is not yet supported.");
+				//case EbxFieldType.Delegate:
+				//	throw new NotSupportedException("The asset contains a Delegate field, which is not yet supported.");
+				//case EbxFieldType.Function:
+				//	throw new NotSupportedException("The asset contains a Function field, which is not yet supported.");
 				default:
 					throw new InvalidDataException($"Unknown field type {ebxType}");
 			}
@@ -1114,4 +1095,5 @@ namespace FrostySdk.FrostySdk.IO
 			return EbxReaderV2.patchStd.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
 		}
 	}
+
 }

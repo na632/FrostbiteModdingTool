@@ -341,6 +341,15 @@ namespace FrostySdk.IO
 			}
 		}
 
+		public void WriteEmpty(int numberOfBytes)
+        {
+			WriteEmptyBytes(numberOfBytes);
+		}
+
+		public void WriteEmptyBytes(int numberOfBytes)
+		{
+			Write(new byte[numberOfBytes]);
+		}
 
 		public void WriteVector3(Vec3 vec)
 		{

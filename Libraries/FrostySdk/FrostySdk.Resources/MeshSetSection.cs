@@ -80,7 +80,7 @@ namespace FrostySdk.Resources
 
 		public MeshSetSection(FileReader reader, int index)
 		{
-            if (ProfilesLibrary.IsFIFA22DataVersion())
+            if (ProfilesLibrary.IsFIFA22DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
             {
 				Read22(reader, index);
             }
@@ -99,32 +99,22 @@ namespace FrostySdk.Resources
 			sectionIndex = index;
 			offset1 = reader.ReadInt64LittleEndian();
 			long namePosition = reader.ReadInt64LittleEndian();
-			// MaterialID  = reader.ReadInt32LittleEndian();
-
 			long bonePositions = reader.ReadInt64LittleEndian();
 			ushort boneCount = reader.ReadUInt16LittleEndian();
-			UnknownInt = reader.ReadUInt32LittleEndian();
-			var unk2 = reader.ReadUInt16LittleEndian();
-			PrimitiveCount = (uint)reader.ReadUInt64LittleEndian();
+			BonesPerVertex = (byte)reader.ReadUShort();
+			MaterialId = reader.ReadUInt16LittleEndian();
+			vertexStride = reader.ReadByte();
+			PrimitiveType = (PrimitiveType)reader.ReadByte();
+			PrimitiveCount = (uint)reader.ReadUInt32LittleEndian();
 			StartIndex = reader.ReadUInt32LittleEndian();
-			VertexCount = (uint)reader.ReadUInt32LittleEndian();
 			VertexOffset = reader.ReadUInt32LittleEndian();
+			VertexCount = (uint)reader.ReadUInt32LittleEndian();
+			UnknownInt = reader.ReadUInt();
 			for (int l = 0; l < 6; l++)
 			{
 				texCoordRatios.Add(reader.ReadSingleLittleEndian());
 			}
-			//PrimitiveCount = reader.ReadUInt32LittleEndian();  //6014
-			//StartIndex = reader.ReadUInt32LittleEndian(); // 0
-			//VertexOffset = reader.ReadUInt32LittleEndian(); // 0
-			//VertexCount = reader.ReadUInt32LittleEndian(); // 3157
-			//unknownData = reader.ReadBytes(32);
-			//vertexStride = reader.ReadByte(); // 68
-			//PrimitiveType = (PrimitiveType)reader.ReadByte(); // 3
-			//reader.ReadUInt16LittleEndian();
-			//bonesPerVertex = (byte)reader.ReadUInt16LittleEndian(); // 6
-			//ushort boneCount = reader.ReadUInt16LittleEndian(); // 438
-			//long position2 = reader.ReadInt64LittleEndian(); // 1824
-			//unknownLong = reader.ReadUInt64LittleEndian(); // 13113655001588707511
+			
 			for (int i = 0; i < DeclCount; i++)
 			{
 				GeometryDeclDesc[i].Elements = new GeometryDeclarationDesc.Element[GeometryDeclarationDesc.MaxElements];

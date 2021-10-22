@@ -679,33 +679,25 @@ namespace FrostySdk.IO
 			}
 		}
 
-		public string ReadString(uint offset)
+		public string ReadString(uint offset, bool useStringOffset = true)
 		{
-			if (offset == uint.MaxValue || offset > Length || stringsOffset + offset > Length || offset < 0)
-			{
-				return "";
-			}
+			//if (offset == uint.MaxValue || offset > Length || stringsOffset + offset > Length || offset < 0)
+			//{
+			//	return "";
+			//}
 			long position = Position;
-			Position = stringsOffset + offset;
+			if (useStringOffset)
+				Position = stringsOffset + (long)offset;
+			else
+				base.Position += ((long)offset - 4);
 			string result = ReadNullTerminatedString();
 			Position = position;
 			return result;
 		}
 
-		public CString ReadCString(uint offset)
+		public CString ReadCString(uint offset, bool useStringOffset = true)
 		{
-			//if(offset > Length)
-   //         {
-			//	Debug.WriteLine("EbxReader::Unable to read CString as provided offset is larger than the file");
-			//	return new CString("");
-   //         }
-
-			//if (offset < 0)
-			//{
-			//	Debug.WriteLine("EbxReader::Unable to read CString as provided offset is less than 0");
-			//	return new CString("");
-			//}
-			return new CString(ReadString(offset));
+			return new CString(ReadString(offset, useStringOffset));
 		}
 
 		public ResourceRef ReadResourceRef()

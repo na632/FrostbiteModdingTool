@@ -27,11 +27,9 @@ namespace FrostySdk.FrostySdk.IO
 
 		private long payloadPosition;
 
-		//private long arrayOffset;
-
 		private List<uint> importOffsets;
 
-		private List<uint> dataContainerOffsets;
+		private List<uint> dataOffsets;
 
 		private string rootType = string.Empty;
 
@@ -98,7 +96,7 @@ namespace FrostySdk.FrostySdk.IO
 			uint exportedInstancesCount = ReadUInt();
 			exportedCount = (ushort)exportedInstancesCount;
 			uint dataContainerCount = ReadUInt();
-			List<uint> dataContainerOffsets = (this.dataContainerOffsets = new List<uint>((int)dataContainerCount));
+			List<uint> dataContainerOffsets = (this.dataOffsets = new List<uint>((int)dataContainerCount));
 			for (int i4 = 0; i4 < dataContainerCount; i4++)
 			{
 				uint dataContainerOffset = ReadUInt();
@@ -271,7 +269,7 @@ namespace FrostySdk.FrostySdk.IO
 
 					//long startOffset = ((magic == EbxVersion.Riff) ? (base.Position - 24) : (base.Position - 8));
 					//long startOffset = base.Position - 24;
-					long startOffset = dataContainerOffsets[iInstance] + 32;
+					long startOffset = dataOffsets[iInstance] + 32;
 					Position = startOffset;
 					Pad(@class.Alignment);
 
@@ -316,6 +314,10 @@ namespace FrostySdk.FrostySdk.IO
 
 				//	}
 				//}
+				if(field.DebugType == EbxFieldType.CString)
+                {
+
+                }
 
 
 				IsReferenceAttribute isReferenceAttribute = ((property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null);
@@ -543,47 +545,27 @@ namespace FrostySdk.FrostySdk.IO
 				case EbxFieldType.Pointer:
 					{
 						int num = ReadInt();
-						//if (magic == EbxVersion.Riff)
-						//{
-							if (num == 0)
+						if (num == 0)
+						{
+							return default(PointerRef);
+						}
+						if (num - 1 >= 0 && num - 1 < objects.Count)
+						{
+							if (!dontRefCount)
 							{
-								return default(PointerRef);
+								refCounts[num - 1]++;
 							}
-							if (num - 1 >= 0 && num - 1 < objects.Count)
-							{
-								if (!dontRefCount)
-								{
-									refCounts[num - 1]++;
-								}
-								return new PointerRef(objects[num - 1]);
-							}
-							long offset = base.Position - 4 + num;
-							offset -= payloadPosition;
-							return new PointerRef(importOffsets.Find((uint o) => o == offset));
-						//}
-						//if (num >> 31 == 1)
-						//{
-						//	EbxImportReference ebxImportReference = imports[(int)((long)num & 0x7FFFFFFFL)];
-						//	if (dontRefCount && !dependencies.Contains(ebxImportReference.FileGuid))
-						//	{
-						//		dependencies.Add(ebxImportReference.FileGuid);
-						//	}
-						//	return new PointerRef(ebxImportReference);
-						//}
-						//if (num == 0)
-						//{
-						//	return default(PointerRef);
-						//}
-						//if (!dontRefCount)
-						//{
-						//	refCounts[num - 1]++;
-						//}
-						//return new PointerRef(objects[num - 1]);
+							return new PointerRef(objects[num - 1]);
+						}
+						long offset = base.Position - 4 + num;
+						offset -= payloadPosition;
+						return new PointerRef(importOffsets.Find((uint o) => o == offset));
+						
 					}
 				case EbxFieldType.String:
 					return ReadSizedString(32);
 				case EbxFieldType.CString:
-					return ReadCString(ReadUInt());
+					return ReadCString(ReadUInt(), false);
 				case EbxFieldType.Enum:
 					return ReadInt();
 				case EbxFieldType.FileRef:
@@ -627,39 +609,40 @@ namespace FrostySdk.FrostySdk.IO
 
 		public override object ReadField(EbxClass? parentClass, EbxFieldType fieldType, ushort fieldClassRef, bool dontRefCount = false)
 		{
-			//if (magic == EbxVersion.Riff && fieldType == EbxFieldType.Pointer)
-			if (fieldType == EbxFieldType.Pointer)
+			switch (fieldType) 
 			{
-				int num = ReadInt();
-				if (num == 0)
-				{
-					return default(PointerRef);
-				}
-				if ((num & 1) == 1)
-				{
-					return new PointerRef(imports[num >> 1]);
-				}
-				long offset = base.Position - 4 + num - payloadPosition;
-				int dc = dataContainerOffsets.IndexOf((uint)offset);
-				if (dc == -1)
-				{
-					return default(PointerRef);
-				}
-				if (!dontRefCount)
-				{
-					refCounts[dc]++;
-				}
-				return new PointerRef(objects[dc]);
-			}
-			else if (fieldType == EbxFieldType.Struct)
-            {
-				var startPosition = base.Position;
-				EbxClass @class = GetClass(parentClass, fieldClassRef);
-                //Pad(@class.Alignment);
-                object obj = CreateObject(@class);
-				ReadClass(@class, obj, base.Position);
-				base.Position = startPosition + @class.Size;
-				return obj;
+				case EbxFieldType.Pointer:
+					int num = ReadInt();
+					if (num == 0)
+					{
+						return default(PointerRef);
+					}
+					if ((num & 1) == 1)
+					{
+						return new PointerRef(imports[num >> 1]);
+					}
+					long offset = base.Position - 4 + num - payloadPosition;
+					int dc = dataOffsets.IndexOf((uint)offset);
+					if (dc == -1)
+					{
+						return default(PointerRef);
+					}
+					if (!dontRefCount)
+					{
+						refCounts[dc]++;
+					}
+					return new PointerRef(objects[dc]);
+				case EbxFieldType.Struct:
+					var startPosition = base.Position;
+					EbxClass @class = GetClass(parentClass, fieldClassRef);
+					//Pad(@class.Alignment);
+					object obj = CreateObject(@class);
+					ReadClass(@class, obj, base.Position);
+					base.Position = startPosition + @class.Size;
+					return obj;
+				case EbxFieldType.CString:
+					var cPos = ReadUInt();
+					return ReadCString(cPos, false);
 			}
 			return base.ReadField(parentClass, fieldType, fieldClassRef, dontRefCount);
 		}
