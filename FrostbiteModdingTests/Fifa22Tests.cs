@@ -149,6 +149,59 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ModComplexGPFile2()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_kickerror/gp_kickerror_passshotcontexteffectshotdriven_runtime");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+            var dyn = (dynamic)complexAsset.RootObject;
+            dyn.PASSSHOT_CONTEXTEFFECT_Animation_Lace_Difficulty = 0.2f;
+            AssetManager.Instance.ModifyEbx("fifa/attribulator/gameplay/groups/gp_kickerror/gp_kickerror_passshotcontexteffectshotdriven_runtime", complexAsset);
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+
+        }
+
+        [TestMethod]
+        public void ModEbxFromJson()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+            AssetManager.Instance.ModifyEbxJson("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"
+                , File.ReadAllText(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\gp_actor_movement_runtime.json"));
+
+            //var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            //projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            //paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            //frostyModExecutor.ForceRebuildOfMods = true;
+            //frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+            //    new System.Collections.Generic.List<string>() {
+            //        testR
+            //    }.ToArray()).Wait();
+
+
+        }
+
+        [TestMethod]
         public void TestArsenalKitMod()
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);

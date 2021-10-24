@@ -426,17 +426,41 @@ namespace FIFAModdingUI.Pages.Common
 
 					else // Raw data import
 					{
-						OpenFileDialog openFileDialog = new OpenFileDialog();
-						var filt = "*.bin";
-						openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-						openFileDialog.FileName = SelectedEntry.Filename;
-						var dialogResult = openFileDialog.ShowDialog();
-						if (dialogResult.HasValue && dialogResult.Value)
+						MessageBoxResult useJsonResult = MessageBox.Show(
+																"Would you like to Import as JSON?"
+																, "Import as JSON?"
+																, MessageBoxButton.YesNoCancel);
+						if (useJsonResult == MessageBoxResult.Yes)
 						{
-							var binaryData = File.ReadAllBytes(openFileDialog.FileName);
-							AssetManager.Instance.ModifyEbxBinary(SelectedEntry.Name, binaryData);
-							OpenAsset(SelectedEntry);
+							OpenFileDialog openFileDialog = new OpenFileDialog();
+							var filt = "*.json";
+							openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+							openFileDialog.FileName = SelectedEntry.Filename;
+							var dialogResult = openFileDialog.ShowDialog();
+							if (dialogResult.HasValue && dialogResult.Value)
+							{
+								var binaryText = File.ReadAllText(openFileDialog.FileName);
+								AssetManager.Instance.ModifyEbxJson(SelectedEntry.Name, binaryText);
+
+								OpenAsset(SelectedEntry);
+							}
 						}
+						else if (useJsonResult == MessageBoxResult.No)
+						{
+							OpenFileDialog openFileDialog = new OpenFileDialog();
+							var filt = "*.bin";
+							openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+							openFileDialog.FileName = SelectedEntry.Filename;
+							var dialogResult = openFileDialog.ShowDialog();
+							if (dialogResult.HasValue && dialogResult.Value)
+							{
+								var binaryData = File.ReadAllBytes(openFileDialog.FileName);
+								AssetManager.Instance.ModifyEbxBinary(SelectedEntry.Name, binaryData);
+
+								OpenAsset(SelectedEntry);
+							}
+						}
+						
 					}
 				}
 
@@ -594,16 +618,53 @@ namespace FIFAModdingUI.Pages.Common
 					var ebx = AssetManager.Instance.GetEbxStream((EbxAssetEntry)SelectedEntry);
 					if (ebx != null)
 					{
-						SaveFileDialog saveFileDialog = new SaveFileDialog();
-						var filt = "*.bin";
-						saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-						saveFileDialog.FileName = SelectedEntry.Filename;
-						var dialogAnswer = saveFileDialog.ShowDialog();
-						if (dialogAnswer.HasValue && dialogAnswer.Value)
+						MessageBoxResult useJsonResult = MessageBox.Show(
+																"Would you like to Export as JSON?"
+																, "Export as JSON?"
+																, MessageBoxButton.YesNoCancel);
+						if (useJsonResult == MessageBoxResult.Yes)
 						{
-							File.WriteAllBytes(saveFileDialog.FileName, ((MemoryStream)ebx).ToArray());
-							MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+							SaveFileDialog saveFileDialog = new SaveFileDialog();
+							var filt = "*.json";
+							saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+							saveFileDialog.FileName = SelectedEntry.Filename;
+							var dialogAnswer = saveFileDialog.ShowDialog();
+							if (dialogAnswer.HasValue && dialogAnswer.Value)
+							{
+								LoadingDialog loadingDialog = new LoadingDialog("Exporting", $"Exporting {SelectedEntry.Filename} to Json");
+								loadingDialog.Show();
+								var obj = await Task.Run(() => {
+									return AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry).RootObject;
+								});
+								var serialisedObj = await Task.Run(() => {
+									return JsonConvert.SerializeObject(obj);
+								});
+								await File.WriteAllTextAsync(saveFileDialog.FileName, serialisedObj);
+								MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+								loadingDialog.Close();
+								loadingDialog = null;
+							}
 						}
+						else if(useJsonResult == MessageBoxResult.No)
+                        {
+							SaveFileDialog saveFileDialog = new SaveFileDialog();
+							var filt = "*.bin";
+							saveFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
+							saveFileDialog.FileName = SelectedEntry.Filename;
+							var dialogAnswer = saveFileDialog.ShowDialog();
+							if (dialogAnswer.HasValue && dialogAnswer.Value)
+							{
+								File.WriteAllBytes(saveFileDialog.FileName, ((MemoryStream)ebx).ToArray());
+								MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
+							}
+						}
+						else
+                        {
+
+                        }
+
+
+							
 					}
 					else
 					{

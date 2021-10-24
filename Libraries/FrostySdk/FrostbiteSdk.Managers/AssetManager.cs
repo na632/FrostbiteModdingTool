@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Frostbite.Textures;
 using CSharpImageLibrary;
+using System.Collections;
 
 namespace FrostySdk.Managers
 {
@@ -1376,6 +1377,102 @@ public interface IAssetLoader
 				var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
 				var ebxAsset = GetEbxAssetFromStream(new MemoryStream(data), patch);
 				ModifyEbx(name, ebxAsset);
+			}
+		}
+
+		public void ModifyEbxJson(string name, string json)
+		{
+			name = name.ToLower();
+			if (EBX.ContainsKey(name))
+			{
+				var ebxEntry = EBX[name];
+				var patch = ebxEntry.IsInPatch || ebxEntry.ExtraData.IsPatch;
+				var ebxAsset = GetEbx(ebxEntry);
+				if (ebxAsset != null)
+				{
+
+					var rootObject = ebxAsset.RootObject;
+					ExpandoObject newObject = JsonConvert.DeserializeObject<ExpandoObject>(json);
+					RecursiveExpandoObjectToObject(rootObject, newObject);
+
+					ModifyEbx(name, ebxAsset);
+
+
+				}
+			}
+		}
+
+		public void RecursiveExpandoObjectToObject(object rootObject, ExpandoObject newObject)
+		{
+			if (rootObject != null && newObject != null)
+			{
+				PropertyInfo[] properties = rootObject.GetType().GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+				foreach (KeyValuePair<string, object> kvp in newObject)
+				{
+					if (Utilities.PropertyExists(rootObject, kvp.Key))
+					{
+						try
+						{
+							var newValue = kvp.Value;
+							PropertyInfo propertyInfo = properties.FirstOrDefault(x => x.Name == kvp.Key);
+							if (kvp.Value is ExpandoObject)
+							{
+								var innerObj = propertyInfo?.GetValue(rootObject);
+								RecursiveExpandoObjectToObject(innerObj, (ExpandoObject)newValue);
+							}
+							else
+							{
+								if (newValue is List<object>)
+								{
+									var lst = (List<object>)newValue;
+									if (lst.Count > 0)
+									{
+										if (Single.TryParse(lst[0].ToString(), out float f))
+										{
+											var newList = new List<Single>();
+											foreach (var iO in lst)
+											{
+												newList.Add(Single.Parse(iO.ToString()));
+											}
+											newValue = newList;
+										}
+										else if (lst[0] is ExpandoObject)
+										{
+											Type propertyType = propertyInfo?.PropertyType;
+											var typeArg = propertyType.GenericTypeArguments[0];
+											var innerObjType = Activator.CreateInstance(typeArg);
+											Type listType = typeof(List<>).MakeGenericType(new[] { typeArg });
+											IList newList = (IList)Activator.CreateInstance(listType);
+											foreach (ExpandoObject iO in lst)
+                                            {
+												RecursiveExpandoObjectToObject(innerObjType, iO);
+												newList.Add(innerObjType);
+                                            }
+                                            newValue = newList;
+
+                                        }
+										else
+                                        {
+											continue;
+                                        }
+									}
+								}
+								else
+								{
+									if (newValue is Double)
+									{
+										newValue = Convert.ToSingle(newValue);
+									}
+								}
+								propertyInfo?.SetValue(rootObject, newValue);
+							}
+						}
+						catch
+						{
+
+						}
+					}
+				}
 			}
 		}
 

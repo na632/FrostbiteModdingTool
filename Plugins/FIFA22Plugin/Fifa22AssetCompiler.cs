@@ -409,12 +409,15 @@ namespace FIFA22Plugin
 
                             }
 
-
                             foreach (var mcToCas in modToCas)
                             {
                                 var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key);
                                 if (resolvedPath != null)
                                 {
+                                    // Raw Paths Bundles with new Original Sizes and Sha1s
+                                    // This is not fast as its not a list with paired paths like the rest. Need to fix this
+                                    Dictionary<string, DbObject> bundleChanges = new Dictionary<string, DbObject>();
+
                                     using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
                                     {
                                         nwCas.Position = nwCas.Length;
@@ -438,15 +441,42 @@ namespace FIFA22Plugin
                                                     cEntry.bundleSizeInCas = data.Length;
                                                     cEntry.bundleOffsetInCas = (int)newDataPosition;
 
+                                                    var bundlePath = FileSystem.Instance.GetFilePath(cBundle.Catalog, cBundle.Cas, cBundle.Patch);
+                                                    var entryPath = FileSystem.Instance.GetFilePath(cEntry.catalog, cEntry.cas, cEntry.isInPatch);
+                                                    if (entryPath != bundlePath)
+                                                    {
+                                                        bundleChanges.Add(bundlePath, t.Item1);
+                                                    }
+                                                    else
+                                                    {
+                                                        //// write original size etc.
+                                                        //// 
+                                                        //nwCas.Position = t.Item1.GetValue<uint>("SB_OriginalSize_Position");
+                                                        //nwCas.Write((uint)t.Item1.GetValue<uint>("originalSize"));
 
-                                                    // write original size etc.
-                                                    // 
-                                                    nwCas.Position = t.Item1.GetValue<uint>("SB_OriginalSize_Position");
-                                                    nwCas.Write((uint)t.Item1.GetValue<uint>("originalSize"));
+                                                        //if (t.Item1.HasValue("SB_Sha1_Position"))
+                                                        //{
+                                                        //    nwCas.Position = t.Item1.GetValue<uint>("SB_Sha1_Position");
+                                                        //    //nwCas.Write((uint)t.Item1.GetValue<Sha1>("originalSize"));
+                                                        //}
+                                                        WriteBundleOffsetChangesToBundleCas(nwCas, t.Item1);
+                                                    }
 
                                                 }
 
 
+                                            }
+                                        }
+                                    }
+
+                                    foreach (var bundle in bundleChanges)
+                                    {
+                                        resolvedPath = FileSystem.Instance.ResolvePath(bundle.Key);
+                                        if (resolvedPath != null)
+                                        {
+                                            using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
+                                            {
+                                                WriteBundleOffsetChangesToBundleCas(nwCas, bundle.Value);
                                             }
                                         }
                                     }
@@ -522,6 +552,20 @@ namespace FIFA22Plugin
 
             if (!bundlesInPatch)
                 ProcessBundles(false);
+        }
+
+        private void WriteBundleOffsetChangesToBundleCas(in NativeWriter nwCas, in DbObject obj)
+        {
+            // write original size etc.
+            // 
+            nwCas.Position = obj.GetValue<uint>("SB_OriginalSize_Position");
+            nwCas.Write((uint)obj.GetValue<uint>("originalSize"));
+
+            if (obj.HasValue("SB_Sha1_Position"))
+            {
+                nwCas.Position = obj.GetValue<uint>("SB_Sha1_Position");
+                //nwCas.Write((uint)t.Item1.GetValue<Sha1>("originalSize"));
+            }
         }
 
         DbObject layoutToc = null;

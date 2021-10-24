@@ -42,6 +42,17 @@ namespace FIFA22Plugin
 
         public string SbPath = string.Empty;
 
+        public TocSbReader_Fifa22()
+        {
+
+        }
+
+        public TocSbReader_Fifa22(in bool processData, in bool doLogging)
+        {
+            ProcessData = processData;
+            DoLogging = doLogging;
+        }
+
         public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false, string nativePath = null)
         {
             SBIndex = sbIndex;

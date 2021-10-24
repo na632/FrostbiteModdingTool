@@ -12,11 +12,11 @@ namespace FrostbiteSdk
 {
     public static class Utilities
     {
-            public static IEnumerable<DataRow> ToEnumerable(this DataTable dataTable)
-            {
-                foreach (DataRow row in dataTable.Rows)
-                    yield return row;
-            }
+        public static IEnumerable<DataRow> ToEnumerable(this DataTable dataTable)
+        {
+            foreach (DataRow row in dataTable.Rows)
+                yield return row;
+        }
 
         public static bool PropertyExists(object obj, string propName)
         {
@@ -25,9 +25,6 @@ namespace FrostbiteSdk
 
             return obj.GetProperty(propName) != null;
         }
-
-
-      
 
             public static bool PropertyExistsDynamic(this ExpandoObject obj, string propName)
             {
