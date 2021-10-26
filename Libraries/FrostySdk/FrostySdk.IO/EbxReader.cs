@@ -455,9 +455,10 @@ namespace FrostySdk.IO
 						Pad(4);
 					}
 				}
+				var newOffset = field.DataOffset + startOffset;
 				if (ebxVersion == EbxVersion.Riff)
 				{
-					base.Position = field.DataOffset + startOffset;
+					base.Position = newOffset;
 				}
 				if (IsFieldInClassAnArray(classType, field))
 				{
@@ -687,9 +688,19 @@ namespace FrostySdk.IO
 			//}
 			long position = Position;
 			if (useStringOffset)
+			{
+				if (stringsOffset + (long)offset > Length)
+					return string.Empty;
+
 				Position = stringsOffset + (long)offset;
+			}
 			else
+			{
+				if (position + ((long)offset - 4) > Length)
+					return string.Empty;
+
 				base.Position += ((long)offset - 4);
+			}
 			string result = ReadNullTerminatedString();
 			Position = position;
 			return result;

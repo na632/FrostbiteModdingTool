@@ -855,7 +855,7 @@ namespace Frostbite.FileManagers
 		{
 			List<LegacyFileEntry> filesEdited = new List<LegacyFileEntry>();
 
-			foreach (var dpi in data)
+			foreach (var dpi in data.Where(x => LegacyEntries.ContainsKey(x.Key)))
 			{
 				LegacyFileEntry legacyFileEntry = LegacyEntries[dpi.Key];
 				legacyFileEntry.ModifiedEntry = new ModifiedAssetEntry()

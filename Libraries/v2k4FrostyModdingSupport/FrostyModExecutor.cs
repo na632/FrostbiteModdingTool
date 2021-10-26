@@ -4640,6 +4640,8 @@ namespace paulv2k4ModdingExecuter
                         }
                         else if (resource.Type == ModResourceType.Chunk)
                         {
+                            
+
 
                             Guid guid = new Guid(resource.Name);
                             if (ModifiedChunks.ContainsKey(guid))
@@ -4650,14 +4652,31 @@ namespace paulv2k4ModdingExecuter
                             resource.FillAssetEntry(chunkAssetEntry3);
                             chunkAssetEntry3.Size = resourceData.Length;
 
-                            // Removing this for now (*.fifamod legacy support)
-                            //if (chunkAssetEntry3.ModifiedEntry == null && !string.IsNullOrEmpty(resource.UserData))
-                            //    chunkAssetEntry3.ModifiedEntry = new ModifiedAssetEntry() 
-                            //        { 
-                            //            Data = resourceData
-                            //            , UserData = resource.UserData
-                            //            , Sha1 = chunkAssetEntry3.Sha1
-                            //    };
+                            if (chunkAssetEntry3.ModifiedEntry != null 
+                                && chunkAssetEntry3.ModifiedEntry.IsLegacyFile
+                                && !string.IsNullOrEmpty(chunkAssetEntry3.ModifiedEntry.LegacyFullName)
+                                )
+                            {
+                                LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
+                                legacyAssetEntry.Name = chunkAssetEntry3.ModifiedEntry.LegacyFullName;
+                                legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = resourceData };
+                                legacyAssetEntry.Size = resourceData.Length;
+
+                                if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
+                                    modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
+                                else
+                                    modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
+
+                                continue;
+                            }
+                            //chunkAssetEntry3.ModifiedEntry = new ModifiedAssetEntry()
+                            //{
+                            //    Data = resourceData
+                            //        ,
+                            //    UserData = resource.UserData
+                            //        ,
+                            //    Sha1 = chunkAssetEntry3.Sha1
+                            //};
 
 
                             ModifiedChunks.Add(guid, chunkAssetEntry3);
@@ -4721,10 +4740,10 @@ namespace paulv2k4ModdingExecuter
                 //SymbolicLinkList.Clear();
 
 
-                IAssetCompiler pluginCompiler = AssetManager.Instance.LoadTypeFromPlugin(ProfilesLibrary.AssetCompilerName) as IAssetCompiler;
+                var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfilesLibrary.AssetCompilerName);
                 if (pluginCompiler != null)
                 {
-                    pluginCompiler.Compile(fs, logger, this);
+                    ((IAssetCompiler)pluginCompiler).Compile(fs, logger, this);
                 }
                 else
                 {

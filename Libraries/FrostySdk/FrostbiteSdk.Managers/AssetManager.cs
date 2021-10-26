@@ -595,12 +595,28 @@ public interface IAssetLoader
 				return Activator.CreateInstance(type: t, args: args);
 			}
 
-			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
+			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
+				//.Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
+				.Where(x => x.FullName.Contains("Plugin", StringComparison.OrdinalIgnoreCase)))
 			{
 				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
 				if (t != null)
 				{
 					CachedTypes.Add(className, t);
+					return Activator.CreateInstance(t, args: args);
+				}
+			}
+			return null;
+		}
+		public static object LoadTypeFromPlugin2(string className, params object[] args)
+		{
+			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
+				//.Where(x => x.FullName.Contains(ProfilesLibrary.ProfileName + "Plugin", StringComparison.OrdinalIgnoreCase)))
+				.Where(x => x.FullName.Contains("Plugin", StringComparison.OrdinalIgnoreCase)))
+			{
+				var t = a.GetTypes().FirstOrDefault(x => x.Name == className);
+				if (t != null)
+				{
 					return Activator.CreateInstance(t, args: args);
 				}
 			}

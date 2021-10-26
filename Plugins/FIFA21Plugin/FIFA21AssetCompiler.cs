@@ -500,6 +500,7 @@ namespace FIFA21Plugin
         private void ProcessLegacyMods()
         {
             List<Guid> ChunksToRemove = new List<Guid>();
+            var otherLegacyMods = parent.AddedChunks;
             // *.fifamod files do not put data into "modifiedLegacy" and instead embed into Chunks 
             // handling those chunks here
             //if (parent.AddedChunks.Count > 0)
@@ -572,11 +573,10 @@ namespace FIFA21Plugin
                 var countLegacyChunksModified = 0;
                 foreach (var modLegacy in parent.modifiedLegacy)
                 {
-                    //var originalEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", modLegacy.Key);
                     byte[] data = null;
-                    //if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
-                    //    data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
-                    //else if (parent.archiveData.ContainsKey(modLegacy.Value.Sha1))
+                    if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
+                        data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
+                    else if (parent.archiveData.ContainsKey(modLegacy.Value.Sha1))
                         data = parent.archiveData[modLegacy.Value.Sha1].Data;
 
                     if (data != null)

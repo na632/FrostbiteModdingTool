@@ -127,7 +127,7 @@ namespace FrostySdk.IO
 			base.Position = stringsOffset + stringsLen;
 			isValid = true;
 
-            if (RootType.Contains("gp_"))
+            if (RootType.Contains("gp_") || RootType.Contains("SkinnedMeshAsset"))
             {
                 InStream.Position = 0;
                 var fsDump = new FileStream("ebxV3In.dat", FileMode.OpenOrCreate);
@@ -356,7 +356,8 @@ namespace FrostySdk.IO
 				case EbxFieldType.String:
 					return ReadSizedString(32);
 				case EbxFieldType.CString:
-					return ReadCString(ReadUInt());
+					//return ReadCString(ReadUInt());
+					return ReadCString(ReadUInt(), false);
 				case EbxFieldType.Enum:
 					return ReadInt32LittleEndian();
 				case EbxFieldType.FileRef:

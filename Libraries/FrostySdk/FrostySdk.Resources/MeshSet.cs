@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.IO;
@@ -26,6 +27,8 @@ public class MeshSet
 	private readonly List<ushort> unknownUShorts = new List<ushort>();
 
 	private readonly List<long> unknownOffsets = new List<long>();
+
+	private readonly List<byte[]> unknownBytes = new List<byte[]>();
 
 	private readonly ushort boneCount;
 
@@ -114,14 +117,24 @@ public class MeshSet
 		Flags = (MeshLayoutFlags)nativeReader.ReadUInt();
 		ReadUnknownUInts(nativeReader);
 		
-		if (ProfilesLibrary.IsMadden21DataVersion())
-			unknownUShort = nativeReader.ReadUShort();
-		
-		ushort lodsCount = nativeReader.ReadUShort();
-
-		// num 2's actual number
-		unknownUint2 = nativeReader.ReadUShort();
+		ushort lodsCount = 0;
+		if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
+		{
+			nativeReader.ReadUInt16LittleEndian();
+			lodsCount = nativeReader.ReadUInt16LittleEndian();
+			nativeReader.ReadUInt32LittleEndian();
+			nativeReader.ReadUInt16LittleEndian();
+		}
+		else
+		{
+			lodsCount = nativeReader.ReadUInt16LittleEndian();
+			unknownUint2 = nativeReader.ReadUShort();
+		}
 		ushort num2 = 0;
+		if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
+		{
+			unknownBytes.Add(nativeReader.ReadBytes(8));
+		}
 		if (Type == MeshType.MeshType_Skinned)
 		{
 			boneCount = nativeReader.ReadUShort();
@@ -243,12 +256,14 @@ public class MeshSet
 			case 20171210:
 				unknownUInts.Add(nativeReader.ReadUShort());
 				break;
+			case (int)ProfilesLibrary.DataVersions.MADDEN22:
+			case (int)ProfilesLibrary.DataVersions.MADDEN21:
 			case (int)ProfilesLibrary.DataVersions.FIFA22:
 			case (int)ProfilesLibrary.DataVersions.FIFA21:
+			case (int)ProfilesLibrary.DataVersions.FIFA20:
 			case 20170929:
 			case 20180807:
 			case 20180914:
-			case (int)ProfilesLibrary.DataVersions.FIFA20:
 				{
 					for (int m = 0; m < 8; m++)
 					{
@@ -274,8 +289,7 @@ public class MeshSet
 					}
 					break;
 				}
-			case (int)ProfilesLibrary.DataVersions.MADDEN22:
-			case (int)ProfilesLibrary.DataVersions.MADDEN21:
+			
 			case 20190729:
 				{
 					for (int l = 0; l < 8; l++)
@@ -389,26 +403,49 @@ public class MeshSet
 		writer.Write((uint)(uint)Type);
 		writer.Write((uint)(uint)Flags);
 
-		// Unknown UInts that all of the systems have
 		foreach (uint unknownUInt in unknownUInts)
 		{
 			writer.Write((uint)unknownUInt);
 		}
-
-        // Madden 21 Ushort
-        if (unknownUShort.HasValue)
-            writer.Write((ushort)unknownUShort);
-
-        writer.WriteUInt16LittleEndian((ushort)Lods.Count);
-		ushort num = 0;
-		foreach (MeshSetLod lod in Lods)
+		var sumOfLOD = (ushort)(Lods.Sum(x => x.Sections.Count));
+		if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
 		{
-			num = (ushort)(num + (ushort)lod.Sections.Count);
+			writer.WriteUInt16LittleEndian(0);
+			writer.Write((ushort)Lods.Count);
+			writer.WriteUInt32LittleEndian(sumOfLOD);
+			writer.Write((ushort)Lods.Count);
+			writer.Write(unknownBytes[0]);
 		}
-		writer.WriteUInt16LittleEndian(num);
+		else
+		{
+			writer.WriteUInt16LittleEndian((ushort)Lods.Count);
+			//writer.WriteUInt16LittleEndian(sumOfLOD);
+			writer.WriteUInt16LittleEndian(unknownUint2);
+		}
+		
+		//// Madden 21 Ushort
+		//if (unknownUShort.HasValue)
+		//          writer.Write((ushort)unknownUShort);
+
+		//      writer.Write((ushort)Lods.Count);
+		//ushort num = 0;
+		//foreach (MeshSetLod lod in Lods)
+		//{
+		//	num = (ushort)(num + (ushort)lod.Sections.Count);
+		//}
+		//writer.Write(num);
 		if (Type == MeshType.MeshType_Skinned)
 		{
-			writer.WriteUInt16LittleEndian(boneCount);
+			if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
+			{
+				writer.WriteUInt32LittleEndian((ushort)boneIndices.Count);
+			}
+			else
+			{
+				writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
+			}
+			//writer.WriteUInt16LittleEndian(boneCount);
+
 			writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
 			if (boneCount > 0)
 			{
