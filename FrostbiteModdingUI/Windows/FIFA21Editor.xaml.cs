@@ -263,8 +263,8 @@ namespace FIFAModdingUI.Windows
             {
                 if (ProfilesLibrary.IsFIFA22DataVersion())
                 {
-                    swUseModData.IsOn = false;
-                    swUseModData.IsEnabled = false;
+                    //swUseModData.IsOn = false;
+                    //swUseModData.IsEnabled = false;
 
                     swEnableLegacyInjection.IsOn = false;
                     swEnableLegacyInjection.IsEnabled = false;

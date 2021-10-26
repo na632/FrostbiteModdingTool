@@ -179,9 +179,10 @@ namespace FrostySdk.FrostySdk.IO
 				var bvr_unk3 = ReadUInt();
 				var bvr_unk4 = ReadUShort();
 				var bvr_unk5 = ReadUShort();
-				boxedValueRefs.Add(new BoxedValueRef { 
-					 
+				boxedValueRefs.Add(new BoxedValueRef()
+				{
 				});
+				boxedValues.Add(new EbxBoxedValue() { Offset = bvr_unk1, Type = bvr_unk4, ClassRef = bvr_unk5 });
 			}
 			foreach (uint dataContainerOffset2 in dataContainerOffsets)
 			{

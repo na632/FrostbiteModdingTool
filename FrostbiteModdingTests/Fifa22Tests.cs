@@ -131,14 +131,20 @@ namespace FrostbiteModdingTests
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
             dyn.ATTR_DribbleJogSpeed = 0.005f;
+            dyn.ATTR_DribbleWalkSpeed = 0.005f;
             dyn.ATTR_JogSpeed = 0.005f;
+            dyn.ATTR_WalkSpeed = 0.005f;
+            //dyn.ATTR_DribbleJogSpeed = 0.9f;
+            //dyn.ATTR_DribbleWalkSpeed = 0.9f;
+            //dyn.ATTR_JogSpeed = 0.9f;
+            //dyn.ATTR_WalkSpeed = 0.9f;
             AssetManager.Instance.ModifyEbx("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime", complexAsset);
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -158,14 +164,43 @@ namespace FrostbiteModdingTests
             Assert.IsNotNull(ebxEntry);
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
-            dyn.PASSSHOT_CONTEXTEFFECT_Animation_Lace_Difficulty = 0.2f;
+            dyn.PASSSHOT_CONTEXTEFFECT_Animation_Lace_Difficulty = 100.0f;
+            dyn.PASSSHOT_CONTEXTEFFECT_MissRateVsAttribute.Internal.Points[0].Y = 100.0f;
+            dyn.PASSSHOT_CONTEXTEFFECT_MissRateVsAttribute.Internal.Points[1].Y = 100.0f;
             AssetManager.Instance.ModifyEbx("fifa/attribulator/gameplay/groups/gp_kickerror/gp_kickerror_passshotcontexteffectshotdriven_runtime", complexAsset);
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+
+        }
+
+        [TestMethod]
+        public void ModGPPhysics()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("Fifa/Attribulator/Gameplay/groups/gp_physics/gp_physics_airflow_runtime");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+            var dyn = (dynamic)complexAsset.RootObject;
+            dyn.Airflow_AirPressure = 100.0f;
+            AssetManager.Instance.ModifyEbx("Fifa/Attribulator/Gameplay/groups/gp_physics/gp_physics_airflow_runtime", complexAsset);
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -206,26 +241,27 @@ namespace FrostbiteModdingTests
         {
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\GraphicMod\FIFA 22\test kit project.fbproject");
 
-            var name = "content/character/kit/kit_0/arsenal_1/home_0_0/jersey_1_0_0_color";
-            var ebxEntry = AssetManager.Instance.GetEbxEntry(name);
-            var resEntry = AssetManager.Instance.GetResEntry(name);
-            if (resEntry != null)
-            {
-                Texture texture = new Texture(resEntry);
-                TextureImporter textureImporter = new TextureImporter();
+            //var name = "content/character/kit/kit_0/arsenal_1/home_0_0/jersey_1_0_0_color";
+            //var ebxEntry = AssetManager.Instance.GetEbxEntry(name);
+            //var resEntry = AssetManager.Instance.GetResEntry(name);
+            //if (resEntry != null)
+            //{
+            //    Texture texture = new Texture(resEntry);
+            //    TextureImporter textureImporter = new TextureImporter();
 
-                if (ebxEntry != null)
-                {
-                    textureImporter.Import(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Kits\Chelsea\Home\jersey_5_0_0_color.png", ebxEntry, ref texture);
-                }
-            }
+            //    if (ebxEntry != null)
+            //    {
+            //        textureImporter.Import(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Kits\Chelsea\Home\jersey_5_0_0_color.png", ebxEntry, ref texture);
+            //    }
+            //}
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {

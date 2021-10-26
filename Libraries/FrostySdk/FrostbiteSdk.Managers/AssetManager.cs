@@ -1029,7 +1029,7 @@ public interface IAssetLoader
 
 		public void AddRes(ResAssetEntry entry)
 		{
-			entry.IsAdded = true;
+			//entry.IsAdded = true;
 
 			if (RES.ContainsKey(entry.Name.ToLower()))
 				RES.Remove(entry.Name.ToLower());
@@ -1044,10 +1044,18 @@ public interface IAssetLoader
 
 		public bool AddEbx(EbxAssetEntry entry)
 		{
-			entry.IsAdded = true;
-			//var intFnv1 = Fnv1.HashString(entry.Name);
+			if (entry.Name.Contains("gp_actor_movement_runtime", StringComparison.OrdinalIgnoreCase))
+			{
+
+			}
+
+			//entry.IsAdded = true;
+
+			//bool result = EBX.TryAdd(entry.Name.ToLower(), entry);
+			if (EBX.ContainsKey(entry.Name.ToLower()))
+				EBX.TryRemove(entry.Name.ToLower(), out _);
+
 			bool result = EBX.TryAdd(entry.Name.ToLower(), entry);
-			//ebxGuidList.TryAdd(entry.Guid, entry);
 
 			return result;
 		}
@@ -2106,74 +2114,78 @@ public interface IAssetLoader
 			{
 				foreach (DbObject item in sb.GetValue<DbObject>("ebx"))
 				{
-                    EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfilesLibrary.IsMadden21DataVersion());
+					if(item.GetValue<string>("name").Contains("gp_actor_movement_runtime", StringComparison.OrdinalIgnoreCase))
+                    {
+
+                    }
+
+					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfilesLibrary.IsMadden21DataVersion() ) ;
                     //EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
-                    if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
-					{
-						ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-						ebxAssetEntry.Size = item.GetValue("size", 0L);
-						ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-						ebxAssetEntry.IsInline = item.HasValue("idata");
+                    //               if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+                    //{
+                    //	ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+                    //	ebxAssetEntry.IsInline = item.HasValue("idata");
+                    //}
 
-					}
+                    if (ebxAssetEntry.Size != item.GetValue<long>("size"))
+                    {
+                        ebxAssetEntry.Size = item.GetValue("size", 0L);
+                    }
 
-					if (item.GetValue("cache", defaultValue: false) && ebxAssetEntry.Location != AssetDataLocation.Cache)
-					{
-						helper.RemoveEbxData(ebxAssetEntry.Name);
-					}
+                    //if (ebxAssetEntry.OriginalSize != item.GetValue<long>("originalSize"))
+                    //{
+                    //	ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                    //}
 
-					if (item.HasValue("SBFileLocation"))
-					{
-						ebxAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
-					}
+                    //if (item.GetValue("cache", defaultValue: false) && ebxAssetEntry.Location != AssetDataLocation.Cache)
+                    //{
+                    //	helper.RemoveEbxData(ebxAssetEntry.Name);
+                    //}
 
-					if (item.HasValue("TOCFileLocation"))
-					{
-						ebxAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
-					}
+                    if (item.HasValue("SBFileLocation"))
+                        ebxAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
 
-					if (item.HasValue("SB_CAS_Offset_Position"))
-					{
-						ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
-					}
+                    if (item.HasValue("TOCFileLocation"))
+                        ebxAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
 
-					if (item.HasValue("SB_CAS_Size_Position"))
-					{
-						ebxAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
-					}
+                    if (item.HasValue("SB_CAS_Offset_Position"))
+                        ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
 
-					if(item.HasValue("SB_OriginalSize_Position"))
-						ebxAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
+                    if (item.HasValue("SB_CAS_Size_Position"))
+                        ebxAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
 
-					if (item.HasValue("SB_Sha1_Position"))
-						ebxAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
+                    if (item.HasValue("SB_OriginalSize_Position"))
+                        ebxAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
 
-					if(item.HasValue("ParentBundleOffset"))
-						ebxAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
+                    if (item.HasValue("SB_Sha1_Position"))
+                        ebxAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
 
-					if (item.HasValue("ParentBundleSize"))
-						ebxAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
+                    //if(item.HasValue("ParentBundleOffset"))
+                    //	ebxAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
 
-					ebxAssetEntry.Bundles.Add(bundleId);
+                    //if (item.HasValue("ParentBundleSize"))
+                    //	ebxAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-					if (item.HasValue("cas"))
-					{
-						ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-						ebxAssetEntry.ExtraData = new AssetExtraData();
-						ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-						ebxAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : fs.GetFilePath(item.GetValue("cas", 0)));
-						ebxAssetEntry.ExtraData.IsPatch = item.HasValue("patch") ? item.GetValue<bool>("patch") : false;
-					}
+                    ebxAssetEntry.Bundles.Add(bundleId);
 
-					if (item.HasValue("Bundle"))
-					{
-						ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
-					}
-					else if (AssetManager.Instance.bundles.Count < bundleId)
-					{
-						ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-					}
-				}
+                    //if (item.HasValue("cas"))
+                    //{
+                    //	ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+                    //	ebxAssetEntry.ExtraData = new AssetExtraData();
+                    //	ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+                    //	ebxAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : fs.GetFilePath(item.GetValue("cas", 0)));
+                    //	ebxAssetEntry.ExtraData.IsPatch = item.HasValue("patch") ? item.GetValue<bool>("patch") : false;
+                    //}
+
+                    //if (item.HasValue("Bundle"))
+                    //{
+                    //	ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
+                    //}
+                    //else if (AssetManager.Instance.bundles.Count < bundleId)
+                    //{
+                    //	ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                    //}
+                }
 			}
 		}
 
@@ -2185,67 +2197,68 @@ public interface IAssetLoader
 				{
 					if (!ProfilesLibrary.IsResTypeIgnored((ResourceType)item.GetValue("resType", 0L)))
 					{
-						ResAssetEntry resAssetEntry = AddRes(item);
-						if (resAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
-						{
-							resRidList.Remove(resAssetEntry.ResRid);
-							resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-							resAssetEntry.Size = item.GetValue("size", 0L);
-							//resAssetEntry.ResRid = (ulong)item.GetValue("resRid", 0L);
-							resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
-							resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
-							resAssetEntry.IsInline = item.HasValue("idata");
-							resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-							resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-						}
-						if (item.GetValue("cache", defaultValue: false) && resAssetEntry.Location != AssetDataLocation.Cache)
-						{
-							helper.RemoveResData(resAssetEntry.Name);
-						}
+						ResAssetEntry resAssetEntry = AddRes(item, 
+							ProfilesLibrary.IsMadden21DataVersion()
+							|| ProfilesLibrary.IsFIFA22DataVersion());
+                        if (resAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+                        {
+                            resRidList.Remove(resAssetEntry.ResRid);
+                            resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+                            resAssetEntry.Size = item.GetValue("size", 0L);
+                            resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
+                            resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
+                            resAssetEntry.IsInline = item.HasValue("idata");
+                            resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                            resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+                        }
+                        //if (item.GetValue("cache", defaultValue: false) && resAssetEntry.Location != AssetDataLocation.Cache)
+                        //{
+                        //	helper.RemoveResData(resAssetEntry.Name);
+                        //}
 
 
-						if (item.HasValue("SBFileLocation"))
-						{
-							resAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
-						}
+                        if (item.HasValue("SBFileLocation"))
+                        {
+                            resAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
+                        }
 
-						if (item.HasValue("TOCFileLocation"))
-						{
-							resAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
-						}
+                        if (item.HasValue("TOCFileLocation"))
+                        {
+                            resAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
+                        }
 
-						if (item.HasValue("SB_CAS_Offset_Position"))
-						{
-							resAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
-						}
+                        if (item.HasValue("SB_CAS_Offset_Position"))
+                        {
+                            resAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
+                        }
 
-						if (item.HasValue("SB_CAS_Size_Position"))
-						{
-							resAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
-						}
+                        if (item.HasValue("SB_CAS_Size_Position"))
+                        {
+                            resAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
+                        }
 
-						if (item.HasValue("SB_OriginalSize_Position"))
-							resAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
+                        if (item.HasValue("SB_OriginalSize_Position"))
+                            resAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
 
-						if (item.HasValue("SB_Sha1_Position"))
-							resAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
+                        if (item.HasValue("SB_Sha1_Position"))
+                            resAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
 
-						if (item.HasValue("ParentBundleOffset"))
-							resAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
+                        //if (item.HasValue("ParentBundleOffset"))
+                        //	resAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
 
-						if (item.HasValue("ParentBundleSize"))
-							resAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
+                        //if (item.HasValue("ParentBundleSize"))
+                        //	resAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-						resAssetEntry.Bundles.Add(bundleId);
+                        resAssetEntry.Bundles.Add(bundleId);
 
-						if (item.HasValue("Bundle"))
-						{
-							resAssetEntry.Bundle = item.GetValue<string>("Bundle");
-						}
-						else if (AssetManager.Instance.bundles.Count < bundleId)
-						{
-							resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-						}
+						//if (item.HasValue("Bundle"))
+						//{
+						//	resAssetEntry.Bundle = item.GetValue<string>("Bundle");
+						//}
+						//else if (AssetManager.Instance.bundles.Count < bundleId)
+						//{
+						//	resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+						//}
 					}
 				}
 			}
@@ -2258,17 +2271,17 @@ public interface IAssetLoader
 				foreach (DbObject item in sb.GetValue<DbObject>("chunks"))
 				{
 
-					// colts uniform
-					if (item.GetValue<Guid>("name").ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
-					{
+					//// colts uniform
+					//if (item.GetValue<Guid>("name").ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
+					//{
 
-					}
+					//}
 
 
-					if (item.GetValue<Guid>("name").ToString() == "56aeabb4-505a-58f4-77a6-f3b3c5fda185")
-					{
+					//if (item.GetValue<Guid>("name").ToString() == "56aeabb4-505a-58f4-77a6-f3b3c5fda185")
+					//{
 
-					}
+					//}
 
 					var otherBundles = new List<int>();
 					// last bundles 
@@ -2278,67 +2291,68 @@ public interface IAssetLoader
                     }
 
 					item.SetValue("bundleIndex", bundleId);
-                    ChunkAssetEntry chunkAssetEntry = AddChunk(item, ProfilesLibrary.IsMadden21DataVersion());
-                    //ChunkAssetEntry chunkAssetEntry = AddChunk(item
-                    //	, ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion());
+                    //              ChunkAssetEntry chunkAssetEntry = AddChunk(item
+                    //, ProfilesLibrary.IsMadden21DataVersion());
+                    ChunkAssetEntry chunkAssetEntry = AddChunk(item
+                        , ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion());
 
                     //if (item.GetValue("cache", defaultValue: false) && chunkAssetEntry.Location != AssetDataLocation.Cache)
                     //{
                     //	helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
                     //}
                     if (chunkAssetEntry.Size == 0L)
-					{
-						chunkAssetEntry.Size = item.GetValue("size", 0L);
-						chunkAssetEntry.LogicalOffset = item.GetValue("logicalOffset", 0u);
-						chunkAssetEntry.LogicalSize = item.GetValue("logicalSize", 0u);
-						chunkAssetEntry.RangeStart = item.GetValue("rangeStart", 0u);
-						chunkAssetEntry.RangeEnd = item.GetValue("rangeEnd", 0u);
-						chunkAssetEntry.BundledSize = item.GetValue("bundledSize", 0u);
-						chunkAssetEntry.IsInline = item.HasValue("idata");
-					}
-					if (item.HasValue("SBFileLocation"))
-					{
-						chunkAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
-					}
+                    {
+                        chunkAssetEntry.Size = item.GetValue("size", 0L);
+                        chunkAssetEntry.LogicalOffset = item.GetValue("logicalOffset", 0u);
+                        chunkAssetEntry.LogicalSize = item.GetValue("logicalSize", 0u);
+                        chunkAssetEntry.RangeStart = item.GetValue("rangeStart", 0u);
+                        chunkAssetEntry.RangeEnd = item.GetValue("rangeEnd", 0u);
+                        chunkAssetEntry.BundledSize = item.GetValue("bundledSize", 0u);
+                        chunkAssetEntry.IsInline = item.HasValue("idata");
+                    }
+                    if (item.HasValue("SBFileLocation"))
+                    {
+                        chunkAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
+                    }
 
-					if (item.HasValue("TOCFileLocation"))
-					{
-						chunkAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
-					}
+                    if (item.HasValue("TOCFileLocation"))
+                    {
+                        chunkAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
+                    }
 
-					if (item.HasValue("SB_CAS_Offset_Position"))
-					{
-						chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
-					}
+                    if (item.HasValue("SB_CAS_Offset_Position"))
+                    {
+                        chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
+                    }
 
-					if (item.HasValue("SB_CAS_Size_Position"))
-					{
-						chunkAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
-					}
+                    if (item.HasValue("SB_CAS_Size_Position"))
+                    {
+                        chunkAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
+                    }
 
-					if (item.HasValue("SB_OriginalSize_Position"))
-						chunkAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
+                    if (item.HasValue("SB_OriginalSize_Position"))
+                        chunkAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
 
-					if (item.HasValue("SB_Sha1_Position"))
-						chunkAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
+                    if (item.HasValue("SB_Sha1_Position"))
+                        chunkAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
 
-					if (item.HasValue("ParentBundleOffset"))
-						chunkAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
+                    //if (item.HasValue("ParentBundleOffset"))
+                    //	chunkAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
 
-					if (item.HasValue("ParentBundleSize"))
-						chunkAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
+                    //if (item.HasValue("ParentBundleSize"))
+                    //	chunkAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-					chunkAssetEntry.Bundles.AddRange(otherBundles);
+                    chunkAssetEntry.Bundles.AddRange(otherBundles);
 					chunkAssetEntry.Bundles.Add(bundleId);
 					chunkAssetEntry.Bundles = chunkAssetEntry.Bundles.Distinct().ToList();
-					if (item.HasValue("Bundle") && !string.IsNullOrEmpty(item.GetValue<string>("Bundle")))
-					{
-						chunkAssetEntry.Bundle = item.GetValue<string>("Bundle");
-					}
-					else if (AssetManager.Instance.bundles.Count < bundleId)
-					{
-						chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-					}
+					//if (item.HasValue("Bundle") && !string.IsNullOrEmpty(item.GetValue<string>("Bundle")))
+					//{
+					//	chunkAssetEntry.Bundle = item.GetValue<string>("Bundle");
+					//}
+					//else if (AssetManager.Instance.bundles.Count < bundleId)
+					//{
+					//	chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+					//}
 
 					Chunks[chunkAssetEntry.Id] = chunkAssetEntry;
 
@@ -2437,23 +2451,25 @@ public interface IAssetLoader
 				ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
 				ebxAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
 			}
-			else if (ebx.GetValue("cache", defaultValue: false))
-			{
-				ebxAssetEntry.Location = AssetDataLocation.Cache;
-				ebxAssetEntry.ExtraData = new AssetExtraData();
-				//ebxAssetEntry.ExtraData.DataOffset = 3735928559L;
-			}
-			else if (ebx.GetValue("casPatchType", 0) == 2)
-			{
-				ebxAssetEntry.ExtraData = new AssetExtraData();
-				ebxAssetEntry.ExtraData.BaseSha1 = ebx.GetValue<Sha1>("baseSha1");
-				ebxAssetEntry.ExtraData.DeltaSha1 = ebx.GetValue<Sha1>("deltaSha1");
-			}
+			//else if (ebx.GetValue("cache", defaultValue: false))
+			//{
+			//	ebxAssetEntry.Location = AssetDataLocation.Cache;
+			//	ebxAssetEntry.ExtraData = new AssetExtraData();
+			//	//ebxAssetEntry.ExtraData.DataOffset = 3735928559L;
+			//}
+			//else if (ebx.GetValue("casPatchType", 0) == 2)
+			//{
+			//	ebxAssetEntry.ExtraData = new AssetExtraData();
+			//	ebxAssetEntry.ExtraData.BaseSha1 = ebx.GetValue<Sha1>("baseSha1");
+			//	ebxAssetEntry.ExtraData.DeltaSha1 = ebx.GetValue<Sha1>("deltaSha1");
+			//}
 
 			ebxAssetEntry.SBFileLocation = ebx.GetValue<string>("SBFileLocation");
 			ebxAssetEntry.TOCFileLocation = ebx.GetValue<string>("TOCFileLocation");
 			ebxAssetEntry.SB_CAS_Offset_Position = ebx.GetValue<int>("SB_CAS_Offset_Position");
 			ebxAssetEntry.SB_CAS_Size_Position = ebx.GetValue<int>("SB_CAS_Size_Position");
+			ebxAssetEntry.SB_OriginalSize_Position = ebx.GetValue<int>("SB_OriginalSize_Position");
+			ebxAssetEntry.SB_Sha1_Position = ebx.GetValue<int>("SB_Sha1_Position");
 
 
 			//EBX.Add(text, ebxAssetEntry);
@@ -2517,6 +2533,8 @@ public interface IAssetLoader
 			resAssetEntry.TOCFileLocation = res.GetValue<string>("TOCFileLocation");
 			resAssetEntry.SB_CAS_Offset_Position = res.GetValue<int>("SB_CAS_Offset_Position");
 			resAssetEntry.SB_CAS_Size_Position = res.GetValue<int>("SB_CAS_Size_Position");
+			resAssetEntry.SB_OriginalSize_Position = res.GetValue<int>("SB_OriginalSize_Position");
+			resAssetEntry.SB_Sha1_Position = res.GetValue<int>("SB_Sha1_Position");
 
 			RES.Add(value, resAssetEntry);
 			if (resAssetEntry.ResRid != 0L)
@@ -2587,6 +2605,8 @@ public interface IAssetLoader
 			chunkAssetEntry.TOCFileLocation = chunk.GetValue<string>("TOCFileLocation");
 			chunkAssetEntry.SB_CAS_Offset_Position = chunk.GetValue<int>("SB_CAS_Offset_Position");
 			chunkAssetEntry.SB_CAS_Size_Position = chunk.GetValue<int>("SB_CAS_Size_Position");
+			chunkAssetEntry.SB_OriginalSize_Position = chunk.GetValue<int>("SB_OriginalSize_Position");
+			chunkAssetEntry.SB_Sha1_Position = chunk.GetValue<int>("SB_Sha1_Position");
 
 			//chunkAssetEntry.Bundles.Add(chunk.GetValue<int>("bundleIndex"));
 			//chunkList.Add(value, chunkAssetEntry);

@@ -25,12 +25,12 @@ namespace FIFA22Plugin
 
         public int FlagsOffset { get; set; }
 
-        public int BundleOffset { get; set; }
-        public int BundleSize { get; internal set; }
+        public uint BundleOffset { get; set; }
+        public uint BundleSize { get; internal set; }
 
-        public List<int> Sizes = new List<int>();
+        public List<uint> Sizes = new List<uint>();
 
-        public List<int> Offsets = new List<int>();
+        public List<uint> Offsets = new List<uint>();
 
         public List<CASBundleEntry> Entries = new List<CASBundleEntry>();
 
@@ -43,8 +43,7 @@ namespace FIFA22Plugin
                     return 0;
                 }
 
-                //return Sizes.Where(x => x < 10095655).Sum() + Offsets.Where(x => x < int.MaxValue).Sum() + DataOffset;
-                return Sizes.Sum() + BundleSize;
+                return Sizes.Sum(x=>(int)x) + BundleSize;
             } 
         }
 
@@ -75,6 +74,7 @@ namespace FIFA22Plugin
         /// 
         /// </summary>
         public byte[] Flags;
+        //public List<bool> Flags = new List<bool>();
 
         public override string ToString()
         {
@@ -98,9 +98,9 @@ namespace FIFA22Plugin
         public bool isInPatch { get; set; }
         public int catalog { get; set; }
         public int cas { get; set; }
-        public int bundleSizeInCas { get; set; }
+        public uint bundleSizeInCas { get; set; }
         public long locationOfSize  { get; set; }
-        public int bundleOffsetInCas { get; set; }
+        public uint bundleOffsetInCas { get; set; }
         public long locationOfOffset { get; set; }
     }
 }

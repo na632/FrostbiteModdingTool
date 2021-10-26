@@ -335,7 +335,7 @@ namespace FMT
 
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
-                if (ProfilesLibrary.IsFIFA21DataVersion())
+                if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion())
                 {
                     FileInfo localeIni = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIPath);
                     if (localeIni.Exists)
@@ -703,8 +703,8 @@ namespace FMT
                 {
                     switchUseSymbolicLink.Visibility = Visibility.Collapsed;
                     switchUseSymbolicLink.IsOn = false;
-                    switchUseModData.Visibility = Visibility.Collapsed;
-                    switchUseModData.IsOn = false;
+                    //switchUseModData.Visibility = Visibility.Collapsed;
+                    //switchUseModData.IsOn = false;
                 }
 
                 switchCleanLegacyModDirectory.IsOn = false;
@@ -736,7 +736,7 @@ namespace FMT
 
                 launcherOptions = await LauncherOptions.LoadAsync();
                 switchUseModData.IsOn = launcherOptions.UseModData.HasValue 
-                                                ? launcherOptions.UseModData.Value : ProfilesLibrary.IsFIFA21DataVersion();
+                                                ? launcherOptions.UseModData.Value : ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion();
                 switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue && GameInstanceSingleton.IsCompatibleWithLegacyMod()
                                                 ? launcherOptions.UseLegacyModSupport.Value : GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;

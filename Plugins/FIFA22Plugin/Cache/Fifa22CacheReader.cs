@@ -82,6 +82,25 @@ namespace FIFA22Plugin.Cache
 						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
 						ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 					}
+
+					var numTFL = nativeReader.ReadInt();
+					ebxAssetEntry.TOCFileLocations = new HashSet<string>();
+					for (int iTFL = 0; iTFL < numTFL; iTFL++)
+					{
+						ebxAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
+					}
+
+					if (nativeReader.ReadBoolean())
+                        ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+                    if (nativeReader.ReadBoolean())
+                        ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+
+					ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+					ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+					ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+					ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+
+
 					int num2 = nativeReader.ReadInt();
 					for (int l = 0; l < num2; l++)
 					{
@@ -92,22 +111,8 @@ namespace FIFA22Plugin.Cache
 					{
 						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
 					}
-					//if (nativeReader.ReadBoolean())
-					//	ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-					//if (nativeReader.ReadBoolean())
-					//	ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-					//if (nativeReader.ReadBoolean())
-					//	ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-					//ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-					//ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-					//ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-					//ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-					//ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-					//ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-					//ebxAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
-
-					if (flag)
+                    if (flag)
 					{
 						ebxAssetEntry.Guid = guid;
 
@@ -141,8 +146,14 @@ namespace FIFA22Plugin.Cache
 						resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
 						resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 					}
-					if (nativeReader.ReadBoolean())
-						resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+
+					var numTFL = nativeReader.ReadInt();
+					resAssetEntry.TOCFileLocations = new HashSet<string>();
+					for (int iTFL = 0; iTFL < numTFL; iTFL++)
+					{
+						resAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
+					}
+
 					if (nativeReader.ReadBoolean())
 						resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
 					if (nativeReader.ReadBoolean())
@@ -152,18 +163,12 @@ namespace FIFA22Plugin.Cache
 					resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
 					resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
 					resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-					resAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-					resAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-					//resAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
-
-
 
 					int bundleCount = nativeReader.ReadInt();
 					for (int num4 = 0; num4 < bundleCount; num4++)
 					{
 						resAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
-
 
 					AssetManager.Instance.RES.Add(resAssetEntry.Name, resAssetEntry);
 					if (resAssetEntry.ResRid != 0L)
@@ -226,29 +231,33 @@ namespace FIFA22Plugin.Cache
 			{
 				throw new Exception("No Extra Data!");
 			}
-				if (nativeReader.ReadBoolean())
-					chunkAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-				if (nativeReader.ReadBoolean())
-					chunkAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-				if (nativeReader.ReadBoolean())
-					chunkAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+
+			var numTFL = nativeReader.ReadInt();
+			chunkAssetEntry.TOCFileLocations = new HashSet<string>();
+			for (int iTFL = 0; iTFL < numTFL; iTFL++)
+			{
+				chunkAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
+			}
+
+			if (nativeReader.ReadBoolean())
+				chunkAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+			if (nativeReader.ReadBoolean())
+				chunkAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+			if (nativeReader.ReadBoolean())
+				chunkAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
 
+			chunkAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+			chunkAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+			chunkAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+			chunkAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+
+			chunkAssetEntry.SB_LogicalOffset_Position = nativeReader.ReadUInt();
+			chunkAssetEntry.SB_LogicalSize_Position = nativeReader.ReadUInt();
 
 
-				chunkAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-				chunkAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-				chunkAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-				chunkAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-				chunkAssetEntry.SB_LogicalOffset_Position = nativeReader.ReadUInt();
-				chunkAssetEntry.SB_LogicalSize_Position = nativeReader.ReadUInt();
-				chunkAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-				chunkAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-
-
-				if (nativeReader.ReadBoolean())
-					chunkAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
+			if (nativeReader.ReadBoolean())
+				chunkAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
 
 			int num6 = nativeReader.ReadInt();
 			for (int num7 = 0; num7 < num6; num7++)

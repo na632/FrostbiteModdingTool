@@ -59,10 +59,17 @@ namespace FIFA22Plugin
 
             if (SBHeaderInformation.chunkCount != 0)
             {
-                using (DbReader dbReader = new DbReader(binarySbReader2.CreateViewStream(SBHeaderInformation.metaOffset, binarySbReader2.Length - binarySbReader2.Position), new NullDeobfuscator()))
+                using (DbReader dbReader = new DbReader(
+                    binarySbReader2.CreateViewStream(
+                        SBHeaderInformation.metaOffset
+                        , binarySbReader2.Length 
+                        //- binarySbReader2.Position)
+                        - SBHeaderInformation.metaOffset)
+                    , new NullDeobfuscator()))
                 {
                     var o = dbReader.ReadDbObject();
-                    dbObject.AddValue("chunkMeta", o);
+                    if(o != null)
+                        dbObject.AddValue("chunkMeta", o);
                 }
             }
 

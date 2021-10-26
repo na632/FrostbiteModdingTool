@@ -4352,7 +4352,7 @@ namespace paulv2k4ModdingExecuter
             await Task.Run(() =>
             {
 
-                if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+                if (ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
                 {
                     string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
                     if (Directory.Exists(path))
@@ -4718,7 +4718,16 @@ namespace paulv2k4ModdingExecuter
                     ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
                     ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
                     Logger.Log("Applying mods");
-                    //SymbolicLinkList.Clear();
+                //SymbolicLinkList.Clear();
+
+
+                IAssetCompiler pluginCompiler = AssetManager.Instance.LoadTypeFromPlugin(ProfilesLibrary.AssetCompilerName) as IAssetCompiler;
+                if (pluginCompiler != null)
+                {
+                    pluginCompiler.Compile(fs, logger, this);
+                }
+                else
+                {
 
                     foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
                         .Where(x=>x.FullName.ToLower().Contains("plugin")))
@@ -4748,12 +4757,9 @@ namespace paulv2k4ModdingExecuter
                             }
                         }
                     }
+                }
 
-
-
-
-                    //if (ProfilesLibrary.IsMaddenDataVersion() || ProfilesLibrary.IsFIFADataVersion())
-                    if (ProfilesLibrary.IsFIFA20DataVersion())
+                if (ProfilesLibrary.IsFIFA20DataVersion())
                     {
                         DbObject layoutToc = null;
 
@@ -4771,8 +4777,6 @@ namespace paulv2k4ModdingExecuter
                         var numberOfCatalogs = fs.Catalogs.Count();
                         var numberOfCatalogsCompleted = 0;
 
-                        if (ProfilesLibrary.IsFIFADataVersion())
-                        {
                             foreach (Catalog catalogItem in fs.EnumerateCatalogInfos())
                             {
                                 FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
@@ -4809,7 +4813,6 @@ namespace paulv2k4ModdingExecuter
                                     }
                                 }
                             }
-                        }
 
                         logger.Log("Writing new Layout file to Game");
                         using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
@@ -4828,9 +4831,15 @@ namespace paulv2k4ModdingExecuter
 
             }
 
+            var fifaconfigexelocation = fs.BasePath + "\\FIFASetup\\fifaconfig.exe";
+            var fifaconfigexe_origlocation = fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe";
+
             CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
             CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
-            if (ProfilesLibrary.IsFIFADataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
+            if ((ProfilesLibrary.IsFIFADataVersion() 
+                || ProfilesLibrary.IsFIFA21DataVersion()
+                || ProfilesLibrary.IsFIFA22DataVersion())
+                && UseModData)
             {
                 if (!new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe").Exists)
                 {
@@ -4838,6 +4847,11 @@ namespace paulv2k4ModdingExecuter
                     fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
                 }
                 CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
+            }
+            else if (new FileInfo(fifaconfigexe_origlocation).Exists)
+            {
+                File.Delete(fifaconfigexelocation); // delete the addon
+                File.Move(fifaconfigexe_origlocation, fifaconfigexelocation); // replace
             }
 
             return FrostyModsFound;
@@ -4871,7 +4885,7 @@ namespace paulv2k4ModdingExecuter
             }
         }
 
-        public static TelemetryClient AppInsightClient;// = new TelemetryClient();
+        public static TelemetryClient AppInsightClient;
 
         public bool ForceRebuildOfMods = false;
 
@@ -5025,7 +5039,7 @@ namespace paulv2k4ModdingExecuter
 
             }
 
-            if(!UseModData && ProfilesLibrary.IsFIFA21DataVersion())
+            if(ProfilesLibrary.IsFIFA21DataVersion())
             {
                 var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
                 if (configIni.Exists)
@@ -5039,13 +5053,13 @@ namespace paulv2k4ModdingExecuter
 
             }
 
-            if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
+            if (ProfilesLibrary.IsFIFA22DataVersion())
             {
                 var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
                 if (configIni.Exists)
                 {
                     StringBuilder newConfig = new StringBuilder();
-                    newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
+                    newConfig.AppendLine($"LAUNCH_EXE = {ProfilesLibrary.CacheName.ToLower()}.exe");
                     newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
                     newConfig.AppendLine("AUTO_LAUNCH = 1");
                     File.WriteAllText(configIni.FullName, newConfig.ToString());

@@ -55,14 +55,13 @@ namespace FIFA22Plugin
 
                     // go back 4 from the magic
                     var actualPos = casBundle.BundleOffset;
-                    //var nextActualPos = PositionOfReadableItems.Count > index + 1 ? PositionOfReadableItems[index + 1] - 4 : nr_cas.Length - actualPos;
                     nr_cas.Position = actualPos;
 
                     BaseBundleInfo baseBundleInfo = new BaseBundleInfo();
                     baseBundleInfo.Offset = actualPos;
-                    //baseBundleInfo.Size = nextActualPos;
                     baseBundleInfo.Size = casBundle.TotalSize;
-                    BaseBundleInfo.BundleItemIndex++;
+
+                    AssetManager.Instance.bundles.Add(new BundleEntry() { Type = BundleType.None, Name = path + "-" + baseBundleInfo.Offset });
 
                     //var inner_reader = nr_cas;
                     using (
@@ -70,10 +69,6 @@ namespace FIFA22Plugin
                         nr_cas.CreateViewStream(baseBundleInfo.Offset, casBundle.TotalSize)
                         ))
                     {
-                        //DbObject obj = new DbObject();
-
-                        //var dbObj = new DbObject();
-
                         var binaryReader = new BinaryReader_Fifa22();
                         var binaryObject = new DbObject();
                         var pos = inner_reader.Position;
@@ -106,9 +101,6 @@ namespace FIFA22Plugin
                                 ebxobjectinlist.SetValue("cas", casBundle.TOCCas[i]);
                                 ebxobjectinlist.SetValue("catalog", casBundle.TOCCatalog[i]);
                                 ebxobjectinlist.SetValue("patch", casBundle.TOCPatch[i]);
-
-                                //var bundleCheck = casBundle.Offsets[i] - casBundle.BundleOffset;
-                                //bundleCheck = bundleCheck > 0 ? bundleCheck : casBundle.Offsets[i];
 
                                 ebxobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
@@ -181,16 +173,26 @@ namespace FIFA22Plugin
                                     bool patch = item.GetValue("patch", false);
                                     ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                                    ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    //ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    ebxAssetEntry.TOCFileLocations = new HashSet<string>();
                                     ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                                     ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
                                     ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
+                                    ebxAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
 
                                     if (AssociatedTOCFile.ProcessData)
+                                    {
+                                        if (AssetManager.Instance.EBX.ContainsKey(ebxAssetEntry.Name.ToLower()))
+                                        {
+                                            var originalEbx = AssetManager.Instance.EBX[ebxAssetEntry.Name.ToLower()];
+                                            ebxAssetEntry.TOCFileLocations = originalEbx.TOCFileLocations;
+                                            ebxAssetEntry.TOCFileLocations.Add(AssociatedTOCFile.NativeFileLocation);
+                                        }
                                         AssetManager.Instance.AddEbx(ebxAssetEntry);
+                                    }
                                 }
 
                                 var iRes = 0;
@@ -217,11 +219,14 @@ namespace FIFA22Plugin
 
                                     resAssetEntry.CASFileLocation = NativeFileLocation;
                                     resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    resAssetEntry.TOCFileLocations = new HashSet<string>();
+
                                     resAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                                     resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
+                                    resAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
                                     if (AssociatedTOCFile.ProcessData)
                                         AssetManager.Instance.AddRes(resAssetEntry);
 
@@ -253,12 +258,14 @@ namespace FIFA22Plugin
 
                                     chunkAssetEntry.CASFileLocation = NativeFileLocation;
                                     chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    chunkAssetEntry.TOCFileLocations = new HashSet<string>();
 
                                     chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                                     chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
+                                    chunkAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
                                     if (AssociatedTOCFile.ProcessData)
                                         AssetManager.Instance.AddChunk(chunkAssetEntry);
 
@@ -268,6 +275,10 @@ namespace FIFA22Plugin
                         }
 
                     }
+
+
+                    BaseBundleInfo.BundleItemIndex++;
+
                 }
             }
 

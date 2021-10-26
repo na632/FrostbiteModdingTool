@@ -2,6 +2,7 @@ using Frosty.Hash;
 using FrostySdk.FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FrostySdk.Managers
 {
@@ -272,7 +273,23 @@ namespace FrostySdk.Managers
 		public string Bundle { get; set; }
 		public string SBFileLocation { get; set; }
 
-		public string TOCFileLocation { get; set; }
+
+        private string tocFileLocation;
+
+        public string TOCFileLocation
+        {
+            get 
+			{
+				if (string.IsNullOrEmpty(tocFileLocation) && TOCFileLocations.Count > 0)
+					tocFileLocation = TOCFileLocations.First();
+
+				return tocFileLocation; 
+			}
+            set { tocFileLocation = value; }
+        }
+
+        public HashSet<string> TOCFileLocations { get; set; }
+
 		public int SB_CAS_Offset_Position { get; set; }
 		public int SB_CAS_Size_Position { get; set; }
 		public int SB_Sha1_Position { get; set; }

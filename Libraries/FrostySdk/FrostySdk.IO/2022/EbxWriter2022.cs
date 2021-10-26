@@ -318,10 +318,38 @@ namespace FrostySdk.FrostySdk.IO
 			WriteInt32LittleEndian(stringTablePosition);
 			long efixChunkLength = base.Position - efixChunkDataLengthOffset - 4;
 			WriteUInt32LittleEndian(1482179141u);
-			int ebxxSize = 8;
-			WriteInt32LittleEndian(ebxxSize);
-			WriteInt32LittleEndian(0);
-			WriteInt32LittleEndian(0);
+			long ebxxChunkLengthOffset = base.Position;
+			uint ebxxChunkLength = 8;
+			Write(ebxxChunkLength);
+            //WriteInt32LittleEndian(0); // array count
+            //WriteInt32LittleEndian(0); // boxed count
+            Write((uint)arrays.Count);
+            //Write((uint)boxedValues.Count);
+            Write(0u);
+            foreach (EbxArray arr in arrays)
+            {
+                Write((uint)arr.Offset);
+                Write((uint)arr.Count);
+                Write((uint)arr.PathDepth);
+                Write((ushort)arr.TypeFlags);
+                Write((ushort)arr.ClassRef);
+            }
+            //for (int j = 0; j < boxedValues.Count; j++)
+            //{
+            //	var bvr_unk1 = ReadUInt();
+            //	var bvr_unk2 = ReadUInt();
+            //	var bvr_unk3 = ReadUInt();
+            //	var bvr_unk4 = ReadUShort();
+            //	var bvr_unk5 = ReadUShort();
+            //	boxedValueRefs.Add(new BoxedValueRef()
+            //	{
+            //	});
+            //	boxedValues.Add(new EbxBoxedValue() { Offset = bvr_unk1, Type = bvr_unk4, ClassRef = bvr_unk5 });
+            //}
+            ebxxChunkLength = (uint)base.Position - (uint)ebxxChunkLengthOffset - 4u;
+			
+			
+
 			long riffChunkLength = base.Position - riffChunkDataLengthOffset - 4;
 			base.Position = riffChunkDataLengthOffset;
 			WriteUInt32LittleEndian((uint)riffChunkLength);
@@ -329,6 +357,8 @@ namespace FrostySdk.FrostySdk.IO
 			WriteUInt32LittleEndian((uint)ebxdChunkLength);
 			base.Position = efixChunkDataLengthOffset;
 			WriteUInt32LittleEndian((uint)efixChunkLength);
+			base.Position = ebxxChunkLengthOffset;
+			Write(ebxxChunkLength);
 		}
 
 		private ushort ProcessClass(Type type, object obj, bool isBaseType = false)

@@ -40,6 +40,15 @@ namespace FrostySdk.IO
 						, AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", true);
 					}
 				}
+				if (patchStd == null)
+				{
+					if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+					{
+						patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+						, AssetManager.Instance.fs, "SharedTypeDescriptors_Patch.ebx", true);
+					}
+				}
+
 			}
 			else
 			{

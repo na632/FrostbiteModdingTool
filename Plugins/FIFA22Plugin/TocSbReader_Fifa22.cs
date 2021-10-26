@@ -76,6 +76,7 @@ namespace FIFA22Plugin
                     TOCFile.DoLogging = DoLogging;
                     TOCFile.ProcessData = ProcessData;
                     TOCFile.Read(nativeReader);
+                    //return TOCFile.Read(nativeReader); // this will return to do the process thingy
 
                 }
             }

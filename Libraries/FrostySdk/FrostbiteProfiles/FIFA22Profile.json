@@ -6,7 +6,7 @@
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
-  "AssetCompiler": "Fifa22AssetCompiler",
+  "AssetCompiler": "Fifa22AssetCompiler_Old",
   "EditorScreen": "FIFA22Editor",
   // Texture Importer (Overriding the base Importer)
   "TextureImporter": "FIFA22TextureImporter",
@@ -76,7 +76,7 @@
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
   //"CompressedFormatLegacy": "Oodle",
-  "CompressedFormatLegacy": "Zstd",
+  "CompressedFormatLegacy": "Oodle",
   //"CompressedFormatLegacy": "None",
   "LegacyFileManager": "LFM_Fifa22"
 

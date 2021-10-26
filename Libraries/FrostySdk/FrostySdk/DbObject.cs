@@ -143,15 +143,16 @@ namespace FrostySdk
 		{
 			var containsKey = hash.ContainsKey(name);
 			var valueIsNotNull = value != null;
-			if (!containsKey && valueIsNotNull)
-			{
-				hash.Add(name, Sanitize ? SanitizeData(value) : value);
-			}
-			else if (!valueIsNotNull)
-			{
-				Debug.WriteLine("[ERROR] DbObject::AddValue - Value was null");
-			}
-		}
+            if (!containsKey && valueIsNotNull)
+            {
+                hash.Add(name, Sanitize ? SanitizeData(value) : value);
+            }
+            else if (!valueIsNotNull)
+            {
+				throw new InvalidOperationException("DbObject::AddValue - Value was null");
+                //Debug.WriteLine("[ERROR] DbObject::AddValue - Value was null");
+            }
+        }
 
 		public void RemoveValue(string name)
 		{

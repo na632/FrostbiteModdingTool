@@ -159,10 +159,7 @@ namespace FIFA22Plugin
         public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
             ModExecuter = (FrostyModExecutor)frostyModExecuter;
-            // ------------------------------------------------------------------------------------------
-            // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
-            if (ProfilesLibrary.IsFIFA22DataVersion())
-            {
+            
                 if (UseModData)
                 {
                     Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
@@ -194,20 +191,16 @@ namespace FIFA22Plugin
                     }
                 }
 
-                //BuildCache buildCache = new BuildCache();
-                //buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true); ;
-
                 ModExecuter.Logger.Log("Enumerating modified bundles.");
 
-                ProcessLegacyFiles();
-                ProcessBundles();
+                ProcessBundles(true); // do patch
+                ProcessBundles(false); // do data
+                ProcessLegacyFiles(); // finish off with legacy
 
                 ModExecuter.Logger.Log($"Modified {ModifiedCount_EBX} ebx, {ModifiedCount_RES} res, {ModifiedCount_Chunks} chunks");
 
 
                 return true;
-            }
-            return false;
         }
 
         public int ModifiedCount_EBX = 0;
@@ -243,12 +236,13 @@ namespace FIFA22Plugin
         public void ProcessBundles(bool bundlesInPatch = true)
         {
             var folder = bundlesInPatch ? "native_patch" : "native_data";
+            Dictionary<string, List<DbObject>> bundleChanges = new Dictionary<string, List<DbObject>>();
 
-            foreach (Catalog ci in FileSystem.Instance.EnumerateCatalogInfos())
+            foreach (Catalog ci in FileSystem.Instance.EnumerateCatalogInfos()
+                .Where(x=>x.SuperBundles.Count > 0 && x.SuperBundleKeys.Count > 0))
             {
                 catalogInfo = ci;
 
-                NativeWriter writer_new_cas_file = null;
                 foreach (string sbName in catalogInfo.SuperBundles.Keys)
                 {
                     string tocFile = sbName;
@@ -262,23 +256,21 @@ namespace FIFA22Plugin
                     {
                         tocFile = sbName;
                     }
-                    var tocFileRAW = $"{folder}{tocFile}.toc";
-                    string location_toc_file = ModExecuter.fs.ResolvePath(tocFileRAW);
+                    var tocFileRAW = $"{folder}/{tocFile}.toc";
+                    string location_toc_file = ModExecuter.fs.ResolvePath(tocFileRAW, FrostyModExecutor.UseModData);
 
-                    if (string.IsNullOrEmpty(location_toc_file))
+                    if (string.IsNullOrEmpty(location_toc_file) 
+                        //|| location_toc_file.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
+                        //|| location_toc_file.Contains("careersba", StringComparison.OrdinalIgnoreCase)
+                        )
                         continue;
 
                     parent.Logger.Log($"Compiling: {location_toc_file}");
                     var msNewTOCFile = new MemoryStream();
 
-                    TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22();
-                    tocSbReader.ProcessData = false;
-                    tocSbReader.DoLogging = false;
+                    TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22(false, false);
 
                     tocSbReader.Read(location_toc_file, 0, null, null, true, tocFile);
-
-                    //if (!FrostyModExecutor.UseModData && !File.Exists(location_toc_file + ".ebak"))
-                    //    File.Copy(location_toc_file, location_toc_file + ".ebak");
 
                     if (tocSbReader.TOCFile.TOCObjects != null && tocSbReader.TOCFile.TOCObjects.List.Any())
                     {
@@ -295,40 +287,35 @@ namespace FIFA22Plugin
                                 {
                                     if (ebxNames.Any(x => parent.modifiedEbx.ContainsKey(x)))
                                     {
-                                        for (var dboI = 0; dboI < ebx.List.Count; dboI++)
+                                        foreach (var modC in parent.modifiedEbx)
                                         {
-                                            //for (var modEbxI = 0; modEbxI < parent.modifiedEbx.Count; modEbxI++)
+                                            DbObject dboItem = ebx.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
+                                            if (dboItem != null)
                                             {
-                                                var dboItem = ebx.List[dboI] as DbObject;
-                                                var dboName = dboItem.GetValue<string>("name");
-                                                if (parent.modifiedEbx.ContainsKey(dboName))
-                                                {
-                                                    var modItem = parent.modifiedEbx[dboName];
 
-                                                    var dboCCas = dboItem.GetValue<int>("cas");
-                                                    var dboCCatalog = dboItem.GetValue<int>("catalog");
-                                                    var dboCPatch = dboItem.GetValue<bool>("patch");
-                                                    var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+                                                var dboCCas = dboItem.GetValue<int>("cas");
+                                                var dboCCatalog = dboItem.GetValue<int>("catalog");
+                                                var dboCPatch = dboItem.GetValue<bool>("patch");
+                                                var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
 
-                                                    if (!modToCas.ContainsKey(dboRawFilePath))
-                                                        modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+                                                if (!modToCas.ContainsKey(dboRawFilePath))
+                                                    modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
 
-                                                    if (modToCas.ContainsKey(dboRawFilePath))
-                                                        modToCas[dboRawFilePath].Add((dboItem, modItem));
+                                                if (modToCas.ContainsKey(dboRawFilePath))
+                                                    modToCas[dboRawFilePath].Add((dboItem, modC.Value));
 
-                                                    ModifiedCount_EBX++;
-                                                    ebxToRemove.Add(dboName);
-                                                }
-
+                                                ModifiedCount_EBX++;
+                                                ebxToRemove.Add(modC.Key);
                                             }
                                         }
                                     }
                                 }
                             }
 
-                            foreach (var item in ebxToRemove)
-                                parent.modifiedEbx.Remove(item);
+                            //foreach (var item in ebxToRemove)
+                            //    parent.modifiedEbx.Remove(item);
 
+                            List<string> resToRemove = new List<string>();
                             DbObject res = o.GetValue<DbObject>("res");
                             if (res != null && parent.modifiedRes.Any())
                             {
@@ -338,35 +325,36 @@ namespace FIFA22Plugin
                                 {
                                     if (resNames.Any(x => parent.modifiedRes.ContainsKey(x)))
                                     {
-                                        for (var dboI = 0; dboI < res.List.Count; dboI++)
+
+                                        foreach (var modC in parent.modifiedRes)
                                         {
-                                            //for (var modChunkI = 0; modChunkI < parent.modifiedRes.Count; modChunkI++)
+                                            DbObject dboItem = res.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
+                                            if (dboItem != null)
                                             {
-                                                var dboItem = res.List[dboI] as DbObject;
-                                                var dboName = dboItem.GetValue<string>("name");
-                                                if (parent.modifiedRes.ContainsKey(dboName))
-                                                {
-                                                    var modItem = parent.modifiedRes[dboName];
+                                                var dboCCas = dboItem.GetValue<int>("cas");
+                                                var dboCCatalog = dboItem.GetValue<int>("catalog");
+                                                var dboCPatch = dboItem.GetValue<bool>("patch");
+                                                var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
 
-                                                    var dboCCas = dboItem.GetValue<int>("cas");
-                                                    var dboCCatalog = dboItem.GetValue<int>("catalog");
-                                                    var dboCPatch = dboItem.GetValue<bool>("patch");
-                                                    var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+                                                if (!modToCas.ContainsKey(dboRawFilePath))
+                                                    modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
 
-                                                    if (!modToCas.ContainsKey(dboRawFilePath))
-                                                        modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+                                                if (modToCas.ContainsKey(dboRawFilePath))
+                                                    modToCas[dboRawFilePath].Add((dboItem, modC.Value));
 
-                                                    if (modToCas.ContainsKey(dboRawFilePath))
-                                                        modToCas[dboRawFilePath].Add((dboItem, modItem));
-
-                                                    ModifiedCount_RES++;
-                                                }
-
+                                                ModifiedCount_RES++;
+                                                resToRemove.Add(modC.Key);
                                             }
+
                                         }
                                     }
                                 }
                             }
+
+                            //foreach (var item in resToRemove)
+                            //    parent.modifiedRes.Remove(item);
+
+                            List<Guid> chunksToRemove = new List<Guid>();
 
                             DbObject chunks = o.GetValue<DbObject>("chunks");
                             if (chunks != null && parent.ModifiedChunks.Any())
@@ -377,112 +365,97 @@ namespace FIFA22Plugin
                                 {
                                     if (chunkIds.Any(x => parent.ModifiedChunks.ContainsKey(x)))
                                     {
-                                        for (var dboChunkI = 0; dboChunkI < chunks.Count; dboChunkI++)
+
+                                        foreach(var modC in parent.ModifiedChunks)
                                         {
-                                            //for (var modChunkI = 0; modChunkI < parent.ModifiedChunks.Count; modChunkI++)
+                                            DbObject dboC = chunks.List.FirstOrDefault(x => ((DbObject)x).GetValue<Guid>("id") == modC.Key) as DbObject;
+                                            if (dboC != null)
                                             {
-                                                var dboC = chunks.List[dboChunkI] as DbObject;
-                                                var dboCGuid = dboC.GetValue<Guid>("id");
-                                                if (parent.ModifiedChunks.ContainsKey(dboCGuid))
-                                                {
-                                                    var modC = parent.ModifiedChunks[dboCGuid];
+                                                var dboCCas = dboC.GetValue<int>("cas");
+                                                var dboCCatalog = dboC.GetValue<int>("catalog");
+                                                var dboCPatch = dboC.GetValue<bool>("patch");
+                                                var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
 
-                                                    var dboCCas = dboC.GetValue<int>("cas");
-                                                    var dboCCatalog = dboC.GetValue<int>("catalog");
-                                                    var dboCPatch = dboC.GetValue<bool>("patch");
-                                                    var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+                                                if (!modToCas.ContainsKey(dboRawFilePath))
+                                                    modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
 
-                                                    if (!modToCas.ContainsKey(dboRawFilePath))
-                                                        modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+                                                if (modToCas.ContainsKey(dboRawFilePath))
+                                                    modToCas[dboRawFilePath].Add((dboC, modC.Value));
 
-                                                    if (modToCas.ContainsKey(dboRawFilePath))
-                                                        modToCas[dboRawFilePath].Add((dboC, modC));
-
-                                                    ModifiedCount_Chunks++;
-                                                }
-
+                                                ModifiedCount_Chunks++;
+                                                chunksToRemove.Add(modC.Key);
                                             }
+
                                         }
                                     }
                                 }
 
-
                             }
 
-                            foreach (var mcToCas in modToCas)
+                            //foreach (var item in chunksToRemove)
+                            //    parent.ModifiedChunks.Remove(item);
+
+                        }
+
+                        
+
+                        foreach (var mcToCas in modToCas)
+                        {
+                            var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key, FrostyModExecutor.UseModData);
+                            if (resolvedPath != null)
                             {
-                                var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key);
-                                if (resolvedPath != null)
+
+                                using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
                                 {
-                                    // Raw Paths Bundles with new Original Sizes and Sha1s
-                                    // This is not fast as its not a list with paired paths like the rest. Need to fix this
-                                    Dictionary<string, DbObject> bundleChanges = new Dictionary<string, DbObject>();
-
-                                    using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
+                                    nwCas.Position = nwCas.Length;
+                                    foreach (var t in mcToCas.Value)
                                     {
-                                        nwCas.Position = nwCas.Length;
-                                        foreach (var t in mcToCas.Value)
+                                        var data = parent.archiveData[t.Item2.Sha1].Data;
+                                        if (data != null)
                                         {
-                                            var data = parent.archiveData[t.Item2.Sha1].Data;
-                                            if (data != null)
-                                            {
-                                                var newDataPosition = nwCas.Position;
-                                                nwCas.Write(data);
+                                            var newDataPosition = nwCas.Position;
+                                            nwCas.Write(data);
+
+                                            if(t.Item2.OriginalSize != 0)
+                                                t.Item1.SetValue("originalSize", t.Item2.OriginalSize);
+                                            else
                                                 t.Item1.SetValue("originalSize", new CasReader(new MemoryStream(data)).Read().Length);
-                                                var cBundle = tocSbReader.TOCFile.CasBundles.FirstOrDefault(
-                                                     x => x.Entries.Any(
-                                                         y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
-                                                         ));
-                                                var cEntry = cBundle.Entries.FirstOrDefault(
-                                                         y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
-                                                         );
-                                                if (cEntry != null)
+
+                                            var cBundle = tocSbReader.TOCFile.CasBundles.FirstOrDefault(
+                                                 x => x.Entries.Any(
+                                                     y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                                                     ));
+                                            var cEntry = cBundle.Entries.FirstOrDefault(
+                                                     y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                                                     );
+                                            if (cEntry != null)
+                                            {
+                                                cEntry.bundleSizeInCas = (uint)data.Length;
+                                                cEntry.bundleOffsetInCas = (uint)newDataPosition;
+
+                                                var bundlePath = FileSystem.Instance.GetFilePath(cBundle.Catalog, cBundle.Cas, cBundle.Patch);
+                                                var entryPath = FileSystem.Instance.GetFilePath(cEntry.catalog, cEntry.cas, cEntry.isInPatch);
+                                                if (entryPath != bundlePath)
                                                 {
-                                                    cEntry.bundleSizeInCas = data.Length;
-                                                    cEntry.bundleOffsetInCas = (int)newDataPosition;
+                                                    if (!bundleChanges.ContainsKey(bundlePath))
+                                                        bundleChanges.Add(bundlePath, new List<DbObject>());
 
-                                                    var bundlePath = FileSystem.Instance.GetFilePath(cBundle.Catalog, cBundle.Cas, cBundle.Patch);
-                                                    var entryPath = FileSystem.Instance.GetFilePath(cEntry.catalog, cEntry.cas, cEntry.isInPatch);
-                                                    if (entryPath != bundlePath)
-                                                    {
-                                                        bundleChanges.Add(bundlePath, t.Item1);
-                                                    }
-                                                    else
-                                                    {
-                                                        //// write original size etc.
-                                                        //// 
-                                                        //nwCas.Position = t.Item1.GetValue<uint>("SB_OriginalSize_Position");
-                                                        //nwCas.Write((uint)t.Item1.GetValue<uint>("originalSize"));
-
-                                                        //if (t.Item1.HasValue("SB_Sha1_Position"))
-                                                        //{
-                                                        //    nwCas.Position = t.Item1.GetValue<uint>("SB_Sha1_Position");
-                                                        //    //nwCas.Write((uint)t.Item1.GetValue<Sha1>("originalSize"));
-                                                        //}
-                                                        WriteBundleOffsetChangesToBundleCas(nwCas, t.Item1);
-                                                    }
-
+                                                    bundleChanges[bundlePath].Add(t.Item1);
+                                                }
+                                                else
+                                                {
+                                                    WriteBundleOffsetChangesToBundleCas(nwCas, t.Item1);
                                                 }
 
-
                                             }
-                                        }
-                                    }
 
-                                    foreach (var bundle in bundleChanges)
-                                    {
-                                        resolvedPath = FileSystem.Instance.ResolvePath(bundle.Key);
-                                        if (resolvedPath != null)
-                                        {
-                                            using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
-                                            {
-                                                WriteBundleOffsetChangesToBundleCas(nwCas, bundle.Value);
-                                            }
+
                                         }
                                     }
                                 }
-                            }
 
+
+                            }
                         }
                     }
 
@@ -542,16 +515,30 @@ namespace FIFA22Plugin
                         File.WriteAllBytes(location_toc_file, msNewTOCFile.ToArray());
                     }
                 }
-                if (writer_new_cas_file != null)
-                {
-                    writer_new_cas_file?.Close();
-                }
+              
+
 
                 
             }
 
-            if (!bundlesInPatch)
-                ProcessBundles(false);
+            foreach (var bundle in bundleChanges)
+            {
+                var resolvedPath = FileSystem.Instance.ResolvePath(bundle.Key, FrostyModExecutor.UseModData);
+                if (resolvedPath != null)
+                {
+                    using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
+                    {
+                        foreach (DbObject t in bundle.Value)
+                        {
+                            WriteBundleOffsetChangesToBundleCas(nwCas, t);
+                        }
+                    }
+                }
+            }
+
+
+            //if (!bundlesInPatch)
+            //    ProcessBundles(false);
         }
 
         private void WriteBundleOffsetChangesToBundleCas(in NativeWriter nwCas, in DbObject obj)
@@ -561,14 +548,25 @@ namespace FIFA22Plugin
             nwCas.Position = obj.GetValue<uint>("SB_OriginalSize_Position");
             nwCas.Write((uint)obj.GetValue<uint>("originalSize"));
 
-            if (obj.HasValue("SB_Sha1_Position"))
+            //if (obj.HasValue("SB_Sha1_Position"))
+            //{
+            //    nwCas.Position = obj.GetValue<uint>("SB_Sha1_Position");
+            //    //nwCas.Write((uint)t.Item1.GetValue<Sha1>("originalSize"));
+            //}
+
+            //if (obj.HasValue("SB_ResMeta_Position"))
+            //{
+            //    nwCas.Position = obj.GetValue<int>("SB_ResMeta_Position");
+            //    nwCas.WriteBytes(parent.modifiedRes[obj.GetValue<string>("name")].ResMeta);
+            //}
+
+            if (obj.HasValue("SB_LogicalOffset_Position"))
             {
-                nwCas.Position = obj.GetValue<uint>("SB_Sha1_Position");
-                //nwCas.Write((uint)t.Item1.GetValue<Sha1>("originalSize"));
+                nwCas.Position = obj.GetValue<int>("SB_LogicalOffset_Position");
+                nwCas.Write((uint)parent.ModifiedChunks[obj.GetValue<Guid>("id")].LogicalOffset);
             }
         }
 
-        DbObject layoutToc = null;
 
         private string GetNextCasInCatalog(Catalog catalogInfo, int lastCas, bool patch, out int newCas)
         {

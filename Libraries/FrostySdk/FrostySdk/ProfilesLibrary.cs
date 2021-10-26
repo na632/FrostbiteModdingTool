@@ -379,7 +379,8 @@ namespace FrostySdk
 			bool isFIFA = (LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA17
 				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA18
 				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA19
-				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA20)
+				|| LoadedProfile.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA20
+				)
 				;
 
 			return isFIFA;

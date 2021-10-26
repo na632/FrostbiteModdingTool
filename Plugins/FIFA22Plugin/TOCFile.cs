@@ -174,7 +174,7 @@ namespace FIFA22Plugin
 
 		public Dictionary<Guid, DbObject> TocChunkInfo = new Dictionary<Guid, DbObject>();
 
-		public List<DbObject> Read(NativeReader nativeReader)
+		public List<DbObject> Read(in NativeReader nativeReader)
 		{
 			TocChunks.Clear();
 			ChunkIndexToChunkId.Clear();
@@ -399,9 +399,9 @@ namespace FIFA22Plugin
 							cas = nativeReader.ReadByte();
 						}
 						long locationOfOffset = nativeReader.Position;
-						int bundleOffsetInCas = nativeReader.ReadInt(Endian.Big);
+						uint bundleOffsetInCas = nativeReader.ReadUInt(Endian.Big);
 						long locationOfSize = nativeReader.Position;
-						int bundleSizeInCas = nativeReader.ReadInt(Endian.Big);
+						uint bundleSizeInCas = nativeReader.ReadUInt(Endian.Big);
 						if (j2 == 0)
 						{
 							bundle.Unk = unk;
@@ -426,7 +426,7 @@ namespace FIFA22Plugin
 						bundle.Entries.Add(new CASBundleEntry()
 						{
 							unk = unk,
-								isInPatch = isInPatch,
+							isInPatch = isInPatch,
 							catalog = catalog,
 							cas = cas,
 							bundleSizeInCas = bundleSizeInCas,

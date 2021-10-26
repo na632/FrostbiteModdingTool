@@ -63,7 +63,7 @@ namespace FIFA22Plugin
 		{
 			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
 			{
-				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
+				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos().OrderBy(x=> x.PersistentIndex.HasValue ? x.PersistentIndex : 0))
 				{
 					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
 					{
@@ -83,6 +83,9 @@ namespace FIFA22Plugin
 							});
 							sbIndex = parent.superBundles.Count - 1;
 						}
+
+						if (sbName.Contains("careermodestorysba", StringComparison.OrdinalIgnoreCase))
+							continue;
 						
 						parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
@@ -97,16 +100,19 @@ namespace FIFA22Plugin
 						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
 						{
 							TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22();
-							var dbObjectsToProcess = tocSbReader.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
-							if (dbObjectsToProcess != null)
-							{
-								foreach (DbObject @object in dbObjectsToProcess.Where(x => x != null))
-								{
-									parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
-									parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
-									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
-								}
-							}
+							// TOCFile CasDataLoader automatically proceses data
+							tocSbReader.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
+
+							//var dbObjectsToProcess = tocSbReader.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
+							//if (dbObjectsToProcess != null)
+							//{
+							//	foreach (DbObject @object in dbObjectsToProcess.Where(x => x != null))
+							//	{
+							//		parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
+							//		parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
+							//		parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+							//	}
+							//}
 						}
 					}
 				}
@@ -122,6 +128,7 @@ namespace FIFA22Plugin
 		{
 			LoadData(parent, helper);
 			LoadPatch(parent, helper);
+
 		}
 
 		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
