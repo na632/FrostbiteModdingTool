@@ -280,7 +280,7 @@ namespace FrostySdk.Managers
         {
             get 
 			{
-				if (string.IsNullOrEmpty(tocFileLocation) && TOCFileLocations.Count > 0)
+				if (string.IsNullOrEmpty(tocFileLocation) && TOCFileLocations != null && TOCFileLocations.Count > 0)
 					tocFileLocation = TOCFileLocations.First();
 
 				return tocFileLocation; 

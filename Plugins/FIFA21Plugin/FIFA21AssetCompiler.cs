@@ -36,19 +36,23 @@ namespace FIFA21Plugin
         /// <returns></returns>
         public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
+            DateTime dtStarted = DateTime.Now;
             if (!ProfilesLibrary.IsFIFA21DataVersion())
             {
                 logger.Log("[ERROR] Wrong compiler used for Game");
                 return false;
             }
 
-           
-
+            bool result = false;
             if (!FrostyModExecutor.UseModData)
             {
-                return RunEADesktopCompiler(fs, logger, frostyModExecuter);
+                result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
+                return result;
             }
-            return RunOriginCompiler(fs, logger, frostyModExecuter);
+            result = RunOriginCompiler(fs, logger, frostyModExecuter);
+
+            logger.Log($"Compiler completed in {(DateTime.Now - dtStarted).ToString(@"mm\:ss")}");
+            return result;
         }
 
         private bool RunOriginCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
@@ -500,7 +504,6 @@ namespace FIFA21Plugin
         private void ProcessLegacyMods()
         {
             List<Guid> ChunksToRemove = new List<Guid>();
-            var otherLegacyMods = parent.AddedChunks;
             // *.fifamod files do not put data into "modifiedLegacy" and instead embed into Chunks 
             // handling those chunks here
             //if (parent.AddedChunks.Count > 0)
@@ -574,9 +577,10 @@ namespace FIFA21Plugin
                 foreach (var modLegacy in parent.modifiedLegacy)
                 {
                     byte[] data = null;
-                    if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
-                        data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
-                    else if (parent.archiveData.ContainsKey(modLegacy.Value.Sha1))
+                    //if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
+                    //    data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
+                    //else 
+                    if (parent.archiveData.ContainsKey(modLegacy.Value.Sha1))
                         data = parent.archiveData[modLegacy.Value.Sha1].Data;
 
                     if (data != null)
@@ -691,6 +695,8 @@ namespace FIFA21Plugin
                         parent.Logger.Log("Chunk ERRORS:: " + ErrorCounts[ModType.CHUNK]);
                 }
 
+                Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
+
                 foreach (var item in dictOfModsToCas)
                 {
                     
@@ -719,7 +725,6 @@ namespace FIFA21Plugin
                     Debug.WriteLine($"Modifying CAS file - {casPath}");
                     parent.Logger.Log($"Modifying CAS file - {casPath}");
 
-                    Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
 
                     using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
                     {
@@ -835,72 +840,84 @@ namespace FIFA21Plugin
 
                     }
 
-                    if (EntriesToNewPosition == null)
+                    
+
+
+                }
+
+                if (EntriesToNewPosition == null)
+                {
+                    parent.Logger.LogError($"Unable to find any entries to process");
+                    return false;
+                }
+
+                var groupedBySB = EntriesToNewPosition.GroupBy(x =>
+                            !string.IsNullOrEmpty(x.Key.SBFileLocation)
+                            ? x.Key.SBFileLocation
+                            : x.Key.TOCFileLocation
+                            )
+                    .ToDictionary(gdc => gdc.Key, gdc => gdc.ToList());
+
+                List<Task> tasks = new List<Task>();
+
+                foreach (var sbGroup in groupedBySB)
+                {
+                    var sbpath = sbGroup.Key;
+                    if (string.IsNullOrEmpty(sbpath))
                         continue;
 
-                    var groupedBySB = EntriesToNewPosition.GroupBy(x =>
-                                !string.IsNullOrEmpty(x.Key.SBFileLocation)
-                                ? x.Key.SBFileLocation
-                                : x.Key.TOCFileLocation
-                                )
-                        .ToDictionary(gdc => gdc.Key, gdc => gdc.ToList());
+                    sbpath = parent.fs.ResolvePath(sbpath, FrostyModExecutor.UseModData);
+                    //if (UseModData)
+                    //{
+                    //    sbpath = sbpath.Replace("\\Patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
+                    //    sbpath = sbpath.Replace("\\Data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
+                    //}
+                    //else
+                    //{
+                    //    var originalFile = sbpath + ".bak";
 
-                    foreach (var sbGroup in groupedBySB)
+                    //    // First run. Create backup of original file
+                    //    if (!File.Exists(originalFile))
+                    //        File.Copy(sbpath, originalFile);
+
+                    //    // Later runs. Copy back vanilla before changes.
+                    //    if (File.Exists(originalFile))
+                    //        File.Copy(originalFile, sbpath, true);
+                    //}
+                    if (UseModData && !sbpath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                     {
-                        var sbpath = sbGroup.Key;
-                        if (string.IsNullOrEmpty(sbpath))
-                            continue;
+                        throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
+                    }
 
-                        sbpath = parent.fs.ResolvePath(sbpath);
-                        if (UseModData)
-                        {
-                            sbpath = sbpath.Replace("\\Patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
-                            sbpath = sbpath.Replace("\\Data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
-                        }
-                        else
-                        {
-                            var originalFile = sbpath + ".bak";
+                    var tocSbReader = new TocSbReader_FIFA21(false, false);
 
-                            // First run. Create backup of original file
-                            if (!File.Exists(originalFile))
-                                File.Copy(sbpath, originalFile);
+                    DbObject dboOriginal = null;
+                    if (!SbToDbObject.ContainsKey(sbGroup.Key)//)
+                                                              // This needs to go. Probably be replaced by the new compiler anyway
+                        && !sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var timeStarted = DateTime.Now;
 
-                            // Later runs. Copy back vanilla before changes.
-                            if (File.Exists(originalFile))
-                                File.Copy(originalFile, sbpath, true);
-                        }
-                        if (UseModData && !sbpath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
-                        {
-                            throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
-                        }
+                        var dboOriginal2 = tocSbReader.Read(sbpath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, sbpath);
 
-                        var tocSbReader = new TocSbReader_FIFA21(false, false);
+                        SbToDbObject.Add(sbGroup.Key, new DbObject(dboOriginal2));
+                        Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
+                    }
 
-                        DbObject dboOriginal = null;
-                        if (!SbToDbObject.ContainsKey(sbGroup.Key)//)
-                            // This needs to go. Probably be replaced by the new compiler anyway
-                            && !sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
-                        {
-                            var timeStarted = DateTime.Now;
-                            
-                            var dboOriginal2 = tocSbReader.Read(sbpath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, sbpath);
+                    if (SbToDbObject.ContainsKey(sbGroup.Key))
+                        dboOriginal = SbToDbObject[sbGroup.Key];
 
-                            SbToDbObject.Add(sbGroup.Key, new DbObject(dboOriginal2));
-                            Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
-                        }
 
-                        if (SbToDbObject.ContainsKey(sbGroup.Key))
-                            dboOriginal = SbToDbObject[sbGroup.Key];
-
-                        
-
+                    tasks.Add(Task.Run(() =>
+                    {
+                        parent.Logger.Log($"Processing: {sbpath}");
                         using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
                         {
                             foreach (var assetBundle in sbGroup.Value)
                             {
                                 if (dboOriginal != null)
                                 {
-                                    var origEbxBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("ebx")).Select(x => ((DbObject)x).GetValue<DbObject>("ebx")).ToList();
+                                    //var origEbxBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("ebx")).Select(x => ((DbObject)x).GetValue<DbObject>("ebx")).ToList();
 
                                     var origResBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("res")).Select(x => ((DbObject)x).GetValue<DbObject>("res")).ToList();
                                     DbObject origResDbo = null;
@@ -973,14 +990,12 @@ namespace FIFA21Plugin
                                 }
                             }
                         }
+                        parent.Logger.Log($"Processing Complete: {sbpath}");
 
-                       
-                    }
-
-
+                    }));
                 }
 
-                // Add chunks to globals
+                Task.WaitAll(tasks.ToArray());
 
             }
 

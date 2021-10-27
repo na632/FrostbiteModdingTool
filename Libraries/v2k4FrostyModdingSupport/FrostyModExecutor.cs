@@ -4655,17 +4655,25 @@ namespace paulv2k4ModdingExecuter
                             if (chunkAssetEntry3.ModifiedEntry != null 
                                 && chunkAssetEntry3.ModifiedEntry.IsLegacyFile
                                 && !string.IsNullOrEmpty(chunkAssetEntry3.ModifiedEntry.LegacyFullName)
+                                && chunkAssetEntry3.ModifiedEntry.LegacyFullName.Length > 10
                                 )
                             {
                                 LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
                                 legacyAssetEntry.Name = chunkAssetEntry3.ModifiedEntry.LegacyFullName;
-                                legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = resourceData };
-                                legacyAssetEntry.Size = resourceData.Length;
+
+                                var d = new CasReader(new MemoryStream(resourceData)).Read();
+                                legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = d };
+                                legacyAssetEntry.Size = d.Length;
 
                                 if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
                                     modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
                                 else
                                     modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
+
+                                archiveData.TryAdd(legacyAssetEntry.Sha1, new ArchiveInfo
+                                {
+                                    Data = d,
+                                });
 
                                 continue;
                             }
