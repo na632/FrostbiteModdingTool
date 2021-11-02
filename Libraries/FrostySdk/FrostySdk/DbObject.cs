@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace FrostySdk
 {
-	public class DbObject
+	public class DbObject : IEquatable<DbObject>
 	{
 
 		public bool IsList => List != null;
@@ -304,8 +304,27 @@ namespace FrostySdk
 
 				if (Dictionary.ContainsKey("Name"))
 					return Dictionary["Name"].ToString();
-            }
+
+				if (Dictionary.ContainsKey("Id"))
+					return Dictionary["Id"].ToString();
+
+				if (Dictionary.ContainsKey("id"))
+					return Dictionary["id"].ToString();
+			}
             return base.ToString();
+        }
+
+        public bool Equals(DbObject other)
+        {
+            if (other.HasValue("ebx"))
+            {
+				if(this.HasValue("ebx"))
+                {
+					var ebxValues = this.GetValue<DbObject>("ebx");
+                }
+            }
+
+			return this == other || this.ToString() == other.ToString();
         }
     }
 }

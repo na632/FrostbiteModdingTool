@@ -819,21 +819,21 @@ namespace FIFA21Plugin
                                 origSize = out_data.Length;
                             }
 
-                            var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
-                            if (useCas && (originalEntry is EbxAssetEntry || originalEntry is ResAssetEntry))
-                            {
-                                if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
-                                {
-                                    nwCas.Position = originalEntry.SB_OriginalSize_Position;
-                                    nwCas.Write((uint)origSize, Endian.Little);
-                                }
+                            //var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
+                            //if (useCas && (originalEntry is EbxAssetEntry || originalEntry is ResAssetEntry))
+                            //{
+                            //    if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
+                            //    {
+                            //        nwCas.Position = originalEntry.SB_OriginalSize_Position;
+                            //        nwCas.Write((uint)origSize, Endian.Little);
+                            //    }
 
-                                if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
-                                {
-                                    nwCas.Position = originalEntry.SB_Sha1_Position;
-                                    nwCas.Write(modItem.Sha1);
-                                }
-                            }
+                            //    if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
+                            //    {
+                            //        nwCas.Position = originalEntry.SB_Sha1_Position;
+                            //        nwCas.Write(modItem.Sha1);
+                            //    }
+                            //}
 
                             EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
                         }
@@ -867,23 +867,7 @@ namespace FIFA21Plugin
                         continue;
 
                     sbpath = parent.fs.ResolvePath(sbpath, FrostyModExecutor.UseModData);
-                    //if (UseModData)
-                    //{
-                    //    sbpath = sbpath.Replace("\\Patch", "\\ModData\\Patch".ToLower(), StringComparison.OrdinalIgnoreCase);
-                    //    sbpath = sbpath.Replace("\\Data", "\\ModData\\Data".ToLower(), StringComparison.OrdinalIgnoreCase);
-                    //}
-                    //else
-                    //{
-                    //    var originalFile = sbpath + ".bak";
-
-                    //    // First run. Create backup of original file
-                    //    if (!File.Exists(originalFile))
-                    //        File.Copy(sbpath, originalFile);
-
-                    //    // Later runs. Copy back vanilla before changes.
-                    //    if (File.Exists(originalFile))
-                    //        File.Copy(originalFile, sbpath, true);
-                    //}
+                    
                     if (UseModData && !sbpath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                     {
                         throw new Exception($"WRONG SB PATH GIVEN! {sbpath}");
@@ -892,9 +876,7 @@ namespace FIFA21Plugin
                     var tocSbReader = new TocSbReader_FIFA21(false, false);
 
                     DbObject dboOriginal = null;
-                    if (!SbToDbObject.ContainsKey(sbGroup.Key)//)
-                                                              // This needs to go. Probably be replaced by the new compiler anyway
-                        && !sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                    if (!SbToDbObject.ContainsKey(sbGroup.Key))
                     {
                         var timeStarted = DateTime.Now;
 
@@ -910,82 +892,161 @@ namespace FIFA21Plugin
 
                     tasks.Add(Task.Run(() =>
                     {
-                        parent.Logger.Log($"Processing: {sbpath}");
-                        using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
+                        if (dboOriginal != null)
                         {
-                            foreach (var assetBundle in sbGroup.Value)
+                            parent.Logger.Log($"Processing: {sbpath}");
+                            var origEbxBundles = dboOriginal.List
+                            .Where(x => ((DbObject)x).HasValue("ebx"))
+                            .Select(x => ((DbObject)x).GetValue<DbObject>("ebx"))
+                            .Where(x => x.List != null && x.List.Any(y => parent.modifiedEbx.ContainsKey(((DbObject)y).GetValue<string>("name"))))
+                            .ToList();
+
+                            var origResBundles = dboOriginal.List
+                            .Where(x => ((DbObject)x).HasValue("res"))
+                            .Select(x => ((DbObject)x).GetValue<DbObject>("res"))
+                            .Where(x => x.List != null && x.List.Any(y => parent.modifiedRes.ContainsKey(((DbObject)y).GetValue<string>("name"))))
+                            .ToList();
+
+                            var origChunkBundles = dboOriginal.List
+                            .Where(x => ((DbObject)x).HasValue("chunks"))
+                            .Select(x => ((DbObject)x).GetValue<DbObject>("chunks"))
+                            .Where(x => x.List != null && x.List.Any(y => parent.ModifiedChunks.ContainsKey(((DbObject)y).GetValue<Guid>("id"))))
+                            .ToList();
+
+                            if (new FileInfo(sbpath).Extension.Contains(".sb"))
                             {
-                                if (dboOriginal != null)
+                                using (NativeWriter nw_sb = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
                                 {
-                                    //var origEbxBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("ebx")).Select(x => ((DbObject)x).GetValue<DbObject>("ebx")).ToList();
-
-                                    var origResBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("res")).Select(x => ((DbObject)x).GetValue<DbObject>("res")).ToList();
-                                    DbObject origResDbo = null;
-                                    foreach (DbObject dbInBundle in origResBundles)
+                                    foreach (var assetBundle in sbGroup.Value)
                                     {
-                                        origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-                                        if (origResDbo != null)
-                                            break;
-                                    }
+                                        if(assetBundle.Key is EbxAssetEntry)
+                                            WriteEbxChangesToSuperBundle(origEbxBundles, nw_sb, assetBundle);
+                                        if(assetBundle.Key is ResAssetEntry)
+                                            WriteResChangesToSuperBundle(origResBundles, nw_sb, assetBundle);
+                                        if(assetBundle.Key is ChunkAssetEntry)
+                                            WriteChunkChangesToSuperBundle(origChunkBundles, nw_sb, assetBundle);
 
-                                    if (origResDbo != null
-                                        && parent.modifiedRes.ContainsKey(assetBundle.Key.Name)
-                                        && (assetBundle.Key.Type == "SkinnedMeshAsset"
-                                        || assetBundle.Key.Type == "MeshSet"
-                                        || assetBundle.Key.Type == "Texture"))
-                                    {
-                                        nw_sb.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
-                                        nw_sb.WriteBytes(parent.modifiedRes[assetBundle.Key.Name].ResMeta);
-                                    }
+                                        var positionOfNewData = assetBundle.Value.Item1;
+                                        var sizeOfData = assetBundle.Value.Item2;
+                                        var originalSizeOfData = assetBundle.Value.Item3;
+                                        var sha = assetBundle.Value.Item4;
 
-                                    var origChunkBundles = dboOriginal.List.Where(x => ((DbObject)x).HasValue("chunks")).Select(x => ((DbObject)x).GetValue<DbObject>("chunks")).ToList();
-                                    DbObject origChunkDbo = null;
-                                    foreach (DbObject dbInBundle in origChunkBundles)
-                                    {
-                                        origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
-                                        if (origChunkDbo != null)
-                                            break;
-                                    }
+                                        int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
+                                        var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
+                                        nw_sb.BaseStream.Position = sb_cas_offset_position;
+                                        nw_sb.Write((uint)positionOfNewData, Endian.Big);
+                                        nw_sb.Write((uint)sizeOfData, Endian.Big);
 
-                                    if (Guid.TryParse(assetBundle.Key.Name, out Guid bndleId))
-                                    {
-                                        if (origChunkDbo != null
-                                            && parent.ModifiedChunks.ContainsKey(bndleId)
-                                            )
+                                        if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
+                                            &&
+                                            assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
                                         {
-                                            nw_sb.BaseStream.Position = origChunkDbo.GetValue<int>("SB_LogicalOffset_Position");
-                                            nw_sb.Write(parent.ModifiedChunks[bndleId].LogicalOffset);
+                                            nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
+                                            nw_sb.Write((uint)originalSizeOfData, Endian.Little);
+                                        }
+
+                                        if (nw_sb.Length > assetBundle.Key.SB_Sha1_Position
+                                            &&
+                                            assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
+                                        {
+                                            nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
+                                            nw_sb.Write(sha);
                                         }
                                     }
                                 }
-
-                                var positionOfNewData = assetBundle.Value.Item1;
-                                var sizeOfData = assetBundle.Value.Item2;
-                                var originalSizeOfData = assetBundle.Value.Item3;
-                                var sha = assetBundle.Value.Item4;
-
-                                int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
-                                var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
-                                nw_sb.BaseStream.Position = sb_cas_offset_position;
-                                nw_sb.Write((uint)positionOfNewData, Endian.Big);
-                                nw_sb.Write((uint)sizeOfData, Endian.Big);
-
-                                if (!sbpath.Contains(".toc", StringComparison.OrdinalIgnoreCase))
+                            }
+                            else
+                            {
+                                using (NativeWriter nw_toc = new NativeWriter(new FileStream(sbpath, FileMode.Open)))
                                 {
-                                    if (nw_sb.Length > assetBundle.Key.SB_OriginalSize_Position
-                                        &&
-                                        assetBundle.Key.SB_OriginalSize_Position != 0 && originalSizeOfData != 0)
+                                    var assetBundleToCAS = new Dictionary<string, List<AssetEntry>>();
+                                    foreach (var assetBundle in sbGroup.Value)
                                     {
-                                        nw_sb.Position = assetBundle.Key.SB_OriginalSize_Position;
-                                        nw_sb.Write((uint)originalSizeOfData, Endian.Little);
+                                        var positionOfNewData = assetBundle.Value.Item1;
+                                        var sizeOfData = assetBundle.Value.Item2;
+                                        var originalSizeOfData = assetBundle.Value.Item3;
+                                        var sha = assetBundle.Value.Item4;
+
+                                        int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
+                                        var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
+                                        nw_toc.BaseStream.Position = sb_cas_offset_position;
+                                        nw_toc.Write((uint)positionOfNewData, Endian.Big);
+                                        nw_toc.Write((uint)sizeOfData, Endian.Big);
+
+                                        var casPath = string.Empty;
+                                        if (assetBundle.Key is EbxAssetEntry)
+                                        {
+                                            DbObject origEbxDbo = null;
+                                            foreach (DbObject dbInBundle in origEbxBundles)
+                                            {
+                                                origEbxDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                if (origEbxDbo != null)
+                                                    break;
+                                            }
+
+                                            if (origEbxDbo != null)
+                                            {
+                                                casPath = origEbxDbo.GetValue<string>("ParentCASBundleLocation");
+                                            }
+                                        }
+
+                                        if (assetBundle.Key is ResAssetEntry)
+                                        {
+                                            DbObject origResDbo = null;
+                                            foreach (DbObject dbInBundle in origResBundles)
+                                            {
+                                                origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                if (origResDbo != null)
+                                                    break;
+                                            }
+
+                                            if (origResDbo != null)
+                                            {
+                                                casPath = origResDbo.GetValue<string>("ParentCASBundleLocation");
+                                            }
+                                        }
+
+                                        if (assetBundle.Key is ChunkAssetEntry)
+                                        {
+                                            DbObject origChunkDbo = null;
+                                            foreach (DbObject dbInBundle in origChunkBundles)
+                                            {
+                                                origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+                                                if (origChunkDbo != null)
+                                                    break;
+                                            }
+
+                                            if (origChunkDbo != null)
+                                            {
+                                                casPath = origChunkDbo.GetValue<string>("ParentCASBundleLocation");
+                                            }
+                                        }
+
+                                        if (!string.IsNullOrEmpty(casPath))
+                                        {
+                                            if (!assetBundleToCAS.ContainsKey(casPath))
+                                                assetBundleToCAS.Add(casPath, new List<AssetEntry>());
+
+                                            assetBundleToCAS[casPath].Add(assetBundle.Key);
+                                        }
                                     }
 
-                                    if (nw_sb.Length > assetBundle.Key.SB_Sha1_Position
-                                        &&
-                                        assetBundle.Key.SB_Sha1_Position != 0 && sha != Sha1.Zero)
+                                    foreach (var abtc in assetBundleToCAS)
                                     {
-                                        nw_sb.Position = assetBundle.Key.SB_Sha1_Position;
-                                        nw_sb.Write(sha);
+                                        var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, FrostyModExecutor.UseModData);
+                                        using (var nwCas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
+                                        {
+                                            foreach (var assetEntry in abtc.Value)
+                                            {
+                                                var assetBundle = sbGroup.Value.FirstOrDefault(x => x.Key == assetEntry);
+                                                if (assetBundle.Key is EbxAssetEntry)
+                                                    WriteEbxChangesToSuperBundle(origEbxBundles, nwCas, assetBundle);
+                                                if (assetBundle.Key is ResAssetEntry)
+                                                    WriteResChangesToSuperBundle(origResBundles, nwCas, assetBundle);
+                                                if (assetBundle.Key is ChunkAssetEntry)
+                                                    WriteChunkChangesToSuperBundle(origChunkBundles, nwCas, assetBundle);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1012,6 +1073,111 @@ namespace FIFA21Plugin
 
         }
 
+        private void WriteEbxChangesToSuperBundle(List<DbObject> origEbxBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            DbObject origEbxDbo = null;
+            foreach (DbObject dbInBundle in origEbxBundles)
+            {
+                origEbxDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                if (origEbxDbo != null)
+                    break;
+            }
+
+            if (origEbxDbo != null
+                && parent.modifiedEbx.ContainsKey(assetBundle.Key.Name))
+            {
+                var originalSizeOfData = assetBundle.Value.Item3;
+
+                if (origEbxDbo.HasValue("SB_OriginalSize_Position"))
+                {
+                    writer.Position = origEbxDbo.GetValue<long>("SB_OriginalSize_Position");
+                    writer.Write((uint)originalSizeOfData, Endian.Little);
+                }
+
+                if (origEbxDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+                {
+                    writer.Position = origEbxDbo.GetValue<long>("SB_Sha1_Position");
+                    writer.Write(assetBundle.Value.Item4);
+                }
+            }
+        }
+
+        private void WriteResChangesToSuperBundle(List<DbObject> origResBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            DbObject origResDbo = null;
+            foreach (DbObject dbInBundle in origResBundles)
+            {
+                origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                if (origResDbo != null)
+                    break;
+            }
+
+            if (origResDbo != null
+                && parent.modifiedRes.ContainsKey(assetBundle.Key.Name)
+                && (assetBundle.Key.Type == "SkinnedMeshAsset"
+                || assetBundle.Key.Type == "MeshSet"
+                || assetBundle.Key.Type == "Texture"))
+            {
+                writer.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
+                writer.WriteBytes(parent.modifiedRes[assetBundle.Key.Name].ResMeta);
+
+                if (parent.modifiedRes[assetBundle.Key.Name].ResRid != 0)
+                {
+                    writer.BaseStream.Position = origResDbo.GetValue<int>("SB_ReRid_Position");
+                    writer.Write(parent.modifiedRes[assetBundle.Key.Name].ResRid);
+                }
+            }
+
+            var originalSizeOfData = assetBundle.Value.Item3;
+
+            if (origResDbo.HasValue("SB_OriginalSize_Position"))
+            {
+                writer.Position = origResDbo.GetValue<long>("SB_OriginalSize_Position");
+                writer.Write((uint)originalSizeOfData, Endian.Little);
+            }
+
+            if (origResDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            {
+                writer.Position = origResDbo.GetValue<long>("SB_Sha1_Position");
+                writer.Write(assetBundle.Value.Item4);
+            }
+        }
+
+        private void WriteChunkChangesToSuperBundle(List<DbObject> origChunkBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            DbObject origChunkDbo = null;
+            foreach (DbObject dbInBundle in origChunkBundles)
+            {
+                origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+                if (origChunkDbo != null)
+                    break;
+            }
+
+            if (Guid.TryParse(assetBundle.Key.Name, out Guid bndleId))
+            {
+                if (origChunkDbo != null
+                    && parent.ModifiedChunks.ContainsKey(bndleId)
+                    )
+                {
+                    writer.BaseStream.Position = origChunkDbo.GetValue<int>("SB_LogicalOffset_Position");
+                    writer.Write(parent.ModifiedChunks[bndleId].LogicalOffset);
+                }
+            }
+
+            var originalSizeOfData = assetBundle.Value.Item3;
+
+            if (origChunkDbo.HasValue("SB_OriginalSize_Position"))
+            {
+                writer.Position = origChunkDbo.GetValue<long>("SB_OriginalSize_Position");
+                writer.Write((uint)originalSizeOfData, Endian.Little);
+            }
+
+            if (origChunkDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            {
+                writer.Position = origChunkDbo.GetValue<long>("SB_Sha1_Position");
+                writer.Write(assetBundle.Value.Item4);
+            }
+        }
 
         private void ModifyTOCChunks(string directory = "native_patch")
         {

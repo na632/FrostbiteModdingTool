@@ -78,13 +78,16 @@ namespace FIFA21Plugin
                     TOCFile.DoLogging = DoLogging;
                     TOCFile.ProcessData = ProcessData;
                     var tObjs = TOCFile.Read(nativeReader);
-                    //if (tObjs != null)
-                    //    objs.AddRange(tObjs);
+                    if (tObjs != null && tObjs.Count > 0 && !ProcessData)
+                        objs.AddRange(tObjs);
 
                     // SB File
                     var sbObjs = ReadSB(SbPath, nativePath != null ? nativePath.Replace(".toc", ".sb") : null);
                     if (sbObjs != null)
+                    {
+                        //objs.Clear();
                         objs.AddRange(sbObjs);
+                    }
 
                     return objs;
                 }

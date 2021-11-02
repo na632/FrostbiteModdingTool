@@ -271,24 +271,37 @@ namespace FrostySdk.Managers
         }
 
 		public string Bundle { get; set; }
-		public string SBFileLocation { get; set; }
+
+		private string sbFileLocation;
+		public string SBFileLocation
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(sbFileLocation) && SBFileLocations != null && SBFileLocations.Count > 0)
+					sbFileLocation = SBFileLocations.Last();
+
+				return sbFileLocation;
+			}
+			set { sbFileLocation = value; }
+		}
+		public HashSet<string> SBFileLocations => new HashSet<string>();
 
 
-        private string tocFileLocation;
+		private string tocFileLocation;
 
         public string TOCFileLocation
         {
             get 
 			{
 				if (string.IsNullOrEmpty(tocFileLocation) && TOCFileLocations != null && TOCFileLocations.Count > 0)
-					tocFileLocation = TOCFileLocations.First();
+					tocFileLocation = TOCFileLocations.Last();
 
 				return tocFileLocation; 
 			}
             set { tocFileLocation = value; }
         }
 
-        public HashSet<string> TOCFileLocations { get; set; }
+        public HashSet<string> TOCFileLocations => new HashSet<string>();
 
 		public int SB_CAS_Offset_Position { get; set; }
 		public int SB_CAS_Size_Position { get; set; }

@@ -114,6 +114,7 @@ namespace FIFA21Plugin
                                 ebxobjectinlist.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 ebxobjectinlist.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[i]);
                                 ebxobjectinlist.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[i]);
+                                ebxobjectinlist.SetValue("ParentCASBundleLocation", NativeFileLocation);
 
                                 ebxobjectinlist.SetValue("cas", casBundle.TOCCas[i]);
                                 ebxobjectinlist.SetValue("catalog", casBundle.TOCCatalog[i]);
@@ -135,6 +136,7 @@ namespace FIFA21Plugin
                                 resobjectinlist.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 resobjectinlist.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + i]);
                                 resobjectinlist.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + i]);
+                                resobjectinlist.SetValue("ParentCASBundleLocation", NativeFileLocation);
 
                                 resobjectinlist.SetValue("cas", casBundle.TOCCas[ebxCount + i]);
                                 resobjectinlist.SetValue("catalog", casBundle.TOCCatalog[ebxCount + i]);
@@ -154,7 +156,7 @@ namespace FIFA21Plugin
                                 chunkObjectInList.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 chunkObjectInList.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
                                 chunkObjectInList.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + resCount + i]);
-
+                                chunkObjectInList.SetValue("ParentCASBundleLocation", NativeFileLocation);
 
                                 chunkObjectInList.SetValue("cas", casBundle.TOCCas[ebxCount + resCount + i]);
                                 chunkObjectInList.SetValue("catalog", casBundle.TOCCatalog[ebxCount + resCount + i]);
@@ -176,34 +178,35 @@ namespace FIFA21Plugin
 
                                 foreach (DbObject item in EbxObjectList)
                                 {
-                                    EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-                                    ebxAssetEntry.Name = item.GetValue<string>("name");
-                                    ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                                    ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
-                                    ebxAssetEntry.Size = item.GetValue("size", 0L);
-                                    ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                                    ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                                    ebxAssetEntry.ExtraData = new AssetExtraData();
-                                    ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+                                    AssetManager.Instance.AddEbx(item);
+                                    //EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+                                    //ebxAssetEntry.Name = item.GetValue<string>("name");
+                                    //ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+                                    //ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
+                                    //ebxAssetEntry.Size = item.GetValue("size", 0L);
+                                    //ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                                    //ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+                                    //ebxAssetEntry.ExtraData = new AssetExtraData();
+                                    //ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
 
-                                    int cas = item.GetValue("cas", 0);
-                                    int catalog = item.GetValue("catalog", 0);
-                                    bool patch = item.GetValue("patch", false);
-                                    ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
+                                    //int cas = item.GetValue("cas", 0);
+                                    //int catalog = item.GetValue("catalog", 0);
+                                    //bool patch = item.GetValue("patch", false);
+                                    //ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                                    ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
-                                    ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                                    ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                                    ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                                    ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+                                    //ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    //ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
+                                    //ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
+                                    //ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
+                                    //ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                                    ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
+                                    //ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
 
-                                    ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-                                    ebxAssetEntry.Bundles.Add(bundleId);
+                                    //ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                                    //ebxAssetEntry.Bundles.Add(bundleId);
 
-                                    if (AssociatedTOCFile.ProcessData)
-                                        AssetManager.Instance.AddEbx(ebxAssetEntry);
+                                    //if (AssociatedTOCFile.ProcessData)
+                                    //    AssetManager.Instance.AddEbx(ebxAssetEntry);
                                 }
 
                                 var iRes = 0;
@@ -248,40 +251,41 @@ namespace FIFA21Plugin
                                 var iChunk = 0;
                                 foreach (DbObject item in ChunkObjectList)
                                 {
-                                    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                                    chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+                                    ChunkAssetEntry chunkAssetEntry = AssetManager.Instance.AddChunk(item);
+                                    //ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                                    //chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
 
-                                    chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
-                                    chunkAssetEntry.Size = item.GetValue("size", 0L);
-                                    chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                                    chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                                    chunkAssetEntry.ExtraData = new AssetExtraData();
-                                    chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
+                                    //chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
+                                    //chunkAssetEntry.Size = item.GetValue("size", 0L);
+                                    //chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+                                    //chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+                                    //chunkAssetEntry.ExtraData = new AssetExtraData();
+                                    //chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
 
-                                    int cas = item.GetValue("cas", 0);
-                                    int catalog = item.GetValue("catalog", 0);
-                                    bool patch = item.GetValue("patch", false);
-                                    chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
+                                    //int cas = item.GetValue("cas", 0);
+                                    //int catalog = item.GetValue("catalog", 0);
+                                    //bool patch = item.GetValue("patch", false);
+                                    //chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                                    chunkAssetEntry.Id = item.GetValue<Guid>("id");
-                                    chunkAssetEntry.LogicalOffset = item.GetValue<uint>("logicalOffset");
-                                    chunkAssetEntry.LogicalSize = item.GetValue<uint>("logicalSize");
+                                    //chunkAssetEntry.Id = item.GetValue<Guid>("id");
+                                    //chunkAssetEntry.LogicalOffset = item.GetValue<uint>("logicalOffset");
+                                    //chunkAssetEntry.LogicalSize = item.GetValue<uint>("logicalSize");
 
-                                    chunkAssetEntry.CASFileLocation = NativeFileLocation;
-                                    chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    //chunkAssetEntry.CASFileLocation = NativeFileLocation;
+                                    //chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
-                                    chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                                    chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                                    chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                                    chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
+                                    //chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
+                                    //chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
+                                    //chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
+                                    //chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                                    chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                                    //chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
                                     chunkAssetEntry.Bundles.Add(bundleId);
 
-                                    if (AssociatedTOCFile.ProcessData)
-                                        AssetManager.Instance.AddChunk(chunkAssetEntry);
+                                    //if (AssociatedTOCFile.ProcessData)
+                                    //    AssetManager.Instance.AddChunk(chunkAssetEntry);
 
-                                    iChunk++;
+                                    //iChunk++;
                                 }
                             }
                         }

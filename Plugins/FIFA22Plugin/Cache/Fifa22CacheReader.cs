@@ -84,7 +84,6 @@ namespace FIFA22Plugin.Cache
 					}
 
 					var numTFL = nativeReader.ReadInt();
-					ebxAssetEntry.TOCFileLocations = new HashSet<string>();
 					for (int iTFL = 0; iTFL < numTFL; iTFL++)
 					{
 						ebxAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
@@ -148,7 +147,7 @@ namespace FIFA22Plugin.Cache
 					}
 
 					var numTFL = nativeReader.ReadInt();
-					resAssetEntry.TOCFileLocations = new HashSet<string>();
+					//resAssetEntry.TOCFileLocations = new HashSet<string>();
 					for (int iTFL = 0; iTFL < numTFL; iTFL++)
 					{
 						resAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
@@ -233,7 +232,7 @@ namespace FIFA22Plugin.Cache
 			}
 
 			var numTFL = nativeReader.ReadInt();
-			chunkAssetEntry.TOCFileLocations = new HashSet<string>();
+			//chunkAssetEntry.TOCFileLocations = new HashSet<string>();
 			for (int iTFL = 0; iTFL < numTFL; iTFL++)
 			{
 				chunkAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());

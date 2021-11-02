@@ -175,8 +175,11 @@ namespace FIFA21Plugin
 
 		public Dictionary<Guid, DbObject> TocChunkInfo = new Dictionary<Guid, DbObject>();
 
-		public List<DbObject> Read(NativeReader nativeReader)
+		public bool ReadBundlesOnly = false;
+
+		public List<DbObject> Read(in NativeReader nativeReader, in bool bundlesOnly = false)
 		{
+			ReadBundlesOnly = bundlesOnly;
 			TocChunks.Clear();
 			ChunkIndexToChunkId.Clear();
 			TocChunkInfo.Clear();
@@ -218,7 +221,7 @@ namespace FIFA21Plugin
 					Bundles.Add(newBundleInfo);
 				}
 				nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
-				if (MetaData.ChunkFlagOffsetPosition != 0 && MetaData.ChunkFlagOffsetPosition != 32)
+				//if (MetaData.ChunkFlagOffsetPosition != 0 && MetaData.ChunkFlagOffsetPosition != 32)
 				{
 					if (MetaData.ChunkCount > 0)
 					{

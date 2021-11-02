@@ -87,10 +87,13 @@ namespace FIFA21Plugin
                         //if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
                         //	continue;
 
-                        if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
-                            continue;
+                        //if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
+                        //    continue;
 
-                        if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                        //if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                        //    continue;
+
+                        if (sbName.Contains("storysba", StringComparison.OrdinalIgnoreCase))
                             continue;
 
                         parent.logger.Log($"Loading data ({sbName})");

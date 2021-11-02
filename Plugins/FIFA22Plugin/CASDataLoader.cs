@@ -174,7 +174,6 @@ namespace FIFA22Plugin
                                     ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                                     //ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
-                                    ebxAssetEntry.TOCFileLocations = new HashSet<string>();
                                     ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
@@ -183,16 +182,16 @@ namespace FIFA22Plugin
                                     ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
                                     ebxAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
 
-                                    if (AssociatedTOCFile.ProcessData)
-                                    {
-                                        if (AssetManager.Instance.EBX.ContainsKey(ebxAssetEntry.Name.ToLower()))
-                                        {
-                                            var originalEbx = AssetManager.Instance.EBX[ebxAssetEntry.Name.ToLower()];
-                                            ebxAssetEntry.TOCFileLocations = originalEbx.TOCFileLocations;
-                                            ebxAssetEntry.TOCFileLocations.Add(AssociatedTOCFile.NativeFileLocation);
-                                        }
+                                    //if (AssociatedTOCFile.ProcessData)
+                                    //{
+                                    //    if (AssetManager.Instance.EBX.ContainsKey(ebxAssetEntry.Name.ToLower()))
+                                    //    {
+                                    //        var originalEbx = AssetManager.Instance.EBX[ebxAssetEntry.Name.ToLower()];
+                                    //        ebxAssetEntry.TOCFileLocations = originalEbx.TOCFileLocations;
+                                    //        ebxAssetEntry.TOCFileLocations.Add(AssociatedTOCFile.NativeFileLocation);
+                                    //    }
                                         AssetManager.Instance.AddEbx(ebxAssetEntry);
-                                    }
+                                    //}
                                 }
 
                                 var iRes = 0;
@@ -219,7 +218,7 @@ namespace FIFA22Plugin
 
                                     resAssetEntry.CASFileLocation = NativeFileLocation;
                                     resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
-                                    resAssetEntry.TOCFileLocations = new HashSet<string>();
+                                    //resAssetEntry.TOCFileLocations = new HashSet<string>();
 
                                     resAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
@@ -258,7 +257,6 @@ namespace FIFA22Plugin
 
                                     chunkAssetEntry.CASFileLocation = NativeFileLocation;
                                     chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
-                                    chunkAssetEntry.TOCFileLocations = new HashSet<string>();
 
                                     chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
@@ -266,7 +264,7 @@ namespace FIFA22Plugin
                                     chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
                                     chunkAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
-                                    if (AssociatedTOCFile.ProcessData)
+                                    //if (AssociatedTOCFile.ProcessData)
                                         AssetManager.Instance.AddChunk(chunkAssetEntry);
 
                                     iChunk++;

@@ -282,17 +282,21 @@ namespace FrostbiteModdingTests
         public void TestGPMod()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);
-            //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            //projectManagement.Project = new FrostySdk.FrostbiteProject();
-            //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbproject");
-            //projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
-            
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 8 Alpha 12.fbproject");
+
+            if (File.Exists("test.fbmod"))
+                File.Delete("test.fbmod");
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
-                    @"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
-                    //"test.fbmod"
+                    //@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
+                    "test.fbmod"
                 }.ToArray()).Wait();
 
         }

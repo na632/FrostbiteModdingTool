@@ -153,15 +153,16 @@ namespace FrostySdk
 				}
 				else
 				{
-					ebxBaseWriter =
-					(
-					ProfilesLibrary.IsFIFA20DataVersion()
-					|| ProfilesLibrary.IsFIFA21DataVersion()
-					|| ProfilesLibrary.IsMadden21DataVersion()
-					)
+					throw new Exception("No EBX Writer provided for Game Profile");
+					//ebxBaseWriter =
+					//(
+					//ProfilesLibrary.IsFIFA20DataVersion()
+					//|| ProfilesLibrary.IsFIFA21DataVersion()
+					//|| ProfilesLibrary.IsMadden21DataVersion()
+					//)
 
-					? (EbxBaseWriter)new EbxWriterV2(new MemoryStream(), EbxWriteFlags.None, false)
-					: ((EbxBaseWriter)new EbxWriter(new MemoryStream(), EbxWriteFlags.None, false));
+					//? (EbxBaseWriter)new EbxWriterV2(new MemoryStream(), EbxWriteFlags.None, false)
+					//: ((EbxBaseWriter)new EbxWriter(new MemoryStream(), EbxWriteFlags.None, false));
 				}
 
                 using (ebxBaseWriter)
