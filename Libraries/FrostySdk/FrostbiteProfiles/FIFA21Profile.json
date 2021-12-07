@@ -15,7 +15,7 @@
   // EBX Reader (Overriding the base Reader)
   "EBXReader": "EBXReaderV2",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EBXWriterV2",
+  "EBXWriter": "EBXWriter2021",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)

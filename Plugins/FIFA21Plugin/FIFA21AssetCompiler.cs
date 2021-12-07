@@ -175,13 +175,16 @@ namespace FIFA21Plugin
                 var fIDest = new FileInfo(finalDestinationPath);
                 var fIOrig = new FileInfo(originalFilePath);
 
+                var isPatch = fIOrig.FullName.Contains("Patch", StringComparison.OrdinalIgnoreCase);
+
                 if (fIDest.Exists && finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                 {
                     var isCas = fIDest.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase);
-
+                    var twogbinsize = 2L * (1048576L * 1024L);
                     if (
                         isCas
                         && fIDest.Length != fIOrig.Length
+                        && (isPatch || (fIDest.Length >= twogbinsize))
                         )
                     {
                         fIDest.Delete();

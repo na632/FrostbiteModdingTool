@@ -172,7 +172,13 @@ namespace FrostySdk
 					newAsset.ParentEntry = entry;
 					ebxBaseWriter.WriteAsset(newAsset);
 
-					byte[] array = Utils.CompressFile(((MemoryStream)ebxBaseWriter.BaseStream).ToArray(), null, ResourceType.Invalid, compressionOverride);
+					byte[] uncompArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
+					byte[] array = Utils.CompressFile(uncompArray, null, ResourceType.Invalid, compressionOverride);
+					if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021))
+                    {
+						File.WriteAllBytes("ebxV2_" + entry.Filename.Replace("\\", "_") + "_new.dat", uncompArray); 
+					}
+
 
 					// this writes to Original Size not Size of the data ?!
 					//size = array.Length;

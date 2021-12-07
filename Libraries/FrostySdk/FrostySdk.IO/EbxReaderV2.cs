@@ -92,6 +92,10 @@ namespace FrostySdk.IO
 			//		patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_Patch.ebx", patch: true);
 			//	}
 			//}
+
+
+
+
 			patched = inPatched;
 			ebxVersion = (EbxVersion)ReadUInt32LittleEndian();
 			if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
@@ -194,7 +198,20 @@ namespace FrostySdk.IO
 			}
 			base.Position = stringsOffset + stringsLen;
 			isValid = true;
-		}
+
+
+            if (RootType.Contains("gp_"))
+            {
+                InStream.Position = 0;
+                var fsDump = new FileStream("ebxV2_" + RootType + ".dat", FileMode.OpenOrCreate);
+                InStream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                InStream.Position = stringsOffset + stringsLen;
+            }
+
+
+        }
 
 		public override void InternalReadObjects()
 		{

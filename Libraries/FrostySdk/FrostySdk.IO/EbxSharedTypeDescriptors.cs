@@ -113,7 +113,7 @@ namespace FrostySdk.IO
 				for (int i = 0; i < stdFieldCount; i++)
 				{
 					uint nameHash = nativeReader.ReadUInt();
-					string actualfieldname = GetPropertyName(nameHash);
+					//string actualfieldname = GetPropertyName(nameHash);
 					EbxField item = new EbxField
 					{
 						NameHash = nameHash,
@@ -129,6 +129,11 @@ namespace FrostySdk.IO
 				for (int j = 0; j < stdClassCount; j++)
 				{
 					Guid guid = nativeReader.ReadGuid(); // 16
+					if(guid.ToString() == "0ddd3260-f601-bf35-b5d8-5ddcfb1d3567")
+                    {
+
+                    }
+
 					Guid b = nativeReader.ReadGuid(); // 16
 					if (guid.Equals(b))
 					{
