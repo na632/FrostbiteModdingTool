@@ -279,6 +279,28 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ReadSimpleGPFile()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var simpleEbxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_facialanim_runtime");
+            Assert.IsNotNull(simpleEbxEntry);
+            var simpleAsset = AssetManager.Instance.GetEbx(simpleEbxEntry);
+        }
+
+        [TestMethod]
+        public void ReadComplexGPFile()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+        }
+
+        [TestMethod]
         public void TestGPMod()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);

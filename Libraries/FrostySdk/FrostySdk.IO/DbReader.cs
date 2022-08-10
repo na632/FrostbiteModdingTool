@@ -2,15 +2,37 @@ using FrostySdk.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace FrostySdk.IO
 {
 	public class DbReader : NativeReader
 	{
+		public byte[] Key { get; set; }
+		public DbReader(Stream inStream) : base(inStream)
+        {
+
+        }
+
 		public DbReader(Stream inStream, IDeobfuscator inDeobfuscator)
 			: base(inStream, inDeobfuscator)
 		{
+			if(inDeobfuscator != null)
+            {
+				
+            }
 		}
+
+		public static DbReader GetDbReader(Stream stream, bool readHeader)
+        {
+			DbReader dbReader = new DbReader(stream);
+			dbReader.Position = 0;
+			if(readHeader)
+            {
+				dbReader.ReadHeader();
+            }
+			return dbReader;
+        }
 
 		public virtual DbObject ReadDbObject()
 		{
@@ -97,5 +119,29 @@ namespace FrostySdk.IO
 				return null;
 			}
 		}
+
+		public byte[] ReadHeader()
+		{
+			int header = this.ReadInt32BigEndian();
+			if (header == 13749760 || header == 13749761)
+			{
+				if (header == 13749761)
+				{
+					stream.Position = 296L;
+					Key = this.ReadBytes(260);
+					for (int index = 0; index < Key.Length; index++)
+					{
+						Key[index] ^= 123;
+					}
+				}
+				stream.Position = 556L;
+			}
+			else
+			{
+				_ = 13749763;
+			}
+			return Key;
+		}
+
 	}
 }

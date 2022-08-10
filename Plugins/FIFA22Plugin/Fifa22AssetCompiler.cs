@@ -208,28 +208,28 @@ namespace FIFA22Plugin
         public int ModifiedCount_Chunks = 0;
 
         private class BundleFileEntry
+        {
+            public int CasIndex;
+
+            public int Offset;
+
+            public int Size;
+
+            public BundleFileEntry(int inCasIndex, int inOffset, int inSize)
             {
-                public int CasIndex;
-
-                public int Offset;
-
-                public int Size;
-
-                public BundleFileEntry(int inCasIndex, int inOffset, int inSize)
-                {
-                    CasIndex = inCasIndex;
-                    Offset = inOffset;
-                    Size = inSize;
-                }
+                CasIndex = inCasIndex;
+                Offset = inOffset;
+                Size = inSize;
             }
+        }
 
-            private static readonly object locker = new object();
+        private static readonly object locker = new object();
 
-            public static int CasFileCount = 0;
+        public static int CasFileCount = 0;
 
-            private Dictionary<int, string> casFiles = new Dictionary<int, string>();
+        private Dictionary<int, string> casFiles = new Dictionary<int, string>();
 
-            public Dictionary<int, string> CasFiles => casFiles;
+        public Dictionary<int, string> CasFiles => casFiles;
 
 
         Catalog catalogInfo;

@@ -356,9 +356,9 @@ namespace FrostySdk.IO
 				case EbxFieldType.String:
 					return ReadSizedString(32);
 				case EbxFieldType.CString:
-					//return ReadCString(ReadUInt());
-					return ReadCString(ReadUInt(), false);
-				case EbxFieldType.Enum:
+                    return ReadCString(ReadUInt());
+                //return ReadCString(ReadUInt(), false);
+                case EbxFieldType.Enum:
 					return ReadInt32LittleEndian();
 				case EbxFieldType.FileRef:
 					return ReadFileRef();

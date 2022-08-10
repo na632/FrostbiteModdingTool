@@ -95,7 +95,7 @@ namespace FrostbiteModdingTests
         {
             var buildCache = new BuildCache();
             buildCache.LoadData("Fifa22", GamePath, this, false, false);
-            EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2(FileSystem.Instance, "SharedTypeDescriptors.ebx", false);
+            EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors.ebx", false);
         }
 
         [TestMethod]

@@ -458,34 +458,43 @@ namespace FrostySdk
 				return dbObject;
 			}
 
+			var fsInitfs = new FileReader(new FileStream(text, FileMode.Open, FileAccess.Read));
+			MemoryStream msInitFs = new MemoryStream(fsInitfs.ReadToEnd());
+			bool isEncrypted;
+			fsInitfs.Dispose();
+
 			// Go down to 556 (like TOC) using Deobfuscator
-			using (DbReader dbReader = new DbReader(new FileStream(text, FileMode.Open, FileAccess.Read), CreateDeobfuscator()))
+			//using (DbReader dbReader = new DbReader(msInitFs, CreateDeobfuscator()))
+			using (DbReader dbReader = DbReader.GetDbReader(msInitFs, true))
 			{
 				// Read the Object (encrypted)
 				dbObject = dbReader.ReadDbObject();
-				
-					byte[] value = dbObject.GetValue<byte[]>("encrypted");
-				if (value != null)
+
+				byte[] encryptedData = dbObject.GetValue<byte[]>("encrypted");
+				if (encryptedData != null)
 				{
 					if (key == null)
 					{
 						Debug.WriteLine("[DEBUG] LoadInitfs()::Key is not available");
 						return dbObject;
 					}
+
+					MemoryStream decryptedData = new MemoryStream(encryptedData);
 					using (Aes aes = Aes.Create())
 					{
 						aes.Key = key;
 						aes.IV = key;
 						ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
-						using (MemoryStream stream = new MemoryStream(value))
+						using (MemoryStream stream = new MemoryStream(encryptedData))
 						{
 							using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
 							{
-								cryptoStream.Read(value, 0, value.Length);
+								cryptoStream.CopyTo(decryptedData);
+								//cryptoStream.Read(encryptedData, 0, encryptedData.Length);
 							}
 						}
 					}
-					using (DbReader dbReader2 = new DbReader(new MemoryStream(value), CreateDeobfuscator()))
+					using (DbReader dbReader2 = DbReader.GetDbReader(decryptedData, false)) // new DbReader(decryptedData, CreateDeobfuscator()))
 					{
 						dbObject = dbReader2.ReadDbObject();
 					}
@@ -499,7 +508,7 @@ namespace FrostySdk
 					if (!memoryFs.ContainsKey(nameOfItem))
 					{
 						var nameOfFile = nameOfItem;
-						if(nameOfFile.Contains("/"))
+						if (nameOfFile.Contains("/"))
 							nameOfFile = nameOfItem.Split('/')[nameOfItem.Split('/').Length - 1];
 
 						var payloadOfBytes = fileItem.GetValue<byte[]>("payload");

@@ -7,7 +7,7 @@ namespace SdkGenerator.Madden20
 {
 	public class FieldInfo : BaseInfo.FieldInfo, IFieldInfo
 	{
-		private uint nameHash;
+		public int nameHash { get; set; }
         string IFieldInfo.name { get; set; }
         ushort IFieldInfo.flags { get; set; }
         uint IFieldInfo.offset { get; set; }
@@ -18,7 +18,7 @@ namespace SdkGenerator.Madden20
         public override void Read(MemoryReader reader)
 		{
 			name = reader.ReadNullTerminatedString();
-			nameHash = reader.ReadUInt();
+			nameHash = reader.ReadInt();
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();

@@ -9,7 +9,7 @@ namespace SdkGenerator.Madden21
 {
 	public class TypeInfo : ITypeInfo
 	{
-		private uint nameHash;
+		public int nameHash { get; set; }
 
 		public long[] array;
 
@@ -52,7 +52,7 @@ namespace SdkGenerator.Madden21
             {
 
             }
-			nameHash = (uint)h;
+			nameHash = h;
 			if (nameHash == 4057714583)
 			{
 

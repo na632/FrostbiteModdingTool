@@ -6,12 +6,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Frostbite Modding Tool")]
-[assembly: AssemblyDescription("Frostbite Modding Tool")]
+[assembly: AssemblyTitle("FIFA Modding Tool")]
+[assembly: AssemblyDescription("FIFA Modding Tool")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Paulv2k4")]
-[assembly: AssemblyProduct("Frostbite Modding Tool")]
-[assembly: AssemblyCopyright("Copyright © Paulv2k4 2021")]
+[assembly: AssemblyCompany("The Gameplay Team (TGT)")]
+[assembly: AssemblyProduct("FIFA Modding Tool")]
+[assembly: AssemblyCopyright("Copyright © TGT 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

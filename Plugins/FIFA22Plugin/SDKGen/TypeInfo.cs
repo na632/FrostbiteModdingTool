@@ -9,7 +9,7 @@ namespace SdkGenerator.Fifa22
 {
 	public class TypeInfo : ITypeInfo
 	{
-		private uint nameHash;
+		public int nameHash { get; set; }
 
 		public long[] array;
 
@@ -51,9 +51,15 @@ namespace SdkGenerator.Fifa22
 			{
 
 			}
+
+			if(name.Equals("AttribSchema_gp_rules_foul_playercontactscore", System.StringComparison.OrdinalIgnoreCase))
+            {
+
+            }
+
 			//var h = reader.ReadInt();
 			//nameHash = (uint)h;
-			nameHash = reader.ReadUInt();
+			nameHash = reader.ReadInt();
 			flags = reader.ReadUShort();
             flags >>= 1;
             size = reader.ReadUShort();
@@ -84,7 +90,7 @@ namespace SdkGenerator.Fifa22
 			}
 			reader.Position = namespaceNamePosition;
 			nameSpace = reader.ReadNullTerminatedString();
-			bool flag = false;
+			bool hasFields = fieldCount > 0;
 
 			reader.Position = nextTypeInfo;
 
@@ -93,19 +99,10 @@ namespace SdkGenerator.Fifa22
 			if (Type == 2)
 			{
 				reader.Position = array[6];
-				flag = true;
 			}
             else if (Type == 3)
             {
-				if (fieldCount > 0)
-				{
-					reader.Position = array[1];
-					flag = true;
-				}
-			}
-            else if (Type == 4)
-			{
-				
+				reader.Position = array[1];
 			}
 			else if (Type == 8)
 			{
@@ -113,12 +110,18 @@ namespace SdkGenerator.Fifa22
 				{
 					parentClass = 0L;
 					reader.Position = array[0];
-					flag = fieldCount > 0;
 				}
-
 			}
+			else
+            {
+				if(fieldCount > 0)
+				{
+					reader.Position = array[5];
+					hasFields = true;
+				}
+            }
 
-			if (flag)
+			if (hasFields)
 			{
 				for (int j = 0; j < fieldCount; j++)
 				{

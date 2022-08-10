@@ -173,7 +173,7 @@ namespace FIFA22Plugin
                                     bool patch = item.GetValue("patch", false);
                                     ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                                    //ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                                     ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);

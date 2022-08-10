@@ -172,7 +172,14 @@ namespace FrostySdk.IO
 				Write(instance.Count);
 			}
 			WritePadding(16);
-			long position2 = BaseStream.Position;
+			//long arrayPosition = BaseStream.Position;
+			//if(arrays.Count > 0)
+   //         {
+			//	Write(0);
+			//	Write(0);
+			//	Write((int)4);
+			//}
+			long arrayPosition = BaseStream.Position;
 			for (int j = 0; j < arrays.Count; j++)
 			{
 				Write(0);
@@ -195,7 +202,7 @@ namespace FrostySdk.IO
 			if (arrays.Count > 0)
 			{
 				position = BaseStream.Position;
-				
+
 				for (int k = 0; k < arrays.Count; k++)
 				{
 					EbxArray value = arrays[k];
@@ -210,8 +217,8 @@ namespace FrostySdk.IO
 					BaseStream.Position -= 4L;
 					arrays[k] = value;
 				}
-				BaseStream.Position += 4L;
-				WritePadding(16);
+                BaseStream.Position += 4L;
+                WritePadding(16);
 			}
 			num2 = (uint)(BaseStream.Position - num);
 			num3 = (uint)(BaseStream.Position - stringsLength - num);
@@ -231,7 +238,8 @@ namespace FrostySdk.IO
 			Write(stringsLength);
 			BaseStream.Position = 36L;
 			Write(arrayWritePosition);
-			BaseStream.Position = position2;
+			//														
+			BaseStream.Position = arrayPosition;
 			if (arrays.Count > 0)
 			{
 				

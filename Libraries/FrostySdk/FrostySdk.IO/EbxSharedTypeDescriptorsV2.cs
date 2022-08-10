@@ -116,6 +116,7 @@ namespace FrostySdk.IO
 		public int TotalFieldCount = 0;
 
 		public Dictionary<uint, Guid> ClassIdToGuid = new Dictionary<uint, Guid>();
+		public Dictionary<uint, Guid> GuidSignatures = new Dictionary<uint, Guid>();
 
 		public void Read(in byte[] data, in bool patch)
         {
@@ -127,20 +128,18 @@ namespace FrostySdk.IO
 				riffType = reader.ReadUInt();
 				reader.ReadUInt();
 				reader.ReadUInt();
-				//List<(Guid, uint)> list1 = new List<(Guid, uint)>();
-				uint count = reader.ReadUInt();
-				for (int m = 0; m < count; m++)
+				uint guidCount = reader.ReadUInt();
+				for (int m = 0; m < guidCount; m++)
 				{
-					uint unk1 = reader.ReadUInt();
+					uint guidHash = reader.ReadUInt();
 					Guid guid = reader.ReadGuid();
-					//list1.Add((guid, unk1));
 					Guids.Add(guid);
 
-					ClassIdToGuid.Add(unk1, guid);
+					ClassIdToGuid.Add(guidHash, guid);
+					GuidSignatures.Add(guidHash, guid);
 				}
-				//List<(uint, uint, int, ushort, uint, byte)> list2 = new List<(uint, uint, int, ushort, uint, byte)>();
-				count = reader.ReadUInt();
-				for (int l = 0; l < count; l++)
+				var typeCount = reader.ReadUInt();
+				for (int l = 0; l < typeCount; l++)
 				{
 					uint nameHash = reader.ReadUInt();
 					uint fieldIndex = reader.ReadUInt();
@@ -158,13 +157,11 @@ namespace FrostySdk.IO
 					ebxClass.FieldIndex = (int)fieldIndex;
 					ebxClass.FieldCount = (byte)fieldCount;
                     ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
-                    //ebxClass.Alignment = (byte)((alignment == 0) ? 4 : alignment);
-
                     ebxClass.Size = (ushort)size;
-					//ebxClass.Type = (forSdkGen ? classType : ((ushort)(classType >> 1)));
-					//ebxClass.Type = ReflectionTypeDescripter ? ((ushort)(classType >> 1)) : classType;
-					ebxClass.Type = ReflectionTypeDescripter ? classType : ((ushort)(classType >> 1));
+					//ebxClass.Type = ReflectionTypeDescripter ? classType : ((ushort)(classType >> 1));
+					ebxClass.Type = classType;
 					ebxClass.Index = l;
+					ebxClass.Name = Guids[l].ToString();
 					EbxClass value = ebxClass;
 					if (patch)
 					{
@@ -173,28 +170,24 @@ namespace FrostySdk.IO
 					Mapping.Add(Guids[l], Classes.Count);
 					Classes.Add(value);
 				}
-				//List<(uint, uint, ushort, short)> list3 = new List<(uint, uint, ushort, short)>();
 				var fieldCountInDescriptor = reader.ReadUInt();
 				for (int k = 0; k < fieldCountInDescriptor; k++)
 				{
-					uint fieldNameHash = reader.ReadUInt();
+					int fieldNameHash = reader.ReadInt();
 					uint dataOffset = reader.ReadUInt();
 					ushort type = reader.ReadUShort();
-					ushort classRef = reader.ReadUShort();// reader.ReadInt16LittleEndian();
-					//list3.Add((nameHash2, dataOffset, type, classRef));
+					short classRef = reader.ReadShort();
 					EbxField ebxField = default(EbxField);
 					ebxField.NameHash = fieldNameHash;
-                    //ebxField.Type = (ushort)(type >> 1);
-                    ebxField.Type = ReflectionTypeDescripter ? ((ushort)(type >> 1)) : type;
+                    ebxField.Type = (ushort)(type >> 1);
                     ebxField.ClassRef = (ushort)classRef;
 					ebxField.DataOffset = dataOffset;
 					ebxField.SecondOffset = 0u;
-					EbxField item = ebxField;
-					fields.Add(item);
+					fields.Add(ebxField);
 				}
 				//List<(uint, uint, uint)> list4 = new List<(uint, uint, uint)>();
-				count = reader.ReadUInt();
-				for (int j = 0; j < count; j++)
+				typeCount = reader.ReadUInt();
+				for (int j = 0; j < typeCount; j++)
 				{
 					uint nameHash3 = reader.ReadUInt();
 					uint dataOffset2 = reader.ReadUInt();
@@ -229,11 +222,11 @@ namespace FrostySdk.IO
 			}
 		}
 
-		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch) : this(fs, name, patch, true, true)
+		public EbxSharedTypeDescriptorV2(string name, bool patch) : this(name, patch, true, true)
 		{
 		}
 
-		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch, bool instantRead = true, bool viaReflection = false)
+		public EbxSharedTypeDescriptorV2(string name, bool patch, bool instantRead = true, bool viaReflection = false)
 		{
             IsPatch = patch;
             if (IsPatch)
@@ -241,7 +234,7 @@ namespace FrostySdk.IO
 
             }
 
-            var ebxtys = fs.GetFileFromMemoryFs(name);
+            var ebxtys = FileSystem.Instance.GetFileFromMemoryFs(name);
             if (File.Exists("Debugging/" + name + ".dat"))
                 File.Delete("Debugging/" + name + ".dat");
 

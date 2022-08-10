@@ -7,7 +7,7 @@ namespace SdkGenerator.Fifa21
 {
 	public class FieldInfo : IFieldInfo
 	{
-		public uint nameHash;
+        public int nameHash { get; set; }
 
 		public static Random RandomEmpty = new Random();
 
@@ -40,7 +40,7 @@ namespace SdkGenerator.Fifa21
 			{
 				name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
 			}
-			nameHash = reader.ReadUInt();
+			nameHash = reader.ReadInt();
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();

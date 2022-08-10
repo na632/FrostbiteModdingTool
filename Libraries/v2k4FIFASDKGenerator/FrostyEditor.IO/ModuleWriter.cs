@@ -141,7 +141,6 @@ namespace SdkGenerator
 				{
 					stringBuilder.AppendLine("namespace Reflection\r\n{");
 					stringBuilder.AppendLine("[" + typeof(DisplayNameAttribute).Name + "(\"" + @class.GetValue<string>("name") + "\")]");
-					//stringBuilder.AppendLine("[GuidAttribute"(\"" + @class.GetValue<Guid>("guid") + "\")]");
 					stringBuilder.AppendLine("[GuidAttribute(\"" + @class.GetValue<Guid>("guid") + "\")]");
 
 					stringBuilder.AppendLine("public class Delegate_" + @class.GetValue<Guid>("guid").ToString().Replace('-', '_') + " { }\r\n}");
@@ -548,7 +547,7 @@ namespace SdkGenerator
 			}
 			if (classObj.HasValue("nameHash"))
 			{
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0ul) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0) + ")]");
 			}
 			if (ProfilesLibrary.DataVersion == 20171117)// || ProfilesLibrary.IsFIFA21DataVersion())// || ProfilesLibrary.IsMadden21DataVersion())
 			{
@@ -622,7 +621,8 @@ namespace SdkGenerator
 			if (fieldObj.HasValue("nameHash"))
 			{
 				//stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<uint>("nameHash", 0u) + ")]");
+				//stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<uint>("nameHash", 0u) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<int>("nameHash", 0) + ")]");
 			}
 			// PG - Added this hack for a quick fix
 			//if (fieldObj.GetValue("offset", 0) < 0)

@@ -2,6 +2,7 @@
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
+using FrostySdk.IO._2022.Readers;
 using FrostySdk.Managers;
 using System;
 using System.Buffers.Binary;
@@ -1071,11 +1072,11 @@ namespace FrostySdk.FrostySdk.IO
 			}
 			EbxClass? ebxClass = null;
 			IEnumerable<TypeInfoGuidAttribute> typeInfoGuidAttributes = objType.GetCustomAttributes<TypeInfoGuidAttribute>();
-			if (EbxReaderV2.patchStd != null)
+			if (EbxReader22B.patchStd != null)
 			{
 				foreach (TypeInfoGuidAttribute typeInfoGuidAttribute2 in typeInfoGuidAttributes)
 				{
-					ebxClass = EbxReaderV2.patchStd.GetClass(typeInfoGuidAttribute2.Guid);
+					ebxClass = EbxReader22B.patchStd.GetClass(typeInfoGuidAttribute2.Guid);
 					if (ebxClass.HasValue)
 					{
 						return ebxClass.Value;
@@ -1084,7 +1085,7 @@ namespace FrostySdk.FrostySdk.IO
 			}
 			foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in typeInfoGuidAttributes)
 			{
-				ebxClass = EbxReaderV2.std.GetClass(typeInfoGuidAttribute.Guid);
+				ebxClass = EbxReader22B.std.GetClass(typeInfoGuidAttribute.Guid);
 				if (ebxClass.HasValue)
 				{
 					return ebxClass.Value;
@@ -1097,32 +1098,32 @@ namespace FrostySdk.FrostySdk.IO
 		{
 			if (classType.SecondSize == 0)
 			{
-				return EbxReaderV2.std.GetGuid(classType).Value;
+				return EbxReader22B.std.GetGuid(classType).Value;
 			}
-			return EbxReaderV2.patchStd.GetGuid(classType).Value;
+			return EbxReader22B.patchStd.GetGuid(classType).Value;
 		}
 
 		internal EbxClass GetClass(Guid guid)
 		{
-			return EbxReaderV2.std.GetClass(guid).Value;
+			return EbxReader22B.std.GetClass(guid).Value;
 		}
 
 		internal EbxField GetField(EbxClass classType, int index)
 		{
 			if (classType.SecondSize == 0)
 			{
-				return EbxReaderV2.std.GetField(index).Value;
+				return EbxReader22B.std.GetField(index).Value;
 			}
-			return EbxReaderV2.patchStd.GetField(index).Value;
+			return EbxReader22B.patchStd.GetField(index).Value;
 		}
 
 		private EbxClass GetClass(EbxClass parentClassType, EbxField field)
 		{
 			if (parentClassType.SecondSize == 0)
 			{
-				return EbxReaderV2.std.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
+				return EbxReader22B.std.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
 			}
-			return EbxReaderV2.patchStd.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
+			return EbxReader22B.patchStd.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
 		}
 	}
 
