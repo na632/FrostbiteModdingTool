@@ -34,12 +34,18 @@ namespace FrostbiteModdingUI.Pages.Common.EBX
             foreach (TextBox tb in FindVisualChildren<TextBox>(this))
             {
                 tb.TextChanged += Tb_TextChanged;
+
+                tb.LostKeyboardFocus += Tb_LostKeyboardFocus;
             }
+        }
+
+        private void Tb_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            Editor.CurrentEditorInstance.SaveToRootObject();
         }
 
         private void Tb_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Editor.CurrentEditorInstance.SaveToRootObject();
         }
 
         public IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject

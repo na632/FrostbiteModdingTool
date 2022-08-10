@@ -29,28 +29,28 @@ namespace CareerExpansionMod.CEM.FIFA
             var dlllocation = CEMCore.GetApplicationDirectory();
             
             var fulllocation = dlllocation + "\\CEM\\Data\\playernames.csv";
-            if(GameInstanceSingleton.GAMEVERSION == "FIFA21")
+            if(GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                 fulllocation = dlllocation + "\\CEM\\Data\\playernames_f21.csv";
 
 
             using (var reader = new StreamReader(fulllocation))
             using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
             {
-                csv.Configuration.HeaderValidated = null;
-                csv.Configuration.MissingFieldFound = null;
+                //csv.Configuration.HeaderValidated = null;
+                //csv.Configuration.MissingFieldFound = null;
                 pnames = csv.GetRecords<FIFAPlayerName>().ToList();
             }
 
             // DLC / Squad File Names
             fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames.csv";
-            if (GameInstanceSingleton.GAMEVERSION == "FIFA21")
+            if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                 fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames_f21.csv";
 
             using (var reader = new StreamReader(fulllocation))
             using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
             {
-                csv.Configuration.HeaderValidated = null;
-                csv.Configuration.MissingFieldFound = null;
+                //csv.Configuration.HeaderValidated = null;
+                //csv.Configuration.MissingFieldFound = null;
                 pnames.AddRange(csv.GetRecords<FIFAPlayerName>().ToList());
             }
 

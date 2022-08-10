@@ -1,13 +1,21 @@
 using FrostyEditor.IO;
 using FrostySdk;
+using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 
 namespace SdkGenerator.Madden20
 {
-	public class FieldInfo : BaseInfo.FieldInfo
+	public class FieldInfo : BaseInfo.FieldInfo, IFieldInfo
 	{
 		private uint nameHash;
+        string IFieldInfo.name { get; set; }
+        ushort IFieldInfo.flags { get; set; }
+        uint IFieldInfo.offset { get; set; }
+        ushort IFieldInfo.padding1 { get; set; }
+        long IFieldInfo.typeOffset { get; set; }
+        int IFieldInfo.index { get; set; }
 
-		public override void Read(MemoryReader reader)
+        public override void Read(MemoryReader reader)
 		{
 			name = reader.ReadNullTerminatedString();
 			nameHash = reader.ReadUInt();

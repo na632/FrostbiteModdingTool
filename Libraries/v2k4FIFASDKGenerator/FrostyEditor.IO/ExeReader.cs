@@ -1,3 +1,5 @@
+using FrostbiteSdk;
+
 namespace FrostyEditor.IO
 {
 	public class ExeReader : MemoryReader

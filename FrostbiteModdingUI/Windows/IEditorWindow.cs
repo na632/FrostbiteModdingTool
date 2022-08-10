@@ -11,6 +11,14 @@ namespace FrostbiteModdingUI.Windows
     public interface IEditorWindow : ILogger
     {
         public Window OwnerWindow { get; set; }
+
+        public void UpdateAllBrowsersFull();
+
         public void UpdateAllBrowsers();
+
+        public string LastGameLocation { get; }
+
+        public string RecentFilesLocation { get; }
+
     }
 }

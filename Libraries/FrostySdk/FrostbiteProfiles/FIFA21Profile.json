@@ -1,0 +1,70 @@
+{
+  "Name": "FIFA21",
+  "DisplayName": "FIFA 21",
+  "DataVersion": 20200929,
+  "CacheName": "fifa21",
+  "Deobfuscator": "NullDeobfuscator",
+  "KeyFile": "fifa21.key",
+  "AssetLoader": "FIFA21AssetLoader",
+  "AssetCompiler": "FIFA21AssetCompiler",
+  "EditorScreen": "FIFA21Editor",
+  // Texture Importer (Overriding the base Importer)
+  "TextureImporter": "FIFA21TextureImporter",
+  // Texture Exporter (Overriding the base Exporter)
+  "TextureExporter": "TextureExporter",
+  // EBX Reader (Overriding the base Reader)
+  "EBXReader": "EBXReaderV2",
+  // EBX Writer (Overriding the base Writer)
+  "EBXWriter": "EBXWriter2021",
+  // EBX Importer (Overriding the base Importer)
+  "EBXImporter": null,
+  // EBX Exporter (Overriding the base Exporter)
+  "EBXExporter": null,
+  "Sources": [
+    {
+      "Path": "Patch",
+      "SubDirs": false
+    },
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+  // SDK Filename
+  "SDKFilename": "FIFA21SDK",
+  // SDK First Type Info (Only used if SDKAOBScan is not provided)
+  "SDKFirstTypeInfo": null,
+  // SDK Array of Bytes to scan to get first type info address
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  "SDKClassesFile": "M22.Classes.txt",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa21.ClassInfo",
+  // Supported Launcher Filetypes
+  "SupportedLauncherFileTypes": [ "lmod", "fbmod", "fifamod" ],
+  // Will the Launcher support this Game?
+  "CanLaunchMods": true,
+  // Can this Application Edit this Game?
+  "CanEdit": true,
+  //"EBXTypeDescriptor": "EbxSharedTypeDescriptors",
+
+  "Banner": "",
+  "EbxVersion": 4,
+  "RequiresKey": true,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
+  "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
+  "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
+  "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
+  "SharedBundles": {},
+  "IgnoredResTypes": [],
+  "CanImportMeshes": true,
+  "CanExportMeshes": true,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16,
+  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatRES": "Oodle",
+  "CompressedFormatChunk": "Oodle",
+  "CompressedFormatLegacy": "None",
+  "LegacyFileManager": "LegacyFileManager_FMTV2"
+
+}

@@ -9,10 +9,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,7 +26,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using v2k4FIFAModding;
-using Windows.Foundation.Metadata;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -126,13 +127,15 @@ namespace FIFAModdingUI.Pages.Common
 				if (_rootObjProps == null)
 				{
 					_rootObjProps = new List<ModdableProperty>();
-
-					foreach (var p in RootObject.GetType().GetProperties())
+					if (RootObject != null)
 					{
-						var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null), Modprop_PropertyChanged);
-						_rootObjProps.Add(modprop);
+						foreach (var p in RootObject.GetType().GetProperties())
+						{
+							var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(RootObject, null), Modprop_PropertyChanged);
+							_rootObjProps.Add(modprop);
+						}
+						return _rootObjProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 					}
-					return _rootObjProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 				}
 				return _rootObjProps;
 			}
@@ -158,13 +161,15 @@ namespace FIFAModdingUI.Pages.Common
 					_VanillaRootProps = new List<ModdableProperty>();
 
 					var vanillaEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false);
-
-					foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
+					if (vanillaEbx != null)
 					{
-						var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
-						_VanillaRootProps.Add(modprop);
+						foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
+						{
+							var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
+							_VanillaRootProps.Add(modprop);
+						}
+						return _VanillaRootProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 					}
-					return _VanillaRootProps.OrderBy(x => x.PropertyName == "BaseField").ThenBy(x => x.PropertyName).ToList();
 				}
 				return _VanillaRootProps;
 			}
@@ -198,14 +203,15 @@ namespace FIFAModdingUI.Pages.Common
 		public EbxAsset Asset { get { return asset; } set { asset = value; } }
         public FrostbiteProject FrostyProject { get; protected set; }
 
-		[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
+		[Obsolete("Incorrect usage of Editor Windows")]
+
 		public Editor()
 		{
             InitializeComponent();
 			this.DataContext = Asset;
 		}
 
-		[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
+		//[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
 		public Editor(EbxAsset ebx
 			)
 		{
@@ -220,28 +226,32 @@ namespace FIFAModdingUI.Pages.Common
 
 		public static Editor CurrentEditorInstance { get; set; }
 
-		public Editor(AssetEntry inAssetEntry
-			, EbxAsset inAsset
-			, FrostbiteProject frostyProject
-			, IEditorWindow inEditorWindow)
-		{
-			InitializeComponent();
-			CurrentEditorInstance = this;
-			PropertyChanged += Editor_PropertyChanged;
-			LoadEbx(inAssetEntry, inAsset, frostyProject, inEditorWindow);
+		//public Editor(AssetEntry inAssetEntry
+		//	, EbxAsset inAsset
+		//	, FrostbiteProject frostyProject
+		//	, IEditorWindow inEditorWindow)
+		//{
+		//	InitializeComponent();
+		//	CurrentEditorInstance = this;
+		//	PropertyChanged += Editor_PropertyChanged;
+		//	LoadEbx(inAssetEntry, inAsset, frostyProject, inEditorWindow);
 			
-		}
+		//}
 
-		public async void LoadEbx(AssetEntry inAssetEntry
+		public async Task<bool> LoadEbx(AssetEntry inAssetEntry
 			, EbxAsset inAsset
 			, FrostbiteProject frostyProject
 			, IEditorWindow inEditorWindow)
         {
-			LoadingDialog loadingDialog = new LoadingDialog("Loading EBX", "Loading EBX");
-			loadingDialog.Show();
-			loadingDialog.Update("Loading EBX", "Loading EBX");
+			CurrentEditorInstance = this;
+			//vanillaAnchorable.Hide();
+			vanillaAnchorable.ToggleAutoHide();
 
-			await Task.Delay(1);
+			//LoadingDialog loadingDialog = new LoadingDialog();
+			//loadingDialog.Show();
+			//await loadingDialog.UpdateAsync("Loading EBX", "Loading EBX");
+
+			//await Task.Delay(1);
 
 			_VanillaRootProps = null;
 			_rootObjProps = null;
@@ -252,37 +262,27 @@ namespace FIFAModdingUI.Pages.Common
 			FrostyProject = frostyProject;
 			EditorWindow = inEditorWindow;
 
-
-			//this.TreeView1.DataContext = RootObject;
-			//this.TreeViewOriginal.DataContext = RootObject;
-			//this.TreeView2.DataContext = RootObject;
-
-			loadingDialog.Update("Loading EBX", "Building Tree Views");
-			await Task.Run(async() =>
-			{
-
-				await Dispatcher.InvokeAsync(() =>
+			bool success = true;
+			//await loadingDialog.UpdateAsync("Loading EBX", "Building Tree Views");
+			
+				Dispatcher.Invoke(() =>
 				{
 					this.DataContext = this;
 
-					CreateEditor(RootObjectProperties, TreeView1);
-				});
-				await Dispatcher.InvokeAsync(() =>
-				{
-					CreateEditor(VanillaRootObjectProperties, TreeViewOriginal);
+					success = CreateEditor(RootObjectProperties, TreeView1).Result;
+					success = CreateEditor(VanillaRootObjectProperties, TreeViewOriginal).Result;
 				});
 
-			});
-
-			loadingDialog.Close();
-			loadingDialog = null;
+			//loadingDialog.Close();
+			//loadingDialog = null;
+			return success;
 		}
 
         private void Editor_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
         }
 
-        public bool CreateEditor(object d, TreeView treeView)
+        public async Task<bool> CreateEditor(object d, TreeView treeView)
 		{
 			var propertyNSearch = ((Type)d.GetType()).ToString().ToLower().Replace(".", "_", StringComparison.OrdinalIgnoreCase);
 
@@ -297,12 +297,12 @@ namespace FIFAModdingUI.Pages.Common
 					var lst = mp.PropertyValue as IList;
 					foreach (var item in lst)
 					{
-						CreateEditor(item, treeView);
+						await CreateEditor(item, treeView);
 					}
 				}
 				else
                 {
-					CreateEditor(d, treeView);
+					await CreateEditor(d, treeView);
 				}
 			}
             if (ty != null)
@@ -333,8 +333,10 @@ namespace FIFAModdingUI.Pages.Common
 			   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<object, object>));
 		}
 
-		public void CreateEditor(List<ModdableProperty> moddableProperties, TreeView treeView)
+		public async Task<bool> CreateEditor(List<ModdableProperty> moddableProperties, TreeView treeView)
         {
+			bool success = true;
+
 			treeView.Items.Clear();
 			foreach (var p in moddableProperties)
 			{
@@ -401,15 +403,26 @@ namespace FIFAModdingUI.Pages.Common
 										PointsTreeViewParent.Header = "Points";
 										propTreeViewParent.Items.Add(PointsTreeViewParent);
 
+									
+
 										// Number of Points
 										var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = FloatCurve.Points.Count.ToString() };
-										txtNumberOfPoints.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
+										txtNumberOfPoints.TextChanged += (object sender, TextChangedEventArgs e) =>
 										{
 											AssetHasChanged(sender as TextBox, p.PropertyName);
 										};
-										PointsTreeViewParent.Items.Add(txtNumberOfPoints);
 
-										for (var i = 0; i < FloatCurve.Points.Count; i++)
+									Grid gridNumberOfPoints = new Grid();
+									gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
+									gridNumberOfPoints.ColumnDefinitions.Add(new ColumnDefinition());
+									Label lblNumberOfPoints = new Label() { Content = "Point Count: " };
+									Grid.SetColumn(lblNumberOfPoints, 0);
+									Grid.SetColumn(txtNumberOfPoints, 1);
+									gridNumberOfPoints.Children.Add(lblNumberOfPoints);
+									gridNumberOfPoints.Children.Add(txtNumberOfPoints);
+									PointsTreeViewParent.Items.Add(gridNumberOfPoints);
+
+									for (var i = 0; i < FloatCurve.Points.Count; i++)
 										{
 											var point = FloatCurve.Points[i];
 											if (point != null)
@@ -420,7 +433,7 @@ namespace FIFAModdingUI.Pages.Common
 
 												var txtPointX = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_X"
 													, Text = FloatCurve.Points[i].X.ToString() };
-												txtPointX.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
+												txtPointX.LostFocus += (object sender, RoutedEventArgs e) =>
 												{
 													AssetHasChanged(sender as TextBox, p.PropertyName);
 												};
@@ -613,7 +626,9 @@ namespace FIFAModdingUI.Pages.Common
                             break;
 
 						default:
-							EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
+							//EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
+							success = false;
+
 							break;
 
 
@@ -623,15 +638,10 @@ namespace FIFAModdingUI.Pages.Common
 					treeView.Items.Add(propTreeViewParent);
 
 			}
-
+			return success;
 		}
 
-        private void Chk_Checked(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AssetHasChanged(TextBox sender, string propName)
+        public async Task AssetHasChanged(TextBox sender, string propName)
 		{
 			if (string.IsNullOrEmpty(sender.Text))
 				return;
@@ -653,39 +663,41 @@ namespace FIFAModdingUI.Pages.Common
 								{
 									var fcp = floatCurve.GetPropertyValue("Points");
 									var pntsType = fcp.GetType();
-									var Points = ((IEnumerable<object>)floatCurve.GetPropertyValue("Points")).ToList();
+
+									var Points = ((IList)floatCurve.GetPropertyValue("Points"));
 									if (Points != null) 
 									{
 										if (int.TryParse(sender.Text, out int numberOfNewPoints))
 										{
-											var lastPoint = Points.Last();
+											var lastPoint = Points[Points.Count - 1];
 
-											if (numberOfNewPoints == 0)
+											if (numberOfNewPoints <= 0)
 											{
 												Points.Clear();
-												Points.Add(lastPoint);
+												Points.Insert(0, lastPoint);
 											}
 											else
                                             {
 												if(numberOfNewPoints < Points.Count)
                                                 {
-													Points = Points.Take(numberOfNewPoints).ToList();
-                                                }
+													for (var iPoint = 0; iPoint < numberOfNewPoints; iPoint++)
+													{
+														Points.RemoveAt(Points.Count - 1);
+													}
+												}
 												else
                                                 {
 													for(var iPoint = Points.Count; iPoint < numberOfNewPoints; iPoint++)
                                                     {
-														Points.Add(lastPoint);
-                                                    }
-                                                }
+														Points.Insert(Points.Count - 1, Points[Points.Count - 1]);
+													}
+												}
                                             }
 										}
-										v2k4Util.SetPropertyValue(floatCurve, "Points", Points);
-										//propertyInfo?.GetValue(obj).GetType().GetMethod("Add")
-										//.Invoke(propertyInfo.GetValue(obj), new object[1]
-										//{
-										//obj2
-										//});
+										v2k4Util.SetPropertyValue<IList>(floatCurve, "Points", Points);
+
+										await SaveToRootObject(true);
+										//LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
 									}
 								}
                             }
@@ -718,7 +730,7 @@ namespace FIFAModdingUI.Pages.Common
 										v2k4Util.SetPropertyValue(FloatCurve.Points[index], "Y", fcPoint.Y);
 									}
 
-									SaveToRootObject();
+									await SaveToRootObject();
 
 
 								}
@@ -777,22 +789,61 @@ namespace FIFAModdingUI.Pages.Common
 				}
 
 			}
-            catch
+            catch(Exception e)
             {
+				Debug.WriteLine(e.ToString());
             }
 
 			if (EditorWindow != null)
 				EditorWindow.UpdateAllBrowsers();
 		}
 
-        public void SaveToRootObject()
+        public async Task SaveToRootObject(bool forceReload = false)
         {
-			FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
-			//FrostyProject.Save("GameplayProject.fbproject", true);
+			LoadingDialog loadingDialog = null;
+			//await Dispatcher.InvokeAsync(() =>
+			//{
+			//	loadingDialog = new LoadingDialog("Saving hotspot", "Saving hotspot");
+			//	loadingDialog.Show();
+			//});
+
+			await Task.Run(() =>
+			{
+				try
+				{
+					FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+                }
+                catch { }
+				//FrostyProject.Save("GameplayProject.fbproject", true);
+			});
+
+			//await loadingDialog.UpdateAsync("Saving hotspot", "Updating browsers");
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (EditorWindow != null)
+                    EditorWindow.UpdateAllBrowsers();
+            });
+
+            await Dispatcher.InvokeAsync(() =>
+			{
+				if (loadingDialog != null)
+				{
+					loadingDialog.Close();
+					loadingDialog = null;
+				}
+			});
+
+			if (forceReload)
+			{
+				await LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
+			}
+			//await CreateEditor(RootObjectProperties.OrderBy(x => x.PropertyName), TreeView1);
+
 		}
 
 
-        private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
+		private void chkImportFromFiles_Checked(object sender, RoutedEventArgs e)
         {
 			var listoffiles = FrostbiteModWriter.EbxResource.ListOfEBXRawFilesToUse;
 

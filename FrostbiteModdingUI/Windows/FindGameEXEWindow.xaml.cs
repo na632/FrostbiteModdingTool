@@ -1,4 +1,5 @@
 ﻿using FIFAModdingUI;
+using FMT;
 using FrostbiteModdingUI.Models;
 using FrostySdk;
 using Microsoft.Win32;
@@ -66,10 +67,11 @@ namespace FrostbiteModdingUI.Windows
 
                 if (GameInstanceSingleton.InitializeSingleton(filePath))
                 {
-                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
                     {
                         throw new Exception("Unable to Initialize Profile");
                     }
+                    DialogResult = true;
                 }
                 else
                 {

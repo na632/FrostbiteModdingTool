@@ -56,14 +56,18 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
+                            <GridViewColumn Header="Legacy Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Grid.Column="1" Text="{Binding LegacyFullName}"  HorizontalAlignment="Center"></TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
             </Grid>
         </Grid>
-        <StackPanel Grid.Row="3" Orientation="Horizontal">
-            <Button x:Name="btnExtractAsset" Click="btnExtractAsset_Click">Extract Raw Decompressed</Button>
-            <Button x:Name="btnAttemptFullExtraction" Click="btnAttemptFullExtraction_Click">Extract Asset</Button>
-        </StackPanel>
+        <Button Grid.Row="3" x:Name="btnAttemptFullExtraction" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="btnAttemptFullExtraction_Click">Extract Asset</Button>
     </Grid>
 </Window>

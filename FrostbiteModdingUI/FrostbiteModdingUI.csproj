@@ -1,24 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-	<TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <PublishTrimmed>true</PublishTrimmed>
+	  <OutputType>WinExe</OutputType>
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <!--<Nullable>enable</Nullable>-->
+	  <UseWPF>true</UseWPF>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Optimize>false</Optimize>
+    <PublishTrimmed>false</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    
     <PublishReadyToRun>false</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
     <Company>PARGSoft</Company>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>paulv2k4.ico</ApplicationIcon>
-    <PlatformTarget>x64</PlatformTarget>
+   
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-	
-<PropertyGroup>
+  
   <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   <Deterministic>false</Deterministic>
+  <AssemblyName>FMT</AssemblyName>
+  <RootNamespace>FMT</RootNamespace>
 </PropertyGroup>
 
 
@@ -26,27 +29,27 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
+	<ItemGroup>
+		<SupportedPlatform Include="windows" />
+	</ItemGroup>
+	<PropertyGroup>
+		<EnableNETAnalyzers>false</EnableNETAnalyzers>
+	</PropertyGroup>
+
+
+     <ItemGroup>
+    <Page Remove="Resources\Languages\Dictionary1.xaml" />
+    <Page Remove="Resources\Languages\English.xaml" />
+    <Page Remove="Resources\Languages\German.xaml" />
+    <Page Remove="Resources\Languages\Portugese.xaml" />
+  </ItemGroup>
+
+
    <ItemGroup>
     <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
-    <Content Include="..\Libraries\FrostySdk\FIFA20Profile.json" Link="FIFA20Profile.json" />
-    <Content Include="..\Libraries\FrostySdk\FIFA21Profile.json" Link="FIFA21Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\Madden20Profile.json" Link="Madden20Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </Content>
-    <Content Include="..\Libraries\FrostySdk\Madden21Profile.json" Link="Madden21Profile.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -55,8 +58,25 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </Content>
+    <Content Include="Resources\images\FIFA20Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="Resources\images\FIFA21Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="Resources\images\Madden21Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="Resources\images\Madden22Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </Content>
     <Content Include="Resources\images\PAULV2K4MODDINGTOOL2.png">
@@ -91,38 +111,33 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\_FIFA20_base.ini" />
-    <EmbeddedResource Include="Resources\Classes.txt">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
-    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
+    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
     <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
 	  <PackageReference Include="HelixToolkit" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.Core.WPF" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.SharpDX.Core" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.10.0" />
 	  <PackageReference Include="HelixToolkit.SharpDX.Assimp" Version="2.10.0" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.3" />
-    <PackageReference Include="MaterialDesignThemes" Version="3.0.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.17.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.17.0" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.7" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="0.1.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.14.0" />
-    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView" Version="6.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Pfim" Version="0.9.1" />
+    <PackageReference Include="NetDiscordRpc" Version="1.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
     <PackageReference Include="System.Management" Version="4.7.0" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
+    <PackageReference Include="WPFHexaEditor" Version="2.1.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -130,7 +145,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\Libraries\CSIL\CSIL.csproj">
+		  
+	  </ProjectReference>
+    <ProjectReference Include="..\Libraries\FMT.Controls\FMT.Controls.csproj" />
+	  <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj">
+	  </ProjectReference>
     <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
     <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
     <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
@@ -195,6 +215,11 @@
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Plugins\FIFA20Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -204,72 +229,106 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
-    <None Update="Resources\images\PAUL-TOOL-COVER.jpg">
+    <None Update="Resources\images\FIFA22Cover.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+	<None Update="Resources\images\PAUL-TOOL-COVER.jpg">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+    <None Update="SDK\BF4SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Update="SDK\FIFA19SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
     <None Update="SDK\FIFA20SDK.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
     <None Update="SDK\FIFA21SDK.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Update="SDK\MADDEN21SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
+    <None Update="SDK\MADDEN22SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+	  <None Update="SDK\FIFA22SDK.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	  </None>
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\ThreeD\" />
+    <Folder Include="NewFolder\" />
+    <Folder Include="Pages\Common\Property\" />
     <Folder Include="Pages\Gameplay\" />
-    <Folder Include="Plugins\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="Util\" />
+    <Folder Include="Windows\Editors\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Libraries\FrostySdk\fifa21.key" Link="fifa21.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
     <None Include="..\Libraries\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
-    <None Include="..\Plugins\BFVPlugin\bin\Debug\netstandard2.1\BFVPlugin.dll" Link="Plugins\BFVPlugin.dll">
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\net6.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\FIFA20Plugin\bin\Debug\netstandard2.1\FIFA20Plugin.dll" Link="Plugins\FIFA20Plugin.dll">
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\net6.0-windows\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\netstandard2.1\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+    <None Include="..\Plugins\Madden21Plugin\bin\Debug\net6.0-windows\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\netstandard2.1\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+    <None Include="..\Plugins\Madden22Plugin\bin\Debug\net6.0-windows\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
-    <None Include="..\Plugins\Madden21Plugin\bin\Debug\netstandard2.1\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
-    <None Include="..\Plugins\Madden22Plugin\bin\Debug\netstandard2.1\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+    <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+    <None Include="C:\Windows\System32\vcruntime140d.dll" Link="vcruntime140d.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Include="C:\Windows\System32\vcruntime140_clr0400.dll" Link="vcruntime140_clr0400.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Languages\Dictionary1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\Languages\English.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator></Generator>
+    </Resource>
+    <Resource Include="Resources\Languages\German.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator></Generator>
+    </Resource>
+    <Resource Include="Resources\Languages\Portugese.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator></Generator>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -304,5 +363,7 @@
   <ItemGroup>
     <PackageReference Update="Microsoft.VCRTForwarders.140" Version="1.0.5" />
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

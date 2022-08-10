@@ -1,11 +1,24 @@
+using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 using FrostyEditor.IO;
 using System;
 
 namespace SdkGenerator.Madden21
 {
-	public class ClassInfo : BaseInfo.ClassInfo
+	public class ClassInfo : IClassInfo
 	{
-		public override void Read(MemoryReader reader)
+		public ITypeInfo typeInfo { get; set; }
+
+		public ushort id { get; set; }
+
+		public ushort isDataContainer { get; set; }
+
+		public byte[] padding { get; set; }
+
+		public long parentClass { get; set; }
+        public long nextOffset { get; set; }
+
+		public void Read(MemoryReader reader)
 		{
 			long position = reader.Position;
 

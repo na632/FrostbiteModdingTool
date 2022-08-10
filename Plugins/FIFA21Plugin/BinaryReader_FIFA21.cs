@@ -14,9 +14,11 @@ namespace FIFA21Plugin
     {
         public int SBInitialHeaderLength = 32;
 
-        public int SBInformationHeaderLength = 36;
+        //public int SBInformationHeaderLength = 36;
+        public int SBInformationHeaderLength = 32;
 
         List<long> Sha1Positions = new List<long>();
+        List<Sha1> Sha1 = new List<Sha1>();
 
 
         public SBHeaderInformation BinaryRead_FIFA21(
@@ -27,17 +29,29 @@ namespace FIFA21Plugin
             )
         {
             // Read out the Header Info
-            var SBHeaderInformation = new SBHeaderInformation(binarySbReader2, IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 4);
+            var SBHeaderInformation = new SBHeaderInformation(binarySbReader2
+                //, IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 4
+                , IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 0
+                );
+            if (!SBHeaderInformation.SuccessfullyRead)
+                return null;
+
+            dbObject.AddValue("totalCount", SBHeaderInformation.totalCount);
+            dbObject.AddValue("ebxCount", SBHeaderInformation.ebxCount);
+            dbObject.AddValue("resCount", SBHeaderInformation.resCount);
+            dbObject.AddValue("chunkCount", SBHeaderInformation.chunkCount);
+
             //
-            List<Sha1> sha1 = new List<Sha1>();
             for (int i = 0; i < SBHeaderInformation.totalCount; i++)
             {
                 Sha1Positions.Add(binarySbReader2.Position + baseBundleOffset);
-                sha1.Add(binarySbReader2.ReadSha1());
+                Sha1.Add(binarySbReader2.ReadSha1());
             }
-            dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, sha1, binarySbReader2, baseBundleOffset)));
-            dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, sha1, binarySbReader2, baseBundleOffset)));
-            dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, sha1, binarySbReader2, baseBundleOffset)));
+            dbObject.AddValue("sha1s", Sha1);
+
+            dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
+            dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
+            dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
             dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
             dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
             dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
@@ -102,11 +116,6 @@ namespace FIFA21Plugin
                 dbObject.AddValue("SB_StringOffsetPosition", reader.Position + baseBundleOffset);
                 var name = reader.ReadNullTerminatedString();
 
-                if (name.Contains("hair_227109"))
-                {
-
-                }
-
                 dbObject.AddValue("sha1", sha1[shaCount + i]);
                 //dbObject.AddValue("SB_Sha1_Position", Sha1Positions[information.ebxCount + i]);
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[shaCount + i]);
@@ -134,7 +143,9 @@ namespace FIFA21Plugin
             }
             foreach (DbObject item3 in list)
             {
-               // var resRid = reader.ReadLong(Endian.Little);
+                // var resRid = reader.ReadLong(Endian.Little);
+                item3.AddValue("SB_ReRid_Position", reader.Position + baseBundleOffset);
+
                 var resRid = reader.ReadULong(Endian.Little);
                 item3.SetValue("resRid", resRid);
             }

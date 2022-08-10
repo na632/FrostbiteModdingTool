@@ -25,6 +25,7 @@ using System.Threading;
 using HelixToolkit.SharpDX.Core.Assimp;
 using FrostySdk.Resources;
 using Frostbite.Textures;
+using FifaLibrary;
 
 namespace FrostbiteModdingUI.Pages.Player
 {
@@ -126,7 +127,6 @@ namespace FrostbiteModdingUI.Pages.Player
                     using (var fsMeta = new FileStream("Resources/FIFA21DBMeta.xml", FileMode.Open))
                     {
                         squadFile = new CareerFile(fsSquadFile, fsMeta);
-                        squadFile.Load();
 
                         dtPlayers = squadFile.Databases[0].GetTable("players").ConvertToDataTable();
                         return true;
@@ -152,9 +152,7 @@ namespace FrostbiteModdingUI.Pages.Player
                     var dbAsset2 = AssetManager.Instance.GetCustomAsset("legacy", locDB);
                     var dbMetaAsset = AssetManager.Instance.GetCustomAsset("legacy", locMeta);
 
-                    DbFile dbFile = new DbFile();
-                    dbFile.LoadXml(dbMetaAsset);
-                    dbFile.LoadDb(dbAsset2);
+                    DbFile dbFile = new DbFile(dbAsset2, dbMetaAsset);
 
                     dtPlayerNames = dbFile.GetTable("playernames").ConvertToDataTable();
                     PlayerList.Clear();

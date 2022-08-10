@@ -162,7 +162,7 @@ public class FIFAPlayerStat
 
 
 			var ingamedate = new DateTime(2019, 1, 1);
-			switch(GameInstanceSingleton.GAMEVERSION)
+			switch(GameInstanceSingleton.Instance.GAMEVERSION)
             {
 				case "FIFA20":
 					break;
@@ -330,6 +330,8 @@ public class FIFAPlayerStat
 				case 19:
 				case 35:
 					return "EFL League 2";
+				case 54:
+					return "European Int'l Cup";
 				case 55:
 					return "La Liga";
 				case 61:
@@ -339,11 +341,15 @@ public class FIFAPlayerStat
 					return "Carabao Cup";
 				case 108:
 					return "Champions League";
+				case 125:
+					return "DFB-Pokal";
 				case 140:
 				case 148:
 					return "FA Cup";
 				case 145:
 					return "Community Shield";
+				case 191:
+					return "Bundesliga";
 				case 192:
 					return "Europa League";
 				case 194:
@@ -584,7 +590,7 @@ public class FIFAPlayerStat
 			}
 			else
             {
-
+				Debug.WriteLine($"Unable to process player {playerStat.PlayerId} for competition id {playerStat.Competition} who played {playerStat.Appereances} games");
             }
 
 			return null;

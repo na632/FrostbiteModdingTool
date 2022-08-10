@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <PlatformTarget>x64</PlatformTarget>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+	  <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+	  <PackageReference Include="System.Buffers" Version="4.5.1" />
+	  <PackageReference Include="System.Memory" Version="4.5.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\..\Libraries\FrostySdk\FrostySdk.csproj" />
+	  <ProjectReference Include="..\..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+  </ItemGroup>
+</Project>

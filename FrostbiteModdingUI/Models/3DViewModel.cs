@@ -11,99 +11,280 @@ using System.Text;
 using System.Threading.Tasks;
 using HelixToolkit.SharpDX.Core;
 using HelixToolkit.SharpDX.Core.Model;
+using FrostySdk.IO;
+using FrostySdk.Ebx;
+using FrostySdk.Managers;
+using FrostySdk.Resources;
+using Frostbite.Textures;
+using System.Windows.Media;
+using Matrix = SharpDX.Matrix;
+using HelixToolkit.SharpDX.Core.Model.Scene;
 
 namespace FrostbiteModdingUI.Models
 {
-    public class MainViewModel : BaseViewModel
+    public class MainViewModel : BaseViewModel, IDisposable
     {
         public Geometry3D FloorModel { get; }
-        public Geometry3D SphereModel { get; }
-        public Geometry3D TeapotModel { get; }
-
-        public Geometry3D BunnyModel { get; set; }
-        public Geometry3D BunnyModel_1 { get; set; }
-        public Geometry3D BunnyModel_2 { get; set; }
-        public Geometry3D BunnyModel_3 { get; set; }
+        public Geometry3D MeshModel { get; set; }
+        public Geometry3D MeshModel2 { get; set; }
 
         public PhongMaterial FloorMaterial { get; }
-        public PhongMaterial SphereMaterial { get; }
 
-        public PhongMaterial BunnyMaterial { get; }
-        public Matrix[] SphereInstances { get; }
+        public PhongMaterial MeshMaterial { get; }
 
-        public Matrix[] BunnyInstances { get; }
-        public Matrix[] BunnyInstances_1 { get; }
-        public Matrix[] BunnyInstances_2 { get; }
-        public Matrix[] BunnyInstances_3 { get; }
+        public PhongMaterial MeshMaterial2 { get; }
+
+        public Matrix[] MeshInstances { get; }
+        public Matrix[] MeshInstances2 { get; }
 
         public SSAOQuality[] SSAOQualities { get; } = new SSAOQuality[] { SSAOQuality.High, SSAOQuality.Low };
 
-        public MainViewModel()
+        public SceneNodeGroupModel3D GroupModel { get; } = new SceneNodeGroupModel3D();
+
+        public TextureModel EnvironmentMap { get; }
+
+        //private bool renderEnvironmentMap = true;
+        //public bool RenderEnvironmentMap
+        //{
+        //    set
+        //    {
+        //        if (SetValue(ref renderEnvironmentMap, value) && scene != null && scene.Root != null)
+        //        {
+        //            foreach (var node in scene.Root.Traverse())
+        //            {
+        //                if (node is MaterialGeometryNode m && m.Material is PBRMaterialCore material)
+        //                {
+        //                    material.RenderEnvironmentMap = value;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    get => renderEnvironmentMap;
+        //}
+
+        private HelixToolkit.SharpDX.Core.Assimp.HelixToolkitScene scene;
+        Stream textureDDSStreamColour;
+        Stream textureDDSStreamNormal;
+
+        public MainViewModel(string file = "test_noSkel.obj", EbxAsset skinnedMeshAsset = null, MeshSet meshSet = null, EbxAssetEntry textureAsset = null)
         {
-            EffectsManager = new DefaultEffectsManager();
-            Camera = new PerspectiveCamera()
+            try
             {
-                Position = new System.Windows.Media.Media3D.Point3D(0, 0.001f, 0.001f),
-                LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -1, -1),
-                UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0),
-                FarPlaneDistance = 200,
-                NearPlaneDistance = 0.1
-            };
-
-            var builder = new MeshBuilder();
-            builder.AddBox(new Vector3(0, -0.1f, 0), 10, 0.1f, 10);
-            //builder.AddBox(new Vector3(-7, 2.5f, 0), 5, 5, 5);
-            //builder.AddBox(new Vector3(-5, 2.5f, -5), 5, 5, 5);
-            FloorModel = builder.ToMesh();
-
-            builder = new MeshBuilder();
-           // builder.AddSphere(Vector3.Zero, 1);
-            SphereModel = builder.ToMesh();
-
-            var reader = new ObjReader();
-            if (File.Exists("test_noSkel.obj"))
-            {
-                var models = reader.Read("test_noSkel.obj");
-
-                BunnyModel = models[0].Geometry;
-                BunnyMaterial = PhongMaterials.PolishedCopper;
-                BunnyMaterial.AmbientColor = BunnyMaterial.DiffuseColor * 0.5f;
-
-                if(models.Count > 1)
+                EffectsManager = new DefaultEffectsManager() {
+                };
+                Camera = new PerspectiveCamera()
                 {
-                    BunnyModel_1 = models[1].Geometry;
+                    //Position = new System.Windows.Media.Media3D.Point3D(-100, -100, -100),
+                    //LookDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, 0),
+                    UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0),
+                    //FarPlaneDistance = 3000,
+                    //NearPlaneDistance = 1
+                     
+                };
+
+                var builder = new MeshBuilder();
+                builder.AddBox(new Vector3(0, -0.1f, 0), 10, 0.1f, 10);
+                FloorModel = builder.ToMesh();
+
+                var htImporter = new HelixToolkit.SharpDX.Core.Assimp.Importer();
+                scene = htImporter.Load(file);
+
+                MeshNode firstModel = null;
+                var index = 0;
+                if (scene != null)
+                {
+                    if (scene.Root != null)
+                    {
+                        GroupModel.Clear();
+                        GroupModel.AddNode(scene.Root);
+                        foreach (SceneNode rItem in scene.Root.Items)
+                        {
+                            foreach (SceneNode item in rItem.Items)
+                            {
+                                MeshNode meshNode = item as MeshNode;
+                                if (meshNode != null && skinnedMeshAsset != null)
+                                {
+                                    if (!meshNode.Name.Contains("lod0"))
+                                    {
+                                        meshNode.Visible = false;
+                                    }
+                                    else
+                                    {
+                                        if (firstModel == null)
+                                            firstModel = meshNode;
+
+                                        textureDDSStreamColour = LoadTexture(skinnedMeshAsset, index, "colorTexture");
+                                        PhongMaterial material = new PhongMaterial
+                                        {
+                                            AmbientColor = Colors.Gray.ToColor4(),
+                                            DiffuseColor = Colors.Gray.ToColor4(),
+                                            SpecularColor = Colors.Black.ToColor4(),
+                                            SpecularShininess = 0.0015f
+                                        };
+
+                                        if (textureDDSStreamColour != null)
+                                        {
+                                            material.DiffuseMap = new TextureModel(textureDDSStreamColour);
+                                            material.SpecularColorMap = material.DiffuseMap;
+                                        }
+
+                                        textureDDSStreamNormal = LoadTexture(skinnedMeshAsset, index, "normalTexture");
+                                        if (textureDDSStreamNormal != null)
+                                        {
+                                            material.NormalMap = new TextureModel(textureDDSStreamNormal);
+                                        }
+                                        meshNode.Material = material;
+
+                                    }
+                                }
+                            }
+                            if(rItem.Items.Count > 0 && skinnedMeshAsset != null)
+                                index++;
+
+                        }
+                    }
                 }
-                if (models.Count > 2)
+
+                FloorMaterial = PhongMaterials.White;
+                FloorMaterial.AmbientColor = FloorMaterial.DiffuseColor * 0.7f;
+
+                if (Camera != null && firstModel != null)
                 {
-                    BunnyModel_2 = models[2].Geometry;
-                }
-                if (models.Count > 3)
-                {
-                    BunnyModel_3 = models[3].Geometry;
+                    Camera.Position = new System.Windows.Media.Media3D.Point3D(0.0, firstModel.Geometry.Positions[0].Y, 0.65);
                 }
             }
-            FloorMaterial = PhongMaterials.PureWhite;
-            FloorMaterial.AmbientColor = FloorMaterial.DiffuseColor * 0.5f;
-            SphereMaterial = PhongMaterials.Red;
-            SphereMaterial.AmbientColor = SphereMaterial.DiffuseColor * 0.5f;
+            catch
+            {
 
-            BunnyInstances = new Matrix[1]
-            {
-                Matrix.Translation(0, 0, 0),
-            };
-            BunnyInstances_1 = new Matrix[1]
-            {
-                Matrix.Translation(0, 0, 0),
-            };
-            BunnyInstances_2 = new Matrix[1]
-            {
-                Matrix.Translation(0, 0, 0),
-            };
-            BunnyInstances_3 = new Matrix[1]
-            {
-                Matrix.Translation(0, 0, 0),
-            };
+            }
         }
+
+
+
+
+        private Stream LoadTexture(EbxAsset ebxAsset, int materialId, string textureName)
+        {
+            var rootObject = ((dynamic)ebxAsset.RootObject);
+            if (rootObject == null)
+                return null;
+
+            if (rootObject.Materials == null)
+                return null;
+
+            if (rootObject.Materials.Count == 0)
+                return null;
+
+            dynamic meshMaterial = rootObject.Materials[materialId].Internal;
+            dynamic shader = meshMaterial.Shader;
+            dynamic desiredTextureParameter = null;
+            foreach (dynamic textureParameter2 in shader.TextureParameters)
+            {
+                if (textureParameter2.ParameterName.Equals(textureName, StringComparison.OrdinalIgnoreCase))
+                {
+                    desiredTextureParameter = textureParameter2;
+                    break;
+                }
+            }
+            if (desiredTextureParameter == null)
+            {
+                Guid shaderGuid = ((PointerRef)shader.Shader).External.FileGuid;
+                if (shaderGuid == Guid.Empty)
+                {
+                    return null;
+                }
+                EbxAssetEntry shaderAssetEntry = AssetManager.Instance.GetEbxEntry(shaderGuid.ToString());
+                if (shaderAssetEntry == null)
+                {
+                    return null;
+                }
+                EbxAsset shaderAsset = AssetManager.Instance.GetEbx(shaderAssetEntry);
+                dynamic shaderPreset = ((dynamic)shaderAsset.RootObject).ShaderPreset;
+                foreach (dynamic textureParameter in shaderPreset.TextureParameters)
+                {
+                    if (textureParameter.ParameterName.Equals(textureName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        desiredTextureParameter = textureParameter;
+                        break;
+                    }
+                }
+                if (desiredTextureParameter == null)
+                {
+                    return null;
+                }
+            }
+            Guid textureGuid = ((PointerRef)desiredTextureParameter.Value).External.FileGuid;
+            if (textureGuid == Guid.Empty)
+            {
+                return null;
+            }
+            EbxAssetEntry textureAssetEntry = AssetManager.Instance.GetEbxEntry(textureGuid);
+            if (textureAssetEntry == null)
+            {
+                return null;
+            }
+            EbxAsset textureAsset = AssetManager.Instance.GetEbx(textureAssetEntry);
+            ulong textureResRid = ((dynamic)textureAsset.RootObject).Resource;
+            Texture texture = new Texture(AssetManager.Instance.GetRes(AssetManager.Instance.GetResEntry(textureResRid)), AssetManager.Instance);
+            MemoryStream textureDDSStream = new MemoryStream();
+            TextureExporter textureExporter = new TextureExporter();
+            textureDDSStream = textureExporter.ExportToStream(texture) as MemoryStream;
+            //new DDSTextureExporter().Export(texture, textureDDSStream, dispose: false);
+            textureDDSStream.Position = 0L;
+            return textureDDSStream;
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    if (textureDDSStreamColour != null)
+                        textureDDSStreamColour.Dispose();
+                    if (textureDDSStreamNormal != null)
+                        textureDDSStreamNormal.Dispose();
+                }
+
+                
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+                if (EffectsManager != null)
+                {
+                    var effectManager = EffectsManager as IDisposable;
+                    Disposer.RemoveAndDispose(ref effectManager);
+                }
+                
+                if (scene != null && scene.Root != null)
+                    scene.Root.Dispose();
+
+
+                disposedValue = true;
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        ~MainViewModel()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
+
     }
 
 
@@ -146,6 +327,7 @@ namespace FrostbiteModdingUI.Models
 
             protected set
             {
+                camera = value;
                 //SetValue(ref camera, value, "Camera");
                 CameraModel = value is PerspectiveCamera
                                        ? Perspective

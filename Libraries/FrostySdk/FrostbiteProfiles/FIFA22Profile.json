@@ -1,0 +1,83 @@
+{
+  "Name": "FIFA22",
+  "DisplayName": "FIFA 22",
+  "DataVersion": 20210922,
+  "CacheName": "fifa22",
+  "Deobfuscator": "NullDeobfuscator",
+  "KeyFile": "fifa21.key",
+  "AssetLoader": "AssetLoader_Fifa22",
+  "AssetCompiler": "Fifa22AssetCompiler_Old",
+  "EditorScreen": "FIFA22Editor",
+  // Texture Importer (Overriding the base Importer)
+  "TextureImporter": "FIFA22TextureImporter",
+  // Texture Exporter (Overriding the base Exporter)
+  "TextureExporter": "TextureExporter",
+  // EBX Reader (Overriding the base Reader)
+  "EBXReader": "EbxReader2022V2",
+  // EBX Writer (Overriding the base Writer)
+  "EBXWriter": "EbxWriter2022",
+  // EBX Importer (Overriding the base Importer)
+  "EBXImporter": null,
+  // EBX Exporter (Overriding the base Exporter)
+  "EBXExporter": null,
+
+  "ProjectEbxWriter": "EbxWriter2022",
+  "ProjectEbxReader": "EbxReader2022V2",
+
+
+  "Sources": [
+    {
+      "Path": "Patch",
+      "SubDirs": false
+    },
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+
+  // --------------------------------------------------------
+  // SDK Generating Info
+  //
+  "SDKFilename": "FIFA22SDK",
+  "SDKFirstTypeInfo": null,
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  "SDKClassesFile": "M22.Classes.txt",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa22.ClassInfo",
+  //"SDKGeneratorClassInfoType": "SdkGenerator.Madden20.ClassInfo",
+  "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
+  //
+
+
+  // Supported Launcher Filetypes
+  "SupportedLauncherFileTypes": [ "fbmod" ],
+  // Will the Launcher support this Game?
+  "CanLaunchMods": true,
+  // Can this Application Edit this Game?
+  "CanEdit": true,
+
+  // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
+  "CacheWriter": "Fifa22CacheWriter",
+  // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
+  "CacheReader": "Fifa22CacheReader",
+
+  "Banner": "",
+  "EbxVersion": 4,
+  "RequiresKey": true,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "SharedBundles": {},
+  "IgnoredResTypes": [],
+  "CanImportMeshes": true,
+  "CanExportMeshes": false,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16,
+  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatRES": "Oodle",
+  "CompressedFormatChunk": "Oodle",
+  //"CompressedFormatLegacy": "Oodle",
+  "CompressedFormatLegacy": "Oodle",
+  //"CompressedFormatLegacy": "None",
+  "LegacyFileManager": "LFM_Fifa22"
+
+}

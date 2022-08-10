@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">   
+  <PropertyGroup>
+	  <!--<LangVersion>8.0</LangVersion>-->
+	<!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+	  <TargetFramework>net6.0-windows</TargetFramework>
+	<PackageId>FMTSDK</PackageId>
+	<Authors>paulv2k4</Authors>
+	<Company>paulv2k4</Company>
+
+	  <!--<PlatformTarget>x64</PlatformTarget>-->
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<SupportedPlatform Include="windows" />
+	</ItemGroup>
+	<PropertyGroup>
+		<EnableNETAnalyzers>false</EnableNETAnalyzers>
+	</PropertyGroup>
+
+    <ItemGroup>
+		<!--<PackageReference Include="CSharpImageLibrary" Version="4.2.0" />-->
+		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
+		<PackageReference Include="DotNetZip" Version="1.15.0" />
+		<PackageReference Include="HashDepot" Version="2.0.3" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="FastStream" Version="1.6.0" />
+		<PackageReference Include="NetDiscordRpc" Version="1.0.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="SharpDX" Version="4.2.0" />
+		<PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
+		<PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+		<PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
+		<PackageReference Include="Standart.Hash.xxHash" Version="3.1.0" />
+		<PackageReference Include="System.Buffers" Version="4.5.1" />
+		<PackageReference Include="System.Memory" Version="4.5.4" />
+		<PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
+		<PackageReference Include="Vortice.DXGI" Version="1.9.87" />
+		<PackageReference Include="Vortice.Mathematics" Version="1.3.21" />
+	</ItemGroup>
+	
+	<ItemGroup>
+    <EmbeddedResource Include="FrostySdk.Profiles.bin" />
+    <None Include="nuget.config" />
+	  <None Include="ThirdParty\dxtex.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	  </None>
+		  <None Include="ThirdParty\libfbxsdk.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+		  </None>
+  </ItemGroup>
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\CSIL\CSIL.csproj" />
+	  <ProjectReference Include="..\FifaLibrary\FifaLibrary.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Update="FrostbiteKeys\fifa20.key">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteKeys\fifa21.key">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteKeys\madden21.key">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\BF4Profile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	  </None>
+	  <None Update="FrostbiteProfiles\BFVProfile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA18Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA19Profile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA20Profile.json">
+
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA20_demoProfile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA22Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\FIFA21Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\Madden20Profile.json">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\BF2042Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\Madden22Profile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\Madden21Profile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	</ItemGroup>
+
+	<Target Name="AfterBuild">
+		<Message Text="1. ReferencePath:%0D%0A%09@(ReferencePath->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />
+		<Message Text="2. ReferenceCopyLocalPaths:%0D%0A%09@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />
+	</Target>
+
+</Project>

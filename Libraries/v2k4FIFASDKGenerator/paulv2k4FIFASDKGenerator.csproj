@@ -1,35 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net48;netstandard2.0</TargetFrameworks>-->
-    <TargetFramework>netstandard2.1</TargetFramework>
+	  <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+	  <TargetFramework>net6.0-windows</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
-    <Optimize>false</Optimize>
-  </PropertyGroup>
-
   <ItemGroup>
-    <None Remove="FIFA20.Classes.txt" />
-    <None Remove="M21.Classes.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="M21.Classes.txt">
+	  <None Include="SdkGen\FIFA21.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FIFA20.Classes.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+	  <None Include="SdkGen\M21.Classes.txt">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+	  <None Include="SdkGen\FIFA20.Classes.txt">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
+	  <None Update="SdkGen\M22.Classes.txt">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
@@ -43,5 +42,7 @@
   <ItemGroup>
     <Folder Include="NewFolder\" />
   </ItemGroup>
+
+  
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FrostySdk.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace FrostbiteModdingUI.Windows
     /// <summary>
     /// Interaction logic for LoadingDialog.xaml
     /// </summary>
-    public partial class LoadingDialog : Window
+    public partial class LoadingDialog : Window, ILogger
     {
         public LoadingDialog() : base()
         {
@@ -38,6 +39,11 @@ namespace FrostbiteModdingUI.Windows
 
         }
 
+        public void SetProgressBarMaximum(int maximum)
+        {
+            pbar.Maximum = maximum;
+        }
+
         public void Update(int progress)
         {
             Dispatcher.Invoke(() => {
@@ -45,11 +51,10 @@ namespace FrostbiteModdingUI.Windows
                 pring.Visibility = Visibility.Collapsed;
                 pbar.Visibility = Visibility.Visible;
                 pbar.Value = progress;
-
             });
         }
 
-        public async void UpdateAsync(int progress)
+        public async Task UpdateAsync(int progress)
         {
             await Task.Run(() => { Update(progress); });
         }
@@ -63,9 +68,9 @@ namespace FrostbiteModdingUI.Windows
             });
         }
 
-        public async void UpdateAsync(string loadingSubTitle, string loadingCurrentMessage)
+        public async Task<bool> UpdateAsync(string loadingSubTitle, string loadingCurrentMessage)
         {
-            await Task.Run(() => { Update(loadingSubTitle, loadingCurrentMessage); });
+            return await Task.Run(() => { Update(loadingSubTitle, loadingCurrentMessage); return true; });
         }
 
         public void Update(string loadingSubTitle, string loadingCurrentMessage, int progress)
@@ -81,6 +86,21 @@ namespace FrostbiteModdingUI.Windows
         public async void UpdateAsync(string loadingSubTitle, string loadingCurrentMessage, int progress)
         {
             await Task.Run(() => { Update(loadingSubTitle, loadingCurrentMessage, progress); });
+        }
+
+        public void Log(string text, params object[] vars)
+        {
+            Update(lblLoadingSubtitle.Content.ToString(), text);
+        }
+
+        public void LogWarning(string text, params object[] vars)
+        {
+            Update(lblLoadingSubtitle.Content.ToString(), text);
+        }
+
+        public void LogError(string text, params object[] vars)
+        {
+            Update(lblLoadingSubtitle.Content.ToString(), text);
         }
     }
 }

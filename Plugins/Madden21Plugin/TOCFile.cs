@@ -1,4 +1,5 @@
 ﻿using FrostbiteSdk.Extras;
+using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using static Madden21Plugin.Madden21AssetLoader;
 
 namespace Madden21Plugin
@@ -64,6 +66,28 @@ namespace Madden21Plugin
 		public int TocChunkOffset = 0;
 		public int FirstBundleNameOffset = 0;
 		public int EndOfChunksOffset = 0;
+		private int ArrayOffset = 556;
+
+		private string tocFilePath = string.Empty;
+
+		public TOCFile(string tocPath)
+        {
+			NativePath = tocPath.Contains(".toc", StringComparison.OrdinalIgnoreCase) ? tocPath : tocPath + ".toc";
+			if (NativePath.Contains(FileSystem.Instance.BasePath, StringComparison.OrdinalIgnoreCase))
+			{
+				NativePath = NativePath.Replace(FileSystem.Instance.BasePath, "", StringComparison.OrdinalIgnoreCase);
+				if (NativePath.Contains("patch", StringComparison.OrdinalIgnoreCase))
+				{
+					NativePath = NativePath.Replace("patch", "native_patch", StringComparison.OrdinalIgnoreCase);
+				}
+				if (NativePath.Contains("data", StringComparison.OrdinalIgnoreCase))
+				{
+					NativePath = NativePath.Replace("data", "native_data", StringComparison.OrdinalIgnoreCase);
+				}
+			}
+
+			tocFilePath = FileSystem.Instance.ResolvePath(NativePath);
+		}
 
 		public void Read(string tocPath, AssetManager parent, BinarySbDataHelper helper, int sbIndex, bool readCasData = true, bool processCasData = true)
 		{
@@ -82,219 +106,259 @@ namespace Madden21Plugin
 				}
 			}
 
-			tocPath = FileSystem.Instance.ResolvePath(NativePath);
+			tocFilePath = FileSystem.Instance.ResolvePath(NativePath);
 
 
-			if (!string.IsNullOrEmpty(tocPath))
+			if (!string.IsNullOrEmpty(tocFilePath))
 			{
-				//const int array_offset = 556 + 12;
-				const int array_offset = 556;
-				//using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
-				using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
+				using (NativeReader nativeReader = new NativeReader(new FileStream(tocFilePath, FileMode.Open, FileAccess.Read)))
+                {
+                    ReadHeader(nativeReader);
+
+                    if (StartOfBundles <= 0)
+                        return;
+                    nativeReader.Position = StartOfBundles;
+                    int numberOfBundles = nativeReader.ReadInt();
+                    for (int i = 0; i < numberOfBundles; i++)
+                    {
+                        BundleIndexes.Add(nativeReader.ReadInt());
+                    }
+
+                    DateTime lastLogTime = DateTime.Now;
+
+                    string bundleName = string.Empty;
+                    for (int j = 0; j < numberOfBundles; j++)
+                    {
+
+                        if (lastLogTime.AddSeconds(15) < DateTime.Now)
+                        {
+                            var percentDone = Math.Round((double)j / (double)numberOfBundles * 100.0);
+                            parent.logger.Log($"{NativePath} Progress: {percentDone}");
+                            lastLogTime = DateTime.Now;
+                        }
+
+                        //if(percentDone % 10 == 0)
+                        //                  {
+                        //	GC.Collect();
+                        //	GC.WaitForPendingFinalizers();
+                        //                  }
+
+                        int gotoposition1 = nativeReader.ReadInt() + ArrayOffset;
+                        long position = nativeReader.Position;
+                        nativeReader.Position = gotoposition1;
+                        int bundleNamePosition = nativeReader.ReadInt() - 1 + ArrayOffset;
+                        using (var MemoryUtil = new FrostbiteSdk.Extras.MemoryUtils())
+                        //using (var MemoryUtil = new MemoryStream())
+                        {
+                            int bundleCasIndex;
+                            string fp = string.Empty;
+                            FileStream casFileStream = null;
+                            NativeReader tocCasReader = null;
+                            var bundleEntryBundles = new List<BundleFileInfo>(99999);
+
+                            BundleFileInfo parentBFI = null;
+                            do
+                            {
+                                // write your bundle information here, then write bundle data to end of file
+                                var casIndex_Position = nativeReader.Position;
+                                bundleCasIndex = nativeReader.ReadInt(Endian.Little);
+                                var realCasIndex = bundleCasIndex & int.MaxValue;
+
+                                var offset_position = nativeReader.Position;
+                                int offset = nativeReader.ReadInt(Endian.Little);
+                                var size_position = nativeReader.Position;
+                                int size = nativeReader.ReadInt(Endian.Little);
+                                var filePath = FileSystem.Instance.GetFilePath(realCasIndex);
+
+                                if (readCasData)
+                                {
+                                    if (fp != filePath)
+                                    {
+                                        fp = filePath;
+                                        var finalFilePath = parent.fs.ResolvePath(filePath);
+                                        if (casFileStream != null)
+                                        {
+                                            casFileStream.Close();
+                                            casFileStream.Dispose();
+                                        }
+                                        casFileStream = new FileStream(finalFilePath, FileMode.Open, FileAccess.Read);
+                                        tocCasReader = new NativeReader(casFileStream);
+                                    }
+                                    tocCasReader.Position = offset;
+                                    MemoryUtil.Write(tocCasReader.ReadBytes(size));
+
+                                    var bfi = new BundleFileInfo(realCasIndex, offset, size, offset_position, size_position, casIndex_Position, parentBFI == null, parentBFI);
+                                    bundleEntryBundles.Add(bfi);
+                                    if (parentBFI == null) parentBFI = bfi;
+                                }
+                            }
+                            while ((bundleCasIndex & 2147483648u) != 0L);
+                            if (casFileStream != null)
+                            {
+                                casFileStream.Close();
+                                casFileStream.Dispose();
+                            }
+                            nativeReader.Position = bundleNamePosition;
+                            int nextStringPosition = 0;
+                            bundleName = "";
+                            do
+                            {
+                                string str = nativeReader.ReadNullTerminatedString();
+                                nextStringPosition = nativeReader.ReadInt() - 1;
+                                bundleName += str;
+                                if (nextStringPosition != -1)
+                                {
+                                    nativeReader.Position = nextStringPosition + ArrayOffset;
+                                }
+                            }
+                            while (nextStringPosition != -1);
+                            bundleName = Utils.ReverseString(bundleName);
+                            nativeReader.Position = position;
+
+
+                            BundleEntry bundle = new BundleEntry
+                            {
+                                Name = bundleName,
+                                SuperBundleId = sbIndex
+                            };
+
+                            if (parent != null)
+                                parent.bundles.Add(bundle);
+                            //TocBundles.Add(bundle, bundleEntryBundles);
+
+                            //BundleIndexToBundles.Add(j, bundleEntryBundles);
+
+                            if (readCasData)
+                            {
+
+                                //foreach(var beb in bundleEntryBundles.OrderBy(x=>x.Index).ThenBy(x=>x.Offset))
+                                //                     {
+
+                                //}
+                                ReadBundleCasData(parent, helper, bundleEntryBundles, MemoryUtil, bundle, processCasData);
+                            }
+                        }
+                    }
+
+					ReadTOCChunks(nativeReader, processCasData);
+                    
+                }
+            }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="nativeReader">Pass in NULL for method to create its own reader</param>
+        public void ReadHeader(NativeReader nativeReader = null)
+        {
+			if (string.IsNullOrEmpty(tocFilePath) && nativeReader == null)
+				throw new FileNotFoundException("No TOC File Path provided. Cannot create a reader.");
+
+			bool createdNR = nativeReader == null;
+			if (nativeReader == null)
+				nativeReader = new NativeReader(tocFilePath);
+
+            nativeReader.Position = ArrayOffset;
+            TocMagic = nativeReader.ReadUInt();
+            //StartOfBundles = nativeReader.ReadInt() - 12;
+            //TocChunkOffset = nativeReader.ReadInt() - 12;
+            StartOfBundles = nativeReader.ReadInt() + ArrayOffset;
+            TocChunkOffset = nativeReader.ReadInt() + ArrayOffset;
+            FirstBundleNameOffset = nativeReader.ReadInt();
+
+			if (createdNR) 
+			{
+				nativeReader.Dispose();
+			}
+        }
+
+		public void ReadTOCChunks(NativeReader nativeReader = null, bool processData = true)
+        {
+			if (string.IsNullOrEmpty(tocFilePath) && nativeReader == null)
+				throw new FileNotFoundException("No TOC File Path provided. Cannot create a reader.");
+
+			bool createdNR = nativeReader == null;
+			if (nativeReader == null)
+				nativeReader = new NativeReader(tocFilePath);
+
+			if (TocChunkOffset <= 0)
+				return;
+
+			nativeReader.Position = TocChunkOffset;
+			int chunkCount = nativeReader.ReadInt();
+			TOCChunkBundleIndexes = new List<int>();
+			for (int k = 0; k < chunkCount; k++)
+			{
+				TOCChunkBundleIndexes.Add(nativeReader.ReadInt());
+			}
+			List<int> TocChunkPositions = new List<int>();
+			for (int k = 0; k < chunkCount; k++)
+			{
+				TocChunkPositions.Add(nativeReader.ReadInt() + ArrayOffset);
+			}
+			EndOfChunksOffset = (int)nativeReader.Position;
+			for (int l = 0; l < chunkCount; l++)
+			{
+				ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+				int chunkPosition = TocChunkPositions[l];
+				nativeReader.Position = chunkPosition;
+				Guid guid = nativeReader.ReadGuid();
+				if (guid.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
 				{
-					nativeReader.Position = array_offset;
-					TocMagic = nativeReader.ReadUInt();
-					//StartOfBundles = nativeReader.ReadInt() - 12;
-					//TocChunkOffset = nativeReader.ReadInt() - 12;
-					StartOfBundles = nativeReader.ReadInt() + array_offset;
-					TocChunkOffset = nativeReader.ReadInt() + array_offset;
-					FirstBundleNameOffset = nativeReader.ReadInt();
 
-					if (StartOfBundles <= 0)
-						return;
-					nativeReader.Position = StartOfBundles;
-					int numberOfBundles = nativeReader.ReadInt();
-					for (int i = 0; i < numberOfBundles; i++)
+				}
+
+				int chunkCasIndex = nativeReader.ReadInt();
+
+				chunkAssetEntry.SB_CAS_Offset_Position = (int)nativeReader.Position;
+				int chunkOffset = nativeReader.ReadInt();
+				chunkAssetEntry.SB_CAS_Size_Position = (int)nativeReader.Position;
+				int chunkSize = nativeReader.ReadInt();
+
+				chunkAssetEntry.Id = guid;
+				chunkAssetEntry.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry.Id.ToString()));
+
+				chunkAssetEntry.OriginalSize = chunkSize;
+				chunkAssetEntry.Size = chunkSize;
+				chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+				chunkAssetEntry.ExtraData = new AssetExtraData();
+				chunkAssetEntry.ExtraData.CasIndex = chunkCasIndex;
+				chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(chunkCasIndex);
+				chunkAssetEntry.ExtraData.DataOffset = (uint)chunkOffset;
+				chunkAssetEntry.TOCFileLocation = NativePath;
+				chunkAssetEntry.IsTocChunk = true;
+
+				if (TocChunks == null)
+					TocChunks = new List<ChunkAssetEntry>();
+
+				TocChunks.Add(chunkAssetEntry);
+
+				if (processData)
+				{
+					if (!AssetManager.Instance.Chunks.ContainsKey(guid))
 					{
-						BundleIndexes.Add(nativeReader.ReadInt());
-					}
-
-					DateTime lastLogTime = DateTime.Now;
-
-					string bundleName = string.Empty;
-					for (int j = 0; j < numberOfBundles; j++)
-					{
-
-						var percentDone = Math.Round((double)j / (double)numberOfBundles * 100.0);
-						if (lastLogTime.AddSeconds(15) < DateTime.Now)
-						{
-							parent.logger.Log($"{NativePath} Progress: {percentDone}");
-							lastLogTime = DateTime.Now;
-						}
-
-						//if(percentDone % 10 == 0)
-      //                  {
-						//	GC.Collect();
-						//	GC.WaitForPendingFinalizers();
-      //                  }
-
-						int gotoposition1 = nativeReader.ReadInt() + array_offset;
-						long position = nativeReader.Position;
-						nativeReader.Position = gotoposition1;
-						int bundleNamePosition = nativeReader.ReadInt() - 1 + array_offset;
-						using (var MemoryUtil = new FrostbiteSdk.Extras.MemoryUtils())
-						{
-							int bundleCasIndex;
-							string fp = string.Empty;
-							FileStream casFileStream = null;
-							NativeReader tocCasReader = null;
-							var bundleEntryBundles = new List<BundleFileInfo>(99999);
-
-							BundleFileInfo parentBFI = null;
-							do
-							{
-								// write your bundle information here, then write bundle data to end of file
-								var casIndex_Position = nativeReader.Position;
-								bundleCasIndex = nativeReader.ReadInt(Endian.Little);
-								var realCasIndex = bundleCasIndex & int.MaxValue;
-
-								var offset_position = nativeReader.Position;
-								int offset = nativeReader.ReadInt(Endian.Little);
-								var size_position = nativeReader.Position;
-								int size = nativeReader.ReadInt(Endian.Little);
-								var filePath = FileSystem.Instance.GetFilePath(realCasIndex);
-
-								if (readCasData)
-								{
-									if (fp != filePath)
-									{
-										fp = filePath;
-										var finalFilePath = parent.fs.ResolvePath(filePath);
-										if (casFileStream != null)
-										{
-											casFileStream.Close();
-											casFileStream.Dispose();
-										}
-										casFileStream = new FileStream(finalFilePath, FileMode.Open, FileAccess.Read);
-										tocCasReader = new NativeReader(casFileStream);
-									}
-									tocCasReader.Position = offset;
-									MemoryUtil.Write(tocCasReader.ReadBytes(size));
-
-									var bfi = new BundleFileInfo(realCasIndex, offset, size, offset_position, size_position, casIndex_Position, parentBFI == null, parentBFI);
-									bundleEntryBundles.Add(bfi);
-									if (parentBFI == null) parentBFI = bfi;
-								}
-							}
-							while ((bundleCasIndex & 2147483648u) != 0L);
-							if (casFileStream != null)
-							{
-								casFileStream.Close();
-								casFileStream.Dispose();
-							}
-							nativeReader.Position = bundleNamePosition;
-							int nextStringPosition = 0;
-							bundleName = "";
-							do
-							{
-								string str = nativeReader.ReadNullTerminatedString();
-								nextStringPosition = nativeReader.ReadInt() - 1;
-								bundleName += str;
-								if (nextStringPosition != -1)
-								{
-									nativeReader.Position = nextStringPosition + array_offset;
-								}
-							}
-							while (nextStringPosition != -1);
-							bundleName = Utils.ReverseString(bundleName);
-							nativeReader.Position = position;
-
-
-							BundleEntry bundle = new BundleEntry
-							{
-								Name = bundleName,
-								SuperBundleId = sbIndex
-							};
-
-							if (parent != null)
-								parent.bundles.Add(bundle);
-							//TocBundles.Add(bundle, bundleEntryBundles);
-
-							//BundleIndexToBundles.Add(j, bundleEntryBundles);
-
-							if (readCasData)
-							{
-
-								//foreach(var beb in bundleEntryBundles.OrderBy(x=>x.Index).ThenBy(x=>x.Offset))
-								//                     {
-
-								//}
-								ReadBundleCasData(parent, helper, bundleEntryBundles, MemoryUtil, bundle, processCasData);
-							}
-						}
-					}
-
-					if (TocChunkOffset <= 0)
-							return;
-
-						nativeReader.Position = TocChunkOffset;
-						int chunkCount = nativeReader.ReadInt();
-						TOCChunkBundleIndexes = new List<int>();
-						for (int k = 0; k < chunkCount; k++)
-						{
-							TOCChunkBundleIndexes.Add(nativeReader.ReadInt());
-						}
-					List<int> TocChunkPositions = new List<int>();
-						for (int k = 0; k < chunkCount; k++)
-						{
-						TocChunkPositions.Add(nativeReader.ReadInt() + array_offset);
-						}
-					EndOfChunksOffset = (int)nativeReader.Position;
-					for (int l = 0; l < chunkCount; l++)
-					{
-						ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-						int chunkPosition = TocChunkPositions[l];
-						nativeReader.Position = chunkPosition;
-						Guid guid = nativeReader.ReadGuid();
-						int chunkCasIndex = nativeReader.ReadInt();
-
-						chunkAssetEntry.SB_CAS_Offset_Position = (int)nativeReader.Position;
-						int chunkOffset = nativeReader.ReadInt();
-						chunkAssetEntry.SB_CAS_Size_Position = (int)nativeReader.Position;
-						int chunkSize = nativeReader.ReadInt();
-
-						chunkAssetEntry.Id = guid;
-						chunkAssetEntry.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry.Id.ToString()));
-
-						chunkAssetEntry.OriginalSize = chunkSize;
-						chunkAssetEntry.Size = chunkSize;
-						chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-						chunkAssetEntry.ExtraData = new AssetExtraData();
-						chunkAssetEntry.ExtraData.CasIndex = chunkCasIndex;
-						chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(chunkCasIndex);
-						chunkAssetEntry.ExtraData.DataOffset = (uint)chunkOffset;
-						chunkAssetEntry.TOCFileLocation = NativePath;
-						chunkAssetEntry.IsTocChunk = true;
-
-						if (TocChunks == null)
-							TocChunks = new List<ChunkAssetEntry>();
-
-						TocChunks.Add(chunkAssetEntry);
-
-						if (parent != null)
-						{
-							if (!parent.chunkList.ContainsKey(guid))
-							{
-								parent.chunkList.TryAdd(guid, chunkAssetEntry);
-							}
-							else
-							{
-								parent.chunkList[guid] = chunkAssetEntry;
-							}
-						}
+						AssetManager.Instance.Chunks.TryAdd(guid, chunkAssetEntry);
 					}
 				}
 			}
+
+			if (createdNR)
+			{
+				nativeReader.Dispose();
+			}
 		}
 
-		public Dictionary<string, DbObject> BundleTOCSB = new Dictionary<string, DbObject>();
+        public Dictionary<string, DbObject> BundleTOCSB = new Dictionary<string, DbObject>();
 
-		private void ReadBundleCasData(AssetManager parent, BinarySbDataHelper helper, List<BundleFileInfo> TocBundles, MemoryUtils MemoryUtil, BundleEntry bundle, bool process = true)
-		{
+        private void ReadBundleCasData(AssetManager parent, BinarySbDataHelper helper, List<BundleFileInfo> TocBundles, MemoryUtils MemoryUtil, BundleEntry bundle, bool process = true)
+        //private void ReadBundleCasData(AssetManager parent, BinarySbDataHelper helper, List<BundleFileInfo> TocBundles, MemoryStream MemoryUtil, BundleEntry bundle, bool process = true)
+        {
 			using (BinarySbReader_M21 binarySbReader
 												= new BinarySbReader_M21(
-													MemoryUtil.GetMemoryStream()
-													, 0
+                                                    MemoryUtil.GetMemoryStream()
+                                                    //MemoryUtil
+                                                    , 0
 													, parent.fs.CreateDeobfuscator()))
 			{
 
@@ -309,117 +373,157 @@ namespace Madden21Plugin
 				long finishingItemOffset = bundleFileInfo.Offset + (dbObject.GetValue("dataOffset", 0L));
 				long currentLength = bundleFileInfo.Size - (dbObject.GetValue("dataOffset", 0L));
 				int tocBundleIndex = 0;
-				foreach (DbObject finishingEbxItem in dbObject.GetValue<DbObject>("ebx"))
+				foreach (DbObject ebx in dbObject.GetValue<DbObject>("ebx"))
 				{
+					var ebxName = ebx.GetValue<string>("name");
+					var nameHash = Fnv1.HashString(ebxName);
 
-                    if (currentLength == 0L)
+					if (currentLength <= 0L)
                     {
                         bundleFileInfo = TocBundles[++tocBundleIndex];
                         currentLength = bundleFileInfo.Size;
                         finishingItemOffset = bundleFileInfo.Offset;
                     }
 
-                    int itemSize = finishingEbxItem.GetValue("size", 0);
-					finishingEbxItem.SetValue("offset", finishingItemOffset);
-					finishingEbxItem.SetValue("cas", bundleFileInfo.Index);
+                    int itemSize = ebx.GetValue("size", 0);
+					ebx.SetValue("offset", finishingItemOffset);
+					ebx.SetValue("cas", bundleFileInfo.Index);
 					finishingItemOffset += itemSize;
 					currentLength -= itemSize;
 
-					finishingEbxItem.SetValue("TOCFileLocation", NativePath);
-					finishingEbxItem.SetValue("SB_OriginalSize_Position", bundleFileInfo.Offset + finishingEbxItem.GetValue<int>("SB_OriginalSize_Position"));
-					finishingEbxItem.SetValue("ParentBundleOffset_Position", bundleFileInfo.OffsetPosition);
-					finishingEbxItem.SetValue("ParentBundleOffset", bundleFileInfo.Offset);
-					finishingEbxItem.SetValue("ParentBundleSize_Position", bundleFileInfo.SizePosition);
-					finishingEbxItem.SetValue("ParentBundleSize", bundleFileInfo.Size);
-					finishingEbxItem.SetValue("Bundle", bundleName);
-					finishingEbxItem.SetValue("BundleIndex", parent.bundles.Count - 1);
-					bundleFileInfo.ItemsInBundle.Add(new BundleFileInfo.BundleItem("ebx", finishingEbxItem.GetValue<string>("name")));
+					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+					if (AssetManager.Instance.EBX.ContainsKey(ebxName))
+						ebxAssetEntry = AssetManager.Instance.EBX[ebxName];
 
-					if (!bundleFileInfo.BundleObject.HasValue("ebx"))
-						bundleFileInfo.BundleObject.AddValue("ebx", new DbObject());
+					ebxAssetEntry.Name = ebxName;
+					ebxAssetEntry.Sha1 = ebx.GetValue<Sha1>("sha1");
+					ebxAssetEntry.Size = ebx.GetValue("size", 0L);
+					ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
+					ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+					ebxAssetEntry.ExtraData = new AssetExtraData();
+					ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
+					ebxAssetEntry.ExtraData.CasPath = (ebx.HasValue("catalog") ? AssetManager.Instance.fs.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.HasValue("patch")) : AssetManager.Instance.fs.GetFilePath(ebx.GetValue("cas", 0)));
+					ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
+					ebxAssetEntry.Bundles.Add(parent.bundles.Count - 1);
 
-					bundleFileInfo.BundleObject.GetValue<DbObject>("ebx").Add(finishingEbxItem);
+					if (AssetManager.Instance.EBX.ContainsKey(ebxName))
+						AssetManager.Instance.EBX[ebxName] = ebxAssetEntry;
+					else
+						AssetManager.Instance.EBX.TryAdd(ebxName, ebxAssetEntry);
 
 				}
-				foreach (DbObject finishingRESItem in dbObject.GetValue<DbObject>("res"))
+
+				foreach (DbObject res in dbObject.GetValue<DbObject>("res"))
 				{
-					if (currentLength == 0L)
+					var resName = res.GetValue<string>("name");
+					var nameHash = Fnv1.HashString(resName);
+
+					if (currentLength <= 0L)
 					{
 						bundleFileInfo = TocBundles[++tocBundleIndex];
 						currentLength = bundleFileInfo.Size;
 						finishingItemOffset = bundleFileInfo.Offset;
 					}
-					int itemSize = finishingRESItem.GetValue("size", 0);
-					finishingRESItem.SetValue("offset", finishingItemOffset);
-					finishingRESItem.SetValue("cas", bundleFileInfo.Index);
+					int itemSize = res.GetValue("size", 0);
+					res.SetValue("offset", finishingItemOffset);
+					res.SetValue("cas", bundleFileInfo.Index);
 					finishingItemOffset += itemSize;
 					currentLength -= itemSize;
+					
+					ResAssetEntry resAssetEntry = new ResAssetEntry();
+					if (AssetManager.Instance.RES.ContainsKey(resName))
+						resAssetEntry = AssetManager.Instance.RES[resName];
 
-					finishingRESItem.SetValue("TOCFileLocation", NativePath);
-					finishingRESItem.SetValue("SB_OriginalSize_Position", bundleFileInfo.Offset + finishingRESItem.GetValue<int>("SB_OriginalSize_Position"));
-					finishingRESItem.SetValue("ParentBundleOffset_Position", bundleFileInfo.OffsetPosition);
-					finishingRESItem.SetValue("ParentBundleOffset", bundleFileInfo.Offset);
-					finishingRESItem.SetValue("ParentBundleSize_Position", bundleFileInfo.SizePosition);
-					finishingRESItem.SetValue("ParentBundleSize", bundleFileInfo.Size);
-					finishingRESItem.SetValue("Bundle", bundleName);
-					finishingRESItem.SetValue("BundleIndex", parent.bundles.Count - 1);
+					resAssetEntry.Name = resName;
+					resAssetEntry.Sha1 = res.GetValue<Sha1>("sha1");
+					resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
+					resAssetEntry.Size = res.GetValue("size", 0L);
+					resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
+					var rrid = res.GetValue<string>("resRid");
+					resAssetEntry.ResRid = Convert.ToUInt64(rrid);
+					resAssetEntry.ResType = (uint)res.GetValue("resType", 0L);
+					resAssetEntry.ResMeta = res.GetValue<byte[]>("resMeta");
+					resAssetEntry.IsInline = res.HasValue("idata");
+					resAssetEntry.Location = AssetDataLocation.Cas;
+					resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+					resAssetEntry.ExtraData = new AssetExtraData();
+					resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
+					resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? FileSystem.Instance.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : FileSystem.Instance.GetFilePath(res.GetValue("cas", 0)));
+					resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
+					resAssetEntry.Bundles.Add(parent.bundles.Count - 1);
 
+					if (AssetManager.Instance.RES.ContainsKey(resName))
+						AssetManager.Instance.RES[resName] = resAssetEntry;
+					else
+						AssetManager.Instance.RES.TryAdd(resName, resAssetEntry);
 
-					bundleFileInfo.ItemsInBundle.Add(new BundleFileInfo.BundleItem("res", finishingRESItem.GetValue<string>("name")));
+					if (AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
+						AssetManager.Instance.resRidList.Remove(resAssetEntry.ResRid);
 
-					if (!bundleFileInfo.BundleObject.HasValue("res"))
-						bundleFileInfo.BundleObject.AddValue("res", new DbObject());
-
-					bundleFileInfo.BundleObject.GetValue<DbObject>("res").Add(finishingRESItem);
-
+					AssetManager.Instance.resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
 
 				}
-				foreach (DbObject finishingChunkItem in dbObject.GetValue<DbObject>("chunks"))
+				foreach (DbObject chunk in dbObject.GetValue<DbObject>("chunks"))
 				{
-					if (currentLength == 0L)
+					var chunkName = chunk.GetValue<Guid>("name");
+
+					if (currentLength <= 0L)
 					{
 						bundleFileInfo = TocBundles[++tocBundleIndex];
 						currentLength = bundleFileInfo.Size;
 						finishingItemOffset = bundleFileInfo.Offset;
 					}
-					int chunkItemSize = finishingChunkItem.GetValue("size", 0);
-					finishingChunkItem.SetValue("offset", finishingItemOffset);
-					finishingChunkItem.SetValue("cas", bundleFileInfo.Index);
+					int chunkItemSize = chunk.GetValue("size", 0);
+					chunk.SetValue("offset", finishingItemOffset);
+					chunk.SetValue("cas", bundleFileInfo.Index);
 					finishingItemOffset += chunkItemSize;
 					currentLength -= chunkItemSize;
 
-					finishingChunkItem.SetValue("TOCFileLocation", NativePath);
-					finishingChunkItem.SetValue("SB_OriginalSize_Position", bundleFileInfo.Offset + finishingChunkItem.GetValue<int>("SB_OriginalSize_Position"));
-					finishingChunkItem.SetValue("ParentBundleOffset_Position", bundleFileInfo.OffsetPosition);
-					finishingChunkItem.SetValue("ParentBundleOffset", bundleFileInfo.Offset);
-					finishingChunkItem.SetValue("ParentBundleSize_Position", bundleFileInfo.SizePosition);
-					finishingChunkItem.SetValue("ParentBundleSize", bundleFileInfo.Size);
-					finishingChunkItem.SetValue("Bundle", bundleName);
-					finishingChunkItem.SetValue("BundleIndex", parent.bundles.Count - 1);
+					ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+					//if (AssetManager.Instance.Chunks.ContainsKey(chunkName))
+					//{
+					//	// Save the Duplicate ----
+					//	if (!AssetManager.Instance.ChunkListDuplicates.ContainsKey(chunkName))
+					//		AssetManager.Instance.ChunkListDuplicates.Add(chunkName, new List<ChunkAssetEntry>());
+					//	AssetManager.Instance.ChunkListDuplicates[chunkName].Add(AssetManager.Instance.Chunks[chunkName]);
+					//	// -----
 
-					bundleFileInfo.ItemsInBundle.Add(new BundleFileInfo.BundleItem("chunk", finishingChunkItem.GetValue<Guid>("id").ToString()));
+					//	chunkAssetEntry = AssetManager.Instance.Chunks[chunkName];
+					//}
 
-					if (!bundleFileInfo.BundleObject.HasValue("chunks"))
-						bundleFileInfo.BundleObject.AddValue("chunks", new DbObject());
+					chunkAssetEntry.Id = chunkName;
+					chunkAssetEntry.Sha1 = chunk.GetValue<Sha1>("sha1");
+					chunkAssetEntry.Size = chunk.GetValue("size", 0L);
+					chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
+					chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);
+					chunkAssetEntry.RangeStart = chunk.GetValue("rangeStart", 0u);
+					chunkAssetEntry.RangeEnd = chunk.GetValue("rangeEnd", 0u);
+					chunkAssetEntry.Bundle = chunk.GetValue<string>("Bundle");
+					chunkAssetEntry.BundledSize = chunk.GetValue("bundledSize", 0u);
+					chunkAssetEntry.IsInline = chunk.HasValue("idata");
+					chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+					chunkAssetEntry.ExtraData = new AssetExtraData();
+					chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
+					chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? FileSystem.Instance.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.HasValue("patch")) : FileSystem.Instance.GetFilePath(chunk.GetValue("cas", 0)));
+					chunkAssetEntry.ExtraData.IsPatch = chunk.HasValue("patch") ? chunk.GetValue<bool>("patch") : false;
+					chunkAssetEntry.ExtraData.SuperBundleId = AssetManager.Instance.superBundles.Count - 1;
+					chunkAssetEntry.Bundles.Add(parent.bundles.Count - 1);
 
-					// colts uniform
-					if (finishingChunkItem.GetValue<Guid>("name").ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b"
-						&& !bundleName.Contains("playeruniformtextures")
-						)
-					{
-						finishingChunkItem.SetValue("DNP", true);
-					}
+					//if (AssetManager.Instance.Chunks.ContainsKey(chunkName))
+					//	AssetManager.Instance.Chunks[chunkName] = chunkAssetEntry;
+					//else
+					//	AssetManager.Instance.Chunks.TryAdd(chunkName, chunkAssetEntry);
+					AssetManager.Instance.AddChunk(chunkAssetEntry);
+					//AssetManager.Instance.BundleChunks.TryAdd((chunk.GetValue<string>("Bundle"), chunkName), chunkAssetEntry);
 				}
 
-				if (process)
-				{
-					//parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
-					//parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
-					//parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
-					parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
-					parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
-					parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
-				}
+				//if (process)
+				//{
+					
+				//	//parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
+				//	//parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
+				//	//parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
+				//}
 
 
 			}

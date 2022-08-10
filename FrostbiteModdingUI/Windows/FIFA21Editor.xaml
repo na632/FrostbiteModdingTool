@@ -9,12 +9,26 @@
          xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
          xmlns:localPlayerControls="clr-namespace:FrostbiteModdingUI.Pages.Player"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-                      xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-                      xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-        Title="{Binding Path=WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="720" Width="1280"
+        xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
+        
+        xmlns:FMTControlsPages="clr-namespace:FMT.Controls.Pages;assembly=FMT.Controls"
+        xmlns:FMTControlsWindows="clr-namespace:FMT.Controls.Windows;assembly=FMT.Controls"
+        
+       
+        Title="{Binding Path=WindowTitle, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" 
+        Height="720" Width="1280"
          SizeToContent="Manual" MinHeight="720" MinWidth="1280"
         ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Visible"
          WindowStartupLocation="CenterScreen" WindowState="Normal" WindowStyle="SingleBorderWindow"
+        
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         
         >
     <Window.Resources>
@@ -27,45 +41,108 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition MaxHeight="30" Height="30"></RowDefinition>
+            <RowDefinition MaxHeight="35" Height="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
             <StackPanel Orientation="Horizontal">
-                <Menu DockPanel.Dock="Top">
-                    <MenuItem Header="Project">
-                        <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
-                                <Label Content="New Project" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnProjectOpen"  Height="30" Click="btnProjectOpen_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
-                                <Label Content="Open Project" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnProjectSave"  Height="30" Click="btnProjectSave_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                <Label Content="Save Project" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnCompileLegacyModFromFolder"  Height="30" Click="btnCompileLegacyModFromFolder_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
-                                <Label Content="Compile Legacy Mod From Folder" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="btnOpenModDetailsPanel"  Height="30" Click="btnOpenModDetailsPanel_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
-                                <Label Content="Open Mod Details" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
+                <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
+                    <MenuItem x:Name="miProject" Header="Project" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
+                        <MenuItem x:Name="btnProjectNew" Click="btnProjectNew_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
+                                    <Label Content="New Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnProjectOpen" Click="btnProjectOpen_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
+                                    <Label Content="Open Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnProjectSave" Click="btnProjectSave_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
+                                    <Label Content="Save Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnOpenModDetailsPanel"  Click="btnOpenModDetailsPanel_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
+                                    <Label Content="Open Mod Details" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnProjectMerge" Click="btnProjectMerge_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />
+                                    <Label Content="Merge Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator></Separator>
+                        <MenuItem x:Name="btnCompileLegacyModFromFolder"  Click="btnCompileLegacyModFromFolder_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
+                                    <Label Content="Compile Legacy Mod From Folder" FontSize="10" FontWeight="Bold"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnCleanUpLegacyFiles" Click="btnCleanUpLegacyFiles_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
+                                    <Label Content="Clean up Legacy chunks"  FontSize="10" FontWeight="Bold"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator></Separator>
+                        <MenuItem x:Name="btnOpenEmbeddedFilesWindow" Click="btnOpenEmbeddedFilesWindow_Click">
+                            <MenuItem.Header>
+                                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="FolderZip" VerticalAlignment="Center" />
+                                    <Label Content="Manage Embedded Files" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator></Separator>
+                        <MenuItem x:Name="btnRebuildCacheSdk" Click="btnRebuildCacheSdk_Click">
+                            <MenuItem.Header>
+                                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="OpenInNew" VerticalAlignment="Center" />
+                                    <Label Content="Open Cache SDK Builder" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <Separator></Separator>
+                        <MenuItem Visibility="Collapsed">
+                            <MenuItem.Header>
+                                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ClockFast" VerticalAlignment="Center" />
+                                    <Label Content="Recent Files" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                            <ListView ItemsSource="{Binding RecentProjectFiles}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Label FontSize="10" FontWeight="Bold" Content="{Binding Name}" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </MenuItem>
+                        
+                        
                     </MenuItem>
-                    <MenuItem Header="Mod">
+                    <MenuItem x:Name="miMod" Header="Mod" IsEnabled="False">
                         <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
@@ -78,37 +155,42 @@
                                 <Label Content="Open Mod Bundler" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>-->
-                        <Button x:Name="btnCleanUpLegacyFiles"  Height="30" Click="btnCleanUpLegacyFiles_Click" Background="Transparent" BorderBrush="{x:Null}">
+                        <!--<Button x:Name="btnProjectWriteToLegacyMod"  Height="30" Click="btnProjectWriteToLegacyMod_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
-                                <Label Content="Clean up Legacy chunks" VerticalAlignment="Center" />
+                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                                <Label Content="Save Legacy Mod (*.lmod)" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>-->
+                        
+                    </MenuItem>
+                    <!--<MenuItem x:Name="miProjectConverter" Header="FIFA Project Converters" IsEnabled="False">
+                        <Button x:Name="btnProjectOpenFIFAProject"  Height="30" Click="btnProjectOpenFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />
+                                <Label Content="Open *.fifaproject" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                    </MenuItem>
-                    <MenuItem Header="Experimental">
                         <Button x:Name="btnProjectSaveToFIFAProject"  Height="30" Click="btnProjectSaveToFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
                                 <Label Content="Save *.fifaproject" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
+                    </MenuItem>-->
+                    <MenuItem x:Name="miImportKitCreator" Header="Kit Creator" IsEnabled="False">
+                        <Button x:Name="btnImportKitCreatorZip"  Height="30" Click="btnImportKitCreatorZip_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ZipDisk" VerticalAlignment="Center" />
+                                <Label Content="Import Kit Creator Zip" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
                     </MenuItem>
-
                 </Menu>
-
-
-
-
-                <!--<Button x:Name="btnProjectWriteToFIFAMod"  Height="30" Click="btnProjectWriteToFIFAMod_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
-                        <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ContentSaveAlert" VerticalAlignment="Center" />
-                            <Label Content="Save FIFA Mod (*.fifamod)" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>-->
 
             </StackPanel>
             <StackPanel  HorizontalAlignment="Right" Orientation="Horizontal">
-                <CheckBox x:Name="chkEnableLegacyInjection" Content="Enable Legacy Injection" IsChecked="False"></CheckBox>
+                <Controls:ToggleSwitch x:Name="swUseModData" Content="Use Mod Data" IsOn="True" IsEnabled="True"></Controls:ToggleSwitch>
+                <Controls:ToggleSwitch x:Name="swEnableLegacyInjection" Content="Enable Legacy Injection" IsOn="False"></Controls:ToggleSwitch>
                 <Button x:Name="btnLaunchFIFAInEditor" Height="30" Background="Transparent" BorderBrush="{x:Null}" VerticalAlignment="Center" IsEnabled="True"
                         ToolTip="Launch FIFA with Editor Only Mod" Click="btnLaunchFIFAInEditor_Click">
                     <StackPanel Height="30" VerticalAlignment="Center"  HorizontalAlignment="Right" Orientation="Horizontal">
@@ -124,44 +206,112 @@
         <DockingManager Grid.Row="1">
             <LayoutRoot>
                 <LayoutPanel Orientation="Vertical">
-                    <LayoutAnchorablePane DockMinHeight="450" DockHeight="450" >
-                        <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False" CanFloat="False" CanMove="False" CanDockAsTabbedDocument="False">
-                            <TabControl DockPanel.Dock="Top" Margin="0,-20,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
-                                <TabItem x:Name="TabDataBrowser" Header="Data" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                    <LayoutDocumentPane ShowHeader="False" DockMinHeight="450" DockHeight="450" >
+                        <LayoutDocument CanClose="False" CanFloat="False" CanMove="False" >
+                            <TabControl DockPanel.Dock="Top" Margin="0,0,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                                <TabItem x:Name="TabDataBrowser" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="ArrowAll" VerticalAlignment="Center" />
+                                            <Label Content="{DynamicResource textEverything}"></Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
                                     <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
                                 </TabItem>
-                                <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TabItem x:Name="TabTextureBrowser" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="Paint" VerticalAlignment="Center" />
+                                            <Label Content="{DynamicResource textTextures}"></Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
                                     <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
                                 </TabItem>
-                                <TabItem x:Name="TabKitBrowser" Header="Kits" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TabItem x:Name="TabKitBrowser" Visibility="Visible"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="TshirtV" VerticalAlignment="Center" />
+                                            <Label>Kits</Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
                                     <localControls:Browser x:Name="kitBrowser"></localControls:Browser>
                                 </TabItem>
-                                <TabItem x:Name="TabGameplay" Header="Gameplay"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TabItem x:Name="TabGameplay" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="Soccer" VerticalAlignment="Center" />
+                                            <Label Content="{DynamicResource textGameplay}"></Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
                                     <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
                                 </TabItem>
-                                <TabItem x:Name="TabLegacy" Header="Legacy"   VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TabItem x:Name="TabLegacy"  VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="DatabaseTick" VerticalAlignment="Center" />
+                                            <Label>Legacy</Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
                                     <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="35" MaxHeight="35" MinHeight="35"></RowDefinition>
-                                            <RowDefinition></RowDefinition>
-                                        </Grid.RowDefinitions>
-                                        <Label Grid.Row="0" Background="Yellow" Content="WARNING: Legacy editing is very unstable. Use with caution." Margin="5"></Label>
                                         <localControls:Browser Grid.Row="1" x:Name="legacyBrowser"></localControls:Browser>
                                     </Grid>
+                                </TabItem>
+
+                                <TabItem x:Name="TabFaces">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="User" VerticalAlignment="Center" />
+                                            <Label>Faces</Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
+                                    <localControls:Browser x:Name="faceBrowser"></localControls:Browser>
+                                </TabItem>
+
+                                <TabItem x:Name="TabBoots">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="ShoeFormal" VerticalAlignment="Center" />
+                                            <Label>Boots</Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
+                                    <localControls:Browser x:Name="bootsBrowser"></localControls:Browser>
                                 </TabItem>
 
                                 <TabItem x:Name="TabPlayers" Header="Players" Visibility="Collapsed">
                                     <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
                                 </TabItem>
 
-                                <TabItem x:Name="TabTeams" Header="Teams" Visibility="Collapsed">
+                                <TabItem x:Name="TabTeams">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="MicrosoftTeams" VerticalAlignment="Center" />
+                                            <Label Content="{DynamicResource textTeams}"></Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
+                                    <FMTControlsPages:FIFADBTeamsEditor></FMTControlsPages:FIFADBTeamsEditor>
+                                </TabItem>
+
+                                <TabItem x:Name="TabDB">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="DatabaseEdit" VerticalAlignment="Center" />
+                                            <Label Content="{DynamicResource textDatabase}"></Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
+                                    <FMTControlsPages:FIFADBEditor></FMTControlsPages:FIFADBEditor>
                                 </TabItem>
 
                                 <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">
                                     <StackPanel x:Name="TestEbxViewer"></StackPanel>
                                 </TabItem>
 
-                                <TabItem x:Name="TabProjectFiles" Header="Advanced">
+                                <TabItem x:Name="TabProjectFiles">
+                                    <TabItem.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                            <MaterialDesign:PackIcon Kind="DatabaseMinus" VerticalAlignment="Center" />
+                                            <Label>Advanced</Label>
+                                        </StackPanel>
+                                    </TabItem.Header>
                                     <ListView x:Name="lstProjectFiles" Grid.Row="1"
                          ItemsSource="{Binding Path=ProjectManagement.FrostyProject.ModifiedAssetEntries, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               VerticalContentAlignment="Stretch" VerticalAlignment="Stretch"
@@ -190,6 +340,13 @@
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
+                                                <GridViewColumn Width="auto" Header="Is Legacy">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding IsLegacy}" />
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
                                                 <GridViewColumn Width="auto" Header="Revert">
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>
@@ -203,10 +360,10 @@
                                 </TabItem>
 
                             </TabControl>
-                        </LayoutAnchorable>
-                    </LayoutAnchorablePane>
+                        </LayoutDocument>
+                    </LayoutDocumentPane>
                     <LayoutAnchorablePane DockMinHeight="100" DockHeight="100" ResizableAbsoluteDockHeight="100">
-                        <LayoutAnchorable Title="Log" CanAutoHide="False" CanClose="False" CanHide="False" CanFloat="False" CanMove="False" CanDockAsTabbedDocument="False">
+                        <LayoutAnchorable CanClose="True" CanHide="True" Title="Log" >
                             <TextBox
                          x:Name="txtLog"
                          IsReadOnly="True"

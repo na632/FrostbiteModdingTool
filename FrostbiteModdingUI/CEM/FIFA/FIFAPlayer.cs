@@ -1,5 +1,6 @@
 ﻿using CareerExpansionMod.CEM;
 using CareerExpansionMod.CEM.FIFA;
+using FifaLibrary;
 using FrostbiteSdk;
 using System;
 using System.Collections.Generic;

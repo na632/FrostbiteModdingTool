@@ -1,4 +1,5 @@
-﻿using Frosty;
+﻿using FrostbiteSdk;
+using Frosty;
 using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
@@ -40,17 +41,40 @@ namespace SdkGenerator
             }
         }
 
+		public string ProcessName = ProfilesLibrary.ProfileName;
+		public string OverrideProfileName = null;
+
 		public Process GetProcess()
         {
 			var allProcesses = Process.GetProcesses();
+            //var process = allProcesses.FirstOrDefault(x =>
+            //        x.ProcessName.Contains("FIFA18", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("FIFA19", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("FIFA20", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("FIFA21", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.ToUpper().Contains("MADDEN21", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bf4", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bfv", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bf5", StringComparison.OrdinalIgnoreCase)
+            //        || x.ProcessName.Contains("bf1", StringComparison.OrdinalIgnoreCase)
+            //        );
 			var process = allProcesses.FirstOrDefault(x =>
-					x.ProcessName.Contains("FIFA18")
-					|| x.ProcessName.Contains("FIFA19")
-					|| x.ProcessName.Contains("FIFA20")
-					|| x.ProcessName.Contains("FIFA21")
-					|| x.ProcessName.ToUpper().Contains("MADDEN21")
-					|| x.ProcessName.Contains("bf4")
-					);
+				   (x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase))
+				   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
+				   );
+
+			if(process == null)
+            {
+				var psi = new System.Diagnostics.ProcessStartInfo() { FileName = @"F:\Origin Games\Battlefield 2042 Technical Playtest\bf.exe"
+							, UseShellExecute = true
+							, Verb = "runas"
+				};
+				process = System.Diagnostics.Process.Start(psi);
+				Thread.Sleep(3000);
+			}
+			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
 			return process;
 		}
 
@@ -67,7 +91,7 @@ namespace SdkGenerator
 			
 				if (SdkProcess != null)
 				{
-					string text = SdkProcess.MainModule?.ModuleName;
+					//string text = SdkProcess.MainModule?.ModuleName;
 				}
 				attemptToFindProcess++;
 				await Task.Delay(1000);
@@ -80,7 +104,7 @@ namespace SdkGenerator
 
 			if (SdkProcess != null)
 			{
-				ProfilesLibrary.Initialize(SdkProcess.ProcessName);
+				ProfilesLibrary.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName : OverrideProfileName);
 
 				Debug.WriteLine($"Process Found {SdkProcess.ProcessName}");
 				Trace.WriteLine($"Process Found {SdkProcess.ProcessName}");
@@ -160,7 +184,15 @@ namespace SdkGenerator
 			SdkUpdateState sdkUpdateState = state as SdkUpdateState;
 			if (SdkProcess != null)
 			{
-				long baseAddress = SdkProcess.MainModule.BaseAddress.ToInt64();
+				long baseAddress = 0;
+				try
+                {
+					baseAddress = SdkProcess.MainModule.BaseAddress.ToInt64();
+				}
+				catch (Exception)
+                {
+
+                }
 				MemoryReader memoryReader = new MemoryReader(SdkProcess, baseAddress);
 				sdkUpdateState.Process = SdkProcess;
 				if (memoryReader == null)
@@ -192,88 +224,72 @@ namespace SdkGenerator
 
 					List<string> patterns = new List<string>()
 					{
-    //            "488b05???????? 48894108 48890d???????? 48???? C3",
-    //            "488b05???????? 48894108 48890d????????",
-    //            "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+                "488b05???????? 48894108 48890d???????? 48???? C3",
+                //"488b05???????? 48894108 48890d????????",
+                "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
 
                 //"48 39 3d ?? ?? ?? ?? 75 18 48 8b 47 10 48 89 05 ?? ?? ?? ?? 48 85 c0 74 08", // FIFA 21
 
-						// Works for Madden and FIFA 21
-				//"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10", // Madden 21 & FIFA 21
+					
 
 
                 //"30 40 96 49 01 00 00 00 48 70 12 48 01 00 00 00 D0 6F 12 48 01"
 
-				"488B05???????? 48894108 ?? 488D05???????? 483905???????????? 488B05???????? 488905????????",
-            "488B05???????? 48894108 C3 488D05????C5?? 483905???????????? 488B05???????? 488905????????",
+				//"488B05???????? 48894108 ?? 488D05???????? 483905???????????? 488B05???????? 488905????????",
+            "488B05???????? 48894108 C3 488D05????C5?? 483905???????????? 488B05???????? 488905????????", // sort of works for FIFA 22
             "488B05F6?????? 48894108 C3 488D05????C5?? 483905d3?????????? 488B05????C5?? 488905????????",
             "488b05???????? 48894108 48890d???????? 48???? C3",
             "488b05???????? 48894108 48890d????????",
-            "488b05???????? 488905???????? 488d05???????? 488905???????? E9"
+            "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+
+
+					// Works for Madden and FIFA 21
+					"48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10", // Madden 21 & FIFA 21
 
                     };
 
-					List<long> listOfOffsets = null;
-
-					foreach (string pattern in patterns)
-					{
-						memoryReader.Position = baseAddress;
-						listOfOffsets = memoryReader.scan(pattern).ToList();
-						if (listOfOffsets.Count != 0)
-						{
-							break;
-						}
+                    if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKAOBScan))
+                    {
+						patterns.Insert(0, ProfilesLibrary.LoadedProfile.SDKAOBScan);
+						Debug.WriteLine("Attempting to use Profile Pattern :: " + ProfilesLibrary.LoadedProfile.SDKAOBScan);
 					}
-					//if (longList == null || longList.Count == 0)
-					//{
-					//	offset = 0L;
-					//	return false;
-					//}
-					listOfOffsets = listOfOffsets.OrderByDescending(x => x).ToList();
-					memoryReader.Position = listOfOffsets[0] + 3;
-					int num = memoryReader.ReadInt();
-					memoryReader.Position = listOfOffsets[0] + 3 + num + 4;
-					sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
-
-					//List<long> list = null;
-					//foreach (string pattern in patterns)
-					//{
-					//	memoryReader.Position = baseAddress;
-					//	list = memoryReader.scan(pattern).ToList();
-					//	if (list.Count != 0)
-					//	{
-					//		break;
-					//	}
-					//}
-					//if (list.Count == 0)
-					//{
-					//	task.State = SdkUpdateTaskState.CompletedFail;
-					//	task.FailMessage = "Unable to find the first type info offset";
-					//	Debug.WriteLine(task.FailMessage);
-					//	Trace.WriteLine(task.FailMessage);
-					//	Console.WriteLine(task.FailMessage);
-					//	return false;
-					//}
-					//list.Sort();
 
 
-					//               memoryReader.Position = list.First() + 3;
-					//               int off = memoryReader.ReadInt();
-					//               memoryReader.Position = list.First() + off + 7;
+					if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo))
+					{
+						sdkUpdateState.TypeInfoOffset = Convert.ToInt64(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo, 16);
 
+						Debug.WriteLine("Attempting to use Profile TypeInfoOffset :: " + ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo);
+					}
+					else
+					{
+						List<long> listOfOffsets = null;
 
-					//               long neOffset = memoryReader.ReadLong();
+						var selectedPattern = string.Empty;
+						foreach (string pattern in patterns)
+						{
+							memoryReader.Position = baseAddress;
+							listOfOffsets = memoryReader.scan(pattern).ToList();
+							if (listOfOffsets.Count != 0)
+							{
+								selectedPattern = pattern;
+								break;
+							}
+						}
+						if (listOfOffsets.Count == 0)
+							throw new Exception("Unable to find TypeInfo Offset");
 
-					//               Debug.WriteLine(neOffset.ToString("X2"));
+						Debug.WriteLine("Used Pattern :: " + selectedPattern);
 
-
-					//sdkUpdateState.TypeInfoOffset = neOffset;
+						listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
+						memoryReader.Position = listOfOffsets[0] + 3;
+						int num = memoryReader.ReadInt();
+						memoryReader.Position = listOfOffsets[0] + 3 + num + 4;
+						sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
+					}
 				}
 
 
-				Debug.WriteLine(sdkUpdateState.TypeInfoOffset.ToString("X"));
-
-				//sdkUpdateState.TypeInfoOffset = Convert.ToInt64("145371E58");
 				task.State = SdkUpdateTaskState.CompletedSuccessful;
 
 				task.StatusMessage = string.Format("0x{0}", sdkUpdateState.TypeInfoOffset.ToString("X8"));

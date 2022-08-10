@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿using FrostbiteSdk;
+using FrostySdk;
 using FrostySdk.Frosty;
 using MaterialDesignThemes.Wpf;
 using System;
@@ -11,7 +12,8 @@ using System.Text;
 using System.Threading.Tasks;
 using v2k4FIFAModding;
 
-namespace FIFAModdingUI.Mods
+//namespace FIFAModdingUI.Mods
+namespace FMT.Mods
 {
     public class ModList
     {
@@ -66,7 +68,7 @@ namespace FIFAModdingUI.Mods
                     switch (ModType)
                     {
                         case "Frostbite":
-                            pik = PackIconKind.XboxController;
+                            pik = PackIconKind.Controller;
                             break;
                         case "Legacy":
                             pik = PackIconKind.ZipBox;
@@ -75,7 +77,7 @@ namespace FIFAModdingUI.Mods
                             pik = PackIconKind.FolderZip;
                             break;
                         case "FIFA (FET)":
-                            pik = PackIconKind.XboxController;
+                            pik = PackIconKind.Controller;
                             break;
                     }
                     return pik ;

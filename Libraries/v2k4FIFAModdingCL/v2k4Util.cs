@@ -58,6 +58,7 @@ namespace v2k4FIFAModding
         public static void SetPropertyValue(object obj, string propName, dynamic value)
         {
             Type t = obj.GetType();
+            Type t2 = value.GetType();
             var p = t.GetProperty(propName);
             var parseMethod = p.PropertyType.GetMethods().FirstOrDefault(x=>x.Name == "Parse");
             if (parseMethod != null && p.PropertyType != value.GetType())
@@ -71,6 +72,15 @@ namespace v2k4FIFAModding
                 if (propName != "BaseField")
                     p.SetValue(obj, value);
             }
+        }
+
+        public static void SetPropertyValue<T>(object obj, string propName, T value)
+        {
+            Type t = obj.GetType();
+            Type t2 = value.GetType();
+            var p = t.GetProperty(propName);
+            if (propName != "BaseField")
+                p.SetValue(obj, value);
         }
 
         public static bool HasProperty(object obj, string propName)

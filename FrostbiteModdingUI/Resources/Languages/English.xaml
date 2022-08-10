@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="textLauncher">Launch Game with Mods</system:String>
+    <system:String x:Key="textLaunchGame">Launch Game</system:String>
+    <system:String x:Key="textImport">Import</system:String>
+    <system:String x:Key="textExport">Export</system:String>
+    <system:String x:Key="textRemove">Remove</system:String>
+    <system:String x:Key="textRevert">Revert</system:String>
+    <system:String x:Key="textFindGameEXE">Find your game executable (EXE)</system:String>
+    <system:String x:Key="textModList">Your mod list - This is loaded from top to bottom. Bottom has priority.</system:String>
+
+    <system:String x:Key="textImportFileIntoBIG">Import file into BIG</system:String>
+    <system:String x:Key="textExportFileOutOfBIG">Export file out of BIG</system:String>
+    <system:String x:Key="textRevertFileInBIG">Revert file in BIG</system:String>
+
+
+
+    <system:String x:Key="textEverything">Everything</system:String>
+    <system:String x:Key="textData">Data</system:String>
+    <system:String x:Key="textTextures">Textures</system:String>
+    <system:String x:Key="textGameplay">Gameplay</system:String>
+    <system:String x:Key="textKits">Kits</system:String>
+    <system:String x:Key="textFaces">Faces</system:String>
+    <system:String x:Key="textTeams">Teams</system:String>
+    <system:String x:Key="textDatabase">Database</system:String>
+
+</ResourceDictionary>

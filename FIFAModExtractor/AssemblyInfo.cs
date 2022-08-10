@@ -1,4 +1,19 @@
+using System.Reflection;
+
+using System.Runtime.InteropServices;
 using System.Windows;
+
+// General Information about an assembly is controlled through the following
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("Frostbite Mod Extractor Tool")]
+[assembly: AssemblyDescription("Frostbite Mod Extractor Tool")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Paulv2k4")]
+[assembly: AssemblyProduct("Frostbite Mod Extractor Tool")]
+[assembly: AssemblyCopyright("Copyright © Paulv2k4 2021")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
 
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None, //where theme specific resource dictionaries are located
@@ -8,3 +23,5 @@ using System.Windows;
                                               //(used if a resource is not found in the page,
                                               // app, or any theme specific resource dictionaries)
 )]
+
+[assembly: AssemblyVersion("2.2.*")]

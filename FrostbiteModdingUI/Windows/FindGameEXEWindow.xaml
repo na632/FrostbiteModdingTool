@@ -8,7 +8,7 @@
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
-        Title="Find your Game EXE" WindowStartupLocation="CenterScreen" Height="400" Width="500">
+        Title="{DynamicResource textFindGameEXE}" WindowStartupLocation="CenterScreen" Height="400" Width="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
@@ -39,7 +39,7 @@
         <Button x:Name="btnFindGameEXE" Grid.Row="1" Click="btnFindGameEXE_Click">
             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                 <MaterialDesign:PackIcon Kind="Search" VerticalAlignment="Center" />
-                <Label Content="Find your Game" VerticalAlignment="Center" />
+                <Label Content="{DynamicResource textFindGameEXE}" VerticalAlignment="Center" />
             </StackPanel>
         </Button>
     </Grid>

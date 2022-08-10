@@ -13,8 +13,10 @@ namespace Madden21Plugin.Cache
     {
         public void Write()
         {
+            MemoryStream msCache = new MemoryStream();
             FileSystem fs = AssetManager.Instance.fs;
-            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
+            //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
+            using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
                 nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
                 nativeWriter.Write(fs.Head);
@@ -29,8 +31,8 @@ namespace Madden21Plugin.Cache
                     nativeWriter.WriteNullTerminatedString(bundle.Name);
                     nativeWriter.Write(bundle.SuperBundleId);
                 }
-                nativeWriter.Write(AssetManager.Instance.ebxList.Values.Count);
-                foreach (EbxAssetEntry ebxEntry in AssetManager.Instance.ebxList.Values)
+                nativeWriter.Write(AssetManager.Instance.EBX.Values.Count);
+                foreach (EbxAssetEntry ebxEntry in AssetManager.Instance.EBX.Values)
                 {
                     nativeWriter.WriteLengthPrefixedString(ebxEntry.Name);
                     nativeWriter.Write(ebxEntry.Sha1);
@@ -61,29 +63,29 @@ namespace Madden21Plugin.Cache
                         nativeWriter.Write(item);
                     }
 
-                        nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
-                        if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(ebxEntry.SBFileLocation);
-                        nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
-                        if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
+                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
+                    //if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
+                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.SBFileLocation);
+                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
+                    //if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
+                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
 
-                        nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
-                        if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
+                    //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
+                    //if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
+                    //    nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
 
-                        nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
-                        nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
-                        nativeWriter.Write(ebxEntry.SB_Sha1_Position);
-                        nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
-                        nativeWriter.Write(ebxEntry.ParentBundleOffset);
-                        nativeWriter.Write(ebxEntry.ParentBundleSize);
-                    nativeWriter.WriteLengthPrefixedString(ebxEntry.Bundle);
+                    //nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
+                    //nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
+                    //nativeWriter.Write(ebxEntry.SB_Sha1_Position);
+                    //nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
+                    //nativeWriter.Write(ebxEntry.ParentBundleOffset);
+                    //nativeWriter.Write(ebxEntry.ParentBundleSize);
+                    //nativeWriter.WriteLengthPrefixedString(ebxEntry.Bundle);
 
 
                 }
-                nativeWriter.Write(AssetManager.Instance.resList.Values.Count);
-                foreach (ResAssetEntry resEntry in AssetManager.Instance.resList.Values)
+                nativeWriter.Write(AssetManager.Instance.RES.Values.Count);
+                foreach (ResAssetEntry resEntry in AssetManager.Instance.RES.Values)
                 {
 
                     nativeWriter.WriteLengthPrefixedString(resEntry.Name);
@@ -123,7 +125,7 @@ namespace Madden21Plugin.Cache
                     nativeWriter.Write(resEntry.SB_OriginalSize_Position);
                     nativeWriter.Write(resEntry.ParentBundleOffset);
                     nativeWriter.Write(resEntry.ParentBundleSize);
-                    nativeWriter.WriteLengthPrefixedString(resEntry.Bundle);
+                    //nativeWriter.WriteLengthPrefixedString(resEntry.Bundle);
 
                     nativeWriter.Write(resEntry.Bundles.Count);
                     foreach (int bundle3 in resEntry.Bundles)
@@ -131,16 +133,25 @@ namespace Madden21Plugin.Cache
                         nativeWriter.Write(bundle3);
                     }
 
-                    
+
                 }
 
-                nativeWriter.Write(AssetManager.Instance.chunkList.Count);
-                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.chunkList.Values)
+                nativeWriter.Write(AssetManager.Instance.Chunks.Count);
+                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.Chunks.Values)
                 {
                     WriteChunkEntry(nativeWriter, chunkEntry);
                 }
 
+                nativeWriter.Write(AssetManager.Instance.BundleChunks.Count);
+                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.BundleChunks.Values)
+                {
+                    nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
+                    WriteChunkEntry(nativeWriter, chunkEntry);
+                }
+
             }
+
+            AssetManager.CacheCompress(msCache);
         }
 
         private void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
@@ -196,6 +207,10 @@ namespace Madden21Plugin.Cache
             if (!string.IsNullOrEmpty(chunkEntry.Bundle))
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
 
+            if(chunkEntry.Id.ToString() == "e35237c0-ebbe-bc31-1504-aaf3eb947c9b")
+            {
+
+            }
             nativeWriter.Write(chunkEntry.Bundles.Count);
             foreach (int bundleId in chunkEntry.Bundles)
             {

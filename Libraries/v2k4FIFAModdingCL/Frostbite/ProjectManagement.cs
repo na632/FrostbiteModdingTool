@@ -16,19 +16,19 @@ namespace v2k4FIFAModding.Frosty
 {
 
     /// <summary>
-    /// Project Management
-    /// !Is a singleton class! Cannot create 2 instances of this class.
+    /// Project Management is a singleton class. Cannot create 2 instances of this class.
     /// </summary>
     public class ProjectManagement : ILogger
     {
         public static ProjectManagement Instance;
 
         public FrostbiteProject Project { get; set; }
-        public string FilePath { get; set; }
 
         public ILogger Logger = null;
 
         string lastMessage = null;
+
+
 
         /// <summary>
         /// Sets up all the Singleton Paths
@@ -41,11 +41,13 @@ namespace v2k4FIFAModding.Frosty
                 if (!File.Exists(filePath))
                     throw new FileNotFoundException("File path / Game EXE doesn't exist");
 
+                GameInstanceSingleton.InitializeSingleton(filePath);
+
                 var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                GameInstanceSingleton.GAMERootPath = FIFADirectory;
+                GameInstanceSingleton.Instance.GAMERootPath = FIFADirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                GameInstanceSingleton.GAMEVERSION = fileName.Replace(".exe", "");
-                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+                GameInstanceSingleton.Instance.GAMEVERSION = fileName.Replace(".exe", "");
+                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
                 {
                     throw new Exception("Unable to Initialize Profile");
                 }
@@ -73,20 +75,20 @@ namespace v2k4FIFAModding.Frosty
 
         private void Initialize()
         {
-            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMERootPath))
+            if (string.IsNullOrEmpty(GameInstanceSingleton.Instance.GAMERootPath))
                 throw new Exception("Game path has not been selected or initialized");
 
-            if (string.IsNullOrEmpty(GameInstanceSingleton.GAMEVERSION))
+            if (string.IsNullOrEmpty(GameInstanceSingleton.Instance.GAMEVERSION))
                 throw new Exception("Game EXE has not been selected or initialized");
 
-            if (PreviousGameVersion != GameInstanceSingleton.GAMEVERSION || AssetManager.Instance == null)
+            if (PreviousGameVersion != GameInstanceSingleton.Instance.GAMEVERSION || AssetManager.Instance == null)
             {
                 var buildCache = new BuildCache();
-                buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, logger: this, loadSDK: true);
+                buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, logger: this, loadSDK: true);
                 //if (!File.Exists(FIFAInstanceSingleton.V))
                 //    var buildSDK = new BuildSDK();
                 //var b = buildSDK.Build().Result;
-                PreviousGameVersion = GameInstanceSingleton.GAMEVERSION;
+                PreviousGameVersion = GameInstanceSingleton.Instance.GAMEVERSION;
             }
         }
 
@@ -193,83 +195,16 @@ namespace v2k4FIFAModding.Frosty
             });
         }
 
-        /*
-         * 
-         * 
-         * 
-         * App.FileSystem = new FileSystem(Config.Get("Init", "GamePath", ""));
-				foreach (FileSystemSource source in ProfilesLibrary.Sources)
-				{
-					App.FileSystem.AddSource(source.Path, source.SubDirs);
-				}
-				App.FileSystem.Initialize(key);
-				App.ResourceManager = new ResourceManager(App.FileSystem);
-				App.ResourceManager.SetLogger(logger);
-				App.ResourceManager.Initialize();
-				App.AssetManager = new AssetManager(App.FileSystem, App.ResourceManager);
-				if (ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20190911 || ProfilesLibrary.DataVersion == 20190905)
-				{
-					App.AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-				}
-				App.AssetManager.SetLogger(logger);
-				App.AssetManager.Initialize(additionalStartup: true, result);
-         * 
-         */
-
-
         public FrostbiteProject StartNewProject()
         {
             if(AssetManager.Instance == null)
             {
                 BuildCache buildCache = new BuildCache();
-                buildCache.LoadData(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, Logger, false, true);
+                buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, Logger, false, true);
             }
 
             Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
             return Project;
-            //if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
-            //{
-            //    PreviousGameVersion = GameInstanceSingleton.GAMEVERSION;
-
-            //    if (KeyManager.Instance.ReadInKeys())
-            //    {
-            //        if (TypeLibrary.Initialize())
-            //        {
-            //            var FileSystem = new FrostySdk.FileSystem(GameInstanceSingleton.GAMERootPath);
-            //            foreach (FileSystemSource source in ProfilesLibrary.Sources)
-            //            {
-            //                FileSystem.AddSource(source.Path, source.SubDirs);
-            //            }
-            //            FileSystem.Initialize(KeyManager.Instance.GetKey("Key1"));
-            //            var ResourceManager = new ResourceManager(FileSystem);
-            //            ResourceManager.SetLogger(Logger ?? this);
-            //            ResourceManager.Initialize();
-            //            AssetManager = new AssetManager(FileSystem, ResourceManager);
-            //            //LegacyFileManager.AssetManager = AssetManager;
-            //            //AssetManager.RegisterCustomAssetManager("legacy", typeof(LegacyFileManager));
-            //            AssetManager.RegisterLegacyAssetManager();
-            //            AssetManager.SetLogger(Logger ?? this);
-            //            AssetManager.Initialize(additionalStartup: true);
-
-            //            FrostyProject = new FrostyProject(AssetManager, FileSystem);
-            //            return FrostyProject;
-            //        }
-            //        else
-            //        {
-            //            Debug.WriteLine("Could Init Type Library");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        Debug.WriteLine("Could not read in keys");
-            //    }
-            //}
-            //else
-            //{
-            //    Debug.WriteLine("Couldn't find FIFA Version");
-            //}
-
-            return null;
         }
 
     }

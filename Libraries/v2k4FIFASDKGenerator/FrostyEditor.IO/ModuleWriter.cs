@@ -2,23 +2,19 @@ using FrostySdk;
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
-using Microsoft.CSharp;
-using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-//using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
-using System.Diagnostics;
-using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Emit;
+using System;
+using System.Collections.Generic;
+using System.IO;
+//using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
+using System.Linq;
+using System.Text;
 
 namespace SdkGenerator
 {
-	public class ModuleWriter : IDisposable
+    public class ModuleWriter : IDisposable
 	{
 		private DbObject classList;
 
@@ -114,6 +110,9 @@ namespace SdkGenerator
 			stringBuilder.AppendLine("{");
 			foreach (DbObject @class in classList)
 			{
+				if (@class.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+				{
+				}
 				EbxFieldType ebxFieldType = (EbxFieldType)@class.GetValue("type", 0);
 				switch (ebxFieldType)
 				{
@@ -148,24 +147,27 @@ namespace SdkGenerator
 					stringBuilder.AppendLine("public class Delegate_" + @class.GetValue<Guid>("guid").ToString().Replace('-', '_') + " { }\r\n}");
 				}
 			}
-			//if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20140225)
-			//{
-			//	DbObject dbObject2 = DbObject.CreateObject();
-			//	dbObject2.SetValue("name", "RenderFormat");
-			//	List<string> list = CreateOldFB3PFs();
-			//	DbObject dbObject3 = DbObject.CreateList();
-			//	int num = 0;
-			//	foreach (string item in list)
-			//	{
-			//		DbObject dbObject4 = DbObject.CreateObject();
-			//		dbObject4.SetValue("name", item);
-			//		dbObject4.SetValue("value", num++);
-			//		dbObject3.Add(dbObject4);
-			//	}
-			//	dbObject2.SetValue("fields", dbObject3);
-			//	stringBuilder.Append(WriteEnum(dbObject2));
-			//}
-			stringBuilder.AppendLine("}");
+            if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20140225
+				 ||
+				ProfilesLibrary.IsBF4DataVersion()
+				)
+            {
+                DbObject dbObject2 = DbObject.CreateObject();
+                dbObject2.SetValue("name", "RenderFormat");
+                List<string> list = CreateOldFB3PFs();
+                DbObject dbObject3 = DbObject.CreateList();
+                int num = 0;
+                foreach (string item in list)
+                {
+                    DbObject dbObject4 = DbObject.CreateObject();
+                    dbObject4.SetValue("name", item);
+                    dbObject4.SetValue("value", num++);
+                    dbObject3.Add(dbObject4);
+                }
+                dbObject2.SetValue("fields", dbObject3);
+                stringBuilder.Append(WriteEnum(dbObject2));
+            }
+            stringBuilder.AppendLine("}");
 
 			//if (File.Exists("temp.cs"))
 			//	File.Delete("temp.cs");
@@ -212,21 +214,29 @@ namespace SdkGenerator
 
 			var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, options);
 
-			var objectAssemblyLocation = typeof(object).Assembly.Location;
-			var systemRuntimeAssemblyLocation = typeof(System.Runtime.Serialization.DataContractSerializer).Assembly.Location;
+
+			var dotnetcore_directory = Directory.GetParent(typeof(object).Assembly.Location);
+
+			var dotnetcore_files = Directory.GetFiles(dotnetcore_directory.FullName, "*.dll", SearchOption.AllDirectories);
+
+            var objectAssemblyLocation = typeof(object).Assembly.Location;
+            //var systemRuntimeAssemblyLocation = typeof(System.Runtime.Serialization.DataContractSerializer).Assembly.Location;
 
 
-			var references = new MetadataReference[]
-			{
-            MetadataReference.CreateFromFile(objectAssemblyLocation),
-			//MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
-			//MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-			//MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.12\netstandard.dll"),
-			MetadataReference.CreateFromFile(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.12\System.Runtime.dll"),
-            MetadataReference.CreateFromFile("FrostySdk.dll"),
-			//MetadataReference.CreateFromFile("FrostbiteSdk.dll")
+            var references = new MetadataReference[]
+            {
+                    MetadataReference.CreateFromFile(objectAssemblyLocation),
+					MetadataReference.CreateFromFile(dotnetcore_directory + @"\netstandard.dll"),
+					MetadataReference.CreateFromFile(dotnetcore_directory + @"\System.Runtime.dll"),
+                    MetadataReference.CreateFromFile("FrostySdk.dll"),
 			};
+
+   //         var references = new List<MetadataReference>();
+			//foreach(var dotnetcoredll in dotnetcore_files)
+   //         {
+			//	references.Add(MetadataReference.CreateFromFile(dotnetcoredll));
+			//}
+			//references.Add(MetadataReference.CreateFromFile("FrostySdk.dll"));
 
 			if (File.Exists("EbxClasses.dll"))
 				File.Delete("EbxClasses.dll");
@@ -273,6 +283,10 @@ namespace SdkGenerator
 
 		private string WriteEnum(DbObject enumObj)
 		{
+			if (enumObj.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
+			{
+			}
+
 			StringBuilder stringBuilder = new StringBuilder();
 
 			stringBuilder.Append(WriteClassAttributes(enumObj));
@@ -305,6 +319,10 @@ namespace SdkGenerator
 			EbxFieldType ebxFieldType = (EbxFieldType)classObj.GetValue("type", 0);
 			DbObject value = classObj.GetValue<DbObject>("meta");
 			string className = classObj.GetValue<string>("name").Replace(':', '_');
+
+			if (string.IsNullOrEmpty(className))
+				return string.Empty;
+
 			stringBuilder.Append(WriteClassAttributes(classObj));
 
 			stringBuilder.AppendLine("public class " + className + ((parentClassName != "") ? (" : " + parentClassName) : ""));
@@ -349,6 +367,12 @@ namespace SdkGenerator
 			if (classObj.GetValue<string>("name") == "blocking")
 			{
 			}
+
+			if (classObj.GetValue<string>("name") == "AgentsClassSettingsFillerData")
+			{
+			}
+
+			
 
 			var class_fields = classObj.GetValue<DbObject>("fields").list.OrderBy(x => ((DbObject)x).GetValue<int>("offset"));
 			foreach (DbObject item in class_fields)
@@ -440,13 +464,13 @@ namespace SdkGenerator
 			StringBuilder stringBuilder = new StringBuilder();
 			string fieldName = fieldObj.GetValue<string>("name");
 			EbxFieldType ebxFieldType = (EbxFieldType)fieldObj.GetValue("type", 0);
-			string value2 = fieldObj.GetValue("baseType", "");
-			DbObject value3 = fieldObj.GetValue<DbObject>("meta");
-			DbObject dbObject = value3?.GetValue<DbObject>("type");
-			if (value3 != null && value3.HasValue("version"))
+			string baseType = fieldObj.GetValue("baseType", "");
+			DbObject meta = fieldObj.GetValue<DbObject>("meta");
+			DbObject dbObject = meta?.GetValue<DbObject>("type");
+			if (meta != null && meta.HasValue("version"))
 			{
 				bool flag = false;
-				foreach (int item in value3.GetValue<DbObject>("version"))
+				foreach (int item in meta.GetValue<DbObject>("version"))
 				{
 					if (item == ProfilesLibrary.DataVersion)
 					{
@@ -464,7 +488,7 @@ namespace SdkGenerator
 				ebxFieldType = (EbxFieldType)dbObject.GetValue("flags", 0);
 				if (dbObject.HasValue("baseType"))
 				{
-					value2 = dbObject.GetValue<string>("baseType");
+					baseType = dbObject.GetValue<string>("baseType");
 				}
 			}
 			string fieldType = "";
@@ -477,20 +501,20 @@ namespace SdkGenerator
 				{
 					type = (EbxFieldType)dbObject.GetValue("arrayType", 0);
 				}
-				fieldType = "List<" + GetFieldType(type, value2) + ">";
+				fieldType = "List<" + GetFieldType(type, baseType) + ">";
 				flag2 = true;
 			}
 			else
 			{
-				fieldType = GetFieldType(ebxFieldType, value2);
+				fieldType = GetFieldType(ebxFieldType, baseType);
 				flag2 = (ebxFieldType == EbxFieldType.ResourceRef || ebxFieldType == EbxFieldType.BoxedValueRef || ebxFieldType == EbxFieldType.CString || ebxFieldType == EbxFieldType.FileRef || ebxFieldType == EbxFieldType.TypeRef || ebxFieldType == EbxFieldType.Struct);
 			}
 			if (string.IsNullOrEmpty(fieldType))
 				fieldType = "PointerRef";
 
-			if (value3 != null && value3.HasValue("accessor"))
+			if (meta != null && meta.HasValue("accessor"))
 			{
-				stringBuilder.AppendLine("public " + fieldType + " " + fieldName + " { " + value3.GetValue<string>("accessor") + " }");
+				stringBuilder.AppendLine("public " + fieldType + " " + fieldName + " { " + meta.GetValue<string>("accessor") + " }");
 			}
 			else
 			{
@@ -562,8 +586,8 @@ namespace SdkGenerator
 			DbObject value = fieldObj.GetValue<DbObject>("meta");
 			EbxFieldType ebxFieldType = (EbxFieldType)fieldObj.GetValue("type", 0);
 			int num = fieldObj.GetValue("arrayFlags", 0);
-			string text = (ebxFieldType == EbxFieldType.Pointer || ebxFieldType == EbxFieldType.Array) ? fieldObj.GetValue("baseType", "null") : "null";
-			int num2 = fieldObj.GetValue("flags", 0);
+			string baseType = (ebxFieldType == EbxFieldType.Pointer || ebxFieldType == EbxFieldType.Array) ? fieldObj.GetValue("baseType", "null") : "null";
+			int flags = fieldObj.GetValue("flags", 0);
 			//if (ebxFieldType == EbxFieldType.Array && fieldObj.HasValue("guid"))
 			if (fieldObj.HasValue("guid"))
 			{
@@ -575,10 +599,10 @@ namespace SdkGenerator
 				DbObject value2 = value.GetValue<DbObject>("type");
 				if (value2 != null)
 				{
-					num2 = value2.GetValue("flags", 0) << 4;
+					flags = value2.GetValue("flags", 0) << 4;
 					if (value2.HasValue("baseType"))
 					{
-						text = value2.GetValue<string>("baseType");
+						baseType = value2.GetValue<string>("baseType");
 					}
 					if (value2.HasValue("arrayType"))
 					{
@@ -587,19 +611,33 @@ namespace SdkGenerator
 				}
 				else if (value.HasValue("transient"))
 				{
-					num2 = 240;
+					flags = 240;
 				}
 			}
-			if (text != "null")
+			if (baseType != "null")
 			{
-				text = "typeof(" + text + ")";
+				baseType = "typeof(" + baseType + ")";
 			}
 			int value3 = fieldObj.GetValue("index", 0);
 			if (fieldObj.HasValue("nameHash"))
 			{
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");
+				//stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<uint>("nameHash", 0u) + ")]");
 			}
-			stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(" + num2 + ", " + fieldObj.GetValue("offset", 0) + ", " + text + ", " + (ebxFieldType == EbxFieldType.Array).ToString().ToLower() + ", " + num + ")]");
+			// PG - Added this hack for a quick fix
+			//if (fieldObj.GetValue("offset", 0) < 0)
+			//{
+			//	stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(" + num2 + ", " + 3 + ", " + baseType + ", " + (ebxFieldType == EbxFieldType.Array).ToString().ToLower() + ", " + num + ")]");
+			//}
+			//else
+   //         {
+				stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name 
+					+ "(" + flags + ", " 
+					+ fieldObj.GetValue("offset", 0) + ", " 
+					+ baseType + ", " 
+					+ (ebxFieldType == EbxFieldType.Array).ToString().ToLowerInvariant() + ", " 
+					+ num + ")]");
+			//}
 			if (value != null)
 			{
 				if (value.HasValue("displayName"))
@@ -695,8 +733,12 @@ namespace SdkGenerator
 				return baseType;
 			case EbxFieldType.Struct:
 				return baseType;
-			default:
-				return "";
+			// there is something very likely wrong if its doing this
+			case EbxFieldType.DbObject:
+				return baseType;
+				default:
+				//return "";
+				return baseType;
 			}
 		}
 

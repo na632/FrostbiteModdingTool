@@ -48,6 +48,14 @@ namespace FIFA21Plugin
 			public long TocOffset { get; set; }
 
 			public int CasIndex { get; internal set; }
+			public int Unk { get; internal set; }
+
+			public int TocBundleIndex { get; set; }
+
+			public override string ToString()
+            {
+				return $"Offset:{Offset}-Size:{Size}-Index:{TocBundleIndex}";
+			}
 
         }
 
@@ -75,7 +83,20 @@ namespace FIFA21Plugin
 							});
 							sbIndex = parent.superBundles.Count - 1;
 						}
-						parent.logger.Log($"Loading data ({sbName})");
+                        // Test to fix Arsenal Kit -- CareerSBA is useless anyway
+                        //if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
+                        //	continue;
+
+                        //if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
+                        //    continue;
+
+                        //if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                        //    continue;
+
+                        if (sbName.Contains("storysba", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
 						if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
 						{
@@ -88,7 +109,7 @@ namespace FIFA21Plugin
 						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
 						{
 							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
+							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, sbName, true, tocFileRAW);
 							if (dbObjects != null)
 							{
 								foreach (DbObject @object in dbObjects.Where(x => x != null))
@@ -132,7 +153,18 @@ namespace FIFA21Plugin
 							});
 							sbIndex = parent.superBundles.Count - 1;
 						}
-						parent.logger.Log($"Loading data ({sbName})");
+
+                        // Test to fix Arsenal Kit -- CareerSBA is useless anyway
+                        //if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
+                        //	continue;
+
+                        if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        parent.logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
 						if (parent.fs.ResolvePath("native_patch/" + tocFile + ".toc") == "")
 						{
@@ -144,7 +176,7 @@ namespace FIFA21Plugin
 						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
 						{
 							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, false, tocFileRAW);
+							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, sbName, false, tocFileRAW);
 							if (dbObjects != null)
 							{
 

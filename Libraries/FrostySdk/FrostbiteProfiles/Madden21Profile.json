@@ -1,0 +1,79 @@
+{
+  "Name": "MADDEN21",
+  "DisplayName": "MADDEN 21",
+  "DataVersion": 20200831,
+  "CacheName": "madden21",
+  "Deobfuscator": "NullDeobfuscator",
+  "KeyFile": "madden21.key",
+  // If NULL it will try and find the plugin with the "Name" above
+  "PluginName": null,
+  // Your game's file system reader
+  //"AssetLoader": "Madden21AssetLoader",
+  "AssetLoader": "FifaAssetLoader",
+  // Your game's file system compiler / ModData builder
+  "AssetCompiler": "Madden21AssetCompiler",
+  // Your WinForms Main Editor Form
+  "EditorScreen": "Madden21Editor",
+  // Texture Importer (Overriding the base Importer)
+  "TextureImporter": "M21TextureImporter",
+  // Texture Exporter (Overriding the base Exporter)
+  "TextureExporter": "TextureExporter",
+  // EBX Reader (Overriding the base Reader)
+  "EBXReader": null,
+  // EBX Writer (Overriding the base Writer)
+  "EBXWriter": null,
+  // EBX Importer (Overriding the base Importer)
+  "EBXImporter": null,
+  // EBX Exporter (Overriding the base Exporter)
+  "EBXExporter": null,
+
+  // Custom .cache file Writer - Write these exclusively (example - Madden21CacheWriter)
+  "CacheWriter": "CacheWriter",
+  // Custom .cache file Reader - Write these exclusively (example - Madden21CacheReader)
+  "CacheReader": "CacheReader",
+
+  "Sources": [
+    {
+      "Path": "Patch",
+      "SubDirs": false
+    },
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+  "SDKFilename": "MADDEN21SDK",
+  "SDKFirstTypeInfo": null,
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  // Supported Launcher Filetypes
+  "SupportedLauncherFileTypes": [ "fbmod" ],
+  // File Type to save to when compiling a mod from the Editor
+  "ModCompilerFileType": "fbmod",
+  // Can the Launcher support this Game?
+  "CanLaunchMods": false,
+  // Can this Application Edit this Game?
+  "CanEdit": false,
+  "Banner": "",
+  "EbxVersion": 4,
+  "RequiresKey": true,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "DefaultDiffuse": "content/Common/textures/debug/debug_texture_color",
+  "DefaultNormals": "content/Common/textures/debug/debug_texture_normal",
+  "DefaultMask": "content/Common/textures/debug/debug_texture_coeff",
+  "DefaultTint": "content/Common/textures/debug/debug_texture_alpha",
+  "SharedBundles": {},
+  "IgnoredResTypes": [],
+  // Can this App import meshes into the Game?
+  "CanImportMeshes": false,
+  // Can this App export meshes from the Game?
+  "CanExportMeshes": true,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16,
+  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatRES": "Oodle",
+  "CompressedFormatChunk": "Oodle",
+  "CompressedFormatLegacy": "LZ4",
+  "LegacyFileManager": "LegacyFileManager_FMTV2"
+
+}

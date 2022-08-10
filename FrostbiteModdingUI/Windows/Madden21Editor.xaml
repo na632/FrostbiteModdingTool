@@ -11,23 +11,24 @@
          xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-        Title="{Binding WindowTitle}" Height="720" Width="1280"
-         SizeToContent="WidthAndHeight" MinHeight="720" MinWidth="1280"
-        ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
-         WindowStartupLocation="CenterScreen"
+       Title="{Binding Path=WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+        Height="720" Width="1280"
+         SizeToContent="Manual" MinHeight="720" MinWidth="1280"
+        ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Visible"
+         WindowStartupLocation="CenterScreen" WindowState="Normal" WindowStyle="SingleBorderWindow"
         >
 
 
-        <Grid DockPanel.Dock="Top">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition MinHeight="400" Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Row="0"  Orientation="Horizontal" Background="White">
+        <Grid  Grid.Row="0" >
+            <StackPanel Orientation="Horizontal" Background="White">
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnProjectNew"  Height="30" Click="btnProjectNew_Click" Background="Transparent" BorderBrush="{x:Null}" IsEnabled="False">
                         <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -79,16 +80,15 @@
                 </StackPanel>
 
             </StackPanel>
-            <DockingManager Grid.Row="1">
+        </Grid>
+        <DockingManager Grid.Row="1">
                 <LayoutRoot>
                     <LayoutPanel Orientation="Vertical">
-                        <LayoutDocumentPane  ShowHeader="False">
+                        <LayoutDocumentPane ShowHeader="False">
                             <LayoutDocument Description="Test" CanClose="False" CanMove="False" CanFloat="False">
                                 <TabControl x:Name="MainViewer">
                                     <TabItem x:Name="TabDataBrowser" Header="Data" Visibility="Visible">
-                                        <StackPanel Orientation="Vertical">
-                                            <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
-                                        </StackPanel>
+                                        <localControls:Browser x:Name="dataBrowser"></localControls:Browser>
                                     </TabItem>
                                     <TabItem x:Name="TabTextureBrowser" Header="Textures" Visibility="Visible">
                                         <localControls:Browser x:Name="textureBrowser"></localControls:Browser>
@@ -96,14 +96,17 @@
                                     <TabItem x:Name="TabGameplay" Header="Gameplay" Selector.IsSelected="True">
                                         <localControls:Browser x:Name="gameplayBrowser"></localControls:Browser>
                                     </TabItem>
-                                    <TabItem x:Name="TabLegacy" Header="Legacy">
+                                <TabItem Header="Faces">
+                                    <localControls:Browser x:Name="facesBrowser"></localControls:Browser>
+                                </TabItem>
+                                <TabItem Header="Legacy">
                                         <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
                                     </TabItem>
                                 </TabControl>
                             </LayoutDocument>
                         </LayoutDocumentPane>
-                        <LayoutAnchorablePane>
-                            <LayoutAnchorable>
+                    <LayoutAnchorablePane DockMinHeight="100" DockHeight="100" ResizableAbsoluteDockHeight="100">
+                            <LayoutAnchorable CanClose="True" CanHide="True" Title="Log" >
                                 <TextBox
                                      x:Name="txtLog"
                                      IsReadOnly="True"

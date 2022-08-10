@@ -34,6 +34,7 @@ namespace FIFAModdingUI.Windows
     {
 
         private BuildCache buildCache = new BuildCache();
+        public bool DoNotAutoRebuild = false;
 
         public BuildSDKAndCache()
         {
@@ -42,7 +43,25 @@ namespace FIFAModdingUI.Windows
             Loaded += BuildSDKAndCache_Loaded;
         }
 
+        //protected override void OnContentRendered(EventArgs e)
+        //{
+        //    base.OnContentRendered(e);
+
+        //    if(!DoNotAutoRebuild)
+        //        Rebuild();
+        //}
+
         private async void BuildSDKAndCache_Loaded(object sender, RoutedEventArgs e)
+        {
+            if(Visibility == Visibility.Visible)
+            {
+                if (!DoNotAutoRebuild)
+                    Rebuild();
+            }
+        }
+
+
+        public async Task Rebuild()
         {
             if (DoesCacheNeedsRebuilding())
             {
@@ -50,16 +69,20 @@ namespace FIFAModdingUI.Windows
                 btnRunBuildCache.IsEnabled = false;
                 btnRunBuild.IsEnabled = false;
 
-                Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building Cache. Please wait 5-15 minutes to complete!"; });
-                
-                await buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, true);
+                Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building Cache. Please wait 3-15 minutes to complete!"; });
+
+                // -----------------------------------------
+                //
+                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, true, false);
+
+                Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building SDK. Please wait 1-2 minutes to complete!"; });
 
 #if DEBUG 
                 // ----------------------------------------------------------------------------------------------------------------------
                 // Turned off until I get it past the issue with the assembly being loaded when it shouldnt have been before this process
                 //
                 //Dispatcher.Invoke(() => { txtOuputMessage.Text = "Cache Build Complete. Launching the Game."; });
-                //if(GameInstanceSingleton.GAMEVERSION.Contains("FIFA", StringComparison.OrdinalIgnoreCase))
+                //if(GameInstanceSingleton.Instance.GAMEVERSION.Contains("FIFA", StringComparison.OrdinalIgnoreCase))
                 //    Dispatcher.Invoke(() => { txtOutputSubMessage.Text = "FIFA will require you to start the game from launcher"; });
 
                 //Process.Start(GameInstanceSingleton.GameEXE);
@@ -81,6 +104,18 @@ namespace FIFAModdingUI.Windows
                 //    fbProcess.CloseMainWindow();
 
 #endif
+
+                // -----------------------------------------
+                // finish off with the SDK
+                Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building Cache EBX Indexing. Please wait 1-3 minutes to complete!"; });
+
+                AssetManager.Instance.FullReset();
+                AssetManager.Instance.Dispose();
+                AssetManager.Instance = null;  
+                
+                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, false, true);
+
+
                 await Task.Delay(2000);
 
 
@@ -96,10 +131,10 @@ namespace FIFAModdingUI.Windows
 
         public bool DoesCacheNeedsRebuilding()
         {
-            if (!GameInstanceSingleton.INITIALIZED)
+            if (!GameInstanceSingleton.Instance.INITIALIZED)
                 throw new Exception("Game has not been selected");
 
-            if (ProfilesLibrary.Initialize(GameInstanceSingleton.GAMEVERSION))
+            if (ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
             {
                 if (!File.Exists(ProfilesLibrary.CacheName + ".cache"))
                 {
@@ -129,7 +164,7 @@ namespace FIFAModdingUI.Windows
                         KeyManager.Instance.AddKey("Key3", array2);
                     }
 
-                    var FileSystem = new FileSystem(GameInstanceSingleton.GAMERootPath);
+                    var FileSystem = new FileSystem(GameInstanceSingleton.Instance.GAMERootPath);
 
                     bool patched = false;
 
@@ -142,14 +177,15 @@ namespace FIFAModdingUI.Windows
                     byte[] key = KeyManager.Instance.GetKey("Key1");
                     FileSystem.Initialize(key, patched);
 
-                    using (NativeReader nativeReader = new NativeReader(new FileStream(ProfilesLibrary.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+                    //using (NativeReader nativeReader = new NativeReader(new FileStream(ProfilesLibrary.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+                    using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
                     {
                         if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
                         {
                             return true;
                         }
-                        var cacheHead = nativeReader.ReadUInt();
-                        if (cacheHead != FileSystem.Head)
+                        var cacheHead = nativeReader.ReadULong();
+                        if (cacheHead != FileSystem.SystemIteration)
                         {
                             return true;
                         }
@@ -201,7 +237,7 @@ namespace FIFAModdingUI.Windows
         {
             try
             {
-                await buildCache.LoadDataAsync(GameInstanceSingleton.GAMEVERSION, GameInstanceSingleton.GAMERootPath, this, true);
+                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, true);
             }
             catch(Exception ex)
             {

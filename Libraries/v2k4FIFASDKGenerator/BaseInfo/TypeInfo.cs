@@ -1,3 +1,5 @@
+using FrostbiteSdk;
+using FrostbiteSdk.SdkGenerator;
 using FrostyEditor.IO;
 using FrostySdk;
 using System;
@@ -5,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SdkGenerator.BaseInfo
 {
-    public class TypeInfo
+    public class TypeInfo : ISdkGenInfo
     {
         public string name;
 
@@ -71,10 +73,16 @@ namespace SdkGenerator.BaseInfo
                 reader.Position = position;
                 nameSpace = reader.ReadNullTerminatedString();
                 bool flag2 = false;
-                if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfilesLibrary.DataVersion == 20170929 
+                    || ProfilesLibrary.DataVersion == 20171117 
+                    || ProfilesLibrary.DataVersion == 20171110 
+                    || ProfilesLibrary.DataVersion == 20180807 
+                    || ProfilesLibrary.DataVersion == 20180628
+                    || ProfilesLibrary.IsFIFA19DataVersion()
+                    )
                 {
                     parentClass = array[0];
-                    if (Type == 2)
+                    if (Type == 2 && !ProfilesLibrary.IsFIFA19DataVersion())
                     {
                         reader.Position = array[5];
                         flag2 = true;
@@ -84,7 +92,7 @@ namespace SdkGenerator.BaseInfo
                         reader.Position = array[1];
                         flag2 = true;
                     }
-                    else if (Type == 8)
+                    else if (Type == 8 && !ProfilesLibrary.IsFIFA19DataVersion())
                     {
                         reader.Position = array[0];
                         flag2 = true;
@@ -118,6 +126,10 @@ namespace SdkGenerator.BaseInfo
                         FieldInfo fieldInfo2 = new FieldInfo();
                         fieldInfo2.Read(reader);
                         fieldInfo2.index = j;
+                        if(fieldInfo2.name == "")
+                        {
+
+                        }
                         fields.Add(fieldInfo2);
                     }
                 }

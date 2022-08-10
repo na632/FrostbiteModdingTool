@@ -23,7 +23,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static FrostySdk.ProfilesLibrary;
 
-namespace FIFAModdingUI
+//namespace FIFAModdingUI
+namespace FMT
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -32,43 +33,36 @@ namespace FIFAModdingUI
     {
         public List<Window> EditorWindows = new List<Window>();
 
-        public List<Profile> ProfilesWithEditorScreen = new List<Profile>();
+        //public List<Profile> ProfilesWithEditorScreen = ProfilesLibrary.EditorProfiles.ToList();
+
+        private List<Profile> profiles;
+
+        public List<Profile> ProfilesWithEditor
+        {
+            get {
+
+#pragma warning disable CA1416 // Validate platform compatibility
+                if (profiles == null || !profiles.Any())
+                    profiles = ProfilesLibrary.EditorProfiles.ToList();
+                return profiles;
+#pragma warning restore CA1416 // Validate platform compatibility
+
+            }
+            set { profiles = value; }
+        }
 
         public string WindowTitle { get; set; }
 
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MainWindow()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             InitializeComponent();
 
-            var assembly = Assembly.GetExecutingAssembly();
-            WindowTitle = "Frostbite Modding Tool " + System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+            WindowTitle = "Frostbite Modding Tool " + App.ProductVersion;
 
-            App.AppInsightClient.TrackPageView("MainWindow");
-
-            // ------------------------------------------
-            // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
-
-            //foreach (var profile in ProfilesLibrary.AvailableProfiles.Where(x=>x.EditorScreen != null))
-            //{
-            //    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-            //    {
-            //        var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(profile.EditorScreen, StringComparison.OrdinalIgnoreCase));
-            //        if (t != null)
-            //        {
-            //            //var ew = (Window)Activator.CreateInstance(t);
-            //            //EditorWindows.Add(ew);
-            //            ProfilesWithEditorScreen.Add(profile);
-            //        }
-            //    }
-            //}
-
-            // This is unfinished. The plugins need to be loaded to find any of the editor windows to load them dynamically
             DataContext = this;
-
-            // ------------------------------------------
-
-
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -80,13 +74,6 @@ namespace FIFAModdingUI
             }
 
             EditorWindows.Clear();
-
-            foreach (var pr in ProfilesWithEditorScreen)
-            {
-
-            }
-
-            ProfilesWithEditorScreen.Clear();
 
             if (App.MainEditorWindow != null)
                 App.MainEditorWindow.Close();
@@ -134,10 +121,71 @@ namespace FIFAModdingUI
 
         private void btnLauncher_Click(object sender, RoutedEventArgs e)
         {
-            new LaunchWindow(this).Show();
+            var lw = new LaunchWindow(this);
+            try
+            {
+                if (lw != null)
+                {
+                    lw.Show();
+                    this.Visibility = Visibility.Hidden;
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        private void btnBF4Editor_Click(object sender, RoutedEventArgs e)
+        {
+            App.MainEditorWindow = new BF4Editor(this);
+            App.MainEditorWindow.Show();
             this.Visibility = Visibility.Hidden;
         }
 
-      
+        private void lstProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (lstProfiles.SelectedItem != null)
+            {
+                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(((Profile)lstProfiles.SelectedItem).EditorScreen, StringComparison.OrdinalIgnoreCase));
+                    if (t != null)
+                    {
+                        App.MainEditorWindow = (Window)Activator.CreateInstance(t, this);
+                        App.MainEditorWindow.Show();
+                        lstProfiles.SelectedItem = null;
+                        this.Visibility = Visibility.Hidden;
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void cbLanguageSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbLanguageSelection.SelectedItem != null && cbLanguageSelection.SelectedIndex >= 1)
+            {
+                string selectedLanguage = null;
+                var selectedItem = ((ComboBoxItem)cbLanguageSelection.SelectedItem).Content.ToString();
+                switch (selectedItem) 
+                {
+                    case "English":
+                        selectedLanguage = "en";
+                        break;
+                    case "Deutsch":
+                        selectedLanguage = "de";
+                        break;
+                    case "Português":
+                        selectedLanguage = "pt";
+                        break;
+                }
+
+                if (!string.IsNullOrEmpty(selectedLanguage))
+                {
+                    App.LoadLanguageFile(selectedLanguage);
+                }
+            }
+        }
     }
 }
