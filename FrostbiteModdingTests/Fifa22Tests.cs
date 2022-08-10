@@ -130,10 +130,10 @@ namespace FrostbiteModdingTests
             Assert.IsNotNull(ebxEntry);
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
-            dyn.ATTR_DribbleJogSpeed = 0.005f;
-            dyn.ATTR_DribbleWalkSpeed = 0.005f;
-            dyn.ATTR_JogSpeed = 0.005f;
-            dyn.ATTR_WalkSpeed = 0.005f;
+            dyn.ATTR_DribbleJogSpeed = 0.01f;
+            //dyn.ATTR_DribbleWalkSpeed = 0.005f;
+            //dyn.ATTR_JogSpeed = 0.005f;
+            //dyn.ATTR_WalkSpeed = 0.005f;
             //dyn.ATTR_DribbleJogSpeed = 0.9f;
             //dyn.ATTR_DribbleWalkSpeed = 0.9f;
             //dyn.ATTR_JogSpeed = 0.9f;

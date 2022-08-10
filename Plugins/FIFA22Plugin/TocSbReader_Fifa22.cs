@@ -53,7 +53,7 @@ namespace FIFA22Plugin
             DoLogging = doLogging;
         }
 
-        public List<DbObject> Read(string tocPath, int sbIndex, BinarySbDataHelper helper, string SBName, bool native_data = false, string nativePath = null)
+        public List<DbObject> Read(string tocPath, int sbIndex, string SBName, bool native_data = false, string nativePath = null)
         {
             SBIndex = sbIndex;
 
@@ -75,9 +75,11 @@ namespace FIFA22Plugin
                     TOCFile.FileLocation = tocPath;
                     TOCFile.DoLogging = DoLogging;
                     TOCFile.ProcessData = ProcessData;
-                    TOCFile.Read(nativeReader);
+                    var tObjs = TOCFile.Read(nativeReader);
+                    if (tObjs != null && tObjs.Count > 0 && !ProcessData)
+                        objs.AddRange(tObjs);
                     //return TOCFile.Read(nativeReader); // this will return to do the process thingy
-
+                    return objs;
                 }
             }
 

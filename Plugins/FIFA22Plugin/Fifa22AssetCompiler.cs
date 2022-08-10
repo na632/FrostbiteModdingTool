@@ -270,7 +270,7 @@ namespace FIFA22Plugin
 
                     TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22(false, false);
 
-                    tocSbReader.Read(location_toc_file, 0, null, null, true, tocFile);
+                    tocSbReader.Read(location_toc_file, 0, null, true, tocFile);
 
                     if (tocSbReader.TOCFile.TOCObjects != null && tocSbReader.TOCFile.TOCObjects.List.Any())
                     {
