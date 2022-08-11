@@ -281,6 +281,7 @@ namespace SdkGenerator
 
         private void LoadSharedTypeDescriptors2(string name, Dictionary<string, Tuple<EbxClass, DbObject>> mapping, ref List<Guid> existingClasses)
         {
+            var isPatch = name.Contains("patch", StringComparison.OrdinalIgnoreCase);
             Dictionary<int, DbObject> classDictionaryToHash = new Dictionary<int, DbObject>();
             Dictionary<int, string> fieldDictionaryToHash = new Dictionary<int, string>();
             foreach (DbObject @class in classList)
@@ -330,7 +331,6 @@ namespace SdkGenerator
                 , false
                 );
             std.ReflectionTypeDescripter = true;
-            var isPatch = name.Contains("patch", StringComparison.OrdinalIgnoreCase);
             std.Read(FileSystem.Instance.GetFileFromMemoryFs(name), isPatch);
 
             foreach (var g in std.Guids)
@@ -391,7 +391,7 @@ namespace SdkGenerator
                         {
 
                         }
-                        if (ebxClassItem.Name.Contains("movement", StringComparison.OrdinalIgnoreCase))
+                        if (isPatch && ebxClassItem.Name.Contains("movement", StringComparison.OrdinalIgnoreCase))
                         {
 
                         }
@@ -399,7 +399,7 @@ namespace SdkGenerator
                         ebxClassItem.FieldCount = @class.FieldCount;
                         ebxClassItem.Alignment = @class.Alignment;
                         ebxClassItem.Size = @class.Size;
-                        ebxClassItem.Type = (ushort)(@class.Type >> 1);
+                        ebxClassItem.Type = (byte)dboClass.GetValue("flags", 0); // (ushort)(@class.Type >> 1);
                         ebxClassItem.SecondSize = (ushort)dboClass.GetValue("size", 0);
                         if(!mapping.ContainsKey(ebxClassItem.Name))
                             mapping.Add(ebxClassItem.Name, new Tuple<EbxClass, DbObject>(ebxClassItem, dboClass));
@@ -415,12 +415,12 @@ namespace SdkGenerator
                                 EbxField field = std.Fields[@class.FieldIndex + l];
                                 if (fieldDictionaryToHash.ContainsKey(field.NameHash))
                                 {
-                                    DbObject dboField = sdkFields.List.Single(x => (uint)((DbObject)x).GetValue<int>("nameHash") == (uint)field.NameHash) as DbObject;
+                                    DbObject dboField = sdkFields.List.Single(x => ((DbObject)x).GetValue<int>("nameHash") == field.NameHash) as DbObject;
                                     if (dboField != null)
                                     {
                                         dboField.SetValue("type", field.Type);
                                         dboField.SetValue("offset", field.DataOffset);
-                                        dboField.SetValue("value", (int)field.DataOffset);
+                                        dboField.SetValue("value", field.DataOffset <= int.MaxValue ? field.DataOffset : 0);
                                         //if (field.DebugType == EbxFieldType.Array)
                                         {
                                             var fCRIndex = @class.Index + (short)field.ClassRef;
@@ -488,11 +488,11 @@ namespace SdkGenerator
             }
             processed.Add(pclass);
             DbObject dboClassMetaList = classMetaList != null ? classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject : null;
-            DbObject dbObject3 = pobj.GetValue<DbObject>("fields");
+            DbObject dbObjectFields = pobj.GetValue<DbObject>("fields");
             DbObject dbObject4 = DbObject.CreateList();
             if (pclass.DebugType == EbxFieldType.Enum)
             {
-                foreach (DbObject dbObject8 in dbObject3.List)
+                foreach (DbObject dbObject8 in dbObjectFields.List)
                 {
                     DbObject dbObject12 = DbObject.CreateObject();
                     dbObject12.AddValue("name", dbObject8.GetValue<string>("name"));
@@ -513,7 +513,7 @@ namespace SdkGenerator
                 }
 
                 List<EbxField> ebxFieldList = new List<EbxField>();
-                foreach (DbObject dbObject7 in dbObject3.List.Distinct())
+                foreach (DbObject dbObject7 in dbObjectFields.List.Distinct())
                 {
                     ebxFieldList.Add(new EbxField
                     {
@@ -532,7 +532,7 @@ namespace SdkGenerator
                         continue;
                     }
                     DbObject dbObject6 = null;
-                    foreach (DbObject dbObject11 in dbObject3.List)
+                    foreach (DbObject dbObject11 in dbObjectFields.List)
                     {
                         if (dbObject11.GetValue<string>("name") == field.Name)
                         {

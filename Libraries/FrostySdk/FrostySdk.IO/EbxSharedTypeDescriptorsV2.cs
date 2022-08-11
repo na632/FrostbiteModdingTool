@@ -15,6 +15,8 @@ namespace FrostySdk.IO
 		public Dictionary<Guid, int> mapping = new Dictionary<Guid, int>();
 		public Dictionary<Guid, int> Mapping { get { return mapping; } }
 
+		public Dictionary<int, EbxField> NameHashToEbxField = new Dictionary<int, EbxField>();
+
 		private List<EbxField> fields = new List<EbxField>();
 		public List<EbxField> Fields { get { return fields; } }
 
@@ -173,52 +175,65 @@ namespace FrostySdk.IO
 				var fieldCountInDescriptor = reader.ReadUInt();
 				for (int k = 0; k < fieldCountInDescriptor; k++)
 				{
-					int fieldNameHash = reader.ReadInt();
+					int fieldNameHash = (int)reader.ReadUInt();
 					uint dataOffset = reader.ReadUInt();
 					ushort type = reader.ReadUShort();
 					short classRef = reader.ReadShort();
 					EbxField ebxField = default(EbxField);
 					ebxField.NameHash = fieldNameHash;
                     ebxField.Type = (ushort)(type >> 1);
+                    //var shiftType = (ushort)(type >> 1);
+                    //ebxField.Type = type;
                     ebxField.ClassRef = (ushort)classRef;
 					ebxField.DataOffset = dataOffset;
 					ebxField.SecondOffset = 0u;
 					fields.Add(ebxField);
+					//NameHashToEbxField.Add(fieldNameHash, ebxField);
 				}
 				//List<(uint, uint, uint)> list4 = new List<(uint, uint, uint)>();
-				typeCount = reader.ReadUInt();
-				for (int j = 0; j < typeCount; j++)
+				var unkCount = reader.ReadUInt();
+				for (int j = 0; j < unkCount; j++)
 				{
-					uint nameHash3 = reader.ReadUInt();
-					uint dataOffset2 = reader.ReadUInt();
+					int nameHash3 = (int)reader.ReadUInt();
+					uint depthOffset = reader.ReadUInt();
 					uint unk3 = reader.ReadUInt();
 					for (int n = 0; n < Fields.Count; n++)
 					{
 						EbxField field = Fields[n];
 						if (field.NameHash == nameHash3)
 						{
-							field.SecondOffset = dataOffset2;
+							field.SecondOffset = depthOffset;
 							field.Unk3 = unk3;
 							fields[n] = field;
 						}
 					}
 					//list4.Add((nameHash3, unk2, unk3));
 				}
-				var arrayValueCount = reader.ReadUInt();
-				for (int i = 0; i < arrayValueCount; i++)
+				uint arraysAndBoxedValuesCount = reader.ReadUInt();
+				for (int i = 0; i < arraysAndBoxedValuesCount; i++)
 				{
-                    uint nameHash4 = reader.ReadUInt();
-                    uint dataOffset2 = reader.ReadUInt();
-                    for (int n = 0; n < Fields.Count; n++)
-                    {
-                        EbxField field = Fields[n];
-                        if (field.NameHash == nameHash4)
-                        {
-                            field.ThirdOffset = dataOffset2;
-                            fields[n] = field;
-                        }
-                    }
-                }
+					uint fieldNameHash = reader.ReadUInt32LittleEndian();
+					int classRef2 = reader.ReadInt32LittleEndian();
+					if (classRef2 < this.classes.Count)
+					{
+						EbxClass? _class = this.classes[classRef2];
+					}
+				}
+				//var arrayValueCount = reader.ReadUInt();
+				//for (int i = 0; i < arrayValueCount; i++)
+				//{
+				//                uint nameHash4 = reader.ReadUInt();
+				//                uint dataOffset2 = reader.ReadUInt();
+				//                for (int n = 0; n < Fields.Count; n++)
+				//                {
+				//                    EbxField field = Fields[n];
+				//                    if (field.NameHash == nameHash4)
+				//                    {
+				//                        field.ThirdOffset = dataOffset2;
+				//                        fields[n] = field;
+				//                    }
+				//                }
+				//            }
 			}
 		}
 

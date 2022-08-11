@@ -42,7 +42,7 @@ namespace SdkGenerator.Fifa22
 				name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
 			}
 			//nameHash = reader.ReadUInt();
-			nameHash = reader.ReadInt();
+			nameHash = (int)reader.ReadUInt();
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();
