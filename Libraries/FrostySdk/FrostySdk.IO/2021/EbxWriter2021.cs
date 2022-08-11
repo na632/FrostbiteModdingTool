@@ -598,10 +598,10 @@ namespace FrostySdk.IO
 				WriteClass(obj, objType.BaseType, writer);
 			}
 			PropertyInfo[] properties = objType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
-			//EbxClass classType = classTypes[FindExistingClass(objType)];
-			EbxClass classType = GetClass(objType.GetCustomAttributes<TypeInfoGuidAttribute>().LastOrDefault().Guid);
+            EbxClass classType = classTypes[FindExistingClass(objType)];
+            //EbxClass classType = GetClass(objType.GetCustomAttributes<TypeInfoGuidAttribute>().LastOrDefault().Guid);
 
-			//List<(EbxField, object, EbxFieldType, byte, bool, string)> tits = new List<(EbxField, object, EbxFieldType, byte, bool, string)>();
+            //List<(EbxField, object, EbxFieldType, byte, bool, string)> tits = new List<(EbxField, object, EbxFieldType, byte, bool, string)>();
 
             for (int i = 0; i < classType.FieldCount; i++)
             //foreach (PropertyInfo propertyInfo in properties)
@@ -611,18 +611,20 @@ namespace FrostySdk.IO
 				{
 					continue;
 				}
-                PropertyInfo propertyInfo = null;
-                PropertyInfo[] array = properties;
-                foreach (PropertyInfo propertyInfo2 in array)
-                {
-                    HashAttribute customAttribute = propertyInfo2.GetCustomAttribute<HashAttribute>();
-                    //if (customAttribute != null && customAttribute.Hash == (int)field.NameHash)
-                    if (customAttribute != null && (uint)customAttribute.Hash == field.NameHash)
-                    {
-                        propertyInfo = propertyInfo2;
-                        break;
-                    }
-                }
+                PropertyInfo propertyInfo = properties.SingleOrDefault(x => 
+					x.GetCustomAttribute<HashAttribute>() != null 
+					&& x.GetCustomAttribute<HashAttribute>().Hash == field.NameHash);
+                //PropertyInfo[] array = properties;
+                //foreach (PropertyInfo propertyInfo2 in array)
+                //{
+                //    HashAttribute customAttribute = propertyInfo2.GetCustomAttribute<HashAttribute>();
+                //    //if (customAttribute != null && customAttribute.Hash == (int)field.NameHash)
+                //    if (customAttribute != null && (uint)customAttribute.Hash == field.NameHash)
+                //    {
+                //        propertyInfo = propertyInfo2;
+                //        break;
+                //    }
+                //}
                 if (propertyInfo == null)
                 {
                     if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)
@@ -908,7 +910,7 @@ namespace FrostySdk.IO
 		{
 			EbxClass @class = GetClass(classType, out Guid guid);
 			classTypes.Add(@class);
-			if(@class.SecondSize == 1 )
+			if(@class.SecondSize >= 1)
 				classGuids.Add(EbxReader2021.patchStd.GetGuid(@class).Value);
 			else
 				classGuids.Add(EbxReader2021.std.GetGuid(@class).Value);
@@ -960,27 +962,11 @@ namespace FrostySdk.IO
 
 		internal EbxClass GetClass(Type objType, out Guid guid)
 		{
-			//EbxClass? ebxClass = null;
-			guid = objType.GetCustomAttributes<TypeInfoGuidAttribute>().LastOrDefault().Guid;
-			return GetClass(guid);
-			//using (IEnumerator<TypeInfoGuidAttribute> enumerator = objType.GetCustomAttributes<TypeInfoGuidAttribute>().GetEnumerator())
-			//{
-			//	if (enumerator.MoveNext())
-			//	{
-			//		TypeInfoGuidAttribute current = enumerator.Current;
-			//		if (!ebxClass.HasValue)
-			//		{
-			//			//EbxReaderV2.InitialiseStd();
-			//			//ebxClass = EbxReaderV2.std.GetClass(current.Guid);
-			//			//var ebxClass2 = EbxReaderV2.patchStd.GetClass(current.Guid);
-			//			//var ebxClass3 = GetClass(current.Guid);
-			//			ebxClass = GetClass(current.Guid);
-			//			guid = current.Guid;
-			//		}
-			//	}
-			//}
-			//guid = Guid.Empty;
-			//return ebxClass.Value;
+			var tiGuid = objType.GetCustomAttributes<TypeInfoGuidAttribute>().Last().Guid;
+			var @class = GetClass(tiGuid);
+			guid = tiGuid;
+			@class.SecondSize = (ushort)objType.GetCustomAttributes<TypeInfoGuidAttribute>().Count() > 1 ? (ushort)objType.GetCustomAttributes<TypeInfoGuidAttribute>().Count() : (ushort)0u;
+			return @class;
 		}
 
 		internal EbxClass GetClass(Guid guid)
@@ -997,10 +983,12 @@ namespace FrostySdk.IO
 		{
 			EbxReaderV2.InitialiseStd();
 
-            if (classType.SecondSize == 1 && EbxReader2021.patchStd.GetField(index).HasValue)
-                return EbxReaderV2.patchStd.GetField(index).Value;
+			if (classType.SecondSize >= 1 && EbxReaderV2.patchStd.GetField(index).HasValue)
+			{
+				return EbxReaderV2.patchStd.GetField(index).Value;
+			}
 
-            return EbxReaderV2.std.GetField(index).Value;
+			return EbxReaderV2.std.GetField(index).Value;
 		}
 	}
 }
