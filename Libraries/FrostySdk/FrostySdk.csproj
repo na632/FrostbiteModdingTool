@@ -102,6 +102,10 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
+	  <None Update="FrostbiteProfiles\FIFA23Profile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
 	  <None Update="FrostbiteProfiles\FIFA22Profile.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -116,6 +120,10 @@
 	  </None>
 	  <None Update="FrostbiteProfiles\BF2042Profile.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Update="FrostbiteProfiles\Madden23Profile.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	  <None Update="FrostbiteProfiles\Madden22Profile.json">

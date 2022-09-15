@@ -25,12 +25,14 @@
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA22Profile.json" Link="FrostbiteProfiles\FIFA22Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\FIFA23Profile.json" Link="FrostbiteProfiles\FIFA23Profile.json" />
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\Madden21Profile.json" Link="FrostbiteProfiles\Madden21Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\Madden22Profile.json" Link="FrostbiteProfiles\Madden22Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Libraries\FrostySdk\FrostbiteProfiles\Madden23Profile.json" Link="FrostbiteProfiles\Madden23Profile.json" />
     <Content Include="..\Libraries\v2k4FIFASDKGenerator\SdkGen\FIFA20.Classes.txt" Link="SdkGen\FIFA20.Classes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -57,9 +59,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj" />
-    <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
-    <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
-    <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\FIFAModding.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\SDKGenerator.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\ModdingSupport.csproj" />
   </ItemGroup>
 
   <ItemGroup>

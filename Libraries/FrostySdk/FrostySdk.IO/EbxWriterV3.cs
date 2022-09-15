@@ -51,8 +51,12 @@ namespace FrostySdk.FrostySdk.IO
 
 		public List<Guid> Dependencies => dependencies;
 
-		public EbxWriterV3(Stream inStream, EbxWriteFlags inFlags = EbxWriteFlags.None)
-			: base(inStream, inFlags)
+		//public EbxWriterV3(Stream inStream, EbxWriteFlags inFlags = EbxWriteFlags.None)
+		//	: base(inStream, inFlags)
+		//{
+		//}
+		public EbxWriterV3(Stream inStream, EbxWriteFlags inFlags = EbxWriteFlags.None, bool leaveOpen = false)
+			: base(inStream, inFlags, true)
 		{
 		}
 
@@ -564,17 +568,19 @@ namespace FrostySdk.FrostySdk.IO
 				{
 					continue;
 				}
-				PropertyInfo propertyInfo = null;
-				PropertyInfo[] array = properties;
-				foreach (PropertyInfo propertyInfo2 in array)
-				{
-					HashAttribute customAttribute = propertyInfo2.GetCustomAttribute<HashAttribute>();
-					if (customAttribute != null && customAttribute.Hash == (int)field.NameHash)
-					{
-						propertyInfo = propertyInfo2;
-						break;
-					}
-				}
+				PropertyInfo propertyInfo = Array.Find(properties, (PropertyInfo p) => p.GetCustomAttribute<HashAttribute>()?.Hash == (int?)field.NameHash);
+
+				//PropertyInfo propertyInfo = null;
+				//PropertyInfo[] array = properties;
+				//foreach (PropertyInfo propertyInfo2 in array)
+				//{
+				//	HashAttribute customAttribute = propertyInfo2.GetCustomAttribute<HashAttribute>();
+				//	if (customAttribute != null && customAttribute.Hash == (int)field.NameHash)
+				//	{
+				//		propertyInfo = propertyInfo2;
+				//		break;
+				//	}
+				//}
 				if (propertyInfo == null)
 				{
 					if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)

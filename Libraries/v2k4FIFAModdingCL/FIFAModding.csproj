@@ -45,7 +45,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
-    <ProjectReference Include="..\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
+    <ProjectReference Include="..\v2k4FIFASDKGenerator\SDKGenerator.csproj" />
   </ItemGroup>
 
   <ItemGroup>

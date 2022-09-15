@@ -1,8 +1,8 @@
 {
-  "Name": "FIFA22",
-  "DisplayName": "FIFA 22",
-  "DataVersion": 20210922,
-  "CacheName": "fifa22",
+  "Name": "FIFA23",
+  "DisplayName": "FIFA 23",
+  "DataVersion": 20220928,
+  "CacheName": "fifa23",
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
@@ -40,22 +40,21 @@
   // --------------------------------------------------------
   // SDK Generating Info
   //
-  "SDKFilename": "FIFA22SDK",
+  "SDKFilename": "FIFA23SDK",
   "SDKFirstTypeInfo": null,
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
   "SDKClassesFile": "FIFA22.Classes.txt",
   "SDKGeneratorClassInfoType": "SdkGenerator.Fifa22.ClassInfo",
-  //"SDKGeneratorClassInfoType": "SdkGenerator.Madden20.ClassInfo",
   "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
   //
 
 
   // Supported Launcher Filetypes
-  "SupportedLauncherFileTypes": [ "fbmod", "fifamod" ],
+  "SupportedLauncherFileTypes": [ "fbmod" ],
   // Will the Launcher support this Game?
-  "CanLaunchMods": true,
+  "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": true,
+  "CanEdit": false,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
   "CacheWriter": "Fifa22CacheWriter",
