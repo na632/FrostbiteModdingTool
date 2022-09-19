@@ -1,3 +1,5 @@
+using FrostySdk.FrostySdk.IO._2022.Readers;
+
 namespace FrostySdk.IO
 {
     public struct EbxField
@@ -19,10 +21,11 @@ namespace FrostySdk.IO
             set { name = value; }
         }
 
-        public uint NameHash;
+        //public uint NameHash;
+        public int NameHash;
         //public ulong NameHash;
 
-        public ushort Type;
+        public ushort Type { get; set; }
 
 		public ushort ClassRef;
 
@@ -32,13 +35,16 @@ namespace FrostySdk.IO
 
 		public uint ThirdOffset;
 
-        public EbxFieldType DebugType => (EbxFieldType)((Type >> 4) & 0x1F);
-        public EbxFieldType InternalType => DebugType;
+        //public EbxFieldType DebugType => (EbxFieldType)((Type >> 4) & 0x1Fu);
+        public EbxFieldType DebugType => DebugTypeOverride.HasValue ? DebugTypeOverride.Value : (EbxFieldType)((Type >> 4) & 0x1F);
+        public EbxFieldType? DebugTypeOverride { get; set; }
+        public EbxFieldType InternalType => (EbxFieldType)((Type >> 4) & 0x1F);
         public EbxFieldType22 DebugType22 => (EbxFieldType22)Type;
-
         public EbxFieldCategory Category => (EbxFieldCategory)(Type & 0xFu);
 
         public uint Unk3 { get; internal set; }
+        public ushort Flags { get; internal set; }
+        public EbxTypeCategory TypeCategory => (EbxTypeCategory)(this.Flags & 0xFu);
 
         public override bool Equals(object obj)
         {

@@ -13,11 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrostbiteModdingUI", "Frost
 		{7EB48EFE-82CD-485B-9914-458EE099F6C0} = {7EB48EFE-82CD-485B-9914-458EE099F6C0}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "v2k4FIFAModding", "Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFAModding", "Libraries\v2k4FIFAModdingCL\FIFAModding.csproj", "{808B462B-078A-4D7D-8DA1-92FCED89F32A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "paulv2k4FrostyModdingSupport", "Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj", "{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModdingSupport", "Libraries\v2k4FrostyModdingSupport\ModdingSupport.csproj", "{8D172F0E-658A-4507-870F-C5B7AE1BCA6E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "paulv2k4FIFASDKGenerator", "Libraries\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj", "{1DBC8811-E837-4701-8FAE-6A8B03F5C876}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDKGenerator", "Libraries\v2k4FIFASDKGenerator\SDKGenerator.csproj", "{1DBC8811-E837-4701-8FAE-6A8B03F5C876}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrostySdk", "Libraries\FrostySdk\FrostySdk.csproj", "{3D489D9A-0DEF-4E80-8EC8-15E265C29A36}"
 EndProject

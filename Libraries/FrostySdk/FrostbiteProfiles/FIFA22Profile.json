@@ -7,13 +7,14 @@
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
   "AssetCompiler": "Fifa22AssetCompiler_Old",
+  //"AssetCompiler": "Fifa22AssetCompiler",
   "EditorScreen": "FIFA22Editor",
   // Texture Importer (Overriding the base Importer)
   "TextureImporter": "FIFA22TextureImporter",
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)
-  "EBXReader": "EbxReader2022V2",
+  "EBXReader": "EbxReader22B",
   // EBX Writer (Overriding the base Writer)
   "EBXWriter": "EbxWriter2022",
   // EBX Importer (Overriding the base Importer)
@@ -22,7 +23,7 @@
   "EBXExporter": null,
 
   "ProjectEbxWriter": "EbxWriter2022",
-  "ProjectEbxReader": "EbxReader2022V2",
+  "ProjectEbxReader": "EbxReader2022",
 
 
   "Sources": [
@@ -42,7 +43,7 @@
   "SDKFilename": "FIFA22SDK",
   "SDKFirstTypeInfo": null,
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
-  "SDKClassesFile": "M22.Classes.txt",
+  "SDKClassesFile": "FIFA22.Classes.txt",
   "SDKGeneratorClassInfoType": "SdkGenerator.Fifa22.ClassInfo",
   //"SDKGeneratorClassInfoType": "SdkGenerator.Madden20.ClassInfo",
   "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
@@ -50,7 +51,7 @@
 
 
   // Supported Launcher Filetypes
-  "SupportedLauncherFileTypes": [ "fbmod" ],
+  "SupportedLauncherFileTypes": [ "fbmod", "fifamod" ],
   // Will the Launcher support this Game?
   "CanLaunchMods": true,
   // Can this Application Edit this Game?

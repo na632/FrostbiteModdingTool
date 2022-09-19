@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+   <!--<TargetFrameworks>net48;netstandard2.0</TargetFrameworks>-->
+    <!--<TargetFramework>netstandard2.1</TargetFramework>-->
+	  <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
+	  <TargetFramework>net6.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+	<ItemGroup>
+    <None Remove="Career\ini\cmsettings.INI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Career\ini\cmsettings.INI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Career\Interfaces\" />
+    <Folder Include="Career\StoryAssetHelpers\" />
+    <Folder Include="db\FIFA20\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bleak" Version="2.6.3" />
+    <PackageReference Include="CsvHelper" Version="27.1.1" />
+    <PackageReference Include="Lunar-RPatch" Version="1.1.0" />
+    <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
+    <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
+    <ProjectReference Include="..\v2k4FIFASDKGenerator\SDKGenerator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
+  </ItemGroup>
+
+</Project>

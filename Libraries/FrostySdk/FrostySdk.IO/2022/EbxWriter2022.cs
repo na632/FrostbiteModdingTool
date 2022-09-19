@@ -2,6 +2,7 @@
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
+using FrostySdk.IO._2022.Readers;
 using FrostySdk.Managers;
 using System;
 using System.Buffers.Binary;
@@ -706,12 +707,16 @@ namespace FrostySdk.FrostySdk.IO
 				WriteClass(obj, objType.BaseType, writer);
 			}
 			PropertyInfo[] properties = objType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+
+			var writtenProperties = new List<PropertyInfo>();
+
 			EbxClass classType = GetClass(objType);
 			foreach (EbxField field2 in from index in Enumerable.Range(0, classType.FieldCount)
 										select GetField(classType, classType.FieldIndex + index) into field
 										orderby field.DataOffset
 										select field)
 			{
+
 				if (field2.DebugType == EbxFieldType.Inherited)
 				{
 					continue;
@@ -811,6 +816,7 @@ namespace FrostySdk.FrostySdk.IO
 				}
 				else
 				{
+					writtenProperties.Add(propertyInfo);
 					EbxFieldMetaAttribute ebxFieldMetaAttribute = propertyInfo.GetCustomAttribute<EbxFieldMetaAttribute>();
 					bool isReference = propertyInfo.GetCustomAttribute<IsReferenceAttribute>() != null;
 					if (ebxFieldMetaAttribute.IsArray)
@@ -824,6 +830,12 @@ namespace FrostySdk.FrostySdk.IO
 					}
 				}
 			}
+
+			var unwrittenProperties = properties.Where(x => !writtenProperties.Any(y => y.Name == x.Name));
+			if(unwrittenProperties.Any() && obj == objsToProcess[0])
+            {
+
+            }
 			writer.WritePadding(classType.Alignment);
 		}
 
@@ -1069,60 +1081,69 @@ namespace FrostySdk.FrostySdk.IO
 			{
 				throw new ArgumentNullException("objType");
 			}
-			EbxClass? ebxClass = null;
-			IEnumerable<TypeInfoGuidAttribute> typeInfoGuidAttributes = objType.GetCustomAttributes<TypeInfoGuidAttribute>();
-			if (EbxReaderV2.patchStd != null)
-			{
-				foreach (TypeInfoGuidAttribute typeInfoGuidAttribute2 in typeInfoGuidAttributes)
-				{
-					ebxClass = EbxReaderV2.patchStd.GetClass(typeInfoGuidAttribute2.Guid);
-					if (ebxClass.HasValue)
-					{
-						return ebxClass.Value;
-					}
-				}
-			}
-			foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in typeInfoGuidAttributes)
-			{
-				ebxClass = EbxReaderV2.std.GetClass(typeInfoGuidAttribute.Guid);
-				if (ebxClass.HasValue)
-				{
-					return ebxClass.Value;
-				}
-			}
-			return ebxClass.Value;
+			//EbxClass? ebxClass = null;
+			//IEnumerable<TypeInfoGuidAttribute> typeInfoGuidAttributes = objType.GetCustomAttributes<TypeInfoGuidAttribute>();
+			//if (EbxReader22B.patchStd != null)
+			//{
+			//	foreach (TypeInfoGuidAttribute typeInfoGuidAttribute2 in typeInfoGuidAttributes)
+			//	{
+			//		ebxClass = EbxReader22B.patchStd.GetClass(typeInfoGuidAttribute2.Guid);
+			//		if (ebxClass.HasValue)
+			//		{
+			//			return ebxClass.Value;
+			//		}
+			//	}
+			//}
+			//foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in typeInfoGuidAttributes)
+			//{
+			//	ebxClass = EbxReader22B.std.GetClass(typeInfoGuidAttribute.Guid);
+			//	if (ebxClass.HasValue)
+			//	{
+			//		return ebxClass.Value;
+			//	}
+			//}
+			//return ebxClass.Value;
+			var tiGuid = objType.GetCustomAttributes<TypeInfoGuidAttribute>().Last().Guid;
+			var @class = GetClass(tiGuid);
+			@class.SecondSize = (ushort)objType.GetCustomAttributes<TypeInfoGuidAttribute>().Count() > 1 ? (ushort)objType.GetCustomAttributes<TypeInfoGuidAttribute>().Count() : (ushort)0u;
+			return @class;
 		}
 
 		internal Guid GetTypeInfoGuid(EbxClass classType)
 		{
 			if (classType.SecondSize == 0)
 			{
-				return EbxReaderV2.std.GetGuid(classType).Value;
+				return EbxReader22B.std.GetGuid(classType).Value;
 			}
-			return EbxReaderV2.patchStd.GetGuid(classType).Value;
+			return EbxReader22B.patchStd.GetGuid(classType).Value;
 		}
 
 		internal EbxClass GetClass(Guid guid)
 		{
-			return EbxReaderV2.std.GetClass(guid).Value;
+			if (EbxReader22B.patchStd.GetClass(guid).HasValue)
+			{
+				return EbxReader22B.patchStd.GetClass(guid).Value;
+			}
+			return EbxReader22B.std.GetClass(guid).Value;
 		}
 
 		internal EbxField GetField(EbxClass classType, int index)
 		{
-			if (classType.SecondSize == 0)
-			{
-				return EbxReaderV2.std.GetField(index).Value;
-			}
-			return EbxReaderV2.patchStd.GetField(index).Value;
+            if (classType.SecondSize >= 1 && EbxReader22B.patchStd.GetField(index).HasValue)
+            {
+				return EbxReader22B.patchStd.GetField(index).Value;
+            }
+            return EbxReader22B.std.GetField(index).Value;
 		}
 
 		private EbxClass GetClass(EbxClass parentClassType, EbxField field)
 		{
-			if (parentClassType.SecondSize == 0)
+			if (parentClassType.SecondSize >= 1 && EbxReader22B.patchStd.GetClass(parentClassType.Index + (short)field.ClassRef).HasValue)
 			{
-				return EbxReaderV2.std.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
+				return EbxReader22B.patchStd.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
 			}
-			return EbxReaderV2.patchStd.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
+			return EbxReader22B.std.GetClass(parentClassType.Index + (short)field.ClassRef).Value;
+
 		}
 	}
 

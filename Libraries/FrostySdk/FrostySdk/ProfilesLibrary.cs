@@ -367,10 +367,12 @@ namespace FrostySdk
 			FIFA20 = 20190911,
 			FIFA21 = 20200929,
 			FIFA22 = 20210922,
+			FIFA23 = 20220928,
 
 			MADDEN20 = 20190729,
 			MADDEN21 = 20200831,
-			MADDEN22 = 20210812
+			MADDEN22 = 20210812,
+			MADDEN23 = 20220812,
 		}
 
 		public static bool IsFIFADataVersion()
@@ -428,6 +430,16 @@ namespace FrostySdk
 			return isFIFA;
 		}
 
+		public static bool IsFIFA23DataVersion()
+		{
+
+			bool isFIFA = false;
+
+			isFIFA = (ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.FIFA23);
+
+			return isFIFA;
+		}
+
 		public static bool IsBF4DataVersion()
 		{
 
@@ -436,6 +448,16 @@ namespace FrostySdk
 			isbf4 = (ProfilesLibrary.DataVersion == 20141117);
 
 			return isbf4;
+		}
+
+		public static bool IsMadden20DataVersion()
+		{
+
+			bool isMadden = false;
+
+			isMadden = (ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.MADDEN20);
+
+			return isMadden;
 		}
 
 		public static bool IsMadden21DataVersion()
@@ -461,15 +483,17 @@ namespace FrostySdk
 			return isMadden;
 		}
 
-		public static bool IsMadden20DataVersion()
+		public static bool IsMadden23DataVersion()
 		{
 
 			bool isMadden = false;
 
-			isMadden = (ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.MADDEN20);
+			isMadden = ProfilesLibrary.DataVersion == (int)ProfilesLibrary.DataVersions.MADDEN23;
 
 			return isMadden;
 		}
+
+		
 
 		public static List<FileSystemSource> Sources => LoadedProfile.Sources;
 

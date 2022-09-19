@@ -11,7 +11,7 @@ namespace FrostySdk.IO
                 if(!string.IsNullOrEmpty(name))
                     return name;
 
-                name = this.ToString();
+                //name = this.ToString();
                 return !string.IsNullOrEmpty(name) && !name.Contains("EbxClass") ? name : string.Empty;
             
             }
@@ -37,7 +37,9 @@ namespace FrostySdk.IO
 
 		public int Index;
 
-        public EbxFieldType DebugType => (EbxFieldType)((uint)(Type >> 4) & 0x1Fu);
+        //public EbxFieldType DebugType => (EbxFieldType)((uint)(Type >> 4) & 0x1Fu);
+        public EbxFieldType DebugType => DebugTypeOverride.HasValue ? DebugTypeOverride.Value : (EbxFieldType)((Type >> 4) & 0x1Fu);
+        public EbxFieldType? DebugTypeOverride { get; set; }
         public EbxFieldCategory Category => (EbxFieldCategory)((uint)(Type >> 4) & 0x1Fu);
 
         public override string ToString()
@@ -53,7 +55,7 @@ namespace FrostySdk.IO
                     return EbxSharedTypeDescriptors.GetClassName(NameHash);
                 }
             }
-            return base.ToString();
+            return Name.ToString();
         }
 
         public override bool Equals(object obj)

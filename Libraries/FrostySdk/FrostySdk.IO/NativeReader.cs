@@ -172,7 +172,7 @@ namespace FrostySdk.IO
 			return (short)(buffer[1] | (buffer[0] << 8));
 		}
 
-		public int ReadInt16LittleEndian()
+		public short ReadInt16LittleEndian()
 		{
 			return ReadShort(Endian.Little);
 		}

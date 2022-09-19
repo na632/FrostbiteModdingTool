@@ -151,9 +151,9 @@
     <ProjectReference Include="..\Libraries\FMT.Controls\FMT.Controls.csproj" />
 	  <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj">
 	  </ProjectReference>
-    <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\v2k4FIFAModding.csproj" />
-    <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\paulv2k4FIFASDKGenerator.csproj" />
-    <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\paulv2k4FrostyModdingSupport.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\FIFAModding.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\SDKGenerator.csproj" />
+    <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\ModdingSupport.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -300,10 +300,6 @@
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
     <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
-    <None Include="C:\Windows\System32\vcruntime140d.dll" Link="vcruntime140d.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>

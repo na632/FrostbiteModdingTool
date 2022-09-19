@@ -97,6 +97,7 @@ namespace FIFA22Plugin
                                 ebxobjectinlist.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 ebxobjectinlist.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[i]);
                                 ebxobjectinlist.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[i]);
+                                ebxobjectinlist.SetValue("ParentCASBundleLocation", NativeFileLocation);
 
                                 ebxobjectinlist.SetValue("cas", casBundle.TOCCas[i]);
                                 ebxobjectinlist.SetValue("catalog", casBundle.TOCCatalog[i]);
@@ -118,6 +119,7 @@ namespace FIFA22Plugin
                                 resobjectinlist.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 resobjectinlist.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + i]);
                                 resobjectinlist.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + i]);
+                                resobjectinlist.SetValue("ParentCASBundleLocation", NativeFileLocation);
 
                                 resobjectinlist.SetValue("cas", casBundle.TOCCas[ebxCount + i]);
                                 resobjectinlist.SetValue("catalog", casBundle.TOCCatalog[ebxCount + i]);
@@ -140,6 +142,7 @@ namespace FIFA22Plugin
                                 chunkObjectInList.SetValue("TOCFileLocation", AssociatedTOCFile.NativeFileLocation);
                                 chunkObjectInList.SetValue("SB_CAS_Offset_Position", casBundle.TOCOffsets[ebxCount + resCount + i]);
                                 chunkObjectInList.SetValue("SB_CAS_Size_Position", casBundle.TOCSizes[ebxCount + resCount + i]);
+                                chunkObjectInList.SetValue("ParentCASBundleLocation", NativeFileLocation);
 
 
                                 chunkObjectInList.SetValue("cas", casBundle.TOCCas[ebxCount + resCount + i]);
@@ -173,7 +176,7 @@ namespace FIFA22Plugin
                                     bool patch = item.GetValue("patch", false);
                                     ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
-                                    //ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                                     ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
                                     ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
                                     ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);

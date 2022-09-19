@@ -9,7 +9,7 @@ namespace SdkGenerator.Madden22
 {
 	public class TypeInfo : ITypeInfo
 	{
-		private uint nameHash;
+		public int nameHash { get; set; }
 
 		public long[] array;
 
@@ -52,7 +52,7 @@ namespace SdkGenerator.Madden22
 
 			}
 			var h = reader.ReadInt();
-			nameHash = (uint)h;
+			nameHash = h;
 			flags = reader.ReadUShort();
 			flags >>= 1;
             size = reader.ReadUShort();

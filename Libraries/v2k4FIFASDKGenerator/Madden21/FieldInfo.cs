@@ -8,7 +8,6 @@ namespace SdkGenerator.Madden21
 {
 	public class FieldInfo : IFieldInfo
 	{
-		public uint nameHash;
 
 		public static Random RandomEmpty = new Random();
 
@@ -28,7 +27,9 @@ namespace SdkGenerator.Madden21
 
 
 		private Madden21.TypeInfo parentTypeInfo { get; }
-		public FieldInfo(Madden21.TypeInfo parentType)
+        public int nameHash { get; set; }
+
+        public FieldInfo(Madden21.TypeInfo parentType)
 		{
 			parentTypeInfo = parentType;
 
@@ -57,7 +58,7 @@ namespace SdkGenerator.Madden21
 			//	name = reader.ReadNullTerminatedString();
 			//}
 			var nH = reader.ReadInt();
-			nameHash = (uint)nH;
+			nameHash = nH;
 			if (nH == -237252713)
 			{
 

@@ -101,7 +101,7 @@ namespace FIFA22Plugin
 						{
 							TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22();
 							// TOCFile CasDataLoader automatically proceses data
-							tocSbReader.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
+							tocSbReader.Read(tocFileLocation, sbIndex, sbName, true, tocFileRAW);
 
 							//var dbObjectsToProcess = tocSbReader.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
 							//if (dbObjectsToProcess != null)

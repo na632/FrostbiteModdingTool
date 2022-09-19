@@ -279,12 +279,34 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ReadSimpleGPFile()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var simpleEbxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_facialanim_runtime");
+            Assert.IsNotNull(simpleEbxEntry);
+            var simpleAsset = AssetManager.Instance.GetEbx(simpleEbxEntry);
+        }
+
+        [TestMethod]
+        public void ReadComplexGPFile()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+        }
+
+        [TestMethod]
         public void TestGPMod()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 8 Alpha 12.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V9\Paulv2k4 FIFA 21 Gameplay Version 9 Alpha 7.fbproject");
 
             if (File.Exists("test.fbmod"))
                 File.Delete("test.fbmod");

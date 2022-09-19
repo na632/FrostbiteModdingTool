@@ -32,23 +32,6 @@ namespace FrostySdk.IO
 						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
 					//std = new EbxSharedTypeDescriptorV2(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
 				}
-				if (patchStd == null)
-				{
-					if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
-					{
-						patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
-						, AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", true);
-					}
-				}
-				if (patchStd == null)
-				{
-					if (AssetManager.Instance.fs.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
-					{
-						patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
-						, AssetManager.Instance.fs, "SharedTypeDescriptors_Patch.ebx", true);
-					}
-				}
-
 			}
 			else
 			{
@@ -92,13 +75,9 @@ namespace FrostySdk.IO
 			//		patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_Patch.ebx", patch: true);
 			//	}
 			//}
-
-
-
-
 			patched = inPatched;
-			ebxVersion = (EbxVersion)ReadUInt32LittleEndian();
-			if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
+			magic = (EbxVersion)ReadUInt32LittleEndian();
+			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
 			{
 				return;
 			}
@@ -144,7 +123,7 @@ namespace FrostySdk.IO
 			{
 				EbxField item = default(EbxField);
 				int key2 = ReadInt32LittleEndian();
-				item.Type = ((ebxVersion == EbxVersion.Version2) ? ReadUInt16LittleEndian() : ((ushort)(ReadUInt16LittleEndian() >> 1)));
+				item.Type = ((magic == EbxVersion.Version2) ? ReadUInt16LittleEndian() : ((ushort)(ReadUInt16LittleEndian() >> 1)));
 				item.ClassRef = ReadUInt16LittleEndian();
 				item.DataOffset = ReadUInt32LittleEndian();
 				item.SecondOffset = ReadUInt32LittleEndian();
@@ -198,20 +177,7 @@ namespace FrostySdk.IO
 			}
 			base.Position = stringsOffset + stringsLen;
 			isValid = true;
-
-
-            if (RootType.Contains("gp_"))
-            {
-                InStream.Position = 0;
-                var fsDump = new FileStream("ebxV2_" + RootType + ".dat", FileMode.OpenOrCreate);
-                InStream.CopyTo(fsDump);
-                fsDump.Close();
-                fsDump.Dispose();
-                InStream.Position = stringsOffset + stringsLen;
-            }
-
-
-        }
+		}
 
 		public override void InternalReadObjects()
 		{
@@ -310,7 +276,7 @@ namespace FrostySdk.IO
 			{
 				ebxClass = std.GetClass(index2);
 			}
-			if (ebxClass.HasValue)
+			if (ebxClass.HasValue && !string.IsNullOrEmpty(ebxClass.Value.Name) && guid != Guid.Empty)
 			{
 				TypeLibrary.AddType(ebxClass.Value.Name, guid);
 			}

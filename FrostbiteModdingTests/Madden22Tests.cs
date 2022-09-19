@@ -89,7 +89,7 @@ namespace FrostbiteModdingTests
         {
             var buildCache = new BuildCache();
             buildCache.LoadData("Madden22", GamePath, this, false, true);
-            EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2(FileSystem.Instance, "SharedTypeDescriptors.ebx", false);
+            EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors.ebx", false);
         }
 
         [TestMethod]
