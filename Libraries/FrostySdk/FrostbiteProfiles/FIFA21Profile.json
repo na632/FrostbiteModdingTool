@@ -15,7 +15,7 @@
   // EBX Reader (Overriding the base Reader)
   "EBXReader": "EBXReaderV2",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EBXWriterV2",
+  "EBXWriter": "EBXWriter2021",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
@@ -36,16 +36,16 @@
   "SDKFirstTypeInfo": null,
   // SDK Array of Bytes to scan to get first type info address
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
-  "SDKClassesFile": "M22.Classes.txt",
+  //"SDKAOBScan": "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+  "SDKClassesFile": "FIFA22.Classes.txt",
   "SDKGeneratorClassInfoType": "SdkGenerator.Fifa21.ClassInfo",
+  "EBXTypeDescriptor": "EbxSharedTypeDescriptors",
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "lmod", "fbmod", "fifamod" ],
   // Will the Launcher support this Game?
   "CanLaunchMods": true,
   // Can this Application Edit this Game?
   "CanEdit": true,
-  //"EBXTypeDescriptor": "EbxSharedTypeDescriptors",
-
   "Banner": "",
   "EbxVersion": 4,
   "RequiresKey": true,

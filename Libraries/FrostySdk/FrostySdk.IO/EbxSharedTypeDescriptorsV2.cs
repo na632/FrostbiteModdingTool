@@ -112,7 +112,7 @@ namespace FrostySdk.IO
 					
 		}
 
-		public bool ReflectionTypeDescripter = false;
+		public bool ReflectionTypeDescripter { get; set; } = false;
 		public readonly bool IsPatch;
 
 		public int TotalFieldCount = 0;
@@ -314,6 +314,8 @@ namespace FrostySdk.IO
 
     public interface IEbxSharedTypeDescriptor
     {
+		public bool ReflectionTypeDescripter { get; set; }
+
 		public List<EbxClass?> Classes { get; }
 
 		public Dictionary<Guid, int> Mapping { get; }

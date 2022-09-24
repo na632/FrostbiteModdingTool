@@ -32,6 +32,18 @@ namespace FrostySdk.IO
 						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
 					//std = new EbxSharedTypeDescriptorV2(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
 				}
+
+				if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
+				{
+					patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+						, AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", true);
+				}
+
+				//if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
+				//{
+				//	patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+				//		, AssetManager.Instance.fs, "SharedTypeDescriptors_Patch.ebx", false);
+				//}
 			}
 			else
 			{
@@ -177,6 +189,16 @@ namespace FrostySdk.IO
 			}
 			base.Position = stringsOffset + stringsLen;
 			isValid = true;
+
+			if (RootType.Contains("gp_"))
+			{
+				InStream.Position = 0;
+				var fsDump = new FileStream($"ebx.{RootType}.read.dat", FileMode.OpenOrCreate);
+				InStream.CopyTo(fsDump);
+				fsDump.Close();
+				fsDump.Dispose();
+				InStream.Position = stringsOffset + stringsLen;
+			}
 		}
 
 		public override void InternalReadObjects()
@@ -241,20 +263,11 @@ namespace FrostySdk.IO
 
 		public override PropertyInfo GetProperty(Type objType, EbxField field)
 		{
-			if (field.NameHash == 3109710567u)
-			{
-				return null;
-			}
 			PropertyInfo[] properties = objType.GetProperties();
-			foreach (PropertyInfo propertyInfo in properties)
-			{
-				HashAttribute customAttribute = propertyInfo.GetCustomAttribute<HashAttribute>();
-				if (customAttribute != null && customAttribute.Hash == (int)field.NameHash)
-				{
-					return propertyInfo;
-				}
-			}
-			return null;
+			PropertyInfo propertyInfo = properties.SingleOrDefault(x =>
+				x.GetCustomAttribute<HashAttribute>() != null
+				&& (uint)x.GetCustomAttribute<HashAttribute>().Hash == (uint)field.NameHash);
+			return propertyInfo;
 		}
 
 		public override EbxClass GetClass(EbxClass? classType, int index)
@@ -263,7 +276,7 @@ namespace FrostySdk.IO
 			Guid? guid = null;
 			int index2 = (short)index + (classType.HasValue ? classType.Value.Index : 0);
 			guid = std.GetGuid(index2);
-			if (classType.HasValue && classType.Value.SecondSize == 1)
+			if (classType.HasValue && classType.Value.SecondSize >= 1)
 			{
 				guid = patchStd.GetGuid(index2);
 				ebxClass = patchStd.GetClass(index2);

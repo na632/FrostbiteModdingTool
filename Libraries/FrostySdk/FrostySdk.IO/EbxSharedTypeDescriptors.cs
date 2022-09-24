@@ -21,7 +21,9 @@ namespace FrostySdk.IO
 		private List<Guid> guids = new List<Guid>();
 		public List<Guid> Guids { get { return guids; } }
 
-		private static Assembly EbxClassesAssembly;
+		public bool ReflectionTypeDescripter { get; set; } = false;
+
+        private static Assembly EbxClassesAssembly;
 		private static Type[] EbxClassesTypes;
 
 		public static string GetClassName(uint nameHash)
@@ -94,91 +96,16 @@ namespace FrostySdk.IO
             }
 
 			var ebxtys = fs.GetFileFromMemoryFs(name);
-            if (File.Exists("Debugging/" + name + ".dat"))
-                File.Delete("Debugging/" + name + ".dat");
+			//         if (File.Exists("Debugging/" + name + ".dat"))
+			//             File.Delete("Debugging/" + name + ".dat");
 
-			Directory.CreateDirectory(name);
-            using (NativeWriter nativeWriter = new NativeWriter(new FileStream(name + "ebxDict.dat", FileMode.OpenOrCreate)))
-            {
-                nativeWriter.Write(ebxtys);
-            }
+			//Directory.CreateDirectory(name);
+			//         using (NativeWriter nativeWriter = new NativeWriter(new FileStream(name + "ebxDict.dat", FileMode.OpenOrCreate)))
+			//         {
+			//             nativeWriter.Write(ebxtys);
+			//         }
 
-            using (NativeReader nativeReader = new NativeReader(new MemoryStream(ebxtys)))
-			{
-				nativeReader.Position = 0;
-
-				var magic = nativeReader.ReadUInt();
-				ushort stdClassCount = nativeReader.ReadUShort();
-				ushort stdFieldCount = nativeReader.ReadUShort();
-				for (int i = 0; i < stdFieldCount; i++)
-				{
-					int nameHash = nativeReader.ReadInt();
-					//string actualfieldname = GetPropertyName(nameHash);
-					EbxField item = new EbxField
-					{
-						NameHash = nameHash,
-						Type = (ushort)(nativeReader.ReadUShort() >> 1),
-						ClassRef = nativeReader.ReadUShort(),
-						DataOffset = nativeReader.ReadUInt(),
-						SecondOffset = nativeReader.ReadUInt()
-					};
-					Fields.Add(item);
-				}
-				int totalFieldCount = 0;
-				EbxClass lastValue = new EbxClass();
-				for (int j = 0; j < stdClassCount; j++)
-				{
-					Guid guid = nativeReader.ReadGuid(); // 16
-					if(guid.ToString() == "0ddd3260-f601-bf35-b5d8-5ddcfb1d3567")
-                    {
-
-                    }
-
-					Guid b = nativeReader.ReadGuid(); // 16
-					if (guid.Equals(b))
-					{
-						mapping.Add(guid, Classes.Count);
-                        classes.Add(null);
-                        guids.Add(guid);
-						continue;
-					}
-					else
-					{
-						nativeReader.Position -= 16L;
-						uint nameHash2 = nativeReader.ReadUInt(); // 4
-						uint unkuint2  = nativeReader.ReadUInt(); // 8
-						int fieldCount = nativeReader.ReadByte(); // 9
-						byte alignment = nativeReader.ReadByte(); // 10
-						ushort type = nativeReader.ReadUShort(); // 12
-						uint size = nativeReader.ReadUInt(); // 16
-						if ((alignment & 0x80) != 0)
-						{
-							fieldCount += 256;
-							alignment = (byte)(alignment & 0x7F);
-						}
-						EbxClass value = new EbxClass
-						{
-							//Name = GetClassName(nameHash2),
-							NameHash = nameHash2,
-							FieldIndex = totalFieldCount,
-							FieldCount = (byte)fieldCount,
-							Alignment = alignment,
-							Size = (ushort)size,
-							Type = (ushort)(type >> 1),
-							Index = j
-						};
-						lastValue = value;
-						if (patch)
-						{
-							value.SecondSize = 1;
-						}
-						mapping.Add(guid, Classes.Count);
-						classes.Add(value);
-						guids.Add(guid);
-						totalFieldCount += fieldCount;
-					}
-				}
-			}
+			Read(ebxtys, patch);
 		}
 
 		public bool HasClass(Guid guid)
@@ -228,7 +155,86 @@ namespace FrostySdk.IO
 
         public void Read(in byte[] data, in bool patch)
         {
-            throw new NotImplementedException();
-        }
+			Guids.Clear();
+			Mapping.Clear();
+			Fields.Clear();
+			Classes.Clear();
+			using (NativeReader nativeReader = new NativeReader(new MemoryStream(data)))
+			{
+				nativeReader.Position = 0;
+
+				var magic = nativeReader.ReadUInt();
+				ushort stdClassCount = nativeReader.ReadUShort();
+				ushort stdFieldCount = nativeReader.ReadUShort();
+				for (int i = 0; i < stdFieldCount; i++)
+				{
+					int nameHash = nativeReader.ReadInt();
+					//string actualfieldname = GetPropertyName(nameHash);
+					EbxField item = new EbxField
+					{
+						NameHash = nameHash,
+						Type = (ushort)(nativeReader.ReadUShort() >> 1),
+						ClassRef = nativeReader.ReadUShort(),
+						DataOffset = nativeReader.ReadUInt(),
+						SecondOffset = nativeReader.ReadUInt()
+					};
+					Fields.Add(item);
+				}
+				int totalFieldCount = 0;
+				EbxClass lastValue = new EbxClass();
+				for (int j = 0; j < stdClassCount; j++)
+				{
+					Guid guid = nativeReader.ReadGuid(); // 16
+					if (guid.ToString() == "0ddd3260-f601-bf35-b5d8-5ddcfb1d3567")
+					{
+
+					}
+
+					Guid b = nativeReader.ReadGuid(); // 16
+					if (guid.Equals(b))
+					{
+						mapping.Add(guid, Classes.Count);
+						classes.Add(null);
+						guids.Add(guid);
+						continue;
+					}
+					else
+					{
+						nativeReader.Position -= 16L;
+						uint nameHash2 = nativeReader.ReadUInt(); // 4
+						uint unkuint2 = nativeReader.ReadUInt(); // 8
+						int fieldCount = nativeReader.ReadByte(); // 9
+						byte alignment = nativeReader.ReadByte(); // 10
+						ushort type = nativeReader.ReadUShort(); // 12
+						uint size = nativeReader.ReadUInt(); // 16
+						if ((alignment & 0x80) != 0)
+						{
+							fieldCount += 256;
+							alignment = (byte)(alignment & 0x7F);
+						}
+						EbxClass value = new EbxClass
+						{
+							//Name = GetClassName(nameHash2),
+							NameHash = nameHash2,
+							FieldIndex = totalFieldCount,
+							FieldCount = (byte)fieldCount,
+							Alignment = alignment,
+							Size = (ushort)size,
+							Type = (ushort)(type >> 1),
+							Index = j
+						};
+						lastValue = value;
+						if (patch)
+						{
+							value.SecondSize = 1;
+						}
+						mapping.Add(guid, Classes.Count);
+						classes.Add(value);
+						guids.Add(guid);
+						totalFieldCount += fieldCount;
+					}
+				}
+			}
+		}
     }
 }

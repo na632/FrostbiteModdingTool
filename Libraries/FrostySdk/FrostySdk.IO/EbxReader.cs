@@ -352,87 +352,214 @@ namespace FrostySdk.IO
 				}
 				return null;
 			}
+
 			Type type = obj.GetType();
-			for (int i = 0; i < classType.FieldCount; i++)
+			Dictionary<PropertyInfo, EbxFieldMetaAttribute> properties = new Dictionary<PropertyInfo, EbxFieldMetaAttribute>();
+			foreach (var prp in obj.GetType().GetProperties())
 			{
-				EbxField field = GetField(classType, classType.FieldIndex + i);
-				PropertyInfo property = GetProperty(type, field);
-				IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
-				if (field.DebugType == EbxFieldType.Inherited)
+				var ebxfieldmeta = prp.GetCustomAttribute<EbxFieldMetaAttribute>();
+				if (ebxfieldmeta != null)
 				{
-					ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
-					continue;
-				}
-				if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)
-				{
-					while (Position % 8 != 0L)
-					{
-						Position++;
-					}
-				}
-				else if (field.DebugType == EbxFieldType.Array || field.DebugType == EbxFieldType.Pointer)
-				{
-					while (Position % 4 != 0L)
-					{
-						Position++;
-					}
-				}
-				if (field.DebugType == EbxFieldType.Array)
-				{
-					EbxClass @class = GetClass(classType, field.ClassRef);
-					int index = 0;
-					do
-					{
-						index = ReadInt();
-					} while (index > arrays.Count - 1 || index < 0);
-					EbxArray ebxArray = arrays[index];
-					long position = Position;
-					Position = arraysOffset + ebxArray.Offset;
-					for (int j = 0; j < ebxArray.Count; j++)
-					{
-						object obj2 = ReadField(@class, GetField(@class, @class.FieldIndex), isReferenceAttribute != null);
-						if (property != null)
-						{
-							try
-							{
-								property.GetValue(obj).GetType().GetMethod("Add")
-									.Invoke(property.GetValue(obj), new object[1]
-									{
-										obj2
-									});
-							}
-							catch (Exception)
-							{
-							}
-						}
-					}
-					if (Position > boxedValuesOffset)
-					{
-						boxedValuesOffset = Position;
-					}
-					Position = position;
-				}
-				else
-				{
-					object value = ReadField(classType, field, isReferenceAttribute != null);
-					if (property != null)
-					{
-						try
-						{
-							property.SetValue(obj, value);
-						}
-						catch (Exception)
-						{
-						}
-					}
+					properties.Add(prp, ebxfieldmeta);
 				}
 			}
-			while (Position % (long)classType.Alignment != 0L)
-			{
-				Position++;
-			}
-			return null;
-		}
+
+            //foreach (var property in properties)
+            //{
+            //	if (property.Key.Name == "Points" && property.Key.PropertyType.Name.Contains("List"))
+            //	{
+
+            //	}
+            //	if (property.Key.Name == "ATTR_DribbleJogSpeedModifier")
+            //	{
+
+            //	}
+            //	if (property.Key.Name == "ATTR_AnimationPlaybackTimeRatioScaleByHeight")
+            //	{
+
+            //	}
+            //	if (property.Key.Name == "ATTR_JogSpeed")
+            //	{
+
+            //	}
+            //	var propFieldIndex = property.Key.GetCustomAttribute<FieldIndexAttribute>();
+            //	var propNameHash = property.Key.GetCustomAttribute<HashAttribute>();
+            //	if (propFieldIndex == null && propNameHash == null)
+            //		continue;
+
+            //	EbxField field = default(EbxField);
+
+            //	if (propNameHash != null)
+            //	{
+            //		field = EbxReaderV2.patchStd.Fields
+            //		  .Union(EbxReaderV2.std.Fields).FirstOrDefault(x => x.NameHash == propNameHash.Hash);
+            //	}
+            //	else if (propFieldIndex != null)
+            //	{
+            //		field = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
+            //	}
+
+            //	EbxFieldType debugType = (EbxFieldType)((property.Value.Flags >> 4) & 0x1Fu);
+            //	var classRef = field.ClassRef;
+
+            //	// Variable from SDK is King here! Override DebugType.
+            //	//if (field.DebugType != debugType) 
+            //	//	field.Type = property.Value.Flags;
+
+            //	if (debugType == EbxFieldType.Inherited)
+            //	{
+            //		ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
+            //		continue;
+            //	}
+            //	if (debugType == EbxFieldType.ResourceRef
+            //		|| debugType == EbxFieldType.TypeRef
+            //		|| debugType == EbxFieldType.FileRef
+            //		|| debugType == EbxFieldType.BoxedValueRef
+            //		|| debugType == EbxFieldType.UInt64
+            //		|| debugType == EbxFieldType.Int64
+            //		|| debugType == EbxFieldType.Float64)
+            //	{
+            //		base.Pad(8);
+            //	}
+            //	else
+            //	{
+            //		if (debugType == EbxFieldType.Array
+            //			|| debugType == EbxFieldType.Pointer
+            //			)
+            //		{
+            //			base.Pad(4);
+            //		}
+            //	}
+            //	base.Position = property.Value.Offset + startOffset;
+            //	if (debugType == EbxFieldType.Array)
+            //	{
+            //		EbxClass @class = GetClass(classType, field.ClassRef);
+            //		int index = 0;
+            //		do
+            //		{
+            //			index = ReadInt();
+            //		} while (index > arrays.Count - 1 || index < 0);
+            //		EbxArray ebxArray = arrays[index];
+            //		long position = Position;
+            //		Position = arraysOffset + ebxArray.Offset;
+            //		for (int j = 0; j < ebxArray.Count; j++)
+            //		{
+            //			var isReferenceAttribute = property.Key.GetCustomAttribute<IsReferenceAttribute>() != null;
+            //			object obj2 = ReadField(@class, GetField(@class, @class.FieldIndex), isReferenceAttribute);
+            //			try
+            //			{
+            //				property.Key.GetValue(obj).GetType().GetMethod("Add")
+            //					.Invoke(property.Key.GetValue(obj), new object[1]
+            //					{
+            //								obj2
+            //					});
+            //			}
+            //			catch (Exception)
+            //			{
+            //			}
+            //		}
+            //		if (Position > boxedValuesOffset)
+            //		{
+            //			boxedValuesOffset = Position;
+            //		}
+            //		Position = position;
+            //		continue;
+            //	}
+            //	else
+            //	{
+            //		try
+            //		{
+            //			object value = ReadField(classType, debugType, field.ClassRef, false);
+
+            //			property.Key.SetValue(obj, value);
+            //		}
+            //		catch (Exception)
+            //		{
+            //		}
+            //	}
+            //}
+
+
+            for (int i = 0; i < classType.FieldCount; i++)
+            {
+                EbxField field = GetField(classType, classType.FieldIndex + i);
+                PropertyInfo property = GetProperty(type, field);
+                IsReferenceAttribute isReferenceAttribute = (property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null;
+                if (field.DebugType == EbxFieldType.Inherited)
+                {
+                    ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
+                    continue;
+                }
+                if (field.DebugType == EbxFieldType.ResourceRef || field.DebugType == EbxFieldType.TypeRef || field.DebugType == EbxFieldType.FileRef || field.DebugType == EbxFieldType.BoxedValueRef || field.DebugType == EbxFieldType.UInt64 || field.DebugType == EbxFieldType.Int64 || field.DebugType == EbxFieldType.Float64)
+                {
+                    while (Position % 8 != 0L)
+                    {
+                        Position++;
+                    }
+                }
+                else if (field.DebugType == EbxFieldType.Array || field.DebugType == EbxFieldType.Pointer)
+                {
+                    while (Position % 4 != 0L)
+                    {
+                        Position++;
+                    }
+                }
+                if (field.DebugType == EbxFieldType.Array)
+                {
+                    EbxClass @class = GetClass(classType, field.ClassRef);
+                    int index = 0;
+                    do
+                    {
+                        index = ReadInt();
+                    } while (index > arrays.Count - 1 || index < 0);
+                    EbxArray ebxArray = arrays[index];
+                    long position = Position;
+                    Position = arraysOffset + ebxArray.Offset;
+                    for (int j = 0; j < ebxArray.Count; j++)
+                    {
+                        object obj2 = ReadField(@class, GetField(@class, @class.FieldIndex), isReferenceAttribute != null);
+                        if (property != null)
+                        {
+                            try
+                            {
+                                property.GetValue(obj).GetType().GetMethod("Add")
+                                    .Invoke(property.GetValue(obj), new object[1]
+                                    {
+                                        obj2
+                                    });
+                            }
+                            catch (Exception)
+                            {
+                            }
+                        }
+                    }
+                    if (Position > boxedValuesOffset)
+                    {
+                        boxedValuesOffset = Position;
+                    }
+                    Position = position;
+                }
+                else
+                {
+                    object value = ReadField(classType, field, isReferenceAttribute != null);
+                    if (property != null)
+                    {
+                        try
+                        {
+                            property.SetValue(obj, value);
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+                }
+            }
+            while (Position % (long)classType.Alignment != 0L)
+            {
+                Position++;
+            }
+            return null;
+        }
 
 		public virtual PropertyInfo GetProperty(Type objType, EbxField field)
 		{

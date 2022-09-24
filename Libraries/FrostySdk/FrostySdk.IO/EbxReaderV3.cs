@@ -164,16 +164,16 @@ namespace FrostySdk.IO
 			base.Position = stringsOffset + stringsLen;
 			isValid = true;
 
-   //         if (RootType.Contains("gp_"))
-   //         {
-			//	InStream.Position = 0;
-			//	var fsDump = new FileStream("ebxV3.dat", FileMode.OpenOrCreate);
-			//	InStream.CopyTo(fsDump);
-			//	fsDump.Close();
-			//	fsDump.Dispose();
-			//	InStream.Position = stringsOffset + stringsLen;
-			//}
-		}
+            if (RootType.Contains("gp_"))
+            {
+                InStream.Position = 0;
+                var fsDump = new FileStream($"ebx.{RootType}.read.dat", FileMode.OpenOrCreate);
+                InStream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                InStream.Position = stringsOffset + stringsLen;
+            }
+        }
 
 		public override void InternalReadObjects()
 		{

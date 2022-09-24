@@ -23,8 +23,8 @@ namespace SdkGenerator.Fifa21
 			long position = reader.Position;
 
 			long typePosition = reader.ReadLong();
-			var previousOffset = reader.ReadLong();
-			nextOffset = reader.ReadLong();
+			var offset1 = reader.ReadLong();
+            nextOffset = reader.ReadLong();
 
 			id = reader.ReadUShort();
 			//
@@ -53,6 +53,11 @@ namespace SdkGenerator.Fifa21
 			}
 
 			//ClassesSdkCreator.offset = nextOffset;
+			//if(offset1 != position && offset1 > nextOffset && offset1 > reader.Position)
+   //         {
+			//	nextOffset = offset1;
+   //         }
+
 
 		}
 

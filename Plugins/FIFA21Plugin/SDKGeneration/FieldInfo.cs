@@ -40,7 +40,7 @@ namespace SdkGenerator.Fifa21
 			{
 				name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
 			}
-			nameHash = reader.ReadInt();
+			nameHash = (int)reader.ReadUInt();
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();
