@@ -61,20 +61,26 @@ namespace FrostySdk.IO
 
 		public override void WriteAsset(EbxAsset asset)
 		{
-            if (asset.Objects.Count() > 0 
+			if (asset.RootObject == null)
+				throw new ArgumentNullException("Root Object", "Root Object is null WTF!");
+
+			var properties = asset.RootObject.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+			var countOfLists = properties.Count(x => x.PropertyType.IsGenericType);
+
+			if (asset.Objects.Count() > 0
 				&& asset.Objects.First().GetType().Name.Contains("AttribSchema")
-				&& 
+				&&
 					(
 						asset.objects.Count() > 1
 						||
-						asset.RootObject.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Count(x=>x.GetType().Name.Contains("List")) > 1
+						countOfLists >= 1
 					)
 				)
-            {
-                arrays.Insert(0, new EbxArray() { ClassRef = 4, Offset = 0, Count = 0 });
-                arrayData.Insert(0, new byte[0]);
-            }
-            if (flags.HasFlag(EbxWriteFlags.DoNotSort))
+			{
+				arrays.Insert(0, new EbxArray() { ClassRef = 4, Offset = 0, Count = 0 });
+				arrayData.Insert(0, new byte[0]);
+			}
+			if (flags.HasFlag(EbxWriteFlags.DoNotSort))
 			{
 				foreach (object @object in asset.Objects)
 				{
