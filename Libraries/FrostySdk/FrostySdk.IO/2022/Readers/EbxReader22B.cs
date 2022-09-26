@@ -300,14 +300,14 @@ namespace FrostySdk.IO._2022.Readers
 			uint stringTableOffset = base.ReadUInt32LittleEndian();
 			base.stringsOffset = stringTableOffset + payloadOffset;
 			chunkName = base.ReadUInt32LittleEndian();
-			if (chunkName != 1482179141)
-			{
-				DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(42, 1);
-				defaultInterpolatedStringHandler.AppendLiteral("Expected \"EBXX\" four-CC, but instead got ");
-				defaultInterpolatedStringHandler.AppendFormatted(chunkName);
-				defaultInterpolatedStringHandler.AppendLiteral(".");
-				throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
-			}
+			//if (chunkName != 1482179141)
+			//{
+			//	DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(42, 1);
+			//	defaultInterpolatedStringHandler.AppendLiteral("Expected \"EBXX\" four-CC, but instead got ");
+			//	defaultInterpolatedStringHandler.AppendFormatted(chunkName);
+			//	defaultInterpolatedStringHandler.AppendLiteral(".");
+			//	throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
+			//}
 			chunkSize = base.ReadUInt32LittleEndian();
 			chunkSizeRelativeToPosition = base.Position;
 			uint arrayCount = base.ReadUInt32LittleEndian();
