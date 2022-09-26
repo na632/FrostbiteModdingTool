@@ -1,7 +1,7 @@
 {
   "Name": "FIFA23",
   "DisplayName": "FIFA 23",
-  "DataVersion": 20220928,
+  "DataVersion": 20220927,
   "CacheName": "fifa23",
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
@@ -54,7 +54,7 @@
   // Will the Launcher support this Game?
   "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
   "CacheWriter": "Fifa22CacheWriter",

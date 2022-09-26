@@ -261,14 +261,8 @@ namespace FIFAModdingUI.Windows
 
             Dispatcher.Invoke(() =>
             {
-                if (ProfilesLibrary.IsFIFA22DataVersion())
-                {
-                    //swUseModData.IsOn = false;
-                    //swUseModData.IsEnabled = false;
-
-                    swEnableLegacyInjection.IsOn = false;
-                    swEnableLegacyInjection.IsEnabled = false;
-                }
+                swEnableLegacyInjection.IsOn = ProfilesLibrary.CanUseLiveLegacyMods;
+                swEnableLegacyInjection.IsEnabled = ProfilesLibrary.CanUseLiveLegacyMods;
 
                 btnLaunchFIFAInEditor.IsEnabled = ProfilesLibrary.EnableExecution;
 
@@ -512,12 +506,12 @@ namespace FIFAModdingUI.Windows
                         sbFinalResult.Append(file);
                     }
 
-                    if (encrypt)
-                    {
-                        Log("Encrypting " + file);
-                        v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
-                        File.Delete(file);
-                    }
+                    //if (encrypt)
+                    //{
+                    //    Log("Encrypting " + file);
+                    //    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
+                    //    File.Delete(file);
+                    //}
 
                     listOfCompilableFiles.Add(sbFinalResult.ToString());
                     index++;
@@ -721,13 +715,13 @@ namespace FIFAModdingUI.Windows
                 if (swEnableLegacyInjection.IsOn)
                 {
                     string legacyModSupportFile = null;
-                    if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA20")
+                    if (ProfilesLibrary.IsFIFA20DataVersion())
                     {
                         legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA20Legacy.dll";
                     }
                     else if (ProfilesLibrary.IsFIFA21DataVersion())
                     {
-                        legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA.dll";
+                        legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA21Legacy.dll";
                     }
 
                     if (!string.IsNullOrEmpty(legacyModSupportFile))
@@ -831,16 +825,16 @@ namespace FIFAModdingUI.Windows
                             sbFinalResult.Append(file);
                         }
 
-                        if (encrypt)
-                        {
-                            var fI = new FileInfo(file);
-                            if (fI != null && fI.Extension.Contains("mod"))
-                            {
-                                fI.Delete();
-                            }
-                            Log("Encrypting " + file);
-                            v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
-                        }
+                        //if (encrypt)
+                        //{
+                        //    var fI = new FileInfo(file);
+                        //    if (fI != null && fI.Extension.Contains("mod"))
+                        //    {
+                        //        fI.Delete();
+                        //    }
+                        //    Log("Encrypting " + file);
+                        //    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
+                        //}
 
                         listOfCompilableFiles.Add(sbFinalResult.ToString());
                     }
