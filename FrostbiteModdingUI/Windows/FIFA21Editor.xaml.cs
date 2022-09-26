@@ -17,6 +17,7 @@ using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
@@ -49,7 +50,7 @@ namespace FIFAModdingUI.Windows
     /// <summary>
     /// Interaction logic for FIFA21Editor.xaml
     /// </summary>
-    public partial class FIFA21Editor : Window, IEditorWindow
+    public partial class FIFA21Editor : MetroWindow, IEditorWindow
     {
         public Window OwnerWindow { get; set; }
 

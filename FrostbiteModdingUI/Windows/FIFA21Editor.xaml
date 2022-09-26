@@ -1,9 +1,10 @@
-﻿<Window x:Class="FIFAModdingUI.Windows.FIFA21Editor"
+﻿<mah:MetroWindow x:Class="FIFAModdingUI.Windows.FIFA21Editor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI.Windows"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:Model="clr-namespace:FIFAModdingUI.Models" 
         mc:Ignorable="d"
          xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
@@ -22,14 +23,10 @@
         ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Visible"
          WindowStartupLocation="CenterScreen" WindowState="Normal" WindowStyle="SingleBorderWindow"
         
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
-        
         >
     <Window.Resources>
 
@@ -44,7 +41,7 @@
             <RowDefinition MaxHeight="35" Height="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
+        <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0">
             <StackPanel Orientation="Horizontal">
                 <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
                     <MenuItem x:Name="miProject" Header="Project" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
@@ -203,12 +200,17 @@
 
         </Grid>
 
-        <DockingManager Grid.Row="1">
+        <DockingManager Grid.Row="1" >
+            <DockingManager.Theme>
+                <Vs2013DarkTheme></Vs2013DarkTheme>
+            </DockingManager.Theme>
             <LayoutRoot>
-                <LayoutPanel Orientation="Vertical">
-                    <LayoutDocumentPane ShowHeader="False" DockMinHeight="450" DockHeight="450" >
-                        <LayoutDocument CanClose="False" CanFloat="False" CanMove="False" >
-                            <TabControl DockPanel.Dock="Top" Margin="0,0,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                <LayoutPanel Orientation="Vertical" >
+                    <LayoutDocumentPane ShowHeader="False" DockMinHeight="450" DockHeight="450"  >
+                        <LayoutDocument CanClose="False" CanFloat="False" CanMove="False"  >
+                            <TabControl DockPanel.Dock="Top" Margin="0,0,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" 
+                                        
+                                        >
                                 <TabItem x:Name="TabDataBrowser" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
@@ -378,4 +380,4 @@
         </DockingManager>
 
     </Grid>
-</Window>
+</mah:MetroWindow>

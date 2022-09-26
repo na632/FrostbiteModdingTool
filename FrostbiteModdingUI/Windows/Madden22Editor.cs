@@ -10,7 +10,7 @@ namespace FMT.Windows
 {
     public class Madden22Editor : Madden21Editor, IEditorWindow
     {
-        private string WindowEditorTitle = $"Madden 22 Editor - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
+        private string WindowEditorTitle = $"Madden 22 Editor - {FileVersionInfo.GetVersionInfo(AppContext.BaseDirectory).ProductVersion} - ";
         public new string LastGameLocation => App.ApplicationDirectory + "MADDEN22LastLocation.json";
 
         private string _windowTitle;
