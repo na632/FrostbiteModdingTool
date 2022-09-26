@@ -93,7 +93,7 @@ namespace FrostbiteModdingTests
         public void TestLiveLegacySystem()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);
-            var legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA.dll";
+            var legacyModSupportFile = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + @"\FIFA21Legacy.dll";
 
             if (!string.IsNullOrEmpty(legacyModSupportFile))
             {
