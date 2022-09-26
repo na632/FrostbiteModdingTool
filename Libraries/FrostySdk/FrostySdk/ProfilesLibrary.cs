@@ -92,16 +92,23 @@ namespace FrostySdk
 			public string ModCompilerFileType { get; set; }
 
 			/// <summary>
-			/// 
+			/// A switch as to whether this tool can read files for this profile via an Editor
 			/// </summary>
 			public bool CanEdit { get; set; }
 
 			/// <summary>
-			/// 
+			/// A switch as to whether this tool can Launch/Compile mods for this profile
 			/// </summary>
 			public bool CanLaunchMods { get; set; }
 
-            private string editorIcon;
+
+			/// <summary>
+			/// A switch as to whether this tool has a "Legacy.dll" attached that allows Live Legacy mods (Aranaktu's work)
+			/// </summary>
+			public bool CanUseLiveLegacyMods { get; set; }
+
+
+			private string editorIcon;
 
             public string EditorIcon
 			{
@@ -303,6 +310,7 @@ namespace FrostySdk
 
 		public static bool CanImportMeshes => LoadedProfile.CanImportMeshes;
 		public static bool CanExportMeshes => LoadedProfile.CanExportMeshes;
+		public static bool CanUseLiveLegacyMods => LoadedProfile.CanUseLiveLegacyMods;
 
 		public static string LegacyFileManager => LoadedProfile.LegacyFileManager;
 		public static string SDKClassesFile => LoadedProfile.SDKClassesFile;
