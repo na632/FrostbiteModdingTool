@@ -315,7 +315,11 @@ namespace FIFAModdingUI.Pages.Common
 					return true;
 				}
 			}
-		
+
+			Debug.WriteLine($"ERROR: Failed to create EBX Editor for {d.GetType()}");
+			Console.WriteLine($"ERROR: Failed to create EBX Editor for {d.GetType()}");
+			EditorWindow.LogError($"ERROR: Failed to create EBX Editor for {d.GetType()}");
+
 			return false;
 		}
 

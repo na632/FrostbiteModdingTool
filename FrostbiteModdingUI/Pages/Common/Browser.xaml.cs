@@ -851,146 +851,162 @@ namespace FIFAModdingUI.Pages.Common
 
 		MainViewModel ModelViewerModel;
 
-		private void OpenAsset(AssetEntry entry)
-		{
+		private void ResetViewers()
+        {
+			SelectedEntry = null;
+			SelectedLegacyEntry = null;
+			btnImport.IsEnabled = false;
+			btnExport.IsEnabled = false;
+			btnRevert.IsEnabled = false;
+
+			ImageViewerScreen.Visibility = Visibility.Collapsed;
+			TextViewer.Visibility = Visibility.Collapsed;
+			EBXViewer.Visibility = Visibility.Collapsed;
+			//BackupEBXViewer.Visibility = Visibility.Collapsed;
+			UnknownFileViewer.Visibility = Visibility.Collapsed;
+			ModelDockingManager.Visibility = Visibility.Collapsed;
+			BIGViewer.Visibility = Visibility.Collapsed;
+		}
+
+		private void DisplayUnknownFileViewer(Stream stream)
+        {
+			btnExport.IsEnabled = true;
+			btnImport.IsEnabled = true;
+			btnRevert.IsEnabled = true;
+
+			unknownFileDocumentsPane.Children.Clear();
+			var newLayoutDoc = new LayoutDocument();
+			newLayoutDoc.Title = SelectedEntry.DisplayName;
+			WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
+			hexEditor.Stream = stream;
+			newLayoutDoc.Content = hexEditor;
+			hexEditor.BytesModified -= HexEditor_BytesModified;
+			hexEditor.BytesModified += HexEditor_BytesModified;
+			unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
+			unknownFileDocumentsPane.SelectedContentIndex = 0;
+
+			UnknownFileViewer.Visibility = Visibility.Visible;
+		}
+
+		void OpenEbxAsset(EbxAssetEntry ebxEntry)
+        {
 			try
 			{
-
-				if (entry != null) 
+				SelectedEntry = ebxEntry;
+				SelectedEbxAsset = AssetManager.Instance.GetEbx(ebxEntry);
+				if (ebxEntry.Type == "TextureAsset")
 				{
-					var bundleName = entry.Bundle;
-
-
-				}
-				SelectedEntry = null;
-				SelectedLegacyEntry = null;
-				btnImport.IsEnabled = false;
-				btnExport.IsEnabled = false;
-				btnRevert.IsEnabled = false;
-
-				ImageViewerScreen.Visibility = Visibility.Collapsed;
-				TextViewer.Visibility = Visibility.Collapsed;
-				EBXViewer.Visibility = Visibility.Collapsed;
-				BackupEBXViewer.Visibility = Visibility.Collapsed;
-				UnknownLegacyFileViewer.Visibility = Visibility.Collapsed;
-				ModelDockingManager.Visibility = Visibility.Collapsed;
-				BIGViewer.Visibility = Visibility.Collapsed;
-				//HEXViewer.Visibility = Visibility.Collapsed;
-
-				//TextBlock control = sender as TextBlock;
-				//if (control != null)
-				{
-					EbxAssetEntry ebxEntry = entry as EbxAssetEntry;
-					if (ebxEntry != null)
+					try
 					{
-						SelectedEntry = ebxEntry;
-						SelectedEbxAsset = AssetManager.Instance.GetEbx(ebxEntry);
-						if (ebxEntry.Type == "TextureAsset")
+						MainEditorWindow.Log("Loading Texture " + ebxEntry.Filename);
+						var res = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+						if (res != null)
 						{
-							try
-							{
-								MainEditorWindow.Log("Loading Texture " + ebxEntry.Filename);
-								var res = AssetManager.Instance.GetResEntry(ebxEntry.Name);
-								if (res != null)
-								{
-									MainEditorWindow.Log("Loading RES " + ebxEntry.Filename);
+							MainEditorWindow.Log("Loading RES " + ebxEntry.Filename);
 
-									BuildTextureViewerFromAssetEntry(res);
-								}
-								else
-								{
-									throw new Exception("Unable to find RES Entry for " + ebxEntry.Name);
-								}
-							}
-							catch (Exception e)
-							{
-								MainEditorWindow.Log($"Failed to load texture with the message :: {e.Message}");
-							}
-
-
-
-						}
-						else if (ebxEntry.Type == "SkinnedMeshAsset")
-						{
-							if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
-							{
-								return;
-							}
-
-							MainEditorWindow.Log("Loading 3D Model " + ebxEntry.Filename);
-
-							var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
-							var res = AssetManager.Instance.GetRes(resentry);
-							MeshSet meshSet = new MeshSet(res);
-
-							var exporter = new MeshSetToFbxExport();
-							exporter.Export(AssetManager.Instance, SelectedEbxAsset.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
-							Thread.Sleep(250);
-							
-							if (ModelViewerModel != null)
-								ModelViewerModel.Dispose();
-
-							ModelViewerModel = new MainViewModel(skinnedMeshAsset: SelectedEbxAsset, meshSet: meshSet);
-							this.ModelViewer.DataContext = ModelViewerModel;
-							this.ModelDockingManager.Visibility = Visibility.Visible;
-							this.ModelViewerEBXGrid.SelectedObject = SelectedEbxAsset.RootObject;
-
-							this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
-							this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
-							this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
-
-						}
-						else if (string.IsNullOrEmpty(ebxEntry.Type))
-                        {
-							btnExport.IsEnabled = true;
-							btnImport.IsEnabled = true;
-							btnRevert.IsEnabled = true;
-
-							unknownFileDocumentsPane.Children.Clear();
-							var newLayoutDoc = new LayoutDocument();
-							newLayoutDoc.Title = SelectedEntry.DisplayName;
-							WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
-							hexEditor.Stream = AssetManager.Instance.GetEbxStream(ebxEntry);
-							newLayoutDoc.Content = hexEditor;
-							hexEditor.BytesModified += HexEditor_BytesModified;
-							unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
-							unknownFileDocumentsPane.SelectedContentIndex = 0;
-
-							UnknownLegacyFileViewer.Visibility = Visibility.Visible;
+							BuildTextureViewerFromAssetEntry(res);
 						}
 						else
 						{
-							if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
-							{
-								return;
-							}
-							var ebx = ProjectManagement.Instance.Project.AssetManager.GetEbx(ebxEntry);
-							if (ebx != null)
-							{
-								MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
-
-								//EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-								var successful = EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-								EBXViewer.Visibility = successful.Result ? Visibility.Visible : Visibility.Collapsed;
-								BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
-								BackupEBXViewer.SelectedObject = ebx.RootObject;
-								BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
-								//BackupEBXViewer.Asset = ebx;
-								//BackupEBXViewer.SetClass(ebx.RootObject);
-								//BackupEBXViewer.Recreate();
-
-
-								btnRevert.IsEnabled = true;
-								//if (ebxEntry.Type == "HotspotDataAsset")
-								//{
-								btnImport.IsEnabled = true;
-								btnExport.IsEnabled = true;
-								//}
-							}
+							throw new Exception("Unable to find RES Entry for " + ebxEntry.Name);
 						}
 					}
-					else
+					catch (Exception e)
 					{
+						MainEditorWindow.Log($"Failed to load texture with the message :: {e.Message}");
+					}
+
+
+
+				}
+				else if (ebxEntry.Type == "SkinnedMeshAsset")
+				{
+					if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
+					{
+						return;
+					}
+
+					MainEditorWindow.Log("Loading 3D Model " + ebxEntry.Filename);
+
+					var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
+					var res = AssetManager.Instance.GetRes(resentry);
+					MeshSet meshSet = new MeshSet(res);
+
+					var exporter = new MeshSetToFbxExport();
+					exporter.Export(AssetManager.Instance, SelectedEbxAsset.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
+					Thread.Sleep(250);
+
+					if (ModelViewerModel != null)
+						ModelViewerModel.Dispose();
+
+					ModelViewerModel = new MainViewModel(skinnedMeshAsset: SelectedEbxAsset, meshSet: meshSet);
+					this.ModelViewer.DataContext = ModelViewerModel;
+					this.ModelDockingManager.Visibility = Visibility.Visible;
+					this.ModelViewerEBXGrid.SelectedObject = SelectedEbxAsset.RootObject;
+
+					this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
+					this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
+					this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
+
+				}
+				else if (string.IsNullOrEmpty(ebxEntry.Type))
+				{
+					DisplayUnknownFileViewer(AssetManager.Instance.GetEbxStream(ebxEntry));
+				}
+				else
+				{
+					if (ebxEntry == null || ebxEntry.Type == "EncryptedAsset")
+					{
+						return;
+					}
+					var ebx = ProjectManagement.Instance.Project.AssetManager.GetEbx(ebxEntry);
+					if (ebx != null)
+					{
+						MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
+
+						//EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+						var successful = EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+						EBXViewer.Visibility = Visibility.Visible;
+						//EBXViewer.Visibility = successful.Result ? Visibility.Visible : Visibility.Collapsed;
+						//BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
+						//BackupEBXViewer.SelectedObject = ebx.RootObject;
+						//BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
+						//BackupEBXViewer.Asset = ebx;
+						//BackupEBXViewer.SetClass(ebx.RootObject);
+						//BackupEBXViewer.Recreate();
+
+
+						btnRevert.IsEnabled = true;
+						//if (ebxEntry.Type == "HotspotDataAsset")
+						//{
+						btnImport.IsEnabled = true;
+						btnExport.IsEnabled = true;
+						//}
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				MainEditorWindow.Log($"Failed to load file with message {e.Message}");
+				Debug.WriteLine(e.ToString());
+
+				DisplayUnknownFileViewer(AssetManager.Instance.GetEbxStream(ebxEntry));
+
+			}
+		}
+
+		private void OpenAsset(AssetEntry entry)
+		{
+			ResetViewers();
+			if (entry is EbxAssetEntry ebxEntry)
+            {
+				OpenEbxAsset(ebxEntry);
+				return;
+			}
+
+			try
+			{
+				
 
 
 							LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
@@ -1092,18 +1108,18 @@ namespace FIFAModdingUI.Pages.Common
 								unknownFileDocumentsPane.SelectedContentIndex = 0;
 							
 
-								UnknownLegacyFileViewer.Visibility = Visibility.Visible;
+								UnknownFileViewer.Visibility = Visibility.Visible;
 							}
 
 						}
 
-					}
-				}
 			}
 			catch (Exception e)
 			{
 				MainEditorWindow.Log($"Failed to load file with message {e.Message}");
 				Debug.WriteLine(e.ToString());
+
+				//DisplayUnknownFileViewer(AssetManager.Instance.GetEbxStream(ebxEntry));
 
 			}
 
