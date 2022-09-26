@@ -81,6 +81,9 @@
     <None Include="..\Plugins\FIFA22Plugin\bin\Debug\net6.0-windows\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\Plugins\FIFA23Plugin\bin\Debug\net6.0-windows\FIFA23Plugin.dll" Link="Plugins\FIFA23Plugin.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\Plugins\Madden22Plugin\bin\Debug\net6.0-windows\Madden22Plugin.dll" Link="Plugins\Madden22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
