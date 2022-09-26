@@ -31,7 +31,7 @@ namespace FrostySdk.IO
 
 		public ushort Size;
 
-		public ushort SecondSize;
+		public ushort SecondSize { get; set; }
 
 		public string Namespace;
 

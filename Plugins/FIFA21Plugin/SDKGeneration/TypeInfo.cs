@@ -36,26 +36,38 @@ namespace SdkGenerator.Fifa21
 
 		public int Type => (flags >> 4) & 0x1F;
 
-        public List<IFieldInfo> fields { get; set; }
+		public List<IFieldInfo> fields { get; set; }
 
-        public void Read(MemoryReader reader)
+		public void Read(MemoryReader reader)
 		{
 			fields = new List<IFieldInfo>();
 			name = reader.ReadNullTerminatedString();
-			if(name.Equals("TextureAsset", System.StringComparison.OrdinalIgnoreCase))
-            {
+			if (name.Equals("TextureAsset", System.StringComparison.OrdinalIgnoreCase))
+			{
 
-            }
+			}
 
 			if (name.Equals("RenderFormat", System.StringComparison.OrdinalIgnoreCase))
 			{
 
 			}
-			var h = reader.ReadInt();
-			nameHash = h;
+
+			if (name.Equals("AttribSchema_gp_rules_foul_playercontactscore", System.StringComparison.OrdinalIgnoreCase))
+			{
+
+			}
+
+			if (name.Contains("AttribSchema_gp_actor_movement", System.StringComparison.OrdinalIgnoreCase))
+			{
+
+			}
+
+			//var h = reader.ReadInt();
+			//nameHash = (uint)h;
+			nameHash = reader.ReadInt();
 			flags = reader.ReadUShort();
 			flags >>= 1;
-            size = reader.ReadUShort();
+			size = reader.ReadUShort();
 
 			guid = reader.ReadGuid();
 			if (!Regex.IsMatch(guid.ToString(), @"^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$"))
@@ -73,6 +85,7 @@ namespace SdkGenerator.Fifa21
 			alignment = reader.ReadUShort();
 			fieldCount = reader.ReadUShort();
 
+			
 			// Padding
 			padding3 = reader.ReadUInt();
 
@@ -83,7 +96,7 @@ namespace SdkGenerator.Fifa21
 			}
 			reader.Position = namespaceNamePosition;
 			nameSpace = reader.ReadNullTerminatedString();
-			bool flag = false;
+			bool hasFields = fieldCount > 0;
 
 			reader.Position = nextTypeInfo;
 
@@ -92,19 +105,10 @@ namespace SdkGenerator.Fifa21
 			if (Type == 2)
 			{
 				reader.Position = array[6];
-				flag = true;
 			}
-            else if (Type == 3)
-            {
-				if (fieldCount > 0)
-				{
-					reader.Position = array[1];
-					flag = true;
-				}
-			}
-            else if (Type == 4)
+			else if (Type == 3)
 			{
-				
+				reader.Position = array[1];
 			}
 			else if (Type == 8)
 			{
@@ -112,12 +116,18 @@ namespace SdkGenerator.Fifa21
 				{
 					parentClass = 0L;
 					reader.Position = array[0];
-					flag = fieldCount > 0;
 				}
-
+			}
+			else
+			{
+				if (fieldCount > 0)
+				{
+					reader.Position = array[5];
+					hasFields = true;
+				}
 			}
 
-			if (flag)
+			if (hasFields)
 			{
 				for (int j = 0; j < fieldCount; j++)
 				{
@@ -131,9 +141,9 @@ namespace SdkGenerator.Fifa21
 				}
 
 
-				foreach(var f  in fields)
-                {
-                }
+				foreach (var f in fields)
+				{
+				}
 			}
 		}
 

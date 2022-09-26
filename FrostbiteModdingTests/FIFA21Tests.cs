@@ -306,7 +306,7 @@ namespace FrostbiteModdingTests
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V9\Paulv2k4 FIFA 21 Gameplay Version 9 Alpha 7.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V10\Paulv2k4 FIFA 21 Gameplay Version 10 Alpha 2.fbproject");
 
             if (File.Exists("test.fbmod"))
                 File.Delete("test.fbmod");
@@ -329,6 +329,18 @@ namespace FrostbiteModdingTests
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             var simpleebxgpname = "fifa/attribulator/gameplay/groups/gp_actor/gp_actor_facialanim_runtime";
+            var ebx = AssetManager.Instance.GetEbx(AssetManager.Instance.GetEbxEntry(simpleebxgpname));
+            AssetManager.Instance.ModifyEbx(simpleebxgpname, ebx);
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+        }
+
+
+        [TestMethod]
+        public void TestGPReadWriteSimpleWith1List()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            var simpleebxgpname = "fifa/attribulator/gameplay/groups/gp_cpuai/gp_cpuai_cpuaiballhandler_runtime";
             var ebx = AssetManager.Instance.GetEbx(AssetManager.Instance.GetEbxEntry(simpleebxgpname));
             AssetManager.Instance.ModifyEbx(simpleebxgpname, ebx);
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
