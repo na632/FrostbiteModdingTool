@@ -41,10 +41,14 @@ namespace FrostySdk.IO._2022.Readers
 		{
 			get
 			{
+
+
 				if (this.typeInfoGuids.Count > 0)
 				{
+					
+
 					Type type = TypeLibrary.GetType(this.typeInfoGuids[0]);
-					_ = type != null;
+
 					return type?.Name ?? string.Empty;
 				}
 				if (base.instances.Count == 0)

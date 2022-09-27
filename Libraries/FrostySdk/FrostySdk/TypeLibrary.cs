@@ -811,6 +811,7 @@ namespace FrostySdk
 			return moduleBuilder.Assembly.GetType("FrostySdk.Ebx." + name);
 		}
 
+
 		public static Type GetType(Guid guid)
 		{
 			if(ExistingAssembly == null)
@@ -820,14 +821,21 @@ namespace FrostySdk
 
 			if (ExistingAssembly != null)
 			{
+				// FIFA23. Hard coding TextureAsset for testing until SDK Gen.
+				if (ProfilesLibrary.LoadedProfile.Name.Equals("FIFA23", StringComparison.OrdinalIgnoreCase)
+					&& guid.ToString() == "cfb542e8-15ce-28c4-de4d-2f0810f998dc")
+				{
+					return ExistingAssembly.GetExportedTypes().LastOrDefault(x => x.FullName.Equals("FrostySdk.Ebx.TextureAsset", StringComparison.OrdinalIgnoreCase));
+				}
+
 				if (guidTypeMapping.TryGetValue(guid, out Type v))
 					return v;
 
 				if (guidTypeMapping.Count == 0)
                 {
-					List<Type> exportedTypes = ExistingAssembly.GetExportedTypes().Where(x => x.GetCustomAttributes<TypeInfoGuidAttribute>().Any()).ToList();
+					var ExportedTypes = ExistingAssembly.GetExportedTypes().Where(x => x.GetCustomAttributes<TypeInfoGuidAttribute>().Any()).ToList();
 
-                    foreach (Type type in exportedTypes)
+                    foreach (Type type in ExportedTypes)
                     {
                         foreach (TypeInfoGuidAttribute customAttribute in type.GetCustomAttributes<TypeInfoGuidAttribute>())
                         {
