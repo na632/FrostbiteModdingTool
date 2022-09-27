@@ -8,7 +8,13 @@ namespace FrostbiteSdk.FrostbiteSdk.Managers
 {
     public sealed class EmbeddedFileEntry : AssetEntry
     {
-        public string ExportedRelativePath { get; set; }
+        private string exportedRelativePath;
+
+        public string ExportedRelativePath
+        {
+            get { return exportedRelativePath != null ? exportedRelativePath : Name; }
+            set { exportedRelativePath = value; }
+        }
 
         public string ImportedFileLocation { get; set; }
 
