@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
     public class SBHeaderInformation
     {
@@ -46,7 +46,7 @@ namespace FIFA22Plugin
 
         public SBHeaderInformation(NativeReader nr, int additionalHeaderLength = 36)
         {
-            startOfSBHI:
+            //startOfSBHI:
 
             AdditionalHeaderLength = additionalHeaderLength;
             var pos = nr.Position;

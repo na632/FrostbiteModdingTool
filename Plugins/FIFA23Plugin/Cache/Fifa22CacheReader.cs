@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace FIFA22Plugin.Cache
+namespace FIFA23Plugin.Cache
 {
     public class Fifa22CacheReader : ICacheReader
     {

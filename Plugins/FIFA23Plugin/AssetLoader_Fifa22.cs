@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using static FrostySdk.Managers.AssetManager;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
 
 	public class AssetLoader_Fifa22 : IAssetLoader

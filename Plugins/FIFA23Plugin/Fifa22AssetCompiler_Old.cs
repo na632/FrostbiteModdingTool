@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static paulv2k4ModdingExecuter.FrostyModExecutor;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
 
     /// <summary>

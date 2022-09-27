@@ -10,9 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using static FIFA22Plugin.AssetLoader_Fifa22;
+using static FIFA23Plugin.AssetLoader_Fifa22;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
 
 	public class BundleEntryInfo
