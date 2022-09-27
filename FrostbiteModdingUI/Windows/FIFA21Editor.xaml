@@ -44,7 +44,13 @@
         <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0">
             <StackPanel Orientation="Horizontal">
                 <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
-                    <MenuItem x:Name="miProject" Header="Project" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
+                    <MenuItem x:Name="miProject" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="About" VerticalAlignment="Center" />
+                                <Label Content="Project" FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
+                            </StackPanel>
+                        </MenuItem.Header>
                         <MenuItem x:Name="btnProjectNew" Click="btnProjectNew_Click">
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
@@ -139,49 +145,67 @@
                         
                         
                     </MenuItem>
-                    <MenuItem x:Name="miMod" Header="Mod" IsEnabled="False">
+                    <MenuItem x:Name="miMod" IsEnabled="False">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="About" VerticalAlignment="Center" />
+                                <Label Content="Mod" FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
+                            </StackPanel>
+                        </MenuItem.Header>
                         <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
                                 <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                        <!--<Button x:Name="btnOpenModBundler"  Height="30" Click="btnOpenModBundler_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                                <Label Content="Open Mod Bundler" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>-->
-                        <!--<Button x:Name="btnProjectWriteToLegacyMod"  Height="30" Click="btnProjectWriteToLegacyMod_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                                <Label Content="Save Legacy Mod (*.lmod)" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>-->
-                        
                     </MenuItem>
-                    <!--<MenuItem x:Name="miProjectConverter" Header="FIFA Project Converters" IsEnabled="False">
-                        <Button x:Name="btnProjectOpenFIFAProject"  Height="30" Click="btnProjectOpenFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />
-                                <Label Content="Open *.fifaproject" VerticalAlignment="Center" />
+                    <MenuItem x:Name="miImportKitCreator" IsEnabled="False">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="TshirtCrew" VerticalAlignment="Center" />
+                                <Label Content="Kit Creator"  FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
                             </StackPanel>
-                        </Button>
-                        <Button x:Name="btnProjectSaveToFIFAProject"  Height="30" Click="btnProjectSaveToFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                <Label Content="Save *.fifaproject" VerticalAlignment="Center" />
+                        </MenuItem.Header>
+                        <MenuItem x:Name="btnImportKitCreatorZip" Click="btnImportKitCreatorZip_Click">
+                            <MenuItem.Header>
+                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ZipDisk" VerticalAlignment="Center" />
+                                    <Label Content="Import Kit Creator Zip"  FontSize="10" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem x:Name="miLocaleINI">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <Label Content="Locale.ini (WIP)"  FontSize="12"  FontWeight="Bold" VerticalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                        </MenuItem.Header>
+                        <MenuItem x:Name="modLocaleINI" Click="btnModifyLocaleINI_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                    <Label Content="Modify Locale.ini"  FontSize="10"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
+                    <!--<MenuItem x:Name="miInitfs">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                <Label Content="Initfs (WIP)"  FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
+                            </StackPanel>
+                        </MenuItem.Header>
+                        <MenuItem x:Name="modInitfs" Click="btnModifyInitfs_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                    <Label Content="Modify Initfs"  FontSize="10"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                     </MenuItem>-->
-                    <MenuItem x:Name="miImportKitCreator" Header="Kit Creator" IsEnabled="False">
-                        <Button x:Name="btnImportKitCreatorZip"  Height="30" Click="btnImportKitCreatorZip_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ZipDisk" VerticalAlignment="Center" />
-                                <Label Content="Import Kit Creator Zip" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                    </MenuItem>
                 </Menu>
 
             </StackPanel>

@@ -1244,5 +1244,16 @@ namespace FIFAModdingUI.Windows
             loadingDialog.Close();
             loadingDialog = null;
         }
+
+        private void btnModifyLocaleINI_Click(object sender, RoutedEventArgs e)
+        {
+            LocaleINIEditor localeINIEditor = new LocaleINIEditor();
+            localeINIEditor.ShowDialog();
+        }
+
+        private void btnModifyInitfs_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
