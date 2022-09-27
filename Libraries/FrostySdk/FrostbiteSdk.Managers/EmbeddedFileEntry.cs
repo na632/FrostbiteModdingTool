@@ -16,12 +16,13 @@ namespace FrostbiteSdk.FrostbiteSdk.Managers
 
         public override bool Equals(object obj)
         {
-            if(obj is EmbeddedFileEntry)
+            if(obj is EmbeddedFileEntry other)
             {
-                var other = obj as EmbeddedFileEntry;
                 if(other != null)
                 {
-                    return other.ImportedFileLocation == this.ImportedFileLocation;
+                    return other.ImportedFileLocation == this.ImportedFileLocation
+                        || other.ExportedRelativePath == this.ExportedRelativePath
+                        ;
                 }
             }
 
