@@ -1,4 +1,5 @@
 using Frosty.Hash;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -126,9 +127,6 @@ namespace FrostySdk
 			}
 			cacheName = ProfilesLibrary.CacheName;
 			deobfuscatorType = ProfilesLibrary.Deobfuscator;
-
-
-			ReadLocaleIni();
 
 			Instance = this;
 		}
@@ -417,6 +415,11 @@ namespace FrostySdk
 				var data = File.ReadAllBytes(LocaleIniPath);
 				if (!File.ReadAllText(LocaleIniPath).StartsWith("[LOCALE]"))
 				{
+					if (File.Exists(LocaleIniPath + ".bak"))
+					{
+						Debug.WriteLine("ReadLocaleIni: Found backup Encrypted Locale.ini. Reading that.");
+						data = File.ReadAllBytes(LocaleIniPath + ".bak");
+					}
 					LocaleIsEncrypted = true;
 
 					var key1 = KeyManager.Instance.GetKey("Key1");
@@ -452,7 +455,7 @@ namespace FrostySdk
 			return null;
 		}
 
-		public byte[] WriteLocaleIni(byte[] data)
+		public byte[] WriteLocaleIni(byte[] data, bool writeToFile = false)
 		{
 			if (!string.IsNullOrEmpty(LocaleIniPath))
 			{
@@ -482,7 +485,8 @@ namespace FrostySdk
 
 						File.WriteAllBytes("locale_encrypt.ini", data);
 
-						File.WriteAllBytes(LocaleIniPath, data);
+						if(writeToFile)
+							File.WriteAllBytes(LocaleIniPath, data);
 					}
 				}
 
