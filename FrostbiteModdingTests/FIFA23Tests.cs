@@ -7,6 +7,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ProcessMemoryUtilities.Managed;
 using SdkGenerator;
 using System;
 using System.Collections.Generic;
@@ -73,6 +74,18 @@ namespace FrostbiteModdingTests
             var buildCache = new BuildCache();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
             AssetManager.Instance.DoEbxIndexing();
+        }
+
+        [TestMethod]
+        public void TestFindProcesses()
+        {
+            Process.GetProcesses().Where(x => x.ProcessName.Contains("fifa", StringComparison.OrdinalIgnoreCase)).ToList().ForEach(x =>
+              {
+                  var prThread = x.Threads[1];
+                  byte[] buffer = new byte[1024];
+                  var v = NativeWrapper.ReadProcessMemoryArray<byte>(x.Handle, prThread.StartAddress, buffer);
+                  //prThread.
+              });
         }
 
         [TestMethod]
@@ -269,6 +282,61 @@ namespace FrostbiteModdingTests
                     testR
                 }.ToArray()).Wait();
 
+        }
+
+        [TestMethod]
+        public void LoadSplashscreenTexture()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("FIFA23", GamePath, this, false, true);
+            var ebxEntrySplash = AssetManager.Instance.GetEbxEntry("fifa/fesplash/splashscreen/splashscreen");
+            var ebxSplash = AssetManager.Instance.GetEbx(ebxEntrySplash);
+
+        }
+
+        [TestMethod]
+        public void LoadInitfs()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("FIFA23", GamePath, this, false, true);
+
+        }
+
+        [TestMethod]
+        public void LoadLocaleIni()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            var s = Encoding.UTF8.GetString(FileSystem.Instance.ReadLocaleIni());
+            var s2 = Encoding.ASCII.GetString(FileSystem.Instance.ReadLocaleIni());
+        }
+
+        [TestMethod]
+        public void ReadWriteLocaleIni()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            var localeBytes = FileSystem.Instance.ReadLocaleIni();
+            var s = Encoding.UTF8.GetString(localeBytes);
+
+            var skipBootflowText = new StringBuilder("");
+            skipBootflowText.AppendLine("");
+            skipBootflowText.AppendLine("[]");
+            skipBootflowText.AppendLine("SKIP_BOOTFLOW=1");
+
+            if (!s.Contains("SKIP_BOOTFLOW=1", StringComparison.OrdinalIgnoreCase))
+                s += skipBootflowText;
+
+            var enData = FileSystem.Instance.WriteLocaleIni(Encoding.UTF8.GetBytes(s));
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                }.ToArray()).Wait();
         }
 
         [TestMethod]
