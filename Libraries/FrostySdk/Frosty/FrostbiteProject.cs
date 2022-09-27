@@ -424,6 +424,17 @@ namespace FrostySdk
 					nativeWriter.WriteLengthPrefixedString(serialisedEFE);
 				}
 
+				// ------------------------
+				// Locale.ini mod
+				var hasLocaleIniMod = AssetManager.LocaleINIMod.HasUserData;
+				nativeWriter.Write(hasLocaleIniMod);
+				if (hasLocaleIniMod)
+				{
+					nativeWriter.Write(FileSystem.LocaleIsEncrypted);
+					nativeWriter.Write(AssetManager.LocaleINIMod.UserData.Length);
+					nativeWriter.Write(AssetManager.LocaleINIMod.UserData);
+				}
+
 				if (updateDirtyState)
 				{
 					modSettings.ClearDirtyFlag();
@@ -1038,10 +1049,10 @@ namespace FrostySdk
 						if (reader.Length > reader.Position)
 						{
 							bool hasEmbeddedFiles = reader.ReadBoolean();
+							int embeddedFileCount = reader.ReadInt();
 							if (hasEmbeddedFiles)
 							{
 								AssetManager.Instance.EmbeddedFileEntries = new List<EmbeddedFileEntry>();
-								int embeddedFileCount = reader.ReadInt();
 								for (int iItem = 0; iItem < embeddedFileCount; iItem++)
 								{
 									var rawFile = reader.ReadLengthPrefixedString();
@@ -1055,6 +1066,18 @@ namespace FrostySdk
 						//
 						// ----------------------------------------------------------------------------------------------------
 
+						// ------------------------
+						// Locale.ini mod
+						if (reader.Length > reader.Position)
+						{
+							var hasLocaleIniMod = reader.ReadBoolean();
+							if (hasLocaleIniMod)
+							{
+								var localeIsEncrypted = reader.ReadBoolean();
+								var localeiniSize = reader.ReadInt();
+								AssetManager.Instance.LocaleINIMod = new Frostbite.IO.LocaleINIMod(reader.ReadBytes(localeiniSize));
+							}
+						}
 
 						return true;
 				}
