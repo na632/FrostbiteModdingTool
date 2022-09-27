@@ -481,6 +481,8 @@ namespace FrostySdk
 							File.Delete("locale_encrypt.ini");
 
 						File.WriteAllBytes("locale_encrypt.ini", data);
+
+						File.WriteAllBytes(LocaleIniPath, data);
 					}
 				}
 
