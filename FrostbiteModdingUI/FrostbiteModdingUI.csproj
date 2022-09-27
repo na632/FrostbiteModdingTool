@@ -326,6 +326,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Pages\Common\BrowserOfInitfs.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -356,6 +359,13 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.VCRTForwarders.140" Version="1.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Pages\Common\BrowserOfInitfs.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
