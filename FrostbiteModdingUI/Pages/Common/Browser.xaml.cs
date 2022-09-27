@@ -318,7 +318,10 @@ namespace FIFAModdingUI.Pages.Common
 
 								if (ebxAssetEntry != null)
 								{
-									textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture);
+									if(!textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture))
+                                    {
+										MainEditorWindow.LogError("Unable to import");
+                                    }
 								}
 
 								BuildTextureViewerFromAssetEntry(resEntry);

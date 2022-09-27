@@ -10,7 +10,7 @@
   //"AssetCompiler": "Fifa22AssetCompiler",
   "EditorScreen": "FIFA23Editor",
   // Texture Importer (Overriding the base Importer)
-  "TextureImporter": "FIFA22TextureImporter",
+  "TextureImporter": "FIFA23TextureImporter",
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)

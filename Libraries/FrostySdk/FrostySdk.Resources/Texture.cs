@@ -447,6 +447,10 @@ namespace FrostySdk.Resources
 				nativeWriter.Write(sliceCount);
 				nativeWriter.Write(mipCount);
 				nativeWriter.Write(firstMip);
+				if (ProfilesLibrary.IsFIFA23DataVersion())
+				{
+					nativeWriter.Write(unknown4);
+				}
 				nativeWriter.Write(chunkId);
 				for (int i = 0; i < 15; i++)
 				{

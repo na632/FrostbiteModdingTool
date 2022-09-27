@@ -37,7 +37,7 @@ namespace FIFA23Plugin
         public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
             DateTime dtStarted = DateTime.Now;
-            if (!ProfilesLibrary.IsFIFA22DataVersion())
+            if (!ProfilesLibrary.IsFIFA23DataVersion())
             {
                 logger.Log("[ERROR] Wrong compiler used for Game");
                 return false;
@@ -125,7 +125,8 @@ namespace FIFA23Plugin
 
             if (!Directory.Exists(fs.BasePath))
                 throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
-
+            var notAnyBackups = !Directory.EnumerateFiles(fme.GamePath + "\\Data\\", "*.bak").Any();
+            fme.GameWasPatched = fme.GameWasPatched || notAnyBackups;
             if (!fme.GameWasPatched)
             {
                 fme.Logger.Log("Same Game Version detected. Using vanilla backups.");
