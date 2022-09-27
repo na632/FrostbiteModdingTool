@@ -4474,11 +4474,12 @@ namespace paulv2k4ModdingExecuter
                             EmbeddedFileEntry efAssetEntry = new EmbeddedFileEntry();
                             resource.FillAssetEntry(efAssetEntry);
 
-                            var parentDirectoryPath = Directory.GetParent(GamePath + "//" + efAssetEntry.Name).FullName;
+                            var parentDirectoryPath = Directory.GetParent(GamePath + "//" + efAssetEntry.ExportedRelativePath).FullName;
                             if (!Directory.Exists(parentDirectoryPath))
                                 Directory.CreateDirectory(parentDirectoryPath);
 
-                            File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
+                            //File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
+                            File.WriteAllBytes(GamePath + "//" + efAssetEntry.ExportedRelativePath, resourceData);
 
                         }
                         //
@@ -4967,7 +4968,7 @@ namespace paulv2k4ModdingExecuter
 
             string modPath = fs.BasePath + modDirName + "\\";
 
-            var foundFrostyMods = false;
+            var foundMods = false;
             var lastModPaths = new Dictionary<string, DateTime>();
             if (File.Exists(LastLaunchedModsPath))
             {
@@ -4983,7 +4984,7 @@ namespace paulv2k4ModdingExecuter
                     if (f.Exists)
                     {
                         if (f.Extension.Contains("fbmod", StringComparison.OrdinalIgnoreCase) || f.Extension.Contains("fifamod", StringComparison.OrdinalIgnoreCase))
-                            foundFrostyMods = true;
+                            foundMods = true;
 
                         if (lastModPaths.ContainsKey(f.FullName))
                         {
@@ -5031,42 +5032,83 @@ namespace paulv2k4ModdingExecuter
                 await Task.Delay(1000);
             }
 
-            // Notify if NO changes are made to mods
-            if (sameAsLast && !ForceRebuildOfMods)
             {
-                Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
-                await Task.Delay(1000);
+                // Notify if NO changes are made to mods
+                if (sameAsLast && !ForceRebuildOfMods)
+                {
+                    Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
+                    await Task.Delay(1000);
+                }
+                // Rebuild mods
+                else
+                {
+                    foundMods = await BuildModData(fs, inLogger, modsRootPath, "", modPaths);
+                    lastModPaths.Clear();
+                    foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
+                    {
+                        lastModPaths.Add(f.FullName, f.LastWriteTime);
+                    }
+
+                    // Save Last Launched Mods
+                    File.WriteAllText(LastLaunchedModsPath, JsonConvert.SerializeObject(lastModPaths));
+                    // ----------
+
+                    // ---------------------------------------------
+                    // Save Last Patched Version
+                    lastHead = fs.Head;
+
+                    if (LastHeadData.ContainsKey(fs.BasePath))
+                        LastHeadData[fs.BasePath] = lastHead.Value;
+                    else
+                        LastHeadData.Add(fs.BasePath, lastHead.Value);
+
+                    File.WriteAllText(LastPatchedVersionPath, JsonConvert.SerializeObject(LastHeadData));
+
+                    // ---------------------------------------------
+
+                }
             }
-            // Rebuild mods
+
+            SetupFIFAConfig();
+
+            if (foundMods && UseModData)// || sameAsLast)
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
+            }
+            else if (foundMods && !UseModData)
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
+            }
             else
             {
-                foundFrostyMods = await BuildModData(fs, inLogger, modsRootPath, "", modPaths);
-                lastModPaths.Clear();
-                foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
-                {
-                    lastModPaths.Add(f.FullName, f.LastWriteTime);
-                }
-
-                // Save Last Launched Mods
-                File.WriteAllText(LastLaunchedModsPath, JsonConvert.SerializeObject(lastModPaths));
-                // ----------
-
-                // ---------------------------------------------
-                // Save Last Patched Version
-                lastHead = fs.Head;
-
-                if (LastHeadData.ContainsKey(fs.BasePath))
-                    LastHeadData[fs.BasePath] = lastHead.Value;
-                else
-                    LastHeadData.Add(fs.BasePath, lastHead.Value);
-
-                File.WriteAllText(LastPatchedVersionPath, JsonConvert.SerializeObject(LastHeadData));
-
-                // ---------------------------------------------
-
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
 
-            if(ProfilesLibrary.IsFIFA21DataVersion())
+            _ = Task.Delay(60000).ContinueWith((x) =>
+            {
+                if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
+                {
+                    var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
+                    if (configIni.Exists)
+                    {
+                        StringBuilder newConfig = new StringBuilder();
+                        newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
+                        newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
+                        File.WriteAllText(configIni.FullName, newConfig.ToString());
+                    }
+                }
+            });
+
+            //});
+            return true;
+        }
+
+        private void SetupFIFAConfig()
+        {
+            if (ProfilesLibrary.IsFIFA21DataVersion())
             {
                 var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
                 if (configIni.Exists)
@@ -5094,41 +5136,6 @@ namespace paulv2k4ModdingExecuter
 
 
             }
-
-
-            if (foundFrostyMods && UseModData)// || sameAsLast)
-            {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
-            }
-            else if (foundFrostyMods && !UseModData)
-            {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
-            }
-            else
-            {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
-            }
-
-            _ = Task.Delay(60000).ContinueWith((x) =>
-              {
-                  if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
-                  {
-                      var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
-                      if (configIni.Exists)
-                      {
-                          StringBuilder newConfig = new StringBuilder();
-                          newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
-                          newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
-                          File.WriteAllText(configIni.FullName, newConfig.ToString());
-                      }
-                  }
-              });
-
-            //});
-            return true;
         }
 
         private void RecursiveDeleteFiles(string path)
