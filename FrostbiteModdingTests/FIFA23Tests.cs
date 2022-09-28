@@ -121,6 +121,10 @@ namespace FrostbiteModdingTests
             var simpleEbxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_facialanim_runtime");
             Assert.IsNotNull(simpleEbxEntry);
             var simpleAsset = AssetManager.Instance.GetEbx(simpleEbxEntry);
+            if(simpleAsset != null)
+            {
+
+            }
         }
 
         [TestMethod]
@@ -214,7 +218,8 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
+            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -257,20 +262,6 @@ namespace FrostbiteModdingTests
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             projectManagement.Project.Load(@"G:\Work\FIFA Modding\GraphicMod\FIFA 22\test kit project.fbproject");
 
-            //var name = "content/character/kit/kit_0/arsenal_1/home_0_0/jersey_1_0_0_color";
-            //var ebxEntry = AssetManager.Instance.GetEbxEntry(name);
-            //var resEntry = AssetManager.Instance.GetResEntry(name);
-            //if (resEntry != null)
-            //{
-            //    Texture texture = new Texture(resEntry);
-            //    TextureImporter textureImporter = new TextureImporter();
-
-            //    if (ebxEntry != null)
-            //    {
-            //        textureImporter.Import(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Kits\Chelsea\Home\jersey_5_0_0_color.png", ebxEntry, ref texture);
-            //    }
-            //}
-
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
@@ -283,6 +274,27 @@ namespace FrostbiteModdingTests
                 }.ToArray()).Wait();
 
         }
+
+        [TestMethod]
+        public void TestSplashscreenMod()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\test 23 splashscreen.fbproject");
+
+            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+        }
+
 
         [TestMethod]
         public void LoadSplashscreenTexture()

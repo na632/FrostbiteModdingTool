@@ -21,7 +21,7 @@ namespace FIFA23Plugin
     /// FIFA 22 Version of the FIFA 21 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
     /// Linked to FIFA21BundleAction
     /// </summary>
-    public class Fifa22AssetCompiler_Old : IAssetCompiler
+    public class Fifa23AssetCompilerV1 : IAssetCompiler
     {
         public const string ModDirectory = "ModData";
         public const string PatchDirectory = "Patch";
@@ -125,7 +125,7 @@ namespace FIFA23Plugin
 
             if (!Directory.Exists(fs.BasePath))
                 throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
-            var notAnyBackups = !Directory.EnumerateFiles(fme.GamePath + "\\Data\\", "*.bak").Any();
+            var notAnyBackups = !Directory.EnumerateFiles(fme.GamePath + "\\Data\\", "*.toc.bak").Any();
             fme.GameWasPatched = fme.GameWasPatched || notAnyBackups;
             if (!fme.GameWasPatched)
             {
