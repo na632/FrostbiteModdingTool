@@ -28,14 +28,15 @@ namespace FrostbiteModdingUI.Windows
         public LoadingDialog(string loadingSubTitle, string loadingCurrentMessage) : base()
         {
             InitializeComponent();
-            Task.Run(() =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    lblLoadingSubtitle.Content = loadingSubTitle;
-                    lblProgress.Content = loadingCurrentMessage;
-                });
-            });
+            //Task.Run(() =>
+            //{
+            //    Dispatcher.Invoke(() =>
+            //    {
+            //        lblLoadingSubtitle.Content = loadingSubTitle;
+            //        lblProgress.Content = loadingCurrentMessage;
+            //    });
+            //});
+            Update(loadingSubTitle, loadingCurrentMessage);
 
         }
 
@@ -65,6 +66,8 @@ namespace FrostbiteModdingUI.Windows
 
                 lblLoadingSubtitle.Content = loadingSubTitle;
                 lblProgress.Content = loadingCurrentMessage;
+
+                this.Visibility = loadingSubTitle == string.Empty && loadingCurrentMessage == string.Empty ? Visibility.Collapsed : Visibility.Visible;
             });
         }
 
@@ -90,7 +93,10 @@ namespace FrostbiteModdingUI.Windows
 
         public void Log(string text, params object[] vars)
         {
-            Update(lblLoadingSubtitle.Content.ToString(), text);
+            Dispatcher.Invoke(() =>
+            {
+                Update(lblLoadingSubtitle.Content.ToString(), text);
+            });
         }
 
         public void LogWarning(string text, params object[] vars)

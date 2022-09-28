@@ -18,6 +18,8 @@ namespace FrostySdk.Resources
 
 		private uint unknown2;
 
+		private int unknown4;
+
 		private TextureFlags flags;
 
 		private ushort width;
@@ -292,6 +294,10 @@ namespace FrostySdk.Resources
 				sliceCount = nativeReader.ReadUShort();
 				mipCount = nativeReader.ReadByte();
 				firstMip = nativeReader.ReadByte();
+				if(ProfilesLibrary.IsFIFA23DataVersion())
+                {
+					unknown4 = nativeReader.ReadInt();
+				}
 				chunkId = nativeReader.ReadGuid();
 				for (int i = 0; i < 15; i++)
 				{
@@ -386,6 +392,10 @@ namespace FrostySdk.Resources
 				sliceCount = nativeReader.ReadUShort();
 				mipCount = nativeReader.ReadByte();
 				firstMip = nativeReader.ReadByte();
+                if (ProfilesLibrary.IsFIFA23DataVersion())
+                {
+					unknown4 = nativeReader.ReadInt();
+                }
 				chunkId = nativeReader.ReadGuid();
 				for (int i = 0; i < 15; i++)
 				{
@@ -437,6 +447,10 @@ namespace FrostySdk.Resources
 				nativeWriter.Write(sliceCount);
 				nativeWriter.Write(mipCount);
 				nativeWriter.Write(firstMip);
+				if (ProfilesLibrary.IsFIFA23DataVersion())
+				{
+					nativeWriter.Write(unknown4);
+				}
 				nativeWriter.Write(chunkId);
 				for (int i = 0; i < 15; i++)
 				{

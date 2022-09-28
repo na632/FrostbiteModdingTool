@@ -60,17 +60,17 @@ namespace FrostySdk
 				{
 					Decompress = Marshal.GetDelegateForFunctionPointer<DecompressFunc>(Kernel32.GetProcAddress(handle, "OodleLZ_Decompress"));
 					Compress = Marshal.GetDelegateForFunctionPointer<CompressFunc>(Kernel32.GetProcAddress(handle, "OodleLZ_Compress"));
-					if (
-						ProfilesLibrary.DataVersion == 20180914
-						|| ProfilesLibrary.IsFIFA20DataVersion()
-						|| ProfilesLibrary.DataVersion == 20190905
-                         || ProfilesLibrary.IsFIFA21DataVersion()
-                         || ProfilesLibrary.IsMadden21DataVersion()
-                         || ProfilesLibrary.IsFIFA22DataVersion()
-						)
-					{
+					//if (
+					//	ProfilesLibrary.DataVersion == 20180914
+					//	|| ProfilesLibrary.IsFIFA20DataVersion()
+					//	|| ProfilesLibrary.DataVersion == 20190905
+     //                    || ProfilesLibrary.IsFIFA21DataVersion()
+     //                    || ProfilesLibrary.IsMadden21DataVersion()
+     //                    || ProfilesLibrary.IsFIFA22DataVersion()
+					//	)
+					//{
 						Compress2 = Marshal.GetDelegateForFunctionPointer<CompressFunc2>(Kernel32.GetProcAddress(handle, "OodleLZ_Compress"));
-					}
+					//}
 					MemorySizeNeeded = Marshal.GetDelegateForFunctionPointer<MemorySizeNeededFunc>(Kernel32.GetProcAddress(handle, "OodleLZDecoder_MemorySizeNeeded"));
 				}
 			}

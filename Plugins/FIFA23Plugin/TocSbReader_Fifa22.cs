@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static FrostySdk.Managers.AssetManager;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
     public class TocSbReader_Fifa22
     {

@@ -11,10 +11,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static FIFA22Plugin.AssetLoader_Fifa22;
+using static FIFA23Plugin.AssetLoader_Fifa22;
 using static paulv2k4ModdingExecuter.FrostyModExecutor;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
 
     /// <summary>

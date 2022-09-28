@@ -67,11 +67,11 @@ namespace SdkGenerator
 
 			if(process == null)
             {
-				var psi = new System.Diagnostics.ProcessStartInfo() { FileName = @"F:\Origin Games\Battlefield 2042 Technical Playtest\bf.exe"
-							, UseShellExecute = true
-							, Verb = "runas"
-				};
-				process = System.Diagnostics.Process.Start(psi);
+				//var psi = new System.Diagnostics.ProcessStartInfo() { FileName = @"F:\Origin Games\Battlefield 2042 Technical Playtest\bf.exe"
+				//			, UseShellExecute = true
+				//			, Verb = "runas"
+				//};
+				//process = System.Diagnostics.Process.Start(psi);
 				Thread.Sleep(3000);
 			}
 			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));

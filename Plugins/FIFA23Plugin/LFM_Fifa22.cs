@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
     public class LFM_Fifa22 : LegacyFileManager_FMTV2, ILegacyFileManager, ICustomAssetManager
     {

@@ -1,16 +1,22 @@
-﻿<Window x:Class="FMT.Windows.LocaleINIEditor"
+﻿<mah:MetroWindow x:Class="FMT.Windows.LocaleINIEditor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:local="clr-namespace:FMT.Windows"
         mc:Ignorable="d"
-        Title="LocaleINIEditor" Height="450" Width="800">
-    <Grid>
+        Title="Locale.ini Editor" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+        </Grid.RowDefinitions>
         <TextBox 
                 TextWrapping="Wrap"
                 AcceptsReturn="True"
                 MaxLines="2000"
             ScrollViewer.VerticalScrollBarVisibility="Visible" Text="{Binding Data, Mode=TwoWay}"></TextBox>
+        <Button Grid.Row="1" x:Name="btnReset" Click="btnReset_Click">Reset</Button>
     </Grid>
-</Window>
+</mah:MetroWindow>

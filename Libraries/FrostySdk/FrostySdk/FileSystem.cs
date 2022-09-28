@@ -1,4 +1,5 @@
 using Frosty.Hash;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -126,9 +127,6 @@ namespace FrostySdk
 			}
 			cacheName = ProfilesLibrary.CacheName;
 			deobfuscatorType = ProfilesLibrary.Deobfuscator;
-
-
-			LoadLocaleINI();
 
 			Instance = this;
 		}
@@ -410,35 +408,44 @@ namespace FrostySdk
 		byte[] lKeyABC = new byte[] { 0x27, 0x0E, 0xCC, 0xA9, 0x96, 0x7E, 0x96, 0xBA, 0x35, 0x7E, 0x90, 0x90, 0xE6, 0x29, 0x9D, 0x36, 0x9D, 0xF8, 0x42, 0xA3, 0x3E, 0xBB, 0x08, 0xFB, 0x67, 0x85, 0x07, 0xA7, 0x80, 0x0A, 0xBA, 0x11, 0xA0, 0x51, 0x02, 0xF5, 0x40, 0xE4, 0x12, 0x91, 0x27, 0x89, 0x3D, 0x15, 0xF4, 0x50, 0x7A, 0x8E };
 		public bool LocaleIsEncrypted;
 
-		public byte[] LoadLocaleINI()
+		public byte[] ReadLocaleIni()
 		{
 			if (!string.IsNullOrEmpty(LocaleIniPath))
 			{
 				var data = File.ReadAllBytes(LocaleIniPath);
 				if (!File.ReadAllText(LocaleIniPath).StartsWith("[LOCALE]"))
 				{
+					if (File.Exists(LocaleIniPath + ".bak"))
+					{
+						Debug.WriteLine("ReadLocaleIni: Found backup Encrypted Locale.ini. Reading that.");
+						data = File.ReadAllBytes(LocaleIniPath + ".bak");
+					}
 					LocaleIsEncrypted = true;
-					 
-					//var key = LoadKey();
+
+					var key1 = KeyManager.Instance.GetKey("Key1");
+					var key2 = KeyManager.Instance.GetKey("Key2");
+					var key3 = KeyManager.Instance.GetKey("Key3");
 					var key = lKeyABC;
 					using (Aes aes = Aes.Create())
 					{
 						aes.Key = key.AsSpan(0, 0x20).ToArray();
 						aes.IV = key.AsSpan(32, 16).ToArray();
 						ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
-						var value = data;
-						using (MemoryStream stream = new MemoryStream(value))
+						MemoryStream msDecrypted = new MemoryStream();
+						using (MemoryStream stream = new MemoryStream(data))
 						{
 							using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
 							{
-								cryptoStream.Read(value, 0, value.Length);
+								//cryptoStream.Read(data, 0, data.Length);
+								cryptoStream.CopyTo(msDecrypted);
 							}
 						}
+						data = msDecrypted.ToArray();
 
 						if (File.Exists("locale_decrypt.ini"))
 							File.Delete("locale_decrypt.ini");
 
-						File.WriteAllBytes("locale_decrypt.ini", value);
+						File.WriteAllBytes("locale_decrypt.ini", data);
 					}
 				}
 
@@ -446,6 +453,47 @@ namespace FrostySdk
 			}
 
 			return null;
+		}
+
+		public byte[] WriteLocaleIni(byte[] data, bool writeToFile = false)
+		{
+			if (!string.IsNullOrEmpty(LocaleIniPath))
+			{
+				if (!File.Exists(LocaleIniPath + ".bak"))
+					File.Copy(LocaleIniPath, LocaleIniPath + ".bak");
+
+				if (!File.ReadAllText(LocaleIniPath).StartsWith("[LOCALE]"))
+				{
+					var key = lKeyABC;
+					using (Aes aes = Aes.Create())
+					{
+						aes.Key = key.AsSpan(0, 0x20).ToArray();
+						aes.IV = key.AsSpan(32, 16).ToArray();
+						ICryptoTransform transform = aes.CreateEncryptor(aes.Key, aes.IV);
+						MemoryStream msEncrypted = new MemoryStream();
+						using (MemoryStream stream = new MemoryStream(data))
+						{
+							using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
+							{
+								cryptoStream.CopyTo(msEncrypted);
+							}
+						}
+						data = msEncrypted.ToArray();
+
+						if (File.Exists("locale_encrypt.ini"))
+							File.Delete("locale_encrypt.ini");
+
+						File.WriteAllBytes("locale_encrypt.ini", data);
+
+						if(writeToFile)
+							File.WriteAllBytes(LocaleIniPath, data);
+					}
+				}
+
+			}
+
+			return data;
+
 		}
 
 		public DbObject LoadInitfs(byte[] key, bool patched = true)

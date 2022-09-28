@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FIFA21Plugin.Textures
+namespace FIFA23Plugin
 {
-	public class FIFA22TextureImporter : ITextureImporter
+	public class FIFA23TextureImporter : ITextureImporter
 	{
 		public void DoImport(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
 		{

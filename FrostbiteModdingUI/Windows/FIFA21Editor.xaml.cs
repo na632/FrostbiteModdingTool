@@ -17,6 +17,7 @@ using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
@@ -49,7 +50,7 @@ namespace FIFAModdingUI.Windows
     /// <summary>
     /// Interaction logic for FIFA21Editor.xaml
     /// </summary>
-    public partial class FIFA21Editor : Window, IEditorWindow
+    public partial class FIFA21Editor : MetroWindow, IEditorWindow
     {
         public Window OwnerWindow { get; set; }
 
@@ -113,6 +114,8 @@ namespace FIFAModdingUI.Windows
                 DataContext = this;
             }
         }
+
+        LoadingDialog loadingDialog = new LoadingDialog();
 
         private async void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {
@@ -229,12 +232,15 @@ namespace FIFAModdingUI.Windows
                 buildSDKAndCacheWindow.ShowDialog();
             }
 
+            loadingDialog.Update("Loading Game Files", "");
+            loadingDialog.Show();
 
             await Task.Run(
                 () =>
             {
+                
 
-                ProjectManagement = new ProjectManagement(filePath, this);
+                ProjectManagement = new ProjectManagement(filePath, loadingDialog);
                 ProjectManagement.StartNewProject();
                 InitialiseBrowsers();
 
@@ -252,7 +258,13 @@ namespace FIFAModdingUI.Windows
 
                 });
 
+                ProjectManagement.Logger = this;
+
             });
+
+            //loadingDialog.Close();
+            loadingDialog.Update("", "");
+
 
             DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
 
@@ -555,14 +567,15 @@ namespace FIFAModdingUI.Windows
 
         private async Task<bool> SaveProjectWithDialog()
         {
-            LoadingDialog loadingDialog = new LoadingDialog("Saving Project", "Cleaning loose Legacy Files");
-            loadingDialog.Show();
+            //loadingDialog.Show();
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
             LegacyFileManager_FMTV2.CleanUpChunks();
 
-            loadingDialog.Close();
+            //loadingDialog.Close();
+            loadingDialog.Update("", "");
+
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Project files|*.fbproject";
@@ -571,8 +584,8 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
-                    loadingDialog = new LoadingDialog("Saving Project", "Saving project to file");
-                    loadingDialog.Show();
+                    loadingDialog.Update("Saving Project", "Saving project to file");
+                    //loadingDialog.Show();
                     await ProjectManagement.Project.SaveAsync(saveFileDialog.FileName, true);
 
                     lstProjectFiles.ItemsSource = null;
@@ -591,16 +604,18 @@ namespace FIFAModdingUI.Windows
 
                 }
             }
-            loadingDialog.Close();
-            loadingDialog = null;
+            loadingDialog.Update("", "");
+
+            //loadingDialog.Close();
+            //loadingDialog = null;
             return true;
         }
 
         private async void btnProjectOpen_Click(object sender, RoutedEventArgs e)
         {
 
-            LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "Cleaning loose Legacy Files");
-            loadingDialog.Show();
+            //LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "Cleaning loose Legacy Files");
+            loadingDialog.Update("Loading Project", "Cleaning loose Legacy Files");
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
@@ -643,8 +658,9 @@ namespace FIFAModdingUI.Windows
 
                 }
             }
-            loadingDialog.Close();
-            loadingDialog = null;
+            loadingDialog.Update("", "");
+            //loadingDialog.Close();
+            //loadingDialog = null;
         }
 
         public Random RandomSaver = new Random();
@@ -691,14 +707,22 @@ namespace FIFAModdingUI.Windows
             });
 
             var useModData = swUseModData.IsOn;
-            await Task.Run(() =>
+
+            try
             {
-                paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-                paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = useModData;
-                frostyModExecutor.UseSymbolicLinks = false;
-                frostyModExecutor.ForceRebuildOfMods = true;
-                frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
-            });
+                await Task.Run(() =>
+                {
+                    paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+                    paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = useModData;
+                    frostyModExecutor.UseSymbolicLinks = false;
+                    frostyModExecutor.ForceRebuildOfMods = true;
+                    frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();
+                });
+            }
+            catch(Exception ex)
+            {
+                LogError("Error when trying to compile mod and launch game. Message: " + ex.Message);   
+            }
 
             await InjectLegacyDLL();
 
@@ -755,6 +779,7 @@ namespace FIFAModdingUI.Windows
 
         private async void btnProjectNew_Click(object sender, RoutedEventArgs e)
         {
+            loadingDialog.Update("Resetting", "Resetting");
             await AssetManager.Instance.ResetAsync();
             //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
             ProjectManagement.Project = new FrostbiteProject(AssetManager.Instance, AssetManager.Instance.fs);
@@ -763,6 +788,8 @@ namespace FIFAModdingUI.Windows
             UpdateWindowTitle("New Project");
 
             Log("New Project Created");
+            loadingDialog.Update("", "");
+
         }
 
         private async void btnCompileLegacyModFromFolder_Click(object sender, RoutedEventArgs e)
@@ -1080,117 +1107,53 @@ namespace FIFAModdingUI.Windows
             Log("Legacy files have been cleaned");
         }
 
-        private async void btnProjectWriteToLegacyMod_Click(object sender, RoutedEventArgs e)
-        {
-            if(ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true).Count() == 0)
-            {
-                MessageBox.Show("You do not have any modified legacy items to save!", "Save Failed");
-                return;
-            }
+        //private async void btnProjectWriteToLegacyMod_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if(ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true).Count() == 0)
+        //    {
+        //        MessageBox.Show("You do not have any modified legacy items to save!", "Save Failed");
+        //        return;
+        //    }
 
-            LoadingDialog loadingDialog = new LoadingDialog("Saving Legacy Mod", "Exporting files");
-            loadingDialog.Show();
+        //    LoadingDialog loadingDialog = new LoadingDialog("Saving Legacy Mod", "Exporting files");
+        //    loadingDialog.Show();
 
-            var exportFolder = LegacyProjectExportedFolder;
-            if (!Directory.Exists(exportFolder))
-                Directory.CreateDirectory(exportFolder);
+        //    var exportFolder = LegacyProjectExportedFolder;
+        //    if (!Directory.Exists(exportFolder))
+        //        Directory.CreateDirectory(exportFolder);
 
-            RecursiveDelete(new DirectoryInfo(exportFolder));
+        //    RecursiveDelete(new DirectoryInfo(exportFolder));
 
-            foreach (var f in ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true))
-            {
-                LegacyFileEntry lfe = f as LegacyFileEntry;
-                if(lfe != null)
-                {
-                    await loadingDialog.UpdateAsync("Saving Legacy Mod", "Exporting " + lfe.Filename);
-                    var lfeStream = (MemoryStream)ProjectManagement.Project.AssetManager.GetCustomAsset("legacy", lfe);
+        //    foreach (var f in ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy", true))
+        //    {
+        //        LegacyFileEntry lfe = f as LegacyFileEntry;
+        //        if(lfe != null)
+        //        {
+        //            await loadingDialog.UpdateAsync("Saving Legacy Mod", "Exporting " + lfe.Filename);
+        //            var lfeStream = (MemoryStream)ProjectManagement.Project.AssetManager.GetCustomAsset("legacy", lfe);
 
-                    if (!Directory.Exists(exportFolder + "\\" + lfe.Path))
-                        Directory.CreateDirectory(exportFolder + "\\" + lfe.Path);
+        //            if (!Directory.Exists(exportFolder + "\\" + lfe.Path))
+        //                Directory.CreateDirectory(exportFolder + "\\" + lfe.Path);
 
-                    using (var nw = new NativeWriter(new FileStream(exportFolder + "\\" + lfe.Path + "\\" + lfe.Filename + "." + lfe.Type, FileMode.Create)))
-                    {
-                        nw.WriteBytes(lfeStream.ToArray());
-                    }
-                }
-            }
+        //            using (var nw = new NativeWriter(new FileStream(exportFolder + "\\" + lfe.Path + "\\" + lfe.Filename + "." + lfe.Type, FileMode.Create)))
+        //            {
+        //                nw.WriteBytes(lfeStream.ToArray());
+        //            }
+        //        }
+        //    }
 
-            await CompileLegacyModFromFolder(exportFolder);
+        //    await CompileLegacyModFromFolder(exportFolder);
 
-            loadingDialog.Close();
-            loadingDialog = null;
+        //    loadingDialog.Close();
+        //    loadingDialog = null;
 
 
-        }
+        //}
 
         private void btnOpenEmbeddedFilesWindow_Click(object sender, RoutedEventArgs e)
         {
             FrostbiteModEmbeddedFiles frostbiteModEmbeddedFiles = new FrostbiteModEmbeddedFiles();
             frostbiteModEmbeddedFiles.ShowDialog();
-        }
-
-
-        private void btnProjectSaveToFIFAProject_Click(object sender, RoutedEventArgs e)
-        {
-            // ---------------------------------------------------------
-            // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_FMTV2.CleanUpChunks();
-
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "FIFA Project files|*.fifaproject";
-            var result = saveFileDialog.ShowDialog();
-            if (result.HasValue && result.Value)
-            {
-                if (!string.IsNullOrEmpty(saveFileDialog.FileName))
-                {
-                    FIFAEditorProject.ConvertFromFbProject(ProjectManagement.Project, saveFileDialog.FileName);
-
-                    //FIFAEditorProject project = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
-                    //project.Save(saveFileDialog.FileName);
-
-                    lstProjectFiles.ItemsSource = null;
-                    lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
-
-                    Log("Saved project successfully to " + saveFileDialog.FileName);
-                }
-            }
-        }
-
-
-        private async void btnProjectOpenFIFAProject_Click(object sender, RoutedEventArgs e)
-        {
-            LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "Cleaning loose Legacy Files");
-            loadingDialog.Show();
-            await Task.Delay(100);
-            // ---------------------------------------------------------
-            // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_FMTV2.CleanUpChunks();
-
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Project files|*.fifaproject";
-            var result = openFileDialog.ShowDialog();
-            if (result.HasValue && result.Value)
-            {
-                if (!string.IsNullOrEmpty(openFileDialog.FileName))
-                {
-                    await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
-
-                    await Task.Run(() => { 
-                        FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
-                        editorProject.Load(openFileDialog.FileName);
-                    });
-
-                    lstProjectFiles.ItemsSource = null;
-
-                    Log("Opened project successfully from " + openFileDialog.FileName);
-
-                    UpdateWindowTitle(openFileDialog.FileName);
-
-                }
-            }
-            loadingDialog.Close();
-            loadingDialog = null;
         }
 
         private void btnRebuildCacheSdk_Click(object sender, RoutedEventArgs e)
@@ -1208,7 +1171,7 @@ namespace FIFAModdingUI.Windows
 
         private async void btnProjectMerge_Click(object sender, RoutedEventArgs e)
         {
-            LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "");
+            loadingDialog.Update("Loading Project", "");
             loadingDialog.Show();
             await Task.Delay(100);
             
@@ -1240,8 +1203,19 @@ namespace FIFAModdingUI.Windows
                     Log($"Merged project successfully with {mergerProject.EBXCount} EBX, {mergerProject.RESCount} RES, {mergerProject.ChunkCount} Chunks, {mergerProject.LegacyCount} Legacy files");
                 }
             }
-            loadingDialog.Close();
-            loadingDialog = null;
+            //loadingDialog.Close();
+            loadingDialog.Update("", "");
+        }
+
+        private void btnModifyLocaleINI_Click(object sender, RoutedEventArgs e)
+        {
+            LocaleINIEditor localeINIEditor = new LocaleINIEditor();
+            localeINIEditor.ShowDialog();
+        }
+
+        private void btnModifyInitfs_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

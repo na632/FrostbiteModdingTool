@@ -390,22 +390,23 @@ namespace FrostySdk
 			GCHandle gCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			GCHandle gCHandle2 = GCHandle.Alloc(compBuffer, GCHandleType.Pinned);
 			ulong num = 0uL;
-			if (ProfilesLibrary.DataVersion == 20180914
-				|| ProfilesLibrary.IsFIFADataVersion()
-				|| ProfilesLibrary.DataVersion == 20190905
-                || ProfilesLibrary.IsMadden21DataVersion()
-                || ProfilesLibrary.IsFIFA21DataVersion()
-                || ProfilesLibrary.IsFIFA22DataVersion()
-				)
-			{
+			//if (ProfilesLibrary.DataVersion == 20180914
+			//	|| ProfilesLibrary.IsFIFADataVersion()
+			//	|| ProfilesLibrary.DataVersion == 20190905
+   //             || ProfilesLibrary.IsMadden21DataVersion()
+   //             || ProfilesLibrary.IsFIFA21DataVersion()
+   //             || ProfilesLibrary.IsFIFA22DataVersion()
+   //             || ProfilesLibrary.IsFIFA23DataVersion()
+			//	)
+			//{
 				compressCode = 4464;
 				num = (ulong)Oodle.Compress2(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L, 0L, 0L, 0L);
-			}
-			else
-			{
-				compressCode = 5488;
-				num = (ulong)Oodle.Compress(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L);
-			}
+			//}
+			//else
+			//{
+			//	compressCode = 5488;
+			//	num = (ulong)Oodle.Compress(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L);
+			//}
 			if (num > (ulong)buffer.Length)
 			{
 				uncompressed = true;

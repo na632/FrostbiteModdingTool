@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
     public class CASBundle
     {

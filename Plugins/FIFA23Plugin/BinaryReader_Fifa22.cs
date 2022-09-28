@@ -6,9 +6,9 @@ using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static FIFA22Plugin.AssetLoader_Fifa22;
+using static FIFA23Plugin.AssetLoader_Fifa22;
 
-namespace FIFA22Plugin
+namespace FIFA23Plugin
 {
     public class BinaryReader_Fifa22
     {

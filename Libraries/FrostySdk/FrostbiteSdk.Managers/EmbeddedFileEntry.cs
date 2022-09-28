@@ -8,7 +8,13 @@ namespace FrostbiteSdk.FrostbiteSdk.Managers
 {
     public sealed class EmbeddedFileEntry : AssetEntry
     {
-        public string ExportedRelativePath { get; set; }
+        private string exportedRelativePath;
+
+        public string ExportedRelativePath
+        {
+            get { return exportedRelativePath != null ? exportedRelativePath : Name; }
+            set { exportedRelativePath = value; }
+        }
 
         public string ImportedFileLocation { get; set; }
 
@@ -16,12 +22,13 @@ namespace FrostbiteSdk.FrostbiteSdk.Managers
 
         public override bool Equals(object obj)
         {
-            if(obj is EmbeddedFileEntry)
+            if(obj is EmbeddedFileEntry other)
             {
-                var other = obj as EmbeddedFileEntry;
                 if(other != null)
                 {
-                    return other.ImportedFileLocation == this.ImportedFileLocation;
+                    return other.ImportedFileLocation == this.ImportedFileLocation
+                        || other.ExportedRelativePath == this.ExportedRelativePath
+                        ;
                 }
             }
 

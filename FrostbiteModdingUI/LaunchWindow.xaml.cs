@@ -10,6 +10,7 @@ using FrostySdk;
 using FrostySdk.Frosty;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using paulv2k4ModdingExecuter;
@@ -43,7 +44,7 @@ namespace FMT
     /// <summary>
     /// Interaction logic for LaunchWindow.xaml
     /// </summary>
-    public partial class LaunchWindow : Window, ILogger
+    public partial class LaunchWindow : MetroWindow, ILogger
     {
         public string WindowTitle { get; set; }
 
@@ -375,7 +376,7 @@ namespace FMT
                 Dispatcher.Invoke(() =>
                 {
                     btnLaunch.IsEnabled = false;
-                    btnLaunchOtherTool.IsEnabled = false;
+                    //btnLaunchOtherTool.IsEnabled = false;
                 });
                 await Task.Delay(500);
 
@@ -554,7 +555,7 @@ namespace FMT
                     Dispatcher.Invoke(() =>
                     {
                         btnLaunch.IsEnabled = true;
-                        btnLaunchOtherTool.IsEnabled = true;
+                        //btnLaunchOtherTool.IsEnabled = true;
                     });
 
 
@@ -681,16 +682,16 @@ namespace FMT
 
                 // -------------------------------------
                 // V11.9 - Temporarily disable CEM due to changes for DB/Squad files
-                btnOpenCEMWindow.IsEnabled = false;
+                //btnOpenCEMWindow.IsEnabled = false;
                 // -------------------------------------
 
                 if (ProfilesLibrary.IsFIFA21DataVersion())
                 {
                     switchUseSymbolicLink.Visibility = Visibility.Collapsed;
                     switchUseSymbolicLink.IsOn = false;
-                    btnLaunchOtherTool.Visibility = Visibility.Visible;
+                    //btnLaunchOtherTool.Visibility = Visibility.Visible;
 
-                    btnOpenCEMWindow.Visibility = Visibility.Visible;
+                    //btnOpenCEMWindow.Visibility = Visibility.Visible;
                 }
 
                 if (ProfilesLibrary.IsMadden21DataVersion())
@@ -829,9 +830,9 @@ namespace FMT
             findOtherLauncherEXEWindow.InjectLegacyModSupport = switchUseLegacyModSupport.IsOn;
             findOtherLauncherEXEWindow.InjectLiveEditorSupport = switchUseLiveEditor.IsOn;
 
-            btnLaunchOtherTool.IsEnabled = false;
+            //btnLaunchOtherTool.IsEnabled = false;
             findOtherLauncherEXEWindow.ShowDialog();
-            btnLaunchOtherTool.IsEnabled = true;
+            //btnLaunchOtherTool.IsEnabled = true;
 
         }
 

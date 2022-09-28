@@ -22,7 +22,7 @@ public string top_tier { get; set; } public string nationstartingfirstletter { g
             if (FIFANations != null)
                 return FIFANations;
 
-            var dlllocation = Directory.GetParent(Assembly.GetExecutingAssembly().Location);
+            var dlllocation = Directory.GetParent(AppContext.BaseDirectory);
             var fulllocation = dlllocation + "\\CEM\\Data\\nations.csv";
             using (var reader = new StreamReader(fulllocation))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
