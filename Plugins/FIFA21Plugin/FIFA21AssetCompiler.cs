@@ -715,7 +715,7 @@ namespace FIFA21Plugin
                     casPath = casPath.Replace("native_patch"
                         , AssetManager.Instance.fs.BasePath + "ModData\\Patch", StringComparison.OrdinalIgnoreCase);
 
-                    if (!casPath.Contains("ModData"))
+                    if (UseModData && !casPath.Contains("ModData"))
                     {
                         throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
                     }
