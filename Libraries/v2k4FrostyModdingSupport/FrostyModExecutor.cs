@@ -5074,6 +5074,7 @@ namespace paulv2k4ModdingExecuter
             }
 
             SetupFIFAConfig();
+            RunPowershellToUnblockDLLAtLocation(fs.BasePath);
 
             if (foundMods && UseModData)// || sameAsLast)
             {
@@ -5215,6 +5216,24 @@ namespace paulv2k4ModdingExecuter
             {
                 File.Copy(fileInfo.FullName, fileInfo2.FullName, overwrite: true);
             }
+        }
+
+        public static async void RunPowershellToUnblockDLLAtLocation(string loc)
+        {
+            var psCommmand = $"dir \"{loc}\" -Recurse|Unblock-File";
+            var psCommandBytes = System.Text.Encoding.Unicode.GetBytes(psCommmand);
+            var psCommandBase64 = Convert.ToBase64String(psCommandBytes);
+
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy unrestricted -WindowStyle hidden -EncodedCommand {psCommandBase64}",
+                UseShellExecute = true
+            };
+            startInfo.Verb = "runAs";
+            Process.Start(startInfo);
+
+            await Task.Delay(9000);
         }
     }
 }

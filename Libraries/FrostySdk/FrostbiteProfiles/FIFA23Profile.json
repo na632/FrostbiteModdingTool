@@ -6,7 +6,7 @@
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
-  "AssetCompiler": "Fifa22AssetCompiler_Old",
+  "AssetCompiler": "Fifa23AssetCompilerV1",
   //"AssetCompiler": "Fifa22AssetCompiler",
   "EditorScreen": "FIFA23Editor",
   // Texture Importer (Overriding the base Importer)
@@ -23,7 +23,7 @@
   "EBXExporter": null,
 
   "ProjectEbxWriter": "EbxWriter2022",
-  "ProjectEbxReader": "EbxReader2022",
+  "ProjectEbxReader": "EbxReader22B",
 
 
   "Sources": [

@@ -952,7 +952,7 @@ namespace FIFAModdingUI.Pages.Common
 					this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
 
 				}
-				else if (string.IsNullOrEmpty(ebxEntry.Type))
+				else if (string.IsNullOrEmpty(ebxEntry.Type) || ebxEntry.Type == "UnknownType")
 				{
 					DisplayUnknownFileViewer(AssetManager.Instance.GetEbxStream(ebxEntry));
 				}

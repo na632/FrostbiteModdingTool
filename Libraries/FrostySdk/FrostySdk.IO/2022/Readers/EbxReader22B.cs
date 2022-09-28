@@ -45,11 +45,9 @@ namespace FrostySdk.IO._2022.Readers
 
 				if (this.typeInfoGuids.Count > 0)
 				{
-					
-
 					Type type = TypeLibrary.GetType(this.typeInfoGuids[0]);
 
-					return type?.Name ?? string.Empty;
+					return type?.Name ?? "UnknownType";
 				}
 				if (base.instances.Count == 0)
 				{
