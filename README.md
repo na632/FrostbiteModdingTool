@@ -18,3 +18,9 @@ I continued to use/develop this tool out of hobbyness and because of a few issue
 Moving on to recent times FIFA Editor Tool is a much more feature rich and stable modding tool for Frostbite games beyond FIFA 21 and has a much bigger backing (in both money and developer time) than this one. 
 
 This remains a hobby project and now open source for others to use/steal/sell/research as they wish.
+
+## Credits
+Jaycensolo (Jay has been a great help in testing almost everything this Tool does)
+[Aranaktu](https://github.com/xAranaktu) - This man is a legend
+[Frosty Tool](https://frostytoolsuite.com/) development team. All the `original code` for `FrostySdk`,`SDK Generator` and `Modding` came from them.
+[FIFA Editor Tool](https://www.fifaeditortool.com/) development team. Used for research into how to properly handle Meshes for FIFA 21. 
