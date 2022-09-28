@@ -74,6 +74,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FifaLibrary", "Libraries\Fi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFA23Plugin", "Plugins\FIFA23Plugin\FIFA23Plugin.csproj", "{2739CC07-99D8-41B5-A113-DB6E9A606ED1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C0003E0B-950F-483B-98AC-70A59CC3AF5A}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
