@@ -1,8 +1,9 @@
-﻿<Window x:Class="FIFAModdingUI.Windows.BuildSDKAndCache"
+﻿<mah:MetroWindow x:Class="FIFAModdingUI.Windows.BuildSDKAndCache"
          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:local="clr-namespace:FIFAModdingUI"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
@@ -21,9 +22,9 @@
                     <Label Content="Rebuild Frostbite Cache" VerticalAlignment="Center" />
                     <Label x:Name="lblCacheNeedsRebuilding" Content="(Cache needs rebuild)" Foreground="Red" VerticalAlignment="Center" Visibility="Collapsed"  />
                 </StackPanel>
-                <TextBlock>
+                <Label>
                 You must build the cache before building the SDK
-                </TextBlock>
+                </Label>
                 <Button x:Name="btnRunBuildCache" Click="btnRunBuildCache_Click">
                     Run
                 </Button>
@@ -33,17 +34,17 @@
                     <MaterialDesign:PackIcon Kind="Build" VerticalAlignment="Center" />
                     <Label Content="Rebuilding Game SDK" VerticalAlignment="Center" />
                 </StackPanel>
-                <TextBlock>
+                <Label>
                 Remember to have the Game open and on the main menu during this procedure
-                </TextBlock>
+                </Label>
                 <Button x:Name="btnRunBuild" Click="btnRunBuild_Click">
                     Run
                 </Button>
                 <Separator Margin="0,10,0,0"></Separator>
-                <TextBlock x:Name="txtOuputMessage" FontSize="20"></TextBlock>
-                <TextBlock x:Name="txtOutputSubMessage" FontSize="12"></TextBlock>
+                <Label x:Name="txtOuputMessage" FontSize="20"></Label>
+                <Label x:Name="txtOutputSubMessage" FontSize="12"></Label>
             </StackPanel>
             
         </StackPanel>
     </Grid>
-</Window>
+</mah:MetroWindow>

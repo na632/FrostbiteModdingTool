@@ -24,13 +24,14 @@ using System.Windows.Shapes;
 using v2k4FIFAModdingCL;
 using SdkGenerator;
 using Frosty.Hash;
+using MahApps.Metro.Controls;
 
 namespace FIFAModdingUI.Windows
 {
     /// <summary>
     /// Interaction logic for BuildSDKAndCache.xaml
     /// </summary>
-    public partial class BuildSDKAndCache : Window, ILogger, IDisposable
+    public partial class BuildSDKAndCache : MetroWindow, ILogger, IDisposable
     {
 
         private BuildCache buildCache = new BuildCache();
@@ -69,13 +70,13 @@ namespace FIFAModdingUI.Windows
                 btnRunBuildCache.IsEnabled = false;
                 btnRunBuild.IsEnabled = false;
 
-                Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building Cache. Please wait 3-15 minutes to complete!"; });
+                Dispatcher.Invoke(() => { txtOuputMessage.Content = "Building Cache. Please wait 3-15 minutes to complete!"; });
 
                 // -----------------------------------------
                 //
                 await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, true, false);
 
-                Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building SDK. Please wait 1-2 minutes to complete!"; });
+                Dispatcher.Invoke(() => { txtOuputMessage.Content = "Building SDK. Please wait 1-2 minutes to complete!"; });
 
 #if DEBUG 
                 // ----------------------------------------------------------------------------------------------------------------------
@@ -107,7 +108,7 @@ namespace FIFAModdingUI.Windows
 
                 // -----------------------------------------
                 // finish off with the SDK
-                Dispatcher.Invoke(() => { txtOuputMessage.Text = "Building Cache EBX Indexing. Please wait 1-3 minutes to complete!"; });
+                Dispatcher.Invoke(() => { txtOuputMessage.Content = "Building Cache EBX Indexing. Please wait 1-3 minutes to complete!"; });
 
                 AssetManager.Instance.FullReset();
                 AssetManager.Instance.Dispose();
@@ -215,7 +216,7 @@ namespace FIFAModdingUI.Windows
 
             await Task.Run(() =>
             {
-                Dispatcher.Invoke(() => { txtOutputSubMessage.Text = in_text; });
+                Dispatcher.Invoke(() => { txtOutputSubMessage.Content = in_text; });
             });
 
         }
@@ -241,7 +242,7 @@ namespace FIFAModdingUI.Windows
             }
             catch(Exception ex)
             {
-                txtOuputMessage.Text = "There was an error during the cache building process";
+                txtOuputMessage.Content = "There was an error during the cache building process";
                 File.WriteAllText("log_cache_error.txt", ex.ToString());
             }
         }
