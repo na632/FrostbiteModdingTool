@@ -193,9 +193,9 @@ namespace FIFA23Plugin
 
                 ModExecuter.Logger.Log("Enumerating modified bundles.");
 
-                ProcessBundles(true); // do patch
-                ProcessBundles(false); // do data
-                ProcessLegacyFiles(); // finish off with legacy
+            //ProcessBundles(true); // do patch
+            ProcessBundles(false); // do data
+            ProcessLegacyFiles(); // finish off with legacy
 
                 ModExecuter.Logger.Log($"Modified {ModifiedCount_EBX} ebx, {ModifiedCount_RES} res, {ModifiedCount_Chunks} chunks");
 
@@ -271,6 +271,7 @@ namespace FIFA23Plugin
                     TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22(false, false);
 
                     tocSbReader.Read(location_toc_file, 0, null, true, tocFile);
+                    bool tocChanged = false;
 
                     if (tocSbReader.TOCFile.TOCObjects != null && tocSbReader.TOCFile.TOCObjects.List.Any())
                     {
@@ -282,34 +283,7 @@ namespace FIFA23Plugin
                             DbObject ebx = o.GetValue<DbObject>("ebx");
                             if (ebx != null && parent.modifiedEbx.Any())
                             {
-                                var ebxNames = ebx.List.Select(x => ((DbObject)x).GetValue<string>("name"));
-                                if (ebxNames != null)
-                                {
-                                    if (ebxNames.Any(x => parent.modifiedEbx.ContainsKey(x)))
-                                    {
-                                        foreach (var modC in parent.modifiedEbx)
-                                        {
-                                            DbObject dboItem = ebx.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
-                                            if (dboItem != null)
-                                            {
-
-                                                var dboCCas = dboItem.GetValue<int>("cas");
-                                                var dboCCatalog = dboItem.GetValue<int>("catalog");
-                                                var dboCPatch = dboItem.GetValue<bool>("patch");
-                                                var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
-
-                                                if (!modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
-
-                                                if (modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas[dboRawFilePath].Add((dboItem, modC.Value));
-
-                                                ModifiedCount_EBX++;
-                                                ebxToRemove.Add(modC.Key);
-                                            }
-                                        }
-                                    }
-                                }
+                                //ProcessBundleEbx(modToCas, ebxToRemove, ebx);
                             }
 
                             //foreach (var item in ebxToRemove)
@@ -319,36 +293,7 @@ namespace FIFA23Plugin
                             DbObject res = o.GetValue<DbObject>("res");
                             if (res != null && parent.modifiedRes.Any())
                             {
-
-                                var resNames = res.List.Select(x => ((DbObject)x).GetValue<string>("name"));
-                                if (resNames != null)
-                                {
-                                    if (resNames.Any(x => parent.modifiedRes.ContainsKey(x)))
-                                    {
-
-                                        foreach (var modC in parent.modifiedRes)
-                                        {
-                                            DbObject dboItem = res.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
-                                            if (dboItem != null)
-                                            {
-                                                var dboCCas = dboItem.GetValue<int>("cas");
-                                                var dboCCatalog = dboItem.GetValue<int>("catalog");
-                                                var dboCPatch = dboItem.GetValue<bool>("patch");
-                                                var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
-
-                                                if (!modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
-
-                                                if (modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas[dboRawFilePath].Add((dboItem, modC.Value));
-
-                                                ModifiedCount_RES++;
-                                                resToRemove.Add(modC.Key);
-                                            }
-
-                                        }
-                                    }
-                                }
+                                //ProcessBundleRes(modToCas, resToRemove, res);
                             }
 
                             //foreach (var item in resToRemove)
@@ -359,36 +304,7 @@ namespace FIFA23Plugin
                             DbObject chunks = o.GetValue<DbObject>("chunks");
                             if (chunks != null && parent.ModifiedChunks.Any())
                             {
-
-                                var chunkIds = chunks.List.Select(x => ((DbObject)x).GetValue<Guid>("id"));
-                                if (chunkIds != null)
-                                {
-                                    if (chunkIds.Any(x => parent.ModifiedChunks.ContainsKey(x)))
-                                    {
-
-                                        foreach(var modC in parent.ModifiedChunks)
-                                        {
-                                            DbObject dboC = chunks.List.FirstOrDefault(x => ((DbObject)x).GetValue<Guid>("id") == modC.Key) as DbObject;
-                                            if (dboC != null)
-                                            {
-                                                var dboCCas = dboC.GetValue<int>("cas");
-                                                var dboCCatalog = dboC.GetValue<int>("catalog");
-                                                var dboCPatch = dboC.GetValue<bool>("patch");
-                                                var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
-
-                                                if (!modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
-
-                                                if (modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas[dboRawFilePath].Add((dboC, modC.Value));
-
-                                                ModifiedCount_Chunks++;
-                                                chunksToRemove.Add(modC.Key);
-                                            }
-
-                                        }
-                                    }
-                                }
+                                ProcessBundleChunk(modToCas, chunksToRemove, chunks);
 
                             }
 
@@ -447,6 +363,8 @@ namespace FIFA23Plugin
                                                     WriteBundleOffsetChangesToBundleCas(nwCas, t.Item1);
                                                 }
 
+                                                tocChanged = true;
+
                                             }
 
 
@@ -500,19 +418,21 @@ namespace FIFA23Plugin
                                         tocSbReader.TOCFile.TocChunks[chunkIndex] = chunk;
 
                                         ModifiedCount_Chunks++;
-
+                                        tocChanged = true;
                                     }
                                 }
                             }
                         }
                     }
 
-                    tocSbReader.TOCFile.Write(msNewTOCFile);
-
-
-                    if (msNewTOCFile != null && msNewTOCFile.Length > 0)
+                    if (tocChanged)
                     {
-                        File.WriteAllBytes(location_toc_file, msNewTOCFile.ToArray());
+                        tocSbReader.TOCFile.Write(msNewTOCFile);
+
+                        if (msNewTOCFile != null && msNewTOCFile.Length > 0)
+                        {
+                            File.WriteAllBytes(location_toc_file, msNewTOCFile.ToArray());
+                        }
                     }
                 }
               
@@ -539,6 +459,104 @@ namespace FIFA23Plugin
 
             //if (!bundlesInPatch)
             //    ProcessBundles(false);
+        }
+
+        private void ProcessBundleChunk(Dictionary<string, List<(DbObject, AssetEntry)>> modToCas, List<Guid> chunksToRemove, DbObject chunks)
+        {
+            var chunkIds = chunks.List.Select(x => ((DbObject)x).GetValue<Guid>("id"));
+            if (chunkIds != null)
+            {
+                if (chunkIds.Any(x => parent.ModifiedChunks.ContainsKey(x)))
+                {
+
+                    foreach (var modC in parent.ModifiedChunks)
+                    {
+                        DbObject dboC = chunks.List.FirstOrDefault(x => ((DbObject)x).GetValue<Guid>("id") == modC.Key) as DbObject;
+                        if (dboC != null)
+                        {
+                            var dboCCas = dboC.GetValue<int>("cas");
+                            var dboCCatalog = dboC.GetValue<int>("catalog");
+                            var dboCPatch = dboC.GetValue<bool>("patch");
+                            var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+
+                            if (!modToCas.ContainsKey(dboRawFilePath))
+                                modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+
+                            if (modToCas.ContainsKey(dboRawFilePath))
+                                modToCas[dboRawFilePath].Add((dboC, modC.Value));
+
+                            ModifiedCount_Chunks++;
+                            chunksToRemove.Add(modC.Key);
+                        }
+
+                    }
+                }
+            }
+        }
+
+        private void ProcessBundleRes(Dictionary<string, List<(DbObject, AssetEntry)>> modToCas, List<string> resToRemove, DbObject res)
+        {
+            var resNames = res.List.Select(x => ((DbObject)x).GetValue<string>("name"));
+            if (resNames != null)
+            {
+                if (resNames.Any(x => parent.modifiedRes.ContainsKey(x)))
+                {
+
+                    foreach (var modC in parent.modifiedRes)
+                    {
+                        DbObject dboItem = res.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
+                        if (dboItem != null)
+                        {
+                            var dboCCas = dboItem.GetValue<int>("cas");
+                            var dboCCatalog = dboItem.GetValue<int>("catalog");
+                            var dboCPatch = dboItem.GetValue<bool>("patch");
+                            var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+
+                            if (!modToCas.ContainsKey(dboRawFilePath))
+                                modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+
+                            if (modToCas.ContainsKey(dboRawFilePath))
+                                modToCas[dboRawFilePath].Add((dboItem, modC.Value));
+
+                            ModifiedCount_RES++;
+                            resToRemove.Add(modC.Key);
+                        }
+
+                    }
+                }
+            }
+        }
+
+        private void ProcessBundleEbx(Dictionary<string, List<(DbObject, AssetEntry)>> modToCas, List<string> ebxToRemove, DbObject ebx)
+        {
+            var ebxNames = ebx.List.Select(x => ((DbObject)x).GetValue<string>("name"));
+            if (ebxNames != null)
+            {
+                if (ebxNames.Any(x => parent.modifiedEbx.ContainsKey(x)))
+                {
+                    foreach (var modC in parent.modifiedEbx)
+                    {
+                        DbObject dboItem = ebx.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
+                        if (dboItem != null)
+                        {
+
+                            var dboCCas = dboItem.GetValue<int>("cas");
+                            var dboCCatalog = dboItem.GetValue<int>("catalog");
+                            var dboCPatch = dboItem.GetValue<bool>("patch");
+                            var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+
+                            if (!modToCas.ContainsKey(dboRawFilePath))
+                                modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+
+                            if (modToCas.ContainsKey(dboRawFilePath))
+                                modToCas[dboRawFilePath].Add((dboItem, modC.Value));
+
+                            ModifiedCount_EBX++;
+                            ebxToRemove.Add(modC.Key);
+                        }
+                    }
+                }
+            }
         }
 
         private void WriteBundleOffsetChangesToBundleCas(in NativeWriter nwCas, in DbObject obj)

@@ -101,6 +101,12 @@ namespace FrostySdk
 			/// </summary>
 			public bool CanLaunchMods { get; set; }
 
+			/// <summary>
+			/// A switch as to whether this tool can use a "ModData" folder for this profile
+			/// </summary>
+			public bool CanUseModData { get; set; } = true;
+
+
 
 			/// <summary>
 			/// A switch as to whether this tool has a "Legacy.dll" attached that allows Live Legacy mods (Aranaktu's work)

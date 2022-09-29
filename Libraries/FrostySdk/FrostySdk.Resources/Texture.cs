@@ -16,7 +16,7 @@ namespace FrostySdk.Resources
 
 		private uint unknown1;
 
-		private uint unknown2;
+		private uint unknown2 { get; set; }
 
 		private int unknown4;
 
@@ -404,7 +404,9 @@ namespace FrostySdk.Resources
 				chunkSize = nativeReader.ReadUInt();
 				assetNameHash = nativeReader.ReadUInt();
 
-				unknown2 = nativeReader.ReadUInt();
+				if(!ProfilesLibrary.IsFIFA23DataVersion())
+					unknown2 = nativeReader.ReadUInt();
+
 				//textureGroup = nativeReader.ReadSizedString(16);
 				textureGroup = nativeReader.ReadNullTerminatedString();
 				if (AssetManager.Instance.logger != null)

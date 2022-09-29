@@ -104,6 +104,13 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void BuildSDKFromEXE()
+        {
+            var buildSDK = new BuildSDKFromEXE();
+            buildSDK.Build(GamePathEXE);
+        }
+
+        [TestMethod]
         public void ReadSharedTypeDescriptor()
         {
             var buildCache = new BuildCache();
