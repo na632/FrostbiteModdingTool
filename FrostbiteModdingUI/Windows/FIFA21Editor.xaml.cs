@@ -203,10 +203,10 @@ namespace FIFAModdingUI.Windows
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.Append(initialTitle);
                 stringBuilder.Append("[" + AdditionalTitle + "]");
-                if(!ProfilesLibrary.EnableExecution)
-                {
-                    stringBuilder.Append(" (Read Only)");
-                }
+                //if(!ProfilesLibrary.EnableExecution)
+                //{
+                //    stringBuilder.Append(" (Read Only)");
+                //}
                 return stringBuilder.ToString();
             }
         }

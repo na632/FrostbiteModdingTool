@@ -16,7 +16,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>paulv2k4.ico</ApplicationIcon>
    
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   
   <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   <Deterministic>false</Deterministic>
