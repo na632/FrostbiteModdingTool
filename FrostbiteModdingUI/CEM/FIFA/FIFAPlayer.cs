@@ -319,14 +319,14 @@ Selfish = 1,
         public int GetPlayerGrowth()
         {
             int playerGrowth = 0;
-            if(CareerDB1.Current != null && CareerFile.Current != null)
+            if (CareerDB1.Current != null && CareerFile.Current != null)
             {
                 var gTable = CareerFile.Current.Databases[0].GetTable("career_playergrowthuserseason");
-                if (gTable != null) 
+                if (gTable != null)
                 {
                     var growthTable = gTable.ConvertToDataTable().AsEnumerable();
                     var playerOVRRow = growthTable.Where(x => (int)x["playerid"] == playerid).OrderBy(x => x["overall"]).FirstOrDefault();
-                    if (playerOVRRow != null) 
+                    if (playerOVRRow != null)
                     {
                         playerGrowth = overallrating - (int)playerOVRRow["overall"];
                     }

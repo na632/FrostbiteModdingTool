@@ -7,46 +7,48 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="btnRefresh" Grid.Column="0" Click="btn_RefreshClick">Refresh</Button>
-            <Button x:Name="btnImport" Grid.Column="1" IsEnabled="False" Content="{DynamicResource textImport}"  Click="btnImport_Click"></Button>
-            <Button x:Name="btnExport" Grid.Column="2" Content="{DynamicResource textExport}"  Click="btnExport_Click"></Button>
-        </Grid>
-        <DockingManager Grid.Row="1">
-            <LayoutRoot>
-                <LayoutPanel>
-                    <LayoutAnchorablePaneGroup>
-                        <LayoutAnchorablePane DockWidth="200" ResizableAbsoluteDockWidth="200">
-                            <LayoutAnchorable Title="Tables"  CanClose="False">
-                                <ListBox x:Name="tblList" SelectionChanged="tblList_SelectionChanged">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding}"></TextBlock>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </LayoutAnchorable>
-                        </LayoutAnchorablePane>
-                        <LayoutAnchorablePane>
-                            <LayoutAnchorable Title="Data"  CanClose="False">
-                                <DataGrid x:Name="tblData" AutoGenerateColumns="True" HeadersVisibility="All" IsReadOnly="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="btnRefresh" Grid.Column="0" Click="btn_RefreshClick">Refresh</Button>
+                <Button x:Name="btnImport" Grid.Column="1" Content="{DynamicResource textImport}"  Click="btnImport_Click"></Button>
+                <Button x:Name="btnExport" Grid.Column="2" Content="{DynamicResource textExport}"  Click="btnExport_Click"></Button>
+            </Grid>
+            <DockingManager Grid.Row="1">
+                <LayoutRoot>
+                    <LayoutPanel>
+                        <LayoutAnchorablePaneGroup>
+                            <LayoutAnchorablePane DockWidth="200" ResizableAbsoluteDockWidth="200">
+                                <LayoutAnchorable Title="Tables"  CanClose="False" CanFloat="False" CanHide="False">
+                                    <ListBox x:Name="tblList" SelectionChanged="tblList_SelectionChanged">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}"></TextBlock>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                            <LayoutAnchorablePane>
+                                <LayoutAnchorable Title="Data"  CanClose="False" CanFloat="False" CanHide="False">
+                                    <DataGrid x:Name="tblData" AutoGenerateColumns="True" HeadersVisibility="All" IsReadOnly="True">
                                     
-                                </DataGrid>
-                            </LayoutAnchorable>
-                        </LayoutAnchorablePane>
-                    </LayoutAnchorablePaneGroup>
-                </LayoutPanel>
-            </LayoutRoot>
-        </DockingManager>
+                                    </DataGrid>
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                        </LayoutAnchorablePaneGroup>
+                    </LayoutPanel>
+                </LayoutRoot>
+            </DockingManager>
+        </Grid>
     </Grid>
 
 </UserControl>

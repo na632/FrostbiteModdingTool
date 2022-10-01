@@ -492,13 +492,17 @@ namespace FifaLibrary
 		public int Save(DbWriter w, long compressedStringBasePosition, int compressedStringOffset)
 		{
 			long position = w.BaseStream.Position;
+			if(position >= 990807)
+            {
+
+            }
 			long position2 = position + m_TableDescriptor.RecordSize;
 			int recordSize = m_TableDescriptor.RecordSize;
-			for (int i = 0; i < recordSize; i++)
-			{
-				w.Write((byte)0);
-			}
-			w.BaseStream.Position = position;
+			//for (int i = 0; i < recordSize; i++)
+			//{
+			//	w.Write((byte)0);
+			//}
+			//w.BaseStream.Position = position;
 			for (int j = 0; j < m_TableDescriptor.NFields; j++)
 			{
 				int num = m_TableDescriptor.FieldDescriptors[j].BitOffset / 8;
@@ -551,7 +555,10 @@ namespace FifaLibrary
 					compressedStringOffset += m_TableDescriptor.HuffmannTree.WriteString(w, m_CompressedString[typeIndex], longString: true);
 					w.BaseStream.Position = position + num + 4;
 					break;
+				default:
+					break;
 				}
+				
 			}
 			w.WritePendingByte();
 			w.Align(position2);

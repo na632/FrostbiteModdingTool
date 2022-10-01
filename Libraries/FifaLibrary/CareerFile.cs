@@ -3,11 +3,16 @@ using System.IO;
 
 namespace FifaLibrary
 {
-	public class CareerFile
+	public class CareerFile : DbFile
 	{
-		public static CareerFile Current;
+
+		public static CareerFile Current { get; private set; }
 
 		private string m_InGameName;
+
+		protected string m_FileName;
+
+		protected string m_XmlFileName;
 
 		protected DataSet m_DescriptorDataSet;
 
@@ -59,24 +64,27 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_InGameName;
+				return this.m_InGameName;
 			}
 			set
 			{
-				m_InGameName = value;
+				this.m_InGameName = value;
 			}
 		}
 
+		public string FileName => this.m_FileName;
+
+		public string XmlFileName => this.m_XmlFileName;
 
 		public DataSet DescriptorDataSet
 		{
 			get
 			{
-				return m_DescriptorDataSet;
+				return this.m_DescriptorDataSet;
 			}
 			set
 			{
-				m_DescriptorDataSet = value;
+				this.m_DescriptorDataSet = value;
 			}
 		}
 
@@ -84,70 +92,88 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_Platform;
+				return this.m_Platform;
 			}
 			set
 			{
-				m_Platform = value;
+				this.m_Platform = value;
 			}
 		}
 
-		public DbFile[] Databases => m_Database;
+		public DbFile[] Databases => this.m_Database;
 
-		public int NDatabases => m_NDatabases;
+		public int NDatabases => this.m_NDatabases;
 
-		public Stream DbStream { get; set; }
-		Stream XmlStream { get; set; }
+	private bool isFIFA23 { get; set; }
 
-		public CareerFile(string careerFile, string xmlFile)
+		public CareerFile(string careerFileName, string xmlFileName)
 		{
-			var fsDB = new FileStream(careerFile, FileMode.Open);
-			var fsXML = new FileStream(xmlFile, FileMode.Open);
-			LoadXml(fsXML);
-			LoadEA(fsDB);
+			this.m_FileName = careerFileName;
+			this.m_XmlFileName = xmlFileName;
+			this.m_DescriptorDataSet = null;
+			this.Load();
+
+			isFIFA23 = careerFileName.Contains("FIFA 23", System.StringComparison.OrdinalIgnoreCase)
+				|| careerFileName.Contains("FIFA23", System.StringComparison.OrdinalIgnoreCase);
+
+			Current = this;
 		}
 
-
-		public CareerFile(Stream careerStream, Stream xmlStream)
+		public bool Load()
 		{
-			DbStream = careerStream;
-			DbStream.Position = 0;
-			XmlStream = XmlStream;
-			m_DescriptorDataSet = null;
-			LoadXml(xmlStream);
-			LoadEA(careerStream);
+			if (!this.LoadXml())
+			{
+				return false;
+			}
+			return this.LoadEA(this.m_FileName);
 		}
 
-
-		public bool LoadXml(Stream inStream)
+		public bool LoadXml(string xmlFileName)
 		{
-			XmlStream = inStream;
-			XmlStream.Position = 0;
-			m_DescriptorDataSet = new DataSet("XML_Descriptor");
-			m_DescriptorDataSet.ReadXml(inStream);
+			if (!File.Exists(xmlFileName))
+			{
+				return false;
+			}
+			this.m_XmlFileName = xmlFileName;
+			this.m_DescriptorDataSet = new DataSet("XML_Descriptor");
+			this.m_DescriptorDataSet.ReadXml(this.m_XmlFileName);
 			return true;
 		}
 
-		public bool LoadEA(Stream inStream)
+		public bool LoadXml()
 		{
-			DbReader dbReader = new DbReader(inStream, FifaPlatform.PC);
+			if (this.m_XmlFileName == null)
+			{
+				return false;
+			}
+			return this.LoadXml(this.m_XmlFileName);
+		}
+
+		public string OriginalFileName { get; private set; }
+
+		public bool LoadEA(string fileName)
+		{
+			OriginalFileName = fileName;
+			FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+			DbReader dbReader = new DbReader(fileStream, FifaPlatform.PC);
 			dbReader.BaseStream.Position = 18L;
-			m_InGameName = FifaUtil.ReadNullTerminatedString(dbReader);
+			this.m_InGameName = FifaUtil.ReadNullTerminatedString(dbReader);
 			while (dbReader.BaseStream.Position < dbReader.BaseStream.Length)
 			{
-				m_Database[m_NDatabases] = new DbFile(inStream, XmlStream);
-				m_Database[m_NDatabases].DescriptorDataSet = m_DescriptorDataSet;
-				if (!m_Database[m_NDatabases].LoadDb(dbReader, skipData: true))
+				this.m_Database[this.m_NDatabases] = new DbFile();
+				this.m_Database[this.m_NDatabases].DescriptorDataSet = this.m_DescriptorDataSet;
+				if (!this.m_Database[this.m_NDatabases].LoadDb(dbReader, skipData: true))
 				{
 					break;
 				}
-				m_NDatabases++;
-				if (m_NDatabases == 3)
+				this.m_NDatabases++;
+				if (this.m_NDatabases == 3)
 				{
 					break;
 				}
 			}
-			//dbReader.Close();
+			dbReader.Close();
+			fileStream.Close();
 			return true;
 		}
 
@@ -156,20 +182,21 @@ namespace FifaLibrary
 			string fileName2 = Path.GetFileName(fileName);
 			if (fileName2.StartsWith("Squad"))
 			{
-				return SaveEa(fileName);
+				return this.SaveEa(fileName);
 			}
 			if (fileName2.StartsWith("Career"))
 			{
-				return SaveEa(fileName);
+				return this.SaveEa(fileName);
 			}
 			return false;
 		}
 
+
 		public bool SaveEa(string fileName)
 		{
 			FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite);
-			DbWriter dbWriter = new DbWriter(fileStream, m_Platform);
-			DbReader dbReader = new DbReader(fileStream, m_Platform);
+			DbWriter dbWriter = new DbWriter(fileStream, this.m_Platform);
+			DbReader dbReader = new DbReader(fileStream, this.m_Platform);
 			dbReader.BaseStream.Position = 18L;
 			int num = 0;
 			while (dbReader.ReadByte() != 0)
@@ -181,24 +208,32 @@ namespace FifaLibrary
 				num++;
 			}
 			dbWriter.BaseStream.Position = 18L;
-			if (m_InGameName.Length > num)
+			if (this.m_InGameName.Length > num)
 			{
-				m_InGameName = m_InGameName.Substring(0, num);
+				this.m_InGameName = this.m_InGameName.Substring(0, num);
 			}
-			FifaUtil.WriteNullPaddedString(dbWriter, m_InGameName, num);
+			FifaUtil.WriteNullPaddedString(dbWriter, this.m_InGameName, num);
 			dbWriter.BaseStream.Position = 118L;
-			for (int i = 0; i < 8; i++)
+			if (!isFIFA23)
+			{
+                for (int i = 0; i < 8; i++)
+                {
+                    dbWriter.Write((byte)0);
+                }
+            }
+            dbWriter.BaseStream.Position = 218L;
+			for (int i = 0; i < 4; i++)
 			{
 				dbWriter.Write((byte)0);
 			}
-			for (int j = 0; j < m_NDatabases; j++)
+			for (int j = 0; j < this.m_NDatabases; j++)
 			{
-				dbWriter.BaseStream.Position = m_Database[j].SignaturePosition;
-				m_Database[j].SaveDb(dbWriter);
+				dbWriter.BaseStream.Position = this.m_Database[j].SignaturePosition;
+				this.m_Database[j].SaveDb(dbWriter);
 			}
-			for (int k = 0; k < m_NDatabases; k++)
+			for (int k = 0; k < this.m_NDatabases; k++)
 			{
-				m_Database[k].ComputeAllCrc(dbReader, dbWriter);
+				this.m_Database[k].ComputeAllCrc(dbReader, dbWriter);
 			}
 			dbReader.Close();
 			dbWriter.Close();
@@ -209,17 +244,17 @@ namespace FifaLibrary
 		public bool ExportDB(int dbIndex, string fileName)
 		{
 			FileStream fileStream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite);
-			DbWriter dbWriter = new DbWriter(fileStream, m_Platform);
-			DbReader dbReader = new DbReader(fileStream, m_Platform);
-			if (dbIndex >= m_NDatabases)
+			DbWriter dbWriter = new DbWriter(fileStream, this.m_Platform);
+			DbReader dbReader = new DbReader(fileStream, this.m_Platform);
+			if (dbIndex >= this.m_NDatabases)
 			{
 				return false;
 			}
-			long signaturePosition = m_Database[dbIndex].SignaturePosition;
-			m_Database[dbIndex].SignaturePosition = 0L;
-			m_Database[dbIndex].SaveDb(dbWriter);
-			m_Database[dbIndex].ComputeAllCrc(dbReader, dbWriter);
-			m_Database[dbIndex].SignaturePosition = signaturePosition;
+			long signaturePosition = this.m_Database[dbIndex].SignaturePosition;
+			this.m_Database[dbIndex].SignaturePosition = 0L;
+			this.m_Database[dbIndex].SaveDb(dbWriter);
+			this.m_Database[dbIndex].ComputeAllCrc(dbReader, dbWriter);
+			this.m_Database[dbIndex].SignaturePosition = signaturePosition;
 			dbReader.Close();
 			dbWriter.Close();
 			fileStream.Close();
@@ -233,7 +268,7 @@ namespace FifaLibrary
 			for (int i = 0; i < size; i++)
 			{
 				byte b = r.ReadByte();
-				num = s_CrcTable[((num >> 24) ^ b) & 0xFF] ^ (num << 8);
+				num = CareerFile.s_CrcTable[((num >> 24) ^ b) & 0xFF] ^ (num << 8);
 			}
 			return num ^ 0xFFFFFFFFu;
 		}
@@ -252,7 +287,7 @@ namespace FifaLibrary
 			for (int num2 = 20; num2 > 0; num2--)
 			{
 				byte b = r.ReadByte();
-				uint num3 = s_CrcTable[num >> 24];
+				uint num3 = CareerFile.s_CrcTable[num >> 24];
 				num <<= 8;
 				num |= b;
 				num ^= num3;
@@ -262,21 +297,21 @@ namespace FifaLibrary
 
 		public void ConvertFromDataSet(DataSet[] dataSet)
 		{
-			if (dataSet.Length == m_NDatabases)
+			if (dataSet.Length == this.m_NDatabases)
 			{
-				for (int i = 0; i < m_NDatabases; i++)
+				for (int i = 0; i < this.m_NDatabases; i++)
 				{
-					m_Database[i].ConvertFromDataSet(dataSet[i]);
+					this.m_Database[i].ConvertFromDataSet(dataSet[i]);
 				}
 			}
 		}
 
 		public DataSet[] ConvertToDataSet()
 		{
-			DataSet[] array = new DataSet[m_NDatabases];
-			for (int i = 0; i < m_NDatabases; i++)
+			DataSet[] array = new DataSet[this.m_NDatabases];
+			for (int i = 0; i < this.m_NDatabases; i++)
 			{
-				array[i] = m_Database[i].ConvertToDataSet();
+				array[i] = this.m_Database[i].ConvertToDataSet();
 			}
 			return array;
 		}

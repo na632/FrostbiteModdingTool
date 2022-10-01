@@ -46,11 +46,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_ShortName;
+				return this.m_ShortName;
 			}
 			set
 			{
-				m_ShortName = value;
+				this.m_ShortName = value;
 			}
 		}
 
@@ -58,11 +58,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_NBitRecords;
+				return this.m_NBitRecords;
 			}
 			set
 			{
-				m_NBitRecords = value;
+				this.m_NBitRecords = value;
 			}
 		}
 
@@ -70,11 +70,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_NFields;
+				return this.m_NFields;
 			}
 			set
 			{
-				m_NFields = value;
+				this.m_NFields = value;
 			}
 		}
 
@@ -82,11 +82,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_FieldDescriptors;
+				return this.m_FieldDescriptors;
 			}
 			set
 			{
-				m_FieldDescriptors = value;
+				this.m_FieldDescriptors = value;
 			}
 		}
 
@@ -94,11 +94,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_HuffmannTree;
+				return this.m_HuffmannTree;
 			}
 			set
 			{
-				m_HuffmannTree = value;
+				this.m_HuffmannTree = value;
 			}
 		}
 
@@ -106,11 +106,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return s_DescriptorDataSet;
+				return TableDescriptor.s_DescriptorDataSet;
 			}
 			set
 			{
-				s_DescriptorDataSet = value;
+				TableDescriptor.s_DescriptorDataSet = value;
 			}
 		}
 
@@ -118,11 +118,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_TableName;
+				return this.m_TableName;
 			}
 			set
 			{
-				m_TableName = value;
+				this.m_TableName = value;
 			}
 		}
 
@@ -130,11 +130,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_TableShortName;
+				return this.m_TableShortName;
 			}
 			set
 			{
-				m_TableShortName = value;
+				this.m_TableShortName = value;
 			}
 		}
 
@@ -142,11 +142,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_RecordSize;
+				return this.m_RecordSize;
 			}
 			set
 			{
-				m_RecordSize = value;
+				this.m_RecordSize = value;
 			}
 		}
 
@@ -154,11 +154,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_NKeyFields;
+				return this.m_NKeyFields;
 			}
 			set
 			{
-				m_NKeyFields = value;
+				this.m_NKeyFields = value;
 			}
 		}
 
@@ -166,93 +166,93 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_KeyIndex;
+				return this.m_KeyIndex;
 			}
 			set
 			{
-				m_KeyIndex = value;
+				this.m_KeyIndex = value;
 			}
 		}
 
-		public int NFloatFields => m_NFloatFields;
+		public int NFloatFields => this.m_NFloatFields;
 
-		public int NStringFields => m_NStringFields;
+		public int NStringFields => this.m_NStringFields;
 
-		public int NCompressedStringFields => m_NCompressedStringFields;
+		public int NCompressedStringFields => this.m_NCompressedStringFields;
 
-		public int NIntFields => m_NIntFields;
+		public int NIntFields => this.m_NIntFields;
 
-		public int[] MinValues => m_MinValues;
+		public int[] MinValues => this.m_MinValues;
 
-		public int[] MaxValues => m_MaxValues;
+		public int[] MaxValues => this.m_MaxValues;
 
 		public void SortFields()
 		{
-			if (m_FieldDescriptors != null && m_FieldDescriptors.Length >= 2)
+			if (this.m_FieldDescriptors != null && this.m_FieldDescriptors.Length >= 2)
 			{
-				Array.Sort(m_FieldDescriptors, s_FieldComparer);
+				Array.Sort(this.m_FieldDescriptors, TableDescriptor.s_FieldComparer);
 			}
 		}
 
 		public void LoadTableName(DbReader r)
 		{
-			m_ShortName = r.ReadChars(4);
-			m_TableShortName = new string(m_ShortName);
-			AssignXmlTableName();
+			this.m_ShortName = r.ReadChars(4);
+			this.m_TableShortName = new string(this.m_ShortName);
+			this.AssignXmlTableName();
 		}
 
 		public void LoadFieldDescriptors(DbReader r)
 		{
-			m_FieldDescriptors = new FieldDescriptor[m_NFields];
-			m_NKeyFields = 0;
-			m_NFloatFields = 0;
-			m_NIntFields = 0;
-			m_NStringFields = 0;
-			m_NCompressedStringFields = 0;
-			m_MinValues = new int[m_NFields];
-			m_MaxValues = new int[m_NFields];
-			m_KeyIndex = new int[4];
-			for (int i = 0; i < m_NFields; i++)
+			this.m_FieldDescriptors = new FieldDescriptor[this.m_NFields];
+			this.m_NKeyFields = 0;
+			this.m_NFloatFields = 0;
+			this.m_NIntFields = 0;
+			this.m_NStringFields = 0;
+			this.m_NCompressedStringFields = 0;
+			this.m_MinValues = new int[this.m_NFields];
+			this.m_MaxValues = new int[this.m_NFields];
+			this.m_KeyIndex = new int[4];
+			for (int i = 0; i < this.m_NFields; i++)
 			{
-				m_FieldDescriptors[i] = new FieldDescriptor(this);
-				m_FieldDescriptors[i].Load(r);
-				m_FieldDescriptors[i].OrderInTheTable = i;
-				m_FieldDescriptors[i].AssignXmlDescriptor(s_DescriptorDataSet);
-				switch (m_FieldDescriptors[i].FieldType)
+				this.m_FieldDescriptors[i] = new FieldDescriptor(this);
+				this.m_FieldDescriptors[i].Load(r);
+				this.m_FieldDescriptors[i].OrderInTheTable = i;
+				this.m_FieldDescriptors[i].AssignXmlDescriptor(TableDescriptor.s_DescriptorDataSet);
+				switch (this.m_FieldDescriptors[i].FieldType)
 				{
 				case FieldDescriptor.EFieldTypes.String:
-					m_FieldDescriptors[i].TypeIndex = m_NStringFields;
-					m_NStringFields++;
+					this.m_FieldDescriptors[i].TypeIndex = this.m_NStringFields;
+					this.m_NStringFields++;
 					break;
 				case FieldDescriptor.EFieldTypes.Integer:
-					m_FieldDescriptors[i].TypeIndex = m_NIntFields;
-					m_MinValues[m_NIntFields] = m_FieldDescriptors[i].RangeLow;
-					m_MaxValues[m_NIntFields] = m_FieldDescriptors[i].RangeHigh;
-					m_NIntFields++;
+					this.m_FieldDescriptors[i].TypeIndex = this.m_NIntFields;
+					this.m_MinValues[this.m_NIntFields] = this.m_FieldDescriptors[i].RangeLow;
+					this.m_MaxValues[this.m_NIntFields] = this.m_FieldDescriptors[i].RangeHigh;
+					this.m_NIntFields++;
 					break;
 				case FieldDescriptor.EFieldTypes.Float:
-					m_FieldDescriptors[i].TypeIndex = m_NFloatFields;
-					m_NFloatFields++;
+					this.m_FieldDescriptors[i].TypeIndex = this.m_NFloatFields;
+					this.m_NFloatFields++;
 					break;
 				case FieldDescriptor.EFieldTypes.ShortCompressedString:
 				case FieldDescriptor.EFieldTypes.LongCompressedString:
-					m_FieldDescriptors[i].TypeIndex = m_NCompressedStringFields;
-					m_NCompressedStringFields++;
+					this.m_FieldDescriptors[i].TypeIndex = this.m_NCompressedStringFields;
+					this.m_NCompressedStringFields++;
 					break;
 				}
 			}
-			AssignXmlTableIndex();
+			this.AssignXmlTableIndex();
 		}
 
 		public void SaveFieldDescriptors(BinaryWriter w)
 		{
-			for (int i = 0; i < m_NFields; i++)
+			for (int i = 0; i < this.m_NFields; i++)
 			{
-				for (int j = 0; j < m_NFields; j++)
+				for (int j = 0; j < this.m_NFields; j++)
 				{
-					if (m_FieldDescriptors[j].OrderInTheTable == i)
+					if (this.m_FieldDescriptors[j].OrderInTheTable == i)
 					{
-						m_FieldDescriptors[j].Save(w);
+						this.m_FieldDescriptors[j].Save(w);
 						break;
 					}
 				}
@@ -261,17 +261,17 @@ namespace FifaLibrary
 
 		private void AssignXmlTableName()
 		{
-			if (s_DescriptorDataSet == null)
+			if (TableDescriptor.s_DescriptorDataSet == null)
 			{
 				return;
 			}
-			int count = s_DescriptorDataSet.Tables["table"].Rows.Count;
+			int count = TableDescriptor.s_DescriptorDataSet.Tables["table"].Rows.Count;
 			for (int i = 0; i < count; i++)
 			{
-				DataRow dataRow = s_DescriptorDataSet.Tables["table"].Rows[i];
-				if ((string)dataRow["shortname"] == m_TableShortName)
+				DataRow dataRow = TableDescriptor.s_DescriptorDataSet.Tables["table"].Rows[i];
+				if ((string)dataRow["shortname"] == this.m_TableShortName)
 				{
-					string text = (m_TableName = (string)dataRow["name"]);
+					string text = (this.m_TableName = (string)dataRow["name"]);
 					break;
 				}
 			}
@@ -279,37 +279,37 @@ namespace FifaLibrary
 
 		private void AssignXmlTableIndex()
 		{
-			if (s_DescriptorDataSet == null)
+			if (TableDescriptor.s_DescriptorDataSet == null)
 			{
 				return;
 			}
-			int count = s_DescriptorDataSet.Tables["index"].Rows.Count;
-			int count2 = s_DescriptorDataSet.Tables["indexfield"].Rows.Count;
+			int count = TableDescriptor.s_DescriptorDataSet.Tables["index"].Rows.Count;
+			int count2 = TableDescriptor.s_DescriptorDataSet.Tables["indexfield"].Rows.Count;
 			for (int i = 0; i < count; i++)
 			{
-				DataRow dataRow = s_DescriptorDataSet.Tables["index"].Rows[i];
-				if (!((string)dataRow["tableshortname"] == m_TableShortName))
+				DataRow dataRow = TableDescriptor.s_DescriptorDataSet.Tables["index"].Rows[i];
+				if (!((string)dataRow["tableshortname"] == this.m_TableShortName))
 				{
 					continue;
 				}
 				int num = (int)dataRow.ItemArray[0];
 				for (int j = 0; j < count2; j++)
 				{
-					DataRow dataRow2 = s_DescriptorDataSet.Tables["indexfield"].Rows[j];
+					DataRow dataRow2 = TableDescriptor.s_DescriptorDataSet.Tables["indexfield"].Rows[j];
 					if ((int)dataRow2[2] != num)
 					{
 						continue;
 					}
 					string text = (string)dataRow2[0];
 					int num2 = 0;
-					for (int k = 0; k < m_NFields; k++)
+					for (int k = 0; k < this.m_NFields; k++)
 					{
-						if (m_FieldDescriptors[k].FieldShortName == text)
+						if (this.m_FieldDescriptors[k].FieldShortName == text)
 						{
-							m_KeyIndex[m_NKeyFields++] = num2;
+							this.m_KeyIndex[this.m_NKeyFields++] = num2;
 							break;
 						}
-						if (m_FieldDescriptors[k].FieldType == FieldDescriptor.EFieldTypes.Integer)
+						if (this.m_FieldDescriptors[k].FieldType == FieldDescriptor.EFieldTypes.Integer)
 						{
 							num2++;
 						}
@@ -321,11 +321,11 @@ namespace FifaLibrary
 
 		public FieldDescriptor GetFieldDescriptor(string longName)
 		{
-			for (int i = 0; i < m_NFields; i++)
+			for (int i = 0; i < this.m_NFields; i++)
 			{
-				if (m_FieldDescriptors[i].FieldName == longName)
+				if (this.m_FieldDescriptors[i].FieldName == longName)
 				{
-					return m_FieldDescriptors[i];
+					return this.m_FieldDescriptors[i];
 				}
 			}
 			return null;
@@ -333,11 +333,11 @@ namespace FifaLibrary
 
 		public int GetFieldIndex(string fieldName)
 		{
-			for (int i = 0; i < m_NFields; i++)
+			for (int i = 0; i < this.m_NFields; i++)
 			{
-				if (fieldName == FieldDescriptors[i].FieldName)
+				if (fieldName == this.FieldDescriptors[i].FieldName)
 				{
-					return FieldDescriptors[i].TypeIndex;
+					return this.FieldDescriptors[i].TypeIndex;
 				}
 			}
 			return -1;
@@ -345,29 +345,29 @@ namespace FifaLibrary
 
 		public void RecalculateFieldOffset()
 		{
-			int[] array = new int[NFields];
+			int[] array = new int[this.NFields];
 			int num = 0;
 			uint num2 = 0u;
-			uint nRecords = 0u;
+			uint num3 = 0u;
 			do
 			{
-				nRecords = m_NBitRecords;
-				for (int i = 0; i < NFields; i++)
+				num3 = this.m_NBitRecords;
+				for (int i = 0; i < this.NFields; i++)
 				{
-					if (FieldDescriptors[i].BitOffset >= num2 && FieldDescriptors[i].BitOffset < nRecords)
+					if (this.FieldDescriptors[i].BitOffset >= num2 && this.FieldDescriptors[i].BitOffset < num3)
 					{
 						array[num] = i;
-						nRecords = (uint)FieldDescriptors[i].BitOffset;
+						num3 = (uint)this.FieldDescriptors[i].BitOffset;
 					}
 				}
-				num2 = nRecords + 1;
+				num2 = num3 + 1;
 				num++;
 			}
-			while (num < NFields);
+			while (num < this.NFields);
 			num2 = 0u;
-			for (int j = 0; j < NFields; j++)
+			for (int j = 0; j < this.NFields; j++)
 			{
-				switch (FieldDescriptors[array[j]].FieldType)
+				switch (this.FieldDescriptors[array[j]].FieldType)
 				{
 				case FieldDescriptor.EFieldTypes.Float:
 				case FieldDescriptor.EFieldTypes.ShortCompressedString:
@@ -384,8 +384,8 @@ namespace FifaLibrary
 					}
 					break;
 				}
-				FieldDescriptors[array[j]].BitOffset = (int)num2;
-				switch (FieldDescriptors[array[j]].FieldType)
+				this.FieldDescriptors[array[j]].BitOffset = (int)num2;
+				switch (this.FieldDescriptors[array[j]].FieldType)
 				{
 				case FieldDescriptor.EFieldTypes.Float:
 				case FieldDescriptor.EFieldTypes.ShortCompressedString:
@@ -394,24 +394,16 @@ namespace FifaLibrary
 					break;
 				case FieldDescriptor.EFieldTypes.String:
 				case FieldDescriptor.EFieldTypes.Integer:
-					num2 += (uint)FieldDescriptors[array[j]].Depth;
+					num2 += (uint)this.FieldDescriptors[array[j]].Depth;
 					break;
 				}
 			}
-			int l = (int)((num2 + 7) / 8u);
-			if (l > m_RecordSize)
+			int num4 = (int)((num2 + 7) / 8u);
+			if (num4 > this.m_RecordSize)
 			{
-				m_RecordSize = (l + 3) / 4 * 4;
-				m_NBitRecords = (uint)(m_RecordSize * 8 - 1);
+				this.m_RecordSize = (num4 + 3) / 4 * 4;
+				this.m_NBitRecords = (uint)(this.m_RecordSize * 8 - 1);
 			}
 		}
-
-        public override string ToString()
-        {
-			if(!string.IsNullOrEmpty(TableName))
-				return TableName;
-
-            return base.ToString();
-        }
-    }
+	}
 }

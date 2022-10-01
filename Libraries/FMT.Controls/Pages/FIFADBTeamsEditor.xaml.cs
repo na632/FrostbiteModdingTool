@@ -87,8 +87,8 @@ namespace FMT.Controls.Pages
         {
             DetachFromAssetManager();
 
-            if(DB != null)
-                DB.Dispose();
+            //if(DB != null)
+            //    DB.Dispose();
 
             DBAssetEntry = null;
             DBAssetStream = null;
@@ -138,7 +138,7 @@ namespace FMT.Controls.Pages
             if (DBMetaAssetStream == null)
                 return;
 
-            DB = new DbFile(DBAssetStream, DBMetaAssetStream);
+            //DB = new DbFile(DBAssetStream, DBMetaAssetStream);
 
             await RefreshTeamList();
             await RefreshLeagueList();
