@@ -304,11 +304,11 @@ namespace CareerExpansionMod.CEM
 
         public static CareerFile SetupCareerFile(string inCareerFilePath)
         {
-            using (var fs = new FileStream(inCareerFilePath, FileMode.Open)) 
-            {
-                using (var xmlFS = new FileStream(CEMInternalDataDirectory + "fifa_ng_db-meta.XML", FileMode.Open)) 
-                { 
-                    var CareerFile = new CareerFile(fs, xmlFS);
+            //using (var fs = new FileStream(inCareerFilePath, FileMode.Open)) 
+            //{
+            //    using (var xmlFS = new FileStream(CEMInternalDataDirectory + "fifa_ng_db-meta.XML", FileMode.Open)) 
+            //    { 
+                    var CareerFile = new CareerFile(inCareerFilePath, CEMInternalDataDirectory + "fifa_ng_db-meta.XML");
 
                 // Setup Internal Career Entities
                 CareerDB1.Current = new CareerDB1();
@@ -382,9 +382,9 @@ namespace CareerExpansionMod.CEM
                     }
                     return CareerFile;
 
-                }
-            }
-            return null;
+            //    }
+            //}
+            //return null;
         }
 
         public bool SetupCareerFile(DateTime currentGameDate)

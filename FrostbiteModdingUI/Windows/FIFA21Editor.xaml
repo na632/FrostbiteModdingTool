@@ -47,7 +47,7 @@
                     <MenuItem x:Name="miProject" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
                         <MenuItem.Header>
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="About" VerticalAlignment="Center" />
+                                <MaterialDesign:PackIcon Kind="File" VerticalAlignment="Center" />
                                 <Label Content="Project" FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
                             </StackPanel>
                         </MenuItem.Header>
@@ -148,7 +148,7 @@
                     <MenuItem x:Name="miMod" IsEnabled="False">
                         <MenuItem.Header>
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="About" VerticalAlignment="Center" />
+                                <MaterialDesign:PackIcon Kind="FileDocument" VerticalAlignment="Center" />
                                 <Label Content="Mod" FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
                             </StackPanel>
                         </MenuItem.Header>
@@ -178,7 +178,8 @@
                     <MenuItem x:Name="miLocaleINI">
                         <MenuItem.Header>
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <Label Content="Locale.ini (WIP)"  FontSize="12"  FontWeight="Bold" VerticalAlignment="Center" />
+                                <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                <Label Content="Locale.ini"  FontSize="12"  FontWeight="Bold" VerticalAlignment="Center" />
                             </StackPanel>
                         </MenuItem.Header>
                         <MenuItem x:Name="modLocaleINI" Click="btnModifyLocaleINI_Click">
@@ -190,7 +191,7 @@
                             </MenuItem.Header>
                         </MenuItem>
                     </MenuItem>
-                    <!--<MenuItem x:Name="miInitfs">
+                    <MenuItem x:Name="miInitfs">
                         <MenuItem.Header>
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
@@ -205,7 +206,7 @@
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
-                    </MenuItem>-->
+                    </MenuItem>
                 </Menu>
 
             </StackPanel>
@@ -307,7 +308,7 @@
                                     <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
                                 </TabItem>
 
-                                <TabItem x:Name="TabTeams">
+                                <!--<TabItem x:Name="TabTeams">
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                             <MaterialDesign:PackIcon Kind="MicrosoftTeams" VerticalAlignment="Center" />
@@ -315,7 +316,7 @@
                                         </StackPanel>
                                     </TabItem.Header>
                                     <FMTControlsPages:FIFADBTeamsEditor></FMTControlsPages:FIFADBTeamsEditor>
-                                </TabItem>
+                                </TabItem>-->
 
                                 <TabItem x:Name="TabDB">
                                     <TabItem.Header>
@@ -324,7 +325,43 @@
                                             <Label Content="{DynamicResource textDatabase}"></Label>
                                         </StackPanel>
                                     </TabItem.Header>
-                                    <FMTControlsPages:FIFADBEditor></FMTControlsPages:FIFADBEditor>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="35"></RowDefinition>
+                                            <RowDefinition Height="*"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Button x:Name="btnOpenDbFile" Click="btnOpenDbFile_Click">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                <MaterialDesign:PackIcon Kind="OpenInNew" VerticalAlignment="Center" />
+                                                <Label Content="Open Squad file"></Label>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button x:Name="btnSaveDbFile" Click="btnSaveDbFile_Click" Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                <MaterialDesign:PackIcon Kind="ContentSaveEdit" VerticalAlignment="Center" />
+                                                <Label Content="Save Squad file"></Label>
+                                            </StackPanel>
+                                        </Button>
+                                        <DockingManager Grid.Row="1" Grid.ColumnSpan="2">
+                                            <LayoutRoot>
+                                            
+                                                <LayoutPanel>
+                                                
+                                                    <LayoutDocumentPaneGroup x:Name="LayoutDocumentGroupDatabase">
+                                                        <LayoutDocumentPane x:Name="LayoutDocumentGroupPaneDatabases">
+                                                            <LayoutDocument Title="{DynamicResource textDatabase}" CanClose="False" CanMove="False" CanFloat="False">
+                                                                <FMTControlsPages:FIFADBEditor EditorMode="DB"></FMTControlsPages:FIFADBEditor>
+                                                            </LayoutDocument>
+                                                        </LayoutDocumentPane>
+                                                    </LayoutDocumentPaneGroup>
+                                                </LayoutPanel>
+                                            </LayoutRoot>
+                                        </DockingManager>
+                                    </Grid>
                                 </TabItem>
 
                                 <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">

@@ -282,9 +282,10 @@ namespace SdkGenerator
 						Debug.WriteLine("Used Pattern :: " + selectedPattern);
 
 						listOfOffsets = listOfOffsets.OrderBy(x => x).ToList();
-						memoryReader.Position = listOfOffsets[0] + 3;
+						var firstOff = listOfOffsets[0];
+						memoryReader.Position = firstOff + 3;
 						int num = memoryReader.ReadInt();
-						memoryReader.Position = listOfOffsets[0] + 3 + num + 4;
+						memoryReader.Position = firstOff + 3 + num + 4;
 						sdkUpdateState.TypeInfoOffset = memoryReader.ReadLong();
 					}
 				}

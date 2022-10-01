@@ -118,21 +118,21 @@ namespace FrostbiteModdingUI.Pages.Player
 
         public bool LoadSquadFile()
         {
-            List<string> files = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\FIFA 21\\settings\\").ToList();
-            if (files != null && files.Any())
-            {
-                var squadFilePath = files.Where(x => x.Contains("\\Squads")).OrderByDescending(x => new FileInfo(x).LastWriteTime).FirstOrDefault();
-                using (var fsSquadFile = new FileStream(squadFilePath, FileMode.Open))
-                {
-                    using (var fsMeta = new FileStream("Resources/FIFA21DBMeta.xml", FileMode.Open))
-                    {
-                        squadFile = new CareerFile(fsSquadFile, fsMeta);
+            //List<string> files = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\FIFA 21\\settings\\").ToList();
+            //if (files != null && files.Any())
+            //{
+            //    var squadFilePath = files.Where(x => x.Contains("\\Squads")).OrderByDescending(x => new FileInfo(x).LastWriteTime).FirstOrDefault();
+            //    using (var fsSquadFile = new FileStream(squadFilePath, FileMode.Open))
+            //    {
+            //        using (var fsMeta = new FileStream("Resources/FIFA21DBMeta.xml", FileMode.Open))
+            //        {
+            //            squadFile = new CareerFile(fsSquadFile, fsMeta);
 
-                        dtPlayers = squadFile.Databases[0].GetTable("players").ConvertToDataTable();
-                        return true;
-                    }
-                }
-            }
+            //            dtPlayers = squadFile.Databases[0].GetTable("players").ConvertToDataTable();
+            //            return true;
+            //        }
+            //    }
+            //}
             return false;
         }
 

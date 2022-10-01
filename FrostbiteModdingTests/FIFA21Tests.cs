@@ -629,126 +629,126 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void LoadUpDBAndExportTable()
         {
-            DeleteOldTestMods();
+            //DeleteOldTestMods();
 
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            //projectManagement.Project = new FrostySdk.FrostbiteProject();
 
 
-            var DBAssetEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db.db") as LegacyFileEntry;
-            var DBAssetStream = AssetManager.Instance.GetCustomAsset("legacy", DBAssetEntry);
-            if (DBAssetStream == null)
-                return;
+            //var DBAssetEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db.db") as LegacyFileEntry;
+            //var DBAssetStream = AssetManager.Instance.GetCustomAsset("legacy", DBAssetEntry);
+            //if (DBAssetStream == null)
+            //    return;
 
-            var dbMeta = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db-meta.xml") as LegacyFileEntry;
-            var DBMetaAssetStream = AssetManager.Instance.GetCustomAsset("legacy", dbMeta);
+            //var dbMeta = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db-meta.xml") as LegacyFileEntry;
+            //var DBMetaAssetStream = AssetManager.Instance.GetCustomAsset("legacy", dbMeta);
 
-            if (DBMetaAssetStream == null)
-                return;
+            //if (DBMetaAssetStream == null)
+            //    return;
 
-            var DB = new DbFile(DBAssetStream, DBMetaAssetStream);
+            //var DB = new DbFile(DBAssetStream, DBMetaAssetStream);
 
-            var CF = new CareerFile(DBAssetStream, DBMetaAssetStream);
+            //var CF = new CareerFile(DBAssetStream, DBMetaAssetStream);
 
-            var tbl = DB.GetTable("players");
-            var tbl2 = CF.Databases[0].GetTable("players");
+            //var tbl = DB.GetTable("players");
+            //var tbl2 = CF.Databases[0].GetTable("players");
 
-            tbl.ConvertToDataTable().ToCSV("testDumpPlayers.csv");
+            //tbl.ConvertToDataTable().ToCSV("testDumpPlayers.csv");
 
         }
 
         [TestMethod]
         public void MergeCSVIntoDBTable()
         {
-            DeleteOldTestMods();
+            //DeleteOldTestMods();
 
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
-
-
-            var DBAssetEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db.db") as LegacyFileEntry;
-            var DBAssetStream = AssetManager.Instance.GetCustomAsset("legacy", DBAssetEntry);
-            if (DBAssetStream == null)
-                return;
-
-            var dbMeta = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db-meta.xml") as LegacyFileEntry;
-            var DBMetaAssetStream = AssetManager.Instance.GetCustomAsset("legacy", dbMeta);
-
-            if (DBMetaAssetStream == null)
-                return;
-
-            var DB = new DbFile(DBAssetStream, DBMetaAssetStream);
-
-            var tbl = DB.GetTable("players");
-
-            DataTable dtInitial = tbl.ConvertToDataTable();
-            DataTable dtMerger = new DataTable();
-            dtMerger.FromCSV(@"C:\Users\paula\Documents\FM_temp\players_f22.csv").Clone();
-            dtMerger.TableName = dtInitial.TableName;
-
-            List<int> FoundPK = new List<int>();
-            List<int> NotFoundPK = new List<int>();
-            List<int> PKInserted = new List<int>();
-
-            Stopwatch stopwatchMerger = new Stopwatch();
-            stopwatchMerger.Start();
+            //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            //projectManagement.Project = new FrostySdk.FrostbiteProject();
 
 
-            var primaryKey = "playerid";
-            for (var iInit = 0; iInit < dtInitial.Rows.Count; iInit++)
-            {
-                bool found = false;
-                var initRow = dtInitial.Rows[iInit];
-                var pKey = (int)initRow[primaryKey];
-                for (var iMerg = 0; iMerg < dtMerger.Rows.Count; iMerg++)
-                {
-                    found = false;
-                    var mergeRow = dtMerger.Rows[iMerg];
-                    var pKeyMerger = int.Parse(mergeRow[primaryKey].ToString());
-                    if(pKeyMerger == pKey)
-                    {
-                        FoundPK.Add(pKey);
-                        found = true;
-                        for (var iCol = 0; iCol < initRow.Table.Columns.Count; iCol++)
-                        {
-                            for(var jCol = 0; jCol < mergeRow.Table.Columns.Count; jCol++)
-                            {
-                                if(initRow.Table.Columns[iCol].ColumnName == mergeRow.Table.Columns[jCol].ColumnName)
-                                {
-                                    initRow[iCol] = mergeRow[jCol];
-                                    break;
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
+            //var DBAssetEntry = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db.db") as LegacyFileEntry;
+            //var DBAssetStream = AssetManager.Instance.GetCustomAsset("legacy", DBAssetEntry);
+            //if (DBAssetStream == null)
+            //    return;
 
-                if (!found)
-                {
-                    NotFoundPK.Add(pKey);
-                }
+            //var dbMeta = AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db-meta.xml") as LegacyFileEntry;
+            //var DBMetaAssetStream = AssetManager.Instance.GetCustomAsset("legacy", dbMeta);
+
+            //if (DBMetaAssetStream == null)
+            //    return;
+
+            //var DB = new DbFile(DBAssetStream, DBMetaAssetStream);
+
+            //var tbl = DB.GetTable("players");
+
+            //DataTable dtInitial = tbl.ConvertToDataTable();
+            //DataTable dtMerger = new DataTable();
+            //dtMerger.FromCSV(@"C:\Users\paula\Documents\FM_temp\players_f22.csv").Clone();
+            //dtMerger.TableName = dtInitial.TableName;
+
+            //List<int> FoundPK = new List<int>();
+            //List<int> NotFoundPK = new List<int>();
+            //List<int> PKInserted = new List<int>();
+
+            //Stopwatch stopwatchMerger = new Stopwatch();
+            //stopwatchMerger.Start();
+
+
+            //var primaryKey = "playerid";
+            //for (var iInit = 0; iInit < dtInitial.Rows.Count; iInit++)
+            //{
+            //    bool found = false;
+            //    var initRow = dtInitial.Rows[iInit];
+            //    var pKey = (int)initRow[primaryKey];
+            //    for (var iMerg = 0; iMerg < dtMerger.Rows.Count; iMerg++)
+            //    {
+            //        found = false;
+            //        var mergeRow = dtMerger.Rows[iMerg];
+            //        var pKeyMerger = int.Parse(mergeRow[primaryKey].ToString());
+            //        if(pKeyMerger == pKey)
+            //        {
+            //            FoundPK.Add(pKey);
+            //            found = true;
+            //            for (var iCol = 0; iCol < initRow.Table.Columns.Count; iCol++)
+            //            {
+            //                for(var jCol = 0; jCol < mergeRow.Table.Columns.Count; jCol++)
+            //                {
+            //                    if(initRow.Table.Columns[iCol].ColumnName == mergeRow.Table.Columns[jCol].ColumnName)
+            //                    {
+            //                        initRow[iCol] = mergeRow[jCol];
+            //                        break;
+            //                    }
+            //                }
+            //            }
+            //            break;
+            //        }
+            //    }
+
+            //    if (!found)
+            //    {
+            //        NotFoundPK.Add(pKey);
+            //    }
 
 
                 
-            }
+            //}
 
-            for (var iMerg = 0; iMerg < dtMerger.Rows.Count; iMerg++)
-            {
-                var mergeRow = dtMerger.Rows[iMerg];
-                var pKeyMerger = int.Parse(mergeRow[primaryKey].ToString());
-                if (!FoundPK.Contains(pKeyMerger) && !NotFoundPK.Contains(pKeyMerger))
-                {
-                    PKInserted.Add(pKeyMerger);
-                }
+            //for (var iMerg = 0; iMerg < dtMerger.Rows.Count; iMerg++)
+            //{
+            //    var mergeRow = dtMerger.Rows[iMerg];
+            //    var pKeyMerger = int.Parse(mergeRow[primaryKey].ToString());
+            //    if (!FoundPK.Contains(pKeyMerger) && !NotFoundPK.Contains(pKeyMerger))
+            //    {
+            //        PKInserted.Add(pKeyMerger);
+            //    }
 
-            }
+            //}
 
-            stopwatchMerger.Stop();
-            Log($"Merge Took: {stopwatchMerger.Elapsed.ToString(@"mm\:ss")}");
-            Log($"Records Updated: {FoundPK.Count}");
-            Log($"Records Ignored: {NotFoundPK.Count}");
-            Log($"Records Inserted: {PKInserted.Count}");
+            //stopwatchMerger.Stop();
+            //Log($"Merge Took: {stopwatchMerger.Elapsed.ToString(@"mm\:ss")}");
+            //Log($"Records Updated: {FoundPK.Count}");
+            //Log($"Records Ignored: {NotFoundPK.Count}");
+            //Log($"Records Inserted: {PKInserted.Count}");
 
         }
     }

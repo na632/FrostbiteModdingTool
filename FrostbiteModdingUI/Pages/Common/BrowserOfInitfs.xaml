@@ -14,16 +14,29 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox Grid.Row="0" Grid.RowSpan="2" x:Name="lb" SelectionChanged="lb_SelectionChanged">
+        <Label Background="OrangeRed" Grid.ColumnSpan="2">READ ONLY! - This currently does nothing but read!</Label>
+        <ListBox Grid.Row="2" Grid.RowSpan="1" x:Name="lb" SelectionChanged="lb_SelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding DisplayName}"></TextBlock>
+                    <TextBlock Text="{Binding}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsModified}"
+                                                                            Value="True">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Grid Grid.Column="1">
+        <Grid Grid.Row="1" Grid.Column="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -33,7 +46,10 @@
             <Button Grid.Column="1" x:Name="btnExport" Click="Export_Click" Content="{DynamicResource textExport}"></Button>
             <Button Grid.Column="2" x:Name="btnRevert" Click="Revert_Click" Content="{DynamicResource textRevert}"></Button>
         </Grid>
-        <DockingManager Grid.Row="1" Grid.Column="1">
+        <DockingManager Grid.Row="2" Grid.Column="1">
+            <DockingManager.Theme>
+                <Vs2013DarkTheme></Vs2013DarkTheme>
+            </DockingManager.Theme>
             <LayoutRoot>
                 <LayoutPanel>
                     <LayoutDocumentPaneGroup x:Name="browserDocumentsGroup">

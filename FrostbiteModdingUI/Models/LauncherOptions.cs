@@ -19,8 +19,14 @@ namespace FrostbiteModdingUI.Models
 
         public bool? UseModData
         {
-            get { return useModData; }
-            set { useModData = value; }
+            get 
+            {
+                if (ProfilesLibrary.LoadedProfile.CanUseModData)
+                    return useModData;
+                else
+                    return false;
+            }
+            set { useModData = ProfilesLibrary.LoadedProfile.CanUseModData ? value : false; }
         }
 
 
@@ -28,7 +34,13 @@ namespace FrostbiteModdingUI.Models
 
         public bool? UseLegacyModSupport
         {
-            get { return useLegacyModSupport; }
+            get
+            {
+                if (ProfilesLibrary.LoadedProfile.CanUseLiveLegacyMods)
+                    return useLegacyModSupport;
+                else
+                    return false;
+            }
             set { useLegacyModSupport = value; }
         }
 

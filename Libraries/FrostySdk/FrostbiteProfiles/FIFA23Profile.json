@@ -6,8 +6,9 @@
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
-  "AssetCompiler": "Fifa23AssetCompilerV1",
-  //"AssetCompiler": "Fifa22AssetCompiler",
+  "AssetCompiler": "FrostbiteNullCompiler",
+  //"AssetCompiler": "Fifa23AssetCompilerV2",
+  //"AssetCompiler": "Fifa23AssetReplacementCompiler",
   "EditorScreen": "FIFA23Editor",
   // Texture Importer (Overriding the base Importer)
   "TextureImporter": "FIFA23TextureImporter",
@@ -78,6 +79,7 @@
   //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "Oodle",
   //"CompressedFormatLegacy": "None",
-  "LegacyFileManager": "LFM_Fifa22"
+  "LegacyFileManager": "LFM_Fifa22",
+  "CanUseModData": false
 
 }

@@ -1,4 +1,5 @@
-﻿using Frostbite.Textures;
+﻿using FifaLibrary;
+using Frostbite.Textures;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
@@ -56,6 +57,25 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void EditCareerFile()
+        {
+            var originalFile = "C:\\Users\\paula\\Documents\\FIFA 23\\settings\\Career20220930120547";
+            var newFileFile = "C:\\Users\\paula\\Documents\\FIFA 23\\settings\\Career20220930102999";
+            //CareerFile careerFile = new CareerFile(
+            //    new FileStream(originalFile, FileMode.Open)
+            //    , new FileStream("C:\\RDBM 22\\Templates\\FIFA 23\\fifa_ng_db-meta.XML", FileMode.Open)
+            //    );
+            CareerFile careerFile = new CareerFile(
+                originalFile
+                , "C:\\RDBM 22\\Templates\\FIFA 23\\fifa_ng_db-meta.XML"
+                );
+            File.Copy(originalFile, newFileFile, true);
+            careerFile.InGameName = "testtestestestest";
+
+            careerFile.SaveEa(newFileFile);
+        }
+
+        [TestMethod]
         public void BuildCache()
         {
             var buildCache = new BuildCache();
@@ -101,6 +121,13 @@ namespace FrostbiteModdingTests
             var resItems = AssetManager.Instance.EnumerateRes().ToList();
             var chunkItems = AssetManager.Instance.EnumerateChunks().ToList();
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+        }
+
+        [TestMethod]
+        public void BuildSDKFromEXE()
+        {
+            var buildSDK = new BuildSDKFromEXE();
+            buildSDK.Build(GamePathEXE);
         }
 
         [TestMethod]
@@ -312,6 +339,18 @@ namespace FrostbiteModdingTests
             var buildCache = new BuildCache();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
 
+        }
+
+        [TestMethod]
+        public void LoadInitfsWriteInitfs()
+        {
+            var buildCache = new BuildCache();
+            buildCache.LoadData("FIFA23", GamePath, this, false, true);
+            var initfs = FileSystem.Instance.ReadInitfs(FileSystem.Instance.LoadKey());
+            using (FileStream fsTestInitfs = new FileStream("initfsTest.dat", FileMode.OpenOrCreate))
+            {
+                FileSystem.Instance.WriteInitfs(fsTestInitfs);
+            }
         }
 
         [TestMethod]

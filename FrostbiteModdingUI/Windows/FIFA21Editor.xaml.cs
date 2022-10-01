@@ -1,6 +1,9 @@
-﻿using FIFAModdingUI.Models;
+﻿using AvalonDock.Layout;
+using FIFAModdingUI.Models;
 using FIFAModdingUI.Pages.Common;
 using FMT;
+using FMT.Controls.Pages;
+using FMT.Pages.Common;
 using FMT.Windows;
 using FolderBrowserEx;
 using Frostbite.FileManagers;
@@ -269,11 +272,12 @@ namespace FIFAModdingUI.Windows
             DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
 
             LauncherOptions = await LauncherOptions.LoadAsync();
+            swUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
 
             Dispatcher.Invoke(() =>
             {
-                swEnableLegacyInjection.IsOn = ProfilesLibrary.CanUseLiveLegacyMods;
+                swEnableLegacyInjection.IsOn = LauncherOptions.UseLegacyModSupport.HasValue && LauncherOptions.UseLegacyModSupport.Value && ProfilesLibrary.CanUseLiveLegacyMods;
                 swEnableLegacyInjection.IsEnabled = ProfilesLibrary.CanUseLiveLegacyMods;
 
                 btnLaunchFIFAInEditor.IsEnabled = ProfilesLibrary.EnableExecution;
@@ -1215,7 +1219,70 @@ namespace FIFAModdingUI.Windows
 
         private void btnModifyInitfs_Click(object sender, RoutedEventArgs e)
         {
+            InitfsEditor initfsEditor = new InitfsEditor();
+            initfsEditor.ShowDialog();
+        }
 
+        private async void btnOpenDbFile_Click(object sender, RoutedEventArgs e)
+        {
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "";
+            if (openFileDialog.ShowDialog().Value)
+            {
+                FileInfo fileInfo = new FileInfo(openFileDialog.FileName);
+                if (fileInfo.Exists)
+                {
+                    LayoutDocumentGroupPaneDatabases.AllowDuplicateContent = false;
+                    foreach (var child in LayoutDocumentGroupPaneDatabases.Children)
+                    {
+                        if (child.Title == fileInfo.Name)
+                        {
+                            LayoutDocumentGroupPaneDatabases.SelectedContentIndex = LayoutDocumentGroupPaneDatabases.Children.IndexOf(child);
+                            return;
+                        }
+                    }
+
+                    loadingDialog.Update("Loading DB File", "Loading");
+
+                    var newLayoutDoc = new LayoutDocument();
+                    newLayoutDoc.Title = fileInfo.Name;
+                    FIFADBEditor dbEditor = new FIFADBEditor();
+                    dbEditor.EditorMode = FIFADBEditor.DBEditorMode.Career;
+                    await dbEditor.Load(fileInfo.FullName);
+					newLayoutDoc.Content = dbEditor;
+                    LayoutDocumentGroupPaneDatabases.Children.Insert(0, newLayoutDoc);
+                    LayoutDocumentGroupPaneDatabases.SelectedContentIndex = 0;
+                }
+            }
+
+            loadingDialog.Update("", "");
+
+        }
+
+        private void btnSaveDbFile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "";
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    FIFADBEditor dbEditor = LayoutDocumentGroupPaneDatabases.SelectedContent.Content as FIFADBEditor;
+                    if (dbEditor != null)
+                    {
+                        if (dbEditor.DB is FifaLibrary.CareerFile careerFile)
+                        {
+                            careerFile.SaveEa(saveFileDialog.FileName);
+                        }
+                    }
+
+                }
+            }
+            catch(Exception ex)
+            {
+                Log(ex.Message);
+            }
         }
     }
 }

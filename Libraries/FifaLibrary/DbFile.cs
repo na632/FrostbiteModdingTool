@@ -86,6 +86,10 @@ namespace FifaLibrary
 		Stream DBStream;
 		Stream XmlStream;
 
+		public DbFile()
+        {
+
+        }
 		
 		public DbFile(Stream dbStream, Stream xmlStream)
 		{

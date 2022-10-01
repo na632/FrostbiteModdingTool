@@ -41,23 +41,47 @@ namespace FMT.Pages.Common
         public BrowserOfInitfs()
         {
             InitializeComponent();
+			Load();
         }
 
 		public class FileEntry
 		{
-			private readonly InitFSMod initFsMod;
-
 			public string FileName { get; }
 
-			public bool IsModified => this.initFsMod.Data.ContainsKey(this.FileName);
+			public string FileType { get {
 
-			public FileEntry(InitFSMod initFsMod, string fileName)
+					var lastIndexOfDot = FileName.LastIndexOf('.');
+					if (lastIndexOfDot != -1)
+						return FileName.Substring(FileName.LastIndexOf('.'), FileName.Length - FileName.LastIndexOf('.'));
+
+					return "";
+
+				} }
+
+            public byte[] Data
+            {
+                get
+                {
+					if (FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(this.FileName))
+						return FileSystem.Instance.MemoryFileSystemModifiedItems[FileName];
+
+					return FileSystem.Instance.memoryFs[FileName];
+                }
+            }
+
+            public bool IsModified => FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(this.FileName);
+
+			public FileEntry(string fileName)
 			{
-				this.initFsMod = initFsMod;
 				this.FileName = fileName;
 			}
 
-		}
+            public override string ToString()
+            {
+                return FileName;
+            }
+
+        }
 
 		public AssetEntry AssetEntry;
 
@@ -70,10 +94,16 @@ namespace FMT.Pages.Common
 		{
 			browserDocumentsPane.Children.Clear();
 
-			
+			RefreshList();
+		}
+
+		private void RefreshList()
+        {
 			List<FileEntry> list = new List<FileEntry>();
-			
+			list = FileSystem.Instance.memoryFs.Select(x => new FileEntry(x.Key)).ToList();
 			lb.ItemsSource = list;
+			DataContext = null;
+			DataContext = this;
 		}
 
 		private async void Export_Click(object sender, RoutedEventArgs e)
@@ -90,52 +120,7 @@ namespace FMT.Pages.Common
 		{
 		}
 
-		private async Task ExportAsync(FileEntry entry, string file)
-		{
-			if (entry == null)
-			{
-				throw new ArgumentNullException("entry");
-			}
-			if (file == null)
-			{
-				throw new ArgumentNullException("file");
-			}
-		}
-
-		private async Task ExportAsync(IEnumerable<FileEntry> entries, string path, bool hierarchicalExport)
-		{
-			if (entries == null)
-			{
-				throw new ArgumentNullException("entries");
-			}
-			if (path == null)
-			{
-				throw new ArgumentNullException("path");
-			}
-		}
-
-		private async Task ImportAsync(FileEntry entry, string file)
-		{
-			if (entry == null)
-			{
-				throw new ArgumentNullException("entry");
-			}
-			if (file == null)
-			{
-				throw new ArgumentNullException("file");
-			}
-		}
-
-		private void Reconstruct(AssetEntry assetEntry)
-		{
-			if (assetEntry == null)
-			{
-				throw new ArgumentNullException("assetEntry");
-			}
-			List<FileEntry> entries = (List<FileEntry>)lb.ItemsSource;
-			
-		}
-
+		
 		private async Task ExportAsync()
 		{
             object selectedItem = lb.SelectedItem;
@@ -144,30 +129,34 @@ namespace FMT.Pages.Common
             {
                 return;
             }
-            //string filter = entry.Type + " (*." + entry.Type.ToLower() + ")|*." + entry.Type;
+            string filter = entry.FileType + " (*." + entry.FileType.ToLower() + ")|*." + entry.FileType.Replace(".","");
             //if (entry.Type == "DDS")
             //{
             //    filter = "PNG (*.png)|*.png|" + filter;
             //}
-            //SaveFileDialog dialog = new SaveFileDialog
-            //{
-            //    Filter = filter,
-            //    FileName = entry.Name.Replace('\\', '_').Replace('/', '_'),
-            //    AddExtension = true,
-            //    Title = "Export File"
-            //};
-            //if (dialog.ShowDialog() == true)
-            //{
-            //    string filename = dialog.FileName;
-            //    string extension = System.IO.Path.GetExtension(filename);
-            //    string filterExtension = filter.Split('|')[dialog.FilterIndex * 2 - 1];
-            //    if (string.IsNullOrEmpty(extension) || (filterExtension.Equals("*.DDS", StringComparison.OrdinalIgnoreCase) && !extension.Equals("." + entry.Type, StringComparison.Ordinal)))
-            //    {
-            //        filename = filename + "." + entry.Type;
-            //    }
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = filter,
+                FileName = entry.ToString().Replace('\\', '_').Replace('/', '_'),
+                AddExtension = true,
+                Title = "Export File"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+				if(File.Exists(dialog.FileName))
+					File.Delete(dialog.FileName);
 
-            //    await ExportAsync(entry, filename);
-            //}
+				await File.WriteAllBytesAsync(dialog.FileName, entry.Data);
+                //string filename = dialog.FileName;
+                //string extension = System.IO.Path.GetExtension(filename);
+                //string filterExtension = filter.Split('|')[dialog.FilterIndex * 2 - 1];
+                //if (string.IsNullOrEmpty(extension) || (filterExtension.Equals("*.DDS", StringComparison.OrdinalIgnoreCase) && !extension.Equals("." + entry.Type, StringComparison.Ordinal)))
+                //{
+                //    filename = filename + "." + entry.Type;
+                //}
+
+                //await ExportAsync(entry, filename);
+            }
         }
 
 		private async Task ImportAsync()
@@ -216,80 +205,83 @@ namespace FMT.Pages.Common
 				browserDocumentsPane.AllowDuplicateContent = false;
 				foreach(var child in browserDocumentsPane.Children)
                 {
-					//if(child.Title == SelectedEntry.DisplayName)
-     //               {
-					//	browserDocumentsPane.SelectedContentIndex = browserDocumentsPane.Children.IndexOf(child);
-					//	return;
-     //               }
+                    if (child.Title == SelectedEntry.ToString())
+                    {
+                        browserDocumentsPane.SelectedContentIndex = browserDocumentsPane.Children.IndexOf(child);
+                        return;
+                    }
                 }
-				// ---- ----------
+                // ---- ----------
 
-				//var newLayoutDoc = new LayoutDocument();
-				//newLayoutDoc.Title = SelectedEntry.DisplayName;
-				//if (SelectedEntry.Type == "DDS")
-				//{
-				//	System.Windows.Controls.Image imageEditor = new System.Windows.Controls.Image();
-				//	ImageEngineImage imageEngineImage = new ImageEngineImage(SelectedEntry.Data);
-				//	var iData = imageEngineImage.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.BMP), MipHandling.KeepTopOnly, removeAlpha: false);
-				//	imageEditor.Source = LoadImage(iData);
-				//	newLayoutDoc.Content = imageEditor;
-				//}
-				////else if (SelectedEntry.Type == "APT")
-				////{
-				////	APTEditor aptEditor = new APTEditor(this);
-				////	newLayoutDoc.Content = aptEditor;
-				////}
-				//else
-    //            {
-				//	WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
-				//	hexEditor.Stream = new MemoryStream(SelectedEntry.Data);
-				//	newLayoutDoc.Content = hexEditor;
-    //                hexEditor.BytesModified += HexEditor_BytesModified;
-
-				//	//APT aptTest = new APT();
-				//	//aptTest.Read(new MemoryStream(SelectedEntry.Data));
-				//}
-				//bigBrowserDocumentsPane.Children.Insert(0, newLayoutDoc);
-				//bigBrowserDocumentsPane.SelectedContentIndex = 0;
+                var newLayoutDoc = new LayoutDocument();
+                newLayoutDoc.Title = SelectedEntry.ToString();
+				switch(SelectedEntry.FileType)
+                {
+					case ".json":
+					case ".ini":
+					case ".cfg":
+					case ".lua":
+						TextBox textBox = new TextBox();
+						textBox.Text = Encoding.UTF8.GetString(SelectedEntry.Data);
+                        textBox.TextChanged += TextBox_TextChanged;
+						newLayoutDoc.Content = textBox;
+						break;
+					default:
+                        WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
+                        hexEditor.Stream = new MemoryStream(SelectedEntry.Data);
+                        newLayoutDoc.Content = hexEditor;
+                        hexEditor.BytesModified += HexEditor_BytesModified;
+                        break;
+                }
+                
+                browserDocumentsPane.Children.Insert(0, newLayoutDoc);
+				browserDocumentsPane.SelectedContentIndex = 0;
 
 
+            }
+		}
+
+		private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			var fileEntry = lb.SelectedItem as FileEntry;
+			if (fileEntry == null)
+				return;
+			if (sender is TextBox editor)
+			{
+				var bytesOfTextbox = Encoding.UTF8.GetBytes(editor.Text);
+				if(bytesOfTextbox != fileEntry.Data)
+                {
+					ModifyFileWithBytes(fileEntry.FileName, bytesOfTextbox);
+				}
 			}
 		}
 
         private void HexEditor_BytesModified(object sender, WpfHexaEditor.Core.EventArguments.ByteEventArgs e)
         {
 			var fileEntry = lb.SelectedItem as FileEntry;
+			if (fileEntry == null)
+				return;
 
-			//var hexEditor = sender as WpfHexaEditor.HexEditor;
-			//if(hexEditor != null)
-   //         {
-			//	fileEntry.Data = hexEditor.GetAllBytes(true);
-			//	fileEntry.Size = (uint)bigFileEntry.Data.Length;
-			//	bigFileEntry.IsModified = true;
-			//	Reconstruct(AssetEntry);
-			//	if (ParentBrowser != null)
-			//	{
-			//		ParentBrowser.UpdateAssetListView();
-			//	}
-			//}
+			var hexEditor = sender as WpfHexaEditor.HexEditor;
+            if (hexEditor != null)
+            {
+				ModifyFileWithBytes(fileEntry.FileName, hexEditor.GetAllBytes(true));
+				//if (!FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(fileEntry.FileName))
+				//	FileSystem.Instance.MemoryFileSystemModifiedItems.Add(fileEntry.FileName, hexEditor.GetAllBytes(true));
+
+				//FileSystem.Instance.MemoryFileSystemModifiedItems[fileEntry.FileName] = hexEditor.GetAllBytes(true);
+			}
         }
 
-        private static System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
-		{
-			if (imageData == null || imageData.Length == 0) return null;
-			var image = new System.Windows.Media.Imaging.BitmapImage();
-			using (var mem = new MemoryStream(imageData))
-			{
-				mem.Position = 0;
-				image.BeginInit();
-				image.CreateOptions = System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat;
-				image.CacheOption = BitmapCacheOption.OnLoad;
-				image.UriSource = null;
-				image.StreamSource = mem;
-				image.EndInit();
-			}
-			image.Freeze();
-			return image;
+		private void ModifyFileWithBytes(string fileName, byte[] bytes)
+        {
+			if (!FileSystem.Instance.MemoryFileSystemModifiedItems.ContainsKey(fileName))
+				FileSystem.Instance.MemoryFileSystemModifiedItems.Add(fileName, bytes);
+
+			FileSystem.Instance.MemoryFileSystemModifiedItems[fileName] = bytes;
+
+			RefreshList();
 		}
+
 	}
 }

@@ -390,17 +390,24 @@ namespace FrostySdk
 			GCHandle gCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			GCHandle gCHandle2 = GCHandle.Alloc(compBuffer, GCHandleType.Pinned);
 			ulong num = 0uL;
+			//if (ProfilesLibrary.IsFIFA23DataVersion())
+			//	compressCode = 28953;
+			//else
 			//if (ProfilesLibrary.DataVersion == 20180914
 			//	|| ProfilesLibrary.IsFIFADataVersion()
 			//	|| ProfilesLibrary.DataVersion == 20190905
-   //             || ProfilesLibrary.IsMadden21DataVersion()
-   //             || ProfilesLibrary.IsFIFA21DataVersion()
-   //             || ProfilesLibrary.IsFIFA22DataVersion()
-   //             || ProfilesLibrary.IsFIFA23DataVersion()
+			//             || ProfilesLibrary.IsMadden21DataVersion()
+			//             || ProfilesLibrary.IsFIFA21DataVersion()
+			//             || ProfilesLibrary.IsFIFA22DataVersion()
+			//             || ProfilesLibrary.IsFIFA23DataVersion()
 			//	)
 			//{
-				compressCode = 4464;
+			compressCode = 4464;
+			if (ProfilesLibrary.IsFIFA23DataVersion())
+				num = (ulong)Oodle.Compress2(9, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L, 0L, 0L, 0L);
+			else
 				num = (ulong)Oodle.Compress2(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L, 0L, 0L, 0L);
+			
 			//}
 			//else
 			//{

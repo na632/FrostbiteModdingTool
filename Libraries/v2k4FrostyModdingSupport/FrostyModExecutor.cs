@@ -4862,10 +4862,15 @@ namespace paulv2k4ModdingExecuter
             var fifaconfigexelocation = fs.BasePath + "\\FIFASetup\\fifaconfig.exe";
             var fifaconfigexe_origlocation = fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe";
 
-            if(ProfilesLibrary.IsFIFA21DataVersion() 
+            if (ProfilesLibrary.IsFIFA21DataVersion()
                 || ProfilesLibrary.IsFIFA22DataVersion())
+            {
                 CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "dxgi.dll");
+            }
 
+            if (ProfilesLibrary.IsFIFA23DataVersion())
+                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "dxgi.dll");
 
             CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
             if ((ProfilesLibrary.IsFIFADataVersion() 

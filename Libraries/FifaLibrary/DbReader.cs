@@ -15,23 +15,23 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_Platform;
+				return this.m_Platform;
 			}
 			set
 			{
-				m_Platform = value;
+				this.m_Platform = value;
 			}
 		}
 
 		public DbReader(Stream stream, FifaPlatform platform)
 			: base(stream)
 		{
-			m_Platform = platform;
+			this.m_Platform = platform;
 		}
 
 		public override short ReadInt16()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(2);
 				Array.Reverse(array);
@@ -42,7 +42,7 @@ namespace FifaLibrary
 
 		public override ushort ReadUInt16()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(2);
 				Array.Reverse(array);
@@ -53,7 +53,7 @@ namespace FifaLibrary
 
 		public override int ReadInt32()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(4);
 				Array.Reverse(array);
@@ -64,7 +64,7 @@ namespace FifaLibrary
 
 		public override uint ReadUInt32()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(4);
 				Array.Reverse(array);
@@ -75,7 +75,7 @@ namespace FifaLibrary
 
 		public override long ReadInt64()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(8);
 				Array.Reverse(array);
@@ -86,7 +86,7 @@ namespace FifaLibrary
 
 		public override ulong ReadUInt64()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(8);
 				Array.Reverse(array);
@@ -97,7 +97,7 @@ namespace FifaLibrary
 
 		public override float ReadSingle()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(4);
 				Array.Reverse(array);
@@ -108,7 +108,7 @@ namespace FifaLibrary
 
 		public override double ReadDouble()
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] array = base.ReadBytes(8);
 				Array.Reverse(array);
@@ -119,16 +119,16 @@ namespace FifaLibrary
 
 		public int PopInteger(FieldDescriptor fieldDescriptor)
 		{
-			if (m_Platform == FifaPlatform.PC)
+			if (this.m_Platform == FifaPlatform.PC)
 			{
-				return PopIntegerPc(fieldDescriptor);
+				return this.PopIntegerPc(fieldDescriptor);
 			}
-			return PopIntegerXbox(fieldDescriptor);
+			return this.PopIntegerXbox(fieldDescriptor);
 		}
 
 		private int PopIntegerXbox(FieldDescriptor fieldDescriptor)
 		{
-			int num = ReadByte();
+			int num = this.ReadByte();
 			int num2 = fieldDescriptor.BitOffset % 8;
 			int num3 = 0;
 			for (int num4 = fieldDescriptor.Depth - 1; num4 >= 0; num4--)
@@ -138,7 +138,7 @@ namespace FifaLibrary
 				num2++;
 				if (num2 == 8)
 				{
-					num = ReadByte();
+					num = this.ReadByte();
 					num2 = 0;
 				}
 			}
@@ -150,17 +150,17 @@ namespace FifaLibrary
 			int num = 0;
 			int depth = fieldDescriptor.Depth;
 			int i = 0;
-			if (m_CurrentBitPosition != 0)
+			if (this.m_CurrentBitPosition != 0)
 			{
-				i = 8 - m_CurrentBitPosition;
-				num = m_CurrentByte >> m_CurrentBitPosition;
+				i = 8 - this.m_CurrentBitPosition;
+				num = this.m_CurrentByte >> this.m_CurrentBitPosition;
 			}
 			for (; i < depth; i += 8)
 			{
-				m_CurrentByte = ReadByte();
-				num += m_CurrentByte << i;
+				this.m_CurrentByte = this.ReadByte();
+				num += this.m_CurrentByte << i;
 			}
-			m_CurrentBitPosition = (depth + 8 - i) & 7;
+			this.m_CurrentBitPosition = (depth + 8 - i) & 7;
 			int num2 = (int)((1L << depth) - 1);
 			num &= num2;
 			return num + fieldDescriptor.RangeLow;
@@ -168,28 +168,28 @@ namespace FifaLibrary
 
 		public void Align(long position)
 		{
-			BaseStream.Position = position;
-			m_CurrentBitPosition = 0;
-			m_CurrentByte = 0;
+			this.BaseStream.Position = position;
+			this.m_CurrentBitPosition = 0;
+			this.m_CurrentByte = 0;
 		}
 
 		public void AlignToByte()
 		{
-			if (m_CurrentBitPosition != 0)
+			if (this.m_CurrentBitPosition != 0)
 			{
-				m_CurrentBitPosition = 0;
-				m_CurrentByte = 0;
+				this.m_CurrentBitPosition = 0;
+				this.m_CurrentByte = 0;
 			}
 		}
 
 		public void AlignTo32Bit()
 		{
-			int num = (int)(BaseStream.Position & 3);
+			int num = (int)(this.BaseStream.Position & 3);
 			if (num != 0)
 			{
-				BaseStream.Position += 4 - num;
+				this.BaseStream.Position += 4 - num;
 			}
-			m_CurrentBitPosition = 0;
+			this.m_CurrentBitPosition = 0;
 		}
 	}
 }

@@ -45,11 +45,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_TableDescriptor;
+				return this.m_TableDescriptor;
 			}
 			set
 			{
-				m_TableDescriptor = value;
+				this.m_TableDescriptor = value;
 			}
 		}
 
@@ -57,11 +57,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_FieldType;
+				return this.m_FieldType;
 			}
 			set
 			{
-				m_FieldType = value;
+				this.m_FieldType = value;
 			}
 		}
 
@@ -69,11 +69,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_BitOffset;
+				return this.m_BitOffset;
 			}
 			set
 			{
-				m_BitOffset = value;
+				this.m_BitOffset = value;
 			}
 		}
 
@@ -81,26 +81,26 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_Depth;
+				return this.m_Depth;
 			}
 			set
 			{
-				m_Depth = value;
-				m_Mask = (int)((1L << m_Depth) - 1);
+				this.m_Depth = value;
+				this.m_Mask = (int)((1L << this.m_Depth) - 1);
 			}
 		}
 
-		public int Mask => m_Mask;
+		public int Mask => this.m_Mask;
 
 		public string FieldShortName
 		{
 			get
 			{
-				return m_FieldShortName;
+				return this.m_FieldShortName;
 			}
 			set
 			{
-				m_FieldShortName = value;
+				this.m_FieldShortName = value;
 			}
 		}
 
@@ -108,11 +108,11 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_FieldName;
+				return this.m_FieldName;
 			}
 			set
 			{
-				m_FieldName = value;
+				this.m_FieldName = value;
 			}
 		}
 
@@ -120,25 +120,25 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_RangeLow;
+				return this.m_RangeLow;
 			}
 			set
 			{
-				m_RangeLow = value;
+				this.m_RangeLow = value;
 			}
 		}
 
-		public int RangeHigh => m_RangeHigh;
+		public int RangeHigh => this.m_RangeHigh;
 
 		public int TypeIndex
 		{
 			get
 			{
-				return m_TypeIndex;
+				return this.m_TypeIndex;
 			}
 			set
 			{
-				m_TypeIndex = value;
+				this.m_TypeIndex = value;
 			}
 		}
 
@@ -146,35 +146,35 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_OrderInTheTable;
+				return this.m_OrderInTheTable;
 			}
 			set
 			{
-				m_OrderInTheTable = value;
+				this.m_OrderInTheTable = value;
 			}
 		}
 
 		public FieldDescriptor(TableDescriptor tableDescriptor)
 		{
-			m_TableDescriptor = tableDescriptor;
+			this.m_TableDescriptor = tableDescriptor;
 		}
 
 		public void Load(DbReader r)
 		{
-			m_FieldType = (EFieldTypes)r.ReadInt32();
-			m_BitOffset = r.ReadInt32();
-			m_ShortName = r.ReadBytes(4);
-			m_Depth = r.ReadInt32();
-			m_FieldShortName = FifaUtil.ConvertBytesToString(m_ShortName);
-			m_FieldName = m_FieldShortName;
+			this.m_FieldType = (EFieldTypes)r.ReadInt32();
+			this.m_BitOffset = r.ReadInt32();
+			this.m_ShortName = r.ReadBytes(4);
+			this.m_Depth = r.ReadInt32();
+			this.m_FieldShortName = FifaUtil.ConvertBytesToString(this.m_ShortName);
+			this.m_FieldName = this.m_FieldShortName;
 		}
 
 		public void Save(BinaryWriter w)
 		{
-			w.Write((int)m_FieldType);
-			w.Write(m_BitOffset);
-			w.Write(m_ShortName);
-			w.Write(m_Depth);
+			w.Write((int)this.m_FieldType);
+			w.Write(this.m_BitOffset);
+			w.Write(this.m_ShortName);
+			w.Write(this.m_Depth);
 		}
 
 		public void AssignXmlDescriptor(DataSet descriptorDataSet)
@@ -187,16 +187,16 @@ namespace FifaLibrary
 			for (int i = 0; i < count; i++)
 			{
 				DataRow dataRow = descriptorDataSet.Tables["field"].Rows[i];
-				if (m_FieldShortName == (string)dataRow["shortname"])
+				if (this.m_FieldShortName == (string)dataRow["shortname"])
 				{
 					int index = (int)dataRow["fields_Id"];
 					int index2 = (int)descriptorDataSet.Tables["fields"].Rows[index]["table_Id"];
-					if ((string)descriptorDataSet.Tables["table"].Rows[index2]["shortname"] == m_TableDescriptor.TableShortName)
+					if ((string)descriptorDataSet.Tables["table"].Rows[index2]["shortname"] == this.m_TableDescriptor.TableShortName)
 					{
-						m_FieldName = (string)dataRow["name"];
-						m_RangeLow = Convert.ToInt32((string)dataRow["rangelow"]);
-						m_RangeHigh = Convert.ToInt32((string)dataRow["rangehigh"]);
-						m_XmlDataRow = dataRow;
+						this.m_FieldName = (string)dataRow["name"];
+						this.m_RangeLow = Convert.ToInt32((string)dataRow["rangelow"]);
+						this.m_RangeHigh = Convert.ToInt32((string)dataRow["rangehigh"]);
+						this.m_XmlDataRow = dataRow;
 						break;
 					}
 				}
@@ -205,38 +205,27 @@ namespace FifaLibrary
 
 		public bool Expand(int depth)
 		{
-			if (depth < m_Depth)
+			if (depth < this.m_Depth)
 			{
 				return false;
 			}
-			if (depth > m_Depth)
+			if (depth > this.m_Depth)
 			{
-				_ = m_Depth;
-				m_Depth = depth;
-				m_XmlDataRow["depth"] = m_Depth.ToString();
+				_ = this.m_Depth;
+				this.m_Depth = depth;
+				this.m_XmlDataRow["depth"] = this.m_Depth.ToString();
 			}
-			int num = 1 << m_Depth;
-			m_RangeHigh = m_RangeLow + num - 1;
-			m_XmlDataRow["rangehigh"] = m_RangeHigh.ToString();
+			int num = 1 << this.m_Depth;
+			this.m_RangeHigh = this.m_RangeLow + num - 1;
+			this.m_XmlDataRow["rangehigh"] = this.m_RangeHigh.ToString();
 			return true;
 		}
 
 		public bool Expand(int depth, int minValue)
 		{
-			m_RangeLow = minValue;
-			m_XmlDataRow["rangelow"] = m_RangeLow.ToString();
-			return Expand(depth);
+			this.m_RangeLow = minValue;
+			this.m_XmlDataRow["rangelow"] = this.m_RangeLow.ToString();
+			return this.Expand(depth);
 		}
-
-        public override string ToString()
-        {
-
-
-			if (!string.IsNullOrEmpty(FieldName))
-				return FieldName + "{ " + FieldShortName + " }";
-
-
-            return base.ToString();
-        }
-    }
+	}
 }
