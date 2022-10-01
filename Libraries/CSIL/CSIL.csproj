@@ -9,7 +9,7 @@
 	<Authors>paulv2k4</Authors>
 	<Company>paulv2k4</Company>
 
-  <PlatformTarget>x64</PlatformTarget>
+  <!--<PlatformTarget>x64</PlatformTarget>-->
   <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>   
   <ItemGroup>
