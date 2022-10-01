@@ -25,7 +25,11 @@ namespace FrostySdk
 
 		private List<Catalog> catalogs = new List<Catalog>();
 
-		public Dictionary<string, byte[]> memoryFs = new Dictionary<string, byte[]>();
+		public Dictionary<string, byte[]> memoryFs { get; set; } = new Dictionary<string, byte[]>();
+
+		public Dictionary<string, byte[]> MemoryFileSystem => memoryFs;
+
+		public Dictionary<string, byte[]> MemoryFileSystemModifiedItems { get; set; } = new Dictionary<string, byte[]>();
 
 		private List<string> casFiles = new List<string>();
 
@@ -135,6 +139,9 @@ namespace FrostySdk
 
 		public byte[] LoadKey()
 		{
+			if (KeyManager.Instance.HasKey("Key1"))
+				return KeyManager.Instance.GetKey("Key1");
+
 			if (ProfilesLibrary.RequiresKey)
 			{
 				byte[] array;
@@ -170,7 +177,7 @@ namespace FrostySdk
 			if (key == null)
 				key = LoadKey();
 
-			LoadInitfs(key, patched);
+			ReadInitfs(key, patched);
 		}
 
 		public IDeobfuscator CreateDeobfuscator()
@@ -496,19 +503,18 @@ namespace FrostySdk
 
 		}
 
-		public DbObject LoadInitfs(byte[] key, bool patched = true)
+		public DbObject ReadInitfs(byte[] key, bool patched = true)
 		{
 			DbObject dbObject = null;
 			
-			string text = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
-			if (text == "")
+			string initfsFilePath = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
+			if (initfsFilePath == "")
 			{
 				return dbObject;
 			}
 
-			var fsInitfs = new FileReader(new FileStream(text, FileMode.Open, FileAccess.Read));
+			var fsInitfs = new FileReader(new FileStream(initfsFilePath, FileMode.Open, FileAccess.Read));
 			MemoryStream msInitFs = new MemoryStream(fsInitfs.ReadToEnd());
-			bool isEncrypted;
 			fsInitfs.Dispose();
 
 			// Go down to 556 (like TOC) using Deobfuscator
@@ -587,105 +593,60 @@ namespace FrostySdk
 				memoryFs.Remove("__fsinternal__");
 				if (dbObject2.GetValue("inheritContent", defaultValue: false))
 				{
-					LoadInitfs(key, patched: false);
+					ReadInitfs(key, patched: false);
 				}
 			}
 
 			return dbObject;
 		}
 
-		public void RepackInitfs(DbObject dbObject, bool patched = true)
+		public void WriteInitfs(Stream outStream, bool patched = true)
 		{
-			string text = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
-			if (text == "")
+			string initfsPath = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
+			if (initfsPath == "")
 			{
 				return;
 			}
-
-			byte[] key = KeyManager.Instance.GetKey("Key1");
-			
-			if (key == null)
+			var encryptionKey = LoadKey();
+			MemoryStream unencryptedStream = new MemoryStream();
+			MemoryStream encryptedStream = new MemoryStream();
+			DbWriter dbWriter = new DbWriter(unencryptedStream, leaveOpen: true);
+			DbObject unencryptedDb = new DbObject(new List<object>());
+			string key;
+			byte[] value;
+			foreach (KeyValuePair<string, byte[]> memoryF in memoryFs)
 			{
-				Debug.WriteLine("[DEBUG] LoadInitfs()::Key is not available");
-				return;
+				memoryF.Deconstruct(out key, out value);
+				string name2 = key;
+				byte[] data2 = value;
+				DbObject fileToc2 = new DbObject(new Dictionary<string, object>());
+				fileToc2.AddValue("name", name2);
+					fileToc2.AddValue("payload", data2);
+				DbObject listEntryToc2 = new DbObject(new Dictionary<string, object>());
+				listEntryToc2.AddValue("$file", fileToc2);
+				unencryptedDb.List.Add(listEntryToc2);
 			}
-			foreach (DbObject item in dbObject)
+            dbWriter.Write(unencryptedDb);
+            unencryptedStream.Position = 0L;
+			using (Aes aes = Aes.Create())
 			{
-				DbObject fileItem = item.GetValue<DbObject>("$file");
-				//string payload = System.Text.Encoding.Default.GetString(value2.GetValue<byte[]>("payload")); 
-				string nameOfItem = fileItem.GetValue<string>("name");
-				if(nameOfItem.Contains("product.ini"))
-                {
-					var payloadOfBytes = fileItem.GetValue<byte[]>("payload");
-					var str = System.Text.Encoding.Default.GetString(payloadOfBytes);
-					if(!string.IsNullOrEmpty(str))
-                    {
-						str = str.Replace("ENABLED = 1", "ENABLED = 0");
-						payloadOfBytes = Encoding.Default.GetBytes(str);
-						fileItem.SetValue("payload", payloadOfBytes);
-					}
-				}
-			}
-
-			var m = new MemoryStream();
-			using (DbWriter dbWriter = new DbWriter(m, leaveOpen: true, inWriteHeader: true))
-			{
-				dbWriter.Write(dbObject);
-				dbWriter.Flush();
-				dbWriter.Close();
-				byte[] value = null;
-				m.Position = 0;
-				using (NativeReader r = new NativeReader(m))
-                {
-					value = r.ReadBytes((int)r.Length);
-                }
-
-				try
+				aes.Key = encryptionKey;
+				aes.IV = encryptionKey;
+				ICryptoTransform transform = aes.CreateEncryptor(aes.Key, aes.IV);
+				using (CryptoStream cryptoStream = new CryptoStream(encryptedStream, transform, CryptoStreamMode.Write))
 				{
-					using (Aes aes = Aes.Create())
-					{
-						aes.Key = key;
-						aes.IV = key;
-						ICryptoTransform transform = aes.CreateEncryptor(aes.Key, aes.IV);
-						using (var filestream = new FileStream("new_initfs_win32", FileMode.OpenOrCreate))
-						{
-							using (MemoryStream memoryStream = new MemoryStream())
-							{
-								using (CryptoStream cryptoStream = new CryptoStream(memoryStream, transform, CryptoStreamMode.Write, true))
-								{
-									cryptoStream.Write(value, 0, value.Length);
-								}
-
-								DbObject reencrypt = DbObject.CreateObject();
-								memoryStream.Position = 0;
-								using (NativeReader r = new NativeReader(memoryStream))
-								{
-									value = r.ReadBytes((int)r.Length);
-								}
-								reencrypt.AddValue("encrypted", value);
-
-								using (DbWriter writer = new DbWriter(filestream))
-                                {
-									writer.Write(reencrypt);
-                                }
-							}
-
-						}
-					}
+					unencryptedStream.CopyTo(cryptoStream);
 				}
-				catch (Exception e)
-                {
-
-                }
 			}
+			byte[] encryptedDbEntry = encryptedStream.ToArray();
+			DbObject newEncryptEntry = new DbObject(new Dictionary<string, object> { { "encrypted", encryptedDbEntry } });
+			DbWriter dbWriterEncrypted = new DbWriter(outStream, leaveOpen: true);
+			dbWriterEncrypted.Write(newEncryptEntry);
+			unencryptedStream.Close();
+			unencryptedStream.Dispose();
+			//tocWriter.Write(outStream, newTocEntry, writeHeader: true);
 
-			using (DbWriter dbWriter = new DbWriter(new FileStream("decrypted_initfs", FileMode.Create), inWriteHeader: true))
-			{
-				dbWriter.Write(dbObject);
-			}
-
-            
-        }
+		}
 
 		private void ProcessLayouts()
 		{

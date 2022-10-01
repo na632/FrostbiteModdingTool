@@ -1,0 +1,15 @@
+﻿<mah:MetroWindow x:Class="FMT.Windows.InitfsEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+         xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
+        xmlns:FMTControlsPages="clr-namespace:FMT.Controls.Pages;assembly=FMT.Controls"
+        xmlns:FMTControlsWindows="clr-namespace:FMT.Controls.Windows;assembly=FMT.Controls"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:local="clr-namespace:FMT.Windows"
+        mc:Ignorable="d"
+        Title="Initfs Editor" Height="600" Width="900" WindowStartupLocation="CenterScreen">
+    <Grid>
+    </Grid>
+</mah:MetroWindow>
