@@ -32,9 +32,18 @@ namespace FrostbiteModdingUI.Windows
         {
             InitializeComponent();
 
-            var lastLocations = Directory.GetFiles(App.ApplicationDirectory).Where(x => x.Contains("LastLocation.json", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<string> lastLocationPaths = new List<string>();
+            var modProfileDirectory = App.ApplicationDirectory + "\\Mods\\Profiles\\";
+            foreach(var dir in Directory.GetDirectories(modProfileDirectory))
+            {
+                lastLocationPaths.AddRange(
+                Directory.GetFiles(dir)
+                .Where(x => x.Contains("LastLocation.json", StringComparison.OrdinalIgnoreCase)).ToList());
+            }
 
-            var lstOfLocations = lastLocations.Select(x 
+            
+
+            var lstOfLocations = lastLocationPaths.Select(x 
                 => 
                 new FileInfo(File.ReadAllText(x))
                 ).Where(x=>x.Exists).ToList();
