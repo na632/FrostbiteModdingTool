@@ -375,6 +375,16 @@ namespace FrostySdk.IO._2022.Readers
 			}
 			base.Position = payloadOffset;
 			base.isValid = true;
+
+			if (RootType.Contains("gp_"))
+			{
+				Position = 0;
+				var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
+				base.stream.CopyTo(fsDump);
+				fsDump.Close();
+				fsDump.Dispose();
+				Position = payloadOffset;
+			}
 		}
 
         public override EbxAsset ReadAsset(EbxAssetEntry entry = null)
