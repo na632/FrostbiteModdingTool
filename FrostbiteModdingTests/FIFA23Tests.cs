@@ -1,5 +1,6 @@
 ﻿using FifaLibrary;
 using Frostbite.Textures;
+using FrostbiteModdingUI.CEM;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
@@ -57,8 +58,22 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ReadDataInCareerFile()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            Directory.GetFiles("C:\\Users\\paula\\Documents\\FIFA 23\\settings\\", "Career*")
+                .Select(f => new FileInfo(f))
+                .OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+            var cem = new CEMCore2("FIFA23");
+
+            var stats = cem.GetPlayerStatsAsync().Result;
+            var statsDoncaster = cem.GetPlayerStatsAsync(142).Result;
+        }
+
+        [TestMethod]
         public void EditCareerFile()
         {
+
             var originalFile = "C:\\Users\\paula\\Documents\\FIFA 23\\settings\\Career20220930120547";
             var newFileFile = "C:\\Users\\paula\\Documents\\FIFA 23\\settings\\Career20220930102999";
             //CareerFile careerFile = new CareerFile(
@@ -245,8 +260,8 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
+            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
