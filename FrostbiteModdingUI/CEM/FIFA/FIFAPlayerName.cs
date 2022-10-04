@@ -42,17 +42,17 @@ namespace CareerExpansionMod.CEM.FIFA
             }
 
             // DLC / Squad File Names
-            fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames.csv";
-            if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
-                fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames_f21.csv";
+            //fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames.csv";
+            //if (GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
+            //    fulllocation = dlllocation + "\\CEM\\Data\\dcplayernames_f21.csv";
 
-            using (var reader = new StreamReader(fulllocation))
-            using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
-            {
-                //csv.Configuration.HeaderValidated = null;
-                //csv.Configuration.MissingFieldFound = null;
-                pnames.AddRange(csv.GetRecords<FIFAPlayerName>().ToList());
-            }
+            //using (var reader = new StreamReader(fulllocation))
+            //using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
+            //{
+            //    csv.Configuration.HeaderValidated = null;
+            //    csv.Configuration.MissingFieldFound = null;
+            //    pnames.AddRange(csv.GetRecords<FIFAPlayerName>().ToList());
+            //}
 
             FIFAPlayerNames = pnames;
 

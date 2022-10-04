@@ -119,6 +119,38 @@ namespace FifaLibrary
 			Current = this;
 		}
 
+		public CareerFile(Stream careerStream, Stream xmlStream, string careerFileName)
+        {
+			if (File.Exists("TempCareerXmlMeta.xml"))
+				File.Delete("TempCareerXmlMeta.xml");
+
+			MemoryStream msXmlMeta = new MemoryStream();
+			xmlStream.CopyTo(msXmlMeta);
+			File.WriteAllBytes("TempCareerXmlMeta.xml", msXmlMeta.ToArray());
+			LoadXml("TempCareerXmlMeta.xml");
+
+			OriginalFileName = careerFileName;
+			DbReader dbReader = new DbReader(careerStream, FifaPlatform.PC);
+			dbReader.BaseStream.Position = 18L;
+			this.m_InGameName = FifaUtil.ReadNullTerminatedString(dbReader);
+			while (dbReader.BaseStream.Position < dbReader.BaseStream.Length)
+			{
+				this.m_Database[this.m_NDatabases] = new DbFile();
+				this.m_Database[this.m_NDatabases].DescriptorDataSet = this.m_DescriptorDataSet;
+				if (!this.m_Database[this.m_NDatabases].LoadDb(dbReader, skipData: true))
+				{
+					break;
+				}
+				this.m_NDatabases++;
+				if (this.m_NDatabases == 3)
+				{
+					break;
+				}
+			}
+			dbReader.Close();
+			Current = this;
+		}
+
 		public bool Load()
 		{
 			if (!this.LoadXml())
