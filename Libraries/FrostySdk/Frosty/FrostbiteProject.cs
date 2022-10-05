@@ -475,22 +475,57 @@ namespace FrostySdk
 
 			memoryStream.Position = 0;
 			projectbytes = new NativeReader(memoryStream).ReadToEnd();
+			using NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			nwFinal.Write(projectbytes);
 
+			//MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
+			//         //ZipFile pZip = new ZipFile();
+			//         //pZip.AddEntry("mE", projectbytes);
+			//         //pZip.Save(zipStream);
+
+			//if (File.Exists(filename))
+			//	File.Delete(filename);
+
+			//zipStream.Position = 0;
+			//         NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			//         nwFinal.Write((ushort)2);
+			//         nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+			//         nwFinal.Close();
+			//         nwFinal.Dispose();
+		}
+
+		private void WriteToModZstd(string filename, ModSettings overrideSettings, byte[] projectbytes)
+		{
 			MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
-            //ZipFile pZip = new ZipFile();
-            //pZip.AddEntry("mE", projectbytes);
-            //pZip.Save(zipStream);
 
 			if (File.Exists(filename))
 				File.Delete(filename);
 
 			zipStream.Position = 0;
-            NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-            nwFinal.Write((ushort)2);
-            nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
-            nwFinal.Close();
-            nwFinal.Dispose();
-        }
+			NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			nwFinal.Write((ushort)2);
+			nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+			nwFinal.Close();
+			nwFinal.Dispose();
+
+		}
+		private void WriteToModZip(string filename, ModSettings overrideSettings, byte[] projectbytes)
+        {
+			MemoryStream zipStream = new MemoryStream();
+			ZipFile pZip = new ZipFile();
+			pZip.AddEntry("mE", projectbytes);
+			pZip.Save(zipStream);
+
+			if (File.Exists(filename))
+				File.Delete(filename);
+
+			zipStream.Position = 0;
+			NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			nwFinal.Write((ushort)1);
+			nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+			nwFinal.Close();
+			nwFinal.Dispose();
+		}
 
 		public void WriteToFIFAMod(string filename, ModSettings overrideSettings)
 		{
