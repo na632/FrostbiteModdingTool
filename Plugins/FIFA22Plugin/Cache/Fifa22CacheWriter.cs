@@ -61,7 +61,7 @@ namespace FIFA22Plugin.Cache
             AssetManager.CacheCompress(msCache);
         }
 
-        private static void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry)
+        public void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry)
         {
             nativeWriter.WriteLengthPrefixedString(ebxEntry.Name);
             nativeWriter.Write(ebxEntry.Sha1);
@@ -113,7 +113,7 @@ namespace FIFA22Plugin.Cache
             }
         }
 
-        private static void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry)
+        public void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry)
         {
             nativeWriter.WriteLengthPrefixedString(resEntry.Name);
             nativeWriter.Write(resEntry.Sha1);
@@ -162,7 +162,7 @@ namespace FIFA22Plugin.Cache
             }
         }
 
-        private void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
+        public void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
         {
             nativeWriter.Write(chunkEntry.Id);
             nativeWriter.Write(chunkEntry.Sha1);
@@ -231,5 +231,16 @@ namespace FIFA22Plugin.Cache
                 nativeWriter.Write(bundleId);
             }
         }
+
+        void ICacheWriter.WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICacheWriter.WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

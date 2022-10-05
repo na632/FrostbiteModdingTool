@@ -154,6 +154,14 @@ namespace Madden22Plugin.Cache
             AssetManager.CacheCompress(msCache);
         }
 
+        public void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry)
+        {
+        }
+
+        public void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry)
+        {
+        }
+
         private void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
         {
             nativeWriter.Write(chunkEntry.Id);
@@ -216,6 +224,11 @@ namespace Madden22Plugin.Cache
             {
                 nativeWriter.Write(bundleId);
             }
+        }
+
+        void ICacheWriter.WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
+        {
+            throw new NotImplementedException();
         }
     }
 }
