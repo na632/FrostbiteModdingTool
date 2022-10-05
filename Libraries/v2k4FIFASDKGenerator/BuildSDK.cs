@@ -72,7 +72,13 @@ namespace SdkGenerator
 				//			, Verb = "runas"
 				//};
 				//process = System.Diagnostics.Process.Start(psi);
-				Thread.Sleep(3000);
+				process = allProcesses.FirstOrDefault(x =>
+				   (x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase))
+				   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
+				   );
+				Thread.Sleep(1000);
 			}
 			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
 			return process;
@@ -240,7 +246,7 @@ namespace SdkGenerator
             "488B05F6?????? 48894108 C3 488D05????C5?? 483905d3?????????? 488B05????C5?? 488905????????",
             "488b05???????? 48894108 48890d???????? 48???? C3",
             "488b05???????? 48894108 48890d????????",
-            "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+            "488b05???????? 488905?? ?????? 488d05???????? 488905???????? E9",
 
 
 					// Works for Madden and FIFA 21
@@ -250,6 +256,7 @@ namespace SdkGenerator
 
                     if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKAOBScan))
                     {
+						patterns.Clear();
 						patterns.Insert(0, ProfilesLibrary.LoadedProfile.SDKAOBScan);
 						Debug.WriteLine("Attempting to use Profile Pattern :: " + ProfilesLibrary.LoadedProfile.SDKAOBScan);
 					}
