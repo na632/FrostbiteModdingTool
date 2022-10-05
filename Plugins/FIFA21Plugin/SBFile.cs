@@ -18,7 +18,7 @@ namespace FIFA21Plugin
 {
 
 
-    public class SBFile
+    public class SBFile : IDisposable
     {
         public TOCFile AssociatedTOCFile { get; set; }
         public string NativeFileLocation { get; set; }
@@ -489,6 +489,13 @@ namespace FIFA21Plugin
             return (unk << 24) | ((isPatch ? 1 : 0) << 16) | (packageIndex << 8) | casIndex;
         }
 
+        public void Dispose()
+        {
+            if(AssociatedTOCFile != null)
+                AssociatedTOCFile.Dispose();
+
+            AssociatedTOCFile = null;
+        }
     }
 
 }

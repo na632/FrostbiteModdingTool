@@ -14,7 +14,7 @@ using static FrostySdk.Managers.AssetManager;
 
 namespace FIFA21Plugin
 {
-    public class TocSbReader_FIFA21
+    public class TocSbReader_FIFA21 : IDisposable
     {
         private const uint ReadableSectionMagic = 3599661469;
 
@@ -52,6 +52,14 @@ namespace FIFA21Plugin
         {
             ProcessData = processData;
             DoLogging = doLogging;
+        }
+
+        public void Dispose()
+        {
+            if (TOCFile != null)
+                TOCFile.Dispose();
+
+            TOCFile = null;
         }
 
         public List<DbObject> Read(string tocPath, int sbIndex, string SBName, bool native_data = false, string nativePath = null)

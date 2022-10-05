@@ -64,8 +64,8 @@ namespace FIFA21Plugin
 		}
     }
 
-    public class TOCFile
-    {
+    public class TOCFile : IDisposable
+	{
         public SBFile AssociatedSBFile { get; set; }
         public string FileLocation { get; internal set; }
         public string NativeFileLocation { get; internal set; }
@@ -101,6 +101,34 @@ namespace FIFA21Plugin
         {
 			ParentReader = parent;
         }
+
+		public void Dispose()
+		{
+			if (CASToBundles != null && CASToBundles.Count > 0)
+				CASToBundles.Clear();
+
+			CASToBundles = null;
+
+			if (Bundles != null && Bundles.Count > 0)
+				Bundles.Clear();
+
+			Bundles = null;
+
+			if (TOCObjects != null)
+			{
+				if (TOCObjects.Dictionary != null)
+					TOCObjects.Dictionary.Clear();
+
+				if (TOCObjects.List != null)
+					TOCObjects.List.Clear();
+
+				TOCObjects = null;
+			}
+
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+
+		}
 
 		public class ContainerMetaData
         {
