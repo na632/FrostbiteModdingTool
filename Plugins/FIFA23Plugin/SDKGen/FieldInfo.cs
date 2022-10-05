@@ -3,7 +3,7 @@ using System;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 
-namespace SdkGenerator.Fifa22
+namespace SdkGenerator.Fifa23
 {
 	public class FieldInfo : IFieldInfo
 	{

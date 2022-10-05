@@ -14,7 +14,7 @@ using static FrostySdk.Managers.AssetManager;
 
 namespace FIFA23Plugin
 {
-    public class TocSbReader_Fifa22
+    public class TocSbReader_Fifa22 : IDisposable
     {
         private const uint ReadableSectionMagic = 3599661469;
 
@@ -86,5 +86,12 @@ namespace FIFA23Plugin
             return null;
         }
 
+        public void Dispose()
+        {
+            if(TOCFile != null)
+                TOCFile.Dispose();
+
+            TOCFile = null;
+        }
     }
 }

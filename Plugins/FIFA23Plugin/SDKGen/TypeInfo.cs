@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System;
 using FrostySdk;
 
-namespace SdkGenerator.Fifa22
+namespace SdkGenerator.Fifa23
 {
 	public class TypeInfo : ITypeInfo
 	{
