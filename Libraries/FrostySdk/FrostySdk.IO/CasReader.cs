@@ -56,26 +56,27 @@ namespace FrostySdk.IO
 			return memoryStream.ToArray();
 		}
 
-		public int LastBufferSize { get; set; }
+		public int LastCompressedBufferSize { get; set; }
 		public int LastCompressedSize { get; set; }
 
 		public byte[] ReadBlock()
 		{
-			int num = ReadInt(Endian.Big);
-			// OODLE 2 = 28953 = 25
+			int originalSize = ReadInt(Endian.Big);
+			// OODLE FIFA21 = 28953 / 28687 = 25
+			// OODLE FIFA23 = 28697
 			ushort compressType = ReadUShort();
-			LastBufferSize = ReadUShort(Endian.Big);
+			LastCompressedBufferSize = ReadUShort(Endian.Big);
 			int num4 = (compressType & 0xFF00) >> 8;
 			LastCompressedSize = num4;
 			bool useDictionary = false;
 			byte[] result = null;
 			if ((num4 & 0xF) != 0)
 			{
-				LastBufferSize = ((num4 & 0xF) << 16) + LastBufferSize;
+				LastCompressedBufferSize = ((num4 & 0xF) << 16) + LastCompressedBufferSize;
 			}
-			if ((num & 4278190080u) != 0L)
+			if ((originalSize & 4278190080u) != 0L)
 			{
-				num &= 0xFFFFFF;
+				originalSize &= 0xFFFFFF;
 				useDictionary = true;
 			}
 			bool unobfuscateCode = ((compressType >> 7) & 1) != 0;
@@ -84,25 +85,25 @@ namespace FrostySdk.IO
 			switch (sw)
 			{
 			case 0:
-				result = ReadUncompressed(LastBufferSize, unobfuscate);
+				result = ReadUncompressed(LastCompressedBufferSize, unobfuscate);
 				break;
 			case 2:
-				result = DecompressBlockZLib(LastBufferSize, num);
+				result = DecompressBlockZLib(LastCompressedBufferSize, originalSize);
 				break;
 			case 9:
 				if (AssociatedAssetEntry != null) AssociatedAssetEntry.OriginalCompressionType = CompressionType.LZ4;
-				result = DecompressBlockLZ4(LastBufferSize, num);
+				result = DecompressBlockLZ4(LastCompressedBufferSize, originalSize);
 				break;
 			case 15:
 				if (AssociatedAssetEntry != null) AssociatedAssetEntry.OriginalCompressionType = CompressionType.ZStd;
-				result = DecompressBlockZStd(LastBufferSize, num, useDictionary, unobfuscate);
+				result = DecompressBlockZStd(LastCompressedBufferSize, originalSize, useDictionary, unobfuscate);
 				break;
 			// OODLE
 			case 17:
 			case 21:
 			case 25:
 				if (AssociatedAssetEntry != null) AssociatedAssetEntry.OriginalCompressionType = CompressionType.Oodle;
-				result = DecompressOodle(LastBufferSize, num, unobfuscate);
+				result = DecompressOodle(LastCompressedBufferSize, originalSize, unobfuscate);
 				break;
 			}
 			return result;
