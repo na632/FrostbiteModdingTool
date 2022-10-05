@@ -6,9 +6,9 @@
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
-  "AssetCompiler": "FrostbiteNullCompiler",
+  //"AssetCompiler": "FrostbiteNullCompiler",
   //"AssetCompiler": "Fifa23AssetCompilerV2",
-  //"AssetCompiler": "Fifa23AssetReplacementCompiler",
+  "AssetCompiler": "Fifa23AssetReplacementCompiler",
   "EditorScreen": "FIFA23Editor",
   // Texture Importer (Overriding the base Importer)
   "TextureImporter": "FIFA23TextureImporter",
@@ -42,10 +42,13 @@
   // SDK Generating Info
   //
   "SDKFilename": "FIFA23SDK",
-  "SDKFirstTypeInfo": null,
-  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  "SDKFirstTypeInfo": "0x14AF31A70",
+  //"SDKAOBScan": null,
+  //"SDKAOBScan": "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+  //"SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  //"SDKAOBScan": "488B05???????? 48894108",
   "SDKClassesFile": "FIFA22.Classes.txt",
-  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa22.ClassInfo",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa23.ClassInfo",
   "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
   //
 
@@ -58,9 +61,9 @@
   "CanEdit": true,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
-  "CacheWriter": "Fifa22CacheWriter",
+  "CacheWriter": "Fifa23CacheWriter",
   // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
-  "CacheReader": "Fifa22CacheReader",
+  "CacheReader": "Fifa23CacheReader",
 
   "Banner": "",
   "EbxVersion": 4,
@@ -73,13 +76,12 @@
   "CanExportMeshes": false,
   // GeometryDeclarationDesc stream count
   "GDDMaxStreams": 16,
-  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatEBX": "Oodle", // Checked on GP files. FIFA 23 only uses Oodle!
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
-  //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "Oodle",
-  //"CompressedFormatLegacy": "None",
   "LegacyFileManager": "LFM_Fifa22",
-  "CanUseModData": false
+  "CanUseModData": false,
+  "SupportLowMemoryFootprint": true
 
 }

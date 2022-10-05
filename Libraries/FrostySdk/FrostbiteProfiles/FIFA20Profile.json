@@ -48,5 +48,6 @@
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "LZ4",
   "LegacyFileManager": "",
-  "CanUseLiveLegacyMods": true
+  "CanUseLiveLegacyMods": true,
+  "CanUseModData": true
 }

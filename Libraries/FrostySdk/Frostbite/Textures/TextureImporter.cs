@@ -49,6 +49,7 @@ namespace Frostbite.Textures
 									{
 										((ITextureImporter)Activator.CreateInstance(t)).DoImport(path, assetEntry, ref textureAsset);
 										run = true;
+										break;
 									}
 								}
 								catch
