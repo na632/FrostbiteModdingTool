@@ -124,6 +124,9 @@ namespace FrostySdk.IO
 
 		public void Read(in byte[] data, in bool patch)
         {
+			if (Mapping.Count > 0)
+				return;
+
 			using (NativeReader reader = new NativeReader(new MemoryStream(data)))
 			{
 				reader.Position = 0;
@@ -251,7 +254,13 @@ namespace FrostySdk.IO
 
 		public EbxSharedTypeDescriptorV2(string name, bool patch) : this(name, patch, true, true)
 		{
+
 		}
+
+		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch) : this(name, patch, true, true)
+        {
+
+        }
 
 		public EbxSharedTypeDescriptorV2(string name, bool patch, bool instantRead = true, bool viaReflection = false)
 		{

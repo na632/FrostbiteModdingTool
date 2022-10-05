@@ -66,6 +66,7 @@
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "None",
   "LegacyFileManager": "LegacyFileManager_FMTV2",
-  "CanUseLiveLegacyMods": true
+  "CanUseLiveLegacyMods": true,
+  "CanUseModData": true
 
 }

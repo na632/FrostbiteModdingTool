@@ -2,7 +2,9 @@
 using CareerExpansionMod.CEM.FIFA;
 using FifaLibrary;
 using FrostbiteSdk;
+using FrostySdk;
 using FrostySdk.IO;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,7 +20,7 @@ namespace FrostbiteModdingUI.CEM
 {
     public class CEMCore2 : IDisposable
     {
-        private string Game;
+        private string Game { get; set; }
 
         public string GetFIFAMyDocumentsSaveDirectory()
         {
@@ -30,6 +32,12 @@ namespace FrostbiteModdingUI.CEM
                     break;
                 case "FIFA21":
                     directory = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 21\\settings\\";
+                    break;
+                case "FIFA22":
+                    directory = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 22\\settings\\";
+                    break;
+                case "FIFA23":
+                    directory = Microsoft.VisualBasic.FileIO.SpecialDirectories.MyDocuments + "\\FIFA 23\\settings\\";
                     break;
             }
             return directory;
@@ -108,7 +116,7 @@ namespace FrostbiteModdingUI.CEM
         }
 
         static FileStream fsDB;
-        static FileStream fsXml;
+        static Stream XmlDbMetaStream;
 
         public static CareerFile SetupCareerFile(string inCareerFilePath)
         {
@@ -118,15 +126,25 @@ namespace FrostbiteModdingUI.CEM
                 fsDB.Dispose(); 
             }
 
-            if (fsXml != null)
-                fsXml.Position = 0;
+            if (XmlDbMetaStream != null)
+                XmlDbMetaStream.Position = 0;
+            else if (AssetManager.Instance != null
+                && AssetManager.Instance.GetCustomAssetEntry("legacy", "data/db/fifa_ng_db-meta.xml") is LegacyFileEntry dbMetaEntry)
+            {
+                XmlDbMetaStream = AssetManager.Instance.GetCustomAsset("legacy", dbMetaEntry);
+            }
             else
-                fsXml = new FileStream(CEMInternalDataDirectory + "fifa_ng_db-meta.XML", FileMode.Open);
+            {
+                XmlDbMetaStream = new FileStream(CEMInternalDataDirectory + "fifa_ng_db-meta.XML", FileMode.Open);
+                Debug.WriteLine("CEM CORE: Using fallback db meta xml");
+            }
 
             fsDB = new FileStream(inCareerFilePath, FileMode.Open);
             {
                 {
-                    //CurrentCareerFile = new CareerFile(fsDB, fsXml);
+                    if(CurrentCareerFile == null)
+                        CurrentCareerFile = new CareerFile(fsDB, XmlDbMetaStream, inCareerFilePath);
+
                     var CareerFile = CurrentCareerFile;
 
                     // Setup Internal Career Entities
@@ -226,53 +244,70 @@ namespace FrostbiteModdingUI.CEM
         }
 
 
-        public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync()
+        public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync(int? teamId = null)
         {
-            return await Task.Run(() => { return GetPlayerStats(); });
+            return await Task.Run(() => { return GetPlayerStats(teamId); });
         }
 
-        public List<FIFAPlayerStat> GetPlayerStats()
+        public List<FIFAPlayerStat> GetPlayerStats(int? teamId = null)
         {
             if (CurrentCareerFile == null)
                 throw new Exception("");
 
-
             var fifaUser = CareerDB1.FIFAUser;
-            var userTeam = CareerDB1.UserTeam;
-            var userTeamPlayers = CareerDB1.UserPlayers;
-
             var tid1 = fifaUser.clubteamid;
 
+            List<FIFAPlayer> players = CareerDB1.UserPlayers;
+            if (teamId.HasValue && teamId != fifaUser.clubteamid)
+            {
+                var teams = (from myRow in CareerDB2.Current.teams.AsEnumerable()
+                             where myRow.Field<int>("teamid") == teamId.Value
+                             select myRow);
+                var team = teams.FirstOrDefault();
+                if (team == null)
+                {
+                    throw new NullReferenceException($"Unable to find team for id:{teamId}");
+                }
+
+                var fifaTeam = CreateItemFromRow<FIFATeam>(team);
+                players = fifaTeam.GetPlayers();
+                tid1 = teamId.Value;
+            }
 
             List<FIFAPlayerStat> stats = new List<FIFAPlayerStat>();
+            var msCurrentfile = new MemoryStream();
 
-            //using (NativeReader nr = new NativeReader(CurrentCareerFile.DbStream))
-            //{
-            //    CurrentCareerFile.DbStream.Position = 0;
-            //    //nr.Position = 6000000;
-            //    var rBytes = nr.ReadToEnd();
-            //    foreach (var player in userTeamPlayers)
-            //    {
-            //        var searchByte = BitConverter.GetBytes(tid1).ToList();
-            //        var playerIdByte = BitConverter.GetBytes(player.playerid).ToArray();
-            //        searchByte.AddRange(playerIdByte);
+            using (var fsCurrentFile = new FileStream(CareerFile.Current.OriginalFileName, FileMode.Open))
+            {
+                fsCurrentFile.CopyTo(msCurrentfile);
+                msCurrentfile.Position = 0;
+            }
+            using (NativeReader nr = new NativeReader(msCurrentfile))
+            {
+                //nr.Position = 6000000;
+                var rBytes = nr.ReadToEnd();
+                foreach (var player in players)
+                {
+                    var searchByte = BitConverter.GetBytes(tid1).ToList();
+                    var playerIdByte = BitConverter.GetBytes(player.playerid).ToArray();
+                    searchByte.AddRange(playerIdByte);
 
-            //        BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
-            //        var found2 = boyerMoore2.SearchAll(rBytes);
-            //        //var found2 = ByteSearchList(rBytes, searchByte.ToArray());
-            //        foreach (var pos in found2)
-            //        {
-            //            nr.Position = pos;
-            //            var playerStat = FIFAPlayerStat.ConvertBytesToStats(nr.ReadBytes(87));
-            //            if (playerStat != null && playerStat.PlayerId > 0 && playerStat.Apps > 0)
-            //            {
-            //                playerStat.OVR = player.overallrating;
-            //                playerStat.OVRGrowth = player.GetPlayerGrowth();
-            //                stats.Add(playerStat);
-            //            }
-            //        }
-            //    }
-            //}
+                    BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
+                    var found2 = boyerMoore2.SearchAll(rBytes);
+                    //var found2 = ByteSearchList(rBytes, searchByte.ToArray());
+                    foreach (var pos in found2)
+                    {
+                        nr.Position = pos;
+                        var playerStat = FIFAPlayerStat.ConvertBytesToStats(nr.ReadBytes(87));
+                        if (playerStat != null && playerStat.PlayerId > 0 && playerStat.Apps > 0)
+                        {
+                            playerStat.OVR = player.overallrating;
+                            playerStat.OVRGrowth = player.GetPlayerGrowth();
+                            stats.Add(playerStat);
+                        }
+                    }
+                }
+            }
 
             return stats;
         }

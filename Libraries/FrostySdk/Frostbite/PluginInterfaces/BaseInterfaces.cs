@@ -1,4 +1,5 @@
-﻿using FrostySdk.Managers;
+﻿using FrostySdk.IO;
+using FrostySdk.Managers;
 using FrostySdk.Resources;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 	public interface ICacheWriter
     {
 		public void Write();
-    }
+		void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry);
+		void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry);
+		void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry);
+	}
 
 	public interface ICacheReader
 	{

@@ -174,6 +174,8 @@ namespace FIFA23Plugin
                                     int cas = item.GetValue("cas", 0);
                                     int catalog = item.GetValue("catalog", 0);
                                     bool patch = item.GetValue("patch", false);
+                                    ebxAssetEntry.ExtraData.Cas = (ushort)cas;
+                                    ebxAssetEntry.ExtraData.Catalog = (ushort)catalog;
                                     ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                                     ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
@@ -213,6 +215,8 @@ namespace FIFA23Plugin
                                     int cas = item.GetValue("cas", 0);
                                     int catalog = item.GetValue("catalog", 0);
                                     bool patch = item.GetValue("patch", false);
+                                    resAssetEntry.ExtraData.Cas = (ushort)cas;
+                                    resAssetEntry.ExtraData.Catalog = (ushort)catalog;
                                     resAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                                     resAssetEntry.ResRid = item.GetValue<ulong>("resRid", 0ul);
@@ -252,6 +256,8 @@ namespace FIFA23Plugin
                                     int cas = item.GetValue("cas", 0);
                                     int catalog = item.GetValue("catalog", 0);
                                     bool patch = item.GetValue("patch", false);
+                                    chunkAssetEntry.ExtraData.Cas = (ushort)cas;
+                                    chunkAssetEntry.ExtraData.Catalog = (ushort)catalog;
                                     chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
 
                                     chunkAssetEntry.Id = item.GetValue<Guid>("id");

@@ -13,6 +13,8 @@ namespace FrostySdk
 
 		public delegate long CompressFunc2(int cmpCode, IntPtr srcBuffer, long srcSize, IntPtr cmpBuffer, long cmpSize, long dict = 0L, long dictSize = 0L, long a8 = 0L, long a9 = 0L, long a10 = 0L);
 
+		public delegate long CompressFunc3(int cmpCode, IntPtr srcBuffer, long srcSize, IntPtr cmpBuffer, int cmpLevel, long opts = 0L, long offs = 0L, long unused = 0L, long scratch = 0L, long scratchSize = 0L);
+
 		public delegate long MemorySizeNeededFunc(int a1, long a2);
 
 		public static DecompressFunc Decompress;
@@ -20,6 +22,8 @@ namespace FrostySdk
 		public static CompressFunc Compress;
 
 		public static CompressFunc2 Compress2;
+
+		public static CompressFunc3 Compress3;
 
 		public static MemorySizeNeededFunc MemorySizeNeeded;
 
@@ -58,8 +62,8 @@ namespace FrostySdk
 				handle = new LoadLibraryHandle(lib);
 				if (!(handle == IntPtr.Zero))
 				{
-					Decompress = Marshal.GetDelegateForFunctionPointer<DecompressFunc>(Kernel32.GetProcAddress(handle, "OodleLZ_Decompress"));
-					Compress = Marshal.GetDelegateForFunctionPointer<CompressFunc>(Kernel32.GetProcAddress(handle, "OodleLZ_Compress"));
+					Decompress = Marshal.GetDelegateForFunctionPointer<DecompressFunc>(NativeLibrary.GetExport(handle, "OodleLZ_Decompress"));
+					Compress = Marshal.GetDelegateForFunctionPointer<CompressFunc>(NativeLibrary.GetExport(handle, "OodleLZ_Compress"));
 					//if (
 					//	ProfilesLibrary.DataVersion == 20180914
 					//	|| ProfilesLibrary.IsFIFA20DataVersion()
@@ -69,9 +73,10 @@ namespace FrostySdk
      //                    || ProfilesLibrary.IsFIFA22DataVersion()
 					//	)
 					//{
-						Compress2 = Marshal.GetDelegateForFunctionPointer<CompressFunc2>(Kernel32.GetProcAddress(handle, "OodleLZ_Compress"));
+						Compress2 = Marshal.GetDelegateForFunctionPointer<CompressFunc2>(NativeLibrary.GetExport(handle, "OodleLZ_Compress"));
 					//}
-					MemorySizeNeeded = Marshal.GetDelegateForFunctionPointer<MemorySizeNeededFunc>(Kernel32.GetProcAddress(handle, "OodleLZDecoder_MemorySizeNeeded"));
+					Compress3 = Marshal.GetDelegateForFunctionPointer<CompressFunc3>(NativeLibrary.GetExport(handle, "OodleLZ_Compress"));
+					MemorySizeNeeded = Marshal.GetDelegateForFunctionPointer<MemorySizeNeededFunc>(NativeLibrary.GetExport(handle, "OodleLZDecoder_MemorySizeNeeded"));
 				}
 			}
 		}

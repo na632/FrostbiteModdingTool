@@ -822,11 +822,11 @@ namespace FrostySdk
 			if (ExistingAssembly != null)
 			{
 				// FIFA23. Hard coding TextureAsset for testing until SDK Gen.
-				if (ProfilesLibrary.LoadedProfile.Name.Equals("FIFA23", StringComparison.OrdinalIgnoreCase)
-					&& guid.ToString() == "cfb542e8-15ce-28c4-de4d-2f0810f998dc")
-				{
-					return ExistingAssembly.GetExportedTypes().LastOrDefault(x => x.FullName.Equals("FrostySdk.Ebx.TextureAsset", StringComparison.OrdinalIgnoreCase));
-				}
+				//if (ProfilesLibrary.LoadedProfile.Name.Equals("FIFA23", StringComparison.OrdinalIgnoreCase)
+				//	&& guid.ToString() == "cfb542e8-15ce-28c4-de4d-2f0810f998dc")
+				//{
+				//	return ExistingAssembly.GetExportedTypes().LastOrDefault(x => x.FullName.Equals("FrostySdk.Ebx.TextureAsset", StringComparison.OrdinalIgnoreCase));
+				//}
 
 				if (guidTypeMapping.TryGetValue(guid, out Type v))
 					return v;

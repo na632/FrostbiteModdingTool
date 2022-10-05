@@ -2,7 +2,7 @@ using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 using System;
 
-namespace SdkGenerator.Fifa22
+namespace SdkGenerator.Fifa23
 {
 	public class ClassInfo : IClassInfo
 	{
@@ -25,23 +25,24 @@ namespace SdkGenerator.Fifa22
 			long typePosition = reader.ReadLong();
 			var previousOffset = reader.ReadLong();
 			nextOffset = reader.ReadLong();
+            //long typePosition2 = reader.ReadLong();
 
-			id = reader.ReadUShort();
-			//
-			//reader.ReadUShort();
-			isDataContainer = reader.ReadUShort();
-			padding = new byte[4]
-			{
-				reader.ReadByte(),
-				reader.ReadByte(),
-				reader.ReadByte(),
-				reader.ReadByte()
-			};
+            id = reader.ReadUShort();
+            //
+            //reader.ReadUShort();
+            isDataContainer = reader.ReadUShort();
+            padding = new byte[4]
+            {
+                reader.ReadByte(),
+                reader.ReadByte(),
+                         reader.ReadByte(),
+                         reader.ReadByte()
+                     };
 
-			parentClass = reader.ReadLong();
+            parentClass = reader.ReadLong();
 
-			reader.Position = typePosition;
-			typeInfo = new TypeInfo();
+            reader.Position = typePosition;
+            typeInfo = new TypeInfo();
 			typeInfo.Read(reader);
 			if (typeInfo.parentClass != 0L)
 			{

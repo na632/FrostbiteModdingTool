@@ -331,7 +331,9 @@ namespace FMT
                     launcherOptions.Save();
                 }
 
-                TabCont.SelectedIndex = 0;
+                //TabCont.SelectedIndex = 0;
+                bottomDocuments.SelectedContentIndex = 0;
+
                 DoLegacyModSetup();
 
                 // -------------------------------------------------------------------------
@@ -645,7 +647,7 @@ namespace FMT
 
         //}
 
-        public string LastGamePathLocation => App.ApplicationDirectory + "\\" + GameInstanceSingleton.Instance.GAMEVERSION + "LastLocation.json";
+        //public string LastGamePathLocation => App.ApplicationDirectory + "\\" + GameInstanceSingleton.Instance.GAMEVERSION + "LastLocation.json";
 
 
         private async Task InitialiseSelectedGame(string filePath)
@@ -685,28 +687,13 @@ namespace FMT
                 //btnOpenCEMWindow.IsEnabled = false;
                 // -------------------------------------
 
-                if (ProfilesLibrary.IsFIFA21DataVersion())
+                if (ProfilesLibrary.IsFIFA20DataVersion())
                 {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    switchUseSymbolicLink.IsOn = false;
-                    //btnLaunchOtherTool.Visibility = Visibility.Visible;
-
-                    //btnOpenCEMWindow.Visibility = Visibility.Visible;
-                }
-
-                if (ProfilesLibrary.IsMadden21DataVersion())
-                {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
+                    switchUseSymbolicLink.Visibility = Visibility.Visible;
                     switchUseSymbolicLink.IsOn = false;
                 }
 
-                if (ProfilesLibrary.IsFIFA22DataVersion())
-                {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    switchUseSymbolicLink.IsOn = false;
-                    //switchUseModData.Visibility = Visibility.Collapsed;
-                    //switchUseModData.IsOn = false;
-                }
+                switchUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
 
                 switchCleanLegacyModDirectory.IsOn = false;
                 switchCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
@@ -737,7 +724,7 @@ namespace FMT
 
                 launcherOptions = await LauncherOptions.LoadAsync();
                 switchUseModData.IsOn = launcherOptions.UseModData.HasValue 
-                                                ? launcherOptions.UseModData.Value : ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion();
+                                                ? launcherOptions.UseModData.Value : ProfilesLibrary.LoadedProfile.CanUseModData;
                 switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue && GameInstanceSingleton.IsCompatibleWithLegacyMod()
                                                 ? launcherOptions.UseLegacyModSupport.Value : GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;

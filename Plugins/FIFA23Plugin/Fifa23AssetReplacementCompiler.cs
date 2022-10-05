@@ -82,6 +82,12 @@ namespace FIFA23Plugin
                     File.Copy(tFile + ".bak", tFile, true);
             }
 
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.cas"))
+            {
+                if (File.Exists(tFile + ".bak"))
+                    File.Copy(tFile + ".bak", tFile, true);
+            }
+
             foreach (var internalDir in Directory.EnumerateDirectories(dir))
             {
                 MakeTOCOriginals(internalDir);
@@ -92,12 +98,20 @@ namespace FIFA23Plugin
         {
             foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
             {
-                File.Copy(tFile, tFile + ".bak", true);
+                if(File.Exists(tFile))
+                    File.Copy(tFile, tFile + ".bak", true);
             }
 
             foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
             {
-                File.Copy(tFile, tFile + ".bak", true);
+                if(File.Exists(tFile))
+                    File.Copy(tFile, tFile + ".bak", true);
+            }
+
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.cas"))
+            {
+                if (!File.Exists(tFile + ".bak"))
+                    File.Copy(tFile + ".bak", tFile, true);
             }
 
             foreach (var internalDir in Directory.EnumerateDirectories(dir))
@@ -208,9 +222,9 @@ namespace FIFA23Plugin
 
             ModExecuter.Logger.Log("Enumerating modified bundles.");
 
-            //ProcessBundles(true); // do patch
+            ProcessBundles(true); // do patch
             ProcessBundles(false); // do data
-            ProcessLegacyFiles(); // finish off with legacy
+            //ProcessLegacyFiles(); // finish off with legacy
 
             ModExecuter.Logger.Log($"Modified {ModifiedCount_EBX} ebx, {ModifiedCount_RES} res, {ModifiedCount_Chunks} chunks");
 
@@ -283,204 +297,281 @@ namespace FIFA23Plugin
                     parent.Logger.Log($"Compiling: {location_toc_file}");
                     var msNewTOCFile = new MemoryStream();
 
-                    TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22(false, false);
-
-                    tocSbReader.Read(location_toc_file, 0, null, true, tocFile);
-                    bool tocChanged = false;
-
-                    if (tocSbReader.TOCFile.TOCObjects != null && tocSbReader.TOCFile.TOCObjects.List.Any())
+                    using (TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22(false, false))
                     {
-                        Dictionary<string, List<(DbObject, AssetEntry)>> modToCas = new Dictionary<string, List<(DbObject, AssetEntry)>>();
+                        tocSbReader.Read(location_toc_file, 0, null, true, tocFile);
+                        bool tocChanged = false;
 
-                        foreach (DbObject o in tocSbReader.TOCFile.TOCObjects.List)
+                        if (tocSbReader.TOCFile.TOCObjects != null && tocSbReader.TOCFile.TOCObjects.List.Any())
                         {
-                            List<string> ebxToRemove = new List<string>();
-                            DbObject ebx = o.GetValue<DbObject>("ebx");
-                            if (ebx != null && parent.modifiedEbx.Any())
+                            Dictionary<string, List<(DbObject, AssetEntry)>> modToCas = new Dictionary<string, List<(DbObject, AssetEntry)>>();
+
+                            foreach (DbObject o in tocSbReader.TOCFile.TOCObjects.List)
                             {
-                                ProcessBundleEbx(modToCas, ebxToRemove, ebx);
-                            }
-
-                            //foreach (var item in ebxToRemove)
-                            //    parent.modifiedEbx.Remove(item);
-
-                            List<string> resToRemove = new List<string>();
-                            DbObject res = o.GetValue<DbObject>("res");
-                            if (res != null && parent.modifiedRes.Any())
-                            {
-                                //ProcessBundleRes(modToCas, resToRemove, res);
-                            }
-
-                            //foreach (var item in resToRemove)
-                            //    parent.modifiedRes.Remove(item);
-
-                            List<Guid> chunksToRemove = new List<Guid>();
-
-                            DbObject chunks = o.GetValue<DbObject>("chunks");
-                            if (chunks != null && parent.ModifiedChunks.Any())
-                            {
-                                //ProcessBundleChunk(modToCas, chunksToRemove, chunks);
-
-                            }
-
-                            //foreach (var item in chunksToRemove)
-                            //    parent.ModifiedChunks.Remove(item);
-
-                        }
-
-                        foreach (var mcToCas in modToCas)
-                        {
-                            var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key, FrostyModExecutor.UseModData);
-                            if (resolvedPath != null)
-                            {
-                                MakeCasBackupOrOriginal(resolvedPath);
-                                using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
+                                List<string> ebxToRemove = new List<string>();
+                                DbObject ebx = o.GetValue<DbObject>("ebx");
+                                if (ebx != null && parent.modifiedEbx.Any())
                                 {
-                                    foreach (var t in mcToCas.Value)
+                                    ProcessBundleEbx(modToCas, ebxToRemove, ebx);
+                                }
+
+                                //foreach (var item in ebxToRemove)
+                                //    parent.modifiedEbx.Remove(item);
+
+                                List<string> resToRemove = new List<string>();
+                                DbObject res = o.GetValue<DbObject>("res");
+                                if (res != null && parent.modifiedRes.Any())
+                                {
+                                    //ProcessBundleRes(modToCas, resToRemove, res);
+                                }
+
+                                //foreach (var item in resToRemove)
+                                //    parent.modifiedRes.Remove(item);
+
+                                List<Guid> chunksToRemove = new List<Guid>();
+
+                                DbObject chunks = o.GetValue<DbObject>("chunks");
+                                if (chunks != null && parent.ModifiedChunks.Any())
+                                {
+                                    ProcessBundleChunk(modToCas, chunksToRemove, chunks);
+                                }
+
+                                //foreach (var item in chunksToRemove)
+                                //    parent.ModifiedChunks.Remove(item);
+
+                            }
+
+                            foreach (var mcToCas in modToCas)
+                            {
+                                var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key, FrostyModExecutor.UseModData);
+                                if (resolvedPath != null)
+                                {
+                                    MakeCasBackupOrOriginal(resolvedPath);
+
+                                    using (var readerCas = new NativeReader(resolvedPath))
                                     {
-                                        var data = parent.archiveData[t.Item2.Sha1].Data;
-                                        if (data != null)
+                                        foreach (var t in mcToCas.Value)
                                         {
+                                            var mBytes = t.Item1.GetValue<byte[]>("ModData");
                                             var originalSize = t.Item1.GetValue<long>("size");
-                                            if (data.Length > originalSize)
-                                                Array.Resize(ref data, (int)originalSize);
-                                            else if (data.Length < originalSize)
+                                            var originalPosition = t.Item1.GetValue<long>("offset");
+                                            //readerCas.Position = originalPosition;
+                                            //var originalBytes = readerCas.ReadBytes((int)originalSize);
+                                            //var decomp = new CasReader(new MemoryStream(originalBytes)).Read();
+                                            //var recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle);
+                                            //t.Item1.SetValue("originalBytes", originalBytes);
+                                            //t.Item1.SetValue("recompBytes", recomp);
+                                            if (mBytes.Length > originalSize)
                                             {
-                                                byte[] expandedData = new byte[originalSize];
-                                                Array.Copy(data, expandedData, data.Length);
-                                                data = expandedData;
+                                                parent.Logger.Log($"Unable to mod {t.Item2.Name} due to compression size mismatch. Please wait for a better compiler!");
+                                                t.Item1.SetValue("Unmoddable", true);
                                             }
-                                            nwCas.Position = t.Item1.GetValue<long>("offset");
-                                            nwCas.Write(data);
+                                        }
+
+                                    }
+
+
+                                    using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
+                                    {
+                                        foreach (var t in mcToCas.Value)
+                                        {
+                                            if (t.Item1.GetValue<bool>("Unmoddable", false))
+                                            {
+                                                continue;
+                                            }
+
+                                            var originalPosition = t.Item1.GetValue<long>("offset");
+                                            var newDataPosition = originalPosition;
+                                            //nwCas.Position = nwCas.Length;
+                                            nwCas.Write(t.Item1.GetValue<byte[]>("ModData"));
+
+
+                                            var cBundle = tocSbReader.TOCFile.CasBundles.FirstOrDefault(
+                                                         x => x.Entries.Any(
+                                                             y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                                                             ));
+                                            var cEntry = cBundle.Entries.FirstOrDefault(
+                                                     y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                                                     );
+                                            if (cEntry != null)
+                                            {
+                                                cEntry.bundleSizeInCas = (uint)t.Item1.GetValue<byte[]>("ModData").Length;
+                                                cEntry.bundleOffsetInCas = (uint)newDataPosition;
+
+                                                var bundlePath = FileSystem.Instance.GetFilePath(cBundle.Catalog, cBundle.Cas, cBundle.Patch);
+                                                var entryPath = FileSystem.Instance.GetFilePath(cEntry.catalog, cEntry.cas, cEntry.isInPatch);
+                                                if (entryPath != bundlePath)
+                                                {
+                                                    if (!bundleChanges.ContainsKey(bundlePath))
+                                                        bundleChanges.Add(bundlePath, new List<DbObject>());
+
+                                                    bundleChanges[bundlePath].Add(t.Item1);
+                                                }
+                                                else
+                                                {
+                                                    //WriteBundleOffsetChangesToBundleCas(nwCas, t.Item1);
+                                                }
+                                                ModifiedCount_EBX++;
+                                                tocChanged = true;
+
+                                            }
+
+                                            //    var originalSize = t.Item1.GetValue<long>("size");
+                                            //    var originalPosition = t.Item1.GetValue<long>("offset");
+
+                                            //    //var data = parent.archiveData[t.Item2.Sha1].Data;
+                                            //    //if (data != null)
+                                            //    //{
+                                            //    //    var originalSize = t.Item1.GetValue<long>("size");
+                                            //    //    if (data.Length > originalSize)
+                                            //    //        Array.Resize(ref data, (int)originalSize);
+                                            //    //    else if (data.Length < originalSize)
+                                            //    //    {
+                                            //    //        byte[] expandedData = new byte[originalSize];
+                                            //    //        Array.Copy(data, expandedData, data.Length);
+                                            //    //        data = expandedData;
+                                            //    //    }
+                                            //    //    nwCas.Position = t.Item1.GetValue<long>("offset");
+                                            //    //    nwCas.Write(data);
+                                            //    //}
                                         }
                                     }
                                 }
                             }
+
+                            //    foreach (var mcToCas in modToCas)
+                            //    {
+                            //        var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key, FrostyModExecutor.UseModData);
+                            //        if (resolvedPath != null)
+                            //        {
+
+                            //            using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
+                            //            {
+                            //                nwCas.Position = nwCas.Length;
+                            //                foreach (var t in mcToCas.Value)
+                            //                {
+                            //                    var data = parent.archiveData[t.Item2.Sha1].Data;
+                            //                    if (data != null)
+                            //                    {
+                            //                        var newDataPosition = nwCas.Position;
+                            //                        nwCas.Write(data);
+
+                            //                        if (t.Item2.OriginalSize != 0)
+                            //                            t.Item1.SetValue("originalSize", t.Item2.OriginalSize);
+                            //                        else
+                            //                            t.Item1.SetValue("originalSize", new CasReader(new MemoryStream(data)).Read().Length);
+
+                            //                        var cBundle = tocSbReader.TOCFile.CasBundles.FirstOrDefault(
+                            //                             x => x.Entries.Any(
+                            //                                 y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                            //                                 ));
+                            //                        var cEntry = cBundle.Entries.FirstOrDefault(
+                            //                                 y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
+                            //                                 );
+                            //                        if (cEntry != null)
+                            //                        {
+                            //                            cEntry.bundleSizeInCas = (uint)data.Length;
+                            //                            cEntry.bundleOffsetInCas = (uint)newDataPosition;
+
+                            //                            var bundlePath = FileSystem.Instance.GetFilePath(cBundle.Catalog, cBundle.Cas, cBundle.Patch);
+                            //                            var entryPath = FileSystem.Instance.GetFilePath(cEntry.catalog, cEntry.cas, cEntry.isInPatch);
+                            //                            if (entryPath != bundlePath)
+                            //                            {
+                            //                                if (!bundleChanges.ContainsKey(bundlePath))
+                            //                                    bundleChanges.Add(bundlePath, new List<DbObject>());
+
+                            //                                bundleChanges[bundlePath].Add(t.Item1);
+                            //                            }
+                            //                            else
+                            //                            {
+                            //                                WriteBundleOffsetChangesToBundleCas(nwCas, t.Item1);
+                            //                            }
+
+                            //                            tocChanged = true;
+
+                            //                        }
+
+
+                            //                    }
+                            //                }
+                            //            }
+
+
+                            //        }
+                            //    }
+                            //}
+
+                            //if (tocSbReader.TOCFile.TocChunks != null && tocSbReader.TOCFile.TocChunks.Any())
+                            //{
+                            //    var patch = true;
+                            //    var catalog = tocSbReader.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
+                            //    if (!tocSbReader.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
+                            //        patch = false;
+
+                            //    var cas = tocSbReader.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
+
+                            //    var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
+
+                            //    // Modified Toc chunks
+                            //    foreach (var modChunk in parent.ModifiedChunks)
+                            //    {
+                            //        if (tocSbReader.TOCFile.TocChunkGuids.Contains(modChunk.Key))
+                            //        {
+                            //            var chunkIndex = tocSbReader.TOCFile.TocChunks.FindIndex(x => x.Id == modChunk.Key
+                            //                && modChunk.Value.ModifiedEntry != null
+                            //                && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
+                            //            if (chunkIndex != -1)
+                            //            {
+                            //                var data = parent.archiveData[modChunk.Value.Sha1].Data;
+
+                            //                var chunkGuid = tocSbReader.TOCFile.TocChunkGuids[chunkIndex];
+
+                            //                var chunk = tocSbReader.TOCFile.TocChunks[chunkIndex];
+                            //                DbObject dboChunk = tocSbReader.TOCFile.TocChunkInfo[modChunk.Key];
+
+                            //                using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
+                            //                {
+                            //                    nw_cas.Position = nw_cas.Length;
+                            //                    var newPosition = nw_cas.Position;
+                            //                    nw_cas.WriteBytes(data);
+                            //                    chunk.ExtraData.IsPatch = patch;
+                            //                    chunk.ExtraData.Catalog = catalog;
+                            //                    chunk.ExtraData.Cas = (ushort)newCas;
+                            //                    chunk.ExtraData.DataOffset = (uint)newPosition;
+                            //                    chunk.Size = data.Length;
+                            //                    tocSbReader.TOCFile.TocChunks[chunkIndex] = chunk;
+
+                            //                    ModifiedCount_Chunks++;
+                            //                    tocChanged = true;
+                            //                }
+                            //            }
+                            //        }
+                            //    }
                         }
 
-                        //    foreach (var mcToCas in modToCas)
-                        //    {
-                        //        var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key, FrostyModExecutor.UseModData);
-                        //        if (resolvedPath != null)
-                        //        {
+                        if (tocChanged)
+                        {
+                            tocSbReader.TOCFile.Write(msNewTOCFile);
 
-                        //            using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
-                        //            {
-                        //                nwCas.Position = nwCas.Length;
-                        //                foreach (var t in mcToCas.Value)
-                        //                {
-                        //                    var data = parent.archiveData[t.Item2.Sha1].Data;
-                        //                    if (data != null)
-                        //                    {
-                        //                        var newDataPosition = nwCas.Position;
-                        //                        nwCas.Write(data);
+                            //if (msNewTOCFile != null && msNewTOCFile.Length > 0)
+                            //{
+                            //    File.WriteAllBytes(location_toc_file, msNewTOCFile.ToArray());
+                            //}
+                        }
 
-                        //                        if (t.Item2.OriginalSize != 0)
-                        //                            t.Item1.SetValue("originalSize", t.Item2.OriginalSize);
-                        //                        else
-                        //                            t.Item1.SetValue("originalSize", new CasReader(new MemoryStream(data)).Read().Length);
-
-                        //                        var cBundle = tocSbReader.TOCFile.CasBundles.FirstOrDefault(
-                        //                             x => x.Entries.Any(
-                        //                                 y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
-                        //                                 ));
-                        //                        var cEntry = cBundle.Entries.FirstOrDefault(
-                        //                                 y => y.locationOfSize == t.Item1.GetValue<long>("SB_CAS_Size_Position")
-                        //                                 );
-                        //                        if (cEntry != null)
-                        //                        {
-                        //                            cEntry.bundleSizeInCas = (uint)data.Length;
-                        //                            cEntry.bundleOffsetInCas = (uint)newDataPosition;
-
-                        //                            var bundlePath = FileSystem.Instance.GetFilePath(cBundle.Catalog, cBundle.Cas, cBundle.Patch);
-                        //                            var entryPath = FileSystem.Instance.GetFilePath(cEntry.catalog, cEntry.cas, cEntry.isInPatch);
-                        //                            if (entryPath != bundlePath)
-                        //                            {
-                        //                                if (!bundleChanges.ContainsKey(bundlePath))
-                        //                                    bundleChanges.Add(bundlePath, new List<DbObject>());
-
-                        //                                bundleChanges[bundlePath].Add(t.Item1);
-                        //                            }
-                        //                            else
-                        //                            {
-                        //                                WriteBundleOffsetChangesToBundleCas(nwCas, t.Item1);
-                        //                            }
-
-                        //                            tocChanged = true;
-
-                        //                        }
-
-
-                        //                    }
-                        //                }
-                        //            }
-
-
-                        //        }
-                        //    }
-                        //}
-
-                        //if (tocSbReader.TOCFile.TocChunks != null && tocSbReader.TOCFile.TocChunks.Any())
-                        //{
-                        //    var patch = true;
-                        //    var catalog = tocSbReader.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
-                        //    if (!tocSbReader.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
-                        //        patch = false;
-
-                        //    var cas = tocSbReader.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
-
-                        //    var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
-
-                        //    // Modified Toc chunks
-                        //    foreach (var modChunk in parent.ModifiedChunks)
-                        //    {
-                        //        if (tocSbReader.TOCFile.TocChunkGuids.Contains(modChunk.Key))
-                        //        {
-                        //            var chunkIndex = tocSbReader.TOCFile.TocChunks.FindIndex(x => x.Id == modChunk.Key
-                        //                && modChunk.Value.ModifiedEntry != null
-                        //                && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
-                        //            if (chunkIndex != -1)
-                        //            {
-                        //                var data = parent.archiveData[modChunk.Value.Sha1].Data;
-
-                        //                var chunkGuid = tocSbReader.TOCFile.TocChunkGuids[chunkIndex];
-
-                        //                var chunk = tocSbReader.TOCFile.TocChunks[chunkIndex];
-                        //                DbObject dboChunk = tocSbReader.TOCFile.TocChunkInfo[modChunk.Key];
-
-                        //                using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
-                        //                {
-                        //                    nw_cas.Position = nw_cas.Length;
-                        //                    var newPosition = nw_cas.Position;
-                        //                    nw_cas.WriteBytes(data);
-                        //                    chunk.ExtraData.IsPatch = patch;
-                        //                    chunk.ExtraData.Catalog = catalog;
-                        //                    chunk.ExtraData.Cas = (ushort)newCas;
-                        //                    chunk.ExtraData.DataOffset = (uint)newPosition;
-                        //                    chunk.Size = data.Length;
-                        //                    tocSbReader.TOCFile.TocChunks[chunkIndex] = chunk;
-
-                        //                    ModifiedCount_Chunks++;
-                        //                    tocChanged = true;
-                        //                }
-                        //            }
-                        //        }
-                        //    }
+                        if (ModifiedCount_EBX >= parent.modifiedEbx.Count
+                            && ModifiedCount_RES >= parent.modifiedRes.Count
+                            && ModifiedCount_Chunks >= parent.ModifiedChunks.Count
+                            )
+                        {
+                            break;
+                        }
                     }
 
-                    ////if(tocChanged) 
-                    ////    tocSbReader.TOCFile.Write(msNewTOCFile);
-
-
-                    //if (msNewTOCFile != null && msNewTOCFile.Length > 0)
-                    //{
-                    //    File.WriteAllBytes(location_toc_file, msNewTOCFile.ToArray());
-                    //}
-
-                    if(ModifiedCount_EBX == parent.modifiedEbx.Count
-                        && ModifiedCount_RES == parent.modifiedRes.Count
-                        && ModifiedCount_Chunks == parent.ModifiedChunks.Count
-                        )
+                    if (ModifiedCount_EBX >= parent.modifiedEbx.Count
+                            && ModifiedCount_RES >= parent.modifiedRes.Count
+                            && ModifiedCount_Chunks >= parent.ModifiedChunks.Count
+                            )
                     {
                         break;
                     }
@@ -496,6 +587,9 @@ namespace FIFA23Plugin
                 var resolvedPath = FileSystem.Instance.ResolvePath(bundle.Key, FrostyModExecutor.UseModData);
                 if (resolvedPath != null)
                 {
+                    if(!UseModData && !File.Exists(resolvedPath + ".bak"))
+                        MakeCasBackupOrOriginal(resolvedPath);
+
                     using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
                     {
                         foreach (DbObject t in bundle.Value)
@@ -524,6 +618,11 @@ namespace FIFA23Plugin
                         DbObject dboC = chunks.List.FirstOrDefault(x => ((DbObject)x).GetValue<Guid>("id") == modC.Key) as DbObject;
                         if (dboC != null)
                         {
+                            // Rerun this tomorrow morning . Splash screen test
+                            var modData = parent.archiveData[modC.Value.Sha1].Data;
+                            dboC.SetValue("ModData", modData);
+                            dboC.SetValue("ModDataOriginalSize", modC.Value.OriginalSize);
+
                             var dboCCas = dboC.GetValue<int>("cas");
                             var dboCCatalog = dboC.GetValue<int>("catalog");
                             var dboCPatch = dboC.GetValue<bool>("patch");
@@ -589,6 +688,9 @@ namespace FIFA23Plugin
                         DbObject dboItem = ebx.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
                         if (dboItem != null)
                         {
+                            var modData = parent.archiveData[modC.Value.Sha1].Data;
+                            dboItem.SetValue("ModData", modData);
+                            dboItem.SetValue("ModDataOriginalSize", modC.Value.OriginalSize);
 
                             var dboCCas = dboItem.GetValue<int>("cas");
                             var dboCCatalog = dboItem.GetValue<int>("catalog");
@@ -613,8 +715,8 @@ namespace FIFA23Plugin
         {
             // write original size etc.
             // 
-            nwCas.Position = obj.GetValue<uint>("SB_OriginalSize_Position");
-            nwCas.Write((uint)obj.GetValue<uint>("originalSize"));
+            //nwCas.Position = obj.GetValue<uint>("SB_OriginalSize_Position");
+            //nwCas.Write((uint)obj.GetValue<uint>("ModDataOriginalSize"));
 
             //if (obj.HasValue("SB_Sha1_Position"))
             //{
@@ -628,11 +730,11 @@ namespace FIFA23Plugin
             //    nwCas.WriteBytes(parent.modifiedRes[obj.GetValue<string>("name")].ResMeta);
             //}
 
-            if (obj.HasValue("SB_LogicalOffset_Position"))
-            {
-                nwCas.Position = obj.GetValue<int>("SB_LogicalOffset_Position");
-                nwCas.Write((uint)parent.ModifiedChunks[obj.GetValue<Guid>("id")].LogicalOffset);
-            }
+            //if (obj.HasValue("SB_LogicalOffset_Position"))
+            //{
+            //    nwCas.Position = obj.GetValue<int>("SB_LogicalOffset_Position");
+            //    nwCas.Write((uint)parent.ModifiedChunks[obj.GetValue<Guid>("id")].LogicalOffset);
+            //}
         }
 
 

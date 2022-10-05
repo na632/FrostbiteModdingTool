@@ -1,5 +1,6 @@
 ﻿using FifaLibrary;
 using Frostbite.Textures;
+using FrostbiteModdingUI.CEM;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
@@ -57,8 +58,22 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ReadDataInCareerFile()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            Directory.GetFiles("C:\\Users\\paula\\Documents\\FIFA 23\\settings\\", "Career*")
+                .Select(f => new FileInfo(f))
+                .OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+            var cem = new CEMCore2("FIFA23");
+
+            var stats = cem.GetPlayerStatsAsync().Result;
+            var statsDoncaster = cem.GetPlayerStatsAsync(142).Result;
+        }
+
+        [TestMethod]
         public void EditCareerFile()
         {
+
             var originalFile = "C:\\Users\\paula\\Documents\\FIFA 23\\settings\\Career20220930120547";
             var newFileFile = "C:\\Users\\paula\\Documents\\FIFA 23\\settings\\Career20220930102999";
             //CareerFile careerFile = new CareerFile(
@@ -189,7 +204,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -218,7 +233,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -239,6 +254,8 @@ namespace FrostbiteModdingTests
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
             dyn.Airflow_AirPressure = 100.0f;
+            dyn.Airflow_DragMultiplier = 100.0f;
+            dyn.Airflow_AngularDamping = 0.9999f;
             AssetManager.Instance.ModifyEbx("Fifa/Attribulator/Gameplay/groups/gp_physics/gp_physics_airflow_runtime", complexAsset);
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
@@ -254,6 +271,25 @@ namespace FrostbiteModdingTests
                 }.ToArray()).Wait();
 
 
+        }
+
+        public void DeleteAllBackupsInFolder(string dir)
+        {
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.bak"))
+            {
+                File.Delete(tFile);
+            }
+
+            foreach(var childDir in Directory.EnumerateDirectories(dir))
+            {
+                DeleteAllBackupsInFolder(childDir);
+            }
+        }
+
+        [TestMethod]
+        public void DeleteAllBackups()
+        {
+            DeleteAllBackupsInFolder(GamePath);
         }
 
         [TestMethod]
@@ -471,6 +507,32 @@ namespace FrostbiteModdingTests
                     MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
 
                     exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestDecompressRecompress()
+        {
+            Oodle.Bind(GamePath);
+            //var filePath = GamePath + "/data/win32/superbundlelayout/fifa_installpackage_02/cas_01.cas";
+            var filePath = "F:\\Origin Games\\FIFA 23\\Data\\\\win32\\superbundlelayout\\fifa_installpackage_02\\cas_01.cas";
+            using (var readerCas = new NativeReader(filePath))
+            {
+                var originalSize = 692;
+                var originalPosition = 4984462;
+                readerCas.Position = originalPosition;
+                var originalBytes = readerCas.ReadBytes((int)originalSize);
+                var decomp = new CasReader(new MemoryStream(originalBytes)).Read();
+                byte[] recomp = null;
+                recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle);
+                for (ushort i = 0; i < 17; i++) 
+                {
+                    recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: i);
+                    if(recomp.Length <= originalSize)
+                    {
+
+                    }
                 }
             }
         }

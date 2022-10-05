@@ -107,14 +107,14 @@ namespace FrostySdk.FrostySdk.IO
             // ---------------------
             // Debugging
             //
-            if (File.Exists("ebxV4Out.dat"))
-                File.Delete("ebxV4Out.dat");
+            //if (File.Exists("ebxV4Out.dat"))
+            //    File.Delete("ebxV4Out.dat");
 
-            var endPos = Position;
-            Position = 0;
-            using (var fsOut = new FileStream("ebxV4Out.dat", FileMode.CreateNew))
-                BaseStream.CopyToAsync(fsOut);
-            Position = endPos;
+            //var endPos = Position;
+            //Position = 0;
+            //using (var fsOut = new FileStream("ebxV4Out.dat", FileMode.CreateNew))
+            //    BaseStream.CopyToAsync(fsOut);
+            //Position = endPos;
             //
             // ---------------------
         }

@@ -64,7 +64,7 @@ namespace FIFA23Plugin
 		}
     }
 
-    public class TOCFile
+    public class TOCFile : IDisposable
     {
         public string FileLocation { get; internal set; }
         public string NativeFileLocation { get; internal set; }
@@ -640,8 +640,34 @@ namespace FIFA23Plugin
 			return (unk << 24) | ((isPatch ? 1 : 0) << 16) | (catalog << 8) | cas;
 		}
 
+        public void Dispose()
+        {
+			if(CASToBundles != null && CASToBundles.Count > 0)
+				CASToBundles.Clear();
 
-	}
+			CASToBundles = null;
+
+			if (Bundles != null && Bundles.Count > 0)
+				Bundles.Clear();
+
+			Bundles = null;
+
+			if(TOCObjects != null)
+            {
+				if(TOCObjects.Dictionary != null)
+					TOCObjects.Dictionary.Clear();
+
+				if (TOCObjects.List != null)
+					TOCObjects.List.Clear();
+
+				TOCObjects = null;
+			}
+
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+
+		}
+    }
 
 
 }

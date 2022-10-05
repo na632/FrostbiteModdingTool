@@ -75,42 +75,14 @@ namespace v2k4FIFAModdingCL
             return Instance != null ? Instance.GAMEVERSION : string.Empty;
         }
 
-        public static IEnumerable<string> CompatibleGameVersions
-        {
-            get
-            {
-                var lstOfComp = new List<string>();
-                lstOfComp.AddRange(CompatibleGameFBModVersions);
-                lstOfComp.AddRange(CompatibleGameLegacyModVersions);
-                return lstOfComp.Distinct();
-            }
-        }
-
-        public static List<string> CompatibleGameFBModVersions = new List<string>()
-        {
-            //"FIFA20.exe",
-            "FIFA19.exe",
-            "FIFA21.exe",
-            "FIFA22.exe",
-            "Madden21.exe",
-            "Madden22.exe",
-            "bf4.exe",
-        };
-
         public static bool IsCompatibleWithFbMod()
         {
-            return CompatibleGameFBModVersions.Any(x => x.Contains(Instance.GAMEVERSION, StringComparison.OrdinalIgnoreCase));
+            return ProfilesLibrary.SupportedLauncherFileTypes.Contains("fbmod");
         }
-
-        public static List<string> CompatibleGameLegacyModVersions = new List<string>()
-        {
-            "FIFA20.exe",
-            "FIFA21.exe"
-        };
 
         public static bool IsCompatibleWithLegacyMod()
         {
-            return CompatibleGameLegacyModVersions.Any(x => x.Contains(Instance.GAMEVERSION, StringComparison.OrdinalIgnoreCase));
+            return ProfilesLibrary.SupportedLauncherFileTypes.Contains("lmod");
         }
 
         public static ILogger Logger;

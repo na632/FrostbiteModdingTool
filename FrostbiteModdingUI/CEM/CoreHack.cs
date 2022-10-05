@@ -20,6 +20,7 @@ namespace v2k4FIFAModdingCL.MemHack.Core
     public delegate void EventGameDateChangedHandler(DateTime oldDate, DateTime newDate);
     public delegate void EventGameSaveChangedHandler();
 
+    [Obsolete("FIFA23: Core hack is no longer in use")]
     public class CoreHack
     {
         public CoreHack()

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FIFA23Plugin
+namespace FIFA23Plugin.Textures
 {
 	public class FIFA23TextureImporter : ITextureImporter
 	{
@@ -35,7 +35,7 @@ namespace FIFA23Plugin
 				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(path, FileMode.Open, FileAccess.Read)));
 			}
 			else
-            {
+			{
 				TextureUtils.TextureImportOptions options = default(TextureUtils.TextureImportOptions);
 				options.type = textureAsset.Type;
 				options.format = TextureUtils.ToShaderFormat(textureAsset.PixelFormat, (textureAsset.Flags & TextureFlags.SrgbGamma) != 0);
@@ -51,15 +51,15 @@ namespace FIFA23Plugin
 					TextureUtils.ConvertImageToDDS(pngarray, pngarray.Length, imageFormat, options, ref pOutData);
 				}
 				else
-                {
+				{
 					throw new NotImplementedException("Unable to process PNG into non-2D texture");
-                }
+				}
 			}
 
-			if(imageFormat != TextureUtils.ImageFormat.DDS)
-            {
+			if (imageFormat != TextureUtils.ImageFormat.DDS)
+			{
 				memoryStream = new MemoryStream(pOutData.Data);
-            }
+			}
 
 			//if (!Directory.Exists("Debugging"))
 			//	Directory.CreateDirectory("Debugging");
@@ -73,7 +73,7 @@ namespace FIFA23Plugin
 			//	fileStream.Flush();
 			//}
 			memoryStream.Position = 0;
-			
+
 
 			using (NativeReader nativeReader = new NativeReader(memoryStream))
 			{
@@ -84,14 +84,15 @@ namespace FIFA23Plugin
 				}
 
 				var ebxAsset = AssetManager.Instance.GetEbx(assetEntry);
-				//ulong resRid = ((dynamic)ebxAsset.RootObject).Resource;
-				ResAssetEntry resEntry = AssetManager.Instance.GetResEntry(assetEntry.Name);
+				ulong resRid = ((dynamic)ebxAsset.RootObject).Resource;
+				ResAssetEntry resEntry = AssetManager.Instance.GetResEntry(resRid);
 				ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(textureAsset.ChunkId);
 				byte[] textureArray = new byte[nativeReader.Length - nativeReader.Position];
 				nativeReader.Read(textureArray, 0, (int)(nativeReader.Length - nativeReader.Position));
-				AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray, textureAsset);
-				AssetManager.Instance.ModifyRes(assetEntry.Name, textureAsset.ToBytes());
-                AssetManager.Instance.ModifyEbx(assetEntry.Name, ebxAsset);
+                //AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray);
+                AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray, textureAsset);
+                //AssetManager.Instance.ModifyRes(resRid, textureAsset.ToBytes());
+                //AssetManager.Instance.ModifyEbx(assetEntry.Name, ebxAsset);
                 resEntry.LinkAsset(chunkEntry);
 				assetEntry.LinkAsset(resEntry);
 			}
