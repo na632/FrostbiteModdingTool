@@ -46,16 +46,16 @@ namespace FIFA23Plugin
             bool result = false;
             if (!FrostyModExecutor.UseModData)
             {
-                result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
+                result = CompileAndOverwrite(fs, logger, frostyModExecuter);
                 return result;
             }
-            result = RunOriginCompiler(fs, logger, frostyModExecuter);
+            result = CompileToModData(fs, logger, frostyModExecuter);
 
             logger.Log($"Compiler completed in {(DateTime.Now - dtStarted).ToString(@"mm\:ss")}");
             return result;
         }
 
-        private bool RunOriginCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
+        private bool CompileToModData(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
             if (!Directory.Exists(fs.BasePath))
                 throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
@@ -74,52 +74,8 @@ namespace FIFA23Plugin
             return fifaBundleAction.Run();
         }
 
-        private void MakeTOCOriginals(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
 
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
-
-            foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            {
-                MakeTOCOriginals(internalDir);
-            }
-        }
-
-        private void MakeTOCBackups(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
-
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb", new EnumerationOptions() { RecurseSubdirectories = true }))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
-
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.cas", new EnumerationOptions() { RecurseSubdirectories = true }))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
-
-            //foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            //{
-            //    MakeTOCBackups(internalDir);
-            //}
-        }
-
-        FrostyModExecutor ModExecutor;
-
-        private bool RunEADesktopCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
+        private bool CompileAndOverwrite(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
             var fme = (FrostyModExecutor)frostyModExecuter;
             var parent = fme;
@@ -134,20 +90,66 @@ namespace FIFA23Plugin
             {
                 fme.Logger.Log("Same Game Version detected. Using vanilla backups.");
 
-                MakeTOCOriginals(fme.GamePath + "\\Data\\");
-                MakeTOCOriginals(fme.GamePath + "\\Patch\\");
+                FileSystem.MakeTOCOriginals(fme.GamePath + "\\Data\\");
+                FileSystem.MakeTOCOriginals(fme.GamePath + "\\Patch\\");
 
             }
             else
             {
                 fme.Logger.Log("Game was patched. Creating backups.");
 
-                MakeTOCBackups(fme.GamePath + "\\Data\\");
-                MakeTOCBackups(fme.GamePath + "\\Patch\\");
+                FileSystem.MakeGameDataBackup(fme.GamePath + "\\Data\\");
+                FileSystem.MakeGameDataBackup(fme.GamePath + "\\Patch\\");
             }
             BundleAction fifaBundleAction = new BundleAction(fme, false);
             return fifaBundleAction.Run();
         }
+
+
+        //private void MakeTOCOriginals(string dir)
+        //{
+        //    var enumerationOptions = new EnumerationOptions() { RecurseSubdirectories = true, MaxRecursionDepth = 10 };
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc", enumerationOptions))
+        //    {
+        //        if (File.Exists(tFile + ".bak"))
+        //            File.Copy(tFile + ".bak", tFile, true);
+        //    }
+
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb", enumerationOptions))
+        //    {
+        //        if (File.Exists(tFile + ".bak"))
+        //            File.Copy(tFile + ".bak", tFile, true);
+        //    }
+
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.cas", enumerationOptions))
+        //    {
+        //        if (File.Exists(tFile + ".bak"))
+        //            File.Copy(tFile + ".bak", tFile, true);
+        //    }
+
+        //}
+
+        //private void MakeTOCBackups(string dir)
+        //{
+        //    var enumerationOptions = new EnumerationOptions() { RecurseSubdirectories = true, MaxRecursionDepth = 10 };
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc", enumerationOptions))
+        //    {
+        //        File.Copy(tFile, tFile + ".bak", true);
+        //    }
+
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb", enumerationOptions))
+        //    {
+        //        File.Copy(tFile, tFile + ".bak", true);
+        //    }
+
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.cas", enumerationOptions))
+        //    {
+        //        File.Copy(tFile, tFile + ".bak", true);
+        //    }
+
+        //}
+
+        FrostyModExecutor ModExecutor;
 
         private static void CopyDataFolder(string from_datafolderpath, string to_datafolderpath, ILogger logger)
         {
@@ -759,16 +761,6 @@ namespace FIFA23Plugin
                             if (originalEntry == null)
                                 continue;
 
-                            if (originalEntry.TOCFileLocation != null &&
-                                (
-                                    //originalEntry.TOCFileLocation.Contains("story", StringComparison.OrdinalIgnoreCase)
-                                    //|| 
-                                    originalEntry.TOCFileLocation.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
-                                    || originalEntry.TOCFileLocation.Contains("careersba", StringComparison.OrdinalIgnoreCase)
-                                    )
-                                )
-                                continue;
-
                             if (originalEntry != null && parent.archiveData.ContainsKey(modItem.Sha1))
                             {
                                 data = parent.archiveData[modItem.Sha1].Data;
@@ -841,7 +833,7 @@ namespace FIFA23Plugin
                 }
 
 
-                return true;
+                //return true;
 
                 if (EntriesToNewPosition == null)
                 {
@@ -1027,23 +1019,23 @@ namespace FIFA23Plugin
                                             }
                                         }
 
-                                        //foreach (var abtc in assetBundleToCAS)
-                                        //{
-                                        //    var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, FrostyModExecutor.UseModData);
-                                        //    using (var nwCas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
-                                        //    {
-                                        //        foreach (var assetEntry in abtc.Value)
-                                        //        {
-                                        //            var assetBundle = sbGroup.Value.FirstOrDefault(x => x.Key == assetEntry);
-                                        //            if (assetBundle.Key is EbxAssetEntry)
-                                        //                WriteEbxChangesToSuperBundle(origEbxBundles, nwCas, assetBundle);
-                                        //            if (assetBundle.Key is ResAssetEntry)
-                                        //                WriteResChangesToSuperBundle(origResBundles, nwCas, assetBundle);
-                                        //            if (assetBundle.Key is ChunkAssetEntry)
-                                        //                WriteChunkChangesToSuperBundle(origChunkBundles, nwCas, assetBundle);
-                                        //        }
-                                        //    }
-                                        //}
+                                        foreach (var abtc in assetBundleToCAS)
+                                        {
+                                            var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, FrostyModExecutor.UseModData);
+                                            using (var nwCas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
+                                            {
+                                                foreach (var assetEntry in abtc.Value)
+                                                {
+                                                    var assetBundle = sbGroup.Value.FirstOrDefault(x => x.Key == assetEntry);
+                                                    if (assetBundle.Key is EbxAssetEntry)
+                                                        WriteEbxChangesToSuperBundle(origEbxBundles, nwCas, assetBundle);
+                                                    //if (assetBundle.Key is ResAssetEntry)
+                                                    //    WriteResChangesToSuperBundle(origResBundles, nwCas, assetBundle);
+                                                    //if (assetBundle.Key is ChunkAssetEntry)
+                                                    //    WriteChunkChangesToSuperBundle(origChunkBundles, nwCas, assetBundle);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -106,7 +106,7 @@ namespace FrostySdk.Frostbite
 
 						if (AssetManager.Instance == null)
 						{
-							var assetManager = new AssetManager(FileSystem, resourceManager);
+							var assetManager = new AssetManager(FileSystem, resourceManager, logger);
 							assetManager.RegisterLegacyAssetManager();
 							assetManager.SetLogger(logger);
 							assetManager.Initialize(additionalStartup: true);

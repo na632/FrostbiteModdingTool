@@ -484,10 +484,15 @@ public interface IAssetLoader
             Instance = this;
 
 			LocaleINIMod = new LocaleINIMod();
-		}
+        }
 
-		// To detect redundant calls
-		private bool _disposed = false;
+        public AssetManager(in FileSystem inFs, in ResourceManager inRm, in ILogger inLogger) : this(inFs, inRm)
+        {
+			logger = inLogger;
+        }
+
+        // To detect redundant calls
+        private bool _disposed = false;
 
 		~AssetManager() => Dispose(false);
 
@@ -656,7 +661,13 @@ public interface IAssetLoader
 		{
 			DateTime dtAtStart = DateTime.Now;
 
-			logger.Log("Initialising Plugins");
+            if (!ProfilesLibrary.LoadedProfile.CanUseModData)
+            {
+                logger.Log($"[WARNING] {ProfilesLibrary.LoadedProfile.DisplayName} ModData is not supported. Making backups of your files!");
+                FileSystem.MakeGameDataBackup(FileSystem.BasePath);
+            }
+
+            logger.Log("Initialising Plugins");
 			if(!InitialisePlugins() && !ProfilesLibrary.DoesNotUsePlugin)
             {
 				throw new Exception("Plugins could not be initialised!");
