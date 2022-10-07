@@ -64,6 +64,8 @@ namespace FrostySdk.IO
 			int originalSize = ReadInt(Endian.Big);
 			// OODLE FIFA21 = 28953 / 28687 = 25
 			// OODLE FIFA23 = 28697
+			ushort compressTypeBig = ReadUShort(Endian.Big);
+			Position -= 2;
 			ushort compressType = ReadUShort();
 			LastCompressedBufferSize = ReadUShort(Endian.Big);
 			int num4 = (compressType & 0xFF00) >> 8;
