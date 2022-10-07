@@ -8,6 +8,7 @@ using FrostySdk.Managers;
 using Standart.Hash.xxHash;
 using FrostySdk.Frosty.FET;
 using FrostbiteSdk.Frosty.Abstract;
+using Microsoft.VisualBasic;
 
 namespace FrostySdk
 {
@@ -19,7 +20,7 @@ namespace FrostySdk
 
 			public override ModResourceType Type => ModResourceType.Bundle;
 
-			public override void Read(NativeReader reader)
+			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
 				base.Read(reader);
 				name = reader.ReadNullTerminatedString();
@@ -44,9 +45,37 @@ namespace FrostySdk
 
 			public override ModResourceType Type => ModResourceType.Res;
 
-			public override void Read(NativeReader reader)
+            
+
+			//public void Read(NativeReader reader, )
+			public override void Read(NativeReader reader, uint modVersion = 6)
 			{
-				base.Read(reader);
+				base.Read(reader, modVersion);
+				//base.Read(reader);
+				//resourceIndex = reader.ReadInt32LittleEndian();
+				//if (resourceIndex != -1)
+				//{
+				//    name = ReadString(reader, modVersion);
+				//    sha1 = reader.ReadSha1();
+				//    size = reader.ReadInt64LittleEndian();
+				//    flags = reader.ReadByte();
+				//    handlerHash = reader.ReadInt32LittleEndian();
+				//    userData = "";
+				//    if (modVersion >= 3)
+				//    {
+				//        userData = ReadString(reader, modVersion);
+				//    }
+				//    int num = reader.ReadInt32LittleEndian();
+				//    for (int i = 0; i < num; i++)
+				//    {
+				//        bundlesToModify.Add(reader.ReadInt32LittleEndian());
+				//    }
+				//    num = reader.ReadInt32LittleEndian();
+				//    for (int j = 0; j < num; j++)
+				//    {
+				//        bundlesToAdd.Add(reader.ReadInt32LittleEndian());
+				//    }
+				//}
 				resType = reader.ReadUInt32LittleEndian();
 				resRid = reader.ReadUInt64LittleEndian();
 				resMeta = reader.ReadBytes(reader.ReadInt32LittleEndian());
@@ -78,9 +107,9 @@ namespace FrostySdk
 
 			public override ModResourceType Type => ModResourceType.Chunk;
 
-			public override void Read(NativeReader reader)
+			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
-				base.Read(reader);
+				base.Read(reader, modVersion);
 				rangeStart = reader.ReadUInt32LittleEndian();
 				rangeEnd = reader.ReadUInt32LittleEndian();
 				logicalOffset = reader.ReadUInt32LittleEndian();
@@ -140,9 +169,11 @@ namespace FrostySdk
 			}
 			Version = ReadUInt32LittleEndian();
 			uint version = Version;
-			if (version <= 11 && version >= 4)
-			{
-				if (Version >= 10)
+            //if (version <= 11 && version >= 4)
+            //{
+            if (version <= 28 && version >= 4)
+            {
+                if (Version >= 10)
 				{
 					HasChecksums = ReadBoolean();
 					endOfHeaderOffset = ReadInt64LittleEndian();
@@ -318,7 +349,7 @@ namespace FrostySdk
 						array[i] = new BundleResource();
 						break;
 				}
-				array[i].Read(this);
+				array[i].Read(this, Version);
 			}
 			return array;
 		}

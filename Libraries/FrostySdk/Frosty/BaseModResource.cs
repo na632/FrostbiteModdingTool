@@ -137,13 +137,22 @@ namespace FrostySdk
 			}
 		}
 
+        public string ReadString(NativeReader reader, uint modVersion)
+        {
+            if (modVersion < 27)
+            {
+                return reader.ReadNullTerminatedString();
+            }
+            return reader.ReadLengthPrefixedString();
+        }
 
-		public virtual void Read(NativeReader reader)
+        public virtual void Read(NativeReader reader, uint modVersion = 6u)
 		{
 			resourceIndex = reader.ReadInt();
 			if (resourceIndex != -1)
 			{
-				name = reader.ReadNullTerminatedString();
+				//name = reader.ReadNullTerminatedString();
+				name = ReadString(reader, modVersion);	
 				sha1 = reader.ReadSha1();
 				size = reader.ReadLong();
 				flags = reader.ReadByte();
