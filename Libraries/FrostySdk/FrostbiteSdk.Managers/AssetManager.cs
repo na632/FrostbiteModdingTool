@@ -1267,6 +1267,7 @@ public interface IAssetLoader
 			{
 				chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
 			}
+			chunkAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
 			chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
 			chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
 			chunkAssetEntry.ModifiedEntry.LogicalSize = (uint)buffer.Length;
