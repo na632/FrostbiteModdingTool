@@ -19,11 +19,14 @@ Moving on to recent times FIFA Editor Tool is a much more feature rich and stabl
 
 This remains a hobby project and now open source for others to use/research as they wish. I do however ask that you send a quick message if you wish to sell this commercially.
 
+*It came to my attention on late September 2022 Frosty Toolsuite is open source on [GitHub](https://github.com/CadeEvs/FrostyToolsuite)*
+
 # Credits
 - Jaycensolo (Jay has been a great help in testing almost everything this Tool does)
 - Somers (Made an enormous mod for FIFA 21 and really put this tool to the test)
 - [Aranaktu](https://github.com/xAranaktu) - This man is a legend, helped me learn about SDK Generation and Memory Reading.
-- [Frosty Tool](https://frostytoolsuite.com/) development team. All the `original code` for `FrostySdk`,`SDK Generator` and `Modding` came from them.
+- [Frosty Tool](https://frostytoolsuite.com/) development team. All the `original code` for `FrostySdk`,`SDK Generator` and `Modding` came decompilation of their Toolsuite using ILSpy in 2019. 
+As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github.com/CadeEvs/FrostyToolsuite)
 - [FIFA Editor Tool](https://www.fifaeditortool.com/) development team. Used for research into how to properly handle Meshes for FIFA 21. 
 
 # Supported Games
