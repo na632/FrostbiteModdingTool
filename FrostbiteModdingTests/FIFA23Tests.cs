@@ -273,17 +273,66 @@ namespace FrostbiteModdingTests
 
         }
 
+        [TestMethod]
+        public void TestGPMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - Early Alpha - v1.fbproject");
+
+            if (File.Exists("test.fbmod"))
+                File.Delete("test.fbmod");
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestCareerMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-23-Career-Mod\Test Career.fbproject");
+
+            if (File.Exists("test.fbmod"))
+                File.Delete("test.fbmod");
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
         public void DeleteAllBackupsInFolder(string dir)
         {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.bak"))
+            int countOfDelete = 0;
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.bak", new EnumerationOptions() { RecurseSubdirectories = true }))
             {
                 File.Delete(tFile);
+                countOfDelete++;
             }
 
-            foreach(var childDir in Directory.EnumerateDirectories(dir))
-            {
-                DeleteAllBackupsInFolder(childDir);
-            }
+            Debug.WriteLine($"I have deleted {countOfDelete} *.bak files");
+            //foreach(var childDir in Directory.EnumerateDirectories(dir))
+            //{
+            //    DeleteAllBackupsInFolder(childDir);
+            //}
         }
 
         [TestMethod]
@@ -525,8 +574,8 @@ namespace FrostbiteModdingTests
                 var originalBytes = readerCas.ReadBytes((int)originalSize);
                 var decomp = new CasReader(new MemoryStream(originalBytes)).Read();
                 byte[] recomp = null;
-                recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle);
-                for (ushort i = 0; i < 17; i++) 
+                recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: 8);
+                for (uint i = 4; i < 14; i++)
                 {
                     recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: i);
                     if(recomp.Length <= originalSize)
