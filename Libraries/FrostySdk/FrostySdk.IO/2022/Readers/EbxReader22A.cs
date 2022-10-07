@@ -5,6 +5,7 @@ using FrostySdk.FrostySdk.IO._2022.Readers;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace FrostySdk.IO._2022.Readers
 
 		internal byte[] boxedValueBuffer;
 
-		internal EbxVersion magic;
+		//internal EbxVersion magic;
 
 		public override string RootType => this.classTypes[this.instances[0].ClassRef].Name;
 
@@ -57,7 +58,7 @@ namespace FrostySdk.IO._2022.Readers
 			return val;
 		}
 
-		public dynamic ReadObject()
+		public new dynamic ReadObject()
 		{
 			this.InternalReadObjects();
 			return this.objects[0];
@@ -145,6 +146,10 @@ namespace FrostySdk.IO._2022.Readers
 
             foreach (var property in properties)
             {
+                var isTransient = property.Key.GetCustomAttribute<IsTransientAttribute>();
+				if (isTransient != null)
+					continue;
+
                 var propFieldIndex = property.Key.GetCustomAttribute<FieldIndexAttribute>();
                 var propNameHash = property.Key.GetCustomAttribute<HashAttribute>();
                 if (propFieldIndex == null && propNameHash == null)
@@ -206,8 +211,9 @@ namespace FrostySdk.IO._2022.Readers
 
                     property.Key.SetValue(obj, value);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+					Debug.WriteLine(ex.Message);
                 }
             }
 

@@ -815,11 +815,23 @@ namespace FIFA21Plugin
 
                             origSize = Convert.ToInt32(modifiedAsset.OriginalSize);
 
-                            if (origSize == 0
-                                || origSize == data.Length)
+                            if (origSize == 0)
                             {
-                                var out_data = new CasReader(new MemoryStream(data)).Read();
-                                origSize = out_data.Length;
+                                if (modifiedAsset is ChunkAssetEntry cae && cae.LogicalSize > 0)
+                                {
+                                    origSize = (int)cae.LogicalSize;
+                                    modifiedAsset.OriginalSize = origSize;
+                                }
+                                else
+                                {
+                                    parent.Logger.LogWarning($"OriginalSize is missing or 0 on {modItem.NamePath}, attempting calculation by reading it.");
+                                    using (var stream = new MemoryStream(data))
+                                    {
+                                        var out_data = new CasReader(new MemoryStream(data)).Read();
+                                        origSize = out_data.Length;
+                                    }
+                                    //throw new NullReferenceException($"OriginalSize is missing or 0 on {modItem.NamePath}");
+                                }
                             }
 
                             //var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);

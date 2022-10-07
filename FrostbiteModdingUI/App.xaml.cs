@@ -68,7 +68,7 @@ namespace FMT
 
             // --------------------------------------------------------------
             // Discord Startup
-            StartDiscordRPC();
+            _ = StartDiscordRPC();
 
             // --------------------------------------------------------------
             // Application Insights

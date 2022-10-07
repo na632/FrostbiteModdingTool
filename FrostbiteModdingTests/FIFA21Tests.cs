@@ -32,6 +32,7 @@ namespace FrostbiteModdingTests
     {
         private string prevText = string.Empty;
 
+        public const string ModdingDirectory = @"G:\Work\FIFA Modding\";
         public const string GamePath = @"F:\Origin Games\FIFA 21";
         public const string GamePathEXE = @"F:\Origin Games\FIFA 21\FIFA21.exe";
         public void Log(string text, params object[] vars)
@@ -243,7 +244,8 @@ namespace FrostbiteModdingTests
                     //@"G:\Work\FIFA Modding\Sky_Sports_Football_TV_Logo_for_the_English_Premier_League.fifamod"
                     //@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\FCB17 Facepack #5 (fix).fifamod"
                     //@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Mason Greenwood by AlieFFR.fifamod"
-                    @"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Other_Mods_Turfs_by_6ons1.fifamod"
+                    //@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Other_Mods_Turfs_by_6ons1.fifamod"
+                    @"G:\Work\FIFA Modding\FET FIFA 21 Splashscreen Mod.fifamod"
 
 
                 }.ToArray()).Wait();

@@ -222,9 +222,9 @@ namespace FMT.Controls.Pages
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
+                
             }
         }
 

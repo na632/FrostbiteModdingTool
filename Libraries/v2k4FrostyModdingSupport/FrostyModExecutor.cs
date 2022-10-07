@@ -5054,7 +5054,7 @@ namespace paulv2k4ModdingExecuter
             }
 
             // Delete the Live Updates
-            //RunDeleteLiveUpdates();
+            RunDeleteLiveUpdates();
 
             // ---------------------------------------------
             // Load Last Patched Version
@@ -5116,8 +5116,11 @@ namespace paulv2k4ModdingExecuter
                 }
             }
 
-            RunSetupFIFAConfig();
-            RunPowershellToUnblockDLLAtLocation(fs.BasePath);
+            //- -----------------------
+            // Clear out the memory of archive data after compilation and before launching the game
+            archiveData.Clear();
+            //RunSetupFIFAConfig();
+            //RunPowershellToUnblockDLLAtLocation(fs.BasePath);
 
             if (foundMods && UseModData)// || sameAsLast)
             {
@@ -5140,20 +5143,20 @@ namespace paulv2k4ModdingExecuter
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
 
-            _ = Task.Delay(60000).ContinueWith((x) =>
-            {
-                if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
-                {
-                    var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
-                    if (configIni.Exists)
-                    {
-                        StringBuilder newConfig = new StringBuilder();
-                        newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
-                        newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
-                        File.WriteAllText(configIni.FullName, newConfig.ToString());
-                    }
-                }
-            });
+            //_ = Task.Delay(60000).ContinueWith((x) =>
+            //{
+            //    if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
+            //    {
+            //        var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
+            //        if (configIni.Exists)
+            //        {
+            //            StringBuilder newConfig = new StringBuilder();
+            //            newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
+            //            newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
+            //            File.WriteAllText(configIni.FullName, newConfig.ToString());
+            //        }
+            //    }
+            //});
 
             //});
             return true;
@@ -5236,14 +5239,19 @@ namespace paulv2k4ModdingExecuter
 
         public void ExecuteProcess(string processName, string args, bool waitForExit = false, bool asAdmin = false)
         {
+            //Process p = new Process();
+            //p.StartInfo.FileName = "cmd.exe";
+            //p.StartInfo.Arguments = $"/K \"\"{processName}\" \"{args}\"\"";
+            //p.Start();
+
             using (Process process = new Process())
             {
                 FileInfo fileInfo = new FileInfo(processName);
                 process.StartInfo.FileName = processName;
                 process.StartInfo.WorkingDirectory = fileInfo.DirectoryName;
                 process.StartInfo.Arguments = args;
-                process.StartInfo.UseShellExecute = false;
-                if (asAdmin)
+                //process.StartInfo.UseShellExecute = false;
+                //if (asAdmin)
                 {
                     process.StartInfo.UseShellExecute = true;
                     process.StartInfo.Verb = "runas";

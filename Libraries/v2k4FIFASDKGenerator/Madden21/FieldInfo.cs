@@ -59,14 +59,14 @@ namespace SdkGenerator.Madden21
 			//}
 			var nH = reader.ReadInt();
 			nameHash = nH;
-			if (nH == -237252713)
-			{
+			//if (nH == -237252713)
+			//{
 
-			}
-			if (nameHash == 4057714583)
-			{
+			//}
+			//if (nameHash == 4057714583)
+			//{
 
-			}
+			//}
 
 
 			flags = reader.ReadUShort();

@@ -166,19 +166,17 @@ namespace FIFAModdingUI.Windows
                     if(MessageBox.Show("Your project has been changed. Would you like to save it now?", "Project has not been saved", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         e.Cancel = true;
-                        SaveProjectWithDialog();
+                        _ = SaveProjectWithDialog().Result;
                     }
                 }
-            }
 
+            }
 
             base.OnClosing(e);
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            base.OnClosed(e);
-
             GameInstanceSingleton.Instance = null;
             ProjectManagement = null;
             ProjectManagement.Instance = null;
@@ -191,6 +189,8 @@ namespace FIFAModdingUI.Windows
             }
 
             Owner.Visibility = Visibility.Visible;
+
+            base.OnClosed(e);
         }
 
         public string AdditionalTitle { get; set; }
@@ -274,6 +274,9 @@ namespace FIFAModdingUI.Windows
             LauncherOptions = await LauncherOptions.LoadAsync();
             swUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
+
+            TabFaces.Visibility = !ProfilesLibrary.CanExportMeshes && !ProfilesLibrary.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
+            TabBoots.Visibility = !ProfilesLibrary.CanExportMeshes && !ProfilesLibrary.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
 
             Dispatcher.Invoke(() =>
             {
@@ -390,7 +393,7 @@ namespace FIFAModdingUI.Windows
                 return;
 
             var txt = string.Empty;
-            Dispatcher.Invoke(() => {
+            await Dispatcher.InvokeAsync(() => {
                 txt = txtLog.Text;
             });
 

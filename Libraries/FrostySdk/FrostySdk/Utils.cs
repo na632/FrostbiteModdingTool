@@ -1,3 +1,5 @@
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
 using Frosty.Hash;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
@@ -188,7 +190,7 @@ namespace FrostySdk
 				return memoryStream.ToArray();
 			}
 		}
-
+		/*
 		public static byte[] CompressFile(byte[] inData, Texture texture = null, ResourceType resType = ResourceType.Invalid, CompressionType compressionOverride = CompressionType.Default, uint offset = 0u, uint oodleCO = 8u)
 		{
 			CompressionType compressionType = compressionOverride;
@@ -312,6 +314,116 @@ namespace FrostySdk
 			}
 			return memoryStream.ToArray();
 		}
+		*/
+
+		public static byte[] CompressFile(
+			byte[] inData
+			, Texture texture = null
+			, ResourceType resType = ResourceType.Invalid
+			, CompressionType compressionOverride = CompressionType.Default
+			, uint offset = 0u
+			, uint oodleCO = 8u
+			)
+		{
+			int maxBufferSize = Utils.MaxBufferSize;
+			CompressionType compressionType = compressionOverride;
+			if (resType == ResourceType.SwfMovie)
+			{
+				compressionType = CompressionType.None;
+			}
+			if (compressionOverride == CompressionType.Default)
+			{
+				compressionType = CompressionType.Oodle;
+			}
+			MemoryStream memoryStream = new MemoryStream();
+			FileWriter outputWriter = new FileWriter(memoryStream);
+			FileReader inputReader = new FileReader(new MemoryStream(inData));
+			long remainingByteCount = inputReader.Length - inputReader.Position;
+			long totalBytesRead = 0L;
+			long totalBytesWritten = 0L;
+			bool uncompressed = false;
+			while (remainingByteCount > 0)
+			{
+				int bufferSize = (int)((remainingByteCount > maxBufferSize) ? maxBufferSize : remainingByteCount);
+				byte[] array = inputReader.ReadBytes(bufferSize);
+				ushort compressCode = 0;
+				ulong compressedSize = 0uL;
+				byte[] compBuffer = null;
+				bool pooledBuffer = false;
+				try
+				{
+					switch (compressionType)
+					{
+						case CompressionType.ZStd:
+							pooledBuffer = true;
+							compressedSize = Utils.CompressZStd(array, out compBuffer, out compressCode, ref uncompressed);
+							break;
+						case CompressionType.LZ4:
+							pooledBuffer = true;
+							compressedSize = Utils.CompressLZ4(array, out compBuffer, out compressCode, ref uncompressed);
+							break;
+						case CompressionType.None:
+							pooledBuffer = false;
+							compressedSize = Utils.CompressNone(array, out compBuffer, out compressCode);
+							break;
+						case CompressionType.Oodle:
+							pooledBuffer = true;
+                            compressedSize = Oodle.CompressOodle(array, out compBuffer, out compressCode, ref uncompressed, oodleCO);
+                            //compressedSize = Oodle.CompressOodle1(array, out compBuffer, out compressCode, ref uncompressed, oodleCO);
+                            break;
+					}
+					if (uncompressed)
+					{
+						uncompressed = false;
+						compressionType = CompressionType.None;
+						inputReader.Position = 0L;
+						outputWriter.Position = 0L;
+						remainingByteCount = inputReader.Length - inputReader.Position;
+						totalBytesRead = 0L;
+						totalBytesWritten = 0L;
+						continue;
+					}
+					compressCode = (ushort)(compressCode | (ushort)((compressedSize & 0xF0000) >> 16));
+					outputWriter.WriteInt32BigEndian(bufferSize);
+					outputWriter.WriteUInt16BigEndian(compressCode);
+					outputWriter.WriteUInt16BigEndian((ushort)compressedSize);
+					outputWriter.BaseStream.Write(compBuffer, 0, (int)compressedSize);
+					remainingByteCount -= bufferSize;
+					totalBytesRead += bufferSize;
+					//if (dataVersion == DataVersion.Madden22 || dataVersion == DataVersion.Madden23)
+					if (ProfilesLibrary.IsMadden22DataVersion())
+					{
+						totalBytesWritten += (long)(compressedSize + 8);
+					}
+					if (texture != null && texture.MipCount > 1)
+					{
+						if (totalBytesRead + offset == texture.MipSizes[0])
+						{
+							uint num3 = (texture.FirstMipOffset = (texture.SecondMipOffset = (uint)totalBytesWritten));
+						}
+						else if (totalBytesRead + offset == texture.MipSizes[0] + texture.MipSizes[1])
+						{
+							texture.SecondMipOffset = (uint)totalBytesWritten;
+						}
+					}
+					if (!ProfilesLibrary.IsMadden22DataVersion())
+					{
+						totalBytesWritten += (long)(compressedSize + 8);
+					}
+				}
+				finally
+				{
+					if (compBuffer != null && pooledBuffer)
+					{
+						//ArrayPool<byte>.Shared.Return(compBuffer);
+						compBuffer = null;
+					}
+				}
+			}
+			return memoryStream.ToArray();
+		}
+
+
 
 		private static ulong CompressLZ4(byte[] buffer, out byte[] compBuffer, out ushort compressCode, ref bool uncompressed)
 		{
@@ -397,49 +509,12 @@ namespace FrostySdk
 			return (ulong)buffer.Length;
 		}
 
-		public static ulong CompressOodle(byte[] buffer, out byte[] compBuffer, out ushort compressCode, ref bool uncompressed, uint compressionOverride = 8)
+		static int GetCompressedBufferSizeNeeded(int size)
 		{
-			compBuffer = new byte[524288];
-			GCHandle gCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-			GCHandle gCHandle2 = GCHandle.Alloc(compBuffer, GCHandleType.Pinned);
-			ulong compressedSize = 0uL;
-   //         if (ProfilesLibrary.IsFIFA23DataVersion())
-   //             compressCode = 28697;
-			//else if (ProfilesLibrary.IsFIFA21DataVersion())
-			//	compressCode = 28953;
-			//else
-			//	//if (ProfilesLibrary.DataVersion == 20180914
-			//	//	|| ProfilesLibrary.IsFIFADataVersion()
-			//	//	|| ProfilesLibrary.DataVersion == 20190905
-			//	//             || ProfilesLibrary.IsMadden21DataVersion()
-			//	//             || ProfilesLibrary.IsFIFA21DataVersion()
-			//	//             || ProfilesLibrary.IsFIFA22DataVersion()
-			//	//             || ProfilesLibrary.IsFIFA23DataVersion()
-			//	//	)
-			//	//{
-				compressCode = 6512;
-
-            if (ProfilesLibrary.IsFIFA23DataVersion())
-                compressedSize = (ulong)Oodle.Compress2(13, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L, 0L, 0L, 0L);
-            else
-                compressedSize = (ulong)Oodle.Compress3(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 4, 0L, 0L, 0L, 0L, 0L);
-
-			//}
-			//else
-			//{
-			//	compressCode = 5488;
-			//	num = (ulong)Oodle.Compress(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L);
-			//}
-			if (compressedSize > (ulong)buffer.Length)
-			{
-				uncompressed = true;
-				compressedSize = 0uL;
-			}
-			gCHandle.Free();
-			gCHandle2.Free();
-			return compressedSize;
+			return size + 274 * ((size + 0x3FFFF) / 0x40000);
 		}
 
+		
 		public static byte[] DecompressZLib(byte[] tmpBuffer, int decompressedSize)
 		{
 			GCHandle gCHandle = GCHandle.Alloc(tmpBuffer, GCHandleType.Pinned);

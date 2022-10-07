@@ -7,8 +7,8 @@
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
   //"AssetCompiler": "FrostbiteNullCompiler",
-  //"AssetCompiler": "Fifa23AssetCompilerV2",
-  "AssetCompiler": "Fifa23AssetReplacementCompiler",
+  "AssetCompiler": "Fifa23AssetCompilerV1",
+  //"AssetCompiler": "Fifa23AssetReplacementCompiler",
   "EditorScreen": "FIFA23Editor",
   // Texture Importer (Overriding the base Importer)
   "TextureImporter": "FIFA23TextureImporter",
@@ -23,7 +23,7 @@
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
 
-  "ProjectEbxWriter": "EbxWriter2022",
+  "ProjectEbxWriter": "EbxWriter2023",
   "ProjectEbxReader": "EbxReader22B",
 
 
@@ -56,7 +56,7 @@
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "fbmod" ],
   // Will the Launcher support this Game?
-  "CanLaunchMods": false,
+  "CanLaunchMods": true,
   // Can this Application Edit this Game?
   "CanEdit": true,
 
@@ -72,7 +72,7 @@
   "EnableExecution": true,
   "SharedBundles": {},
   "IgnoredResTypes": [],
-  "CanImportMeshes": true,
+  "CanImportMeshes": false,
   "CanExportMeshes": false,
   // GeometryDeclarationDesc stream count
   "GDDMaxStreams": 16,

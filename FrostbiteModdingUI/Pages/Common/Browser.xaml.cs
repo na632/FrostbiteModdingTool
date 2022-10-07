@@ -1240,6 +1240,8 @@ namespace FIFAModdingUI.Pages.Common
 					//ImageViewer.Source = LoadImage(textureBytes);
 					ImageViewer.Source = LoadImage(((MemoryStream)expToStream).ToArray());
 					ImageViewerScreen.Visibility = Visibility.Visible;
+					ImageViewer.MaxHeight = textureAsset.Height;
+					ImageViewer.MaxWidth = textureAsset.Width;
 
                     btnExport.IsEnabled = true;
 					btnImport.IsEnabled = true;

@@ -8,7 +8,7 @@
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
-        Title="{DynamicResource textFindGameEXE}" WindowStartupLocation="CenterScreen" Height="400" Width="500">
+        Title="{DynamicResource textFindGameEXE}" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow" Height="400" Width="500" Topmost="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
