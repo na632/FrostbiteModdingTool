@@ -22,8 +22,8 @@ This remains a hobby project and now open source for others to use/research as t
 *It came to my attention on late September 2022 Frosty Toolsuite is open source on [GitHub](https://github.com/CadeEvs/FrostyToolsuite)*
 
 # Credits
-- Jaycensolo (Jay has been a great help in testing almost everything this Tool does)
-- Somers (Made an enormous mod for FIFA 21 and really put this tool to the test)
+- Jaycensolo - Jay has been a great help in testing almost everything this Tool does
+- Somers - Made an enormous mod for FIFA 21 and really put this tool to the test
 - [Aranaktu](https://github.com/xAranaktu) - This man is a legend, helped me learn about SDK Generation and Memory Reading.
 - [Frosty Tool](https://frostytoolsuite.com/) development team. All the `original code` for `FrostySdk`,`SDK Generator` and `Modding` came decompilation of their Toolsuite using ILSpy in 2019. 
 As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github.com/CadeEvs/FrostyToolsuite)
@@ -49,3 +49,12 @@ As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github
 - FrostbiteModdingUI is the project that generates the User Interface
 - Libraries consists of the core project "FrostySdk", "FifaLibrary" for Squad file editing, "CSIL" textures editing and "FMT.Controls" WPF Controls for the User Interface
 - Plugins consists of each Frostbite game that this solution can support and can be expanded upon by following the framework
+
+# Downloading
+- Use GitBash, Github Desktop or Visual Studio to clone the repository
+
+# Compiling and Debugging
+- .NET Core 6.+ is required
+- Open the FrostbiteModdingUI.sln using Visual Studio 2022 (Community edition is fine)
+- Right click FrostbiteModdingUI project and select "Set as Startup Project"
+- Press F5 to Debug
