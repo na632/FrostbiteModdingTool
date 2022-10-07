@@ -275,6 +275,9 @@ namespace FIFAModdingUI.Windows
             swUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
 
+            TabFaces.Visibility = !ProfilesLibrary.CanExportMeshes && !ProfilesLibrary.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
+            TabBoots.Visibility = !ProfilesLibrary.CanExportMeshes && !ProfilesLibrary.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
+
             Dispatcher.Invoke(() =>
             {
                 swEnableLegacyInjection.IsOn = LauncherOptions.UseLegacyModSupport.HasValue && LauncherOptions.UseLegacyModSupport.Value && ProfilesLibrary.CanUseLiveLegacyMods;
@@ -390,7 +393,7 @@ namespace FIFAModdingUI.Windows
                 return;
 
             var txt = string.Empty;
-            Dispatcher.Invoke(() => {
+            await Dispatcher.InvokeAsync(() => {
                 txt = txtLog.Text;
             });
 
