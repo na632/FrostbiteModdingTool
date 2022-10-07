@@ -28,20 +28,22 @@ namespace FrostbiteModdingUI.Windows
     /// </summary>
     public partial class FindGameEXEWindow : Window
     {
+        private string modProfileDirectory { get; } = App.ApplicationDirectory + "\\Mods\\Profiles\\";
+
         public FindGameEXEWindow()
         {
             InitializeComponent();
 
+            // Create the Profiles Directory if it doesn't already exist
+            Directory.CreateDirectory(App.ApplicationDirectory + "\\Mods\\Profiles\\");
+
             List<string> lastLocationPaths = new List<string>();
-            var modProfileDirectory = App.ApplicationDirectory + "\\Mods\\Profiles\\";
             foreach(var dir in Directory.GetDirectories(modProfileDirectory))
             {
                 lastLocationPaths.AddRange(
                 Directory.GetFiles(dir)
                 .Where(x => x.Contains("LastLocation.json", StringComparison.OrdinalIgnoreCase)).ToList());
             }
-
-            
 
             var lstOfLocations = lastLocationPaths.Select(x 
                 => 
@@ -62,7 +64,6 @@ namespace FrostbiteModdingUI.Windows
             {
                 var filePath = dialog.FileName;
                 InitializeOfSelectedGame(filePath);
-
                 this.Close();
             }
 
@@ -81,6 +82,8 @@ namespace FrostbiteModdingUI.Windows
                         throw new Exception("Unable to Initialize Profile");
                     }
                     DialogResult = true;
+                    Directory.CreateDirectory(System.IO.Path.Combine(modProfileDirectory, ProfilesLibrary.ProfileName));
+                    File.WriteAllText(System.IO.Path.Combine(modProfileDirectory, ProfilesLibrary.ProfileName, "LastLocation.json"), filePath);
                 }
                 else
                 {
