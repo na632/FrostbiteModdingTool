@@ -107,14 +107,14 @@ namespace FrostySdk.FrostySdk.IO
             // ---------------------
             // Debugging
             //
-            if (File.Exists("ebxV4Out.dat"))
-                File.Delete("ebxV4Out.dat");
+            //if (File.Exists("ebxV4Out.dat"))
+            //    File.Delete("ebxV4Out.dat");
 
-            var endPos = Position;
-            Position = 0;
-            using (var fsOut = new FileStream("ebxV4Out.dat", FileMode.CreateNew))
-                BaseStream.CopyToAsync(fsOut);
-            Position = endPos;
+            //var endPos = Position;
+            //Position = 0;
+            //using (var fsOut = new FileStream("ebxV4Out.dat", FileMode.CreateNew))
+            //    BaseStream.CopyToAsync(fsOut);
+            //Position = endPos;
             //
             // ---------------------
         }
@@ -1081,28 +1081,15 @@ namespace FrostySdk.FrostySdk.IO
 			{
 				throw new ArgumentNullException("objType");
 			}
-			//EbxClass? ebxClass = null;
-			//IEnumerable<TypeInfoGuidAttribute> typeInfoGuidAttributes = objType.GetCustomAttributes<TypeInfoGuidAttribute>();
-			//if (EbxReader22B.patchStd != null)
-			//{
-			//	foreach (TypeInfoGuidAttribute typeInfoGuidAttribute2 in typeInfoGuidAttributes)
-			//	{
-			//		ebxClass = EbxReader22B.patchStd.GetClass(typeInfoGuidAttribute2.Guid);
-			//		if (ebxClass.HasValue)
-			//		{
-			//			return ebxClass.Value;
-			//		}
-			//	}
-			//}
-			//foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in typeInfoGuidAttributes)
-			//{
-			//	ebxClass = EbxReader22B.std.GetClass(typeInfoGuidAttribute.Guid);
-			//	if (ebxClass.HasValue)
-			//	{
-			//		return ebxClass.Value;
-			//	}
-			//}
-			//return ebxClass.Value;
+
+			// FIFA23. Hard coding TextureAsset for testing until SDK Gen.
+			if (ProfilesLibrary.LoadedProfile.Name.Equals("FIFA23", StringComparison.OrdinalIgnoreCase)
+				&& objType.Name.Equals("TextureAsset", StringComparison.OrdinalIgnoreCase)
+				)
+			{
+				return GetClass(Guid.Parse("cfb542e8-15ce-28c4-de4d-2f0810f998dc"));
+			}
+
 			var tiGuid = objType.GetCustomAttributes<TypeInfoGuidAttribute>().Last().Guid;
 			var @class = GetClass(tiGuid);
 			@class.SecondSize = (ushort)objType.GetCustomAttributes<TypeInfoGuidAttribute>().Count() > 1 ? (ushort)objType.GetCustomAttributes<TypeInfoGuidAttribute>().Count() : (ushort)0u;

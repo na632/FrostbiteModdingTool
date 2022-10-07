@@ -37,7 +37,7 @@ namespace FrostbiteSdk.Frosty.Abstract
 
 			public override ModResourceType Type => ModResourceType.Res;
 
-			public override void Read(NativeReader reader)
+			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
 				base.Read(reader);
 				resType = reader.ReadUInt();
@@ -79,7 +79,7 @@ namespace FrostbiteSdk.Frosty.Abstract
                 }
             }
 
-			public override void Read(NativeReader reader)
+			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
 				base.Read(reader);
 				rangeStart = reader.ReadUInt32LittleEndian();
@@ -115,7 +115,7 @@ namespace FrostbiteSdk.Frosty.Abstract
 
 			public override ModResourceType Type => ModResourceType.Legacy;
 
-			public override void Read(NativeReader reader)
+			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
 				base.Read(reader);
 				name = reader.ReadLengthPrefixedString();
@@ -137,7 +137,7 @@ namespace FrostbiteSdk.Frosty.Abstract
 
 			public override ModResourceType Type => ModResourceType.EmbeddedFile;
 
-			public override void Read(NativeReader reader)
+			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
 				base.Read(reader);
 				name = reader.ReadLengthPrefixedString();

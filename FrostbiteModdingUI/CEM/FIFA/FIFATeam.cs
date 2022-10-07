@@ -101,12 +101,14 @@ namespace CareerExpansionMod.CEM.FIFA
         public int trait1vstrong { get; set; }
         public int matchdayattackrating { get; set; }
 
-        private static Dictionary<int, FIFAPlayer> CachedPlayers = new Dictionary<int, FIFAPlayer>();
+        private static Dictionary<int, Dictionary<int, FIFAPlayer>> CachedPlayersToTeam { get; } = new Dictionary<int, Dictionary<int, FIFAPlayer>>();
+        //private static Dictionary<int, FIFAPlayer> CachedPlayers = new Dictionary<int, FIFAPlayer>();
         private static DateTime CachedPlayersDate = DateTime.Now;
 
         public static void ClearCache()
         {
-            CachedPlayers.Clear();
+            CachedPlayersToTeam.Clear();
+            //CachedPlayers.Clear();
             CachedPlayersDate = DateTime.Now;
         }
 
@@ -115,11 +117,12 @@ namespace CareerExpansionMod.CEM.FIFA
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            if(CachedPlayers.Count == 0)
+            if(!CachedPlayersToTeam.ContainsKey(teamid) || CachedPlayersToTeam[teamid].Count == 0)
             {
-                CachedPlayers = new Dictionary<int, FIFAPlayer>();
+                CachedPlayersToTeam.Add(teamid, new Dictionary<int, FIFAPlayer>());
 
-                var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == CareerDB1.FIFAUser.clubteamid.ToString());
+                //var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == CareerDB1.FIFAUser.clubteamid.ToString());
+                var tplinks = CareerDB2.Current.teamplayerlinks.Where(x => x["teamid"].ToString() == teamid.ToString());
                 var ps = (from tpl in tplinks
                           join p in CareerDB2.Current.players on tpl["playerid"].ToString() equals p["playerid"].ToString()
                           select p) ;
@@ -127,14 +130,14 @@ namespace CareerExpansionMod.CEM.FIFA
                 foreach (var i in ps)
                 {
                     var playerId = int.Parse(i["playerid"].ToString()); 
-                    if (!CachedPlayers.ContainsKey(playerId))
+                    if (!CachedPlayersToTeam[teamid].ContainsKey(playerId))
                     {
                         var pl = CareerDB2.Current.players.FirstOrDefault(x => x["playerid"].ToString() == i["playerid"].ToString());
                         if (pl != null)
                         {
                             var plItem = CEMUtilities.CreateItemFromRow<FIFAPlayer>(pl);
 
-                            CachedPlayers.Add(playerId, plItem);
+                            CachedPlayersToTeam[teamid].Add(playerId, plItem);
                         }
                     }
                 }
@@ -145,7 +148,7 @@ namespace CareerExpansionMod.CEM.FIFA
             sw.Stop();
             //Debug.WriteLine($"GetPlayers() took :: {sw.Elapsed.TotalSeconds}s");
 
-            return CachedPlayers.Values.ToList();
+            return CachedPlayersToTeam[teamid].Values.ToList();
         }
 
         public static double InfluenceCalculation(FIFAPlayer p)

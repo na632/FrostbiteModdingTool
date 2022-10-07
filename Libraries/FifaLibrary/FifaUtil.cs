@@ -49,7 +49,7 @@ namespace FifaLibrary
 			text = text.Trim();
 			try
 			{
-				result = Convert.ToDateTime(text, s_Culture);
+				result = Convert.ToDateTime(text, FifaUtil.s_Culture);
 				return result;
 			}
 			catch
@@ -170,7 +170,7 @@ namespace FifaLibrary
 
 		public static string ReadNullTerminatedString(BinaryReader r, int padding)
 		{
-			string text = ReadNullTerminatedString(r);
+			string text = FifaUtil.ReadNullTerminatedString(r);
 			int num = (text.Length + 1) % padding;
 			if (num != 0)
 			{
@@ -190,7 +190,7 @@ namespace FifaLibrary
 			{
 				return string.Empty;
 			}
-			return ue.GetString(array, 0, num);
+			return FifaUtil.ue.GetString(array, 0, num);
 		}
 
 		public static void WriteNullPaddedString(BinaryWriter w, string str, int length)
@@ -199,7 +199,7 @@ namespace FifaLibrary
 			{
 				str = string.Empty;
 			}
-			byte[] bytes = ue.GetBytes(str);
+			byte[] bytes = FifaUtil.ue.GetBytes(str);
 			if (bytes.Length > length)
 			{
 				w.Write(bytes, 0, length);
@@ -415,100 +415,100 @@ namespace FifaLibrary
 
 		public static int ComputeCrcDb11(string text)
 		{
-			return ComputeCrcDb11(ue.GetBytes(text));
+			return FifaUtil.ComputeCrcDb11(FifaUtil.ue.GetBytes(text));
 		}
 
 		public static uint ComputeLanguageHash(string name)
 		{
-			byte[] bytes = ue.GetBytes(name);
-			return EAHash(bytes, bytes.Length);
+			byte[] bytes = FifaUtil.ue.GetBytes(name);
+			return FifaUtil.EAHash(bytes, bytes.Length);
 		}
 
 		public static bool TryAllaCrc32(byte[] bytes, uint expected)
 		{
 			int num = bytes.Length;
-			uint num2 = SwapEndian(expected);
-			uint num3 = sdbm(bytes, num);
+			uint num2 = FifaUtil.SwapEndian(expected);
+			uint num3 = FifaUtil.sdbm(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = RSHash(bytes, num);
+			num3 = FifaUtil.RSHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = JSHash(bytes, num);
+			num3 = FifaUtil.JSHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = PJWHash(bytes, num);
+			num3 = FifaUtil.PJWHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = ELFHash(bytes, num);
+			num3 = FifaUtil.ELFHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = BKDRHash(bytes, num);
+			num3 = FifaUtil.BKDRHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = SDBMHash(bytes, num);
+			num3 = FifaUtil.SDBMHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = DJBHash(bytes, num);
+			num3 = FifaUtil.DJBHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = DEKHash(bytes, num);
+			num3 = FifaUtil.DEKHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = BPHash(bytes, num);
+			num3 = FifaUtil.BPHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = FNVHash(bytes, num);
+			num3 = FifaUtil.FNVHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = APHash(bytes, num);
+			num3 = FifaUtil.APHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = adler32(bytes, num);
+			num3 = FifaUtil.adler32(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = fletcher32(bytes, num);
+			num3 = FifaUtil.fletcher32(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = jenkins_one_at_a_time_hash(bytes, num);
+			num3 = FifaUtil.jenkins_one_at_a_time_hash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = (uint)ComputeBhHash(bytes, num);
+			num3 = (uint)FifaUtil.ComputeBhHash(bytes, num);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
 			}
-			num3 = (uint)ComputeCrcDb11(bytes);
+			num3 = (uint)FifaUtil.ComputeCrcDb11(bytes);
 			if (num3 == expected || num3 == num2)
 			{
 				return true;
@@ -560,7 +560,7 @@ namespace FifaLibrary
 				num2 ^= num;
 				num2 &= 0xFFu;
 				num >>= 8;
-				num ^= c_LanguageHashtable[num2];
+				num ^= FifaUtil.c_LanguageHashtable[num2];
 			}
 			return num ^ 0x80000000u;
 		}
@@ -766,7 +766,7 @@ namespace FifaLibrary
 			long position = r.BaseStream.Position;
 			r.BaseStream.Position = offset;
 			int count = r.ReadInt16();
-			string @string = ue.GetString(r.ReadBytes(count));
+			string @string = FifaUtil.ue.GetString(r.ReadBytes(count));
 			r.BaseStream.Position = position;
 			return @string;
 		}
@@ -774,24 +774,24 @@ namespace FifaLibrary
 		public static string ReadStringAndMove(BinaryReader r)
 		{
 			int count = r.ReadInt16();
-			return ue.GetString(r.ReadBytes(count));
+			return FifaUtil.ue.GetString(r.ReadBytes(count));
 		}
 
 		public static string ConvertBytesToString(byte[] bytes)
 		{
-			return ue.GetString(bytes);
+			return FifaUtil.ue.GetString(bytes);
 		}
 
 		public static byte[] ConvertStringToBytes(string str)
 		{
-			return ue.GetBytes(str);
+			return FifaUtil.ue.GetBytes(str);
 		}
 
 		public static string ReadString(BinaryReader r, long offset, int length)
 		{
 			long position = r.BaseStream.Position;
 			r.BaseStream.Position = offset;
-			string @string = ue.GetString(r.ReadBytes(length));
+			string @string = FifaUtil.ue.GetString(r.ReadBytes(length));
 			r.BaseStream.Position = position;
 			return @string;
 		}
@@ -804,10 +804,10 @@ namespace FifaLibrary
 			{
 				s = " ";
 			}
-			short num = (short)ue.GetByteCount(s);
+			short num = (short)FifaUtil.ue.GetByteCount(s);
 			int num2 = num + 2;
 			w.Write(num);
-			w.Write(ue.GetBytes(s));
+			w.Write(FifaUtil.ue.GetBytes(s));
 			if (((uint)num2 & 3u) != 0)
 			{
 				int num3 = 4 - (num2 & 3);
@@ -823,7 +823,7 @@ namespace FifaLibrary
 
 		public static int StringSize(string s)
 		{
-			return RoundUp4((short)ue.GetByteCount(s) + 2);
+			return FifaUtil.RoundUp4((short)FifaUtil.ue.GetByteCount(s) + 2);
 		}
 
 		public static int ComputeBitUsed(uint range)

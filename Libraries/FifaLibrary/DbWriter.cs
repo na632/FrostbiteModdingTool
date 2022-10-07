@@ -15,23 +15,23 @@ namespace FifaLibrary
 		{
 			get
 			{
-				return m_Platform;
+				return this.m_Platform;
 			}
 			set
 			{
-				m_Platform = value;
+				this.m_Platform = value;
 			}
 		}
 
 		public DbWriter(Stream stream, FifaPlatform platform)
 			: base(stream)
 		{
-			m_Platform = platform;
+			this.m_Platform = platform;
 		}
 
 		public override void Write(short value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -45,7 +45,7 @@ namespace FifaLibrary
 
 		public override void Write(ushort value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -59,7 +59,7 @@ namespace FifaLibrary
 
 		public override void Write(int value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -73,7 +73,7 @@ namespace FifaLibrary
 
 		public override void Write(uint value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -87,7 +87,7 @@ namespace FifaLibrary
 
 		public override void Write(long value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -101,7 +101,7 @@ namespace FifaLibrary
 
 		public override void Write(ulong value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -115,7 +115,7 @@ namespace FifaLibrary
 
 		public override void Write(float value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -129,7 +129,7 @@ namespace FifaLibrary
 
 		public override void Write(double value)
 		{
-			if (m_Platform == FifaPlatform.XBox)
+			if (this.m_Platform == FifaPlatform.XBox)
 			{
 				byte[] bytes = BitConverter.GetBytes(value);
 				Array.Reverse(bytes);
@@ -143,19 +143,19 @@ namespace FifaLibrary
 
 		public void PushInteger(int value, FieldDescriptor fieldDescriptor)
 		{
-			if (m_Platform == FifaPlatform.PC)
+			if (this.m_Platform == FifaPlatform.PC)
 			{
-				PushIntegerPc(value, fieldDescriptor);
+				this.PushIntegerPc(value, fieldDescriptor);
 			}
 			else
 			{
-				PushIntegerXbox(value, fieldDescriptor);
+				this.PushIntegerXbox(value, fieldDescriptor);
 			}
 		}
 
 		private void PushIntegerXbox(int value, FieldDescriptor fieldDescriptor)
 		{
-			BinaryReader binaryReader = new BinaryReader(BaseStream);
+			BinaryReader binaryReader = new BinaryReader(this.BaseStream);
 			int num = 0;
 			if (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length)
 			{
@@ -173,7 +173,7 @@ namespace FifaLibrary
 				if (num2 == 8)
 				{
 					byte value2 = (byte)num;
-					Write(value2);
+					this.Write(value2);
 					num2 = 0;
 					num = 0;
 					if (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length)
@@ -186,7 +186,7 @@ namespace FifaLibrary
 			if (num2 != 0)
 			{
 				byte value3 = (byte)num;
-				Write(value3);
+				this.Write(value3);
 			}
 		}
 
@@ -197,30 +197,30 @@ namespace FifaLibrary
 			int num2 = value - fieldDescriptor.RangeLow;
 			do
 			{
-				if (m_CurrentBitPosition + num > 8)
+				if (this.m_CurrentBitPosition + num > 8)
 				{
-					int num3 = 8 - m_CurrentBitPosition;
+					int num3 = 8 - this.m_CurrentBitPosition;
 					int num4 = (1 << num3) - 1;
 					int num5 = num2 & num4;
-					m_CurrentByte += num5 << m_CurrentBitPosition;
-					Write((byte)m_CurrentByte);
+					this.m_CurrentByte += num5 << this.m_CurrentBitPosition;
+					this.Write((byte)this.m_CurrentByte);
 					num2 >>= num3;
-					m_CurrentByte = 0;
-					m_CurrentBitPosition = 0;
+					this.m_CurrentByte = 0;
+					this.m_CurrentBitPosition = 0;
 					num -= num3;
 				}
-				else if (m_CurrentBitPosition + num < 8)
+				else if (this.m_CurrentBitPosition + num < 8)
 				{
-					m_CurrentByte += num2 << m_CurrentBitPosition;
-					m_CurrentBitPosition += num;
+					this.m_CurrentByte += num2 << this.m_CurrentBitPosition;
+					this.m_CurrentBitPosition += num;
 					flag = true;
 				}
 				else
 				{
-					m_CurrentByte += num2 << m_CurrentBitPosition;
-					Write((byte)m_CurrentByte);
-					m_CurrentByte = 0;
-					m_CurrentBitPosition = 0;
+					this.m_CurrentByte += num2 << this.m_CurrentBitPosition;
+					this.Write((byte)this.m_CurrentByte);
+					this.m_CurrentByte = 0;
+					this.m_CurrentBitPosition = 0;
 					flag = true;
 				}
 			}
@@ -229,41 +229,41 @@ namespace FifaLibrary
 
 		public void WritePendingByte()
 		{
-			if (m_CurrentBitPosition != 0)
+			if (this.m_CurrentBitPosition != 0)
 			{
-				Write((byte)m_CurrentByte);
-				m_CurrentBitPosition = 0;
-				m_CurrentByte = 0;
+				this.Write((byte)this.m_CurrentByte);
+				this.m_CurrentBitPosition = 0;
+				this.m_CurrentByte = 0;
 			}
 		}
 
 		public void Align(long position)
 		{
-			BaseStream.Position = position;
-			m_CurrentBitPosition = 0;
-			m_CurrentByte = 0;
+			this.BaseStream.Position = position;
+			this.m_CurrentBitPosition = 0;
+			this.m_CurrentByte = 0;
 		}
 
 		public void AlignToByte()
 		{
-			if (m_CurrentBitPosition != 0)
+			if (this.m_CurrentBitPosition != 0)
 			{
-				Write(m_CurrentByte);
+				this.Write(this.m_CurrentByte);
 			}
 		}
 
 		public void AlignTo32Bit()
 		{
-			if (m_CurrentBitPosition != 0)
+			if (this.m_CurrentBitPosition != 0)
 			{
-				Write(m_CurrentByte);
+				this.Write(this.m_CurrentByte);
 			}
-			int i = (int)(BaseStream.Position & 3);
+			int i = (int)(this.BaseStream.Position & 3);
 			if (i != 0)
 			{
 				for (; i < 4; i++)
 				{
-					Write((byte)0);
+					this.Write((byte)0);
 				}
 			}
 		}

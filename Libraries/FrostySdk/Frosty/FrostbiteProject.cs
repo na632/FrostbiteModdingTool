@@ -424,6 +424,17 @@ namespace FrostySdk
 					nativeWriter.WriteLengthPrefixedString(serialisedEFE);
 				}
 
+				// ------------------------
+				// Locale.ini mod
+				var hasLocaleIniMod = AssetManager.LocaleINIMod.HasUserData;
+				nativeWriter.Write(hasLocaleIniMod);
+				if (hasLocaleIniMod)
+				{
+					nativeWriter.Write(FileSystem.LocaleIsEncrypted);
+					nativeWriter.Write(AssetManager.LocaleINIMod.UserData.Length);
+					nativeWriter.Write(AssetManager.LocaleINIMod.UserData);
+				}
+
 				if (updateDirtyState)
 				{
 					modSettings.ClearDirtyFlag();
@@ -464,22 +475,57 @@ namespace FrostySdk
 
 			memoryStream.Position = 0;
 			projectbytes = new NativeReader(memoryStream).ReadToEnd();
+			using NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			nwFinal.Write(projectbytes);
 
+			//MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
+			//         //ZipFile pZip = new ZipFile();
+			//         //pZip.AddEntry("mE", projectbytes);
+			//         //pZip.Save(zipStream);
+
+			//if (File.Exists(filename))
+			//	File.Delete(filename);
+
+			//zipStream.Position = 0;
+			//         NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			//         nwFinal.Write((ushort)2);
+			//         nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+			//         nwFinal.Close();
+			//         nwFinal.Dispose();
+		}
+
+		private void WriteToModZstd(string filename, ModSettings overrideSettings, byte[] projectbytes)
+		{
 			MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
-            //ZipFile pZip = new ZipFile();
-            //pZip.AddEntry("mE", projectbytes);
-            //pZip.Save(zipStream);
 
 			if (File.Exists(filename))
 				File.Delete(filename);
 
 			zipStream.Position = 0;
-            NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-            nwFinal.Write((ushort)2);
-            nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
-            nwFinal.Close();
-            nwFinal.Dispose();
-        }
+			NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			nwFinal.Write((ushort)2);
+			nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+			nwFinal.Close();
+			nwFinal.Dispose();
+
+		}
+		private void WriteToModZip(string filename, ModSettings overrideSettings, byte[] projectbytes)
+        {
+			MemoryStream zipStream = new MemoryStream();
+			ZipFile pZip = new ZipFile();
+			pZip.AddEntry("mE", projectbytes);
+			pZip.Save(zipStream);
+
+			if (File.Exists(filename))
+				File.Delete(filename);
+
+			zipStream.Position = 0;
+			NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+			nwFinal.Write((ushort)1);
+			nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+			nwFinal.Close();
+			nwFinal.Dispose();
+		}
 
 		public void WriteToFIFAMod(string filename, ModSettings overrideSettings)
 		{
@@ -1038,10 +1084,10 @@ namespace FrostySdk
 						if (reader.Length > reader.Position)
 						{
 							bool hasEmbeddedFiles = reader.ReadBoolean();
+							int embeddedFileCount = reader.ReadInt();
 							if (hasEmbeddedFiles)
 							{
 								AssetManager.Instance.EmbeddedFileEntries = new List<EmbeddedFileEntry>();
-								int embeddedFileCount = reader.ReadInt();
 								for (int iItem = 0; iItem < embeddedFileCount; iItem++)
 								{
 									var rawFile = reader.ReadLengthPrefixedString();
@@ -1055,6 +1101,18 @@ namespace FrostySdk
 						//
 						// ----------------------------------------------------------------------------------------------------
 
+						// ------------------------
+						// Locale.ini mod
+						if (reader.Length > reader.Position)
+						{
+							var hasLocaleIniMod = reader.ReadBoolean();
+							if (hasLocaleIniMod)
+							{
+								var localeIsEncrypted = reader.ReadBoolean();
+								var localeiniSize = reader.ReadInt();
+								AssetManager.Instance.LocaleINIMod = new Frostbite.IO.LocaleINIMod(reader.ReadBytes(localeiniSize));
+							}
+						}
 
 						return true;
 				}

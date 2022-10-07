@@ -154,6 +154,16 @@ namespace Madden21Plugin.Cache
             AssetManager.CacheCompress(msCache);
         }
 
+        public void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry)
+        {
+            throw new NotImplementedException();
+        }
+
         private void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
         {
             nativeWriter.Write(chunkEntry.Id);
@@ -216,6 +226,11 @@ namespace Madden21Plugin.Cache
             {
                 nativeWriter.Write(bundleId);
             }
+        }
+
+        void ICacheWriter.WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
+        {
+            throw new NotImplementedException();
         }
     }
 }

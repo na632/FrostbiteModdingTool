@@ -1,16 +1,17 @@
 {
   "Name": "FIFA23",
   "DisplayName": "FIFA 23",
-  "DataVersion": 20220928,
+  "DataVersion": 20220927,
   "CacheName": "fifa23",
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
-  "AssetCompiler": "Fifa22AssetCompiler_Old",
-  //"AssetCompiler": "Fifa22AssetCompiler",
-  "EditorScreen": "FIFA22Editor",
+  //"AssetCompiler": "FrostbiteNullCompiler",
+  "AssetCompiler": "Fifa23AssetCompilerV1",
+  //"AssetCompiler": "Fifa23AssetReplacementCompiler",
+  "EditorScreen": "FIFA23Editor",
   // Texture Importer (Overriding the base Importer)
-  "TextureImporter": "FIFA22TextureImporter",
+  "TextureImporter": "FIFA23TextureImporter",
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "TextureExporter",
   // EBX Reader (Overriding the base Reader)
@@ -22,8 +23,8 @@
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
 
-  "ProjectEbxWriter": "EbxWriter2022",
-  "ProjectEbxReader": "EbxReader2022",
+  "ProjectEbxWriter": "EbxWriter2023",
+  "ProjectEbxReader": "EbxReader22B",
 
 
   "Sources": [
@@ -41,10 +42,13 @@
   // SDK Generating Info
   //
   "SDKFilename": "FIFA23SDK",
-  "SDKFirstTypeInfo": null,
-  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  "SDKFirstTypeInfo": "0x14AF31A70",
+  //"SDKAOBScan": null,
+  //"SDKAOBScan": "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
+  //"SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
+  //"SDKAOBScan": "488B05???????? 48894108",
   "SDKClassesFile": "FIFA22.Classes.txt",
-  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa22.ClassInfo",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa23.ClassInfo",
   "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
   //
 
@@ -52,14 +56,14 @@
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "fbmod" ],
   // Will the Launcher support this Game?
-  "CanLaunchMods": false,
+  "CanLaunchMods": true,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
-  "CacheWriter": "Fifa22CacheWriter",
+  "CacheWriter": "Fifa23CacheWriter",
   // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
-  "CacheReader": "Fifa22CacheReader",
+  "CacheReader": "Fifa23CacheReader",
 
   "Banner": "",
   "EbxVersion": 4,
@@ -68,16 +72,16 @@
   "EnableExecution": true,
   "SharedBundles": {},
   "IgnoredResTypes": [],
-  "CanImportMeshes": true,
+  "CanImportMeshes": false,
   "CanExportMeshes": false,
   // GeometryDeclarationDesc stream count
   "GDDMaxStreams": 16,
-  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatEBX": "Oodle", // Checked on GP files. FIFA 23 only uses Oodle!
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
-  //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "Oodle",
-  //"CompressedFormatLegacy": "None",
-  "LegacyFileManager": "LFM_Fifa22"
+  "LegacyFileManager": "LFM_Fifa22",
+  "CanUseModData": false,
+  "SupportLowMemoryFootprint": true
 
 }

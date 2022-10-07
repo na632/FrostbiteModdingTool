@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace FrostySdk
@@ -174,7 +175,8 @@ namespace FrostySdk
 
 					byte[] uncompArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
 					byte[] array = Utils.CompressFile(uncompArray, null, ResourceType.Invalid, compressionOverride);
-					if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021))
+					//if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021 || ))
+					if(name.Contains("gp_"))
                     {
 						File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", uncompArray); 
 					}
@@ -222,12 +224,14 @@ namespace FrostySdk
 				foreach (int bundle in entry.Bundles)
 				{
 					BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
-					AddBundle(bundleEntry.Name, modify: true);
+					if(bundleEntry != null)
+						AddBundle(bundleEntry.Name, modify: true);
 				}
 				foreach (int item in entry.EnumerateBundles(addedOnly: true))
 				{
 					BundleEntry bundleEntry2 = AssetManager.Instance.GetBundleEntry(item);
-					AddBundle(bundleEntry2.Name, modify: false);
+					if(bundleEntry2 != null)
+						AddBundle(bundleEntry2.Name, modify: false);
 				}
 			}
 
@@ -381,6 +385,21 @@ namespace FrostySdk
 
 			// -----------------------------------------------------
 			// Embedded Files
+			// --------------------------------------------------
+			// Convert Locale.Ini mod to EmbeddedFileEntry
+			if (AssetManager.Instance.LocaleINIMod.HasUserData)
+			{
+				project.AssetManager.EmbeddedFileEntries.RemoveAll(x 
+					=> x.ImportedFileLocation.Contains("Locale.ini", StringComparison.OrdinalIgnoreCase)
+					|| x.ExportedRelativePath.Contains("Locale.ini", StringComparison.OrdinalIgnoreCase)
+					);
+				project.AssetManager.EmbeddedFileEntries.Add(new EmbeddedFileEntry() {
+					Name = "Locale.ini",
+					ImportedFileLocation = "PROJECT",
+					ExportedRelativePath = "Data\\Locale.ini",
+					Data = AssetManager.Instance.LocaleINIMod.UserDataEncrypted
+				});
+			}
 			// 5 = Icon and Screenshots
 			// The count of embedded files is added
 			Write(5 + project.AssetManager.EmbeddedFileEntries.Count);
@@ -469,11 +488,11 @@ namespace FrostySdk
 			}
 
 
-			long position = BaseStream.Position;
+			long manifestDataPosition = BaseStream.Position;
 			manifest.Write(this);
 			long legacyFilePosition = BaseStream.Position;
 			BaseStream.Position = 12L;
-			Write(position);
+			Write(manifestDataPosition);
 			Write(manifest.Count);
 
 			

@@ -177,9 +177,9 @@ public class FIFAPlayerStat
 					break;
 			}
 
-			if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
-			//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
-				ingamedate = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value;
+			//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
+			////if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
+			//	ingamedate = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value;
 
 			if (CEMCore2.CEMCoreInstance != null && CareerDB1.FIFAUser != null && CareerDB1.FIFAUser.seasoncount > 0)
 				ingamedate = ingamedate.AddYears(CareerDB1.FIFAUser.seasoncount - 1);
@@ -329,6 +329,7 @@ public class FIFAPlayerStat
 					return "EFL League 1";
 				case 19:
 				case 35:
+				case 45:
 					return "EFL League 2";
 				case 54:
 					return "European Int'l Cup";
@@ -338,7 +339,9 @@ public class FIFAPlayerStat
 					return "Bundesliga";
 				case 80:
 				case 88:
-					return "Carabao Cup";
+					//return "Carabao Cup";
+				case 106:
+					return "English League Cup";
 				case 108:
 					return "Champions League";
 				case 125:

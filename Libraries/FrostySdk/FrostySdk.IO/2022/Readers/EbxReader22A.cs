@@ -5,6 +5,7 @@ using FrostySdk.FrostySdk.IO._2022.Readers;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace FrostySdk.IO._2022.Readers
 
 		internal byte[] boxedValueBuffer;
 
-		internal EbxVersion magic;
+		//internal EbxVersion magic;
 
 		public override string RootType => this.classTypes[this.instances[0].ClassRef].Name;
 
@@ -57,7 +58,7 @@ namespace FrostySdk.IO._2022.Readers
 			return val;
 		}
 
-		public dynamic ReadObject()
+		public new dynamic ReadObject()
 		{
 			this.InternalReadObjects();
 			return this.objects[0];
@@ -143,89 +144,78 @@ namespace FrostySdk.IO._2022.Readers
 				}
             }
 
-			foreach(var property in properties)
+            foreach (var property in properties)
             {
-				if (property.Key.Name == "Points" && property.Key.PropertyType.Name.Contains("List"))
-                {
-
-                }
-				if (property.Key.Name == "ATTR_DribbleJogSpeedModifier")
-				{
-
-				}
-				if (property.Key.Name == "ATTR_AnimationPlaybackTimeRatioScaleByHeight")
-				{
-
-				}
-				if (property.Key.Name == "ATTR_JogSpeed")
-                {
-
-                }
-				var propFieldIndex = property.Key.GetCustomAttribute<FieldIndexAttribute>();
-				var propNameHash = property.Key.GetCustomAttribute<HashAttribute>();
-				if (propFieldIndex == null && propNameHash == null)
+                var isTransient = property.Key.GetCustomAttribute<IsTransientAttribute>();
+				if (isTransient != null)
 					continue;
 
-				EbxField field = default(EbxField);
+                var propFieldIndex = property.Key.GetCustomAttribute<FieldIndexAttribute>();
+                var propNameHash = property.Key.GetCustomAttribute<HashAttribute>();
+                if (propFieldIndex == null && propNameHash == null)
+                    continue;
 
-				if (propNameHash != null)
-				{
-					field = EbxReader22B.patchStd.Fields
-					  .Union(EbxReader22B.std.Fields).FirstOrDefault(x => x.NameHash == propNameHash.Hash);
-				}
-				else if(propFieldIndex != null)
+                EbxField field = default(EbxField);
+
+                if (propNameHash != null)
                 {
-					field = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
+                    field = EbxReader22B.patchStd.Fields
+                      .Union(EbxReader22B.std.Fields).FirstOrDefault(x => x.NameHash == propNameHash.Hash);
+                }
+                else if (propFieldIndex != null)
+                {
+                    field = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
                 }
 
-				EbxFieldType debugType = (EbxFieldType)((property.Value.Flags >> 4) & 0x1Fu);
-				var classRef = field.ClassRef;
+                EbxFieldType debugType = (EbxFieldType)((property.Value.Flags >> 4) & 0x1Fu);
+                var classRef = field.ClassRef;
 
-				// Variable from SDK is King here! Override DebugType.
-				//if (field.DebugType != debugType) 
-				//	field.Type = property.Value.Flags;
+                // Variable from SDK is King here! Override DebugType.
+                //if (field.DebugType != debugType) 
+                //	field.Type = property.Value.Flags;
 
-				if (debugType == EbxFieldType.Inherited)
-				{
+                if (debugType == EbxFieldType.Inherited)
+                {
                     ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
                     continue;
-				}
-				if (debugType == EbxFieldType.ResourceRef
-					|| debugType == EbxFieldType.TypeRef
-					|| debugType == EbxFieldType.FileRef
-					|| debugType == EbxFieldType.BoxedValueRef
-					|| debugType == EbxFieldType.UInt64
-					|| debugType == EbxFieldType.Int64
-					|| debugType == EbxFieldType.Float64)
-				{
-					base.Pad(8);
-				}
-				else
-				{
-					if (debugType == EbxFieldType.Array
-						|| debugType == EbxFieldType.Pointer
-						)
-					{
-						base.Pad(4);
-					}
-				}
-				base.Position = property.Value.Offset + startOffset;
+                }
+                if (debugType == EbxFieldType.ResourceRef
+                    || debugType == EbxFieldType.TypeRef
+                    || debugType == EbxFieldType.FileRef
+                    || debugType == EbxFieldType.BoxedValueRef
+                    || debugType == EbxFieldType.UInt64
+                    || debugType == EbxFieldType.Int64
+                    || debugType == EbxFieldType.Float64)
+                {
+                    base.Pad(8);
+                }
+                else
+                {
+                    if (debugType == EbxFieldType.Array
+                        || debugType == EbxFieldType.Pointer
+                        )
+                    {
+                        base.Pad(4);
+                    }
+                }
+                base.Position = property.Value.Offset + startOffset;
                 if (debugType == EbxFieldType.Array)
                 {
-					//ReadArray(obj, property.Key, classType, field, false);
-					ReadArray(obj, property.Key, classType, false);
+                    //ReadArray(obj, property.Key, classType, field, false);
+                    ReadArray(obj, property.Key, classType, false);
                     continue;
                 }
                 try
-				{
-					object value = ReadField(classType, debugType, field.ClassRef, false);
-				
-					property.Key.SetValue(obj, value);
-				}
-				catch (Exception)
-				{
-				}
-			}
+                {
+                    object value = ReadField(classType, debugType, field.ClassRef, false);
+
+                    property.Key.SetValue(obj, value);
+                }
+                catch (Exception ex)
+                {
+					Debug.WriteLine(ex.Message);
+                }
+            }
 
             //for (int i = 0; i < classType.FieldCount; i++)
             //{
@@ -279,9 +269,9 @@ namespace FrostySdk.IO._2022.Readers
             //        }
             //    }
             //}
-   //         if (this.magic == EbxVersion.Riff)
-			//{
-				base.Position = startOffset + classType.Size;
+            //         if (this.magic == EbxVersion.Riff)
+            //{
+            base.Position = startOffset + classType.Size;
 			//}
 			base.Pad(classType.Alignment);
 			return null;

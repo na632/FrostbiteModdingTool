@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!--<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">-->
 
   <PropertyGroup>
 	  <OutputType>WinExe</OutputType>
@@ -16,7 +17,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>paulv2k4.ico</ApplicationIcon>
    
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   
   <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   <Deterministic>false</Deterministic>
@@ -42,14 +42,6 @@
     <Page Remove="Resources\Languages\English.xaml" />
     <Page Remove="Resources\Languages\German.xaml" />
     <Page Remove="Resources\Languages\Portugese.xaml" />
-  </ItemGroup>
-
-
-   <ItemGroup>
-    <None Include="..\..\Standalone-Live-Editor\build64\FIFA\Debug\FIFA.dll" Link="FIFA.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -115,7 +107,8 @@
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.70.2" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.70.2" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
     <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
 	  <PackageReference Include="HelixToolkit" Version="2.10.0" />
@@ -192,6 +185,9 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
+    <None Update="FIFA21Legacy.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="fifa20.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -233,6 +229,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
+    <None Update="Resources\images\FIFA23Cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</None>
 	<None Update="Resources\images\PAUL-TOOL-COVER.jpg">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -254,6 +254,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
+    </None>
+    <None Update="SDK\FIFA23SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Update="SDK\FIFA23SDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
     <None Update="SDK\MADDEN22SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -278,11 +286,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Libraries\v2k4Encryption\Build\x64\Debug\v2k4Encryption.dll" Link="v2k4Encryption.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
     <None Include="..\Plugins\FIFA21Plugin\bin\Debug\net6.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -291,6 +294,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
+	  <None Include="..\Plugins\FIFA23Plugin\bin\Debug\net6.0-windows\FIFA23Plugin.dll" Link="Plugins\FIFA23Plugin.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
     <None Include="..\Plugins\Madden21Plugin\bin\Debug\net6.0-windows\Madden21Plugin.dll" Link="Plugins\Madden21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -299,16 +306,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
-    <None Include="C:\Windows\System32\vcruntime140.dll" Link="vcruntime140.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
-    <None Include="C:\Windows\System32\vcruntime140_clr0400.dll" Link="vcruntime140_clr0400.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
   </ItemGroup>
-
   <ItemGroup>
     <Resource Include="Resources\Languages\Dictionary1.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -328,6 +326,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Pages\Common\BrowserOfInitfs.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -358,6 +359,13 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.VCRTForwarders.140" Version="1.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Pages\Common\BrowserOfInitfs.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

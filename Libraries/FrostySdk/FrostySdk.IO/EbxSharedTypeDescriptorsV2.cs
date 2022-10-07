@@ -117,11 +117,16 @@ namespace FrostySdk.IO
 
 		public int TotalFieldCount = 0;
 
-		public Dictionary<uint, Guid> ClassIdToGuid = new Dictionary<uint, Guid>();
-		public Dictionary<uint, Guid> GuidSignatures = new Dictionary<uint, Guid>();
+		//public Dictionary<uint, Guid> ClassIdToGuid { get; } = new Dictionary<uint, Guid>();
+		//public Dictionary<uint, Guid> GuidSignatures { get; } = new Dictionary<uint, Guid>();
+
+		public List<(EbxClass, int)> BoxedValueToHash { get; } = new List<(EbxClass, int)>();
 
 		public void Read(in byte[] data, in bool patch)
         {
+			if (Mapping.Count > 0)
+				return;
+
 			using (NativeReader reader = new NativeReader(new MemoryStream(data)))
 			{
 				reader.Position = 0;
@@ -137,8 +142,18 @@ namespace FrostySdk.IO
 					Guid guid = reader.ReadGuid();
 					Guids.Add(guid);
 
-					ClassIdToGuid.Add(guidHash, guid);
-					GuidSignatures.Add(guidHash, guid);
+					//if (!ClassIdToGuid.ContainsKey(guidHash))
+					//	ClassIdToGuid.Add(guidHash, guid);
+
+					//// Should I overwrite?
+					//ClassIdToGuid[guidHash] = guid;
+
+					//if (!GuidSignatures.ContainsKey(guidHash))
+					//	GuidSignatures.Add(guidHash, guid);
+
+					//// Should I overwrite?
+					//GuidSignatures[guidHash] = guid;
+
 				}
 				var typeCount = reader.ReadUInt();
 				for (int l = 0; l < typeCount; l++)
@@ -190,7 +205,6 @@ namespace FrostySdk.IO
 					fields.Add(ebxField);
 					//NameHashToEbxField.Add(fieldNameHash, ebxField);
 				}
-				//List<(uint, uint, uint)> list4 = new List<(uint, uint, uint)>();
 				var unkCount = reader.ReadUInt();
 				for (int j = 0; j < unkCount; j++)
 				{
@@ -209,14 +223,15 @@ namespace FrostySdk.IO
 					}
 					//list4.Add((nameHash3, unk2, unk3));
 				}
-				uint arraysAndBoxedValuesCount = reader.ReadUInt();
-				for (int i = 0; i < arraysAndBoxedValuesCount; i++)
+				uint boxedValuesCount = reader.ReadUInt();
+				for (int i = 0; i < boxedValuesCount; i++)
 				{
-					uint fieldNameHash = reader.ReadUInt32LittleEndian();
-					int classRef2 = reader.ReadInt32LittleEndian();
+					uint fieldNameHash = reader.ReadUInt();
+					int classRef2 = reader.ReadInt();
 					if (classRef2 < this.classes.Count)
 					{
 						EbxClass? _class = this.classes[classRef2];
+						BoxedValueToHash.Add((_class.Value, (int)fieldNameHash));
 					}
 				}
 				//var arrayValueCount = reader.ReadUInt();
@@ -239,7 +254,13 @@ namespace FrostySdk.IO
 
 		public EbxSharedTypeDescriptorV2(string name, bool patch) : this(name, patch, true, true)
 		{
+
 		}
+
+		public EbxSharedTypeDescriptorV2(FileSystem fs, string name, bool patch) : this(name, patch, true, true)
+        {
+
+        }
 
 		public EbxSharedTypeDescriptorV2(string name, bool patch, bool instantRead = true, bool viaReflection = false)
 		{

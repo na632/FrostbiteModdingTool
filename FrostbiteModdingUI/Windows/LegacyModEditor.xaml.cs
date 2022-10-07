@@ -120,14 +120,14 @@ namespace FIFAModdingUI.Windows
                             sbFinalResult.Append(file);
                         }
 
-                        if (encrypt)
-                        {
-                            Dispatcher.Invoke(() => {
-                                txtSaveFileStatus.Text = "Encrypting " + file;
-                            });
-                            v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
-                            File.Delete(file);
-                        }
+                        //if (encrypt)
+                        //{
+                        //    Dispatcher.Invoke(() => {
+                        //        txtSaveFileStatus.Text = "Encrypting " + file;
+                        //    });
+                        //    v2k4EncryptionInterop.encryptFile(file, sbFinalResult.ToString());
+                        //    File.Delete(file);
+                        //}
 
                         listOfCompilableFiles.Add(sbFinalResult.ToString());
                     //});

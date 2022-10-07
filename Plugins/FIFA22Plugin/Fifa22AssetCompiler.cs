@@ -282,34 +282,7 @@ namespace FIFA22Plugin
                             DbObject ebx = o.GetValue<DbObject>("ebx");
                             if (ebx != null && parent.modifiedEbx.Any())
                             {
-                                var ebxNames = ebx.List.Select(x => ((DbObject)x).GetValue<string>("name"));
-                                if (ebxNames != null)
-                                {
-                                    if (ebxNames.Any(x => parent.modifiedEbx.ContainsKey(x)))
-                                    {
-                                        foreach (var modC in parent.modifiedEbx)
-                                        {
-                                            DbObject dboItem = ebx.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
-                                            if (dboItem != null)
-                                            {
-
-                                                var dboCCas = dboItem.GetValue<int>("cas");
-                                                var dboCCatalog = dboItem.GetValue<int>("catalog");
-                                                var dboCPatch = dboItem.GetValue<bool>("patch");
-                                                var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
-
-                                                if (!modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
-
-                                                if (modToCas.ContainsKey(dboRawFilePath))
-                                                    modToCas[dboRawFilePath].Add((dboItem, modC.Value));
-
-                                                ModifiedCount_EBX++;
-                                                ebxToRemove.Add(modC.Key);
-                                            }
-                                        }
-                                    }
-                                }
+                                ProcessBundleEbx(modToCas, ebxToRemove, ebx);
                             }
 
                             //foreach (var item in ebxToRemove)
@@ -539,6 +512,38 @@ namespace FIFA22Plugin
 
             //if (!bundlesInPatch)
             //    ProcessBundles(false);
+        }
+
+        private void ProcessBundleEbx(Dictionary<string, List<(DbObject, AssetEntry)>> modToCas, List<string> ebxToRemove, DbObject ebx)
+        {
+            var ebxNames = ebx.List.Select(x => ((DbObject)x).GetValue<string>("name"));
+            if (ebxNames != null)
+            {
+                if (ebxNames.Any(x => parent.modifiedEbx.ContainsKey(x)))
+                {
+                    foreach (var modC in parent.modifiedEbx)
+                    {
+                        DbObject dboItem = ebx.List.FirstOrDefault(x => ((DbObject)x).GetValue<string>("name") == modC.Key) as DbObject;
+                        if (dboItem != null)
+                        {
+
+                            var dboCCas = dboItem.GetValue<int>("cas");
+                            var dboCCatalog = dboItem.GetValue<int>("catalog");
+                            var dboCPatch = dboItem.GetValue<bool>("patch");
+                            var dboRawFilePath = FileSystem.Instance.GetFilePath(dboCCatalog, dboCCas, dboCPatch);
+
+                            if (!modToCas.ContainsKey(dboRawFilePath))
+                                modToCas.Add(dboRawFilePath, new List<(DbObject, AssetEntry)>());
+
+                            if (modToCas.ContainsKey(dboRawFilePath))
+                                modToCas[dboRawFilePath].Add((dboItem, modC.Value));
+
+                            ModifiedCount_EBX++;
+                            ebxToRemove.Add(modC.Key);
+                        }
+                    }
+                }
+            }
         }
 
         private void WriteBundleOffsetChangesToBundleCas(in NativeWriter nwCas, in DbObject obj)

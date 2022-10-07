@@ -1,23 +1,30 @@
-﻿<Window xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"  x:Class="FrostbiteModdingUI.Windows.LoadingDialog"
+﻿<Window x:Class="FrostbiteModdingUI.Windows.LoadingDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:local="clr-namespace:FrostbiteModdingUI.Windows"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowState="Normal" Topmost="False"
-        Title="FMT is busy" Height="300" Width="450">
+        WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" WindowStyle="SingleBorderWindow" WindowState="Normal" Topmost="True"
+        Title="FMT is busy" Height="200" Width="600" MaxWidth="1000">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="50"></RowDefinition>
-            <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Label FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0">Loading</Label>
-        <Label FontSize="16" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="lblLoadingSubtitle" Content="Loading"></Label>
-        <ProgressBar Visibility="Collapsed" x:Name="pbar" Grid.Row="2"></ProgressBar>
-        <mah:ProgressRing x:Name="pring" Grid.Row="2" FontSize="1" />
-        <Label FontSize="12" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="lblProgress" Content=""></Label>
+        <Label FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">Processing</Label>
+        <Label FontSize="15" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" x:Name="lblLoadingSubtitle" Content="Loading"></Label>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <ProgressBar x:Name="pbar" Value="100" Maximum="100" Minimum="0"></ProgressBar>
+            <mah:ProgressRing x:Name="pring" FontSize="1" Grid.Column="1" Height="10" />
+        </Grid>
+        <TextBlock FontSize="12" Grid.Row="3" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="lblProgress" ></TextBlock>
     </Grid>
 </Window>

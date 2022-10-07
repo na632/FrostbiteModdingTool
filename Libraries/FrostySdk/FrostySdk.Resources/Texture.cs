@@ -16,7 +16,9 @@ namespace FrostySdk.Resources
 
 		private uint unknown1;
 
-		private uint unknown2;
+		private uint unknown2 { get; set; }
+
+		private int unknown4;
 
 		private TextureFlags flags;
 
@@ -292,6 +294,10 @@ namespace FrostySdk.Resources
 				sliceCount = nativeReader.ReadUShort();
 				mipCount = nativeReader.ReadByte();
 				firstMip = nativeReader.ReadByte();
+				if(ProfilesLibrary.IsFIFA23DataVersion())
+                {
+					unknown4 = nativeReader.ReadInt();
+				}
 				chunkId = nativeReader.ReadGuid();
 				for (int i = 0; i < 15; i++)
 				{
@@ -386,6 +392,10 @@ namespace FrostySdk.Resources
 				sliceCount = nativeReader.ReadUShort();
 				mipCount = nativeReader.ReadByte();
 				firstMip = nativeReader.ReadByte();
+                if (ProfilesLibrary.IsFIFA23DataVersion())
+                {
+					unknown4 = nativeReader.ReadInt();
+                }
 				chunkId = nativeReader.ReadGuid();
 				for (int i = 0; i < 15; i++)
 				{
@@ -394,7 +404,9 @@ namespace FrostySdk.Resources
 				chunkSize = nativeReader.ReadUInt();
 				assetNameHash = nativeReader.ReadUInt();
 
-				unknown2 = nativeReader.ReadUInt();
+				if(!ProfilesLibrary.IsFIFA23DataVersion())
+					unknown2 = nativeReader.ReadUInt();
+
 				//textureGroup = nativeReader.ReadSizedString(16);
 				textureGroup = nativeReader.ReadNullTerminatedString();
 				if (AssetManager.Instance.logger != null)
@@ -437,6 +449,10 @@ namespace FrostySdk.Resources
 				nativeWriter.Write(sliceCount);
 				nativeWriter.Write(mipCount);
 				nativeWriter.Write(firstMip);
+				if (ProfilesLibrary.IsFIFA23DataVersion())
+				{
+					nativeWriter.Write(unknown4);
+				}
 				nativeWriter.Write(chunkId);
 				for (int i = 0; i < 15; i++)
 				{

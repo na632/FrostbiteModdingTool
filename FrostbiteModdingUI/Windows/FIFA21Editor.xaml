@@ -1,9 +1,10 @@
-﻿<Window x:Class="FIFAModdingUI.Windows.FIFA21Editor"
+﻿<mah:MetroWindow x:Class="FIFAModdingUI.Windows.FIFA21Editor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI.Windows"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:Model="clr-namespace:FIFAModdingUI.Models" 
         mc:Ignorable="d"
          xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
@@ -22,14 +23,10 @@
         ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Visible"
          WindowStartupLocation="CenterScreen" WindowState="Normal" WindowStyle="SingleBorderWindow"
         
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
-        
         >
     <Window.Resources>
 
@@ -44,10 +41,16 @@
             <RowDefinition MaxHeight="35" Height="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" Background="White">
+        <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0">
             <StackPanel Orientation="Horizontal">
                 <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
-                    <MenuItem x:Name="miProject" Header="Project" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
+                    <MenuItem x:Name="miProject" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="File" VerticalAlignment="Center" />
+                                <Label Content="Project" FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
+                            </StackPanel>
+                        </MenuItem.Header>
                         <MenuItem x:Name="btnProjectNew" Click="btnProjectNew_Click">
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
@@ -142,48 +145,67 @@
                         
                         
                     </MenuItem>
-                    <MenuItem x:Name="miMod" Header="Mod" IsEnabled="False">
+                    <MenuItem x:Name="miMod" IsEnabled="False">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="FileDocument" VerticalAlignment="Center" />
+                                <Label Content="Mod" FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
+                            </StackPanel>
+                        </MenuItem.Header>
                         <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
                             <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                 <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
                                 <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                        <!--<Button x:Name="btnOpenModBundler"  Height="30" Click="btnOpenModBundler_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                                <Label Content="Open Mod Bundler" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>-->
-                        <!--<Button x:Name="btnProjectWriteToLegacyMod"  Height="30" Click="btnProjectWriteToLegacyMod_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                                <Label Content="Save Legacy Mod (*.lmod)" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>-->
-                        
                     </MenuItem>
-                    <!--<MenuItem x:Name="miProjectConverter" Header="FIFA Project Converters" IsEnabled="False">
-                        <Button x:Name="btnProjectOpenFIFAProject"  Height="30" Click="btnProjectOpenFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />
-                                <Label Content="Open *.fifaproject" VerticalAlignment="Center" />
+                    <MenuItem x:Name="miImportKitCreator" IsEnabled="False">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="TshirtCrew" VerticalAlignment="Center" />
+                                <Label Content="Kit Creator"  FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
                             </StackPanel>
-                        </Button>
-                        <Button x:Name="btnProjectSaveToFIFAProject"  Height="30" Click="btnProjectSaveToFIFAProject_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                <Label Content="Save *.fifaproject" VerticalAlignment="Center" />
+                        </MenuItem.Header>
+                        <MenuItem x:Name="btnImportKitCreatorZip" Click="btnImportKitCreatorZip_Click">
+                            <MenuItem.Header>
+                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ZipDisk" VerticalAlignment="Center" />
+                                    <Label Content="Import Kit Creator Zip"  FontSize="10" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem x:Name="miLocaleINI">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                <Label Content="Locale.ini"  FontSize="12"  FontWeight="Bold" VerticalAlignment="Center" />
                             </StackPanel>
-                        </Button>
-                    </MenuItem>-->
-                    <MenuItem x:Name="miImportKitCreator" Header="Kit Creator" IsEnabled="False">
-                        <Button x:Name="btnImportKitCreatorZip"  Height="30" Click="btnImportKitCreatorZip_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ZipDisk" VerticalAlignment="Center" />
-                                <Label Content="Import Kit Creator Zip" VerticalAlignment="Center" />
+                        </MenuItem.Header>
+                        <MenuItem x:Name="modLocaleINI" Click="btnModifyLocaleINI_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                    <Label Content="Modify Locale.ini"  FontSize="10"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem x:Name="miInitfs">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                <Label Content="Initfs (WIP)"  FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
                             </StackPanel>
-                        </Button>
+                        </MenuItem.Header>
+                        <MenuItem x:Name="modInitfs" Click="btnModifyInitfs_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                    <Label Content="Modify Initfs"  FontSize="10"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                     </MenuItem>
                 </Menu>
 
@@ -203,12 +225,17 @@
 
         </Grid>
 
-        <DockingManager Grid.Row="1">
+        <DockingManager Grid.Row="1" >
+            <DockingManager.Theme>
+                <Vs2013DarkTheme></Vs2013DarkTheme>
+            </DockingManager.Theme>
             <LayoutRoot>
-                <LayoutPanel Orientation="Vertical">
-                    <LayoutDocumentPane ShowHeader="False" DockMinHeight="450" DockHeight="450" >
-                        <LayoutDocument CanClose="False" CanFloat="False" CanMove="False" >
-                            <TabControl DockPanel.Dock="Top" Margin="0,0,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                <LayoutPanel Orientation="Vertical" >
+                    <LayoutDocumentPane ShowHeader="False" DockMinHeight="450" DockHeight="450"  >
+                        <LayoutDocument CanClose="False" CanFloat="False" CanMove="False"  >
+                            <TabControl DockPanel.Dock="Top" Margin="0,0,0,0" x:Name="MainViewer" SelectionChanged="MainViewer_SelectionChanged" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" 
+                                        
+                                        >
                                 <TabItem x:Name="TabDataBrowser" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
@@ -281,7 +308,7 @@
                                     <localPlayerControls:PlayerEditor x:Name="playerEditor"></localPlayerControls:PlayerEditor>
                                 </TabItem>
 
-                                <TabItem x:Name="TabTeams">
+                                <!--<TabItem x:Name="TabTeams">
                                     <TabItem.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                             <MaterialDesign:PackIcon Kind="MicrosoftTeams" VerticalAlignment="Center" />
@@ -289,7 +316,7 @@
                                         </StackPanel>
                                     </TabItem.Header>
                                     <FMTControlsPages:FIFADBTeamsEditor></FMTControlsPages:FIFADBTeamsEditor>
-                                </TabItem>
+                                </TabItem>-->
 
                                 <TabItem x:Name="TabDB">
                                     <TabItem.Header>
@@ -298,7 +325,43 @@
                                             <Label Content="{DynamicResource textDatabase}"></Label>
                                         </StackPanel>
                                     </TabItem.Header>
-                                    <FMTControlsPages:FIFADBEditor></FMTControlsPages:FIFADBEditor>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="35"></RowDefinition>
+                                            <RowDefinition Height="*"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Button x:Name="btnOpenDbFile" Click="btnOpenDbFile_Click">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                <MaterialDesign:PackIcon Kind="OpenInNew" VerticalAlignment="Center" />
+                                                <Label Content="Open Squad file"></Label>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button x:Name="btnSaveDbFile" Click="btnSaveDbFile_Click" Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                <MaterialDesign:PackIcon Kind="ContentSaveEdit" VerticalAlignment="Center" />
+                                                <Label Content="Save Squad file"></Label>
+                                            </StackPanel>
+                                        </Button>
+                                        <DockingManager Grid.Row="1" Grid.ColumnSpan="2">
+                                            <LayoutRoot>
+                                            
+                                                <LayoutPanel>
+                                                
+                                                    <LayoutDocumentPaneGroup x:Name="LayoutDocumentGroupDatabase">
+                                                        <LayoutDocumentPane x:Name="LayoutDocumentGroupPaneDatabases">
+                                                            <LayoutDocument Title="{DynamicResource textDatabase}" CanClose="False" CanMove="False" CanFloat="False">
+                                                                <FMTControlsPages:FIFADBEditor EditorMode="DB"></FMTControlsPages:FIFADBEditor>
+                                                            </LayoutDocument>
+                                                        </LayoutDocumentPane>
+                                                    </LayoutDocumentPaneGroup>
+                                                </LayoutPanel>
+                                            </LayoutRoot>
+                                        </DockingManager>
+                                    </Grid>
                                 </TabItem>
 
                                 <TabItem x:Name="TabTestControls" Header="Test Controls" Visibility="Collapsed">
@@ -378,4 +441,4 @@
         </DockingManager>
 
     </Grid>
-</Window>
+</mah:MetroWindow>

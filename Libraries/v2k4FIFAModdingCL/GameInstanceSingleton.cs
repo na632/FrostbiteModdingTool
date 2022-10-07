@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿#pragma warning disable CS0618 // Type or member is obsolete
+using FrostySdk;
 using FrostySdk.Interfaces;
 using Lunar;
 using System;
@@ -75,42 +76,14 @@ namespace v2k4FIFAModdingCL
             return Instance != null ? Instance.GAMEVERSION : string.Empty;
         }
 
-        public static IEnumerable<string> CompatibleGameVersions
-        {
-            get
-            {
-                var lstOfComp = new List<string>();
-                lstOfComp.AddRange(CompatibleGameFBModVersions);
-                lstOfComp.AddRange(CompatibleGameLegacyModVersions);
-                return lstOfComp.Distinct();
-            }
-        }
-
-        public static List<string> CompatibleGameFBModVersions = new List<string>()
-        {
-            //"FIFA20.exe",
-            "FIFA19.exe",
-            "FIFA21.exe",
-            "FIFA22.exe",
-            "Madden21.exe",
-            "Madden22.exe",
-            "bf4.exe",
-        };
-
         public static bool IsCompatibleWithFbMod()
         {
-            return CompatibleGameFBModVersions.Any(x => x.Contains(Instance.GAMEVERSION, StringComparison.OrdinalIgnoreCase));
+            return ProfilesLibrary.SupportedLauncherFileTypes.Contains("fbmod");
         }
-
-        public static List<string> CompatibleGameLegacyModVersions = new List<string>()
-        {
-            "FIFA20.exe",
-            "FIFA21.exe"
-        };
 
         public static bool IsCompatibleWithLegacyMod()
         {
-            return CompatibleGameLegacyModVersions.Any(x => x.Contains(Instance.GAMEVERSION, StringComparison.OrdinalIgnoreCase));
+            return ProfilesLibrary.SupportedLauncherFileTypes.Contains("lmod");
         }
 
         public static ILogger Logger;
@@ -164,7 +137,7 @@ namespace v2k4FIFAModdingCL
             throw new ArgumentException($"Unable to find Process {name} running on your PC");
         }
 
-        public static async Task<int> InjectDLL_GetProcess()
+        public static async Task<int> InjectDLL_GetProcess(bool waitForModules = true)
         {
             int attempts = 0;
 
@@ -175,10 +148,15 @@ namespace v2k4FIFAModdingCL
             while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 300)
             {
                 Debug.WriteLine($"Waiting for {Instance.GAMEVERSION} to appear");
-                await Task.Delay(1000);
+                await Task.Delay(500);
                 proc = await GetProcIDFromName(Instance.GAMEVERSION);
                 if (proc.HasValue)
                 {
+                    if (!waitForModules)
+                    {
+                        return proc.Value;
+                    }
+
                     if (LegacyInjectionExtraAssertions)
                     {
                         Process actualProcess = null;
@@ -186,6 +164,7 @@ namespace v2k4FIFAModdingCL
                         {
                             //var processes = Process.GetProcessesByName(GAMEVERSION);
                             actualProcess = Process.GetProcessById(proc.Value);
+                           
                             foreach (ProcessModule m in actualProcess.Modules)
                             {
                                 if (m.FileName.Contains("powdll_Win64_retail", StringComparison.OrdinalIgnoreCase))
@@ -219,7 +198,7 @@ namespace v2k4FIFAModdingCL
             using (var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc, @dllpath, false))
             {
                 var ptr = bl.InjectDll();
-                return (ptr != null); // Bleak Injected
+                return true; // Bleak Injected
             }
         }
 
@@ -242,14 +221,14 @@ namespace v2k4FIFAModdingCL
             return InjectDLLIntoProcessFromPath(dllpath, proc);
         }
 
-        public static async Task<bool> InjectDLL(string dllpath)
+        public static async Task<bool> InjectDLL(string dllpath, bool waitForModules = true)
         {
             dllpath = dllpath.Replace(@"\\\\", @"\");
             dllpath = dllpath.Replace(@"\\", @"\");
             //dllpath = dllpath.Replace(@"\", @"/");
             if (File.Exists(dllpath))
             {
-                int proc = await InjectDLL_GetProcess();
+                int proc = await InjectDLL_GetProcess(waitForModules);
                 if (!LegacyInjectionExtraAssertions)
                 {
                     // Waiting for process to fully awake
@@ -300,9 +279,9 @@ namespace v2k4FIFAModdingCL
             return false;
         }
 
-        public static async Task<bool> InjectDLLAsync(string dllpath)
+        public static async Task<bool> InjectDLLAsync(string dllpath, bool waitForModules = true)
         {
-            return await InjectDLL(dllpath);
+            return await InjectDLL(dllpath, waitForModules);
         }
 
         public static bool InjectDLLSync(string dllpath)
@@ -516,7 +495,6 @@ namespace v2k4FIFAModdingCL
 
         // CloseHandle signture https://www.pinvoke.net/default.aspx/kernel32.closehandle
         [DllImport("kernel32.dll", SetLastError = true)]
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         [SuppressUnmanagedCodeSecurity]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool CloseHandle(IntPtr hObject);

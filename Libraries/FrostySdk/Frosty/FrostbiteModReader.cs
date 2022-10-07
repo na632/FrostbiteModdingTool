@@ -19,7 +19,7 @@ namespace FrostbiteSdk
 
 			public override ModResourceType Type => ModResourceType.Bundle;
 
-			public override void Read(NativeReader reader)
+			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
 				base.Read(reader);
 				name = reader.ReadNullTerminatedString();

@@ -10,6 +10,7 @@ using FrostySdk;
 using FrostySdk.Frosty;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using paulv2k4ModdingExecuter;
@@ -43,11 +44,13 @@ namespace FMT
     /// <summary>
     /// Interaction logic for LaunchWindow.xaml
     /// </summary>
-    public partial class LaunchWindow : Window, ILogger
+    public partial class LaunchWindow : MetroWindow, ILogger
     {
         public string WindowTitle { get; set; }
 
         public ModListProfile Profile { get; set; }
+
+        private LoadingDialog LoadingDialog { get; } = new LoadingDialog();
 
         public LaunchWindow(Window owner)
         {
@@ -220,7 +223,7 @@ namespace FMT
             }
 
             var txt = string.Empty;
-            Dispatcher.Invoke(() => {
+            await Dispatcher.InvokeAsync(() => {
                 txt = txtLog.Text;
             });
 
@@ -321,6 +324,8 @@ namespace FMT
                 //
                 GameInstanceSingleton.Logger = this;
 
+                LoadingDialog.Update("Launching", "Saving launcher settings");
+
                 if (launcherOptions != null)
                 {
                     launcherOptions.UseModData = switchUseModData.IsOn;
@@ -330,12 +335,18 @@ namespace FMT
                     launcherOptions.Save();
                 }
 
-                TabCont.SelectedIndex = 0;
+                //TabCont.SelectedIndex = 0;
+                bottomDocuments.SelectedContentIndex = 0;
+
+                LoadingDialog.Update("Launching", "Setting up Legacy Mods");
+
                 DoLegacyModSetup();
 
+                LoadingDialog.Update("Launching", "Copying locale.ini");
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
-                if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion())
+                if (ProfilesLibrary.IsFIFA21DataVersion() 
+                    || ProfilesLibrary.IsFIFA22DataVersion())
                 {
                     FileInfo localeIni = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIPath);
                     if (localeIni.Exists)
@@ -356,13 +367,18 @@ namespace FMT
                 var useModData = switchUseModData.IsOn;
                 if(!useModData)
                 {
+                    Dispatcher.Invoke(() =>
+                    {
+                        LoadingDialog.Update("", "");
+                        LoadingDialog.Visibility = Visibility.Collapsed;
+                    });
                     MessageBoxResult modDataResult = MessageBox.Show("You are NOT using a ModData folder. " + Environment.NewLine +
-                        "This is very risky and shouldn't be used unless all other options don't work! " + Environment.NewLine + 
+                        "This is very risky and shouldn't be used unless all other options don't work! " + Environment.NewLine +
                         "Do NOT try and play this ONLINE! You WILL be BANNED! " + Environment.NewLine +
                         "If your game breaks, it's NOT my fault. " + Environment.NewLine +
                         "EA Desktop does NOT have a REPAIR option. You will need to REINSTALL if the game breaks."
                         , "WARNING about not using the ModData folder", MessageBoxButton.OKCancel);
-                    if(modDataResult == MessageBoxResult.Cancel)
+                    if (modDataResult == MessageBoxResult.Cancel)
                     {
                         return;
                     }
@@ -375,7 +391,7 @@ namespace FMT
                 Dispatcher.Invoke(() =>
                 {
                     btnLaunch.IsEnabled = false;
-                    btnLaunchOtherTool.IsEnabled = false;
+                    //btnLaunchOtherTool.IsEnabled = false;
                 });
                 await Task.Delay(500);
 
@@ -397,6 +413,8 @@ namespace FMT
                     var launchSuccess = false;
                     try
                     {
+                        LoadingDialog.Update("Launching", "Compiling mods");
+
                         var launchTask = LaunchFIFA.LaunchAsync(
                             GameInstanceSingleton.Instance.GAMERootPath
                             , ""
@@ -407,11 +425,12 @@ namespace FMT
                             , useSymbolicLink
                             , useModData);
                         launchSuccess = await launchTask;
+                        LoadingDialog.Update(string.Empty, string.Empty);
 
                         //App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,
                         //    TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
                     }
-                    catch(Exception launchException)
+                    catch (Exception launchException)
                     {
                         Log("[ERROR] Error caught in Launch Task. You must fix the error before using this Launcher.");
                         LogError(launchException.ToString());
@@ -424,7 +443,12 @@ namespace FMT
                     }
                     if (launchSuccess)
                     {
-                        var ApplicationRunningLocation = System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                        var ApplicationRunningLocation = AppContext.BaseDirectory + "\\";
+
+                        //if (ProfilesLibrary.IsFIFA23DataVersion()) 
+                        //{
+                        //    await GameInstanceSingleton.InjectDLLAsync(ApplicationRunningLocation + @"ThirdParty\\CryptBase.dll", false);
+                        //}
 
                         if (useLegacyMods)
                         {
@@ -440,7 +464,7 @@ namespace FMT
                             else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                             {
                                 LogSync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
-                                legacyModSupportFile = ApplicationRunningLocation + @"\FIFA.dll";
+                                legacyModSupportFile = ApplicationRunningLocation + @"\FIFA21Legacy.dll";
                             }
 
                             if (!File.Exists(legacyModSupportFile))
@@ -547,6 +571,8 @@ namespace FMT
                         });
                     }
 
+                    LoadingDialog.Update(string.Empty, string.Empty);
+
                     //});
                     await Task.Delay(1000);
 
@@ -554,12 +580,15 @@ namespace FMT
                     Dispatcher.Invoke(() =>
                     {
                         btnLaunch.IsEnabled = true;
-                        btnLaunchOtherTool.IsEnabled = true;
+                        //btnLaunchOtherTool.IsEnabled = true;
                     });
 
 
 
                 });
+
+                LoadingDialog.Update(string.Empty, string.Empty);
+
             }
         }
 
@@ -644,7 +673,7 @@ namespace FMT
 
         //}
 
-        public string LastGamePathLocation => App.ApplicationDirectory + "\\" + GameInstanceSingleton.Instance.GAMEVERSION + "LastLocation.json";
+        //public string LastGamePathLocation => App.ApplicationDirectory + "\\" + GameInstanceSingleton.Instance.GAMEVERSION + "LastLocation.json";
 
 
         private async Task InitialiseSelectedGame(string filePath)
@@ -681,31 +710,16 @@ namespace FMT
 
                 // -------------------------------------
                 // V11.9 - Temporarily disable CEM due to changes for DB/Squad files
-                btnOpenCEMWindow.IsEnabled = false;
+                //btnOpenCEMWindow.IsEnabled = false;
                 // -------------------------------------
 
-                if (ProfilesLibrary.IsFIFA21DataVersion())
+                if (ProfilesLibrary.IsFIFA20DataVersion())
                 {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    switchUseSymbolicLink.IsOn = false;
-                    btnLaunchOtherTool.Visibility = Visibility.Visible;
-
-                    btnOpenCEMWindow.Visibility = Visibility.Visible;
-                }
-
-                if (ProfilesLibrary.IsMadden21DataVersion())
-                {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
+                    switchUseSymbolicLink.Visibility = Visibility.Visible;
                     switchUseSymbolicLink.IsOn = false;
                 }
 
-                if (ProfilesLibrary.IsFIFA22DataVersion())
-                {
-                    switchUseSymbolicLink.Visibility = Visibility.Collapsed;
-                    switchUseSymbolicLink.IsOn = false;
-                    //switchUseModData.Visibility = Visibility.Collapsed;
-                    //switchUseModData.IsOn = false;
-                }
+                switchUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
 
                 switchCleanLegacyModDirectory.IsOn = false;
                 switchCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
@@ -736,7 +750,7 @@ namespace FMT
 
                 launcherOptions = await LauncherOptions.LoadAsync();
                 switchUseModData.IsOn = launcherOptions.UseModData.HasValue 
-                                                ? launcherOptions.UseModData.Value : ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsFIFA22DataVersion();
+                                                ? launcherOptions.UseModData.Value : ProfilesLibrary.LoadedProfile.CanUseModData;
                 switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue && GameInstanceSingleton.IsCompatibleWithLegacyMod()
                                                 ? launcherOptions.UseLegacyModSupport.Value : GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;
@@ -752,18 +766,22 @@ namespace FMT
 
         public void Log(string text, params object[] vars)
         {
+            if(LoadingDialog != null && LoadingDialog.Visibility == Visibility.Visible)
+            {
+                LoadingDialog.Update("Loading", text);
+            }
             LogAsync(text);
         }
 
         public void LogWarning(string text, params object[] vars)
         {
-            LogAsync("[WARNING] " + text);
+            //LogSync("[WARNING] " + text);
+            File.AppendAllText($"ErrorLog-{DateTime.Now.ToString("yyyy-MM-dd")}.txt", DateTime.Now.ToString() + " \n" + text);
         }
 
         public void LogError(string text, params object[] vars)
         {
             LogSync("[ERROR] " + text);
-
             File.AppendAllText($"ErrorLog-{DateTime.Now.ToString("yyyy-MM-dd")}.txt", DateTime.Now.ToString() + " \n" + text);
         }
 
@@ -829,9 +847,9 @@ namespace FMT
             findOtherLauncherEXEWindow.InjectLegacyModSupport = switchUseLegacyModSupport.IsOn;
             findOtherLauncherEXEWindow.InjectLiveEditorSupport = switchUseLiveEditor.IsOn;
 
-            btnLaunchOtherTool.IsEnabled = false;
+            //btnLaunchOtherTool.IsEnabled = false;
             findOtherLauncherEXEWindow.ShowDialog();
-            btnLaunchOtherTool.IsEnabled = true;
+            //btnLaunchOtherTool.IsEnabled = true;
 
         }
 

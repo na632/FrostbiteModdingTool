@@ -4397,7 +4397,7 @@ namespace paulv2k4ModdingExecuter
 
             {
                 string[] allModPaths = modPaths;
-                var frostyMods = new Dictionary<Stream, IFrostbiteMod>();
+                var frostyMods = new ConcurrentDictionary<Stream, IFrostbiteMod>();
 
                 // Sort out Zipped Files
                 //if (allModPaths.Contains(".zip"))
@@ -4441,7 +4441,7 @@ namespace paulv2k4ModdingExecuter
                                 else
                                 {
                                     zaentr.Open().CopyTo(memoryStream);
-                                    frostyMods.Add(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
+                                    frostyMods.TryAdd(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
                                 }
                             }
                         }
@@ -4464,8 +4464,8 @@ namespace paulv2k4ModdingExecuter
 
                         // ------------------------------------------------------------------
                         // Get the Resource Data out of the mod
-                        byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-
+                        //byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                        byte[] resourceData = frostbiteMod.GetResourceData(resource);
                         // ------------------------------------------------------------------
                         // Embedded Files
                         // Export to the Game Directory and create sub folders if neccessary
@@ -4474,11 +4474,12 @@ namespace paulv2k4ModdingExecuter
                             EmbeddedFileEntry efAssetEntry = new EmbeddedFileEntry();
                             resource.FillAssetEntry(efAssetEntry);
 
-                            var parentDirectoryPath = Directory.GetParent(GamePath + "//" + efAssetEntry.Name).FullName;
+                            var parentDirectoryPath = Directory.GetParent(GamePath + "//" + efAssetEntry.ExportedRelativePath).FullName;
                             if (!Directory.Exists(parentDirectoryPath))
                                 Directory.CreateDirectory(parentDirectoryPath);
 
-                            File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
+                            //File.WriteAllBytes(GamePath + "//" + efAssetEntry.Name, resourceData);
+                            File.WriteAllBytes(GamePath + "//" + efAssetEntry.ExportedRelativePath, resourceData);
 
                         }
                         //
@@ -4572,52 +4573,13 @@ namespace paulv2k4ModdingExecuter
                                     archiveData[ebxAssetEntry2.Sha1].RefCount++;
                                 }
                                 break;
-                        }
-
-                        //if (resource.Type == ModResourceType.Ebx)
-                        //{
-                            
-                        //}
-                        //else
-                        if (resource.Type == ModResourceType.Res)
-                        {
-                            if (resource.HasHandler)
-                            {
-                                ResAssetEntry resAssetEntry = null;
-                                HandlerExtraData handlerExtraData = null;
-                                //byte[] resourceData2 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                                if (modifiedRes.ContainsKey(resource.Name))
-                                {
-                                    resAssetEntry = modifiedRes[resource.Name];
-                                    handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
-                                }
-                                else
-                                {
-                                    resAssetEntry = new ResAssetEntry();
-                                    handlerExtraData = new HandlerExtraData();
-                                    resource.FillAssetEntry(resAssetEntry);
-                                    foreach (ResCustomHandlerAttribute customAttribute in Assembly.GetExecutingAssembly().GetCustomAttributes<ResCustomHandlerAttribute>())
-                                    {
-                                        if (customAttribute.ResType == (ResourceType)resAssetEntry.ResType)
-                                        {
-                                            handlerExtraData.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
-                                            break;
-                                        }
-                                    }
-                                    resAssetEntry.ExtraData = handlerExtraData;
-                                    modifiedRes.Add(resource.Name, resAssetEntry);
-                                }
-                                //handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
-                                handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData);
-                            }
-                            else
-                            {
+                            case ModResourceType.Res:
                                 if (modifiedRes.ContainsKey(resource.Name))
                                 {
                                     modifiedRes.Remove(resource.Name);
                                     if (archiveData.ContainsKey(resource.Sha1))
                                         archiveData.TryRemove(resource.Sha1, out ArchiveInfo _);
-                                    
+
                                 }
                                 ResAssetEntry resAssetEntry3 = new ResAssetEntry();
                                 resource.FillAssetEntry(resAssetEntry3);
@@ -4636,9 +4598,75 @@ namespace paulv2k4ModdingExecuter
                                 {
                                     archiveData[resAssetEntry3.Sha1].RefCount++;
                                 }
-                            }
+                                break;
                         }
-                        else if (resource.Type == ModResourceType.Chunk)
+
+                        //if (resource.Type == ModResourceType.Ebx)
+                        //{
+                            
+                        //}
+                        //else
+                        //if (resource.Type == ModResourceType.Res)
+                        //{
+                        //    if (resource.HasHandler)
+                        //    {
+                        //        ResAssetEntry resAssetEntry = null;
+                        //        HandlerExtraData handlerExtraData = null;
+                        //        //byte[] resourceData2 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
+                        //        if (modifiedRes.ContainsKey(resource.Name))
+                        //        {
+                        //            resAssetEntry = modifiedRes[resource.Name];
+                        //            handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
+                        //        }
+                        //        else
+                        //        {
+                        //            resAssetEntry = new ResAssetEntry();
+                        //            handlerExtraData = new HandlerExtraData();
+                        //            resource.FillAssetEntry(resAssetEntry);
+                        //            foreach (ResCustomHandlerAttribute customAttribute in Assembly.GetExecutingAssembly().GetCustomAttributes<ResCustomHandlerAttribute>())
+                        //            {
+                        //                if (customAttribute.ResType == (ResourceType)resAssetEntry.ResType)
+                        //                {
+                        //                    handlerExtraData.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
+                        //                    break;
+                        //                }
+                        //            }
+                        //            resAssetEntry.ExtraData = handlerExtraData;
+                        //            modifiedRes.Add(resource.Name, resAssetEntry);
+                        //        }
+                        //        //handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
+                        //        handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData);
+                        //    }
+                        //    else
+                        //    {
+                        //        if (modifiedRes.ContainsKey(resource.Name))
+                        //        {
+                        //            modifiedRes.Remove(resource.Name);
+                        //            if (archiveData.ContainsKey(resource.Sha1))
+                        //                archiveData.TryRemove(resource.Sha1, out ArchiveInfo _);
+                                    
+                        //        }
+                        //        ResAssetEntry resAssetEntry3 = new ResAssetEntry();
+                        //        resource.FillAssetEntry(resAssetEntry3);
+                        //        resAssetEntry3.Size = resourceData.Length;
+                        //        modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
+                        //        if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
+                        //        {
+                        //            archiveData.TryAdd(resAssetEntry3.Sha1, new ArchiveInfo
+                        //            {
+                        //                //Data = resourceData3,
+                        //                Data = resourceData,
+                        //                RefCount = 1
+                        //            });
+                        //        }
+                        //        else
+                        //        {
+                        //            archiveData[resAssetEntry3.Sha1].RefCount++;
+                        //        }
+                        //    }
+                        //}
+                        //else 
+                        if (resource.Type == ModResourceType.Chunk)
                         {
                             
 
@@ -4731,6 +4759,19 @@ namespace paulv2k4ModdingExecuter
                     }
 
             }
+
+                // ----------------------------------------------------------------
+                // Clear out memory and mods
+                foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
+                {
+                    kvpMods.Key.Dispose();
+                    if(kvpMods.Value is FrostbiteMod)
+                    {
+                        kvpMods.Value.ModBytes = null;
+                    }
+                }
+                frostyMods.Clear();
+
                 Logger.Log("Cleaning up mod data directory");
                 //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
                 fs.ResetManifest();
@@ -4861,7 +4902,15 @@ namespace paulv2k4ModdingExecuter
             var fifaconfigexelocation = fs.BasePath + "\\FIFASetup\\fifaconfig.exe";
             var fifaconfigexe_origlocation = fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe";
 
-            CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+            if (ProfilesLibrary.IsFIFA21DataVersion()
+                || ProfilesLibrary.IsFIFA22DataVersion())
+            {
+                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+            }
+
+            //if (ProfilesLibrary.IsFIFA23DataVersion())
+            //    CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "dxgi.dll");
+
             CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
             if ((ProfilesLibrary.IsFIFADataVersion() 
                 || ProfilesLibrary.IsFIFA21DataVersion()
@@ -4884,31 +4933,23 @@ namespace paulv2k4ModdingExecuter
             return FrostyModsFound;
         }
 
-        private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref Dictionary<Stream, IFrostbiteMod> frostyMods)
+
+        private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref ConcurrentDictionary<Stream, IFrostbiteMod> frostyMods)
         {
+            FileInfo fileInfo = new FileInfo(modPath);
+            Stream fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read);
+            Stream ms = new MemoryStream();
+            fs.CopyTo(ms);
+            Logger.Log("Loading mod " + fileInfo.Name);
             if (modPath.Contains(".fbmod", StringComparison.OrdinalIgnoreCase))
             {
                 FrostyModsFound = true;
-
-                FileInfo fileInfo2 = new FileInfo(modPath);
-
-                Logger.Log("Loading mod " + fileInfo2.Name);
-                using var fsFBMod = new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read);
-                var fbmod = new FrostbiteMod(fsFBMod);
-                // make copy
-                var modBytes = fbmod.ModBytes.ToArray();
-                //frostyMods.Add(new MemoryStream(modBytes), new FrostbiteMod(new MemoryStream(fbmod.ModBytes.ToArray())));
-                frostyMods.Add(new MemoryStream(modBytes), fbmod);
+                frostyMods.TryAdd(ms, new FrostbiteMod(fs));
             }
-
             if (modPath.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
             {
                 FrostyModsFound = true;
-
-                FileInfo fiFIFAMod = new FileInfo(modPath);
-                Logger.Log("Loading mod " + fiFIFAMod.Name);
-                var fs = new FileStream(fiFIFAMod.FullName, FileMode.Open, FileAccess.Read);
-                frostyMods.Add(fs, new FIFAMod(string.Empty, fiFIFAMod.FullName));
+                frostyMods.TryAdd(ms, new FIFAMod(string.Empty, fileInfo.FullName));
             }
         }
 
@@ -4950,6 +4991,10 @@ namespace paulv2k4ModdingExecuter
 
         public bool GameWasPatched { get; set; }
 
+        public bool DeleteLiveUpdates { get; set; } = false;
+
+        public bool LowMemoryMode { get; set; } = false;
+
         public async Task<bool> Run(ILogger inLogger, string gameRootPath, string modsRootPath, params string[] modPaths)
         {
 
@@ -4967,7 +5012,7 @@ namespace paulv2k4ModdingExecuter
 
             string modPath = fs.BasePath + modDirName + "\\";
 
-            var foundFrostyMods = false;
+            var foundMods = false;
             var lastModPaths = new Dictionary<string, DateTime>();
             if (File.Exists(LastLaunchedModsPath))
             {
@@ -4983,7 +5028,7 @@ namespace paulv2k4ModdingExecuter
                     if (f.Exists)
                     {
                         if (f.Extension.Contains("fbmod", StringComparison.OrdinalIgnoreCase) || f.Extension.Contains("fifamod", StringComparison.OrdinalIgnoreCase))
-                            foundFrostyMods = true;
+                            foundMods = true;
 
                         if (lastModPaths.ContainsKey(f.FullName))
                         {
@@ -5008,6 +5053,9 @@ namespace paulv2k4ModdingExecuter
                 sameAsLast = false;
             }
 
+            // Delete the Live Updates
+            RunDeleteLiveUpdates();
+
             // ---------------------------------------------
             // Load Last Patched Version
             uint? lastHead = null;
@@ -5031,42 +5079,115 @@ namespace paulv2k4ModdingExecuter
                 await Task.Delay(1000);
             }
 
-            // Notify if NO changes are made to mods
-            if (sameAsLast && !ForceRebuildOfMods)
             {
-                Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
-                await Task.Delay(1000);
+                // Notify if NO changes are made to mods
+                if (sameAsLast && !ForceRebuildOfMods)
+                {
+                    Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
+                    await Task.Delay(1000);
+                }
+                // Rebuild mods
+                else
+                {
+                    foundMods = await BuildModData(fs, inLogger, modsRootPath, "", modPaths);
+                    lastModPaths.Clear();
+                    foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
+                    {
+                        lastModPaths.Add(f.FullName, f.LastWriteTime);
+                    }
+
+                    // Save Last Launched Mods
+                    File.WriteAllText(LastLaunchedModsPath, JsonConvert.SerializeObject(lastModPaths));
+                    // ----------
+
+                    // ---------------------------------------------
+                    // Save Last Patched Version
+                    lastHead = fs.Head;
+
+                    if (LastHeadData.ContainsKey(fs.BasePath))
+                        LastHeadData[fs.BasePath] = lastHead.Value;
+                    else
+                        LastHeadData.Add(fs.BasePath, lastHead.Value);
+
+                    File.WriteAllText(LastPatchedVersionPath, JsonConvert.SerializeObject(LastHeadData));
+
+                    // ---------------------------------------------
+
+                }
             }
-            // Rebuild mods
+
+            //- -----------------------
+            // Clear out the memory of archive data after compilation and before launching the game
+            archiveData.Clear();
+            //RunSetupFIFAConfig();
+            //RunPowershellToUnblockDLLAtLocation(fs.BasePath);
+
+            if (foundMods && UseModData)// || sameAsLast)
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
+            }
+            else if (foundMods && !UseModData)
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
+            }
+            else if (UseModData)
+            {
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
+            }
             else
             {
-                foundFrostyMods = await BuildModData(fs, inLogger, modsRootPath, "", modPaths);
-                lastModPaths.Clear();
-                foreach (FileInfo f in modPaths.Select(x => new FileInfo(x)))
-                {
-                    lastModPaths.Add(f.FullName, f.LastWriteTime);
-                }
-
-                // Save Last Launched Mods
-                File.WriteAllText(LastLaunchedModsPath, JsonConvert.SerializeObject(lastModPaths));
-                // ----------
-
-                // ---------------------------------------------
-                // Save Last Patched Version
-                lastHead = fs.Head;
-
-                if (LastHeadData.ContainsKey(fs.BasePath))
-                    LastHeadData[fs.BasePath] = lastHead.Value;
-                else
-                    LastHeadData.Add(fs.BasePath, lastHead.Value);
-
-                File.WriteAllText(LastPatchedVersionPath, JsonConvert.SerializeObject(LastHeadData));
-
-                // ---------------------------------------------
-
+                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
 
-            if(ProfilesLibrary.IsFIFA21DataVersion())
+            //_ = Task.Delay(60000).ContinueWith((x) =>
+            //{
+            //    if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
+            //    {
+            //        var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
+            //        if (configIni.Exists)
+            //        {
+            //            StringBuilder newConfig = new StringBuilder();
+            //            newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
+            //            newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
+            //            File.WriteAllText(configIni.FullName, newConfig.ToString());
+            //        }
+            //    }
+            //});
+
+            //});
+            return true;
+        }
+
+        /// <summary>
+        /// Deletes the Temporary folder with updates from EA in it
+        /// </summary>
+        private void RunDeleteLiveUpdates()
+        {
+            if (!DeleteLiveUpdates)
+                return;
+
+            try
+            {
+                Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName), recursive: true);
+                //Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName, "onlinecache0"), recursive: true);
+                Logger.Log("Successfully deleted the Live Updates folder.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"[ERROR] Failed to delete Live Updates folder with message: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void RunSetupFIFAConfig()
+        {
+            if (ProfilesLibrary.IsFIFA21DataVersion())
             {
                 var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
                 if (configIni.Exists)
@@ -5094,328 +5215,43 @@ namespace paulv2k4ModdingExecuter
 
 
             }
-
-
-            if (foundFrostyMods && UseModData)// || sameAsLast)
-            {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
-            }
-            else if (foundFrostyMods && !UseModData)
-            {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
-            }
-            else
-            {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
-            }
-
-            _ = Task.Delay(60000).ContinueWith((x) =>
-              {
-                  if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
-                  {
-                      var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
-                      if (configIni.Exists)
-                      {
-                          StringBuilder newConfig = new StringBuilder();
-                          newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
-                          newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
-                          File.WriteAllText(configIni.FullName, newConfig.ToString());
-                      }
-                  }
-              });
-
-            //});
-            return true;
         }
 
-        private void WriteArchiveData(string catalog, CasDataEntry casDataEntry)
-        {
-            List<int> list = new List<int>();
-            int num = 1;
-            int num2 = 0;
-            while (File.Exists(string.Format("{0}\\cas_{1}.cas", catalog, num.ToString("D2"))))
-            {
-                num++;
-            }
-            Stream stream = null;
-            foreach (Sha1 item in casDataEntry.EnumerateDataRefs())
-            {
-                ArchiveInfo archiveInfo = archiveData[item];
-                if (stream == null || num2 + archiveInfo.Data.Length > 1073741824)
-                {
-                    if (stream != null)
-                    {
-                        stream.Dispose();
-                        num++;
-                    }
-                    FileInfo fileInfo = new FileInfo(string.Format("{0}\\cas_{1}.cas", catalog, num.ToString("D2")));
-                    Directory.CreateDirectory(fileInfo.DirectoryName);
-                    stream = new FileStream(fileInfo.FullName, FileMode.Create, FileAccess.Write);
-                    num2 = 0;
-                }
-                if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
-                {
-                    byte[] buffer = new byte[32];
-                    using (NativeWriter nativeWriter = new NativeWriter(new MemoryStream(buffer)))
-                    {
-                        nativeWriter.Write(4027567866u);
-                        nativeWriter.Write(item);
-                        nativeWriter.Write((long)archiveInfo.Data.Length);
-                    }
-                    stream.Write(buffer, 0, 32);
-                    num2 += 32;
-                }
-                foreach (CasFileEntry item2 in casDataEntry.EnumerateFileInfos(item))
-                {
-                    if (item2.Entry != null && item2.Entry.RangeStart != 0 && !item2.FileInfo.isChunk)
-                    {
-                        item2.FileInfo.offset = (uint)(stream.Position + item2.Entry.RangeStart);
-                        item2.FileInfo.size = item2.Entry.RangeEnd - item2.Entry.RangeStart;
-                    }
-                    else
-                    {
-                        item2.FileInfo.offset = (uint)stream.Position;
-                        item2.FileInfo.size = archiveInfo.Data.Length;
-                    }
-                    item2.FileInfo.file = new ManifestFileRef(item2.FileInfo.file.CatalogIndex, inPatch: true, inCasIndex: num);
-                }
-                stream.Write(archiveInfo.Data, 0, archiveInfo.Data.Length);
-                list.Add(num);
-                num2 += archiveInfo.Data.Length;
-            }
-            stream.Dispose();
-            FileInfo fileInfo2 = new FileInfo($"{catalog}\\cas.cat");
-            List<CatResourceEntry> list2 = new List<CatResourceEntry>();
-            List<CatPatchEntry> list3 = new List<CatPatchEntry>();
-            List<CatResourceEntry> list4 = new List<CatResourceEntry>();
-            byte[] buffer2 = null;
-            using (CatReader catReader = new CatReader(new FileStream(fileInfo2.FullName, FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-            {
-                for (int i = 0; i < catReader.ResourceCount; i++)
-                {
-                    list2.Add(catReader.ReadResourceEntry());
-                }
-                if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807)
-                {
-                    for (int j = 0; j < catReader.EncryptedCount; j++)
-                    {
-                        list4.Add(catReader.ReadEncryptedEntry());
-                    }
-                }
-                for (int k = 0; k < catReader.PatchCount; k++)
-                {
-                    list3.Add(catReader.ReadPatchEntry());
-                }
-                catReader.Position = 0L;
-                buffer2 = catReader.ReadBytes(556);
-            }
-            using (NativeWriter nativeWriter3 = new NativeWriter(new FileStream(fileInfo2.FullName, FileMode.Create)))
-            {
-                int num3 = 0;
-                int num4 = 0;
-                MemoryStream memoryStream = new MemoryStream();
-                using (NativeWriter nativeWriter2 = new NativeWriter(memoryStream))
-                {
-                    foreach (CatResourceEntry item3 in list2)
-                    {
-                        nativeWriter2.Write(item3.Sha1);
-                        nativeWriter2.Write(item3.Offset);
-                        nativeWriter2.Write(item3.Size);
-                        if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
-                        {
-                            nativeWriter2.Write(item3.LogicalOffset);
-                        }
-                        nativeWriter2.Write(item3.ArchiveIndex);
-                        num3++;
-                    }
-                    int num5 = 0;
-                    int num6 = 0;
-                    foreach (Sha1 item4 in casDataEntry.EnumerateDataRefs())
-                    {
-                        if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
-                        {
-                            num5 += 32;
-                        }
-                        ArchiveInfo archiveInfo2 = archiveData[item4];
-                        nativeWriter2.Write(item4);
-                        nativeWriter2.Write(num5);
-                        nativeWriter2.Write(archiveInfo2.Data.Length);
-                        if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
-                        {
-                            nativeWriter2.Write(0);
-                        }
-                        nativeWriter2.Write(list[num6++]);
-                        num5 += archiveInfo2.Data.Length;
-                        num3++;
-                    }
-                    if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807)
-                    {
-                        foreach (CatResourceEntry item5 in list4)
-                        {
-                            nativeWriter2.Write(item5.Sha1);
-                            nativeWriter2.Write(item5.Offset);
-                            nativeWriter2.Write(item5.EncryptedSize);
-                            nativeWriter2.Write(item5.LogicalOffset);
-                            nativeWriter2.Write(item5.ArchiveIndex);
-                            nativeWriter2.Write(item5.Unknown);
-                            nativeWriter2.WriteFixedSizedString(item5.KeyId, item5.KeyId.Length);
-                            nativeWriter2.Write(item5.UnknownData);
-                        }
-                    }
-                    foreach (CatPatchEntry item6 in list3)
-                    {
-                        nativeWriter2.Write(item6.Sha1);
-                        nativeWriter2.Write(item6.BaseSha1);
-                        nativeWriter2.Write(item6.DeltaSha1);
-                        num4++;
-                    }
-                    if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
-                    {
-                        nativeWriter3.Write(buffer2);
-                    }
-                    nativeWriter3.WriteFixedSizedString("NyanNyanNyanNyan", 16);
-                    if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
-                    {
-                        nativeWriter3.Write(num3);
-                        nativeWriter3.Write(num4);
-                        if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180628)
-                        {
-                            nativeWriter3.Write(list4.Count);
-                            nativeWriter3.Write(0);
-                            nativeWriter3.Write(-1);
-                            nativeWriter3.Write(-1);
-                        }
-                    }
-                    nativeWriter3.Write(memoryStream.ToArray());
-                }
-            }
-        }
-
-        private bool DeleteSelectFiles(string modPath)
-        {
-            if (new DirectoryInfo(modPath).Exists)
-            {
-                RecursiveDeleteFiles(modPath);
-                foreach (string catalog in fs.Catalogs)
-                {
-                    string str = fs.ResolvePath("native_patch/" + catalog);
-                    string path = modPath + "/" + catalog;
-                    if (Directory.Exists(path))
-                    {
-                        foreach (string item in Directory.EnumerateFiles(path))
-                        {
-                            FileInfo fileInfo = new FileInfo(item);
-                            if (!File.Exists(str + "/" + fileInfo.Name) || (fileInfo.Attributes & FileAttributes.ReparsePoint) == 0)
-                            {
-                                File.Delete(fileInfo.FullName);
-                            }
-                        }
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
-
-        private bool IsSamePatch(string modPath)
-        {
-            string path = fs.ResolvePath("native_patch/layout.toc");
-            if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-            {
-                path = fs.ResolvePath("native_data/layout.toc");
-            }
-            string path2 = modPath + "/layout.toc";
-            if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-            {
-                path2 = modPath + "/../Data/layout.toc";
-            }
-            if (!File.Exists(path))
-            {
-                return false;
-            }
-            if (!File.Exists(path2))
-            {
-                return false;
-            }
-            DbObject dbObject = null;
-            using (DbReader dbReader = new DbReader(new FileStream(path, FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-            {
-                dbObject = dbReader.ReadDbObject();
-            }
-            DbObject dbObject2 = null;
-            using (DbReader dbReader2 = new DbReader(new FileStream(path2, FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-            {
-                dbObject2 = dbReader2.ReadDbObject();
-            }
-            int value = dbObject.GetValue("head", 0);
-            int value2 = dbObject2.GetValue("head", 0);
-            if (ProfilesLibrary.DataVersion == 20171117 && value == 778163 && value2 != value)
-            {
-                Directory.Delete(modPath + "/../", recursive: true);
-                return false;
-            }
-            if (value2 != value)
-            {
-                Directory.Delete(modPath + "/../", recursive: true);
-                return false;
-            }
-            return true;
-        }
-
-        private void RecursiveDeleteFiles(string path)
-        {
-            DirectoryInfo directoryInfo = new DirectoryInfo(path);
-            DirectoryInfo[] directories = directoryInfo.GetDirectories();
-            FileInfo[] files = directoryInfo.GetFiles();
-            foreach (FileInfo fileInfo in files)
-            {
-                if ((fileInfo.Extension == ".cat" || fileInfo.Extension == ".toc" || fileInfo.Extension == ".sb" || fileInfo.Name.ToLower() == "mods.txt") && !(fileInfo.Name.ToLower() == "layout.toc"))
-                {
-                    fileInfo.Delete();
-                }
-            }
-            DirectoryInfo[] array = directories;
-            foreach (DirectoryInfo directoryInfo2 in array)
-            {
-                string path2 = Path.Combine(path, directoryInfo2.Name);
-                RecursiveDeleteFiles(path2);
-            }
-        }
-
-        private bool RunSymbolicLinkProcess(List<SymLinkStruct> cmdArgs)
-        {
-            using (TextWriter textWriter = new StreamWriter(new FileStream(AppDomain.CurrentDomain.BaseDirectory + "\\run.bat", FileMode.Create)))
-            {
-                foreach (SymLinkStruct cmdArg in cmdArgs)
-                {
-                    textWriter.WriteLine("mklink" + (cmdArg.isFolder ? "/D " : " ") + "\"" + cmdArg.dest + "\" \"" + cmdArg.src + "\"");
-                }
-            }
-            ExecuteProcess("cmd.exe", "/C \"" + AppDomain.CurrentDomain.BaseDirectory + "\\run.bat\"", waitForExit: true, asAdmin: true);
-            File.Delete("run.bat");
-            foreach (SymLinkStruct cmdArg2 in cmdArgs)
-            {
-                if ((cmdArg2.isFolder && !Directory.Exists(cmdArg2.dest)) || (!cmdArg2.isFolder && !File.Exists(cmdArg2.dest)))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+        //private void RecursiveDeleteFiles(string path)
+        //{
+        //    DirectoryInfo directoryInfo = new DirectoryInfo(path);
+        //    DirectoryInfo[] directories = directoryInfo.GetDirectories();
+        //    FileInfo[] files = directoryInfo.GetFiles();
+        //    foreach (FileInfo fileInfo in files)
+        //    {
+        //        if ((fileInfo.Extension == ".cat" || fileInfo.Extension == ".toc" || fileInfo.Extension == ".sb" || fileInfo.Name.ToLower() == "mods.txt") && !(fileInfo.Name.ToLower() == "layout.toc"))
+        //        {
+        //            fileInfo.Delete();
+        //        }
+        //    }
+        //    DirectoryInfo[] array = directories;
+        //    foreach (DirectoryInfo directoryInfo2 in array)
+        //    {
+        //        string path2 = Path.Combine(path, directoryInfo2.Name);
+        //        RecursiveDeleteFiles(path2);
+        //    }
+        //}
 
         public void ExecuteProcess(string processName, string args, bool waitForExit = false, bool asAdmin = false)
         {
+            //Process p = new Process();
+            //p.StartInfo.FileName = "cmd.exe";
+            //p.StartInfo.Arguments = $"/K \"\"{processName}\" \"{args}\"\"";
+            //p.Start();
+
             using (Process process = new Process())
             {
                 FileInfo fileInfo = new FileInfo(processName);
                 process.StartInfo.FileName = processName;
                 process.StartInfo.WorkingDirectory = fileInfo.DirectoryName;
                 process.StartInfo.Arguments = args;
-                process.StartInfo.UseShellExecute = false;
-                if (asAdmin)
+                //process.StartInfo.UseShellExecute = false;
+                //if (asAdmin)
                 {
                     process.StartInfo.UseShellExecute = true;
                     process.StartInfo.Verb = "runas";
@@ -5459,6 +5295,24 @@ namespace paulv2k4ModdingExecuter
             {
                 File.Copy(fileInfo.FullName, fileInfo2.FullName, overwrite: true);
             }
+        }
+
+        public static async void RunPowershellToUnblockDLLAtLocation(string loc)
+        {
+            var psCommmand = $"dir \"{loc}\" -Recurse|Unblock-File";
+            var psCommandBytes = System.Text.Encoding.Unicode.GetBytes(psCommmand);
+            var psCommandBase64 = Convert.ToBase64String(psCommandBytes);
+
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy unrestricted -WindowStyle hidden -EncodedCommand {psCommandBase64}",
+                UseShellExecute = true
+            };
+            startInfo.Verb = "runAs";
+            Process.Start(startInfo);
+
+            await Task.Delay(9000);
         }
     }
 }

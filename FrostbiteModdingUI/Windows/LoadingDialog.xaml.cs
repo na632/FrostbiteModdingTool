@@ -28,14 +28,8 @@ namespace FrostbiteModdingUI.Windows
         public LoadingDialog(string loadingSubTitle, string loadingCurrentMessage) : base()
         {
             InitializeComponent();
-            Task.Run(() =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    lblLoadingSubtitle.Content = loadingSubTitle;
-                    lblProgress.Content = loadingCurrentMessage;
-                });
-            });
+            
+            Update(loadingSubTitle, loadingCurrentMessage);
 
         }
 
@@ -47,9 +41,6 @@ namespace FrostbiteModdingUI.Windows
         public void Update(int progress)
         {
             Dispatcher.Invoke(() => {
-
-                pring.Visibility = Visibility.Collapsed;
-                pbar.Visibility = Visibility.Visible;
                 pbar.Value = progress;
             });
         }
@@ -59,12 +50,17 @@ namespace FrostbiteModdingUI.Windows
             await Task.Run(() => { Update(progress); });
         }
 
+        Random randomNumber = new Random();
+
         public void Update(string loadingSubTitle, string loadingCurrentMessage)
         {
             Dispatcher.Invoke(() => {
 
+                pbar.Value = randomNumber.Next(0, 100);
                 lblLoadingSubtitle.Content = loadingSubTitle;
-                lblProgress.Content = loadingCurrentMessage;
+                lblProgress.Text = loadingCurrentMessage;
+
+                this.Visibility = loadingSubTitle == string.Empty && loadingCurrentMessage == string.Empty ? Visibility.Collapsed : Visibility.Visible;
             });
         }
 
@@ -78,7 +74,7 @@ namespace FrostbiteModdingUI.Windows
             Dispatcher.Invoke(() => {
 
                 lblLoadingSubtitle.Content = loadingSubTitle;
-                lblProgress.Content = loadingCurrentMessage;
+                lblProgress.Text = loadingCurrentMessage;
                 pbar.Value = progress;
             });
         }
@@ -90,7 +86,10 @@ namespace FrostbiteModdingUI.Windows
 
         public void Log(string text, params object[] vars)
         {
-            Update(lblLoadingSubtitle.Content.ToString(), text);
+            Dispatcher.Invoke(() =>
+            {
+                Update(lblLoadingSubtitle.Content.ToString(), text);
+            });
         }
 
         public void LogWarning(string text, params object[] vars)

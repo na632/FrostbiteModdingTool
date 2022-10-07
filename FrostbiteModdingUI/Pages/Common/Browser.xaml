@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
              xmlns:local2="clr-namespace:FMT.Pages.Common"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
               xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
             xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
             xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
@@ -14,14 +15,16 @@
              xmlns:frostbite="clr-namespace:FrostySdk.Ebx;assembly=FrostySdk"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-    <DockingManager>
+    <DockingManager >
+        <DockingManager.Theme>
+            <Vs2013DarkTheme></Vs2013DarkTheme>
+        </DockingManager.Theme>
         <LayoutRoot>
             <LayoutPanel>
                 <LayoutPanel Orientation="Horizontal">
-                    <LayoutPanel Orientation="Horizontal">
                         <LayoutAnchorablePane DockWidth="200">
                             <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False">
-                                <Grid Background="White" Grid.Row="0" VerticalAlignment="Stretch">
+                                <Grid Grid.Row="0" VerticalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="75*" ></ColumnDefinition>
                                         <ColumnDefinition Width="312*" ></ColumnDefinition>
@@ -41,7 +44,6 @@
                                 
                                 <TreeView VerticalAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="3" x:Name="assetTreeView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible"  
-                      BorderBrush="LightGray" BorderThickness="1" Background="White"
                       SelectedItemChanged="assetTreeView_SelectedItemChanged"
                       >
                                     <TreeView.ItemTemplate>
@@ -74,8 +76,6 @@
                                           ScrollViewer.CanContentScroll="True"
                       ScrollViewer.VerticalScrollBarVisibility="Visible" 
                       ScrollViewer.HorizontalScrollBarVisibility="Visible" 
-                      BorderBrush="LightGray" 
-                      BorderThickness="1" 
                       HorizontalAlignment="Stretch" 
                       SelectionChanged="assetListView_SelectionChanged"
                       
@@ -211,52 +211,33 @@
                                                 <ColumnDefinition></ColumnDefinition>
                                                 <ColumnDefinition></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
-                                            <Button Grid.Column="0" x:Name="btnImport" IsEnabled="False" Click="btnImport_Click" Height="30" Background="Transparent">
+                                            <Button Grid.Column="0" x:Name="btnImport" IsEnabled="False" Click="btnImport_Click" Height="30">
                                                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                                     <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
                                                     <Label Content="Import" VerticalAlignment="Center" />
                                                 </StackPanel>
                                             </Button>
-                                            <Button Grid.Column="1" x:Name="btnExport" IsEnabled="False" Click="btnExport_Click" Height="30" Background="Transparent">
+                                            <Button Grid.Column="1" x:Name="btnExport" IsEnabled="False" Click="btnExport_Click" Height="30">
                                                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                                     <MaterialDesign:PackIcon Kind="Export" VerticalAlignment="Center" />
                                                     <Label Content="Export" VerticalAlignment="Center" />
                                                 </StackPanel>
                                             </Button>
-                                            <Button Grid.Column="2" x:Name="btnRevert" IsEnabled="False" Click="btnRevert_Click" Height="30" Background="Transparent">
+                                            <Button Grid.Column="2" x:Name="btnRevert" IsEnabled="False" Click="btnRevert_Click" Height="30">
                                                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                                     <MaterialDesign:PackIcon Kind="Reverse" VerticalAlignment="Center" />
                                                     <Label Content="Revert" VerticalAlignment="Center" />
                                                 </StackPanel>
                                             </Button>
                                         </Grid>
-                                            <DockingManager Grid.Row="1" Background="Gray" x:Name="ImageViewerScreen" Visibility="Collapsed">
+                                            <DockingManager Grid.Row="1" x:Name="ImageViewerScreen" Visibility="Collapsed">
                                                 <LayoutRoot>
                                                     <LayoutPanel>
                                                         <LayoutAnchorablePane>
                                                             <LayoutAnchorable Title="Image">
-                                                                <Image  x:Name="ImageViewer" Grid.RowSpan="3" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
+                                                                <Image  x:Name="ImageViewer" Grid.RowSpan="3" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="1000" MaxHeight="1000">
 
                                                                 </Image>
-                                                            </LayoutAnchorable>
-                                                            <LayoutAnchorable Title="Details" CanFloat="False" CanClose="False" CanHide="False">
-                                                                <Grid>
-                                                                    <Grid.RowDefinitions>
-                                                                        <RowDefinition></RowDefinition>
-                                                                        <RowDefinition></RowDefinition>
-                                                                        <RowDefinition></RowDefinition>
-                                                                    </Grid.RowDefinitions>
-                                                                        <xctk:PropertyGrid  Grid.Column="1" VerticalContentAlignment="Stretch" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
-                                                                        </xctk:PropertyGrid>
-                                                                        <xctk:PropertyGrid Grid.Row="1" Grid.Column="1"
-                                                               VerticalContentAlignment="Stretch"
-                                                               VerticalAlignment="Stretch" SelectedObject="{Binding SelectedEbxAsset.RootObject}"
-                                                               IsReadOnly="True"
-                                                               AutoGenerateProperties="True">
-                                                                        </xctk:PropertyGrid>
-                                                                        <TextBlock Grid.Row="2" Grid.Column="1" Background="White" Text="{Binding CurrentDDSImageFormat}"></TextBlock>
-                                                                </Grid>
-                                                                
                                                             </LayoutAnchorable>
                                                         </LayoutAnchorablePane>
                                                     </LayoutPanel>
@@ -283,14 +264,13 @@
                                         <local2:BrowserOfBIG Grid.Row="1" x:Name="BIGViewer" Visibility="Collapsed">
                                             
                                         </local2:BrowserOfBIG>
-                                        <xctk:PropertyGrid Grid.Row="1" x:Name="BackupEBXViewer" Visibility="Collapsed">
-
-                                        </xctk:PropertyGrid>
+                                        <!--<xctk:PropertyGrid Grid.Row="1" x:Name="BackupEBXViewer" Visibility="Collapsed" Background="DarkGray">
+                                        </xctk:PropertyGrid>-->
                                         <!--<local2:FMTPropertyGrid x:Name="BackupEBXViewer" Grid.Row="1" Visibility="Collapsed">
                                     </local2:FMTPropertyGrid>-->
 
 
-                                        <DockingManager Grid.Row="1" x:Name="UnknownLegacyFileViewer" Visibility="Collapsed">
+                                        <DockingManager Grid.Row="1" x:Name="UnknownFileViewer" Visibility="Collapsed">
                                             <LayoutRoot>
                                                 <LayoutPanel>
                                                     <LayoutDocumentPaneGroup x:Name="unknownFileDocumentsGroup">
@@ -338,7 +318,7 @@
 
                                             <xctk:PropertyGrid x:Name="ModelViewerEBXGrid">
                                                 <xctk:PropertyGrid.EditorDefinitions>
-                                                    <xctk:EditorTemplateDefinition TargetProperties="{x:Type sys:Int32}">
+                                                    <xctk:EditorTemplateDefinition TargetProperties="[{x:Type sys:Int32}]">
                                                         <xctk:EditorTemplateDefinition.EditingTemplate>
                                                             <DataTemplate>
                                                                 <xctk:PropertyGridEditorIntegerUpDown Increment="1" Value="{Binding Value}"></xctk:PropertyGridEditorIntegerUpDown>
@@ -369,7 +349,6 @@
                         </LayoutDocumentPaneGroup>
                         
                     </LayoutPanel>
-                </LayoutPanel>
             </LayoutPanel>
         </LayoutRoot>
     </DockingManager>

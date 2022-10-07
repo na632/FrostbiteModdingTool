@@ -39,7 +39,7 @@ namespace FrostbiteModdingUI.Windows
 
         public ProjectManagement ProjectManagement { get; private set; }
 
-        private string WindowEditorTitle = $"Madden Editor - {ProfilesLibrary.ProfileName} - {FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion} - ";
+        private string WindowEditorTitle = $"Madden Editor - {ProfilesLibrary.ProfileName} - {FileVersionInfo.GetVersionInfo(AppContext.BaseDirectory).ProductVersion} - ";
 
         private string _windowTitle;
         public string WindowTitle
@@ -335,7 +335,7 @@ namespace FrostbiteModdingUI.Windows
             await Dispatcher.InvokeAsync(() => { btnLaunchGameInEditor.IsEnabled = false; });
 
 
-            var oldFiles = Directory.GetFiles(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "*.fbmod");
+            var oldFiles = Directory.GetFiles(Directory.GetParent(App.ApplicationDirectory).FullName, "*.fbmod");
             foreach (var oFile in oldFiles) File.Delete(oFile);
             var testfbmodname = "test-" + new Random().Next().ToString() + ".fbmod";
 

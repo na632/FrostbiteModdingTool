@@ -1,4 +1,5 @@
 using Frosty.Hash;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -24,7 +25,11 @@ namespace FrostySdk
 
 		private List<Catalog> catalogs = new List<Catalog>();
 
-		public Dictionary<string, byte[]> memoryFs = new Dictionary<string, byte[]>();
+		public Dictionary<string, byte[]> memoryFs { get; set; } = new Dictionary<string, byte[]>();
+
+		public Dictionary<string, byte[]> MemoryFileSystem => memoryFs;
+
+		public Dictionary<string, byte[]> MemoryFileSystemModifiedItems { get; set; } = new Dictionary<string, byte[]>();
 
 		private List<string> casFiles = new List<string>();
 
@@ -127,9 +132,6 @@ namespace FrostySdk
 			cacheName = ProfilesLibrary.CacheName;
 			deobfuscatorType = ProfilesLibrary.Deobfuscator;
 
-
-			LoadLocaleINI();
-
 			Instance = this;
 		}
 
@@ -137,6 +139,9 @@ namespace FrostySdk
 
 		public byte[] LoadKey()
 		{
+			if (KeyManager.Instance.HasKey("Key1"))
+				return KeyManager.Instance.GetKey("Key1");
+
 			if (ProfilesLibrary.RequiresKey)
 			{
 				byte[] array;
@@ -172,7 +177,7 @@ namespace FrostySdk
 			if (key == null)
 				key = LoadKey();
 
-			LoadInitfs(key, patched);
+			ReadInitfs(key, patched);
 		}
 
 		public IDeobfuscator CreateDeobfuscator()
@@ -410,35 +415,44 @@ namespace FrostySdk
 		byte[] lKeyABC = new byte[] { 0x27, 0x0E, 0xCC, 0xA9, 0x96, 0x7E, 0x96, 0xBA, 0x35, 0x7E, 0x90, 0x90, 0xE6, 0x29, 0x9D, 0x36, 0x9D, 0xF8, 0x42, 0xA3, 0x3E, 0xBB, 0x08, 0xFB, 0x67, 0x85, 0x07, 0xA7, 0x80, 0x0A, 0xBA, 0x11, 0xA0, 0x51, 0x02, 0xF5, 0x40, 0xE4, 0x12, 0x91, 0x27, 0x89, 0x3D, 0x15, 0xF4, 0x50, 0x7A, 0x8E };
 		public bool LocaleIsEncrypted;
 
-		public byte[] LoadLocaleINI()
+		public byte[] ReadLocaleIni()
 		{
 			if (!string.IsNullOrEmpty(LocaleIniPath))
 			{
 				var data = File.ReadAllBytes(LocaleIniPath);
 				if (!File.ReadAllText(LocaleIniPath).StartsWith("[LOCALE]"))
 				{
+					if (File.Exists(LocaleIniPath + ".bak"))
+					{
+						Debug.WriteLine("ReadLocaleIni: Found backup Encrypted Locale.ini. Reading that.");
+						data = File.ReadAllBytes(LocaleIniPath + ".bak");
+					}
 					LocaleIsEncrypted = true;
-					 
-					//var key = LoadKey();
+
+					var key1 = KeyManager.Instance.GetKey("Key1");
+					var key2 = KeyManager.Instance.GetKey("Key2");
+					var key3 = KeyManager.Instance.GetKey("Key3");
 					var key = lKeyABC;
 					using (Aes aes = Aes.Create())
 					{
 						aes.Key = key.AsSpan(0, 0x20).ToArray();
 						aes.IV = key.AsSpan(32, 16).ToArray();
 						ICryptoTransform transform = aes.CreateDecryptor(aes.Key, aes.IV);
-						var value = data;
-						using (MemoryStream stream = new MemoryStream(value))
+						MemoryStream msDecrypted = new MemoryStream();
+						using (MemoryStream stream = new MemoryStream(data))
 						{
 							using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
 							{
-								cryptoStream.Read(value, 0, value.Length);
+								//cryptoStream.Read(data, 0, data.Length);
+								cryptoStream.CopyTo(msDecrypted);
 							}
 						}
+						data = msDecrypted.ToArray();
 
 						if (File.Exists("locale_decrypt.ini"))
 							File.Delete("locale_decrypt.ini");
 
-						File.WriteAllBytes("locale_decrypt.ini", value);
+						File.WriteAllBytes("locale_decrypt.ini", data);
 					}
 				}
 
@@ -448,19 +462,59 @@ namespace FrostySdk
 			return null;
 		}
 
-		public DbObject LoadInitfs(byte[] key, bool patched = true)
+		public byte[] WriteLocaleIni(byte[] data, bool writeToFile = false)
+		{
+			if (!string.IsNullOrEmpty(LocaleIniPath))
+			{
+				if (!File.Exists(LocaleIniPath + ".bak"))
+					File.Copy(LocaleIniPath, LocaleIniPath + ".bak");
+
+				if (!File.ReadAllText(LocaleIniPath).StartsWith("[LOCALE]"))
+				{
+					var key = lKeyABC;
+					using (Aes aes = Aes.Create())
+					{
+						aes.Key = key.AsSpan(0, 0x20).ToArray();
+						aes.IV = key.AsSpan(32, 16).ToArray();
+						ICryptoTransform transform = aes.CreateEncryptor(aes.Key, aes.IV);
+						MemoryStream msEncrypted = new MemoryStream();
+						using (MemoryStream stream = new MemoryStream(data))
+						{
+							using (CryptoStream cryptoStream = new CryptoStream(stream, transform, CryptoStreamMode.Read))
+							{
+								cryptoStream.CopyTo(msEncrypted);
+							}
+						}
+						data = msEncrypted.ToArray();
+
+						if (File.Exists("locale_encrypt.ini"))
+							File.Delete("locale_encrypt.ini");
+
+						File.WriteAllBytes("locale_encrypt.ini", data);
+
+						if(writeToFile)
+							File.WriteAllBytes(LocaleIniPath, data);
+					}
+				}
+
+			}
+
+			return data;
+
+		}
+
+		public DbObject ReadInitfs(byte[] key, bool patched = true)
 		{
 			DbObject dbObject = null;
 			
-			string text = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
-			if (text == "")
+			string initfsFilePath = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
+			if (initfsFilePath == "")
 			{
 				return dbObject;
 			}
 
-			var fsInitfs = new FileReader(new FileStream(text, FileMode.Open, FileAccess.Read));
+			var fsInitfs = new FileReader(new FileStream(initfsFilePath, FileMode.Open, FileAccess.Read));
 			MemoryStream msInitFs = new MemoryStream(fsInitfs.ReadToEnd());
-			bool isEncrypted;
 			fsInitfs.Dispose();
 
 			// Go down to 556 (like TOC) using Deobfuscator
@@ -539,105 +593,60 @@ namespace FrostySdk
 				memoryFs.Remove("__fsinternal__");
 				if (dbObject2.GetValue("inheritContent", defaultValue: false))
 				{
-					LoadInitfs(key, patched: false);
+					ReadInitfs(key, patched: false);
 				}
 			}
 
 			return dbObject;
 		}
 
-		public void RepackInitfs(DbObject dbObject, bool patched = true)
+		public void WriteInitfs(Stream outStream, bool patched = true)
 		{
-			string text = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
-			if (text == "")
+			string initfsPath = ResolvePath((patched ? "native_patch/" : "native_data/") + "initfs_win32");
+			if (initfsPath == "")
 			{
 				return;
 			}
-
-			byte[] key = KeyManager.Instance.GetKey("Key1");
-			
-			if (key == null)
+			var encryptionKey = LoadKey();
+			MemoryStream unencryptedStream = new MemoryStream();
+			MemoryStream encryptedStream = new MemoryStream();
+			DbWriter dbWriter = new DbWriter(unencryptedStream, leaveOpen: true);
+			DbObject unencryptedDb = new DbObject(new List<object>());
+			string key;
+			byte[] value;
+			foreach (KeyValuePair<string, byte[]> memoryF in memoryFs)
 			{
-				Debug.WriteLine("[DEBUG] LoadInitfs()::Key is not available");
-				return;
+				memoryF.Deconstruct(out key, out value);
+				string name2 = key;
+				byte[] data2 = value;
+				DbObject fileToc2 = new DbObject(new Dictionary<string, object>());
+				fileToc2.AddValue("name", name2);
+					fileToc2.AddValue("payload", data2);
+				DbObject listEntryToc2 = new DbObject(new Dictionary<string, object>());
+				listEntryToc2.AddValue("$file", fileToc2);
+				unencryptedDb.List.Add(listEntryToc2);
 			}
-			foreach (DbObject item in dbObject)
+            dbWriter.Write(unencryptedDb);
+            unencryptedStream.Position = 0L;
+			using (Aes aes = Aes.Create())
 			{
-				DbObject fileItem = item.GetValue<DbObject>("$file");
-				//string payload = System.Text.Encoding.Default.GetString(value2.GetValue<byte[]>("payload")); 
-				string nameOfItem = fileItem.GetValue<string>("name");
-				if(nameOfItem.Contains("product.ini"))
-                {
-					var payloadOfBytes = fileItem.GetValue<byte[]>("payload");
-					var str = System.Text.Encoding.Default.GetString(payloadOfBytes);
-					if(!string.IsNullOrEmpty(str))
-                    {
-						str = str.Replace("ENABLED = 1", "ENABLED = 0");
-						payloadOfBytes = Encoding.Default.GetBytes(str);
-						fileItem.SetValue("payload", payloadOfBytes);
-					}
-				}
-			}
-
-			var m = new MemoryStream();
-			using (DbWriter dbWriter = new DbWriter(m, leaveOpen: true, inWriteHeader: true))
-			{
-				dbWriter.Write(dbObject);
-				dbWriter.Flush();
-				dbWriter.Close();
-				byte[] value = null;
-				m.Position = 0;
-				using (NativeReader r = new NativeReader(m))
-                {
-					value = r.ReadBytes((int)r.Length);
-                }
-
-				try
+				aes.Key = encryptionKey;
+				aes.IV = encryptionKey;
+				ICryptoTransform transform = aes.CreateEncryptor(aes.Key, aes.IV);
+				using (CryptoStream cryptoStream = new CryptoStream(encryptedStream, transform, CryptoStreamMode.Write))
 				{
-					using (Aes aes = Aes.Create())
-					{
-						aes.Key = key;
-						aes.IV = key;
-						ICryptoTransform transform = aes.CreateEncryptor(aes.Key, aes.IV);
-						using (var filestream = new FileStream("new_initfs_win32", FileMode.OpenOrCreate))
-						{
-							using (MemoryStream memoryStream = new MemoryStream())
-							{
-								using (CryptoStream cryptoStream = new CryptoStream(memoryStream, transform, CryptoStreamMode.Write, true))
-								{
-									cryptoStream.Write(value, 0, value.Length);
-								}
-
-								DbObject reencrypt = DbObject.CreateObject();
-								memoryStream.Position = 0;
-								using (NativeReader r = new NativeReader(memoryStream))
-								{
-									value = r.ReadBytes((int)r.Length);
-								}
-								reencrypt.AddValue("encrypted", value);
-
-								using (DbWriter writer = new DbWriter(filestream))
-                                {
-									writer.Write(reencrypt);
-                                }
-							}
-
-						}
-					}
+					unencryptedStream.CopyTo(cryptoStream);
 				}
-				catch (Exception e)
-                {
-
-                }
 			}
+			byte[] encryptedDbEntry = encryptedStream.ToArray();
+			DbObject newEncryptEntry = new DbObject(new Dictionary<string, object> { { "encrypted", encryptedDbEntry } });
+			DbWriter dbWriterEncrypted = new DbWriter(outStream, leaveOpen: true);
+			dbWriterEncrypted.Write(newEncryptEntry);
+			unencryptedStream.Close();
+			unencryptedStream.Dispose();
+			//tocWriter.Write(outStream, newTocEntry, writeHeader: true);
 
-			using (DbWriter dbWriter = new DbWriter(new FileStream("decrypted_initfs", FileMode.Create), inWriteHeader: true))
-			{
-				dbWriter.Write(dbObject);
-			}
-
-            
-        }
+		}
 
 		private void ProcessLayouts()
 		{

@@ -79,6 +79,7 @@
   //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "Oodle",
   //"CompressedFormatLegacy": "None",
-  "LegacyFileManager": "LFM_Fifa22"
+  "LegacyFileManager": "LFM_Fifa22",
+  "CanUseModData": true
 
 }

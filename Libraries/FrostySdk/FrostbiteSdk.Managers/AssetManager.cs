@@ -1,3 +1,4 @@
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
 using FrostbiteSdk;
 using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
@@ -473,14 +474,16 @@ public interface IAssetLoader
 
 		public List<EmbeddedFileEntry> EmbeddedFileEntries = new List<EmbeddedFileEntry>();
 
+		public LocaleINIMod LocaleINIMod;
 
-
-		public AssetManager(FileSystem inFs, ResourceManager inRm)
+		public AssetManager(in FileSystem inFs, in ResourceManager inRm)
 		{
 			fs = inFs;
 			rm = inRm;
 
             Instance = this;
+
+			LocaleINIMod = new LocaleINIMod();
 		}
 
 		// To detect redundant calls
@@ -942,6 +945,7 @@ public interface IAssetLoader
 			EmbeddedFileEntries = new List<EmbeddedFileEntry>();
 
 			LegacyFileManager_FMTV2.CleanUpChunks(true);
+			LocaleINIMod = new LocaleINIMod();
 
 		}
 
@@ -1264,6 +1268,7 @@ public interface IAssetLoader
 			{
 				chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
 			}
+			chunkAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
 			chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
 			chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
 			chunkAssetEntry.ModifiedEntry.LogicalSize = (uint)buffer.Length;
@@ -3412,3 +3417,4 @@ public interface IAssetLoader
 		}
 	}
 }
+#pragma warning restore SYSLIB0021 // Type or member is obsolete

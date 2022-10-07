@@ -22,7 +22,9 @@ namespace FrostySdk.IO
         }
 
         //public uint NameHash;
-        public int NameHash;
+        public int NameHash { get; set; }   
+
+        public uint NameHashU => (uint)NameHash;
         //public ulong NameHash;
 
         public ushort Type { get; set; }

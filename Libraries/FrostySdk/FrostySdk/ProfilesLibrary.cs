@@ -92,16 +92,37 @@ namespace FrostySdk
 			public string ModCompilerFileType { get; set; }
 
 			/// <summary>
-			/// 
+			/// A switch as to whether this tool can read files for this profile via an Editor
 			/// </summary>
 			public bool CanEdit { get; set; }
 
 			/// <summary>
-			/// 
+			/// A switch as to whether this tool can Launch/Compile mods for this profile
 			/// </summary>
 			public bool CanLaunchMods { get; set; }
 
-            private string editorIcon;
+           
+            private bool? _canUseModData;
+
+			/// <summary>
+			/// A switch as to whether this tool can use a "ModData" folder for this profile
+			/// </summary>
+			public bool CanUseModData
+            {
+                get { return !_canUseModData.HasValue || _canUseModData.Value; }
+                set { _canUseModData = value; }
+            }
+
+
+
+
+            /// <summary>
+            /// A switch as to whether this tool has a "Legacy.dll" attached that allows Live Legacy mods (Aranaktu's work)
+            /// </summary>
+            public bool CanUseLiveLegacyMods { get; set; }
+
+
+			private string editorIcon;
 
             public string EditorIcon
 			{
@@ -303,6 +324,7 @@ namespace FrostySdk
 
 		public static bool CanImportMeshes => LoadedProfile.CanImportMeshes;
 		public static bool CanExportMeshes => LoadedProfile.CanExportMeshes;
+		public static bool CanUseLiveLegacyMods => LoadedProfile.CanUseLiveLegacyMods;
 
 		public static string LegacyFileManager => LoadedProfile.LegacyFileManager;
 		public static string SDKClassesFile => LoadedProfile.SDKClassesFile;
@@ -367,7 +389,7 @@ namespace FrostySdk
 			FIFA20 = 20190911,
 			FIFA21 = 20200929,
 			FIFA22 = 20210922,
-			FIFA23 = 20220928,
+			FIFA23 = 20220927,
 
 			MADDEN20 = 20190729,
 			MADDEN21 = 20200831,
@@ -666,9 +688,6 @@ namespace FrostySdk
 				Directory.CreateDirectory("Debugging/Chunk");
 			if (!Directory.Exists("Debugging/Other"))
 				Directory.CreateDirectory("Debugging/Other");
-
-
-			
 			
 			if (File.Exists("FrostbiteProfiles/" + profileKey + "Profile.json"))
 			{
@@ -687,71 +706,6 @@ namespace FrostySdk
 			else
 			{
 				throw new Exception($"Cannot find {profileKey}Profile.json. You have either not installed FMT correctly or a Profile for this game doesn't exist!");
-				//long num = -1L;
-				//using (FileStream fileStream = new FileStream("FrostySdk.Profiles.bin", FileMode.Open))
-				//using (NativeReader nativeReader = new NativeReader(fileStream))
-				//{
-				//	int num2 = nativeReader.ReadInt();
-				//	for (int i = 0; i < num2; i++)
-				//	{
-				//		string text = DecodeString(nativeReader);
-				//		long num3 = nativeReader.ReadLong();
-				//		if (text.Equals(profileKey, StringComparison.OrdinalIgnoreCase))
-				//		{
-				//			num = num3;
-				//			profileKey = text;
-				//		}
-				//	}
-				//	if (num == -1)
-				//	{
-				//		return false;
-				//	}
-				//	nativeReader.Position += num;
-				//	Profile profile = default(Profile);
-				//	profile.Name = profileKey;
-				//	profile.DisplayName = DecodeString(nativeReader);
-				//	profile.DataVersion = nativeReader.ReadInt();
-				//	profile.CacheName = DecodeString(nativeReader);
-				//	profile.Deobfuscator = DecodeString(nativeReader);
-				//	profile.AssetLoader = DecodeString(nativeReader);
-				//	profile.Sources = new List<FileSystemSource>();
-				//	profile.SharedBundles = new Dictionary<int, string>();
-				//	profile.IgnoredResTypes = new List<uint>();
-				//	int num4 = nativeReader.ReadInt();
-				//	for (int j = 0; j < num4; j++)
-				//	{
-				//		FileSystemSource item = default(FileSystemSource);
-				//		item.Path = DecodeString(nativeReader);
-				//		item.SubDirs = (nativeReader.ReadByte() == 1);
-				//		profile.Sources.Add(item);
-				//	}
-				//	profile.SDKFilename = DecodeString(nativeReader);
-				//	profile.Banner = nativeReader.ReadBytes(nativeReader.ReadInt());
-				//	profile.DefaultDiffuse = DecodeString(nativeReader);
-				//	profile.DefaultNormals = DecodeString(nativeReader);
-				//	profile.DefaultMask = DecodeString(nativeReader);
-				//	profile.DefaultTint = DecodeString(nativeReader);
-				//	int num5 = nativeReader.ReadInt();
-				//	for (int k = 0; k < num5; k++)
-				//	{
-				//		string text2 = DecodeString(nativeReader);
-				//		profile.SharedBundles.Add(Fnv1.HashString(text2.ToLower()), text2);
-				//	}
-				//	int num6 = nativeReader.ReadInt();
-				//	for (int l = 0; l < num6; l++)
-				//	{
-				//		profile.IgnoredResTypes.Add(nativeReader.ReadUInt());
-				//	}
-				//	profile.MustAddChunks = (nativeReader.ReadByte() == 1);
-				//	profile.EbxVersion = nativeReader.ReadByte();
-				//	profile.RequiresKey = (nativeReader.ReadByte() == 1);
-				//	profile.EnableExecution = (nativeReader.ReadByte() != 1);
-
-				//	System.IO.File.WriteAllText(profileKey + "Profile.json", JsonConvert.SerializeObject(profile));
-				//	// Write out to json and reinit
-				//	return Initialize(profileKey);
-				//}
-
 			}
 
 		}

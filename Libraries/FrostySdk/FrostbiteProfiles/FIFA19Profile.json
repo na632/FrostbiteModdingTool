@@ -40,5 +40,6 @@
   "CanEdit": false,
   "CanLaunchMods": false,
   "LegacyFileManager": "",
-  "DoesNotUsePlugin": true
+  "DoesNotUsePlugin": true,
+  "CanUseModData": true
 }
