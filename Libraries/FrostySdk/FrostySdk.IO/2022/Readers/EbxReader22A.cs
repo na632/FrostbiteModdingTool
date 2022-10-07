@@ -5,6 +5,7 @@ using FrostySdk.FrostySdk.IO._2022.Readers;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -145,6 +146,10 @@ namespace FrostySdk.IO._2022.Readers
 
             foreach (var property in properties)
             {
+                var isTransient = property.Key.GetCustomAttribute<IsTransientAttribute>();
+				if (isTransient != null)
+					continue;
+
                 var propFieldIndex = property.Key.GetCustomAttribute<FieldIndexAttribute>();
                 var propNameHash = property.Key.GetCustomAttribute<HashAttribute>();
                 if (propFieldIndex == null && propNameHash == null)
@@ -206,8 +211,9 @@ namespace FrostySdk.IO._2022.Readers
 
                     property.Key.SetValue(obj, value);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+					Debug.WriteLine(ex.Message);
                 }
             }
 
