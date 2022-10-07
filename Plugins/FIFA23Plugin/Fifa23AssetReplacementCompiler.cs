@@ -168,8 +168,13 @@ namespace FIFA23Plugin
                         ModExecuter.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
                     else
                         ModExecuter.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+
+                    if (!ModExecuter.ModifiedChunks.ContainsKey(chunk.Id))
+                    {
+                        parent.ModifiedChunks.Add(chunk.Id, chunk);
+                    }
+                    ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
                 }
-                ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
             }
             // ------ End of handling Legacy files ---------
 
@@ -222,11 +227,11 @@ namespace FIFA23Plugin
 
             ModExecuter.Logger.Log("Enumerating modified bundles.");
 
-            ProcessBundles(true); // do patch
+            ProcessLegacyFiles();
+            //ProcessBundles(true); // do patch
             ProcessBundles(false); // do data
-            //ProcessLegacyFiles(); // finish off with legacy
 
-            ModExecuter.Logger.Log($"Modified {ModifiedCount_EBX} ebx, {ModifiedCount_RES} res, {ModifiedCount_Chunks} chunks");
+            ModExecuter.Logger.Log($"Modified {ModifiedCount_EBX} ebx, {ModifiedCount_RES} res, {ModifiedCount_Chunks} chunks, {ModifiedCount_Legacy} chunks");
 
 
             return true;
@@ -235,6 +240,7 @@ namespace FIFA23Plugin
         public int ModifiedCount_EBX = 0;
         public int ModifiedCount_RES = 0;
         public int ModifiedCount_Chunks = 0;
+        public int ModifiedCount_Legacy = 0;
 
         private class BundleFileEntry
         {
@@ -308,33 +314,33 @@ namespace FIFA23Plugin
 
                             foreach (DbObject o in tocSbReader.TOCFile.TOCObjects.List)
                             {
-                                List<string> ebxToRemove = new List<string>();
-                                DbObject ebx = o.GetValue<DbObject>("ebx");
-                                if (ebx != null && parent.modifiedEbx.Any())
-                                {
-                                    ProcessBundleEbx(modToCas, ebxToRemove, ebx);
-                                }
+                                //List<string> ebxToRemove = new List<string>();
+                                //DbObject ebx = o.GetValue<DbObject>("ebx");
+                                //if (ebx != null && parent.modifiedEbx.Any())
+                                //{
+                                //    ProcessBundleEbx(modToCas, ebxToRemove, ebx);
+                                //}
 
-                                //foreach (var item in ebxToRemove)
-                                //    parent.modifiedEbx.Remove(item);
+                                ////foreach (var item in ebxToRemove)
+                                ////    parent.modifiedEbx.Remove(item);
 
-                                List<string> resToRemove = new List<string>();
-                                DbObject res = o.GetValue<DbObject>("res");
-                                if (res != null && parent.modifiedRes.Any())
-                                {
-                                    //ProcessBundleRes(modToCas, resToRemove, res);
-                                }
+                                //List<string> resToRemove = new List<string>();
+                                //DbObject res = o.GetValue<DbObject>("res");
+                                //if (res != null && parent.modifiedRes.Any())
+                                //{
+                                //    //ProcessBundleRes(modToCas, resToRemove, res);
+                                //}
 
-                                //foreach (var item in resToRemove)
-                                //    parent.modifiedRes.Remove(item);
+                                ////foreach (var item in resToRemove)
+                                ////    parent.modifiedRes.Remove(item);
 
-                                List<Guid> chunksToRemove = new List<Guid>();
+                                //List<Guid> chunksToRemove = new List<Guid>();
 
-                                DbObject chunks = o.GetValue<DbObject>("chunks");
-                                if (chunks != null && parent.ModifiedChunks.Any())
-                                {
-                                    ProcessBundleChunk(modToCas, chunksToRemove, chunks);
-                                }
+                                //DbObject chunks = o.GetValue<DbObject>("chunks");
+                                //if (chunks != null && parent.ModifiedChunks.Any())
+                                //{
+                                //    ProcessBundleChunk(modToCas, chunksToRemove, chunks);
+                                //}
 
                                 //foreach (var item in chunksToRemove)
                                 //    parent.ModifiedChunks.Remove(item);
@@ -501,52 +507,59 @@ namespace FIFA23Plugin
                             //    }
                             //}
 
-                            //if (tocSbReader.TOCFile.TocChunks != null && tocSbReader.TOCFile.TocChunks.Any())
-                            //{
-                            //    var patch = true;
-                            //    var catalog = tocSbReader.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
-                            //    if (!tocSbReader.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
-                            //        patch = false;
+                            if (tocSbReader.TOCFile.TocChunks != null && tocSbReader.TOCFile.TocChunks.Any())
+                            {
+                                var patch = true;
+                                var catalog = tocSbReader.TOCFile.TocChunks.Max(x => x.ExtraData.Catalog.Value);
+                                if (!tocSbReader.TOCFile.TocChunks.Any(x => x.ExtraData.IsPatch))
+                                    patch = false;
 
-                            //    var cas = tocSbReader.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
+                                var cas = tocSbReader.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
 
-                            //    var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
+                                var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
 
-                            //    // Modified Toc chunks
-                            //    foreach (var modChunk in parent.ModifiedChunks)
-                            //    {
-                            //        if (tocSbReader.TOCFile.TocChunkGuids.Contains(modChunk.Key))
-                            //        {
-                            //            var chunkIndex = tocSbReader.TOCFile.TocChunks.FindIndex(x => x.Id == modChunk.Key
-                            //                && modChunk.Value.ModifiedEntry != null
-                            //                && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
-                            //            if (chunkIndex != -1)
-                            //            {
-                            //                var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                // Modified Toc chunks
+                                foreach (var modChunk in parent.ModifiedChunks)
+                                {
+                                    if (tocSbReader.TOCFile.TocChunkGuids.Contains(modChunk.Key))
+                                    {
+                                        var chunkIndex = tocSbReader.TOCFile.TocChunks.FindIndex(x => x.Id == modChunk.Key
+                                            && modChunk.Value.ModifiedEntry != null
+                                            && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
+                                        if (chunkIndex != -1)
+                                        {
+                                            var data = parent.archiveData[modChunk.Value.Sha1].Data;
 
-                            //                var chunkGuid = tocSbReader.TOCFile.TocChunkGuids[chunkIndex];
+                                            var chunkGuid = tocSbReader.TOCFile.TocChunkGuids[chunkIndex];
 
-                            //                var chunk = tocSbReader.TOCFile.TocChunks[chunkIndex];
-                            //                DbObject dboChunk = tocSbReader.TOCFile.TocChunkInfo[modChunk.Key];
+                                            var chunk = tocSbReader.TOCFile.TocChunks[chunkIndex];
+                                            DbObject dboChunk = tocSbReader.TOCFile.TocChunkInfo[modChunk.Key];
 
-                            //                using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
-                            //                {
-                            //                    nw_cas.Position = nw_cas.Length;
-                            //                    var newPosition = nw_cas.Position;
-                            //                    nw_cas.WriteBytes(data);
-                            //                    chunk.ExtraData.IsPatch = patch;
-                            //                    chunk.ExtraData.Catalog = catalog;
-                            //                    chunk.ExtraData.Cas = (ushort)newCas;
-                            //                    chunk.ExtraData.DataOffset = (uint)newPosition;
-                            //                    chunk.Size = data.Length;
-                            //                    tocSbReader.TOCFile.TocChunks[chunkIndex] = chunk;
+                                            var resolvedPath = FileSystem.Instance.ResolvePath(
+                                                FileSystem.Instance.GetFilePath((int)chunk.ExtraData.Catalog, (int)chunk.ExtraData.Cas, chunk.ExtraData.IsPatch));
 
-                            //                    ModifiedCount_Chunks++;
-                            //                    tocChanged = true;
-                            //                }
-                            //            }
-                            //        }
-                            //    }
+                                            //using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
+                                            using (NativeWriter nw_cas = new NativeWriter(new FileStream(resolvedPath, FileMode.OpenOrCreate)))
+                                            {
+                                                nw_cas.Position = chunk.ExtraData.DataOffset;
+                                                var newPosition = chunk.ExtraData.DataOffset;
+                                                //nw_cas.Position = nw_cas.Length;
+                                                //var newPosition = nw_cas.Position;
+                                                nw_cas.WriteBytes(data);
+                                                chunk.ExtraData.IsPatch = patch;
+                                                chunk.ExtraData.Catalog = catalog;
+                                                chunk.ExtraData.Cas = (ushort)newCas;
+                                                chunk.ExtraData.DataOffset = (uint)newPosition;
+                                                chunk.Size = data.Length;
+                                                tocSbReader.TOCFile.TocChunks[chunkIndex] = chunk;
+
+                                                ModifiedCount_Chunks++;
+                                                tocChanged = true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         if (tocChanged)

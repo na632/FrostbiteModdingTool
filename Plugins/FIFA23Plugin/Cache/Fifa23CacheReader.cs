@@ -102,15 +102,15 @@ namespace FIFA23Plugin.Cache
                     //	ebxAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
                     //}
 
-                    //if (nativeReader.ReadBoolean())
-                    //                   ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-                    //               if (nativeReader.ReadBoolean())
-                    //                   ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+                    if (nativeReader.ReadBoolean())
+                        ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+                    if (nativeReader.ReadBoolean())
+                        ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-                    //ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-                    //ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-                    //ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-                    //ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+                    ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+                    ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+                    ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+                    ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
 
 
                     //int num2 = nativeReader.ReadInt();

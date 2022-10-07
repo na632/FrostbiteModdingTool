@@ -134,18 +134,18 @@ namespace FIFA23Plugin.Cache
             //    nativeWriter.WriteLengthPrefixedString(tfl);
             //}
 
-            //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
-            //if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
-            //    nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
+            nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
+            if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
+                nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
 
-            //nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
-            //if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
-            //    nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
+            nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
+            if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
+                nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
 
-            //nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
-            //nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
-            //nativeWriter.Write(ebxEntry.SB_Sha1_Position);
-            //nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
+            nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
+            nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
+            nativeWriter.Write(ebxEntry.SB_Sha1_Position);
+            nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
 
             //nativeWriter.Write(ebxEntry.Bundles.Count);
             //foreach (int bundle2 in ebxEntry.Bundles)
