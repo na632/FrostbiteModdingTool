@@ -1,4 +1,5 @@
 using Frosty.Hash;
+using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -115,7 +116,35 @@ namespace FrostySdk
 
 		public string LocaleIniPath => ResolvePath("native_data/locale.ini");
 
-		public FileSystem(string inBasePath)
+		public string FIFALiveTuningUpdatePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName, "onlinecache0", "attribdb.bin");
+
+		public bool HasFIFALiveTuningUpdate => File.Exists(FIFALiveTuningUpdatePath);
+
+		public Dictionary<string, (int, int)> LiveTuningUpdates { get; } = new Dictionary<string, (int, int)>();
+
+		public EbxAsset GetLiveTuningUpdateAsset(string entry)
+		{
+			if (!HasFIFALiveTuningUpdate)
+				return null;
+
+            var bytesOfFile = File.ReadAllBytes(FIFALiveTuningUpdatePath);
+			if (bytesOfFile.Length > 0)
+			{
+				using (var nr = new NativeReader(new MemoryStream(bytesOfFile)))
+				{
+					nr.Position = LiveTuningUpdates[entry].Item1;
+					var bytes = nr.ReadBytes(LiveTuningUpdates[entry].Item2);
+                    using (var ms = new MemoryStream(bytes))
+					{
+						return AssetManager.Instance.GetEbxAssetFromStream(ms);
+					}
+				}
+			}
+			return null;
+
+        }
+
+        public FileSystem(string inBasePath)
 		{
 			if (string.IsNullOrEmpty(inBasePath))
 				throw new Exception("Base Path is empty!");
@@ -1067,6 +1096,57 @@ namespace FrostySdk
                 //ZipFile.CreateFromDirectory(FileSystem.Instance.BasePath + "\\Data", backupDataPath);
                 //ZipFile.CreateFromDirectory(FileSystem.Instance.BasePath + "\\Patch", backupPatchPath);
             }
+        }
+
+		public Dictionary<string, (int, int)> ReadFIFALiveTuningUpdate()
+		{
+			if (LiveTuningUpdates.Count > 0)
+				return LiveTuningUpdates;
+
+
+            if (!HasFIFALiveTuningUpdate)
+				return LiveTuningUpdates;
+
+            var bytesOfFile = File.ReadAllBytes(FIFALiveTuningUpdatePath);
+			if(bytesOfFile.Length > 0)
+			{
+				var searchByte = new byte[] { 0x52, 0x49, 0x46, 0x46 };
+
+                BoyerMoore boyerMoore = new BoyerMoore(searchByte);
+                var possibleEbxFound = boyerMoore.SearchAll(bytesOfFile);
+				using (NativeReader nr = new NativeReader(new MemoryStream(bytesOfFile)))
+				{
+					foreach (var possEbxPositionsFound in possibleEbxFound)
+					{
+						var passChecks = false;
+						nr.Position = possEbxPositionsFound;
+						passChecks = nr.ReadInt() == 1179011410;
+						int size = (int)nr.ReadUInt() + 6;
+						passChecks = size > 0;
+						passChecks = nr.ReadInt() == 5784133;
+						passChecks = nr.ReadInt() == 1146634821;
+						if (passChecks)
+						{
+							nr.Position += 56;
+							var n = nr.ReadUInt();
+							nr.Position += n - 4;
+							var nameOfEbx = nr.ReadNullTerminatedString();
+							if (!string.IsNullOrEmpty(nameOfEbx))
+							{
+								nr.Position = possEbxPositionsFound + size;
+								nr.Pad(16);
+								size = (int)nr.Position - possEbxPositionsFound;
+                                LiveTuningUpdates.Add(nameOfEbx.ToLower(), (possEbxPositionsFound, size));
+							}
+						}
+
+
+					}
+				}
+            }
+
+			return LiveTuningUpdates;
+
         }
     }
 }

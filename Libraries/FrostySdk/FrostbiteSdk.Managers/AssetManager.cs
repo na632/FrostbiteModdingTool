@@ -1995,7 +1995,7 @@ public interface IAssetLoader
 				inPatched = true;
 			}
 
-            return GetEbxAssetFromStream(assetStream, ProfilesLibrary.IsFIFA22DataVersion() ? false : inPatched);
+            return GetEbxAssetFromStream(assetStream, inPatched);
         }
 		public async Task<EbxAsset> GetEbxAsync(EbxAssetEntry entry, bool getModified = true)
 		{

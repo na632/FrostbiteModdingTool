@@ -585,6 +585,40 @@ namespace FrostbiteModdingTests
                 }
             }
         }
+
+
+        [TestMethod]
+        public void TestLoadValuesFromLiveTuningUpdate()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+
+            var assets = FileSystem.Instance.ReadFIFALiveTuningUpdate();
+            var asset = FileSystem.Instance.GetLiveTuningUpdateAsset(assets.First().Key);
+
+        }
+
+        /// <summary>
+        /// To start without AC you need to alter your Installer.xml
+        /// </summary>
+        [TestMethod]
+        public void TestLoadWithoutAC()
+        {
+            //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            //projectManagement.Project = new FrostySdk.FrostbiteProject();
+
+
+
+            //paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            //frostyModExecutor.ForceRebuildOfMods = true;
+            //frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+            //    new System.Collections.Generic.List<string>() {
+            //    }.ToArray()).Wait();
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            var r = GameInstanceSingleton.InjectDLL(@"ThirdParty\\23Zapper.dll", true).Result;
+
+        }
     }
 }
 

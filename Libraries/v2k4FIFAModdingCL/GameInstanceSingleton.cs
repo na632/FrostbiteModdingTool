@@ -195,7 +195,7 @@ namespace v2k4FIFAModdingCL
 
         public static bool InjectDLL_Bleak(int proc, string dllpath)
         {
-            using (var bl = new Bleak.Injector(Bleak.InjectionMethod.CreateThread, proc, @dllpath, false))
+            using (var bl = new Bleak.Injector(proc, File.ReadAllBytes(dllpath), Bleak.InjectionMethod.CreateThread))
             {
                 var ptr = bl.InjectDll();
                 return true; // Bleak Injected

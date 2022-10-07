@@ -29,6 +29,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ThirdParty\23Zapper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="ThirdParty\CryptBase.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
