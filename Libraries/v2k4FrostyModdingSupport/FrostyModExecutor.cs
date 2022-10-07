@@ -5116,6 +5116,9 @@ namespace paulv2k4ModdingExecuter
                 }
             }
 
+            //- -----------------------
+            // Clear out the memory of archive data after compilation and before launching the game
+            archiveData.Clear();
             //RunSetupFIFAConfig();
             //RunPowershellToUnblockDLLAtLocation(fs.BasePath);
 
@@ -5247,7 +5250,7 @@ namespace paulv2k4ModdingExecuter
                 process.StartInfo.FileName = processName;
                 process.StartInfo.WorkingDirectory = fileInfo.DirectoryName;
                 process.StartInfo.Arguments = args;
-                process.StartInfo.UseShellExecute = false;
+                //process.StartInfo.UseShellExecute = false;
                 //if (asAdmin)
                 {
                     process.StartInfo.UseShellExecute = true;

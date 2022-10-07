@@ -22,7 +22,6 @@
         <LayoutRoot>
             <LayoutPanel>
                 <LayoutPanel Orientation="Horizontal">
-                    <LayoutPanel Orientation="Horizontal">
                         <LayoutAnchorablePane DockWidth="200">
                             <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False">
                                 <Grid Grid.Row="0" VerticalAlignment="Stretch">
@@ -236,28 +235,9 @@
                                                     <LayoutPanel>
                                                         <LayoutAnchorablePane>
                                                             <LayoutAnchorable Title="Image">
-                                                                <Image  x:Name="ImageViewer" Grid.RowSpan="3" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="256" MaxHeight="256">
+                                                                <Image  x:Name="ImageViewer" Grid.RowSpan="3" Stretch="Fill" VerticalAlignment="Top"  MinHeight="200" MinWidth="200" MaxWidth="1000" MaxHeight="1000">
 
                                                                 </Image>
-                                                            </LayoutAnchorable>
-                                                            <LayoutAnchorable Title="Details" CanFloat="False" CanClose="False" CanHide="False">
-                                                                <Grid>
-                                                                    <Grid.RowDefinitions>
-                                                                        <RowDefinition></RowDefinition>
-                                                                        <RowDefinition></RowDefinition>
-                                                                        <RowDefinition></RowDefinition>
-                                                                    </Grid.RowDefinitions>
-                                                                        <xctk:PropertyGrid  Grid.Column="1" VerticalContentAlignment="Stretch" SelectedObject="{Binding SelectedEntry}" IsReadOnly="True" AutoGenerateProperties="True">
-                                                                        </xctk:PropertyGrid>
-                                                                        <xctk:PropertyGrid Grid.Row="1" Grid.Column="1"
-                                                               VerticalContentAlignment="Stretch"
-                                                               VerticalAlignment="Stretch" SelectedObject="{Binding SelectedEbxAsset.RootObject}"
-                                                               IsReadOnly="True"
-                                                               AutoGenerateProperties="True">
-                                                                        </xctk:PropertyGrid>
-                                                                        <TextBlock Grid.Row="2" Grid.Column="1" Background="White" Text="{Binding CurrentDDSImageFormat}"></TextBlock>
-                                                                </Grid>
-                                                                
                                                             </LayoutAnchorable>
                                                         </LayoutAnchorablePane>
                                                     </LayoutPanel>
@@ -369,7 +349,6 @@
                         </LayoutDocumentPaneGroup>
                         
                     </LayoutPanel>
-                </LayoutPanel>
             </LayoutPanel>
         </LayoutRoot>
     </DockingManager>

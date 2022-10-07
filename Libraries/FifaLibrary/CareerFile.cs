@@ -14,17 +14,17 @@ namespace FifaLibrary
 
 		protected string m_XmlFileName;
 
-		protected DataSet m_DescriptorDataSet;
+		//protected DataSet m_DescriptorDataSet;
 
-		protected FifaPlatform m_Platform;
+		//protected FifaPlatform m_Platform;
 
-		private char[] m_HeaderSignature;
+		//private char[] m_HeaderSignature;
 
-		private byte[] m_CryptArea;
+		//private byte[] m_CryptArea;
 
-		private uint m_CrcEaHeader;
+		//private uint m_CrcEaHeader;
 
-		private long m_CrcEaHeaderPosition;
+		//private long m_CrcEaHeaderPosition;
 
 		private DbFile[] m_Database = new DbFile[4];
 
@@ -76,29 +76,29 @@ namespace FifaLibrary
 
 		public string XmlFileName => this.m_XmlFileName;
 
-		public DataSet DescriptorDataSet
-		{
-			get
-			{
-				return this.m_DescriptorDataSet;
-			}
-			set
-			{
-				this.m_DescriptorDataSet = value;
-			}
-		}
+		//public DataSet DescriptorDataSet
+		//{
+		//	get
+		//	{
+		//		return this.m_DescriptorDataSet;
+		//	}
+		//	set
+		//	{
+		//		this.m_DescriptorDataSet = value;
+		//	}
+		//}
 
-		public FifaPlatform Platform
-		{
-			get
-			{
-				return this.m_Platform;
-			}
-			set
-			{
-				this.m_Platform = value;
-			}
-		}
+		//public FifaPlatform Platform
+		//{
+		//	get
+		//	{
+		//		return this.m_Platform;
+		//	}
+		//	set
+		//	{
+		//		this.m_Platform = value;
+		//	}
+		//}
 
 		public DbFile[] Databases => this.m_Database;
 
@@ -338,7 +338,7 @@ namespace FifaLibrary
 			}
 		}
 
-		public DataSet[] ConvertToDataSet()
+		public new DataSet[] ConvertToDataSet()
 		{
 			DataSet[] array = new DataSet[this.m_NDatabases];
 			for (int i = 0; i < this.m_NDatabases; i++)

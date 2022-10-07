@@ -21,7 +21,7 @@ namespace FrostySdk.IO._2022.Readers
 
 		internal byte[] boxedValueBuffer;
 
-		internal EbxVersion magic;
+		//internal EbxVersion magic;
 
 		public override string RootType => this.classTypes[this.instances[0].ClassRef].Name;
 
@@ -58,7 +58,7 @@ namespace FrostySdk.IO._2022.Readers
 			return val;
 		}
 
-		public dynamic ReadObject()
+		public new dynamic ReadObject()
 		{
 			this.InternalReadObjects();
 			return this.objects[0];

@@ -293,10 +293,10 @@ namespace CSharpImageLibrary
             int GetDX10BitCount(Headers.DDS_Header.DXGI_FORMAT DX10Format)
             {
                 int dx10Format = 32;
-                switch (DX10Format)
-                {
-                    // For now, 32 works.
-                }
+                //switch (DX10Format)
+                //{
+                //    // For now, 32 works.
+                //}
 
                 return dx10Format;
             }

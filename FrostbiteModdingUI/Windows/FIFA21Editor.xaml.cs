@@ -166,19 +166,17 @@ namespace FIFAModdingUI.Windows
                     if(MessageBox.Show("Your project has been changed. Would you like to save it now?", "Project has not been saved", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         e.Cancel = true;
-                        SaveProjectWithDialog();
+                        _ = SaveProjectWithDialog().Result;
                     }
                 }
-            }
 
+            }
 
             base.OnClosing(e);
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            base.OnClosed(e);
-
             GameInstanceSingleton.Instance = null;
             ProjectManagement = null;
             ProjectManagement.Instance = null;
@@ -191,6 +189,8 @@ namespace FIFAModdingUI.Windows
             }
 
             Owner.Visibility = Visibility.Visible;
+
+            base.OnClosed(e);
         }
 
         public string AdditionalTitle { get; set; }

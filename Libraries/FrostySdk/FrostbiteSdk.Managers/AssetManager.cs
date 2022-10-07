@@ -1,3 +1,4 @@
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
 using FrostbiteSdk;
 using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
@@ -3416,3 +3417,4 @@ public interface IAssetLoader
 		}
 	}
 }
+#pragma warning restore SYSLIB0021 // Type or member is obsolete

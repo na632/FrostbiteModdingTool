@@ -1,3 +1,5 @@
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
 using Frosty.Hash;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
