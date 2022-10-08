@@ -593,8 +593,8 @@ namespace FrostbiteModdingTests
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
 
-            var assets = FileSystem.Instance.ReadFIFALiveTuningUpdate();
-            var asset = FileSystem.Instance.GetLiveTuningUpdateAsset(assets.First().Key);
+            var assets = FileSystem.Instance.LiveTuningUpdate.ReadFIFALiveTuningUpdate();
+            var asset = FileSystem.Instance.LiveTuningUpdate.GetLiveTuningUpdateAsset(assets.First().Key);
 
         }
 
