@@ -2,6 +2,7 @@
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.FrostySdk.Ebx;
+using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -197,7 +198,7 @@ namespace FIFAModdingUI.Pages.Common
 
 		public IEnumerable<object> Objects => asset.Objects;
 
-		public AssetEntry AssetEntry { get; set; }
+		public IAssetEntry AssetEntry { get; set; }
 
 		//public EbxAsset Asset { get { return asset; } set { asset = value; if(PropertyChanged != null) PropertyChanged.Invoke(this, null); } }
 		public EbxAsset Asset { get { return asset; } set { asset = value; } }
@@ -238,7 +239,7 @@ namespace FIFAModdingUI.Pages.Common
 			
 		//}
 
-		public async Task<bool> LoadEbx(AssetEntry inAssetEntry
+		public async Task<bool> LoadEbx(IAssetEntry inAssetEntry
 			, EbxAsset inAsset
 			, FrostbiteProject frostyProject
 			, IEditorWindow inEditorWindow)

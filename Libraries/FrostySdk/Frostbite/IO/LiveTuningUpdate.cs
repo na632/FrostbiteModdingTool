@@ -1,4 +1,5 @@
-﻿using FrostySdk.IO;
+﻿using FrostySdk.FrostySdk.Managers;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,21 @@ namespace FrostySdk.Frostbite.IO
 {
     public class LiveTuningUpdate
     {
+        public LiveTuningUpdate()
+        {
+            ReadFIFALiveTuningUpdate();
+        }
+
         public string FIFALiveTuningUpdatePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName, "onlinecache0", "attribdb.bin");
         public bool HasFIFALiveTuningUpdate => File.Exists(FIFALiveTuningUpdatePath);
         public Dictionary<string, (int, int)> LiveTuningUpdates { get; } = new Dictionary<string, (int, int)>();
+
+        public Dictionary<string, LiveTuningUpdateEntry> LiveTuningUpdateEntries => 
+            LiveTuningUpdates.ToDictionary(x => x.Key
+                , x => new LiveTuningUpdateEntry(x.Key, x.Value.Item1, x.Value.Item2) 
+                { 
+                });
+
         public List<Guid> LiveTuningUpdateGuids { get; } = new List<Guid>();
 
         public EbxAsset GetLiveTuningUpdateAsset(string entry)
@@ -113,6 +126,52 @@ namespace FrostySdk.Frostbite.IO
 
         }
 
+        public class LiveTuningUpdateEntry : IAssetEntry
+        {
+            public string FullPath { get; set; }
 
+            public string Filename { get; set; }
+
+            public string Path { get; set; }
+
+            public string Name { get; set; }
+
+            public bool IsModified { get; set; }
+
+            public string DisplayName { get; }
+
+            public string AssetType { get; }
+
+            public EbxAssetEntry MatchingEbxAssetEntry => AssetManager.Instance.GetEbxEntry(FullPath);
+
+            public string Type { get { return MatchingEbxAssetEntry.Type; } }
+
+            public int Position { get; }
+
+            public int Size { get; }
+
+            public ModifiedAssetEntry ModifiedAssetEntry { get; set; }
+
+            public LiveTuningUpdateEntry(in string entry, in int position, in int size)
+            {
+                FullPath = entry;
+                var lastIndexOfSlash = entry.LastIndexOf('/');
+                var splitEntry = entry.Split('/');
+
+                Filename = entry.Substring(lastIndexOfSlash + 1, entry.Length - lastIndexOfSlash - 1);
+                DisplayName = Filename;
+                AssetType = "ebx";
+                Path = entry.Substring(0, lastIndexOfSlash);
+                Name = entry;
+                IsModified = false;
+                Position = position;
+                Size = size;
+            }
+
+            public EbxAsset GetAsset()
+            {
+                return FileSystem.Instance.LiveTuningUpdate.GetLiveTuningUpdateAsset(FullPath);
+            }
+        }
     }
 }

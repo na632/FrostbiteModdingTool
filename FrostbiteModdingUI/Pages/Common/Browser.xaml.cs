@@ -53,6 +53,7 @@ using static FMT.Pages.Common.BrowserOfBIG;
 using AvalonDock.Layout;
 using FolderBrowserEx;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using FrostySdk.Frostbite.IO;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -178,8 +179,9 @@ namespace FIFAModdingUI.Pages.Common
 
 			var assets = await GetFilteredAssetEntries();
 
-			foreach (AssetEntry item in assets)
-			{
+			//foreach (AssetEntry item in assets)
+			foreach (IAssetEntry item in assets)
+                {
 				//if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
 				{
 					string[] array = item.Path.Split(new char[1]
@@ -833,24 +835,30 @@ namespace FIFAModdingUI.Pages.Common
 
         private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
 		{
-			AssetEntry entry = ((TextBlock)sender).Tag as EbxAssetEntry;
-			if (entry == null)
-				entry = ((TextBlock)sender).Tag as LegacyFileEntry;
+            IAssetEntry entry = (IAssetEntry)((TextBlock)sender).Tag;
 
-			OpenAsset(entry);
-		}
+            if (entry is EbxAssetEntry ebxAssetEntry)
+                OpenAsset(ebxAssetEntry);
+            else if (entry is LegacyFileEntry legacyFileEntry)
+                OpenAsset(legacyFileEntry);
+            else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+                OpenAsset(ltuEntry);
+        }
 
 		private void AssetEntry_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter || e.Key == Key.Return)
 			{
-				AssetEntry entry = ((TextBlock)sender).Tag as EbxAssetEntry;
-				if (entry == null)
-					entry = ((TextBlock)sender).Tag as LegacyFileEntry;
+				IAssetEntry entry = (IAssetEntry)((TextBlock)sender).Tag;
 
-				OpenAsset(entry);
-			}
-		}
+                if (entry is EbxAssetEntry ebxAssetEntry)
+					OpenAsset(ebxAssetEntry);
+				else if (entry is LegacyFileEntry legacyFileEntry)
+					OpenAsset(legacyFileEntry);
+				else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+					OpenAsset(ltuEntry);
+            }
+        }
 
 		MainViewModel ModelViewerModel;
 
@@ -998,12 +1006,18 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		private void OpenAsset(AssetEntry entry)
+		private void OpenAsset(IAssetEntry entry)
 		{
 			ResetViewers();
 			if (entry is EbxAssetEntry ebxEntry)
             {
 				OpenEbxAsset(ebxEntry);
+				return;
+			}
+
+			if(entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+			{
+				OpenLTUAsset(ltuEntry);
 				return;
 			}
 
@@ -1129,6 +1143,14 @@ namespace FIFAModdingUI.Pages.Common
 			DataContext = null;
 			DataContext = this;
 		}
+
+		private void OpenLTUAsset(LiveTuningUpdate.LiveTuningUpdateEntry entry)
+		{
+            MainEditorWindow.Log("Loading EBX " + entry.Filename);
+			var ebx = entry.GetAsset();
+            var successful = EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+            EBXViewer.Visibility = Visibility.Visible;
+        }
 
         private void HexEditor_BytesModified(object sender, WpfHexaEditor.Core.EventArguments.ByteEventArgs e)
         {
@@ -1421,13 +1443,15 @@ namespace FIFAModdingUI.Pages.Common
 
         private void assetListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-			AssetEntry entry = ((ListView)sender).SelectedItem as EbxAssetEntry;
-			if (entry == null)
-				entry = ((ListView)sender).SelectedItem as LegacyFileEntry;
+            IAssetEntry entry = (IAssetEntry)((ListView)sender).SelectedItem;
 
-			if(entry != null)
-				OpenAsset(entry);
-		}
+            if (entry is EbxAssetEntry ebxAssetEntry)
+                OpenAsset(ebxAssetEntry);
+            else if (entry is LegacyFileEntry legacyFileEntry)
+                OpenAsset(legacyFileEntry);
+            else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+                OpenAsset(ltuEntry);
+        }
 
         private void btnDuplicate_Click(object sender, RoutedEventArgs e)
         {

@@ -1287,5 +1287,11 @@ namespace FIFAModdingUI.Windows
                 Log(ex.Message);
             }
         }
+
+        private void modLTU_Click(object sender, RoutedEventArgs e)
+        {
+            LTUEditor ltuEditor = new LTUEditor();
+            ltuEditor.ShowDialog();
+        }
     }
 }

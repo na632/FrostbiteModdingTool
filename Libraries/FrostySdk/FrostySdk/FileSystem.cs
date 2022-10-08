@@ -138,6 +138,7 @@ namespace FrostySdk
 			deobfuscatorType = ProfilesLibrary.Deobfuscator;
 
 			Instance = this;
+			LiveTuningUpdate.ReadFIFALiveTuningUpdate();
 		}
 
 		

@@ -326,6 +326,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Pages\Common\BrowserOfLTU.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Pages\Common\BrowserOfInitfs.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -362,6 +365,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Pages\Common\BrowserOfLTU.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Pages\Common\BrowserOfInitfs.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>

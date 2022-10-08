@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Frostbite.Textures;
 using CSharpImageLibrary;
 using System.Collections;
+using FrostySdk.FrostySdk.Managers;
 
 namespace FrostySdk.Managers
 {
@@ -976,56 +977,41 @@ public interface IAssetLoader
 			}
 		}
 
-		public void RevertAsset(AssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
+		public void RevertAsset(IAssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
 		{
 			if (!entry.IsModified)
 			{
 				return;
 			}
-			foreach (AssetEntry linkedAsset in entry.LinkedAssets)
-			{
-				RevertAsset(linkedAsset, dataOnly, suppressOnModify);
-			}
-			
-			entry.ClearModifications();
-			if (dataOnly)
-			{
-				return;
-			}
-			entry.LinkedAssets.Clear();
-			entry.AddBundles.Clear();
-			entry.RemBundles.Clear();
-			//if (entry.IsAdded)
-			//{
-			//	if (entry is EbxAssetEntry)
-			//	{
-			//		EbxAssetEntry ebxAssetEntry = entry as EbxAssetEntry;
-			//		EBX.TryRemove(ebxAssetEntry.Name, out _);
-			//	}
-			//	else if (entry is ResAssetEntry)
-			//	{
-			//		ResAssetEntry resAssetEntry = entry as ResAssetEntry;
-			//		resRidList.Remove(resAssetEntry.ResRid);
-			//		resList.Remove(resAssetEntry.Name);
-			//	}
-			//	else if (entry is ChunkAssetEntry)
-			//	{
-			//		ChunkAssetEntry chunkAssetEntry = entry as ChunkAssetEntry;
-			//		//chunkList.Remove(chunkAssetEntry.Id);
-			//		chunkList.TryRemove(chunkAssetEntry.Id, out _);
-			//	}
-			//}
 
-			var m21LAM = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
-			if (m21LAM != null)
+			if (entry is AssetEntry assetEntry)
 			{
-				m21LAM.RevertAsset(entry);
-			}
 
-			entry.IsDirty = false;
-			if (!entry.IsAdded && !suppressOnModify)
-			{
-				entry.OnModified();
+				foreach (AssetEntry linkedAsset in assetEntry.LinkedAssets)
+				{
+					RevertAsset(linkedAsset, dataOnly, suppressOnModify);
+				}
+
+                assetEntry.ClearModifications();
+				if (dataOnly)
+				{
+					return;
+				}
+                assetEntry.LinkedAssets.Clear();
+                assetEntry.AddBundles.Clear();
+                assetEntry.RemBundles.Clear();
+
+				var m21LAM = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+				if (m21LAM != null)
+				{
+					m21LAM.RevertAsset(assetEntry);
+				}
+
+                assetEntry.IsDirty = false;
+				if (!assetEntry.IsAdded && !suppressOnModify)
+				{
+                    assetEntry.OnModified();
+				}
 			}
 		}
 
