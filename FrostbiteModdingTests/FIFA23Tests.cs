@@ -271,6 +271,28 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestCareerMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\V Career Mod - Alpha 1.fbproject");
+
+            if (File.Exists("test.fbmod"))
+                File.Delete("test.fbmod");
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
         public void TestGPMod()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);
@@ -284,30 +306,6 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
-            frostyModExecutor.ForceRebuildOfMods = true;
-            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
-                new System.Collections.Generic.List<string>() {
-                    "test.fbmod"
-                }.ToArray()).Wait();
-
-        }
-
-        [TestMethod]
-        public void TestCareerMod()
-        {
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-23-Career-Mod\Test Career.fbproject");
-
-            if (File.Exists("test.fbmod"))
-                File.Delete("test.fbmod");
-
-            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
-
-            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {

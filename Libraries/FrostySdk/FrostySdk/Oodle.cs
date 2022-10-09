@@ -100,7 +100,8 @@ namespace FrostySdk
 			{
                 
 				int compLevel = (int)compressionOverride > 16 ? 16 : (int)compressionOverride;
-				compressedSize = (ulong)Oodle.CompressWithCompLevel(13, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 13, 0L, 0L, 0L, 0L, 0L);
+				//compressedSize = (ulong)Oodle.CompressWithCompLevel(13, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 13, 0L, 0L, 0L, 0L, 0L);
+				compressedSize = (ulong)Oodle.CompressWithCompLevel(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 4, 0L, 0L, 0L, 0L, 0L);
 				if (compressedSize > (ulong)buffer.Length)
 				{
 					uncompressed = true;

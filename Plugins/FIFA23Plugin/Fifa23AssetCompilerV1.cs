@@ -1208,8 +1208,14 @@ namespace FIFA23Plugin
 
                     var cas = tocSb.TOCFile.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
 
-                    var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
-
+                    var newCas = cas;
+                    //var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
+                    var nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, patch), UseModData);
+                    if(!File.Exists(nextCasPath))
+                    {
+                        nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false), UseModData);
+                        patch = false;
+                    }
                     using (NativeWriter nw_toc = new NativeWriter(new FileStream(locationTocFileInModData, FileMode.Open)))
                     {
                         foreach (var modChunk in parent.ModifiedChunks)
