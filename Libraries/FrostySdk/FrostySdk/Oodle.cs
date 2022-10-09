@@ -94,8 +94,8 @@ namespace FrostySdk
 			//string sCodeOfFifa23 = (28697).ToString("X");
 			//ushort hexCodeOfFifa23 = Convert.ToUInt16(sCodeOfFifa23);
 
-			compressCode = 0x1170;
-			//compressCode = 0x1970;
+			//compressCode = 0x1170;
+			compressCode = 0x1970;
 			try
 			{
                 
