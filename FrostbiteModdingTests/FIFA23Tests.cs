@@ -253,17 +253,14 @@ namespace FrostbiteModdingTests
             Assert.IsNotNull(ebxEntry);
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
-            dyn.Airflow_AirPressure = 100.0f;
-            dyn.Airflow_DragMultiplier = 100.0f;
-            dyn.Airflow_AngularDamping = 0.9999f;
+            dyn.Airflow_DragMultiplier = 100;
             AssetManager.Instance.ModifyEbx("Fifa/Attribulator/Gameplay/groups/gp_physics/gp_physics_airflow_runtime", complexAsset);
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-            //paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
-            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = false;
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -584,6 +581,42 @@ namespace FrostbiteModdingTests
                     }
                 }
             }
+        }
+
+
+        [TestMethod]
+        public void TestLoadValuesFromLiveTuningUpdate()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+
+            var assets = FileSystem.Instance.LiveTuningUpdate.ReadFIFALiveTuningUpdate();
+            var asset = FileSystem.Instance.LiveTuningUpdate.GetLiveTuningUpdateAsset(assets.First().Key);
+
+        }
+
+        /// <summary>
+        /// To start without AC you need to alter your Installer.xml
+        /// </summary>
+        [TestMethod]
+        public void TestLoadWithoutAC()
+        {
+            //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            //projectManagement.Project = new FrostySdk.FrostbiteProject();
+
+
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
+            paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = true;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>()
+                {
+                }.ToArray()).Wait();
+            //var r1 = GameInstanceSingleton.InjectDLL(@"G:\Work\FIFA Modding\FIFAModdingUI\Libraries\v2k4FrostyModdingSupport\ThirdParty\FIFA23\FIFALiveEditor.DLL", true).Result;
+            //var r2 = GameInstanceSingleton.InjectDLL(new FileInfo(@"ThirdParty\\FIFA23\\FIFA.dll").FullName, true).Result;
+            //var r3 = GameInstanceSingleton.InjectDLL(@"G:\Work\FIFA Modding\FIFA_23_LE_v23.1.0.0\FIFALiveEditor.DLL", true).Result;
+
         }
     }
 }

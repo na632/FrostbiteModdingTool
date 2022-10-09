@@ -26,6 +26,8 @@ using System.Text;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using System.Collections.Concurrent;
 using FrostbiteSdk;
+using v2k4FIFAModdingCL;
+using System.Xml;
 
 namespace paulv2k4ModdingExecuter
 {
@@ -4446,7 +4448,7 @@ namespace paulv2k4ModdingExecuter
                             }
                         }
                     }
-                    else 
+                    else
                         GatherFrostbiteMods(rootPath + f, ref FrostyModsFound, ref frostyMods);
                 }
 
@@ -4603,7 +4605,7 @@ namespace paulv2k4ModdingExecuter
 
                         //if (resource.Type == ModResourceType.Ebx)
                         //{
-                            
+
                         //}
                         //else
                         //if (resource.Type == ModResourceType.Res)
@@ -4644,7 +4646,7 @@ namespace paulv2k4ModdingExecuter
                         //            modifiedRes.Remove(resource.Name);
                         //            if (archiveData.ContainsKey(resource.Sha1))
                         //                archiveData.TryRemove(resource.Sha1, out ArchiveInfo _);
-                                    
+
                         //        }
                         //        ResAssetEntry resAssetEntry3 = new ResAssetEntry();
                         //        resource.FillAssetEntry(resAssetEntry3);
@@ -4668,7 +4670,7 @@ namespace paulv2k4ModdingExecuter
                         //else 
                         if (resource.Type == ModResourceType.Chunk)
                         {
-                            
+
 
 
                             Guid guid = new Guid(resource.Name);
@@ -4680,7 +4682,7 @@ namespace paulv2k4ModdingExecuter
                             resource.FillAssetEntry(chunkAssetEntry3);
                             chunkAssetEntry3.Size = resourceData.Length;
 
-                            if (chunkAssetEntry3.ModifiedEntry != null 
+                            if (chunkAssetEntry3.ModifiedEntry != null
                                 && chunkAssetEntry3.ModifiedEntry.IsLegacyFile
                                 && !string.IsNullOrEmpty(chunkAssetEntry3.ModifiedEntry.LegacyFullName)
                                 && chunkAssetEntry3.ModifiedEntry.LegacyFullName.Length > 10
@@ -4755,17 +4757,17 @@ namespace paulv2k4ModdingExecuter
                                 archiveData[legacyAssetEntry.Sha1].RefCount++;
                             }
                         }
-                    //});
+                        //});
                     }
 
-            }
+                }
 
                 // ----------------------------------------------------------------
                 // Clear out memory and mods
                 foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
                 {
                     kvpMods.Key.Dispose();
-                    if(kvpMods.Value is FrostbiteMod)
+                    if (kvpMods.Value is FrostbiteMod)
                     {
                         kvpMods.Value.ModBytes = null;
                     }
@@ -4775,21 +4777,27 @@ namespace paulv2k4ModdingExecuter
                 Logger.Log("Cleaning up mod data directory");
                 //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
                 fs.ResetManifest();
-                
 
-                    Logger.Log("Creating mod data directory");
-                    Directory.CreateDirectory(modPath);
 
-                    
-                    int workerThreads = 0;
-                    int completionPortThreads = 0;
-                    ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
-                    ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
-                    Logger.Log("Applying mods");
+                Logger.Log("Creating mod data directory");
+                Directory.CreateDirectory(modPath);
+                Directory.CreateDirectory(Path.Combine(modPath, "Data"));
+                Directory.CreateDirectory(Path.Combine(modPath, "Patch"));
+                Directory.CreateDirectory(Path.Combine(modPath, "Update"));
+
+
+                int workerThreads = 0;
+                int completionPortThreads = 0;
+                ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+                ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
+                Logger.Log("Applying mods");
                 //SymbolicLinkList.Clear();
 
 
                 var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfilesLibrary.AssetCompilerName);
+                if (pluginCompiler == null && !string.IsNullOrEmpty(ProfilesLibrary.AssetCompilerName))
+                    throw new NotImplementedException($"Could not find class {ProfilesLibrary.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
+
                 if (pluginCompiler != null)
                 {
                     ((IAssetCompiler)pluginCompiler).Compile(fs, logger, this);
@@ -4798,7 +4806,7 @@ namespace paulv2k4ModdingExecuter
                 {
 
                     foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()
-                        .Where(x=>x.FullName.ToLower().Contains("plugin")))
+                        .Where(x => x.FullName.ToLower().Contains("plugin")))
                     {
                         foreach (Type t in a.GetTypes())
                         {
@@ -4806,16 +4814,16 @@ namespace paulv2k4ModdingExecuter
                             {
                                 //try
                                 //{
-                                    if (t.Name == ProfilesLibrary.AssetCompilerName)
-                                    {
-                                        Logger.Log("Attempting to load Compiler for " + GameEXEPath);
+                                if (t.Name == ProfilesLibrary.AssetCompilerName)
+                                {
+                                    Logger.Log("Attempting to load Compiler for " + GameEXEPath);
 
-                                        if (!((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this))
-                                        {
-                                            Logger.LogError("Unable to load Compiler. Stopping");
-                                            return false;
-                                        }
+                                    if (!((IAssetCompiler)Activator.CreateInstance(t)).Compile(fs, Logger, this))
+                                    {
+                                        Logger.LogError("Unable to load Compiler. Stopping");
+                                        return false;
                                     }
+                                }
                                 //}
                                 //catch (Exception e)
                                 //{
@@ -4828,107 +4836,78 @@ namespace paulv2k4ModdingExecuter
                 }
 
                 if (ProfilesLibrary.IsFIFA20DataVersion())
-                    {
-                        DbObject layoutToc = null;
-
-
-                        using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
-                        {
-                            layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
-                        }
-
-
-                        FifaBundleAction.CasFileCount = fs.CasFileCount;
-                        List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
-                        ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
-
-                        var numberOfCatalogs = fs.Catalogs.Count();
-                        var numberOfCatalogsCompleted = 0;
-
-                            foreach (Catalog catalogItem in fs.EnumerateCatalogInfos())
-                            {
-                                FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
-                                fifaBundleAction.Run();
-                                numberOfCatalogsCompleted++;
-                                logger.Log($"Compiling Mod Progress: { Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
-
-                                fifaBundleActions.Add(fifaBundleAction);
-                            }
-
-                            foreach (FifaBundleAction bundleAction in fifaBundleActions.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
-                            {
-                                if (bundleAction.HasErrored)
-                                {
-                                    throw bundleAction.Exception;
-                                }
-                                if (bundleAction.CasFiles.Count > 0)
-                                {
-                                    foreach (DbObject installManifestChunks in layoutToc.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
-                                    {
-                                        if (bundleAction.CatalogInfo.Name.Equals("win32/" + installManifestChunks.GetValue<string>("name")))
-                                        {
-                                            foreach (int key in bundleAction.CasFiles.Keys)
-                                            {
-                                                DbObject dbObject6 = DbObject.CreateObject();
-                                                dbObject6.SetValue("id", key);
-                                                dbObject6.SetValue("path", bundleAction.CasFiles[key]);
-                                                installManifestChunks.GetValue<DbObject>("files").Add(dbObject6);
-
-
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                        logger.Log("Writing new Layout file to Game");
-                        using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
-                        {
-                            dbWriter.Write(layoutToc);
-                        }
-                    }
-                   
-
-                    if (UseModData)
-                    {
-                        logger.Log("Copying initfs_win32");
-
-                        CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
-                    }
-
-            }
-
-            var fifaconfigexelocation = fs.BasePath + "\\FIFASetup\\fifaconfig.exe";
-            var fifaconfigexe_origlocation = fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe";
-
-            if (ProfilesLibrary.IsFIFA21DataVersion()
-                || ProfilesLibrary.IsFIFA22DataVersion())
-            {
-                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
-            }
-
-            //if (ProfilesLibrary.IsFIFA23DataVersion())
-            //    CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "dxgi.dll");
-
-            CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
-            if ((ProfilesLibrary.IsFIFADataVersion() 
-                || ProfilesLibrary.IsFIFA21DataVersion()
-                || ProfilesLibrary.IsFIFA22DataVersion())
-                && UseModData)
-            {
-                if (!new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe").Exists)
                 {
-                    FileInfo fileInfo10 = new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
-                    fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
+                    DbObject layoutToc = null;
+
+
+                    using (DbReader dbReaderOfLayoutTOC = new DbReader(new FileStream(fs.BasePath + patchPath + "/layout.toc", FileMode.Open, FileAccess.Read), fs.CreateDeobfuscator()))
+                    {
+                        layoutToc = dbReaderOfLayoutTOC.ReadDbObject();
+                    }
+
+
+                    FifaBundleAction.CasFileCount = fs.CasFileCount;
+                    List<FifaBundleAction> fifaBundleActions = new List<FifaBundleAction>();
+                    ManualResetEvent inDoneEvent = new ManualResetEvent(initialState: false);
+
+                    var numberOfCatalogs = fs.Catalogs.Count();
+                    var numberOfCatalogsCompleted = 0;
+
+                    foreach (Catalog catalogItem in fs.EnumerateCatalogInfos())
+                    {
+                        FifaBundleAction fifaBundleAction = new FifaBundleAction(catalogItem, inDoneEvent, this);
+                        fifaBundleAction.Run();
+                        numberOfCatalogsCompleted++;
+                        logger.Log($"Compiling Mod Progress: {Math.Round((double)numberOfCatalogsCompleted / numberOfCatalogs, 2) * 100} %");
+
+                        fifaBundleActions.Add(fifaBundleAction);
+                    }
+
+                    foreach (FifaBundleAction bundleAction in fifaBundleActions.Where(x => !x.HasErrored && x.CasFiles.Count > 0))
+                    {
+                        if (bundleAction.HasErrored)
+                        {
+                            throw bundleAction.Exception;
+                        }
+                        if (bundleAction.CasFiles.Count > 0)
+                        {
+                            foreach (DbObject installManifestChunks in layoutToc.GetValue<DbObject>("installManifest").GetValue<DbObject>("installChunks"))
+                            {
+                                if (bundleAction.CatalogInfo.Name.Equals("win32/" + installManifestChunks.GetValue<string>("name")))
+                                {
+                                    foreach (int key in bundleAction.CasFiles.Keys)
+                                    {
+                                        DbObject dbObject6 = DbObject.CreateObject();
+                                        dbObject6.SetValue("id", key);
+                                        dbObject6.SetValue("path", bundleAction.CasFiles[key]);
+                                        installManifestChunks.GetValue<DbObject>("files").Add(dbObject6);
+
+
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    logger.Log("Writing new Layout file to Game");
+                    using (DbWriter dbWriter = new DbWriter(new FileStream(modPath + patchPath + "/layout.toc", FileMode.Create), inWriteHeader: true))
+                    {
+                        dbWriter.Write(layoutToc);
+                    }
                 }
-                CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
+
+
+                if (UseModData)
+                {
+                    logger.Log("Copying initfs_win32");
+                    Directory.CreateDirectory(modPath + patchPath);
+                    CopyFileIfRequired(fs.BasePath + patchPath + "/initfs_win32", modPath + patchPath + "/initfs_win32");
+                }
+
             }
-            else if (new FileInfo(fifaconfigexe_origlocation).Exists)
-            {
-                File.Delete(fifaconfigexelocation); // delete the addon
-                File.Move(fifaconfigexe_origlocation, fifaconfigexelocation); // replace
-            }
+
+           
 
             return FrostyModsFound;
         }
@@ -5119,8 +5098,39 @@ namespace paulv2k4ModdingExecuter
             //- -----------------------
             // Clear out the memory of archive data after compilation and before launching the game
             archiveData.Clear();
+
+            RunFIFA23Setup();
+
             //RunSetupFIFAConfig();
             //RunPowershellToUnblockDLLAtLocation(fs.BasePath);
+            var fifaconfigexelocation = fs.BasePath + "\\FIFASetup\\fifaconfig.exe";
+            var fifaconfigexe_origlocation = fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe";
+
+            if (ProfilesLibrary.IsFIFA21DataVersion()
+                || ProfilesLibrary.IsFIFA22DataVersion()
+                || ProfilesLibrary.IsFIFA23DataVersion())
+            {
+                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+            }
+
+            CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
+            if ((ProfilesLibrary.IsFIFADataVersion()
+                || ProfilesLibrary.IsFIFA21DataVersion()
+                || ProfilesLibrary.IsFIFA22DataVersion())
+                && UseModData)
+            {
+                if (!new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe").Exists)
+                {
+                    FileInfo fileInfo10 = new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
+                    fileInfo10.MoveTo(fileInfo10.FullName.Replace(".exe", "_orig.exe"));
+                }
+                CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
+            }
+            else if (new FileInfo(fifaconfigexe_origlocation).Exists)
+            {
+                File.Delete(fifaconfigexelocation); // delete the addon
+                File.Move(fifaconfigexe_origlocation, fifaconfigexelocation); // replace
+            }
 
             if (foundMods && UseModData)// || sameAsLast)
             {
@@ -5143,6 +5153,11 @@ namespace paulv2k4ModdingExecuter
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
 
+            if (ProfilesLibrary.IsFIFA23DataVersion())
+            {
+                var r = GameInstanceSingleton.InjectDLL(new FileInfo(@"ThirdParty\\FIFA23\\FIFA.dll").FullName, true).Result;
+            }
+
             //_ = Task.Delay(60000).ContinueWith((x) =>
             //{
             //    if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
@@ -5160,6 +5175,32 @@ namespace paulv2k4ModdingExecuter
 
             //});
             return true;
+        }
+
+        private void RunFIFA23Setup()
+        {
+            if (!ProfilesLibrary.IsFIFA23DataVersion())
+                return;
+
+            var installerXmlPath = FileSystem.Instance.BasePath + "\\__Installer\\installerdata.xml";
+            if (!File.Exists(installerXmlPath))
+                throw new FileNotFoundException($"Unable to find installer data for {ProfilesLibrary.DisplayName} at path {installerXmlPath}");
+
+            if(!File.Exists(installerXmlPath + ".bak"))
+                File.Copy(installerXmlPath, installerXmlPath + ".bak", false);
+
+            XmlDocument xmldoc = new XmlDocument();
+            XmlNodeList xmlnode;
+            using (FileStream fs = new FileStream(installerXmlPath, FileMode.Open, FileAccess.Read))
+            {
+                xmldoc.Load(fs);
+            }
+            xmlnode = xmldoc.GetElementsByTagName("runtime");
+            xmlnode.Item(0).InnerText = xmlnode.Item(0).InnerText.Replace("EAAntiCheat.GameServiceLauncher", "FIFA23");
+            using (FileStream fs = new FileStream(installerXmlPath, FileMode.Open, FileAccess.Write))
+            {
+                xmldoc.Save(fs);
+            }
         }
 
         /// <summary>

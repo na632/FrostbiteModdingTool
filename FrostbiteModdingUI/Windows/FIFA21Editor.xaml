@@ -207,6 +207,22 @@
                             </MenuItem.Header>
                         </MenuItem>
                     </MenuItem>
+                    <MenuItem x:Name="miLTU">
+                        <MenuItem.Header>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                <Label Content="Live Tuning Update (WIP)"  FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
+                            </StackPanel>
+                        </MenuItem.Header>
+                        <MenuItem x:Name="modLTU" Click="modLTU_Click">
+                            <MenuItem.Header>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ModeEdit" VerticalAlignment="Center" />
+                                    <Label Content="Modify Live Tuning Update"  FontSize="10"  VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
                 </Menu>
 
             </StackPanel>

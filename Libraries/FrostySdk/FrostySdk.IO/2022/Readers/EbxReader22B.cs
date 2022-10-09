@@ -302,6 +302,8 @@ namespace FrostySdk.IO._2022.Readers
 			uint stringTableOffset = base.ReadUInt32LittleEndian();
 			base.stringsOffset = stringTableOffset + payloadOffset;
 			chunkName = base.ReadUInt32LittleEndian();
+			if (chunkName == 0 && base.ReadUInt32LittleEndian() != 1482179141)
+				base.Position -= 4;
 			//if (chunkName != 1482179141)
 			//{
 			//	DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(42, 1);
@@ -311,7 +313,10 @@ namespace FrostySdk.IO._2022.Readers
 			//	throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
 			//}
 			chunkSize = base.ReadUInt32LittleEndian();
-			chunkSizeRelativeToPosition = base.Position;
+			if (chunkSize == 1482179141)
+                chunkSize = base.ReadUInt32LittleEndian();
+
+            chunkSizeRelativeToPosition = base.Position;
 			uint arrayCount = base.ReadUInt32LittleEndian();
 			uint boxedValueCount = base.ReadUInt32LittleEndian();
 			for (int k = 0; k < arrayCount; k++)

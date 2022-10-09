@@ -133,6 +133,10 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Frostbite\ANT\" />
+	</ItemGroup>
 
 	<Target Name="AfterBuild">
 		<Message Text="1. ReferencePath:%0D%0A%09@(ReferencePath->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />

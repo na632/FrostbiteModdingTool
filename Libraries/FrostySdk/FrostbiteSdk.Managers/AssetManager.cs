@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Frostbite.Textures;
 using CSharpImageLibrary;
 using System.Collections;
+using FrostySdk.FrostySdk.Managers;
 
 namespace FrostySdk.Managers
 {
@@ -484,10 +485,15 @@ public interface IAssetLoader
             Instance = this;
 
 			LocaleINIMod = new LocaleINIMod();
-		}
+        }
 
-		// To detect redundant calls
-		private bool _disposed = false;
+        public AssetManager(in FileSystem inFs, in ResourceManager inRm, in ILogger inLogger) : this(inFs, inRm)
+        {
+			logger = inLogger;
+        }
+
+        // To detect redundant calls
+        private bool _disposed = false;
 
 		~AssetManager() => Dispose(false);
 
@@ -656,7 +662,13 @@ public interface IAssetLoader
 		{
 			DateTime dtAtStart = DateTime.Now;
 
-			logger.Log("Initialising Plugins");
+            if (!ProfilesLibrary.LoadedProfile.CanUseModData)
+            {
+                logger.Log($"[WARNING] {ProfilesLibrary.LoadedProfile.DisplayName} ModData is not supported. Making backups of your files!");
+                FileSystem.MakeGameDataBackup(FileSystem.BasePath);
+            }
+
+            logger.Log("Initialising Plugins");
 			if(!InitialisePlugins() && !ProfilesLibrary.DoesNotUsePlugin)
             {
 				throw new Exception("Plugins could not be initialised!");
@@ -965,56 +977,41 @@ public interface IAssetLoader
 			}
 		}
 
-		public void RevertAsset(AssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
+		public void RevertAsset(IAssetEntry entry, bool dataOnly = false, bool suppressOnModify = true)
 		{
 			if (!entry.IsModified)
 			{
 				return;
 			}
-			foreach (AssetEntry linkedAsset in entry.LinkedAssets)
-			{
-				RevertAsset(linkedAsset, dataOnly, suppressOnModify);
-			}
-			
-			entry.ClearModifications();
-			if (dataOnly)
-			{
-				return;
-			}
-			entry.LinkedAssets.Clear();
-			entry.AddBundles.Clear();
-			entry.RemBundles.Clear();
-			//if (entry.IsAdded)
-			//{
-			//	if (entry is EbxAssetEntry)
-			//	{
-			//		EbxAssetEntry ebxAssetEntry = entry as EbxAssetEntry;
-			//		EBX.TryRemove(ebxAssetEntry.Name, out _);
-			//	}
-			//	else if (entry is ResAssetEntry)
-			//	{
-			//		ResAssetEntry resAssetEntry = entry as ResAssetEntry;
-			//		resRidList.Remove(resAssetEntry.ResRid);
-			//		resList.Remove(resAssetEntry.Name);
-			//	}
-			//	else if (entry is ChunkAssetEntry)
-			//	{
-			//		ChunkAssetEntry chunkAssetEntry = entry as ChunkAssetEntry;
-			//		//chunkList.Remove(chunkAssetEntry.Id);
-			//		chunkList.TryRemove(chunkAssetEntry.Id, out _);
-			//	}
-			//}
 
-			var m21LAM = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
-			if (m21LAM != null)
+			if (entry is AssetEntry assetEntry)
 			{
-				m21LAM.RevertAsset(entry);
-			}
 
-			entry.IsDirty = false;
-			if (!entry.IsAdded && !suppressOnModify)
-			{
-				entry.OnModified();
+				foreach (AssetEntry linkedAsset in assetEntry.LinkedAssets)
+				{
+					RevertAsset(linkedAsset, dataOnly, suppressOnModify);
+				}
+
+                assetEntry.ClearModifications();
+				if (dataOnly)
+				{
+					return;
+				}
+                assetEntry.LinkedAssets.Clear();
+                assetEntry.AddBundles.Clear();
+                assetEntry.RemBundles.Clear();
+
+				var m21LAM = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+				if (m21LAM != null)
+				{
+					m21LAM.RevertAsset(assetEntry);
+				}
+
+                assetEntry.IsDirty = false;
+				if (!assetEntry.IsAdded && !suppressOnModify)
+				{
+                    assetEntry.OnModified();
+				}
 			}
 		}
 
@@ -1984,7 +1981,7 @@ public interface IAssetLoader
 				inPatched = true;
 			}
 
-            return GetEbxAssetFromStream(assetStream, ProfilesLibrary.IsFIFA22DataVersion() ? false : inPatched);
+            return GetEbxAssetFromStream(assetStream, inPatched);
         }
 		public async Task<EbxAsset> GetEbxAsync(EbxAssetEntry entry, bool getModified = true)
 		{

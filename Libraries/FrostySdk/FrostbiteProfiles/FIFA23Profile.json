@@ -81,7 +81,7 @@
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "Oodle",
   "LegacyFileManager": "LFM_Fifa22",
-  "CanUseModData": false,
+  "CanUseModData": true,
   "SupportLowMemoryFootprint": true
 
 }

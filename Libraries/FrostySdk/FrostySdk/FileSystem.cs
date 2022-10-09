@@ -1,4 +1,5 @@
 using Frosty.Hash;
+using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -9,8 +10,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
 
 namespace FrostySdk
@@ -113,7 +116,9 @@ namespace FrostySdk
 
 		public string LocaleIniPath => ResolvePath("native_data/locale.ini");
 
-		public FileSystem(string inBasePath)
+		public LiveTuningUpdate LiveTuningUpdate { get; } = new LiveTuningUpdate();
+
+        public FileSystem(string inBasePath)
 		{
 			if (string.IsNullOrEmpty(inBasePath))
 				throw new Exception("Base Path is empty!");
@@ -133,6 +138,7 @@ namespace FrostySdk
 			deobfuscatorType = ProfilesLibrary.Deobfuscator;
 
 			Instance = this;
+			LiveTuningUpdate.ReadFIFALiveTuningUpdate();
 		}
 
 		
@@ -986,5 +992,87 @@ namespace FrostySdk
 				}
 			}
 		}
-	}
+
+        public static string LastPatchedVersionPath
+        {
+            get
+            {
+                return AppContext.BaseDirectory + "\\" + "LastPatchedVersion.json";
+            }
+        }
+
+        public static bool GetGameWasPatched()
+		{
+			var gameWasPatched = false;
+			var lastHead = 0u;
+			var LastHeadData = new Dictionary<string, uint>();
+			if (File.Exists(LastPatchedVersionPath))
+			{
+				LastHeadData = JsonConvert.DeserializeObject<Dictionary<string, uint>>(File.ReadAllText(LastPatchedVersionPath));
+				if (LastHeadData.ContainsKey(Instance.BasePath))
+				{
+					lastHead = LastHeadData[Instance.BasePath];
+				}
+			}
+
+			//// Notify if new Patch detected
+			if (FileSystem.Instance.Head != lastHead)
+			{
+                gameWasPatched = true;
+			}
+			return gameWasPatched;
+		}
+
+        public static void MakeTOCOriginals(string dir)
+        {
+            var enumerationOptions = new EnumerationOptions() { RecurseSubdirectories = true, MaxRecursionDepth = 10 };
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc", enumerationOptions))
+            {
+                if (File.Exists(tFile + ".bak"))
+                    File.Copy(tFile + ".bak", tFile, true);
+            }
+
+            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb", enumerationOptions))
+            {
+                if (File.Exists(tFile + ".bak"))
+                    File.Copy(tFile + ".bak", tFile, true);
+            }
+
+            //foreach (var tFile in Directory.EnumerateFiles(dir, "*.cas", enumerationOptions))
+            //{
+            //    if (File.Exists(tFile + ".bak"))
+            //        File.Copy(tFile + ".bak", tFile, true);
+            //}
+
+        }
+
+        public static void MakeGameDataBackup(string dir)
+        {
+			var backupDataPath = FileSystem.Instance.BasePath + "\\BackupData.bak";
+			var backupPatchPath = FileSystem.Instance.BasePath + "\\BackupPatch.bak";
+
+            var gameWasPatched = GetGameWasPatched();
+            var enumerationOptions = new EnumerationOptions() { RecurseSubdirectories = true, MaxRecursionDepth = 10 };
+
+			var hasBackupFiles = Directory.EnumerateFiles(dir, "*.toc.bak", enumerationOptions).Any(); //File.Exists(backupDataPath) && File.Exists(backupPatchPath);
+            if (gameWasPatched || !hasBackupFiles)
+			{
+                foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc", enumerationOptions))
+                {
+                    if (File.Exists(tFile))
+                        File.Copy(tFile, tFile + ".bak", true);
+                }
+
+                foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb", enumerationOptions))
+                {
+                    if (File.Exists(tFile))
+                        File.Copy(tFile, tFile + ".bak", true);
+                }
+                //ZipFile.CreateFromDirectory(FileSystem.Instance.BasePath + "\\Data", backupDataPath);
+                //ZipFile.CreateFromDirectory(FileSystem.Instance.BasePath + "\\Patch", backupPatchPath);
+            }
+        }
+
+		
+    }
 }
