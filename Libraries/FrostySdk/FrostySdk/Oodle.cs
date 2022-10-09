@@ -94,13 +94,14 @@ namespace FrostySdk
 			//string sCodeOfFifa23 = (28697).ToString("X");
 			//ushort hexCodeOfFifa23 = Convert.ToUInt16(sCodeOfFifa23);
 
-			//compressCode = 0x1170;
-			compressCode = 0x1970;
+			compressCode = 0x1170;
+			//compressCode = 0x1970;
 			try
 			{
                 
 				int compLevel = (int)compressionOverride > 16 ? 16 : (int)compressionOverride;
-				compressedSize = (ulong)Oodle.CompressWithCompLevel(13, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 13, 0L, 0L, 0L, 0L, 0L);
+				//compressedSize = (ulong)Oodle.CompressWithCompLevel(13, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 13, 0L, 0L, 0L, 0L, 0L);
+				compressedSize = (ulong)Oodle.CompressWithCompLevel(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 4, 0L, 0L, 0L, 0L, 0L);
 				if (compressedSize > (ulong)buffer.Length)
 				{
 					uncompressed = true;

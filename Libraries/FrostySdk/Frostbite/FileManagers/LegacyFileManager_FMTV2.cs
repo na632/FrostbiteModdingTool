@@ -953,6 +953,11 @@ namespace Frostbite.FileManagers
 		private Stream GetChunkStream(LegacyFileEntry lfe)
 		{
 			var chunkEntry = AssetManager.GetChunkEntry(lfe.ChunkId);
+			if(chunkEntry == null)
+			{
+				return null;
+			}
+
 			if(chunkEntry.ModifiedEntry != null && chunkEntry.ModifiedEntry.Data != null)
             {
 				return new MemoryStream(chunkEntry.ModifiedEntry.Data);
