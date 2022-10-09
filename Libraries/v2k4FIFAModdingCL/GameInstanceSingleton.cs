@@ -148,7 +148,7 @@ namespace v2k4FIFAModdingCL
             while ((!proc.HasValue || proc == 0 || !ModuleLoaded) && attempts < 300)
             {
                 Debug.WriteLine($"Waiting for {Instance.GAMEVERSION} to appear");
-                await Task.Delay(500);
+                await Task.Delay(100);
                 proc = await GetProcIDFromName(Instance.GAMEVERSION);
                 if (proc.HasValue)
                 {
@@ -229,11 +229,11 @@ namespace v2k4FIFAModdingCL
             if (File.Exists(dllpath))
             {
                 int proc = await InjectDLL_GetProcess(waitForModules);
-                if (!LegacyInjectionExtraAssertions)
+                //if (!LegacyInjectionExtraAssertions)
                 {
                     // Waiting for process to fully awake
                     //Thread.Sleep(2750);
-                    await Task.Delay(2750);
+                    await Task.Delay(350);
                 }
 
                 
@@ -243,8 +243,8 @@ namespace v2k4FIFAModdingCL
                 try
                 {
                     // Use Bleak first
-                    //bool injected = InjectDLL_Own(proc, dllpath);
-                    bool injected = InjectDLL_Bleak(proc, dllpath);
+                    bool injected = InjectDLL_Own(proc, dllpath);
+                    //bool injected = InjectDLL_Bleak(proc, dllpath);
                     if (!injected)
                     {
                         // Own second
@@ -297,6 +297,13 @@ namespace v2k4FIFAModdingCL
         /// <returns></returns>
         private static bool InjectDLLIntoProcessFromPath(string DllPath, int ProcId)
         {
+            if (!File.Exists(DllPath))
+            {
+                throw new FileNotFoundException($"{DllPath} was not found!");
+            }
+
+            Debug.WriteLine($"[+] Injecting {DllPath} into {ProcId}");
+
             // Open handle to the target process
             IntPtr ProcHandle = OpenProcess(
                 ProcessAccessFlags.All,

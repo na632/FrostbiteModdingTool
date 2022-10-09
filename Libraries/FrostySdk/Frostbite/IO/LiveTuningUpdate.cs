@@ -82,6 +82,16 @@ namespace FrostySdk.Frostbite.IO
                     var riffPositions = nr.ReadInt() + headerSize;
                     var riffCount = nr.ReadInt(); // 1575
                                                   // 31488
+
+                    _ = nr.ReadInt();
+                    _ = nr.ReadInt();
+                    // look at positon 64 next and read the following data
+                    //for (var iUnk1 = 0; iUnk1 < riffCount; iUnk1++)
+                    //{
+                    //    _ = nr.ReadInt();
+                    //}
+
+
                     nr.Position = guidPositions;
                     for (var iGuid = 0; iGuid < riffCount; iGuid++)
                     {
