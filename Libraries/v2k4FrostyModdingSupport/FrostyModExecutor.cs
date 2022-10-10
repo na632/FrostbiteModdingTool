@@ -5203,6 +5203,9 @@ namespace paulv2k4ModdingExecuter
                 xmldoc.Save(fs);
             }
 
+            if (File.Exists(FileSystem.Instance.BasePath + "\\dxgi.dll"))
+                File.Delete(FileSystem.Instance.BasePath + "\\dxgi.dll");
+
         }
 
         /// <summary>
