@@ -57,6 +57,8 @@ namespace FIFAModdingUI.Windows
     {
         public Window OwnerWindow { get; set; }
 
+        public LauncherOptions launcherOptions { get; set; }
+
         [Obsolete("Incorrect usage of Editor Windows")]
         public FIFA21Editor()
         {
@@ -155,6 +157,8 @@ namespace FIFAModdingUI.Windows
             }
 
             File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
+
+            launcherOptions = await LauncherOptions.LoadAsync();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -714,6 +718,13 @@ namespace FIFAModdingUI.Windows
             });
 
             var useModData = swUseModData.IsOn;
+
+            if (launcherOptions != null)
+            {
+                launcherOptions.UseModData = swUseModData.IsOn;
+                launcherOptions.UseLegacyModSupport = swEnableLegacyInjection.IsOn;
+                launcherOptions.Save();
+            }
 
             try
             {
