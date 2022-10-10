@@ -5190,17 +5190,19 @@ namespace paulv2k4ModdingExecuter
                 File.Copy(installerXmlPath, installerXmlPath + ".bak", false);
 
             XmlDocument xmldoc = new XmlDocument();
-            XmlNodeList xmlnode;
+            //XmlNodeList xmlnode;
             using (FileStream fs = new FileStream(installerXmlPath, FileMode.Open, FileAccess.Read))
             {
                 xmldoc.Load(fs);
             }
-            xmlnode = xmldoc.GetElementsByTagName("runtime");
-            xmlnode.Item(0).InnerText = xmlnode.Item(0).InnerText.Replace("EAAntiCheat.GameServiceLauncher", "FIFA23");
+            XmlNode xmlnode = xmldoc.GetElementsByTagName("runtime").Item(0);
+            var secondNode = xmlnode.ChildNodes.Item(1);
+            secondNode.InnerXml = secondNode.InnerXml.Replace("EAAntiCheat.GameServiceLauncher", "FIFA23", StringComparison.OrdinalIgnoreCase);
             using (FileStream fs = new FileStream(installerXmlPath, FileMode.Open, FileAccess.Write))
             {
                 xmldoc.Save(fs);
             }
+
         }
 
         /// <summary>
