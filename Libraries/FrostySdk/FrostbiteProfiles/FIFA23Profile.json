@@ -23,7 +23,7 @@
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
 
-  "ProjectEbxWriter": "EbxWriter2023",
+  "ProjectEbxWriter": "EbxWriter2022",
   "ProjectEbxReader": "EbxReader22B",
 
 
