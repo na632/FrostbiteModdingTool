@@ -124,6 +124,7 @@ namespace FIFAModdingUI.Windows
 
         private async void FIFA21Editor_Loaded(object sender, RoutedEventArgs e)
         {
+
             if (File.Exists(LastGameLocation))
             {
                 var tmpLoc = File.ReadAllText(LastGameLocation);
@@ -159,6 +160,7 @@ namespace FIFAModdingUI.Windows
             File.WriteAllText(LastGameLocation, AppSettings.Settings.GameInstallEXEPath);
 
             launcherOptions = await LauncherOptions.LoadAsync();
+
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -227,6 +229,7 @@ namespace FIFAModdingUI.Windows
 
         public async Task InitialiseOfSelectedGame(string filePath)
         {
+            DisableEditor();
             GameInstanceSingleton.InitializeSingleton(filePath);
             GameInstanceSingleton.Logger = this;
             lstProjectFiles.Items.Clear();
@@ -265,7 +268,10 @@ namespace FIFAModdingUI.Windows
 
                 });
 
+                loadingDialog.Update("", "");
+
                 ProjectManagement.Logger = this;
+                EnableEditor();
 
             });
 
@@ -292,6 +298,9 @@ namespace FIFAModdingUI.Windows
                 UpdateWindowTitle("New Project");
 
             });
+
+            EnableEditor();
+
         }
 
         private void InitialiseBrowsers()
@@ -440,6 +449,7 @@ namespace FIFAModdingUI.Windows
 
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
         {
+            DisableEditor();
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
             LegacyFileManager_FMTV2.CleanUpChunks();
@@ -452,7 +462,7 @@ namespace FIFAModdingUI.Windows
                 if (resultValue.HasValue && resultValue.Value)
                 {
                     ProjectManagement.Project.WriteToMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
-                    using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
+                    if(File.Exists(saveFileDialog.FileName))
                     {
                         Log("Saved mod successfully to " + saveFileDialog.FileName);
                     }
@@ -463,6 +473,8 @@ namespace FIFAModdingUI.Windows
             {
                 LogError(SaveException.ToString());
             }
+
+            EnableEditor();
         }
 
         private void btnProjectWriteToFIFAMod_Click(object sender, RoutedEventArgs e)
@@ -479,7 +491,7 @@ namespace FIFAModdingUI.Windows
                 if (resultValue.HasValue && resultValue.Value)
                 {
                     ProjectManagement.Project.WriteToFIFAMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
-                    using (var fs = new FileStream(saveFileDialog.FileName, FileMode.Open))
+                    if(File.Exists(saveFileDialog.FileName))
                     {
                         Log("Saved mod successfully to " + saveFileDialog.FileName);
                     }
@@ -622,9 +634,25 @@ namespace FIFAModdingUI.Windows
             return true;
         }
 
+        private void EnableEditor()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.IsEnabled = true;
+            });
+        }
+
+        private void DisableEditor()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.IsEnabled = false;
+            });
+        }
+
         private async void btnProjectOpen_Click(object sender, RoutedEventArgs e)
         {
-
+            DisableEditor();
             //LoadingDialog loadingDialog = new LoadingDialog("Loading Project", "Cleaning loose Legacy Files");
             loadingDialog.Update("Loading Project", "Cleaning loose Legacy Files");
             await Task.Delay(100);
@@ -639,11 +667,11 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(openFileDialog.FileName))
                 {
-                    await loadingDialog.UpdateAsync("Loading Project", "Resetting files");
+                    loadingDialog.Update("Loading Project", "Resetting files");
                     await AssetManager.Instance.ResetAsync();
                     //AssetManager.Instance.Reset();
 
-                    await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
+                    loadingDialog.Update("Loading Project", "Loading Project File");
 
                     ProjectManagement.Project.ModifiedAssetEntries = null;
                     await ProjectManagement.Project.LoadAsync(openFileDialog.FileName);
@@ -672,6 +700,10 @@ namespace FIFAModdingUI.Windows
             loadingDialog.Update("", "");
             //loadingDialog.Close();
             //loadingDialog = null;
+            Dispatcher.Invoke(() =>
+            {
+                this.IsEnabled = true;
+            });
         }
 
         public Random RandomSaver = new Random();
