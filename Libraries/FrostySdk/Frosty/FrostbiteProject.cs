@@ -469,6 +469,9 @@ namespace FrostySdk
 		{
 			byte[] projectbytes;
 
+			if (File.Exists(filename))
+				File.Delete(filename);
+
 			var memoryStream = new MemoryStream();
 			FrostbiteModWriter frostyModWriter = new FrostbiteModWriter(memoryStream, overrideSettings);
 			frostyModWriter.WriteProject(this);

@@ -152,12 +152,22 @@
                                 <Label Content="Mod" FontSize="12" FontWeight="Bold"  VerticalAlignment="Center" />
                             </StackPanel>
                         </MenuItem.Header>
-                        <Button x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
-                            <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                                <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
+                        <MenuItem x:Name="btnProjectWriteToMod"  Height="30" Click="btnProjectWriteToMod_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <MenuItem.Header>
+                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                                    <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem x:Name="btnProjectWriteToFIFAMod"  Height="30" Click="btnProjectWriteToFIFAMod_Click" Background="Transparent" BorderBrush="{x:Null}">
+                            <MenuItem.Header>
+                                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                    <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
+                                    <Label Content="Save FIFA Mod (*.fifamod)" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem x:Name="miImportKitCreator" IsEnabled="False">
                         <MenuItem.Header>

@@ -949,7 +949,7 @@ namespace FIFA23Plugin
                                                 DbObject origEbxDbo = null;
                                                 foreach (DbObject dbInBundle in origEbxBundles)
                                                 {
-                                                    origEbxDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                    origEbxDbo = (DbObject)dbInBundle.List.Single(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
                                                     if (origEbxDbo != null)
                                                         break;
                                                 }
@@ -965,7 +965,7 @@ namespace FIFA23Plugin
                                                 DbObject origResDbo = null;
                                                 foreach (DbObject dbInBundle in origResBundles)
                                                 {
-                                                    origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                    origResDbo = (DbObject)dbInBundle.List.Single(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
                                                     if (origResDbo != null)
                                                         break;
                                                 }
@@ -981,7 +981,7 @@ namespace FIFA23Plugin
                                                 DbObject origChunkDbo = null;
                                                 foreach (DbObject dbInBundle in origChunkBundles)
                                                 {
-                                                    origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+                                                    origChunkDbo = (DbObject)dbInBundle.List.Single(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
                                                     if (origChunkDbo != null)
                                                         break;
                                                 }
@@ -1008,12 +1008,12 @@ namespace FIFA23Plugin
                                             {
                                                 foreach (var assetEntry in abtc.Value)
                                                 {
-                                                    var assetBundle = tocGroup.Value.FirstOrDefault(x => x.Key == assetEntry);
+                                                    var assetBundle = tocGroup.Value.LastOrDefault(x => x.Key == assetEntry);
                                                     if (assetBundle.Key is EbxAssetEntry)
                                                         WriteEbxChangesToSuperBundle(origEbxBundles, nwCas, assetBundle);
-                                                    if (assetBundle.Key is ResAssetEntry)
+                                                    else if (assetBundle.Key is ResAssetEntry)
                                                         WriteResChangesToSuperBundle(origResBundles, nwCas, assetBundle);
-                                                    if (assetBundle.Key is ChunkAssetEntry)
+                                                    else if (assetBundle.Key is ChunkAssetEntry)
                                                         WriteChunkChangesToSuperBundle(origChunkBundles, nwCas, assetBundle);
                                                 }
                                             }

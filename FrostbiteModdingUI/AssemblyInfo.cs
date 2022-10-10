@@ -9,9 +9,9 @@ using System.Windows;
 [assembly: AssemblyTitle("FIFA Modding Tool")]
 [assembly: AssemblyDescription("FIFA Modding Tool")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("The Gameplay Team (TGT)")]
+[assembly: AssemblyCompany("The FMT Team")]
 [assembly: AssemblyProduct("FIFA Modding Tool")]
-[assembly: AssemblyCopyright("Copyright © TGT 2021")]
+[assembly: AssemblyCopyright("Copyright © FMT 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -41,5 +41,5 @@ using System.Windows;
 // Revision
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("23.5.*")]
+[assembly: AssemblyVersion("23.6.*")]
 

@@ -346,7 +346,8 @@ namespace FMT
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
                 if (ProfilesLibrary.IsFIFA21DataVersion() 
-                    || ProfilesLibrary.IsFIFA22DataVersion())
+                    || ProfilesLibrary.IsFIFA22DataVersion()
+                    || ProfilesLibrary.IsFIFA23DataVersion())
                 {
                     FileInfo localeIni = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIPath);
                     if (localeIni.Exists)

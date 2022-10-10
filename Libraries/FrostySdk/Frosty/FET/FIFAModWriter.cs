@@ -1,10 +1,14 @@
-﻿using Frosty.Hash;
+﻿using FrostbiteSdk.Frostbite.FileManagers;
+using Frosty.Hash;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using Standart.Hash.xxHash;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace FrostySdk.Frosty.FET
 {
@@ -18,7 +22,11 @@ namespace FrostySdk.Frosty.FET
 
 		private ModSettings overrideSettings;
 
-		public FIFAModWriter(string gameName, AssetManager assetManager, FileSystem fileSystem, Stream inStream, ModSettings inOverrideSettings = null)
+        private long positionOfPlaceholders;
+
+        private long positionOfEndOfHeader;
+
+        public FIFAModWriter(string gameName, AssetManager assetManager, FileSystem fileSystem, Stream inStream, ModSettings inOverrideSettings = null)
 			: base(inStream)
 		{
 			this.gameName = gameName;
@@ -27,74 +35,138 @@ namespace FrostySdk.Frosty.FET
 			overrideSettings = inOverrideSettings;
 		}
 
-		public override void WriteProject(FrostbiteProject project)
-		{
-			if (project == null)
-			{
-				throw new ArgumentNullException("project");
-			}
-			Write(5498700893333637446ul);
-			WriteUInt32LittleEndian(8u);
-			Write(16045690984833335023uL);
-			WriteUInt32LittleEndian(3735928559u);
-			WriteLengthPrefixedString("FIFA21");
-			WriteUInt32LittleEndian(AssetManager.Instance.fs.Head);
-			ModSettings modSettings = overrideSettings ?? project.ModSettings;
-			WriteLengthPrefixedString(modSettings.Title);
-			WriteLengthPrefixedString(modSettings.Author);
-			Write((byte)byte.MaxValue);
-			Write(Convert.ToByte(0));
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(modSettings.Version);
-			WriteLengthPrefixedString(modSettings.Description);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			WriteLengthPrefixedString(string.Empty);
-			AddResource(new EmbeddedResource("Icon", modSettings.Icon, this.manifest));
-			WriteUInt32LittleEndian((uint)4);
-            for (int i = 0; i < 4; i++)
+        public override void WriteProject(FrostbiteProject project)
+        {
+            if (project == null)
             {
-                AddResource(new EmbeddedResource("Screenshot" + i.ToString(), modSettings.GetScreenshot(i), manifest));
+                throw new ArgumentNullException("project");
             }
-            foreach (EbxAssetEntry ebxAsset in assetManager.EnumerateEbx("", modifiedOnly: true))
-			{
-				if (!ebxAsset.ModifiedEntry.IsTransientModified && ebxAsset.HasModifiedData)
-				{
-					AddResource(new EbxResource(ebxAsset, this.manifest));
-				}
-			}
-			foreach (ResAssetEntry resAsset in assetManager.EnumerateRes(0u, modifiedOnly: true))
-			{
-				if (resAsset.HasModifiedData)
-				{
-					AddResource(new ResResource(resAsset, this.manifest));
-				}
-			}
-			foreach (ChunkAssetEntry chunkAsset in assetManager.EnumerateChunks(modifiedOnly: true))
-			{
-				if (chunkAsset.HasModifiedData)
-				{
-					AddResource(new ChunkResource(chunkAsset, this.manifest));
-				}
-			}
-			WriteInt32LittleEndian(resources.Count);
-			foreach (EditorModResource resource in resources)
-			{
-				resource.Write(this);
-			}
+            WriteUInt64LittleEndian(5498700893333637446uL);
+            WriteUInt32LittleEndian(28u);
+            Write((byte)0);
+            var positionOfPlaceholders = base.Position;
+            WriteInt64LittleEndian(0L);
+            WriteUInt64LittleEndian(0uL);
+            WriteUInt64LittleEndian(16045690984833335023uL);
+            WriteUInt32LittleEndian(3735928559u);
+            WriteLengthPrefixedString(gameName);
+            WriteUInt32LittleEndian(fileSystem.Head);
+            ModSettings modSettings = overrideSettings ?? project.ModSettings;
+            WriteLengthPrefixedString(modSettings.Title);
+            WriteLengthPrefixedString(modSettings.Author);
+            Write((byte)0);
+            Write(Convert.ToByte(0));
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(modSettings.Version);
+            WriteLengthPrefixedString(modSettings.Description);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            WriteLengthPrefixedString(string.Empty);
+            AddResource(new EmbeddedResource("Icon", modSettings.Icon, ResourceManifest));
+            WriteUInt32LittleEndian((uint)0);
+            Write7BitEncodedInt(AssetManager.Instance.LocaleINIMod.HasUserData ? 1 : 0);
+            if(AssetManager.Instance.LocaleINIMod.HasUserData)
+            {
+                WriteLengthPrefixedString("Locale.ini");
+                WriteLengthPrefixedString(Encoding.UTF8.GetString(AssetManager.Instance.LocaleINIMod.UserData));
+            }
+            Write7BitEncodedInt(0); // init fs
+            Write7BitEncodedInt(0); // player lua
+            Write7BitEncodedInt(0); // player kit lua
+            //WritePlayerLuaMods(this, project.PlayerLuaMod);
+            //WritePlayerKitLuaMods(this, project.PlayerKitLuaMod);
+            positionOfEndOfHeader = base.Position;
+            WriteUInt64LittleEndian(0uL);
+            //Dictionary<EbxAssetEntry, List<(string, LegacyFileEntry.ChunkCollectorInstance)>> legacyCollectorsToModifiedEntries = new Dictionary<EbxAssetEntry, List<(string, LegacyFileEntry.ChunkCollectorInstance)>>();
+            //foreach (LegacyFileEntry item2 in legacyFileManager.EnumerateAssets(modifiedOnly: true))
+            //{
+            //    foreach (LegacyFileEntry.ChunkCollectorInstance collectorInstance in item2.CollectorInstances)
+            //    {
+            //        if (!legacyCollectorsToModifiedEntries.TryGetValue(collectorInstance.Entry, out var list))
+            //        {
+            //            list = new List<(string, LegacyFileEntry.ChunkCollectorInstance)>();
+            //            legacyCollectorsToModifiedEntries[collectorInstance.Entry] = list;
+            //        }
+            //        list.Add((item2.Name, collectorInstance));
+            //    }
+            //}
+            foreach (BundleEntry item in assetManager.EnumerateBundles(BundleType.None, modifiedOnly: true))
+            {
+                
+            }
+            foreach (EbxAssetEntry ebxAssetEntry in assetManager.EnumerateEbx("", modifiedOnly: true))
+            {
+                if (ebxAssetEntry.HasModifiedData)
+                {
+                    EbxResource ebxResource = new EbxResource(ebxAssetEntry, ResourceManifest);
+                    AddResource(ebxResource);
+                }
+            }
+            foreach (ResAssetEntry item3 in assetManager.EnumerateRes(0u, modifiedOnly: true))
+            {
+                if (item3.HasModifiedData && 0 == 0)
+                {
+                    AddResource(new ResResource(item3, ResourceManifest));
+                }
+            }
+            foreach (ChunkAssetEntry item4 in assetManager.EnumerateChunks(modifiedOnly: true))
+            {
+                if (item4.HasModifiedData)
+                {
+                    AddResource(new ChunkResource(item4, ResourceManifest));
+                }
+            }
+            //foreach (KeyValuePair<EbxAssetEntry, List<(string, LegacyFileEntry.ChunkCollectorInstance)>> kvp in legacyCollectorsToModifiedEntries)
+            {
+                //dynamic rootObject = assetManager.GetEbx(kvp.Key).RootObject;
+                //dynamic manifest = rootObject.Manifest;
+                //ChunkAssetEntry chunkAssetEntry = assetManager.GetChunkEntry(manifest.ChunkId);
+                //using RecyclableMemoryStream recyclableMemoryStream = new RecyclableMemoryStream(RecyclableMemoryStreamManagerSingleton.Instance);
+                //FileWriter writer = new FileWriter(recyclableMemoryStream);
+                //foreach (var (itemName, chunkCollector) in kvp.Value)
+                //{
+                //    writer.WriteInt32LittleEndian(Fnv1Hasher.HashString(itemName));
+                //    writer.WriteLengthPrefixedString(itemName);
+                //    writer.WriteGuid(chunkCollector.ModifiedEntry.ChunkId);
+                //    writer.WriteInt64LittleEndian(chunkCollector.ModifiedEntry.Offset);
+                //    writer.WriteInt64LittleEndian(chunkCollector.ModifiedEntry.CompressedStartOffset);
+                //    writer.WriteInt64LittleEndian(chunkCollector.ModifiedEntry.CompressedEndOffset);
+                //    writer.WriteInt64LittleEndian(chunkCollector.ModifiedEntry.Size);
+                //}
+                //AddResource(new LegacyResource(assetManager, chunkAssetEntry.Name, kvp.Key.Name, recyclableMemoryStream.ToArray(), chunkAssetEntry.EnumerateBundles(), ResourceManifest));
+            }
+            WriteInt32LittleEndian(resources.Count);
+            foreach (EditorModResource resource in resources)
+            {
+                resource.Write(this);
+            }
+            long position = base.Position;
+            ResourceManifest.Write(this);
+            base.Position = positionOfPlaceholders;
+            WriteInt64LittleEndian(positionOfEndOfHeader);
+            base.Position += 8L;
+            WriteInt64LittleEndian(position);
+            WriteInt32LittleEndian(ResourceManifest.Count);
+            GenerateChecksums();
+        }
 
-			long manifestPosition = base.Position;
-			this.manifest.Write(this);
-			base.Position = 12L;
-			WriteInt64LittleEndian(manifestPosition);
-			WriteInt32LittleEndian(this.manifest.Count);
-		}
+        private void GenerateChecksums()
+        {
+            long offset = positionOfPlaceholders + 8 + 8;
+            ulong headerChecksum = xxHash64.ComputeHash(new SubStream(base.BaseStream, offset, positionOfEndOfHeader - offset), 32768, 0uL);
+            base.Position = offset - 8;
+            WriteUInt64LittleEndian(headerChecksum);
+            offset = positionOfEndOfHeader + 8;
+            ulong dataChecksum = xxHash64.ComputeHash(new SubStream(base.BaseStream, offset, base.Length - offset), 32768, 0uL);
+            base.Position = positionOfEndOfHeader;
+            WriteUInt64LittleEndian(dataChecksum);
+        }
 
-	}
+    }
 }

@@ -1075,11 +1075,11 @@ namespace Frostbite.IO
             }
             EbxClass? ebxClass = null;
             IEnumerable<TypeInfoGuidAttribute> typeInfoGuidAttributes = objType.GetCustomAttributes<TypeInfoGuidAttribute>();
-            if (EbxReaderV2.patchStd != null)
+            if (EbxReader22B.patchStd != null)
             {
                 foreach (TypeInfoGuidAttribute typeInfoGuidAttribute2 in typeInfoGuidAttributes)
                 {
-                    ebxClass = EbxReaderV2.patchStd.GetClass(typeInfoGuidAttribute2.Guid);
+                    ebxClass = EbxReader22B.patchStd.GetClass(typeInfoGuidAttribute2.Guid);
                     if (ebxClass.HasValue)
                     {
                         return ebxClass.Value;
@@ -1088,7 +1088,7 @@ namespace Frostbite.IO
             }
             foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in typeInfoGuidAttributes)
             {
-                ebxClass = EbxReaderV2.std.GetClass(typeInfoGuidAttribute.Guid);
+                ebxClass = EbxReader22B.std.GetClass(typeInfoGuidAttribute.Guid);
                 if (ebxClass.HasValue)
                 {
                     return ebxClass.Value;
@@ -1105,7 +1105,7 @@ namespace Frostbite.IO
             }
             foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in objType.GetCustomAttributes<TypeInfoGuidAttribute>())
             {
-                EbxClass? ebxClass = EbxReaderV2.std.GetClass(typeInfoGuidAttribute.Guid);
+                EbxClass? ebxClass = EbxReader22B.std.GetClass(typeInfoGuidAttribute.Guid);
                 if (ebxClass.HasValue)
                 {
                     return ebxClass.Value;
@@ -1118,14 +1118,14 @@ namespace Frostbite.IO
         {
             if (classType.SecondSize == 0)
             {
-                return EbxReaderV2.std.GetGuid(classType).Value;
+                return EbxReader22B.std.GetGuid(classType).Value;
             }
-            return EbxReaderV2.patchStd.GetGuid(classType).Value;
+            return EbxReader22B.patchStd.GetGuid(classType).Value;
         }
 
         internal EbxClass GetClass(Guid guid)
         {
-            EbxClass? c = EbxReaderV2.std.GetClass(guid);
+            EbxClass? c = EbxReader22B.std.GetClass(guid);
             if (!c.HasValue)
             {
                 DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(25, 1);
@@ -1148,7 +1148,7 @@ namespace Frostbite.IO
         private EbxClass GetClass(EbxClass parentClassType, EbxField field)
         {
             int index = parentClassType.Index + (short)field.ClassRef;
-            EbxClass? c = ((parentClassType.SecondSize == 0) ? EbxReaderV2.std.GetClass(index) : EbxReaderV2.patchStd.GetClass(index));
+            EbxClass? c = ((parentClassType.SecondSize == 0) ? EbxReader22B.std.GetClass(index) : EbxReader22B.patchStd.GetClass(index));
             if (!c.HasValue)
             {
                 DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(26, 1);
