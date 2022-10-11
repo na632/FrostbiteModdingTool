@@ -61,19 +61,20 @@ namespace FIFA23Plugin
                     baseBundleInfo.Offset = actualPos;
                     baseBundleInfo.Size = casBundle.TotalSize;
 
-                    AssetManager.Instance.bundles.Add(new BundleEntry() { Type = BundleType.None, Name = path + "-" + baseBundleInfo.Offset });
+                    //AssetManager.Instance.bundles.Add(new BundleEntry() { Type = BundleType.None, Name = path + "-" + baseBundleInfo.Offset });
 
-                    //var inner_reader = nr_cas;
-                    using (
-                        NativeReader inner_reader = new NativeReader(
-                        nr_cas.CreateViewStream(baseBundleInfo.Offset, casBundle.TotalSize)
-                        ))
+                    //using (
+                    //    NativeReader inner_reader = new NativeReader(
+                    //    nr_cas.CreateViewStream(baseBundleInfo.Offset, casBundle.TotalSize)
+                    //    ))
                     {
                         var binaryReader = new BinaryReader_Fifa22();
                         var binaryObject = new DbObject();
-                        var pos = inner_reader.Position;
-                        binaryReader.BinaryRead_FIFA21((int)baseBundleInfo.Offset, ref binaryObject, inner_reader, false);
-                        inner_reader.Position = pos;
+                        //var pos = inner_reader.Position;
+                        //binaryReader.BinaryRead_FIFA21((int)baseBundleInfo.Offset, ref binaryObject, inner_reader, false);
+                        //inner_reader.Position = pos;
+                        nr_cas.Position = baseBundleInfo.Offset;
+                        binaryReader.BinaryRead_FIFA21(0, ref binaryObject, nr_cas, false);
 
                         if (AssetManager.Instance != null && AssociatedTOCFile != null)
                         {
