@@ -1,10 +1,11 @@
 ﻿using Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
-using paulv2k4ModdingExecuter;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static paulv2k4ModdingExecuter.FrostyModExecutor;
+using static ModdingSupport.FrostyModExecutor;
 
 namespace FIFA21Plugin
 {

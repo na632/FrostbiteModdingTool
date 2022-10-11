@@ -30,14 +30,7 @@ using FrostySdk.FrostySdk.Managers;
 
 namespace FrostySdk.Managers
 {
-public interface IAssetLoader
-{
-		void Load(AssetManager parent, BinarySbDataHelper helper);
-	}
-	public interface IAssetCompiler
-	{
-		bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter);
-	}
+
 
 	public class BinarySbDataHelper
 	{
@@ -2734,11 +2727,11 @@ public interface IAssetLoader
 					{
 						ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
-					bundleCount = nativeReader.ReadInt();
-					for (int m = 0; m < bundleCount; m++)
-					{
-						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-					}
+					//bundleCount = nativeReader.ReadInt();
+					//for (int m = 0; m < bundleCount; m++)
+					//{
+					//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
+					//}
 					if (ProfilesLibrary.IsFIFA21DataVersion())
 					{
 						if (nativeReader.ReadBoolean())
@@ -3014,11 +3007,11 @@ public interface IAssetLoader
                     {
                         nativeWriter.Write(bundle2);
                     }
-                    nativeWriter.Write(ebxEntry.DependentAssets.Count);
-                    foreach (Guid item in ebxEntry.EnumerateDependencies())
-                    {
-                        nativeWriter.Write(item);
-                    }
+                    //nativeWriter.Write(ebxEntry.DependentAssets.Count);
+                    //foreach (Guid item in ebxEntry.EnumerateDependencies())
+                    //{
+                    //    nativeWriter.Write(item);
+                    //}
 
                     if (ProfilesLibrary.IsFIFA21DataVersion())
                     {

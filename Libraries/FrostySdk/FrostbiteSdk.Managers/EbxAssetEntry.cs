@@ -8,38 +8,38 @@ namespace FrostySdk.Managers
 	{
 		public Guid Guid { get; set; }
 
-		public List<Guid> DependentAssets = new List<Guid>();
+		//public List<Guid> DependentAssets { get; } = new List<Guid>();
 
 		public override string AssetType => "ebx";
 
         public bool IsBinary { get; internal set; }
 
-        public bool ContainsDependency(Guid guid)
-		{
-			if (base.IsDirectlyModified)
-			{
-				return ModifiedEntry.DependentAssets.Contains(guid);
-			}
-			return DependentAssets.Contains(guid);
-		}
+  //      public bool ContainsDependency(Guid guid)
+		//{
+		//	if (base.IsDirectlyModified)
+		//	{
+		//		return ModifiedEntry.DependentAssets.Contains(guid);
+		//	}
+		//	return DependentAssets.Contains(guid);
+		//}
 
-		public IEnumerable<Guid> EnumerateDependencies()
-		{
-			if (base.IsDirectlyModified)
-			{
-				foreach (Guid dependentAsset in ModifiedEntry.DependentAssets)
-				{
-					yield return dependentAsset;
-				}
-			}
-			else
-			{
-				foreach (Guid dependentAsset2 in DependentAssets)
-				{
-					yield return dependentAsset2;
-				}
-			}
-		}
+		//public IEnumerable<Guid> EnumerateDependencies()
+		//{
+		//	if (base.IsDirectlyModified)
+		//	{
+		//		foreach (Guid dependentAsset in ModifiedEntry.DependentAssets)
+		//		{
+		//			yield return dependentAsset;
+		//		}
+		//	}
+		//	else
+		//	{
+		//		foreach (Guid dependentAsset2 in DependentAssets)
+		//		{
+		//			yield return dependentAsset2;
+		//		}
+		//	}
+		//}
 
         public override AssetEntry Clone()
         {

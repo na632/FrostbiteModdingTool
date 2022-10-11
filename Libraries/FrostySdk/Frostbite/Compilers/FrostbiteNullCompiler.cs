@@ -1,4 +1,5 @@
-﻿using FrostySdk.Interfaces;
+﻿using FrostySdk.Frostbite.PluginInterfaces;
+using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
 ﻿using Frosty.Hash;
 using FrostySdk;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json;

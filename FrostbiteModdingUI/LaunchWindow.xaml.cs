@@ -13,7 +13,7 @@ using FrostySdk.Managers;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
-using paulv2k4ModdingExecuter;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -416,7 +416,7 @@ namespace FMT
                     {
                         LoadingDialog.Update("Launching", "Compiling mods");
 
-                        var launchTask = LaunchFIFA.LaunchAsync(
+                        var launchTask = LaunchGame.LaunchAsync(
                             GameInstanceSingleton.Instance.GAMERootPath
                             , ""
                             , new Mods.ModList(Profile).ModListItems.Select(x=>x.Path).ToList()

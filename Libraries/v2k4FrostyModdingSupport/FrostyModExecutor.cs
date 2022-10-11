@@ -28,18 +28,20 @@ using System.Collections.Concurrent;
 using FrostbiteSdk;
 using v2k4FIFAModdingCL;
 using System.Xml;
+using FrostySdk.Frostbite.PluginInterfaces;
+using System.Runtime.CompilerServices;
 
-namespace paulv2k4ModdingExecuter
+namespace ModdingSupport
 {
+    public class ArchiveInfo
+    {
+        public byte[] Data;
+
+        public int RefCount;
+    }
+
     public class FrostyModExecutor
     {
-        public class ArchiveInfo
-        {
-            public byte[] Data;
-
-            public int RefCount;
-        }
-
         public class ModBundleInfo
         {
 
@@ -4256,6 +4258,28 @@ namespace paulv2k4ModdingExecuter
         public Dictionary<int, ModBundleInfo> modifiedBundles = new Dictionary<int, ModBundleInfo>();
 
         public Dictionary<string, List<string>> addedBundles = new Dictionary<string, List<string>>();
+
+        public Dictionary<string, AssetEntry> ModifiedAssets
+        {
+            get
+            {
+                Dictionary<string, AssetEntry> entries = new Dictionary<string, AssetEntry>();
+                foreach(var item in modifiedEbx)
+                {
+                    entries.Add(item.Key, item.Value);
+                }
+                foreach (var item in modifiedRes)
+                {
+                    entries.Add(item.Key, item.Value);
+                }
+                foreach (var item in ModifiedChunks)
+                {
+                    entries.Add(item.Key.ToString(), item.Value);
+                }
+                return entries;
+            }
+        }
+
 
         public Dictionary<string, EbxAssetEntry> modifiedEbx = new Dictionary<string, EbxAssetEntry>();
 

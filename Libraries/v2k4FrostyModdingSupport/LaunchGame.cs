@@ -4,13 +4,13 @@ using FrostySdk.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using paulv2k4ModdingExecuter;
+using ModdingSupport;
 using System.Threading.Tasks;
 using FrostySdk.Managers;
 
 namespace FIFAModdingUI
 {
-    public static class LaunchFIFA
+    public static class LaunchGame
     {
         public static void Launch(string FIFARootPath, string ModDirectory, List<string> OrderedListOfMods, ILogger logger = null, string FIFAVERSION = "FIFA20", bool buildMods = true, bool useSymbolicLink = true)
         {

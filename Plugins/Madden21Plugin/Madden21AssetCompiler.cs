@@ -2,16 +2,17 @@
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
-using paulv2k4ModdingExecuter;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static Madden21Plugin.Madden21AssetLoader;
-using static paulv2k4ModdingExecuter.FrostyModExecutor;
+using static ModdingSupport.FrostyModExecutor;
 
 namespace Madden21Plugin
 {

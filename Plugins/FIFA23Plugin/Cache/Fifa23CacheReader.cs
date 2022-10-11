@@ -118,11 +118,11 @@ namespace FIFA23Plugin.Cache
                     //{
                     //	ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
                     //}
-                    var num2 = nativeReader.ReadInt();
-                    for (int m = 0; m < num2; m++)
-                    {
-                        ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-                    }
+                    //var num2 = nativeReader.ReadInt();
+                    //for (int m = 0; m < num2; m++)
+                    //{
+                    //    ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
+                    //}
 
                     if (patched)
 					{

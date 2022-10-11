@@ -87,11 +87,11 @@ namespace BF2042Plugin.Cache
 					{
 						ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
-					num2 = nativeReader.ReadInt();
-					for (int m = 0; m < num2; m++)
-					{
-						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-					}
+					//num2 = nativeReader.ReadInt();
+					//for (int m = 0; m < num2; m++)
+					//{
+					//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
+					//}
 					//if (nativeReader.ReadBoolean())
 					//	ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
 					//if (nativeReader.ReadBoolean())

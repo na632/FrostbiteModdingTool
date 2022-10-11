@@ -152,11 +152,11 @@ namespace FIFA23Plugin.Cache
             //{
             //    nativeWriter.Write(bundle2);
             //}
-            nativeWriter.Write(ebxEntry.DependentAssets.Count);
-            foreach (Guid item in ebxEntry.EnumerateDependencies())
-            {
-                nativeWriter.Write(item);
-            }
+            //nativeWriter.Write(ebxEntry.DependentAssets.Count);
+            //foreach (Guid item in ebxEntry.EnumerateDependencies())
+            //{
+            //    nativeWriter.Write(item);
+            //}
         }
 
         public void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry)
