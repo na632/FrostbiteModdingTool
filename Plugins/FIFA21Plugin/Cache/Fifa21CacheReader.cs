@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace FIFA23Plugin.Cache
+namespace FIFA21Plugin.Cache
 {
-	public class Fifa23CacheReader : ICacheReader
+	public class Fifa21CacheReader : ICacheReader
 	{
 		public ulong EbxDataOffset { get; private set; }
 		public ulong ResDataOffset { get; private set; }
@@ -86,10 +86,7 @@ namespace FIFA23Plugin.Cache
 					if (nativeReader.ReadBoolean())
 					{
 						ebxAssetEntry.ExtraData = new AssetExtraData();
-						ebxAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
 						ebxAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
 						ebxAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
 						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
@@ -158,10 +155,7 @@ namespace FIFA23Plugin.Cache
 					if (nativeReader.ReadBoolean())
 					{
 						resAssetEntry.ExtraData = new AssetExtraData();
-						resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
                         resAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
                         resAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
                         resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
@@ -241,10 +235,7 @@ namespace FIFA23Plugin.Cache
 			if (nativeReader.ReadBoolean())
 			{
 				chunkAssetEntry.ExtraData = new AssetExtraData();
-				chunkAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-				chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 				chunkAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-				chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
                 chunkAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
                 chunkAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
                 chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();

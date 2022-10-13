@@ -869,7 +869,7 @@ namespace FIFA21Plugin
 
                 var groupedBySB = EntriesToNewPosition.GroupBy(x =>
                             !string.IsNullOrEmpty(x.Key.SBFileLocation)
-                            ? x.Key.SBFileLocation
+                            ? x.Key.SBFileLocation.Replace(".sb", ".toc")
                             : x.Key.TOCFileLocation
                             )
                     .ToDictionary(gdc => gdc.Key, gdc => gdc.ToList());
