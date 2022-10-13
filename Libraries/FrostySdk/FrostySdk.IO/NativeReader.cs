@@ -147,7 +147,8 @@ namespace FrostySdk.IO
 
 		public bool ReadBoolean()
 		{
-			return ReadByte() == 1;
+			var readByte = ReadByte();
+            return readByte == 1;
 		}
 
 		public byte ReadByte()

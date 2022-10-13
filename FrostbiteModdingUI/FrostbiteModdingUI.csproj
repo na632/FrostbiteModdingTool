@@ -144,9 +144,8 @@
     <ProjectReference Include="..\Libraries\FMT.Controls\FMT.Controls.csproj" />
 	  <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj">
 	  </ProjectReference>
-    <ProjectReference Include="..\Libraries\v2k4FIFAModdingCL\FIFAModding.csproj" />
-    <ProjectReference Include="..\Libraries\v2k4FIFASDKGenerator\SDKGenerator.csproj" />
-    <ProjectReference Include="..\Libraries\v2k4FrostyModdingSupport\ModdingSupport.csproj" />
+    <ProjectReference Include="..\Libraries\SDKGenerator\SDKGenerator.csproj" />
+    <ProjectReference Include="..\Libraries\ModdingSupport\ModdingSupport.csproj" />
   </ItemGroup>
 
   <ItemGroup>

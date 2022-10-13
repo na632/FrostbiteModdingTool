@@ -413,14 +413,14 @@ namespace FrostySdk.Resources
 					AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
 
 				ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
-				if (ChunkEntry == null)
-				{
-					var n = resAssetEntry.BundleNames.Select(x => x.Split('/')[x.Split('/').Length - 1]);
-					ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId, n.First());
-					var ChunkEntry2 = AssetManager.Instance.GetChunkEntry(chunkId, n.Last());
+				//if (ChunkEntry == null)
+				//{
+				//	var n = resAssetEntry.BundleNames.Select(x => x.Split('/')[x.Split('/').Length - 1]);
+				//	ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId, n.First());
+				//	var ChunkEntry2 = AssetManager.Instance.GetChunkEntry(chunkId, n.Last());
 
-					var cbEntry = AssetManager.Instance.BundleChunks.First(x => x.Key.Item2 == chunkId);
-				}
+				//	var cbEntry = AssetManager.Instance.BundleChunks.First(x => x.Key.Item2 == chunkId);
+				//}
 				data = AssetManager.Instance.GetChunk(ChunkEntry);
 			}
 		}

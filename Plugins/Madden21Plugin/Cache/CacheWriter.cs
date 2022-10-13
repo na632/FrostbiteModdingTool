@@ -41,7 +41,7 @@ namespace Madden21Plugin.Cache
                     nativeWriter.Write((int)ebxEntry.Location);
                     nativeWriter.Write(ebxEntry.IsInline);
                     nativeWriter.WriteLengthPrefixedString((ebxEntry.Type != null) ? ebxEntry.Type : "");
-                    nativeWriter.Write(ebxEntry.Guid == Guid.Empty ? Guid.NewGuid() : ebxEntry.Guid);
+                    nativeWriter.Write(!ebxEntry.Guid.HasValue ? Guid.NewGuid() : ebxEntry.Guid.Value);
                     nativeWriter.Write(ebxEntry.ExtraData != null);
                     if (ebxEntry.ExtraData != null)
                     {

@@ -70,7 +70,7 @@ namespace FIFA22Plugin.Cache
             nativeWriter.Write((int)ebxEntry.Location);
             nativeWriter.Write(ebxEntry.IsInline);
             nativeWriter.WriteLengthPrefixedString((ebxEntry.Type != null) ? ebxEntry.Type : "");
-            nativeWriter.Write(ebxEntry.Guid == Guid.Empty ? Guid.NewGuid() : ebxEntry.Guid);
+            nativeWriter.Write(!ebxEntry.Guid.HasValue ? Guid.NewGuid() : ebxEntry.Guid.Value);
             nativeWriter.Write(ebxEntry.ExtraData != null);
             if (ebxEntry.ExtraData != null)
             {
@@ -78,8 +78,10 @@ namespace FIFA22Plugin.Cache
                 nativeWriter.Write(ebxEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(ebxEntry.ExtraData.DataOffset);
                 nativeWriter.Write(ebxEntry.ExtraData.SuperBundleId);
+                nativeWriter.Write(ebxEntry.ExtraData.Catalog.Value);
+                nativeWriter.Write(ebxEntry.ExtraData.Cas.Value);
                 nativeWriter.Write(ebxEntry.ExtraData.IsPatch);
-                nativeWriter.WriteLengthPrefixedString(ebxEntry.ExtraData.CasPath);
+                //nativeWriter.WriteLengthPrefixedString(ebxEntry.ExtraData.CasPath);
             }
 
             nativeWriter.Write(ebxEntry.TOCFileLocations.Count);
@@ -132,8 +134,10 @@ namespace FIFA22Plugin.Cache
                 nativeWriter.Write(resEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(resEntry.ExtraData.DataOffset);
                 nativeWriter.Write(resEntry.ExtraData.SuperBundleId);
+                nativeWriter.Write(resEntry.ExtraData.Catalog.Value);
+                nativeWriter.Write(resEntry.ExtraData.Cas.Value);
                 nativeWriter.Write(resEntry.ExtraData.IsPatch);
-                nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
+                //nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
             }
 
             nativeWriter.Write(resEntry.TOCFileLocations.Count);
@@ -183,8 +187,10 @@ namespace FIFA22Plugin.Cache
                 nativeWriter.Write(chunkEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(chunkEntry.ExtraData.DataOffset);
                 nativeWriter.Write(chunkEntry.ExtraData.SuperBundleId);
+                nativeWriter.Write(chunkEntry.ExtraData.Catalog.Value);
+                nativeWriter.Write(chunkEntry.ExtraData.Cas.Value);
                 nativeWriter.Write(chunkEntry.ExtraData.IsPatch);
-                nativeWriter.WriteLengthPrefixedString(chunkEntry.ExtraData.CasPath);
+                //nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
             }
             else
             {

@@ -298,7 +298,7 @@ namespace FrostbiteModdingTests
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.2.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.3.fbproject");
 
             if (File.Exists("test.fbmod"))
                 File.Delete("test.fbmod");
@@ -602,11 +602,10 @@ namespace FrostbiteModdingTests
             //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             //projectManagement.Project = new FrostySdk.FrostbiteProject();
 
-
             GameInstanceSingleton.InitializeSingleton(GamePathEXE);
             ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = true;
-            frostyModExecutor.ForceRebuildOfMods = true;
+            ModdingSupport.FrostyModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>()
                 {
@@ -616,6 +615,24 @@ namespace FrostbiteModdingTests
             //var r3 = GameInstanceSingleton.InjectDLL(@"G:\Work\FIFA Modding\FIFA_23_LE_v23.1.0.0\FIFALiveEditor.DLL", true).Result;
 
         }
+
+        /// <summary>
+        /// To start without AC you need to alter your Installer.xml
+        /// </summary>
+        [TestMethod]
+        public void TestLoadWithoutACInModData()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
+            ModdingSupport.FrostyModExecutor.UseModData = true;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>()
+                {
+                }.ToArray()).Wait();
+
+        }
+
     }
 }
 

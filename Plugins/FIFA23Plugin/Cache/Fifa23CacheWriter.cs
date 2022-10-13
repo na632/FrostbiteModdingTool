@@ -118,10 +118,7 @@ namespace FIFA23Plugin.Cache
             nativeWriter.Write(ebxEntry.ExtraData != null);
             if (ebxEntry.ExtraData != null)
             {
-                nativeWriter.Write(ebxEntry.ExtraData.BaseSha1);
-                nativeWriter.Write(ebxEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(ebxEntry.ExtraData.DataOffset);
-                nativeWriter.Write(ebxEntry.ExtraData.SuperBundleId);
                 nativeWriter.Write(ebxEntry.ExtraData.Catalog.Value);
                 nativeWriter.Write(ebxEntry.ExtraData.Cas.Value);
                 nativeWriter.Write(ebxEntry.ExtraData.IsPatch);
@@ -174,10 +171,7 @@ namespace FIFA23Plugin.Cache
             nativeWriter.Write(resEntry.ExtraData != null);
             if (resEntry.ExtraData != null)
             {
-                nativeWriter.Write(resEntry.ExtraData.BaseSha1);
-                nativeWriter.Write(resEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(resEntry.ExtraData.DataOffset);
-                nativeWriter.Write(resEntry.ExtraData.SuperBundleId);
                 nativeWriter.Write(resEntry.ExtraData.Catalog.Value);
                 nativeWriter.Write(resEntry.ExtraData.Cas.Value);
                 nativeWriter.Write(resEntry.ExtraData.IsPatch);
@@ -227,10 +221,7 @@ namespace FIFA23Plugin.Cache
             nativeWriter.Write(chunkEntry.ExtraData != null);
             if (chunkEntry.ExtraData != null)
             {
-                nativeWriter.Write(chunkEntry.ExtraData.BaseSha1);
-                nativeWriter.Write(chunkEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(chunkEntry.ExtraData.DataOffset);
-                nativeWriter.Write(chunkEntry.ExtraData.SuperBundleId);
                 nativeWriter.Write(chunkEntry.ExtraData.Catalog.Value);
                 nativeWriter.Write(chunkEntry.ExtraData.Cas.Value);
                 nativeWriter.Write(chunkEntry.ExtraData.IsPatch);
