@@ -6,7 +6,7 @@ namespace FrostySdk.Managers
 {
 	public sealed class EbxAssetEntry : AssetEntry, IAssetEntry
 	{
-		public Guid Guid { get; set; }
+		public Guid? Guid { get; set; }
 
 		//public List<Guid> DependentAssets { get; } = new List<Guid>();
 
