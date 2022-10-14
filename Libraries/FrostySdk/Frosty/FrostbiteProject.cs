@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FrostySdk
@@ -106,7 +107,7 @@ namespace FrostySdk
 			{
 				if (nativeReader.ReadULong() == 98218709832262L)
 				{
-					return InternalLoad(nativeReader);
+					return InternalLoad(nativeReader).Result;
 				}
 			}
 			//return LegacyLoad(inFilename);
@@ -114,12 +115,28 @@ namespace FrostySdk
 			return false;
 		}
 
-		public async Task<bool> LoadAsync(string inFilename)
+		public async Task<bool> LoadAsync(string inFilename, CancellationToken cancellationToken = default(CancellationToken))
         {
-			return await new TaskFactory().StartNew(() =>
-			{
-				return Load(inFilename);
-			}, TaskCreationOptions.LongRunning);
+			if (!File.Exists(inFilename))
+				return false;
+			//return await new TaskFactory().StartNew(() =>
+			//{
+			//	return Load(inFilename);
+			//}, TaskCreationOptions.LongRunning);
+
+            ModifiedAssetEntries = null;
+
+            filename = inFilename;
+            using (NativeReader nativeReader = new NativeReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read)))
+            {
+                if (nativeReader.ReadULong() == 98218709832262L)
+                {
+                    return await InternalLoad(nativeReader, cancellationToken);
+                }
+            }
+
+			return false;
+
         }
 
 		public static string LastFilePath;
@@ -672,9 +689,10 @@ namespace FrostySdk
 		public int ChunkCount;
 		public int LegacyCount;
 
-		private bool InternalLoad(NativeReader reader)
+		private async Task<bool> InternalLoad(NativeReader reader, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			uint num = reader.ReadUInt();
+			List<Task> tasks = new List<Task>();	
+            uint num = reader.ReadUInt();
 			switch (num)
 			{
 				default:
@@ -762,14 +780,14 @@ namespace FrostySdk
 						EBXCount = count;
 						for (int n = 0; n < count; n++)
 						{
-							string name2 = reader.ReadNullTerminatedString();
+							string ebxName = reader.ReadNullTerminatedString();
 							
 							List<AssetEntry> collection = LoadLinkedAssets(reader);
 							bool flag = reader.ReadBoolean();
 							bool isTransientModified = false;
 							string userData = "";
 							List<int> list = new List<int>();
-							byte[] buffer = null;
+							byte[] ebxAssetBytes = null;
 							if (flag)
 							{
 								isTransientModified = reader.ReadBoolean();
@@ -787,9 +805,11 @@ namespace FrostySdk
 										list.Add(bundleId);
 									}
 								}
-								buffer = reader.ReadBytes(reader.ReadInt());
+								ebxAssetBytes = reader.ReadBytes(reader.ReadInt());
 							}
-							EbxAssetEntry ebxEntry = AssetManager.GetEbxEntry(name2);
+							var readerPositionBeforeEbx = reader.Position;
+							var readerPositionAfterEbx = reader.Position + ebxAssetBytes.Length;
+                            EbxAssetEntry ebxEntry = AssetManager.GetEbxEntry(ebxName);
 							if (ebxEntry != null)
 							{
 								ebxEntry.LinkedAssets.AddRange(collection);
@@ -805,38 +825,74 @@ namespace FrostySdk
 									{
 										ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
 											ProfilesLibrary.LoadedProfile.ProjectEbxReader,
-											new MemoryStream(buffer), false);
+											new MemoryStream(ebxAssetBytes), false);
 									}
 
 									if(ebxReader == null)
                                     {
                                         if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
-                                            ebxReader = new EbxReaderV2(new MemoryStream(buffer), inPatched: false);
+                                            ebxReader = new EbxReaderV2(new MemoryStream(ebxAssetBytes), inPatched: false);
                                         else
-                                            ebxReader = new EbxReader(new MemoryStream(buffer));
+                                            ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
                                     }
 
 
-									using (
-										ebxReader
-												)
+									//using (
+									//	ebxReader
+									//			)
+									//{
+									if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
+										AssetManager.Instance.logger.Log($"[Project Load][EBX]({ebxEntry.Name})");
+
+									try
 									{
-										EbxAsset ebxAsset = ebxReader.ReadAsset();
-										ebxEntry.ModifiedEntry.DataObject = ebxAsset;
-										if (ebxEntry.IsAdded)
+										//tasks.Add(Task.Run(() =>
+										await Task.Run(() =>
 										{
-											ebxEntry.Type = ebxAsset.RootObject.GetType().Name;
-										}
-										ebxEntry.ModifiedEntry.DependentAssets.AddRange(ebxAsset.Dependencies);
-									}
-								}
-								int key = Fnv1.HashString(ebxEntry.Name);
-								if (!dictionary.ContainsKey(key))
-								{
-									dictionary.Add(key, ebxEntry);
-								}
+											try
+											{
+												EbxAsset ebxAsset = ebxReader.ReadAsset();
+												ebxEntry.ModifiedEntry.DataObject = ebxAsset;
+												if (ebxEntry.IsAdded)
+												{
+													ebxEntry.Type = ebxAsset.RootObject.GetType().Name;
+												}
+												ebxEntry.ModifiedEntry.DependentAssets.AddRange(ebxAsset.Dependencies);
+
+												int key = Fnv1.HashString(ebxEntry.Name);
+												if (!dictionary.ContainsKey(key))
+												{
+													dictionary.Add(key, ebxEntry);
+												}
+											}
+											catch
+											{
+												if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
+													AssetManager.Instance.logger.LogError($"[Project Log][EBX][ERROR]({ebxEntry.Name})");
+											}
+										}, cancellationToken)
+										.WaitAsync(new TimeSpan(0, 0, 15), cancellationToken);
+										//);
+                                    }
+									catch
+									{
+										AssetManager.Instance.RevertAsset(ebxEntry);
+                                    }
+									finally
+									{
+                                        ebxReader.BaseStream.Close();
+										ebxReader.Dispose();
+										GC.Collect();
+										GC.WaitForPendingFinalizers();
+                                    }
+                                    //}
+                                }
+								
 							}
-						}
+							//reader.Position = readerPositionAfterEbx;
+							reader.Position = readerPositionBeforeEbx;
+
+                        }
 						count = reader.ReadInt();
 						RESCount = count;
 
@@ -1117,6 +1173,8 @@ namespace FrostySdk
 							}
 						}
 
+						//await Task.WhenAll(tasks.ToArray());
+						Task.WaitAll(tasks.ToArray());
 						return true;
 				}
 			}
