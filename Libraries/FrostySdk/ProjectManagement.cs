@@ -34,14 +34,14 @@ namespace v2k4FIFAModding.Frosty
         /// Sets up all the Singleton Paths
         /// </summary>
         /// <param name="filePath"></param>
-        private static void InitializeOfSelectedGame(string filePath)
+        private void InitializeOfSelectedGame(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath))
             {
                 if (!File.Exists(filePath))
                     throw new FileNotFoundException("File path / Game EXE doesn't exist");
 
-                GameInstanceSingleton.InitializeSingleton(filePath);
+                GameInstanceSingleton.InitializeSingleton(filePath, true, this);
 
                 var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
                 GameInstanceSingleton.Instance.GAMERootPath = FIFADirectory;

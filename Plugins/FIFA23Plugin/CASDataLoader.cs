@@ -50,7 +50,7 @@ namespace FIFA23Plugin
                 foreach (CASBundle casBundle in casBundles.Where(x=>x.TotalSize > 0))
                 {
                     if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
-                        AssetManager.Instance.logger.Log($"Completed {Math.Round(((double)index / casBundles.Count)*100).ToString()} in {path}");
+                        AssetManager.Instance.logger.Log($"{path} [{Math.Round(((double)index / casBundles.Count) * 100).ToString()}%]");
                     
                     index++;
 
@@ -75,7 +75,13 @@ namespace FIFA23Plugin
                         //binaryReader.BinaryRead_FIFA21((int)baseBundleInfo.Offset, ref binaryObject, inner_reader, false);
                         //inner_reader.Position = pos;
                         nr_cas.Position = baseBundleInfo.Offset;
-                        binaryReader.BinaryRead_FIFA21(0, ref binaryObject, nr_cas, false);
+                        if(binaryReader.BinaryRead_FIFA21(0, ref binaryObject, nr_cas, false) == null)
+                        {
+                            if (AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
+                                AssetManager.Instance.logger.LogError("Unable to find data in " + casBundle.ToString());
+                            
+                            continue;
+                        }
 
                         if (AssetManager.Instance != null && AssociatedTOCFile != null)
                         {

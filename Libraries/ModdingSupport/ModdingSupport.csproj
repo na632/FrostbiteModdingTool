@@ -33,8 +33,16 @@
 		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
-	<None Update="ThirdParty\FIFA23\FIFA.dll">
+    
+    <None Update="ThirdParty\FIFA23\FIFATU2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    
+    <None Update="ThirdParty\FIFA23\FIFA.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+	<None Update="ThirdParty\FIFA23\FIFATU1.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
     <None Update="ThirdParty\FIFA23\data\db_meta.xml">
@@ -49,6 +57,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+    
     
     <None Update="ThirdParty\FIFA23\imgui.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

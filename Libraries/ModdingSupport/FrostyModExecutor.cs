@@ -30,6 +30,7 @@ using v2k4FIFAModdingCL;
 using System.Xml;
 using FrostySdk.Frostbite.PluginInterfaces;
 using System.Runtime.CompilerServices;
+using FrostyModManager;
 
 namespace ModdingSupport
 {
@@ -5013,7 +5014,8 @@ namespace ModdingSupport
                 fs.Initialize();
             }
 
-            string modPath = fs.BasePath + modDirName + "\\";
+            //string modPath = fs.BasePath + modDirName + "\\";
+            string modPath = "\\" + modDirName + "\\";
 
             var foundMods = false;
             var lastModPaths = new Dictionary<string, DateTime>();
@@ -5156,20 +5158,35 @@ namespace ModdingSupport
                 File.Move(fifaconfigexe_origlocation, fifaconfigexelocation); // replace
             }
 
-            if (foundMods && UseModData)// || sameAsLast)
-            {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
-            }
-            else if (foundMods && !UseModData)
+            //if (foundMods && UseModData)// || sameAsLast)
+            //{
+            //    Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
+            //    ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
+            //}
+            //else 
+            var dataPathArgument = "-dataPath \"" + modPath.Trim('\\') + "\" " + "";
+            var fifaNonRetailArgument = "-FIFA.EnableLocalDiskAssetStream";
+            var dataModulesPathArgument = "-dataModulesPath \"" + modPath.Trim('\\') + "\" " + "";
+            var noConfigArgument = "-noconfig";
+            var arguments = dataPathArgument
+                + " " + fifaNonRetailArgument
+                + " " + dataModulesPathArgument
+                + " " + noConfigArgument
+                ;
+
+            if (foundMods && !UseModData)
             {
                 Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
             else if (UseModData)
             {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "-dataPath \"" + modPath.Trim('\\') + "\" " + "");
+                if(foundMods)
+                    Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
+                else
+                    Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
+
+                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", arguments);
             }
             else
             {

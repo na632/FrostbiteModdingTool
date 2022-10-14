@@ -972,10 +972,13 @@ namespace SdkGenerator
                         }
                         else if (classInfo3.typeInfo.Type == 4)
                         {
-                            classInfo3 = offsetClassInfoMapping[classInfo3.parentClass];
-                            dboField.AddValue("isArray", true);
-                            dboField.AddValue("baseType", classInfo3.typeInfo.name);
-                            dboField.AddValue("arrayFlags", (int)classInfo3.typeInfo.flags);
+                            if (offsetClassInfoMapping.ContainsKey(classInfo3.parentClass))
+                            {
+                                classInfo3 = offsetClassInfoMapping[classInfo3.parentClass];
+                                dboField.AddValue("isArray", true);
+                                dboField.AddValue("baseType", classInfo3.typeInfo.name);
+                                dboField.AddValue("arrayFlags", (int)classInfo3.typeInfo.flags);
+                            }
                         }
                     }
                     field.Modify(dboField);

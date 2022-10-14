@@ -38,12 +38,17 @@ namespace FrostySdk.IO
 			{
 				if (deobfuscator == null || !deobfuscator.AdjustPosition(this, value))
 				{
+					if (stream == null)
+						return;
+
 					stream.Position = value;
 				}
 			}
 		}
 
 		public virtual long Length => streamLength;
+
+		public int ErrorCount { get; } = 0;
 
 		public NativeReader(string filePath)
 		{
@@ -704,6 +709,11 @@ namespace FrostySdk.IO
 
 		protected virtual void FillBuffer(int numBytes)
 		{
+			if (stream == null || buffer == null)
+			{
+				throw new Exception("Cannot fill Buffer!");
+			}
+
 			stream.Read(buffer, 0, numBytes);
 			if (deobfuscator != null)
 			{

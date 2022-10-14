@@ -37,6 +37,7 @@ using System.Windows.Shapes;
 using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
+using static System.Net.Mime.MediaTypeNames;
 
 //namespace FIFAModdingUI
 namespace FMT
@@ -66,25 +67,30 @@ namespace FMT
 
             //App.AppInsightClient.TrackPageView("Launcher Window - " + WindowTitle);
 
-            try
-            {
-                var bS = new FindGameEXEWindow().ShowDialog();
-                if (bS.HasValue && bS.Value == true && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
-                {
-                    await InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
-                }
-                else
-                {
-                    MessageBox.Show("You must select an EXE to launch a game. Close this screen and reopen to select one");
-                    throw new Exception("Unable to start up Game");
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex.ToString());
-                //this.Close();
-                return;
-            }
+            //try
+            //{
+            //    if (AppSettings.Settings.GameInstallEXEPath == null)
+            //    {
+            //        var bS = new FindGameEXEWindow().ShowDialog();
+            //        if (bS.HasValue && bS.Value == true && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+            //        {
+            //        }
+            //        else
+            //        {
+            //            MessageBox.Show("You must select an EXE to launch a game. Close this screen and reopen to select one");
+            //            throw new Exception("Unable to start up Game");
+            //        }
+            //    }
+
+                await InitialiseSelectedGame(AppSettings.Settings.GameInstallEXEPath);
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    Trace.WriteLine(ex.ToString());
+            //    //this.Close();
+            //    return;
+            //}
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
             if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
@@ -688,24 +694,24 @@ namespace FMT
             if (!string.IsNullOrEmpty(filePath))
             {
                 this.DataContext = this;
-                AppSettings.Settings.GameInstallEXEPath = filePath;
+                //AppSettings.Settings.GameInstallEXEPath = filePath;
 
                 //await File.WriteAllTextAsync(LastGamePathLocation, AppSettings.Settings.GameInstallEXEPath);
 
-                if (GameInstanceSingleton.InitializeSingleton(filePath))
-                {
-                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
-                    {
-                        throw new Exception("Unable to Initialize Profile");
-                    }
-                    btnLaunch.IsEnabled = true;
-                    GameInstanceSingleton.Logger = this;
+                //if (GameInstanceSingleton.InitializeSingleton(filePath, true, this))
+                //{
+                //    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
+                //    {
+                //        throw new Exception("Unable to Initialize Profile");
+                //    }
+                //    btnLaunch.IsEnabled = true;
+                //    GameInstanceSingleton.Logger = this;
 
-                }
-                else
-                {
-                    throw new Exception("Unsupported Game EXE Selected");
-                }
+                //}
+                //else
+                //{
+                //    throw new Exception("Unsupported Game EXE Selected");
+                //}
 
                 DiscordInterop.DiscordRpcClient.UpdateDetails("In Launcher - " + GameInstanceSingleton.Instance.GAMEVERSION);
 
@@ -718,6 +724,16 @@ namespace FMT
                 {
                     switchUseSymbolicLink.Visibility = Visibility.Visible;
                     switchUseSymbolicLink.IsOn = false;
+                }
+
+                if (ProfilesLibrary.IsFIFA23DataVersion())
+                {
+                    txtImportantMessage.Visibility = Visibility.Visible;
+                    txtImportantMessage.Content = "FIFA 23 modding provided by Aranaktu's Live Editor!";
+                }
+                else
+                {
+                    txtImportantMessage.Visibility = Visibility.Collapsed;
                 }
 
                 switchUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
@@ -756,7 +772,7 @@ namespace FMT
                                                 ? launcherOptions.UseLegacyModSupport.Value : GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;
                 switchUseLiveEditor.IsOn = launcherOptions.UseLiveEditor.HasValue ? launcherOptions.UseLiveEditor.Value : false;
-
+                btnLaunch.IsEnabled = ProfilesLibrary.LoadedProfile.CanLaunchMods;
             }
 
             DataContext = null;

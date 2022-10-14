@@ -1,6 +1,8 @@
 ﻿#pragma warning disable CS0618 // Type or member is obsolete
 using FrostySdk;
+using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,18 +44,19 @@ namespace v2k4FIFAModdingCL
 
         public string ModDataPath { get { return GAMERootPath + "\\ModData\\"; } }
 
-        public static bool InitializeSingleton(string filePath)
+        public static bool InitializeSingleton(in string filePath, in bool loadCache = false, in ILogger logger = null)
         {
             if (Instance != null)
             {
                 Instance.Dispose();
                 Instance = null;
             }
+            Logger = logger;
 
-            if(!string.IsNullOrEmpty(filePath))
+            if (!string.IsNullOrEmpty(filePath))
             {
                 Instance = new GameInstanceSingleton();
-                var GameDirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
+                var GameDirectory = Directory.GetParent(filePath).FullName;//.Substring(0, filePath.LastIndexOf("\\") + 1);
                 Instance.GAMERootPath = GameDirectory;
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
                 if (!string.IsNullOrEmpty(fileName))// && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
@@ -65,9 +68,46 @@ namespace v2k4FIFAModdingCL
                 {
                     ProfilesLibrary.Initialize(Instance.GAMEVERSION);
                 }
+                if (loadCache)
+                {
+                    BuildCache buildCache = new BuildCache();
+                    return buildCache.LoadData(Instance.GAMEVERSION, Instance.GAMERootPath, Logger, false, true);
+                }
+                //if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
+                //{
+                //    ProfilesLibrary.Initialize(Instance.GAMEVERSION);
+                //    KeyManager.Instance.ReadInKeys();
+                //    TypeLibrary.Initialize(false);
+                //    {
+                //        if (FileSystem.Instance == null)
+                //        {
+                //            new FileSystem(GameDirectory);
+                //        }
+
+                //        var resourceManager = ResourceManager.Instance != null ? ResourceManager.Instance : new ResourceManager(FileSystem.Instance);
+                //        resourceManager.Initialize();
+                //        if (AssetManager.Instance == null)
+                //        {
+                //            var assetManager = new AssetManager(FileSystem.Instance, resourceManager, logger);
+                //            assetManager.RegisterLegacyAssetManager();
+                //            assetManager.Initialize(additionalStartup: loadCache);
+                //        }
+                //        resourceManager.SetLogger(AssetManager.Instance.logger);
+                //    }
+                //}
+
             }
 
             return Instance.INITIALIZED;
+        }
+
+        public static async Task<bool> InitializeSingletonAsync(
+            string filePath
+            , bool loadCache = false
+            , ILogger logger = null
+            , CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await Task.Run(() => { return InitializeSingleton(filePath, loadCache, logger); }, cancellationToken);
         }
 
         public static string GetGameVersion()

@@ -401,6 +401,9 @@ namespace FrostySdk.IO._2022.Readers
 
 		public override object ReadField(EbxClass? parentClass, EbxFieldType fieldType, ushort fieldClassRef, bool dontRefCount = false)
 		{
+			if (buffer == null || BaseStream == null)
+				return null;
+
 			switch (fieldType)
 			{
 				case EbxFieldType.Boolean:

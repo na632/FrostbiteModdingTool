@@ -140,7 +140,7 @@ namespace FrostySdk.Managers
 	}
 
 
-	public class AssetManager : ILoggable, IDisposable
+	public class AssetManager : ILoggable, IDisposable, ILogger
 	{
 		private static AssetManager _Instance;
         public static AssetManager Instance 
@@ -655,6 +655,9 @@ namespace FrostySdk.Managers
 
 		public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
 		{
+			if (logger == null)
+				logger = this;
+
 			DateTime dtAtStart = DateTime.Now;
 
             if (!ProfilesLibrary.LoadedProfile.CanUseModData)
@@ -668,36 +671,35 @@ namespace FrostySdk.Managers
             {
 				throw new Exception("Plugins could not be initialised!");
             }				
-			TypeLibrary.Initialize(TypeLibrary.RequestLoadSDK);
+			TypeLibrary.Initialize(additionalStartup || TypeLibrary.RequestLoadSDK);
 			if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfilesLibrary.SDKFilename + ".dll"))
 			{
 				logger.Log($"Plugins and SDK {"SDK/" + ProfilesLibrary.SDKFilename + ".dll"} Initialised");
 			}
 
-			List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
-
-			if (!CacheRead(out prePatchCache))
-			{
-				logger.Log($"Cache Needs to Built/Updated");
-
-				BinarySbDataHelper binarySbDataHelper = new BinarySbDataHelper(this);
-				if (ProfilesLibrary.AssetLoader != null)
-					((IAssetLoader)Activator.CreateInstance(ProfilesLibrary.AssetLoader)).Load(this, binarySbDataHelper);
-				else
-				{
-					((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
-				}
-				GC.Collect();
-				CacheWrite();
-			}
-			
-			DoEbxIndexing();
 
 			if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
 			{
 				return;
 			}
-			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
+            List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
+            if (!CacheRead(out prePatchCache))
+            {
+                logger.Log($"Cache Needs to Built/Updated");
+
+                BinarySbDataHelper binarySbDataHelper = new BinarySbDataHelper(this);
+                if (ProfilesLibrary.AssetLoader != null)
+                    ((IAssetLoader)Activator.CreateInstance(ProfilesLibrary.AssetLoader)).Load(this, binarySbDataHelper);
+                else
+                {
+                    ((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
+                }
+                GC.Collect();
+                CacheWrite();
+            }
+
+            DoEbxIndexing();
+            foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				value.Initialize(logger);
 			}
@@ -3436,6 +3438,18 @@ namespace FrostySdk.Managers
 			}
 			while (AssetManager.Instance.GetChunkEntry(guid) != null);
 			return guid;
+		}
+
+		public void Log(string text, params object[] vars)
+		{
+		}
+
+		public void LogWarning(string text, params object[] vars)
+		{
+		}
+
+		public void LogError(string text, params object[] vars)
+		{
 		}
 	}
 }

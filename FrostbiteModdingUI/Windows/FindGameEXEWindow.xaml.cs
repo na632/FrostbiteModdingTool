@@ -2,6 +2,7 @@
 using FMT;
 using FrostbiteModdingUI.Models;
 using FrostySdk;
+using FrostySdk.Interfaces;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
@@ -26,7 +27,7 @@ namespace FrostbiteModdingUI.Windows
     /// <summary>
     /// Interaction logic for FindGameEXEWindow.xaml
     /// </summary>
-    public partial class FindGameEXEWindow : Window
+    public partial class FindGameEXEWindow : Window, ILogger
     {
         private string modProfileDirectory { get; } = App.ApplicationDirectory + "\\Mods\\Profiles\\";
 
@@ -75,12 +76,13 @@ namespace FrostbiteModdingUI.Windows
             {
                 AppSettings.Settings.GameInstallEXEPath = filePath;
 
-                if (GameInstanceSingleton.InitializeSingleton(filePath))
+                if (GameInstanceSingleton.InitializeSingleton(filePath, false, this))
+                //if (GameInstanceSingleton.InitializeSingleton(filePath, true, this))
                 {
-                    if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
-                    {
-                        throw new Exception("Unable to Initialize Profile");
-                    }
+                    //if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
+                    //{
+                    //    throw new Exception("Unable to Initialize Profile");
+                    //}
                     DialogResult = true;
                     Directory.CreateDirectory(System.IO.Path.Combine(modProfileDirectory, ProfilesLibrary.ProfileName));
                     File.WriteAllText(System.IO.Path.Combine(modProfileDirectory, ProfilesLibrary.ProfileName, "LastLocation.json"), filePath);
@@ -99,6 +101,18 @@ namespace FrostbiteModdingUI.Windows
 
             InitializeOfSelectedGame(fi.FullName);
             this.Close();
+        }
+
+        public void Log(string text, params object[] vars)
+        {
+        }
+
+        public void LogWarning(string text, params object[] vars)
+        {
+        }
+
+        public void LogError(string text, params object[] vars)
+        {
         }
     }
 }

@@ -139,7 +139,20 @@ namespace FrostySdk
 
 			Instance = this;
 			LiveTuningUpdate.ReadFIFALiveTuningUpdate();
-		}
+
+			if (paths.Count == 0)
+			{
+				bool patched = false;
+				foreach (FileSystemSource source in ProfilesLibrary.Sources)
+				{
+					FileSystem.Instance.AddSource(source.Path, source.SubDirs);
+					if (source.Path.ToLower().Contains("patch"))
+						patched = true;
+				}
+
+				Initialize(KeyManager.Instance.GetKey("Key1"), patched);
+			}
+        }
 
 		
 
