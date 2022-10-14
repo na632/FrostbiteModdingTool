@@ -223,7 +223,7 @@ namespace FrostySdk.Frosty.FET
 					if (item2.IsAdded)
 					{
 						writer.WriteLengthPrefixedString(item2.Name);
-						writer.WriteGuid(item2.Guid);
+						writer.WriteGuid(item2.Guid.Value);
 						addedEbxCount++;
 					}
 				}

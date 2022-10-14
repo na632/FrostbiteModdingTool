@@ -54,6 +54,7 @@ using AvalonDock.Layout;
 using FolderBrowserEx;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using FrostySdk.Frostbite.IO;
+using FrostbiteSdk;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -1194,7 +1195,7 @@ namespace FIFAModdingUI.Pages.Common
 				var props = obj1.GetProperties();
 				foreach (var p in props)
 				{
-					foreach (var p2 in v2k4Util.GetProperties(obj2))
+					foreach (var p2 in Utilities.GetProperties(obj2))
 					{
 						if (p.Name == p2.Name)
 						{

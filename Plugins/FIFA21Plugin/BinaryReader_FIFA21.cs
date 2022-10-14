@@ -59,7 +59,10 @@ namespace FIFA21Plugin
 
             if (SBHeaderInformation.chunkCount != 0)
             {
+                var positionBeforeRead = binarySbReader2.Position;
+                //binarySbReader2.Position = SBHeaderInformation.metaOffset;
                 using (DbReader dbReader = new DbReader(binarySbReader2.CreateViewStream(SBHeaderInformation.metaOffset, binarySbReader2.Length - binarySbReader2.Position), new NullDeobfuscator()))
+                //using (DbReader dbReader = new DbReader(binarySbReader2.BaseStream, new NullDeobfuscator()))
                 {
                     var o = dbReader.ReadDbObject();
                     dbObject.AddValue("chunkMeta", o);

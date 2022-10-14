@@ -86,14 +86,18 @@ namespace FIFA23Plugin.Cache
 					if (nativeReader.ReadBoolean())
 					{
 						ebxAssetEntry.ExtraData = new AssetExtraData();
-						ebxAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
 						ebxAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
 						ebxAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
 						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-                        ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+      //                  ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+						//if (ebxAssetEntry.ExtraData.CasPath.Contains("native_patch")) 
+						//{
+						//	if (!ebxAssetEntry.ExtraData.IsPatch)
+						//	{
+
+						//	}
+						//}
                     }
 
                     //var numTFL = nativeReader.ReadInt();
@@ -118,11 +122,11 @@ namespace FIFA23Plugin.Cache
                     //{
                     //	ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
                     //}
-                    var num2 = nativeReader.ReadInt();
-                    for (int m = 0; m < num2; m++)
-                    {
-                        ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-                    }
+                    //var num2 = nativeReader.ReadInt();
+                    //for (int m = 0; m < num2; m++)
+                    //{
+                    //    ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
+                    //}
 
                     if (patched)
 					{
@@ -151,13 +155,12 @@ namespace FIFA23Plugin.Cache
 					if (nativeReader.ReadBoolean())
 					{
 						resAssetEntry.ExtraData = new AssetExtraData();
-						resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-						resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-						resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-					}
+                        resAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
+                        resAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
+                        resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+                        //resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+                    }
 
 					var numTFL = nativeReader.ReadInt();
 					//resAssetEntry.TOCFileLocations = new HashSet<string>();
@@ -232,13 +235,12 @@ namespace FIFA23Plugin.Cache
 			if (nativeReader.ReadBoolean())
 			{
 				chunkAssetEntry.ExtraData = new AssetExtraData();
-				chunkAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-				chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 				chunkAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-				chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-				chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-				chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-			}
+                chunkAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
+                chunkAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
+                chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+                //chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+            }
 			else
 			{
 				throw new Exception("No Extra Data!");

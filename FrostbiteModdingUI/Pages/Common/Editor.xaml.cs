@@ -1,5 +1,6 @@
 ﻿using FrostbiteModdingUI.Pages.Common.EBX;
 using FrostbiteModdingUI.Windows;
+using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.FrostySdk.Ebx;
 using FrostySdk.FrostySdk.Managers;
@@ -145,7 +146,7 @@ namespace FIFAModdingUI.Pages.Common
 				_rootObjProps = value;
 				foreach(var item in _rootObjProps.Where(x=> !x.PropertyName.StartsWith("__")))
                 {
-					v2k4Util.SetPropertyValue(RootObject, item.PropertyName, item.PropertyValue);
+					Utilities.SetPropertyValue(RootObject, item.PropertyName, item.PropertyValue);
                 }
 				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
 			}
@@ -371,10 +372,10 @@ namespace FIFAModdingUI.Pages.Common
 					switch (p.PropertyType)
 					{
 						case "FrostySdk.Ebx.PointerRef":
-							if (v2k4Util.HasProperty(p.PropertyValue, "Internal"))
+							if (Utilities.HasProperty(p.PropertyValue, "Internal"))
 							{
 								var Internal = p.PropertyValue.GetPropertyValue("Internal");
-								if (Internal != null && v2k4Util.HasProperty(Internal, "Points"))
+								if (Internal != null && Utilities.HasProperty(Internal, "Points"))
 								{
 									// Must be Float Curve if it has Points
 									var FloatCurve = Internal;
@@ -661,10 +662,10 @@ namespace FIFAModdingUI.Pages.Common
 					{
 						if (txtboxName.EndsWith("_NumberOfPoints"))
                         {
-                            if (v2k4Util.HasProperty(rootProp.PropertyValue, "Internal"))
+                            if (Utilities.HasProperty(rootProp.PropertyValue, "Internal"))
                             {
 								var floatCurve = rootProp.PropertyValue.GetPropertyValue("Internal") as Object;
-								if (v2k4Util.HasProperty(floatCurve, "Points"))
+								if (Utilities.HasProperty(floatCurve, "Points"))
 								{
 									var fcp = floatCurve.GetPropertyValue("Points");
 									var pntsType = fcp.GetType();
@@ -699,7 +700,7 @@ namespace FIFAModdingUI.Pages.Common
 												}
                                             }
 										}
-										v2k4Util.SetPropertyValue<IList>(floatCurve, "Points", Points);
+                                        Utilities.SetPropertyValue<IList>(floatCurve, "Points", Points);
 
 										await SaveToRootObject(true);
 										//LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
@@ -727,12 +728,12 @@ namespace FIFAModdingUI.Pages.Common
 									if (splitPropName[splitPropName.Length - 1] == "X")
 									{
 										fcPoint.X = float.Parse(sender.Text);
-										v2k4Util.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
+                                        Utilities.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
 									}
 									else
 									{
 										fcPoint.Y = float.Parse(sender.Text);
-										v2k4Util.SetPropertyValue(FloatCurve.Points[index], "Y", fcPoint.Y);
+                                        Utilities.SetPropertyValue(FloatCurve.Points[index], "Y", fcPoint.Y);
 									}
 
 									await SaveToRootObject();

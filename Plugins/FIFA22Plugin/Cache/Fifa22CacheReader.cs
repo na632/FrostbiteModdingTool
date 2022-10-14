@@ -79,8 +79,10 @@ namespace FIFA22Plugin.Cache
 						ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
 						ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-						ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+                        ebxAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
+                        ebxAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
+                        ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+                        //ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 					}
 
 					var numTFL = nativeReader.ReadInt();
@@ -105,11 +107,11 @@ namespace FIFA22Plugin.Cache
 					{
 						ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
-					num2 = nativeReader.ReadInt();
-					for (int m = 0; m < num2; m++)
-					{
-						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-					}
+					//num2 = nativeReader.ReadInt();
+					//for (int m = 0; m < num2; m++)
+					//{
+					//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
+					//}
 
                     if (flag)
 					{
@@ -142,11 +144,13 @@ namespace FIFA22Plugin.Cache
 						resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
 						resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-						resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-						resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-					}
+                        resAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
+                        resAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
+                        resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+                        //ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+                    }
 
-					var numTFL = nativeReader.ReadInt();
+                    var numTFL = nativeReader.ReadInt();
 					//resAssetEntry.TOCFileLocations = new HashSet<string>();
 					for (int iTFL = 0; iTFL < numTFL; iTFL++)
 					{
@@ -223,10 +227,12 @@ namespace FIFA22Plugin.Cache
 				chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 				chunkAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
 				chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-				chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-				chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-			}
-			else
+                chunkAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
+                chunkAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
+                chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+                //chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+            }
+            else
 			{
 				throw new Exception("No Extra Data!");
 			}

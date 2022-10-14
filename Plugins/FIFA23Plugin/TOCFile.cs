@@ -187,9 +187,9 @@ namespace FIFA23Plugin
 			InitialHeaderData = nativeReader.ReadBytes(556);
 
 			nativeReader.Position = actualInternalPos;
-				var magic = nativeReader.ReadInt(Endian.Big);
-				if (magic != 0x3c)
-					throw new Exception("Magic is not the expected value of 0x3c");
+			var magic = nativeReader.ReadInt(Endian.Big);
+			if (magic != 0x3c)
+				throw new Exception("Magic is not the expected value of 0x3c");
 
 				nativeReader.Position -= 4;
 

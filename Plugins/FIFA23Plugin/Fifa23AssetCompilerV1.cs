@@ -1,10 +1,11 @@
 ﻿using Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
-using paulv2k4ModdingExecuter;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,21 +13,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static paulv2k4ModdingExecuter.FrostyModExecutor;
 
 namespace FIFA23Plugin
 {
 
     /// <summary>
-    /// FIFA 21 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
+    /// FIFA 23 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
     /// Linked to FIFA21BundleAction
     /// </summary>
-    public class Fifa23AssetCompilerV1 : IAssetCompiler
+    public class Fifa23AssetCompilerV1 : BaseAssetCompiler, IAssetCompiler
     {
-        public const string ModDirectory = "ModData";
-        public const string PatchDirectory = "Patch";
-
-
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken
         /// </summary>
@@ -44,18 +40,22 @@ namespace FIFA23Plugin
             }
 
             bool result = false;
+            ErrorCounts.Clear();
+            ErrorCounts.Add(ModType.EBX, 0);
+            ErrorCounts.Add(ModType.RES, 0);
+            ErrorCounts.Add(ModType.CHUNK, 0);
             //if (!FrostyModExecutor.UseModData)
             //{
             //    result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
             //    return result;
             //}
-            result = RunOriginCompiler(fs, logger, frostyModExecuter);
+            result = RunModDataCompiler(fs, logger, frostyModExecuter);
 
             logger.Log($"Compiler completed in {(DateTime.Now - dtStarted).ToString(@"mm\:ss")}");
             return result;
         }
 
-        private bool RunOriginCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
+        private bool RunModDataCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
             if (!Directory.Exists(fs.BasePath))
                 throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
@@ -63,244 +63,31 @@ namespace FIFA23Plugin
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-            var fme = (FrostyModExecutor)frostyModExecuter;
+            parent = (FrostyModExecutor)frostyModExecuter;
 
             logger.Log("Copying files from Data to ModData/Data");
             CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
             logger.Log("Copying files from Patch to ModData/Patch");
             CopyDataFolder(fs.BasePath + "\\Patch\\", fs.BasePath + ModDirectory + "\\Patch\\", logger);
 
-            FIFA23BundleAction fifaBundleAction = new FIFA23BundleAction(fme);
-            return fifaBundleAction.Run();
-        }
-
-        private void MakeTOCOriginals(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
-
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
-
-            foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            {
-                MakeTOCOriginals(internalDir);
-            }
-        }
-
-        private void MakeTOCBackups(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
-
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
-
-            foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            {
-                MakeTOCBackups(internalDir);
-            }
-        }
-
-        FrostyModExecutor ModExecutor;
-
-        private bool RunEADesktopCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
-        {
-            var fme = (FrostyModExecutor)frostyModExecuter;
-            var parent = fme;
-            ModExecutor = fme;
-
-            fme.Logger.Log("Not using ModData. Starting EA Desktop Compiler.");
-
-            if (!Directory.Exists(fs.BasePath))
-                throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
-
-            if (!fme.GameWasPatched)
-            {
-                fme.Logger.Log("Same Game Version detected. Using vanilla backups.");
-
-                MakeTOCOriginals(fme.GamePath + "\\Data\\");
-                MakeTOCOriginals(fme.GamePath + "\\Patch\\");
-
-            }
-            else
-            {
-                fme.Logger.Log("Game was patched. Creating backups.");
-
-                MakeTOCBackups(fme.GamePath + "\\Data\\");
-                MakeTOCBackups(fme.GamePath + "\\Patch\\");
-            }
-            FIFA23BundleAction fifaBundleAction = new FIFA23BundleAction(fme, false);
-            return fifaBundleAction.Run();
-        }
-
-        private static void CopyDataFolder(string from_datafolderpath, string to_datafolderpath, ILogger logger)
-        {
-            Directory.CreateDirectory(to_datafolderpath);
-
-            var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
-            var dataFileCount = dataFiles.Count();
-            var indexOfDataFile = 0;
-            //ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
-            //Parallel.ForEach(dataFiles, (f) =>
-            foreach (var originalFilePath in dataFiles)
-            {
-                var finalDestinationPath = originalFilePath.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
-
-                bool Copied = false;
-
-                var lastIndexOf = finalDestinationPath.LastIndexOf("\\");
-                var newDirectory = finalDestinationPath.Substring(0, lastIndexOf) + "\\";
-                if (!Directory.Exists(newDirectory))
-                {
-                    Directory.CreateDirectory(newDirectory);
-                }
+            //        FIFA23BundleAction fifaBundleAction = new FIFA23BundleAction(fme);
+            //        return fifaBundleAction.Run();
 
 
-                if (!finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new Exception("Incorrect Copy of Files to ModData");
-                }
-
-                var fIDest = new FileInfo(finalDestinationPath);
-                var fIOrig = new FileInfo(originalFilePath);
-
-                var isPatch = fIOrig.FullName.Contains("Patch", StringComparison.OrdinalIgnoreCase);
-
-                if (fIDest.Exists && finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
-                {
-                    var isCas = fIDest.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase);
-                    var twogbinsize = 2L * (1048576L * 1024L);
-                    if (
-                        isCas
-                        && fIDest.Length != fIOrig.Length
-                        && (isPatch || (fIDest.Length >= twogbinsize))
-                        )
-                    {
-                        fIDest.Delete();
-                    }
-                    else if
-                        (
-                            !isCas
-                            //&&
-                            //(
-                            //    fIDest.Length != fIOrig.Length
-                            //    ||
-                            //        (
-                            //            //fIDest.LastWriteTime.Day != fIOrig.LastWriteTime.Day
-                            //            //&& fIDest.LastWriteTime.Hour != fIOrig.LastWriteTime.Hour
-                            //            //&& fIDest.LastWriteTime.Minute != fIOrig.LastWriteTime.Minute
-                            //            !File.ReadAllBytes(finalDestinationPath).SequenceEqual(File.ReadAllBytes(originalFilePath))
-                            //        )
-                            //)
-                        )
-                    {
-                        File.Delete(finalDestinationPath);
-                    }
-                }
-
-                if (!File.Exists(finalDestinationPath))
-                {
-                    // Quick Copy
-                    if (fIOrig.Length < 1024 * 100)
-                    {
-                        using (var inputStream = new NativeReader(File.Open(originalFilePath, FileMode.Open)))
-                        using (var outputStream = new NativeWriter(File.Open(finalDestinationPath, FileMode.Create)))
-                        {
-                            outputStream.Write(inputStream.ReadToEnd());
-                        }
-                    }
-                    else
-                    {
-                        //File.Copy(f, finalDestination);
-                        CopyFile(originalFilePath, finalDestinationPath);
-                    }
-                    Copied = true;
-                }
-                indexOfDataFile++;
-
-                if (Copied)
-                    logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {originalFilePath}");
-                //});
-            }
-        }
-
-        public static void CopyFile(string inputFilePath, string outputFilePath)
-        {
-            using (var inStream = new FileStream(inputFilePath, FileMode.Open))
-            {
-                int bufferSize = 1024 * 1024;
-
-                using (FileStream fileStream = new FileStream(outputFilePath, FileMode.OpenOrCreate, FileAccess.Write))
-                {
-                    fileStream.SetLength(inStream.Length);
-                    int bytesRead = -1;
-                    byte[] bytes = new byte[bufferSize];
-
-                    while ((bytesRead = inStream.Read(bytes, 0, bufferSize)) > 0)
-                    {
-                        fileStream.Write(bytes, 0, bytesRead);
-                    }
-                }
-            }
+            return Run();
         }
 
 
-    }
+        //}
 
-    /// <summary>
-    /// The actual builder/modifier of the files
-    /// </summary>
-    public class FIFA23BundleAction
-    {
-        public class BundleFileEntry
-        {
-            public int CasIndex;
+        ///// <summary>
+        ///// The actual builder/modifier of the files
+        ///// </summary>
+        //public class FIFA23BundleAction
+        //{
+        private FrostyModExecutor parent { get; set; }
 
-            public int Offset;
-
-            public int Size;
-
-            public string Name;
-
-            public BundleFileEntry(int inCasIndex, int inOffset, int inSize, string inName = null)
-            {
-                CasIndex = inCasIndex;
-                Offset = inOffset;
-                Size = inSize;
-                Name = inName;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return base.Equals(obj);
-            }
-
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
-
-            public override string ToString()
-            {
-                return $"CASIdx({CasIndex}), Offset({Offset}), Size({Size}), Name({Name})";
-
-            }
-        }
-
-        private FrostyModExecutor parent;
-
-        public static Dictionary<string, List<string>> CatalogCasFiles = new Dictionary<string, List<string>>();
+        //public static Dictionary<string, List<string>> CatalogCasFiles { get; } = new Dictionary<string, List<string>>();
 
         public bool GameWasPatched => parent.GameWasPatched;
 
@@ -316,70 +103,37 @@ namespace FIFA23Plugin
         //    parent = inParent;
         //}
 
-        private readonly bool UseModData;
+        //private readonly bool UseModData;
 
-        public FIFA23BundleAction(FrostyModExecutor inParent, bool useModData = true)
-        {
-            parent = inParent;
-            ErrorCounts.Add(ModType.EBX, 0);
-            ErrorCounts.Add(ModType.RES, 0);
-            ErrorCounts.Add(ModType.CHUNK, 0);
-            UseModData = useModData;
+        //public FIFA23BundleAction(FrostyModExecutor inParent, bool useModData = true)
+        //{
+        //    parent = inParent;
+        //    ErrorCounts.Add(ModType.EBX, 0);
+        //    ErrorCounts.Add(ModType.RES, 0);
+        //    ErrorCounts.Add(ModType.CHUNK, 0);
+        //    UseModData = useModData;
 
-            CatalogCasFiles.Clear();
-            foreach (Catalog catalog in FileSystem.Instance.EnumerateCatalogInfos())
-            {
-                int casFileNumber = 1;
-                List<string> casFileLocation = new List<string>();
-                string path2 = Path.Combine(FileSystem.Instance.BasePath, "Patch", catalog.Name, $"cas_{casFileNumber:D2}.cas");
-                while (File.Exists(path2))
-                {
-                    casFileLocation.Add(path2);
-                    casFileNumber++;
-                    path2 = Path.Combine(FileSystem.Instance.BasePath, "Patch", catalog.Name, $"cas_{casFileNumber:D2}.cas");
-                }
-                CatalogCasFiles.Add(catalog.Name, casFileLocation);
-            }
+        //    CatalogCasFiles.Clear();
+        //    foreach (Catalog catalog in FileSystem.Instance.EnumerateCatalogInfos())
+        //    {
+        //        int casFileNumber = 1;
+        //        List<string> casFileLocation = new List<string>();
+        //        string path2 = Path.Combine(FileSystem.Instance.BasePath, "Patch", catalog.Name, $"cas_{casFileNumber:D2}.cas");
+        //        while (File.Exists(path2))
+        //        {
+        //            casFileLocation.Add(path2);
+        //            casFileNumber++;
+        //            path2 = Path.Combine(FileSystem.Instance.BasePath, "Patch", catalog.Name, $"cas_{casFileNumber:D2}.cas");
+        //        }
+        //        CatalogCasFiles.Add(catalog.Name, casFileLocation);
+        //    }
 
-        }
+        //}
 
-        public enum ModType
-        {
-            EBX,
-            RES,
-            CHUNK
-        }
+        
 
-        public struct ModdedFile
-        {
-            public Sha1 Sha1 { get; set; }
-            public string NamePath { get; set; }
-            public ModType ModType { get; set; }
-            public bool IsAdded { get; set; }
-            public AssetEntry OriginalEntry { get; set; }
+        
 
-            public ModdedFile(Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded)
-            {
-                Sha1 = inSha1;
-                NamePath = inNamePath;
-                ModType = inModType;
-                IsAdded = inAdded;
-                OriginalEntry = null;
-            }
-
-            public ModdedFile(Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded, AssetEntry inOrigEntry)
-            {
-                Sha1 = inSha1;
-                NamePath = inNamePath;
-                ModType = inModType;
-                IsAdded = inAdded;
-                OriginalEntry = inOrigEntry;
-            }
-
-
-        }
-
-        public Dictionary<ModType, int> ErrorCounts = new Dictionary<ModType, int>();
 
         public List<ChunkAssetEntry> AddedChunks = new List<ChunkAssetEntry>();
 
@@ -394,110 +148,131 @@ namespace FIFA23Plugin
             // ------ End of handling Legacy files ---------
 
             Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
-            foreach (var modEBX in parent.modifiedEbx)
+            foreach(var mod in parent.ModifiedAssets)
             {
-                var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
-                if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-                {
-                    var casPath = originalEntry.ExtraData.CasPath;
-                    if (casPath.Contains("native_patch"))
-                    {
+                AssetEntry originalEntry = null;
+                if (mod.Value is EbxAssetEntry)
+                    originalEntry = AssetManager.Instance.GetEbxEntry(mod.Value.Name);
+                else if (mod.Value is ResAssetEntry)
+                    originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
+                else if (mod.Value is ChunkAssetEntry)
+                    originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(mod.Value.Name));
 
-                    }
+                if (originalEntry == null)
+                    continue;
 
-                    if (!casToMods.ContainsKey(casPath))
-                    {
-                        casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry) });
-                    }
-                    else
-                    {
-                        casToMods[casPath].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry));
-                    }
-                    //// Is Added
-                    //else
-                    //{
-                    //    if (!casToMods.ContainsKey(string.Empty))
-                    //    {
-                    //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true) });
-                    //    }
-                    //    else
-                    //    {
-                    //        casToMods[string.Empty].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true));
-                    //    }
-                    //}
-                }
-                else
-                {
-                    ErrorCounts[ModType.EBX]++;
-                }
+                var casPath = originalEntry.ExtraData.CasPath;
+                if (!casToMods.ContainsKey(casPath))
+                    casToMods.Add(casPath, new List<ModdedFile>());
+
+                casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
+
             }
-            foreach (var modRES in parent.modifiedRes)
-            {
-                var originalEntry = AssetManager.Instance.GetResEntry(modRES.Value.Name);
-                if (originalEntry != null)
-                {
-                    if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-                    {
 
-                        var casPath = originalEntry.ExtraData.CasPath;
-                        if (!casToMods.ContainsKey(casPath))
-                        {
-                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry) });
-                        }
-                        else
-                        {
-                            casToMods[casPath].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry));
-                        }
-                    }
-                    //// Is Added
-                    //else
-                    //{
-                    //    if (!casToMods.ContainsKey(string.Empty))
-                    //    {
-                    //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true) });
-                    //    }
-                    //    else
-                    //    {
-                    //        casToMods[string.Empty].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true));
-                    //    }
-                    //}
-                }
-                else
-                {
-                    ErrorCounts[ModType.RES]++;
-                }
-            }
-            foreach (var modChunks in parent.ModifiedChunks)
-            {
-                var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
+            //foreach (var modEBX in parent.modifiedEbx)
+            //{
+            //    var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
+            //    if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+            //    {
+            //        var casPath = originalEntry.ExtraData.CasPath;
+            //        if (casPath.Contains("native_patch"))
+            //        {
 
-                if ((modChunks.Value.ModifiedEntry == null || !modChunks.Value.ModifiedEntry.AddToChunkBundle)
-                    && originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-                {
-                    if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-                    {
-                        var casPath = originalEntry.ExtraData.CasPath;
-                        if (!casToMods.ContainsKey(casPath))
-                        {
-                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry) });
-                        }
-                        else
-                        {
-                            casToMods[casPath].Add(new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry));
-                        }
-                    }
-                }
-                else
-                {
-                    //AddedChunks.Add(modChunks.Value);
-                    //parent.Logger.LogWarning($"This mod compiler cannot handle Added Chunks. {modChunks.Key} will be ignored.");
-                    //ErrorCounts[ModType.CHUNK]++;
+            //        }
 
-                    //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
-                    //parent.Logger.LogWarning($"Unable to find CAS file to edit for Chunk {modChunks.Key}");
-                    //parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
-                }
-            }
+            //        if (!casToMods.ContainsKey(casPath))
+            //        {
+            //            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry) });
+            //        }
+            //        else
+            //        {
+            //            casToMods[casPath].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry));
+            //        }
+            //        //// Is Added
+            //        //else
+            //        //{
+            //        //    if (!casToMods.ContainsKey(string.Empty))
+            //        //    {
+            //        //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true) });
+            //        //    }
+            //        //    else
+            //        //    {
+            //        //        casToMods[string.Empty].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true));
+            //        //    }
+            //        //}
+            //    }
+            //    else
+            //    {
+            //        ErrorCounts[ModType.EBX]++;
+            //    }
+            //}
+            //foreach (var modRES in parent.modifiedRes)
+            //{
+            //    var originalEntry = AssetManager.Instance.GetResEntry(modRES.Value.Name);
+            //    if (originalEntry != null)
+            //    {
+            //        if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+            //        {
+
+            //            var casPath = originalEntry.ExtraData.CasPath;
+            //            if (!casToMods.ContainsKey(casPath))
+            //            {
+            //                casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry) });
+            //            }
+            //            else
+            //            {
+            //                casToMods[casPath].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry));
+            //            }
+            //        }
+            //        //// Is Added
+            //        //else
+            //        //{
+            //        //    if (!casToMods.ContainsKey(string.Empty))
+            //        //    {
+            //        //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true) });
+            //        //    }
+            //        //    else
+            //        //    {
+            //        //        casToMods[string.Empty].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true));
+            //        //    }
+            //        //}
+            //    }
+            //    else
+            //    {
+            //        ErrorCounts[ModType.RES]++;
+            //    }
+            //}
+            //foreach (var modChunks in parent.ModifiedChunks)
+            //{
+            //    var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
+
+            //    if ((modChunks.Value.ModifiedEntry == null || !modChunks.Value.ModifiedEntry.AddToChunkBundle)
+            //        && originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+            //    {
+            //        if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+            //        {
+            //            var casPath = originalEntry.ExtraData.CasPath;
+            //            if (!casToMods.ContainsKey(casPath))
+            //            {
+            //                casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry) });
+            //            }
+            //            else
+            //            {
+            //                casToMods[casPath].Add(new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry));
+            //            }
+            //        }
+            //    }
+            //    else
+            //    {
+            //        //AddedChunks.Add(modChunks.Value);
+            //        //parent.Logger.LogWarning($"This mod compiler cannot handle Added Chunks. {modChunks.Key} will be ignored.");
+            //        //ErrorCounts[ModType.CHUNK]++;
+
+            //        //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
+            //        //parent.Logger.LogWarning($"Unable to find CAS file to edit for Chunk {modChunks.Key}");
+            //        //parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
+            //    }
+            //}
 
 
 
@@ -678,7 +453,7 @@ namespace FIFA23Plugin
 
             parent.Logger.Log("Loading Cached Super Bundles.");
 
-            if (!UseModData && GameWasPatched)
+            if (!FrostyModExecutor.UseModData && GameWasPatched)
             {
                 DeleteBakFiles(parent.GamePath);
             }
@@ -703,24 +478,23 @@ namespace FIFA23Plugin
                 foreach (var item in dictOfModsToCas)
                 {
 
+                    string casPath = FileSystem.Instance.ResolvePath(item.Key, FrostyModExecutor.UseModData);
 
-                    var casPath = string.Empty;
+                    //if (!string.IsNullOrEmpty(item.Key))
+                    //{
+                    //    casPath = item.Key.Replace("native_data"
+                    //        , AssetManager.Instance.fs.BasePath + "ModData\\Data", StringComparison.OrdinalIgnoreCase);
+                    //}
 
-                    if (!string.IsNullOrEmpty(item.Key))
-                    {
-                        casPath = item.Key.Replace("native_data"
-                            , AssetManager.Instance.fs.BasePath + "ModData\\Data", StringComparison.OrdinalIgnoreCase);
-                    }
+                    //casPath = casPath.Replace("native_patch"
+                    //    , AssetManager.Instance.fs.BasePath + "ModData\\Patch", StringComparison.OrdinalIgnoreCase);
 
-                    casPath = casPath.Replace("native_patch"
-                        , AssetManager.Instance.fs.BasePath + "ModData\\Patch", StringComparison.OrdinalIgnoreCase);
-
-                    if (UseModData && !casPath.Contains("ModData"))
+                    if (FrostyModExecutor.UseModData && !casPath.Contains("ModData"))
                     {
                         throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
                     }
 
-                    if (!UseModData)
+                    if (!FrostyModExecutor.UseModData)
                     {
                         casPath = casPath.Replace("ModData\\", "", StringComparison.OrdinalIgnoreCase);
                     }
@@ -885,7 +659,7 @@ namespace FIFA23Plugin
                     {
                         tocPath = parent.fs.ResolvePath(tocPath, FrostyModExecutor.UseModData);
 
-                        if (UseModData && !tocPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                        if (FrostyModExecutor.UseModData && !tocPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                         {
                             throw new Exception($"WRONG SB PATH GIVEN! {tocPath}");
                         }
@@ -1190,7 +964,7 @@ namespace FIFA23Plugin
                     string location_toc_file = parent.fs.ResolvePath(tocFileRAW);
                     TocSbReader_Fifa22 tocSb = new TocSbReader_Fifa22(false, false);
 
-                    var locationTocFileInModData = UseModData
+                    var locationTocFileInModData = FrostyModExecutor.UseModData
                         ? location_toc_file
                         .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
                         .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
@@ -1210,10 +984,10 @@ namespace FIFA23Plugin
 
                     var newCas = cas;
                     //var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
-                    var nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, patch), UseModData);
+                    var nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, patch), FrostyModExecutor.UseModData);
                     if(!File.Exists(nextCasPath))
                     {
-                        nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false), UseModData);
+                        nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false), FrostyModExecutor.UseModData);
                         patch = false;
                     }
                     using (NativeWriter nw_toc = new NativeWriter(new FileStream(locationTocFileInModData, FileMode.Open)))
@@ -1287,7 +1061,7 @@ namespace FIFA23Plugin
                     tocSb.DoLogging = false;
                     tocSb.ProcessData = false;
 
-                    var location_toc_file_new = UseModData
+                    var location_toc_file_new = FrostyModExecutor.UseModData
                         ? location_toc_file
                         .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
                         .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)

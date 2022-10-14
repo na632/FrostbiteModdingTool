@@ -1,7 +1,10 @@
 ﻿using FIFAModdingUI.Windows;
+using FMT.Windows;
+using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.Managers;
+using MahApps.Metro.Controls;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Newtonsoft.Json;
@@ -29,7 +32,7 @@ namespace FMT
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         public List<Window> EditorWindows = new List<Window>();
 
@@ -145,21 +148,21 @@ namespace FMT
 
         private void lstProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (lstProfiles.SelectedItem != null)
-            {
-                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(((Profile)lstProfiles.SelectedItem).EditorScreen, StringComparison.OrdinalIgnoreCase));
-                    if (t != null)
-                    {
-                        App.MainEditorWindow = (Window)Activator.CreateInstance(t, this);
-                        App.MainEditorWindow.Show();
-                        lstProfiles.SelectedItem = null;
-                        this.Visibility = Visibility.Hidden;
-                        return;
-                    }
-                }
-            }
+            //if (lstProfiles.SelectedItem != null)
+            //{
+            //    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            //    {
+            //        var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(((Profile)lstProfiles.SelectedItem).EditorScreen, StringComparison.OrdinalIgnoreCase));
+            //        if (t != null)
+            //        {
+            //            App.MainEditorWindow = (Window)Activator.CreateInstance(t, this);
+            //            App.MainEditorWindow.Show();
+            //            lstProfiles.SelectedItem = null;
+            //            this.Visibility = Visibility.Hidden;
+            //            return;
+            //        }
+            //    }
+            //}
         }
 
         private void cbLanguageSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -185,6 +188,27 @@ namespace FMT
                 {
                     App.LoadLanguageFile(selectedLanguage);
                 }
+            }
+        }
+
+        private void Tile_Click(object sender, RoutedEventArgs e)
+        {
+            Profile profile = (Profile)((Tile)sender).Tag;
+            var bS = new FindGameEXEWindow().ShowDialog();
+            if (bS.HasValue && bS.Value == true && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
+            {
+                if (new FileInfo(AppSettings.Settings.GameInstallEXEPath).Name.Replace(".exe", "").Replace(" ", "") != profile.Name.Replace(" ", ""))
+                {
+                    MessageBox.Show("Your EXE does not match the Profile selected!");
+                    return;
+                }
+
+                var gameveditordialog = new GameVsEditorVsTools(this, profile).ShowDialog();
+                if (bS.HasValue && bS.Value == true)
+                    this.Visibility = Visibility.Hidden;
+                else
+                    this.Visibility = Visibility.Visible;
+
             }
         }
     }

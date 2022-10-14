@@ -1,4 +1,5 @@
-﻿using FrostySdk.IO;
+﻿using FrostySdk.Interfaces;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using System;
@@ -33,4 +34,14 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 	{
 		public bool Read();
 	}
+
+    public interface IAssetLoader
+    {
+        void Load(AssetManager parent, BinarySbDataHelper helper);
+    }
+
+    public interface IAssetCompiler
+    {
+        bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter);
+    }
 }

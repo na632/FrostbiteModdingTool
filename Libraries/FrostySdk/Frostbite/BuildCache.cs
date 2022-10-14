@@ -84,16 +84,16 @@ namespace FrostySdk.Frostbite
 
 						var FileSystem = new FileSystem(GameLocation);
 
-						bool patched = false;
+						//bool patched = false;
 
-						foreach (FileSystemSource source in ProfilesLibrary.Sources)
-						{
-							FileSystem.AddSource(source.Path, source.SubDirs);
-							if (source.Path.ToLower().Contains("patch"))
-								patched = true;
-						}
-						byte[] key = KeyManager.Instance.GetKey("Key1");
-						FileSystem.Initialize(key, patched);
+						//foreach (FileSystemSource source in ProfilesLibrary.Sources)
+						//{
+						//	FileSystem.AddSource(source.Path, source.SubDirs);
+						//	if (source.Path.ToLower().Contains("patch"))
+						//		patched = true;
+						//}
+						//byte[] key = KeyManager.Instance.GetKey("Key1");
+						//FileSystem.Initialize(key, patched);
 
 						logger.Log("Initialised File System");
 

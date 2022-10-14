@@ -11,6 +11,8 @@ namespace FrostySdk.Managers
 	{
 		public CompressionType OriginalCompressionType = CompressionType.Default;
 
+		public Guid Id { get; set; }
+
 		public virtual Sha1 Sha1 { get; set; }
 
 		public virtual Sha1 BaseSha1 { get; set; }
@@ -419,7 +421,7 @@ namespace FrostySdk.Managers
         {
 			if(!string.IsNullOrEmpty(Name))
             {
-				return Name;
+				return $"[{GetType().Name}]({Name})";
             }
             return base.ToString();
         }

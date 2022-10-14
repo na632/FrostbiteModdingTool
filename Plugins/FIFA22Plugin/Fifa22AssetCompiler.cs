@@ -2,17 +2,18 @@
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Madden21Plugin;
-using paulv2k4ModdingExecuter;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static FIFA22Plugin.AssetLoader_Fifa22;
-using static paulv2k4ModdingExecuter.FrostyModExecutor;
+using static ModdingSupport.FrostyModExecutor;
 
 namespace FIFA22Plugin
 {

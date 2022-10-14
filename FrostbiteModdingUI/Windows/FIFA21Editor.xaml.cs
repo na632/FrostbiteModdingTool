@@ -34,6 +34,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -169,10 +170,11 @@ namespace FIFAModdingUI.Windows
             {
                 if (ProjectManagement.Project != null && ProjectManagement.Project.IsDirty)
                 {
-                    if(MessageBox.Show("Your project has been changed. Would you like to save it now?", "Project has not been saved", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    if(MessageBox.Show("Your project has been changed. Would you still like to close?", "Project has not been saved", MessageBoxButton.YesNo) == MessageBoxResult.No)
                     {
                         e.Cancel = true;
-                        _ = SaveProjectWithDialog().Result;
+                        EnableEditor();
+                        return;
                     }
                 }
 
@@ -230,7 +232,8 @@ namespace FIFAModdingUI.Windows
         public async Task InitialiseOfSelectedGame(string filePath)
         {
             DisableEditor();
-            GameInstanceSingleton.InitializeSingleton(filePath);
+            loadingDialog.Update("Loading Game Files", "");
+            await GameInstanceSingleton.InitializeSingletonAsync(filePath, true, this);
             GameInstanceSingleton.Logger = this;
             lstProjectFiles.Items.Clear();
             lstProjectFiles.ItemsSource = null;
@@ -239,11 +242,11 @@ namespace FIFAModdingUI.Windows
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
             if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
             {
+                loadingDialog.Update("", "");
                 buildSDKAndCacheWindow.ShowDialog();
             }
 
             loadingDialog.Update("Loading Game Files", "");
-            loadingDialog.Show();
 
             await Task.Run(
                 () =>
@@ -674,7 +677,15 @@ namespace FIFAModdingUI.Windows
                     loadingDialog.Update("Loading Project", "Loading Project File");
 
                     ProjectManagement.Project.ModifiedAssetEntries = null;
-                    await ProjectManagement.Project.LoadAsync(openFileDialog.FileName);
+                    CancellationToken cancellation = default(CancellationToken);
+                    try
+                    {
+                        await ProjectManagement.Project.LoadAsync(openFileDialog.FileName, cancellation);
+                    }
+                    catch(Exception ex)
+                    {
+                        LogError("Unable to load project. This may be due to a Title Update. Message: " + ex.Message);
+                    }
                     // A chunk clean up of bad and broken projects
                     await Task.Run(() =>
                     {
@@ -762,8 +773,8 @@ namespace FIFAModdingUI.Windows
             {
                 await Task.Run(() =>
                 {
-                    paulv2k4ModdingExecuter.FrostyModExecutor frostyModExecutor = new paulv2k4ModdingExecuter.FrostyModExecutor();
-                    paulv2k4ModdingExecuter.FrostyModExecutor.UseModData = useModData;
+                    ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
+                    ModdingSupport.FrostyModExecutor.UseModData = useModData;
                     frostyModExecutor.UseSymbolicLinks = false;
                     frostyModExecutor.ForceRebuildOfMods = true;
                     frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();

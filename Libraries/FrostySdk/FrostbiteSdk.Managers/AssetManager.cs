@@ -30,14 +30,7 @@ using FrostySdk.FrostySdk.Managers;
 
 namespace FrostySdk.Managers
 {
-public interface IAssetLoader
-{
-		void Load(AssetManager parent, BinarySbDataHelper helper);
-	}
-	public interface IAssetCompiler
-	{
-		bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter);
-	}
+
 
 	public class BinarySbDataHelper
 	{
@@ -147,7 +140,7 @@ public interface IAssetLoader
 	}
 
 
-	public class AssetManager : ILoggable, IDisposable
+	public class AssetManager : ILoggable, IDisposable, ILogger
 	{
 		private static AssetManager _Instance;
         public static AssetManager Instance 
@@ -454,22 +447,24 @@ public interface IAssetLoader
 
 		public List<BundleEntry> bundles = new List<BundleEntry>(999999);
 
-        public ConcurrentDictionary<string, EbxAssetEntry> EBX = new ConcurrentDictionary<string, EbxAssetEntry>(8, 999999, StringComparer.OrdinalIgnoreCase);
+        public ConcurrentDictionary<string, AssetEntry> Assets { get; } = new ConcurrentDictionary<string, AssetEntry>(4, 350000, StringComparer.OrdinalIgnoreCase);
+
+        public ConcurrentDictionary<string, EbxAssetEntry> EBX { get; } = new ConcurrentDictionary<string, EbxAssetEntry>(4, 500000, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// NameHash to EbxAssetEntry
         /// </summary>
         //public ConcurrentDictionary<int, EbxAssetEntry> EbxList = new ConcurrentDictionary<int, EbxAssetEntry>();
 
-        public Dictionary<string, ResAssetEntry> RES = new Dictionary<string, ResAssetEntry>(999999);
+        public Dictionary<string, ResAssetEntry> RES { get; } = new Dictionary<string, ResAssetEntry>(350000);
 
-        public ConcurrentDictionary<Guid, ChunkAssetEntry> Chunks = new ConcurrentDictionary<Guid, ChunkAssetEntry>(8, 999999);
+        public ConcurrentDictionary<Guid, ChunkAssetEntry> Chunks { get; } = new ConcurrentDictionary<Guid, ChunkAssetEntry>(4, 350000);
 
-        public ConcurrentDictionary<(string, Guid), ChunkAssetEntry> BundleChunks = new ConcurrentDictionary<(string, Guid), ChunkAssetEntry>(8, 999999);
+        public ConcurrentDictionary<(string, Guid), ChunkAssetEntry> BundleChunks { get; } = new ConcurrentDictionary<(string, Guid), ChunkAssetEntry>(4, 350000);
 
         //public ConcurrentDictionary<Guid, EbxAssetEntry> ebxGuidList = new ConcurrentDictionary<Guid, EbxAssetEntry>();
 
-        public Dictionary<ulong, ResAssetEntry> resRidList = new Dictionary<ulong, ResAssetEntry>(999999);
+        public Dictionary<ulong, ResAssetEntry> resRidList { get; } = new Dictionary<ulong, ResAssetEntry>(350000);
 
 		public Dictionary<string, ICustomAssetManager> CustomAssetManagers = new Dictionary<string, ICustomAssetManager>(1);
 
@@ -522,13 +517,13 @@ public interface IAssetLoader
 				bundles.Clear();
 				bundles = null;
 				EBX.Clear();
-				EBX = null;
+				//EBX = null;
 				RES.Clear();
-				RES = null;
+				//RES = null;
 				resRidList.Clear();
-				resRidList = null;
+				//resRidList = null;
 				Chunks.Clear();
-				Chunks = null;
+				//Chunks = null;
 
 				TypeLibrary.ExistingAssembly = null;
 			}
@@ -660,6 +655,9 @@ public interface IAssetLoader
 
 		public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
 		{
+			if (logger == null)
+				logger = this;
+
 			DateTime dtAtStart = DateTime.Now;
 
             if (!ProfilesLibrary.LoadedProfile.CanUseModData)
@@ -673,36 +671,35 @@ public interface IAssetLoader
             {
 				throw new Exception("Plugins could not be initialised!");
             }				
-			TypeLibrary.Initialize(TypeLibrary.RequestLoadSDK);
+			TypeLibrary.Initialize(additionalStartup || TypeLibrary.RequestLoadSDK);
 			if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfilesLibrary.SDKFilename + ".dll"))
 			{
 				logger.Log($"Plugins and SDK {"SDK/" + ProfilesLibrary.SDKFilename + ".dll"} Initialised");
 			}
 
-			List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
-
-			if (!CacheRead(out prePatchCache))
-			{
-				logger.Log($"Cache Needs to Built/Updated");
-
-				BinarySbDataHelper binarySbDataHelper = new BinarySbDataHelper(this);
-				if (ProfilesLibrary.AssetLoader != null)
-					((IAssetLoader)Activator.CreateInstance(ProfilesLibrary.AssetLoader)).Load(this, binarySbDataHelper);
-				else
-				{
-					((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
-				}
-				GC.Collect();
-				CacheWrite();
-			}
-			
-			DoEbxIndexing();
 
 			if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
 			{
 				return;
 			}
-			foreach (ICustomAssetManager value in CustomAssetManagers.Values)
+            List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
+            if (!CacheRead(out prePatchCache))
+            {
+                logger.Log($"Cache Needs to Built/Updated");
+
+                BinarySbDataHelper binarySbDataHelper = new BinarySbDataHelper(this);
+                if (ProfilesLibrary.AssetLoader != null)
+                    ((IAssetLoader)Activator.CreateInstance(ProfilesLibrary.AssetLoader)).Load(this, binarySbDataHelper);
+                else
+                {
+                    ((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
+                }
+                GC.Collect();
+                CacheWrite();
+            }
+
+            DoEbxIndexing();
+            foreach (ICustomAssetManager value in CustomAssetManagers.Values)
 			{
 				value.Initialize(logger);
 			}
@@ -714,7 +711,11 @@ public interface IAssetLoader
             {
 				AssetManagerInitialised();
             }
-		}
+
+			_ = EBX;
+			_ = RES;
+			_ = Chunks;
+        }
 
 		public delegate void AssetManagerModifiedHandler();
 
@@ -1036,13 +1037,13 @@ public interface IAssetLoader
             Chunks.TryAdd(entry.Id, entry);
 
 			// ------------------------- SEPERATE LIST FOR BUNDLE ID ------------------------
-			if (BundleChunks.ContainsKey((entry.Bundle, entry.Id)))
-				BundleChunks.TryRemove((entry.Bundle, entry.Id), out _);
+			//if (BundleChunks.ContainsKey((entry.Bundle, entry.Id)))
+			//	BundleChunks.TryRemove((entry.Bundle, entry.Id), out _);
 
-			BundleChunks.TryAdd((entry.Bundle, entry.Id), entry);
+			//BundleChunks.TryAdd((entry.Bundle, entry.Id), entry);
 		}
 
-		public Dictionary<Guid, List<ChunkAssetEntry>> ChunkListDuplicates = new Dictionary<Guid, List<ChunkAssetEntry>>();
+		//public Dictionary<Guid, List<ChunkAssetEntry>> ChunkListDuplicates = new Dictionary<Guid, List<ChunkAssetEntry>>();
 
 		public void AddRes(ResAssetEntry entry)
 		{
@@ -1846,11 +1847,20 @@ public interface IAssetLoader
 
 		public EbxAssetEntry GetEbxEntry(ReadOnlySpan<char> name)
 		{
-			if (!EBX.ContainsKey(name.ToString()))
-			{
-				return null;
-			}
-			return EBX[name.ToString()];
+			// Old school, search by string
+			if(EBX.ContainsKey(name.ToString()))
+                return EBX[name.ToString()];
+
+			// Search by string but with the typed name (for Assets searching)
+			if (EBX.ContainsKey($"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"))
+                return EBX[$"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"];
+
+			// Search by Fnv1
+			if (EBX.ContainsKey($"{Fnv1.HashString(name.ToString())}"))
+                return EBX[$"{Fnv1.HashString(name.ToString())}"];
+
+
+            return null;
 		}
 
 		public EbxAssetEntry GetEbxEntry(Guid id)
@@ -1861,38 +1871,55 @@ public interface IAssetLoader
 
 		public ResAssetEntry GetResEntry(ulong resRid)
 		{
-			if (!resRidList.ContainsKey(resRid))
-			{
-				return null;
-			}
-			return resRidList[resRid];
-		}
+			//if (!resRidList.ContainsKey(resRid))
+			//{
+			//	return null;
+			//}
+			//return resRidList[resRid];
+			return RES.Values.FirstOrDefault(x => x.ResRid == resRid);
+
+        }
 
 		public ResAssetEntry GetResEntry(string name)
 		{
-			if (string.IsNullOrEmpty(name))
-				return null;
+			var loweredString = name.ToString().ToLower();
+            //if (string.IsNullOrEmpty(name))
+            //	return null;
 
-			name = name.ToLower();
-			if (!RES.ContainsKey(name))
-			{
-				return null;
-			}
-			return RES[name];
-		}
+            //name = name.ToLower();
+            //if (!RES.ContainsKey(name))
+            //{
+            //	return null;
+            //}
+            //return RES[name];
 
-		public ChunkAssetEntry GetChunkEntry(Guid id, string bundle)
-		{
-			if (!BundleChunks.ContainsKey((bundle, id)))
-			{
-				//if (GetChunkEntry(id) != null)
-				//	return GetChunkEntry(id);
+            // Old school, search by string
+            if (RES.ContainsKey(loweredString))
+                return RES[loweredString];
 
-				return null;
-			}
-			var entry = BundleChunks[(bundle, id)];
-			return entry;
-		}
+            // Search by string but with the typed name (for Assets searching)
+            if (RES.ContainsKey($"[{typeof(ResAssetEntry).Name}]({loweredString})"))
+                return RES[$"[{typeof(ResAssetEntry).Name}]({loweredString})"];
+
+            // Search by Fnv1
+            if (EBX.ContainsKey($"{Fnv1.HashString(loweredString)}"))
+                return RES[$"{Fnv1.HashString(loweredString)}"];
+
+			return null;
+        }
+
+		//public ChunkAssetEntry GetChunkEntry(Guid id, string bundle)
+		//{
+		//	if (!BundleChunks.ContainsKey((bundle, id)))
+		//	{
+		//		//if (GetChunkEntry(id) != null)
+		//		//	return GetChunkEntry(id);
+
+		//		return null;
+		//	}
+		//	var entry = BundleChunks[(bundle, id)];
+		//	return entry;
+		//}
 
 		public ChunkAssetEntry GetChunkEntry(Guid id)
 		{
@@ -1914,15 +1941,15 @@ public interface IAssetLoader
 			//return GetAsset(entry, decompress: false);
 		}
 
-		public List<ChunkAssetEntry> GetChunkEntries(Guid id)
-		{
-			var allChunks = ChunkListDuplicates.Where(x => x.Key == id).SelectMany(x => x.Value).ToList();
-			//if(chunkList.ContainsKey(id))
-			//	allChunks.Add(chunkList[id]);
-			return allChunks;
+		//public List<ChunkAssetEntry> GetChunkEntries(Guid id)
+		//{
+		//	var allChunks = ChunkListDuplicates.Where(x => x.Key == id).SelectMany(x => x.Value).ToList();
+		//	//if(chunkList.ContainsKey(id))
+		//	//	allChunks.Add(chunkList[id]);
+		//	return allChunks;
 
 				
-		}
+		//}
 
 		public Stream GetCustomAsset(string type, AssetEntry entry)
 		{
@@ -2180,24 +2207,15 @@ public interface IAssetLoader
 
                     ebxAssetEntry.Bundles.Add(bundleId);
 
-                    //if (item.HasValue("cas"))
-                    //{
-                    //	ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                    //	ebxAssetEntry.ExtraData = new AssetExtraData();
-                    //	ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-                    //	ebxAssetEntry.ExtraData.CasPath = (item.HasValue("catalog") ? fs.GetFilePath(item.GetValue("catalog", 0), item.GetValue("cas", 0), item.HasValue("patch")) : fs.GetFilePath(item.GetValue("cas", 0)));
-                    //	ebxAssetEntry.ExtraData.IsPatch = item.HasValue("patch") ? item.GetValue<bool>("patch") : false;
-                    //}
-
-                    //if (item.HasValue("Bundle"))
-                    //{
-                    //	ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
-                    //}
-                    //else if (AssetManager.Instance.bundles.Count < bundleId)
-                    //{
-                    //	ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-                    //}
-                }
+					//if (item.HasValue("Bundle"))
+					//{
+					//	ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
+					//}
+					//else if (AssetManager.Instance.bundles.Count < bundleId)
+					//{
+					//	ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+					//}
+				}
 			}
 		}
 
@@ -2209,21 +2227,25 @@ public interface IAssetLoader
 				{
 					if (!ProfilesLibrary.IsResTypeIgnored((ResourceType)item.GetValue("resType", 0L)))
 					{
-						ResAssetEntry resAssetEntry = AddRes(item, 
-							ProfilesLibrary.IsMadden21DataVersion()
-							//|| ProfilesLibrary.IsFIFA22DataVersion()
-							);
-                        if (resAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
-                        {
-                            resRidList.Remove(resAssetEntry.ResRid);
-                            resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                            resAssetEntry.Size = item.GetValue("size", 0L);
-                            resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
-                            resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
-                            resAssetEntry.IsInline = item.HasValue("idata");
-                            resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                            resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-                        }
+						ResAssetEntry resAssetEntry = new ResAssetEntry();
+                        resAssetEntry = (ResAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, resAssetEntry);
+
+
+       //                 ResAssetEntry resAssetEntry = AddRes(item, 
+							//ProfilesLibrary.IsMadden21DataVersion()
+							////|| ProfilesLibrary.IsFIFA22DataVersion()
+							//);
+       //                 if (resAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+       //                 {
+       //                     resRidList.Remove(resAssetEntry.ResRid);
+       //                     resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+       //                     resAssetEntry.Size = item.GetValue("size", 0L);
+       //                     resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
+       //                     resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
+       //                     resAssetEntry.IsInline = item.HasValue("idata");
+       //                     resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+       //                     resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+       //                 }
                         //if (item.GetValue("cache", defaultValue: false) && resAssetEntry.Location != AssetDataLocation.Cache)
                         //{
                         //	helper.RemoveResData(resAssetEntry.Name);
@@ -2432,9 +2454,11 @@ public interface IAssetLoader
 				ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
 				ebxAssetEntry.ExtraData = new AssetExtraData();
 				ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
+				ebxAssetEntry.ExtraData.Cas = ebx.HasValue("cas") ? ebx.GetValue<ushort>("cas") : null;
+				ebxAssetEntry.ExtraData.Catalog = ebx.HasValue("catalog") ? ebx.GetValue<ushort>("catalog") : null;
+                ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
 				ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.GetValue("patch", false));
-				ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
-			}
+            }
 			else if (ebx.GetValue("sb", defaultValue: false))
 			{
 				ebxAssetEntry.Location = AssetDataLocation.SuperBundle;
@@ -2495,8 +2519,10 @@ public interface IAssetLoader
 				resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
 				resAssetEntry.ExtraData = new AssetExtraData();
 				resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
-				resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? fs.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : fs.GetFilePath(res.GetValue("cas", 0)));
-				resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
+                resAssetEntry.ExtraData.Cas = res.HasValue("cas") ? res.GetValue<ushort>("cas") : null;
+                resAssetEntry.ExtraData.Catalog = res.HasValue("catalog") ? res.GetValue<ushort>("catalog") : null;
+                resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
+                resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? fs.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : fs.GetFilePath(res.GetValue("cas", 0)));
 			}
 			else if (res.GetValue("sb", defaultValue: false))
 			{
@@ -2568,9 +2594,9 @@ public interface IAssetLoader
 				chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
 				chunkAssetEntry.ExtraData.Cas = (ushort)chunk.GetValue("cas", 0);
 				chunkAssetEntry.ExtraData.Catalog = (ushort)chunk.GetValue("catalog", 0);
-				chunkAssetEntry.ExtraData.IsPatch = chunk.HasValue("patch") ? chunk.GetValue<bool>("patch") : false;
+				chunkAssetEntry.ExtraData.IsPatch = chunk.GetValue("patch", false);
 				if(string.IsNullOrEmpty(chunkAssetEntry.ExtraData.CasPath))
-					chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? fs.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.HasValue("patch")) : fs.GetFilePath(chunk.GetValue("cas", 0)));
+					chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? fs.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.GetValue("patch", false)) : fs.GetFilePath(chunk.GetValue("cas", 0)));
 
 			}
 
@@ -2706,7 +2732,8 @@ public interface IAssetLoader
 					}
 				}
 				count = nativeReader.ReadInt();
-				EBX = new ConcurrentDictionary<string, EbxAssetEntry>(1, count + 100);
+				//EBX = new ConcurrentDictionary<string, EbxAssetEntry>(1, count + 100);
+				EBX.Clear();
 				for (int k = 0; k < count; k++)
 				{
 					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
@@ -2734,11 +2761,11 @@ public interface IAssetLoader
 					{
 						ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
-					bundleCount = nativeReader.ReadInt();
-					for (int m = 0; m < bundleCount; m++)
-					{
-						ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-					}
+					//bundleCount = nativeReader.ReadInt();
+					//for (int m = 0; m < bundleCount; m++)
+					//{
+					//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
+					//}
 					if (ProfilesLibrary.IsFIFA21DataVersion())
 					{
 						if (nativeReader.ReadBoolean())
@@ -2872,20 +2899,20 @@ public interface IAssetLoader
 					}
 				}
 
-				var ChunkListDupCount = nativeReader.ReadInt();
-				for (int cnklistindex = 0; cnklistindex < ChunkListDupCount; cnklistindex++)
-				{
-					var chunkDupGuid = nativeReader.ReadGuid();
-					var chunkDupCount = nativeReader.ReadInt();
+				//var ChunkListDupCount = nativeReader.ReadInt();
+				//for (int cnklistindex = 0; cnklistindex < ChunkListDupCount; cnklistindex++)
+				//{
+				//	var chunkDupGuid = nativeReader.ReadGuid();
+				//	var chunkDupCount = nativeReader.ReadInt();
 
-					var lstOfChunks = new List<ChunkAssetEntry>();
-					for (var chunkDupValueIndex = 0; chunkDupValueIndex < chunkDupCount; chunkDupValueIndex++)
-					{
-						lstOfChunks.Add(ReadChunkFromCache(nativeReader));
-					}
-					ChunkListDuplicates.Add(chunkDupGuid, lstOfChunks);
+				//	var lstOfChunks = new List<ChunkAssetEntry>();
+				//	for (var chunkDupValueIndex = 0; chunkDupValueIndex < chunkDupCount; chunkDupValueIndex++)
+				//	{
+				//		lstOfChunks.Add(ReadChunkFromCache(nativeReader));
+				//	}
+				//	ChunkListDuplicates.Add(chunkDupGuid, lstOfChunks);
 
-				}
+				//}
 			}
 
 			AssetManager.Instance = this;
@@ -2998,7 +3025,7 @@ public interface IAssetLoader
                     nativeWriter.Write((int)ebxEntry.Location);
                     nativeWriter.Write(ebxEntry.IsInline);
                     nativeWriter.WriteLengthPrefixedString((ebxEntry.Type != null) ? ebxEntry.Type : "");
-                    nativeWriter.Write(ebxEntry.Guid);
+                    nativeWriter.Write(ebxEntry.Guid.Value);
                     nativeWriter.Write(ebxEntry.ExtraData != null);
                     if (ebxEntry.ExtraData != null)
                     {
@@ -3014,11 +3041,11 @@ public interface IAssetLoader
                     {
                         nativeWriter.Write(bundle2);
                     }
-                    nativeWriter.Write(ebxEntry.DependentAssets.Count);
-                    foreach (Guid item in ebxEntry.EnumerateDependencies())
-                    {
-                        nativeWriter.Write(item);
-                    }
+                    //nativeWriter.Write(ebxEntry.DependentAssets.Count);
+                    //foreach (Guid item in ebxEntry.EnumerateDependencies())
+                    //{
+                    //    nativeWriter.Write(item);
+                    //}
 
                     if (ProfilesLibrary.IsFIFA21DataVersion())
                     {
@@ -3109,16 +3136,16 @@ public interface IAssetLoader
                     WriteChunkToCache(nativeWriter, chunkEntry);
 
                 }
-                nativeWriter.Write(ChunkListDuplicates.Count);
-                foreach (var grp in ChunkListDuplicates)
-                {
-                    nativeWriter.Write(grp.Key);
-                    nativeWriter.Write(grp.Value.Count);
-                    foreach (var chunkEntry in grp.Value)
-                    {
-                        WriteChunkToCache(nativeWriter, chunkEntry);
-                    }
-                }
+                //nativeWriter.Write(ChunkListDuplicates.Count);
+                //foreach (var grp in ChunkListDuplicates)
+                //{
+                //    nativeWriter.Write(grp.Key);
+                //    nativeWriter.Write(grp.Value.Count);
+                //    foreach (var chunkEntry in grp.Value)
+                //    {
+                //        WriteChunkToCache(nativeWriter, chunkEntry);
+                //    }
+                //}
             }
 
             //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(ApplicationDirectory + fs.CacheName + ".cache", FileMode.Create)))
@@ -3411,6 +3438,18 @@ public interface IAssetLoader
 			}
 			while (AssetManager.Instance.GetChunkEntry(guid) != null);
 			return guid;
+		}
+
+		public void Log(string text, params object[] vars)
+		{
+		}
+
+		public void LogWarning(string text, params object[] vars)
+		{
+		}
+
+		public void LogError(string text, params object[] vars)
+		{
 		}
 	}
 }

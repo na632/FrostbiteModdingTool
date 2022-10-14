@@ -20,6 +20,8 @@ namespace FIFA23Plugin
         List<long> Sha1Positions = new List<long>();
         List<Sha1> Sha1 = new List<Sha1>();
 
+        public long StartOfBundleOffset = 0;
+
 
         public SBHeaderInformation BinaryRead_FIFA21(
             int baseBundleOffset
@@ -28,6 +30,7 @@ namespace FIFA23Plugin
             , bool IncludeAdditionalHeaderLength
             )
         {
+            StartOfBundleOffset = binarySbReader2.Position;
             // Read out the Header Info
             var SBHeaderInformation = new SBHeaderInformation(binarySbReader2
                 //, IncludeAdditionalHeaderLength ? SBInformationHeaderLength : 4
@@ -59,18 +62,20 @@ namespace FIFA23Plugin
 
             if (SBHeaderInformation.chunkCount != 0)
             {
-                using (DbReader dbReader = new DbReader(
-                    binarySbReader2.CreateViewStream(
-                        SBHeaderInformation.metaOffset
-                        , binarySbReader2.Length 
-                        //- binarySbReader2.Position)
-                        - SBHeaderInformation.metaOffset)
-                    , new NullDeobfuscator()))
-                {
-                    var o = dbReader.ReadDbObject();
+                var metaOffset = StartOfBundleOffset + SBHeaderInformation.metaOffset;
+                binarySbReader2.Position = metaOffset;
+                //using (DbReader dbReader = new DbReader(
+                //    binarySbReader2.CreateViewStream(
+                //        metaOffset
+                //        , binarySbReader2.Length 
+
+                //        - SBHeaderInformation.metaOffset)
+                //    , new NullDeobfuscator()))
+                //{
+                    var o = new DbReader(binarySbReader2.BaseStream).ReadDbObject();
                     if(o != null)
                         dbObject.AddValue("chunkMeta", o);
-                }
+                //}
             }
 
             return SBHeaderInformation;
@@ -90,7 +95,7 @@ namespace FIFA23Plugin
                 uint originalSize = reader.ReadUInt(Endian.Little);
 
                 long position = reader.Position;
-                reader.Position = information.stringOffset + sOffset;
+                reader.Position = StartOfBundleOffset + information.stringOffset + sOffset;
                 dbObject.AddValue("SB_StringOffsetPosition", reader.Position + baseBundleOffset);
                 var name = reader.ReadNullTerminatedString();
 
@@ -119,7 +124,7 @@ namespace FIFA23Plugin
 
                 long position = reader.Position;
 
-                reader.Position = information.stringOffset + stringPosition;
+                reader.Position = StartOfBundleOffset + information.stringOffset + stringPosition;
                 dbObject.AddValue("SB_StringOffsetPosition", reader.Position + baseBundleOffset);
                 var name = reader.ReadNullTerminatedString();
 

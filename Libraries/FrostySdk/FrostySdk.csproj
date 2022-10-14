@@ -135,7 +135,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Folder Include="Frostbite\ANT\" />
+	  <Folder Include="Frostbite\ANT\EA.Ant.Backend\Default\" />
 	</ItemGroup>
 
 	<Target Name="AfterBuild">

@@ -5,7 +5,7 @@ namespace FrostySdk.Managers
 {
 	public sealed class ChunkAssetEntry : AssetEntry
 	{
-		public Guid Id { get; set; }
+		//public Guid Id { get; set; }
 
 		public uint BundledSize { get; set; }
 

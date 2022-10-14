@@ -222,7 +222,9 @@ namespace FMT.Pages.Common
 					case ".cfg":
 					case ".lua":
 						TextBox textBox = new TextBox();
-						textBox.Text = Encoding.UTF8.GetString(SelectedEntry.Data);
+						textBox.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+						textBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+                        textBox.Text = Encoding.UTF8.GetString(SelectedEntry.Data);
                         textBox.TextChanged += TextBox_TextChanged;
 						newLayoutDoc.Content = textBox;
 						break;

@@ -9,9 +9,7 @@ namespace FrostySdk.Managers
 	{
 		private Dictionary<string, byte[]> keys = new Dictionary<string, byte[]>();
 
-		private static KeyManager _inst = new KeyManager();
-
-		public static KeyManager Instance => _inst;
+		public static KeyManager Instance { get; } = new KeyManager();
 
 		private KeyManager()
 		{
@@ -43,6 +41,9 @@ namespace FrostySdk.Managers
 
 		public bool ReadInKeys()
 		{
+			if (Instance.keys.Count > 0)
+				return true;
+
 			byte[] array;
 
 			if (File.Exists(ProfilesLibrary.CacheName + ".key"))
