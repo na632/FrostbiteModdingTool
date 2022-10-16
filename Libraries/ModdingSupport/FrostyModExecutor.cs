@@ -2891,7 +2891,7 @@ private class ManifestBundleAction
 
             {
                 string[] allModPaths = modPaths;
-                var frostyMods = new ConcurrentDictionary<Stream, IFrostbiteMod>();
+                var frostyMods = new Dictionary<Stream, IFrostbiteMod>();
 
                 // Sort out Zipped Files
                 //if (allModPaths.Contains(".zip"))
@@ -2905,11 +2905,11 @@ private class ManifestBundleAction
                 var compatibleModExtensions = new List<string>() { ".fbmod", ".fifamod" };
                 Logger.Log("Loading mods");
 
-                foreach (var f in allModPaths)
+                foreach (var f in allModPaths.Select(x=> new FileInfo(x)))
                 {
-                    if (f.Contains(".zip", StringComparison.OrdinalIgnoreCase))
+                    if (f.Extension.Contains("zip", StringComparison.OrdinalIgnoreCase))
                     {
-                        var z = f;
+                        var z = f.FullName;
 
                         Logger.Log("Loading mods from " + z);
 
@@ -2952,14 +2952,23 @@ private class ManifestBundleAction
                     int indexCompleted = -1;
                     var frostbiteMod = kvpMods.Value;
                     //Parallel.ForEach(frostbiteMod.Resources, (BaseModResource resource) =>
-                    foreach (BaseModResource resource in frostbiteMod.Resources)
+                    foreach (
+                        (BaseModResource, byte[]) r 
+                        in 
+                        frostbiteMod.Resources
+                        .Select(x => (x, frostbiteMod.GetResourceData(x)))
+                        .Where(x => x.Item2 != null)
+                        .OrderBy(x => x.Item2.Length)
+                        )
                     {
                         indexCompleted++;
 
                         // ------------------------------------------------------------------
                         // Get the Resource Data out of the mod
                         //byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                        byte[] resourceData = frostbiteMod.GetResourceData(resource);
+                        //byte[] resourceData = frostbiteMod.GetResourceData(resource);
+                        BaseModResource resource = r.Item1;
+                        byte[] resourceData = r.Item2;
                         // ------------------------------------------------------------------
                         // Embedded Files
                         // Export to the Game Directory and create sub folders if neccessary
@@ -3412,7 +3421,8 @@ private class ManifestBundleAction
         }
 
 
-        private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref ConcurrentDictionary<Stream, IFrostbiteMod> frostyMods)
+        //private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref ConcurrentDictionary<Stream, IFrostbiteMod> frostyMods)
+        private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref Dictionary<Stream, IFrostbiteMod> frostyMods)
         {
             FileInfo fileInfo = new FileInfo(modPath);
             Stream fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read);
@@ -3434,13 +3444,15 @@ private class ManifestBundleAction
             {
                 FrostyModsFound = true;
                 //frostyMods.TryAdd(ms, new FrostbiteMod(fs));
-                frostyMods.TryAdd(modStream, new FrostbiteMod(fs));
+                //frostyMods.TryAdd(modStream, new FrostbiteMod(fs));
+                frostyMods.Add(modStream, new FrostbiteMod(fs));
             }
             if (modPath.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
             {
                 FrostyModsFound = true;
                 //frostyMods.TryAdd(ms, new FIFAMod(string.Empty, fileInfo.FullName));
-                frostyMods.TryAdd(modStream, new FIFAMod(string.Empty, fileInfo.FullName));
+                //frostyMods.TryAdd(modStream, new FIFAMod(string.Empty, fileInfo.FullName));
+                frostyMods.Add(modStream, new FIFAMod(string.Empty, fileInfo.FullName));
             }
         }
 
