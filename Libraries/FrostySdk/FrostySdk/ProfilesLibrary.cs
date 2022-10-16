@@ -183,6 +183,8 @@ namespace FrostySdk
 			public string ProjectEbxWriter { get; set; }
 			public string ProjectEbxReader { get; set; }
 
+			public string GameIdentifier { get; set; }
+
 		}
 		public static string GetModProfileParentDirectoryPath()
 		{

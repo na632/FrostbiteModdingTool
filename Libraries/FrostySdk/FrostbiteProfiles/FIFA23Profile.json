@@ -84,6 +84,7 @@
   "CompressedFormatLegacy": "Oodle",
   "LegacyFileManager": "LFM_Fifa22",
   "CanUseModData": true,
-  "SupportLowMemoryFootprint": true
+  "SupportLowMemoryFootprint": true,
+  "GameIdentifier": 16115019
 
 }

@@ -9,6 +9,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Win32;
 using MinHook;
 using ProcessMemoryUtilities.Managed;
 using SdkGenerator;
@@ -18,6 +19,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 
@@ -29,7 +31,22 @@ namespace FrostbiteModdingTests
         private string prevText = string.Empty;
 
         public const string GamePath = @"F:\Origin Games\FIFA 23";
-        public const string GamePathEXE = @"F:\Origin Games\FIFA 23\FIFA23.exe";
+        public string GamePathEXE 
+        { 
+            get 
+            {
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 23"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir + "FIFA23.exe";
+                    }
+                }
+                return string.Empty;
+            } 
+        }// = @"F:\Origin Games\FIFA 23\FIFA23.exe";
 
         public void Log(string text, params object[] vars)
         {
@@ -627,10 +644,11 @@ namespace FrostbiteModdingTests
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
             ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
             ModdingSupport.FrostyModExecutor.UseModData = true;
-            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.ForceRebuildOfMods = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>()
                 {
+                    "C:\\Users\\paula\\Desktop\\V Gameplay Mod - v0.4.fbmod"
                 }.ToArray()).Wait();
 
         }
