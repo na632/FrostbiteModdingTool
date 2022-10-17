@@ -1,4 +1,5 @@
-﻿using FifaLibrary;
+﻿using FIFA23Plugin;
+using FifaLibrary;
 using Frostbite.Textures;
 using FrostbiteModdingUI.CEM;
 using FrostySdk;
@@ -31,9 +32,9 @@ namespace FrostbiteModdingTests
         private string prevText = string.Empty;
 
         public const string GamePath = @"F:\Origin Games\FIFA 23";
-        public string GamePathEXE 
-        { 
-            get 
+        public string GamePathEXE
+        {
+            get
             {
 
                 using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 23"))
@@ -45,7 +46,7 @@ namespace FrostbiteModdingTests
                     }
                 }
                 return string.Empty;
-            } 
+            }
         }// = @"F:\Origin Games\FIFA 23\FIFA23.exe";
 
         public void Log(string text, params object[] vars)
@@ -182,7 +183,7 @@ namespace FrostbiteModdingTests
             var simpleEbxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_facialanim_runtime");
             Assert.IsNotNull(simpleEbxEntry);
             var simpleAsset = AssetManager.Instance.GetEbx(simpleEbxEntry);
-            if(simpleAsset != null)
+            if (simpleAsset != null)
             {
 
             }
@@ -222,8 +223,8 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = false;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -251,8 +252,8 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = false;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -278,8 +279,8 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = true;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = true;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -302,7 +303,29 @@ namespace FrostbiteModdingTests
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestGPModProject()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.5.fbproject").Result;
+
+            if (File.Exists("test.fbmod"))
+                File.Delete("test.fbmod");
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -314,21 +337,14 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestGPMod()
         {
+            var modPath = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.5.fbmod";
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
-            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.3.fbproject").Result;
 
-            if (File.Exists("test.fbmod"))
-                File.Delete("test.fbmod");
-
-            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
-
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
-                    "test.fbmod"
+                    modPath
                 }.ToArray()).Wait();
 
         }
@@ -391,8 +407,8 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = true;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = true;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -411,8 +427,8 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = false;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -482,10 +498,11 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = false;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
-                new System.Collections.Generic.List<string>() {
+                new System.Collections.Generic.List<string>()
+                {
                 }.ToArray()).Wait();
         }
 
@@ -495,9 +512,9 @@ namespace FrostbiteModdingTests
             var buildCache = new BuildCache();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
 
-            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
-            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("file", StringComparison.OrdinalIgnoreCase));
-            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("collector", StringComparison.OrdinalIgnoreCase));
+            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
+            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("file", StringComparison.OrdinalIgnoreCase));
+            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("collector", StringComparison.OrdinalIgnoreCase));
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
 
@@ -510,7 +527,7 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
@@ -526,8 +543,8 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = false;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
@@ -544,8 +561,8 @@ namespace FrostbiteModdingTests
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = false;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     testR
@@ -592,7 +609,7 @@ namespace FrostbiteModdingTests
                 for (uint i = 4; i < 14; i++)
                 {
                     recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: i);
-                    if(recomp.Length <= originalSize)
+                    if (recomp.Length <= originalSize)
                     {
 
                     }
@@ -622,8 +639,8 @@ namespace FrostbiteModdingTests
             //projectManagement.Project = new FrostySdk.FrostbiteProject();
 
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = false;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>()
@@ -642,8 +659,8 @@ namespace FrostbiteModdingTests
         public void TestLoadWithoutACInModData()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
-            ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-            ModdingSupport.FrostyModExecutor.UseModData = true;
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = true;
             frostyModExecutor.ForceRebuildOfMods = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>()
@@ -662,6 +679,21 @@ namespace FrostbiteModdingTests
 
         }
 
+        /// <summary>
+        /// To start without AC you need to alter your Installer.xml
+        /// </summary>
+        [TestMethod]
+        public void TestTOCReadWrite()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
+            var toc = new FIFA23Plugin.TOCFile();
+            using (NativeReader nr = new NativeReader(new FileStream("F:\\Origin Games\\FIFA 23\\Patch\\Win32\\careersba.toc", FileMode.Open))) 
+            {
+                var dbo = toc.Read(nr);
+            }
+
+            toc.Write(new MemoryStream());
+        }
     }
 }
 

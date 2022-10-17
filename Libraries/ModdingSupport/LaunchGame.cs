@@ -31,8 +31,8 @@ namespace FIFAModdingUI
             //}
 
             logger.Log("Running Mod Executer");
-            var fme = new FrostyModExecutor();
-            FrostyModExecutor.UseModData = useModData;
+            var fme = new ModExecutor();
+            ModExecutor.UseModData = useModData;
             fme.ForceRebuildOfMods = forceReinstallMods;
             fme.UseSymbolicLinks = useSymbolicLink;
 

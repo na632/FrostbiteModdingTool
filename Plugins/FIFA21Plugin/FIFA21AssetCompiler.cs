@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static ModdingSupport.FrostyModExecutor;
+using static ModdingSupport.ModExecutor;
 
 namespace FIFA21Plugin
 {
@@ -45,7 +45,7 @@ namespace FIFA21Plugin
             }
 
             bool result = false;
-            if (!FrostyModExecutor.UseModData)
+            if (!ModExecutor.UseModData)
             {
                 result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
                 return result;
@@ -64,7 +64,7 @@ namespace FIFA21Plugin
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-            var fme = (FrostyModExecutor)frostyModExecuter;
+            var fme = (ModExecutor)frostyModExecuter;
 
             logger.Log("Copying files from Data to ModData/Data");
             CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
@@ -113,11 +113,11 @@ namespace FIFA21Plugin
             }
         }
 
-        FrostyModExecutor ModExecutor;
+        ModExecutor ModExecutor;
 
         private bool RunEADesktopCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
-            var fme = (FrostyModExecutor)frostyModExecuter;
+            var fme = (ModExecutor)frostyModExecuter;
             var parent = fme;
             ModExecutor = fme;
 
@@ -299,7 +299,7 @@ namespace FIFA21Plugin
             }
         }
 
-        private FrostyModExecutor parent;
+        private ModExecutor parent;
 
         public static Dictionary<string, List<string>> CatalogCasFiles = new Dictionary<string, List<string>>();
 
@@ -319,7 +319,7 @@ namespace FIFA21Plugin
 
         private readonly bool UseModData;
 
-        public FIFA21BundleAction(FrostyModExecutor inParent, bool useModData = true)
+        public FIFA21BundleAction(ModExecutor inParent, bool useModData = true)
         {
             parent = inParent;
             ErrorCounts.Add(ModType.EBX, 0);
@@ -884,7 +884,7 @@ namespace FIFA21Plugin
 
                     tasks.Add(Task.Run(() =>
                     {
-                        sbpath = parent.fs.ResolvePath(sbpath, FrostyModExecutor.UseModData);
+                        sbpath = parent.fs.ResolvePath(sbpath, ModExecutor.UseModData);
 
                         if (UseModData && !sbpath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                         {
@@ -1048,7 +1048,7 @@ namespace FIFA21Plugin
 
                                         foreach (var abtc in assetBundleToCAS)
                                         {
-                                            var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, FrostyModExecutor.UseModData);
+                                            var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, ModExecutor.UseModData);
                                             using (var nwCas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
                                             {
                                                 foreach (var assetEntry in abtc.Value)
@@ -1412,7 +1412,7 @@ namespace FIFA21Plugin
                 fiCas = new FileInfo(text);
             } 
 
-            if (!FrostyModExecutor.UseModData)
+            if (!ModExecutor.UseModData)
                 text = text.Replace("ModData", "", StringComparison.OrdinalIgnoreCase);
 
             fiCas = null;

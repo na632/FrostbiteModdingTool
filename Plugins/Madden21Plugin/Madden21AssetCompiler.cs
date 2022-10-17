@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static Madden21Plugin.Madden21AssetLoader;
-using static ModdingSupport.FrostyModExecutor;
+using static ModdingSupport.ModExecutor;
 
 namespace Madden21Plugin
 {
@@ -146,8 +146,8 @@ namespace Madden21Plugin
 
         }
 
-        FrostyModExecutor ModExecuter = null;
-        FrostyModExecutor parent => ModExecuter;
+        ModExecutor ModExecuter = null;
+        ModExecutor parent => ModExecuter;
 
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken
@@ -158,7 +158,7 @@ namespace Madden21Plugin
         /// <returns></returns>
         public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
-            ModExecuter = (FrostyModExecutor)frostyModExecuter;
+            ModExecuter = (ModExecutor)frostyModExecuter;
             // ------------------------------------------------------------------------------------------
             // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
             if (ProfilesLibrary.IsMadden21DataVersion())
@@ -258,7 +258,7 @@ namespace Madden21Plugin
                         uint tocchunkposition = 0u;
                         byte[] byte_array_of_original_toc_file = null;
 
-                        if (!FrostyModExecutor.UseModData)
+                        if (!ModExecutor.UseModData)
                         {
                             if (File.Exists(location_toc_file + ".bak"))
                                 File.Copy(location_toc_file + ".bak", location_toc_file,true);

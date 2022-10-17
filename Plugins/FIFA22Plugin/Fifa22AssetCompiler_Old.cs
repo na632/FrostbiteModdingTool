@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static ModdingSupport.FrostyModExecutor;
+using static ModdingSupport.ModExecutor;
 
 namespace FIFA22Plugin
 {
@@ -46,7 +46,7 @@ namespace FIFA22Plugin
 
            
             bool result = false;
-            if (!FrostyModExecutor.UseModData)
+            if (!ModExecutor.UseModData)
             {
                 result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
                 return result;
@@ -65,7 +65,7 @@ namespace FIFA22Plugin
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-            var fme = (FrostyModExecutor)frostyModExecuter;
+            var fme = (ModExecutor)frostyModExecuter;
 
             logger.Log("Copying files from Data to ModData/Data");
             CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
@@ -114,11 +114,11 @@ namespace FIFA22Plugin
             }
         }
 
-        FrostyModExecutor ModExecutor;
+        ModExecutor ModExecutor;
 
         private bool RunEADesktopCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
-            var fme = (FrostyModExecutor)frostyModExecuter;
+            var fme = (ModExecutor)frostyModExecuter;
             var parent = fme;
             ModExecutor = fme;
 
@@ -297,7 +297,7 @@ namespace FIFA22Plugin
             }
         }
 
-        private FrostyModExecutor parent;
+        private ModExecutor parent;
 
         public static Dictionary<string, List<string>> CatalogCasFiles = new Dictionary<string, List<string>>();
 
@@ -317,7 +317,7 @@ namespace FIFA22Plugin
 
         private readonly bool UseModData;
 
-        public Fifa22BundleAction(FrostyModExecutor inParent, bool useModData = true)
+        public Fifa22BundleAction(ModExecutor inParent, bool useModData = true)
         {
             parent = inParent;
             ErrorCounts.Add(ModType.EBX, 0);
@@ -640,7 +640,7 @@ namespace FIFA22Plugin
 
                 foreach (var item in dictOfModsToCas)
                 {
-                    var casPath = FileSystem.Instance.ResolvePath(item.Key, FrostyModExecutor.UseModData);
+                    var casPath = FileSystem.Instance.ResolvePath(item.Key, ModExecutor.UseModData);
 
                     Debug.WriteLine($"Modifying CAS file - {casPath}");
                     parent.Logger.Log($"Modifying CAS file - {casPath}");
@@ -899,7 +899,7 @@ namespace FIFA22Plugin
                         if (string.IsNullOrEmpty(sbpath))
                             continue;
 
-                        sbpath = parent.fs.ResolvePath(sbpath, FrostyModExecutor.UseModData);
+                        sbpath = parent.fs.ResolvePath(sbpath, ModExecutor.UseModData);
 
                         if (UseModData && !sbpath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                         {
@@ -1066,7 +1066,7 @@ namespace FIFA22Plugin
 
                                         foreach (var abtc in assetBundleToCAS)
                                         {
-                                            var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, FrostyModExecutor.UseModData);
+                                            var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, ModExecutor.UseModData);
                                             using (var nwCas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
                                             {
                                                 foreach (var assetEntry in abtc.Value)
@@ -1231,7 +1231,7 @@ namespace FIFA22Plugin
                     }
 
                     var tocFileRAW = $"{directory}/{tocFile}.toc";
-                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW, FrostyModExecutor.UseModData);
+                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW, ModExecutor.UseModData);
                     TocSbReader_Fifa22 tocSb = new TocSbReader_Fifa22(false, false);
 
                     // read the changed toc file in ModData
@@ -1404,7 +1404,7 @@ namespace FIFA22Plugin
                 fiCas = new FileInfo(text);
             } 
 
-            if (!FrostyModExecutor.UseModData)
+            if (!ModExecutor.UseModData)
                 text = text.Replace("ModData", "", StringComparison.OrdinalIgnoreCase);
 
             fiCas = null;

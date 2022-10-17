@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static FIFA22Plugin.AssetLoader_Fifa22;
-using static ModdingSupport.FrostyModExecutor;
+using static ModdingSupport.ModExecutor;
 
 namespace FIFA22Plugin
 {
@@ -147,8 +147,8 @@ namespace FIFA22Plugin
 
         }
 
-        FrostyModExecutor ModExecuter = null;
-        FrostyModExecutor parent => ModExecuter;
+        ModExecutor ModExecuter = null;
+        ModExecutor parent => ModExecuter;
 
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken
@@ -159,7 +159,7 @@ namespace FIFA22Plugin
         /// <returns></returns>
         public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
         {
-            ModExecuter = (FrostyModExecutor)frostyModExecuter;
+            ModExecuter = (ModExecutor)frostyModExecuter;
             
                 if (UseModData)
                 {
@@ -258,7 +258,7 @@ namespace FIFA22Plugin
                         tocFile = sbName;
                     }
                     var tocFileRAW = $"{folder}/{tocFile}.toc";
-                    string location_toc_file = ModExecuter.fs.ResolvePath(tocFileRAW, FrostyModExecutor.UseModData);
+                    string location_toc_file = ModExecuter.fs.ResolvePath(tocFileRAW, ModExecutor.UseModData);
 
                     if (string.IsNullOrEmpty(location_toc_file) 
                         //|| location_toc_file.Contains("storycharsb", StringComparison.OrdinalIgnoreCase)
@@ -375,7 +375,7 @@ namespace FIFA22Plugin
 
                         foreach (var mcToCas in modToCas)
                         {
-                            var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key, FrostyModExecutor.UseModData);
+                            var resolvedPath = FileSystem.Instance.ResolvePath(mcToCas.Key, ModExecutor.UseModData);
                             if (resolvedPath != null)
                             {
 
@@ -497,7 +497,7 @@ namespace FIFA22Plugin
 
             foreach (var bundle in bundleChanges)
             {
-                var resolvedPath = FileSystem.Instance.ResolvePath(bundle.Key, FrostyModExecutor.UseModData);
+                var resolvedPath = FileSystem.Instance.ResolvePath(bundle.Key, ModExecutor.UseModData);
                 if (resolvedPath != null)
                 {
                     using (var nwCas = new NativeWriter(new FileStream(resolvedPath, FileMode.Open)))
@@ -579,7 +579,7 @@ namespace FIFA22Plugin
             newCas = lastCas + 1;
             //newCas = lastCas;
             string stub = parent.fs.BasePath;// + $"ModData\\{(patch ? "Patch" : "Data")}\\" + catalogInfo.Name + "\\cas_";
-            if (FrostyModExecutor.UseModData)
+            if (ModExecutor.UseModData)
                 stub += $"ModData\\{(patch ? "Patch" : "Data")}\\" + catalogInfo.Name + "\\cas_";
             else
                 stub += $"\\{(patch ? "Patch" : "Data")}\\" + catalogInfo.Name + "\\cas_";

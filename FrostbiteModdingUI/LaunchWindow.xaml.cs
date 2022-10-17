@@ -51,6 +51,8 @@ namespace FMT
 
         public ModListProfile Profile { get; set; }
 
+        private CEMWindow CEMWindow;
+
         private LoadingDialog LoadingDialog { get; } = new LoadingDialog();
 
         public LaunchWindow(Window owner)
@@ -599,8 +601,6 @@ namespace FMT
             }
         }
 
-        private CEMWindow CEMWindow;
-
         private void btnRemove_Click(object sender, RoutedEventArgs e)
         {
             var selectedIndex = this.listMods.SelectedIndex;
@@ -726,7 +726,7 @@ namespace FMT
                     switchUseSymbolicLink.IsOn = false;
                 }
 
-                if (ProfilesLibrary.IsFIFA23DataVersion())
+                if (ProfilesLibrary.IsFIFA23DataVersion() && ProfilesLibrary.LoadedProfile.UseACBypass)
                 {
                     txtImportantMessage.Visibility = Visibility.Visible;
                     txtImportantMessage.Content = "FIFA 23 modding provided by Aranaktu's Live Editor!";

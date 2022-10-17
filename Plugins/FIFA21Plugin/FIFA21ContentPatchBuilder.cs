@@ -14,7 +14,7 @@ namespace FIFA21Plugin
     {
         List<TOCFile> DataTOCFiles = new List<TOCFile>();
         List<CASDataLoader> DataCASLoaders = new List<CASDataLoader>();
-        private FrostyModExecutor parent;
+        private ModExecutor parent;
 
         /// <summary>
         /// 
@@ -22,13 +22,13 @@ namespace FIFA21Plugin
         /// <param name="inCatalogInfo"></param>
         /// <param name="inDoneEvent"></param>
         /// <param name="inParent"></param>
-        public FIFA21ContentPatchBuilder(Catalog inCatalogInfo, FrostyModExecutor inParent)
+        public FIFA21ContentPatchBuilder(Catalog inCatalogInfo, ModExecutor inParent)
         {
             //catalogInfo = inCatalogInfo;
             parent = inParent;
         }
 
-        public FIFA21ContentPatchBuilder(FrostyModExecutor inParent)
+        public FIFA21ContentPatchBuilder(ModExecutor inParent)
         {
             parent = inParent;
         }

@@ -22,7 +22,7 @@ namespace v2k4FIFAModding.Frosty
     {
         public static ProjectManagement Instance;
 
-        public FrostbiteProject Project { get; set; }
+        public FrostbiteProject Project { get; set; } = new FrostbiteProject();
 
         public ILogger Logger = null;
 
@@ -85,9 +85,6 @@ namespace v2k4FIFAModding.Frosty
             {
                 var buildCache = new BuildCache();
                 buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, logger: this, loadSDK: true);
-                //if (!File.Exists(FIFAInstanceSingleton.V))
-                //    var buildSDK = new BuildSDK();
-                //var b = buildSDK.Build().Result;
                 PreviousGameVersion = GameInstanceSingleton.Instance.GAMEVERSION;
             }
         }
@@ -99,6 +96,7 @@ namespace v2k4FIFAModding.Frosty
                 InitializeOfSelectedGame(gamePath);
                 Initialize();
                 Instance = this;
+                Project = new FrostbiteProject();
             }
             else
             {
@@ -115,6 +113,7 @@ namespace v2k4FIFAModding.Frosty
                 InitializeOfSelectedGame(gamePath);
                 Initialize();
                 Instance = this;
+                Project = new FrostbiteProject();
             }
             else
             {

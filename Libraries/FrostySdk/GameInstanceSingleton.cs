@@ -67,6 +67,10 @@ namespace v2k4FIFAModdingCL
                 if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
                 {
                     ProfilesLibrary.Initialize(Instance.GAMEVERSION);
+                    if (FileSystem.Instance == null)
+                    {
+                        new FileSystem(GameDirectory);
+                    }
                 }
                 if (loadCache)
                 {

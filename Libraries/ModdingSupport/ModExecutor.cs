@@ -42,7 +42,7 @@ namespace ModdingSupport
         public int RefCount;
     }
 
-    public class FrostyModExecutor
+    public class ModExecutor
     {
         public class ModBundleInfo
         {
@@ -256,7 +256,7 @@ namespace ModdingSupport
 
             private ManualResetEvent doneEvent;
 
-            private FrostyModExecutor parent;
+            private ModExecutor parent;
 
             private Catalog catalogInfo;
 
@@ -270,7 +270,7 @@ namespace ModdingSupport
 
             public Exception Exception => errorException;
 
-            public FifaBundleAction(Catalog inCatalogInfo, ManualResetEvent inDoneEvent, FrostyModExecutor inParent)
+            public FifaBundleAction(Catalog inCatalogInfo, ManualResetEvent inDoneEvent, ModExecutor inParent)
             {
                 catalogInfo = inCatalogInfo;
                 parent = inParent;
@@ -956,7 +956,7 @@ namespace ModdingSupport
                 }
             }
         }
-private class ManifestBundleAction
+    private class ManifestBundleAction
         {
             private static readonly object resourceLock = new object();
 
@@ -964,7 +964,7 @@ private class ManifestBundleAction
 
             private ManualResetEvent doneEvent;
 
-            private FrostyModExecutor parent;
+            private ModExecutor parent;
 
             private Exception errorException;
 
@@ -988,7 +988,7 @@ private class ManifestBundleAction
 
             public Exception Exception => errorException;
 
-            public ManifestBundleAction(List<ModBundleInfo> inBundles, ManualResetEvent inDoneEvent, FrostyModExecutor inParent)
+            public ManifestBundleAction(List<ModBundleInfo> inBundles, ManualResetEvent inDoneEvent, ModExecutor inParent)
             {
                 bundles = inBundles;
                 doneEvent = inDoneEvent;
@@ -1415,7 +1415,7 @@ private class ManifestBundleAction
 
             private ManualResetEvent doneEvent;
 
-            private FrostyModExecutor parent;
+            private ModExecutor parent;
 
             private List<Sha1> casRefs = new List<Sha1>();
 
@@ -1435,7 +1435,7 @@ private class ManifestBundleAction
 
             public Exception Exception => errorException;
 
-            public SuperBundleAction(string inSuperBundle, ManualResetEvent inDoneEvent, FrostyModExecutor inParent, string inModPath)
+            public SuperBundleAction(string inSuperBundle, ManualResetEvent inDoneEvent, ModExecutor inParent, string inModPath)
             {
                 superBundle = inSuperBundle;
                 doneEvent = inDoneEvent;
@@ -2786,8 +2786,14 @@ private class ManifestBundleAction
 
                 return Process.GetProcessesByName("EADesktop.exe").Any();
             }
-        }// = @"F:\Origin Games\FIFA 23\FIFA23.exe";
+        }
         public bool LaunchedViaEADesktop { get; set; } = false;
+
+        public static bool UseACBypass { get; set; }
+            = ProfilesLibrary.IsFIFA23DataVersion()
+            && FileSystem.Instance.Head <= 1572210
+            && ProfilesLibrary.LoadedProfile.UseACBypass;
+        //public bool UseACBypass { get; set; } = false;
 
         public bool UseSymbolicLinks = false;
 
@@ -2843,39 +2849,42 @@ private class ManifestBundleAction
             string modPath = fs.BasePath + modDirName + "\\";
             string patchPath = "Patch";
 
-            await Task.Run(() =>
-            {
+            //await Task.Run(() =>
+            //{
 
-                if (ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
-                {
-                    string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
-                    if (Directory.Exists(path))
-                    {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(path);
-                        directoryInfo.Delete(true);
-                    }
+            //    if (ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+            //    {
+            //        string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
+            //        if (Directory.Exists(path))
+            //        {
+            //            DirectoryInfo directoryInfo = new DirectoryInfo(path);
+            //            directoryInfo.Delete(true);
+            //        }
 
-                    path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 21");
-                    if (Directory.Exists(path))
-                    {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(path);
-                        // delete or throw???
-                        directoryInfo.Delete(true);
-                    }
-                }
-            });
-            Process[] processes = Process.GetProcesses();
+            //        path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 21");
+            //        if (Directory.Exists(path))
+            //        {
+            //            DirectoryInfo directoryInfo = new DirectoryInfo(path);
+            //            // delete or throw???
+            //            directoryInfo.Delete(true);
+            //        }
+            //    }
+            //});
+            //Process[] processes = Process.GetProcesses();
             string profileName = ProfilesLibrary.ProfileName;
-            foreach (Process process in processes)
-            {
-                if (process.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new Exception("Game process is already running, please close and relaunch");
-                }
-            }
-            processes = null;
+            if(Process.GetProcesses().Any(x=>x.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase)))
+                throw new Exception("Game process is already running, please close and relaunch");
 
-            Logger.Log("Initializing resources");
+            //foreach (Process process in processes)
+            //{
+            //    if (process.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        throw new Exception("Game process is already running, please close and relaunch");
+            //    }
+            //}
+            //processes = null;
+
+            //Logger.Log("Initializing resources");
 
             if (ResourceManager.Instance == null)
             {
@@ -3282,12 +3291,15 @@ private class ManifestBundleAction
                 }
                 frostyMods.Clear();
 
-                Logger.Log("Cleaning up mod data directory");
+                //Logger.Log("Cleaning up mod data directory");
                 //List<SymLinkStruct> SymbolicLinkList = new List<SymLinkStruct>();
                 fs.ResetManifest();
 
 
-                Logger.Log("Creating mod data directory");
+                //Logger.Log("Creating mod data directory");
+
+                // ----------------------------------------------------------------
+                // Create ModData Directory in the Game Path
                 Directory.CreateDirectory(modPath);
                 Directory.CreateDirectory(Path.Combine(modPath, "Data"));
                 Directory.CreateDirectory(Path.Combine(modPath, "Patch"));
@@ -3298,7 +3310,7 @@ private class ManifestBundleAction
                 int completionPortThreads = 0;
                 ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
                 ThreadPool.SetMaxThreads(Environment.ProcessorCount, completionPortThreads);
-                Logger.Log("Applying mods");
+                //Logger.Log("Applying mods");
                 //SymbolicLinkList.Clear();
 
 
@@ -3517,6 +3529,13 @@ private class ManifestBundleAction
                 fs.Initialize();
             }
 
+            // -----------------------------------------------------------------------------------
+            // Always uninstall InstallerData.xml change
+            if (ProfilesLibrary.IsFIFA23DataVersion())
+            {
+                ConfigureInstallerDataXml(false);
+            }
+
             //string modPath = fs.BasePath + modDirName + "\\";
             string modPath = "\\" + modDirName + "\\";
 
@@ -3639,7 +3658,8 @@ private class ManifestBundleAction
 
             if (ProfilesLibrary.IsFIFA21DataVersion()
                 || ProfilesLibrary.IsFIFA22DataVersion()
-                || ProfilesLibrary.IsFIFA23DataVersion())
+                //|| ProfilesLibrary.IsFIFA23DataVersion()
+                )
             {
                 CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
             }
@@ -3766,7 +3786,7 @@ private class ManifestBundleAction
                 ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
             }
 
-            if (ProfilesLibrary.IsFIFA23DataVersion())
+            if (UseACBypass && ProfilesLibrary.IsFIFA23DataVersion())
             {
                 var r = GameInstanceSingleton.InjectDLL(new FileInfo(@"ThirdParty\\FIFA23\\FIFA.dll").FullName, true).Result;
             }
@@ -3850,30 +3870,66 @@ private class ManifestBundleAction
             if (!ProfilesLibrary.IsFIFA23DataVersion())
                 return;
 
+            // --------------------------------------------------------------
+            // Unistall that crappy dxgi "fix" ------------------------------
+            if (File.Exists(FileSystem.Instance.BasePath + "\\dxgi.dll"))
+                File.Delete(FileSystem.Instance.BasePath + "\\dxgi.dll");
+
+            // --------------------------------------------------------------
+            // 
+            if (UseACBypass)
+            {
+                ConfigureInstallerDataXml(true);
+                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+            }
+            else
+            {
+                ConfigureInstallerDataXml(false);
+                if (File.Exists(fs.BasePath + "CryptBase.dll"))
+                    File.Delete(fs.BasePath + "CryptBase.dll");
+            }
+        }
+
+        private static void ConfigureInstallerDataXml(bool install = true)
+        {
             var installerXmlPath = FileSystem.Instance.BasePath + "\\__Installer\\installerdata.xml";
+
             if (!File.Exists(installerXmlPath))
                 throw new FileNotFoundException($"Unable to find installer data for {ProfilesLibrary.DisplayName} at path {installerXmlPath}");
 
-            if(!File.Exists(installerXmlPath + ".bak"))
+            if (install && !File.Exists(installerXmlPath + ".bak"))
                 File.Copy(installerXmlPath, installerXmlPath + ".bak", false);
+            // Uninstalling -------------------------------------------------
+            else if (!install && File.Exists(installerXmlPath + ".bak"))
+            {
+                File.Copy(installerXmlPath + ".bak", installerXmlPath, true);
+                File.Delete(installerXmlPath + ".bak");
+            }
 
+            // Load from file -----------------------------------------------
             XmlDocument xmldoc = new XmlDocument();
-            //XmlNodeList xmlnode;
             using (FileStream fs = new FileStream(installerXmlPath, FileMode.Open, FileAccess.Read))
             {
                 xmldoc.Load(fs);
             }
             XmlNode xmlnode = xmldoc.GetElementsByTagName("runtime").Item(0);
             var secondNode = xmlnode.ChildNodes.Item(1);
-            secondNode.InnerXml = secondNode.InnerXml.Replace("EAAntiCheat.GameServiceLauncher", "FIFA23", StringComparison.OrdinalIgnoreCase);
+
+            // Installing ---------------------------------------------------
+            if (install)
+            {
+                secondNode.InnerXml = secondNode.InnerXml.Replace("]EAAntiCheat.GameServiceLauncher", "]FIFA23", StringComparison.OrdinalIgnoreCase);
+            }
+            // Uninstalling -------------------------------------------------
+            else
+            {
+                secondNode.InnerXml = secondNode.InnerXml.Replace("]FIFA23.exe", "]EAAntiCheat.GameServiceLauncher", StringComparison.OrdinalIgnoreCase);
+            }
+            // Save to file -------------------------------------------------
             using (FileStream fs = new FileStream(installerXmlPath, FileMode.Open, FileAccess.Write))
             {
                 xmldoc.Save(fs);
             }
-
-            if (File.Exists(FileSystem.Instance.BasePath + "\\dxgi.dll"))
-                File.Delete(FileSystem.Instance.BasePath + "\\dxgi.dll");
-
         }
 
         /// <summary>
@@ -3886,6 +3942,24 @@ private class ManifestBundleAction
 
             try
             {
+                if (ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+                {
+                    string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
+                    if (Directory.Exists(path))
+                    {
+                        DirectoryInfo directoryInfo = new DirectoryInfo(path);
+                        directoryInfo.Delete(true);
+                    }
+
+                    path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 21");
+                    if (Directory.Exists(path))
+                    {
+                        DirectoryInfo directoryInfo = new DirectoryInfo(path);
+                        // delete or throw???
+                        directoryInfo.Delete(true);
+                    }
+                }
+
                 Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName), recursive: true);
                 //Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName, "onlinecache0"), recursive: true);
                 Logger.Log("Successfully deleted the Live Updates folder.");

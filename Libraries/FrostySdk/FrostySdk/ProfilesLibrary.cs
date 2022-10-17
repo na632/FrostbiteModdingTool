@@ -184,8 +184,8 @@ namespace FrostySdk
 			public string ProjectEbxReader { get; set; }
 
 			public string GameIdentifier { get; set; }
-
-		}
+			public bool UseACBypass { get; set; }
+        }
 		public static string GetModProfileParentDirectoryPath()
 		{
 			var dir = AppContext.BaseDirectory + "\\Mods\\Profiles\\";

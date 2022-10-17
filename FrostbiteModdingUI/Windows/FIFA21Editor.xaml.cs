@@ -773,8 +773,8 @@ namespace FIFAModdingUI.Windows
             {
                 await Task.Run(() =>
                 {
-                    ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
-                    ModdingSupport.FrostyModExecutor.UseModData = useModData;
+                    ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+                    ModdingSupport.ModExecutor.UseModData = useModData;
                     frostyModExecutor.UseSymbolicLinks = false;
                     frostyModExecutor.ForceRebuildOfMods = true;
                     frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testmodname }.ToArray()).Wait();

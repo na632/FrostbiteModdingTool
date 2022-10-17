@@ -63,7 +63,7 @@ namespace FIFA23Plugin
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
             Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
 
-            parent = (FrostyModExecutor)frostyModExecuter;
+            parent = (ModExecutor)frostyModExecuter;
 
             logger.Log("Copying files from Data to ModData/Data");
             CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
@@ -85,7 +85,7 @@ namespace FIFA23Plugin
         ///// </summary>
         //public class FIFA23BundleAction
         //{
-        private FrostyModExecutor parent { get; set; }
+        private ModExecutor parent { get; set; }
 
         //public static Dictionary<string, List<string>> CatalogCasFiles { get; } = new Dictionary<string, List<string>>();
 
@@ -453,7 +453,7 @@ namespace FIFA23Plugin
 
             parent.Logger.Log("Loading Cached Super Bundles.");
 
-            if (!FrostyModExecutor.UseModData && GameWasPatched)
+            if (!ModExecutor.UseModData && GameWasPatched)
             {
                 DeleteBakFiles(parent.GamePath);
             }
@@ -478,23 +478,15 @@ namespace FIFA23Plugin
                 foreach (var item in dictOfModsToCas)
                 {
 
-                    string casPath = FileSystem.Instance.ResolvePath(item.Key, FrostyModExecutor.UseModData);
+                    string casPath = FileSystem.Instance.ResolvePath(item.Key, ModExecutor.UseModData);
 
-                    //if (!string.IsNullOrEmpty(item.Key))
-                    //{
-                    //    casPath = item.Key.Replace("native_data"
-                    //        , AssetManager.Instance.fs.BasePath + "ModData\\Data", StringComparison.OrdinalIgnoreCase);
-                    //}
 
-                    //casPath = casPath.Replace("native_patch"
-                    //    , AssetManager.Instance.fs.BasePath + "ModData\\Patch", StringComparison.OrdinalIgnoreCase);
-
-                    if (FrostyModExecutor.UseModData && !casPath.Contains("ModData"))
+                    if (ModExecutor.UseModData && !casPath.Contains("ModData"))
                     {
                         throw new Exception($"WRONG CAS PATH GIVEN! {casPath}");
                     }
 
-                    if (!FrostyModExecutor.UseModData)
+                    if (!ModExecutor.UseModData)
                     {
                         casPath = casPath.Replace("ModData\\", "", StringComparison.OrdinalIgnoreCase);
                     }
@@ -532,16 +524,6 @@ namespace FIFA23Plugin
                                     )
                                 )
                                 continue;
-
-                            //if (modItem.NamePath.Contains("3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d"))
-                            //{
-                            //    //continue;
-                            //}
-
-                            //if (modItem.NamePath.Contains("f0ca4187-b95e-5153-a1eb-1e0a7fff6371"))
-                            //{
-
-                            //}
 
                             if (originalEntry != null && parent.archiveData.ContainsKey(modItem.Sha1))
                             {
@@ -598,31 +580,14 @@ namespace FIFA23Plugin
                                 }
                                 else
                                 {
-                                    parent.Logger.LogWarning($"OriginalSize is missing or 0 on {modItem.NamePath}, attempting calculation by reading it.");
+                                    //parent.Logger.LogWarning($"OriginalSize is missing or 0 on {modItem.NamePath}, attempting calculation by reading it.");
                                     using (var stream = new MemoryStream(data))
                                     {
                                         var out_data = new CasReader(new MemoryStream(data)).Read();
                                         origSize = out_data.Length;
                                     }
-                                    //throw new NullReferenceException($"OriginalSize is missing or 0 on {modItem.NamePath}");
                                 }
                             }
-
-                            //var useCas = string.IsNullOrEmpty(originalEntry.SBFileLocation);
-                            //if (useCas && (originalEntry is EbxAssetEntry || originalEntry is ResAssetEntry))
-                            //{
-                            //    if (originalEntry.SB_OriginalSize_Position != 0 && origSize != 0)
-                            //    {
-                            //        nwCas.Position = originalEntry.SB_OriginalSize_Position;
-                            //        nwCas.Write((uint)origSize, Endian.Little);
-                            //    }
-
-                            //    if (originalEntry.SB_Sha1_Position != 0 && modItem.Sha1 != Sha1.Zero)
-                            //    {
-                            //        nwCas.Position = originalEntry.SB_Sha1_Position;
-                            //        nwCas.Write(modItem.Sha1);
-                            //    }
-                            //}
 
                             EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
                         }
@@ -657,9 +622,9 @@ namespace FIFA23Plugin
 
                     tasks.Add(Task.Run(() =>
                     {
-                        tocPath = parent.fs.ResolvePath(tocPath, FrostyModExecutor.UseModData);
+                        tocPath = parent.fs.ResolvePath(tocPath, ModExecutor.UseModData);
 
-                        if (FrostyModExecutor.UseModData && !tocPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+                        if (ModExecutor.UseModData && !tocPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
                         {
                             throw new Exception($"WRONG SB PATH GIVEN! {tocPath}");
                         }
@@ -701,7 +666,7 @@ namespace FIFA23Plugin
                                 .Where(x => x.List != null && x.List.Any(y => parent.ModifiedChunks.ContainsKey(((DbObject)y).GetValue<Guid>("id"))))
                                 .ToList();
 
-                                    using (NativeWriter nw_toc = new NativeWriter(new FileStream(tocPath, FileMode.Open)))
+                                using (NativeWriter nw_toc = new NativeWriter(new FileStream(tocPath, FileMode.Open)))
                                     {
                                         var assetBundleToCAS = new Dictionary<string, List<AssetEntry>>();
                                         foreach (var assetBundle in tocGroup.Value)
@@ -777,7 +742,7 @@ namespace FIFA23Plugin
 
                                         foreach (var abtc in assetBundleToCAS)
                                         {
-                                            var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, FrostyModExecutor.UseModData);
+                                            var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, ModExecutor.UseModData);
                                             using (var nwCas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
                                             {
                                                 foreach (var assetEntry in abtc.Value)
@@ -792,7 +757,13 @@ namespace FIFA23Plugin
                                                 }
                                             }
                                         }
+
+
+
                                     }
+
+                                using (var fsTocSig = new FileStream(tocPath, FileMode.Open))
+                                    TOCFile.RebuildTOCSignatureOnly(fsTocSig);
                             }
                             parent.Logger.Log($"Processing Complete: {tocPath}");
                             if (dboOriginal != null)
@@ -964,7 +935,7 @@ namespace FIFA23Plugin
                     string location_toc_file = parent.fs.ResolvePath(tocFileRAW);
                     TocSbReader_Fifa22 tocSb = new TocSbReader_Fifa22(false, false);
 
-                    var locationTocFileInModData = FrostyModExecutor.UseModData
+                    var locationTocFileInModData = ModExecutor.UseModData
                         ? location_toc_file
                         .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
                         .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
@@ -984,10 +955,10 @@ namespace FIFA23Plugin
 
                     var newCas = cas;
                     //var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
-                    var nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, patch), FrostyModExecutor.UseModData);
+                    var nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, patch), ModExecutor.UseModData);
                     if(!File.Exists(nextCasPath))
                     {
-                        nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false), FrostyModExecutor.UseModData);
+                        nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false), ModExecutor.UseModData);
                         patch = false;
                     }
                     using (NativeWriter nw_toc = new NativeWriter(new FileStream(locationTocFileInModData, FileMode.Open)))
@@ -1032,8 +1003,7 @@ namespace FIFA23Plugin
                         }
                     }
 
-
-
+                    TOCFile.RebuildTOCSignatureOnly(locationTocFileInModData);
                 }
             }
 
@@ -1061,7 +1031,7 @@ namespace FIFA23Plugin
                     tocSb.DoLogging = false;
                     tocSb.ProcessData = false;
 
-                    var location_toc_file_new = FrostyModExecutor.UseModData
+                    var location_toc_file_new = ModExecutor.UseModData
                         ? location_toc_file
                         .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
                         .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
@@ -1095,7 +1065,7 @@ namespace FIFA23Plugin
                 fiCas = new FileInfo(text);
             }
 
-            if (!FrostyModExecutor.UseModData)
+            if (!ModExecutor.UseModData)
                 text = text.Replace("ModData", "", StringComparison.OrdinalIgnoreCase);
 
             fiCas = null;

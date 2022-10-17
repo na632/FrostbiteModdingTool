@@ -1,6 +1,7 @@
 ﻿using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostbiteSdk;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -170,7 +171,11 @@ namespace FIFA23Plugin
 		public Dictionary<int, Guid> ChunkIndexToChunkId = new Dictionary<int, Guid>();
 		public List<int> BundleReferences = new List<int>();
 		long actualInternalPos = 556L;
-		private byte[] InitialHeaderData;
+
+		private byte[] ToCVersion;
+		private byte[] ToCSig;
+		private byte[] ToCXor;
+        //private byte[] InitialHeaderData;
 
 		public Dictionary<Guid, DbObject> TocChunkInfo = new Dictionary<Guid, DbObject>();
 
@@ -183,8 +188,10 @@ namespace FIFA23Plugin
 			Bundles.Clear();
 
 			nativeReader.Position = 0;
-			//var actualInternalPos = internalPos + 4;
-			InitialHeaderData = nativeReader.ReadBytes(556);
+
+            ToCVersion = nativeReader.ReadBytes(8);
+            ToCSig = nativeReader.ReadBytes(256);
+            ToCXor = nativeReader.ReadBytes(289);
 
 			nativeReader.Position = actualInternalPos;
 			var magic = nativeReader.ReadInt(Endian.Big);
@@ -492,25 +499,18 @@ namespace FIFA23Plugin
 
 		public void Write(Stream stream)
 		{
-			//if(FileLocation.Contains("fifagame", StringComparison.OrdinalIgnoreCase)
-			//	&& FileLocation.Contains("patch", StringComparison.OrdinalIgnoreCase)
-			//	)
-   //         {
-
-   //         }
-
-			//if (FileLocation.Contains("choreosb", StringComparison.OrdinalIgnoreCase))
-			//{
-
-			//}
-
-
 			NativeWriter writer = new NativeWriter(stream, leaveOpen: true);
-			//writer.Write((long)30331136);
-			writer.WriteBytes(InitialHeaderData);
-			//writer.WriteBytes(new byte[548]);
+			writer.Write(ToCVersion);
+			var sigPosition = writer.Position;
+			writer.Write(ToCSig);
+			writer.Write(ToCXor);
+			while (writer.Position != 556)
+				writer.Write((byte)0);
+            //writer.Write((long)30331136);
+            //writer.WriteBytes(InitialHeaderData);
+            //writer.WriteBytes(new byte[548]);
 
-			long metaDataOffset = writer.Position;
+            long metaDataOffset = writer.Position;
 			MetaData.Write(writer);
 			foreach (int bundleRef in BundleReferences)
 			{
@@ -544,10 +544,6 @@ namespace FIFA23Plugin
             MetaData.ChunkEntryOffset = (int)writer.Position - (int)actualInternalPos;
             foreach (var chunk in TocChunks)
 			{
-				if(chunk.Id.ToString() == "3e581c92-cf9f-778a-df7c-7adc10e845a3")
-                {
-
-                }
 				writer.Write((byte)chunk.ExtraData.Unk);
 				writer.Write((byte)(chunk.ExtraData.IsPatch ? 1 : 0));
 				writer.Write((byte)chunk.ExtraData.Catalog.Value);
@@ -626,14 +622,44 @@ namespace FIFA23Plugin
 			}
 
 			writer.Position = metaDataOffset;
-
-            //MetaData.ChunkCount = TocChunks.Count;
             MetaData.Write(writer);
 
-			writer.Position = 0;
-   //         using (var fs = new FileStream("_TestNewToc.dat", FileMode.Create))
+			writer.Position = 556;
+			byte[] streamBuffer = new byte[writer.Length - 556];
+			writer.BaseStream.Read(streamBuffer, 0, (int)writer.Length - 556);
+			var newTocSig = streamBuffer.ToTOCSignature();
+			writer.Position = 8;
+			writer.Write(newTocSig);
+
+			//writer.Position = 0;
+			//using (var fs = new FileStream("_TestNewToc.dat", FileMode.Create))
    //             writer.BaseStream.CopyTo(fs);
+		}
+
+		public static void RebuildTOCSignatureOnly(Stream stream)
+		{
+			if (!stream.CanWrite)
+				throw new IOException("Unable to Write to this Stream!");
+
+            if (!stream.CanRead)
+                throw new IOException("Unable to Read to this Stream!");
+
+            if (!stream.CanSeek)
+                throw new IOException("Unable to Seek this Stream!");
+
+            byte[] streamBuffer = new byte[stream.Length - 556];
+			stream.Position = 556;
+            stream.Read(streamBuffer, 0, (int)stream.Length - 556);
+            var newTocSig = streamBuffer.ToTOCSignature();
+            stream.Position = 8;
+            stream.Write(newTocSig);
         }
+
+		public static void RebuildTOCSignatureOnly(string filePath)
+		{
+			using (var fsTocSig = new FileStream(filePath, FileMode.Open))
+				TOCFile.RebuildTOCSignatureOnly(fsTocSig);
+		}
 
 		public static int CreateCasInt(byte unk, bool isPatch, byte catalog, byte cas)
 		{

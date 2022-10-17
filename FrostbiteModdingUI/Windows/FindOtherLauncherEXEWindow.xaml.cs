@@ -50,7 +50,7 @@ namespace FrostbiteModdingUI.Windows
         }
         private async void btnLaunchOtherTool_Click(object sender, RoutedEventArgs e)
         {
-            FrostyModExecutor frostyModExecutor = new FrostyModExecutor();
+            ModExecutor frostyModExecutor = new ModExecutor();
             frostyModExecutor.ExecuteProcess(OtherToolPath, "");
 
                 if (InjectLegacyModSupport)

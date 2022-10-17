@@ -85,6 +85,7 @@
   "LegacyFileManager": "LFM_Fifa22",
   "CanUseModData": true,
   "SupportLowMemoryFootprint": true,
-  "GameIdentifier": 16115019
+  "GameIdentifier": 16115019,
+  "UseACBypass": false
 
 }

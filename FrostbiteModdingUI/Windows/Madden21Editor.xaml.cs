@@ -346,7 +346,7 @@ namespace FrostbiteModdingUI.Windows
             await Task.Run(() =>
             {
 
-                ModdingSupport.FrostyModExecutor frostyModExecutor = new ModdingSupport.FrostyModExecutor();
+                ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
                 frostyModExecutor.UseSymbolicLinks = false;
                 frostyModExecutor.ForceRebuildOfMods = true;
                 frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "", new System.Collections.Generic.List<string>() { testfbmodname }.ToArray()).Wait();
