@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using static FrostySdk.ProfilesLibrary;
 
 namespace FrostySdk.Resources
 {
@@ -101,7 +102,9 @@ namespace FrostySdk.Resources
 
 		public bool HasAdjacencyInMesh => false;
 
-		public MeshSetLod(FileReader reader)
+		public byte[] UnknownChunkPad;
+
+        public MeshSetLod(FileReader reader)
 		{
 			Type = (MeshType)reader.ReadUInt32LittleEndian();
 			maxInstances = reader.ReadUInt32LittleEndian();
@@ -130,7 +133,11 @@ namespace FrostySdk.Resources
 				AdjacencyBufferSize = reader.ReadUInt32LittleEndian();
 				adjacencyData = new byte[AdjacencyBufferSize];
 			}
-			ChunkId = reader.ReadGuid();
+			if (ProfilesLibrary.IsFIFA23DataVersion())
+            {
+                UnknownChunkPad = reader.ReadBytes(8);
+            }
+            ChunkId = reader.ReadGuid();
 			inlineDataOffset = reader.ReadUInt32LittleEndian();
 			if (HasAdjacencyInMesh)
 			{

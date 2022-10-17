@@ -514,6 +514,8 @@ namespace FrostySdk.IO
 
 		public string ReadNullTerminatedString(bool reverse = false)
 		{
+			var startPosition = Position;
+			var size = 0;
 			StringBuilder stringBuilder = new StringBuilder();
 			while (true)
 			{
@@ -534,50 +536,53 @@ namespace FrostySdk.IO
 
 		public string ReadSizedString(int strLen)
 		{
-            //if (wideDecoder == Encoding.UTF8)
-            //{
-            //    StringBuilder stringBuilder = new StringBuilder();
-            //    for (int i = 0; i < strLen * 2; i++)
-            //    {
-            //        char c = (char)ReadByte();
-            //        if (c != 0)
-            //        {
-            //            stringBuilder.Append(c);
-            //        }
-            //    }
-            //    return stringBuilder.ToString();
-            //}
-            //else
-            //{
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 0; i < strLen; i++)
-                {
-                    char c = (char)ReadByte();
-                    if (c != 0)
-                    {
-                        stringBuilder.Append(c);
-                    }
-                }
-                return stringBuilder.ToString();
-            //}
+			//byte[] bytes = ReadBytes(strLen);
+			//return Encoding.UTF8.GetString(bytes);
 
-            //byte[] rentedBuffer = ArrayPool<byte>.Shared.Rent(strLen);
-            //Span<byte> span = new Span<byte>(rentedBuffer, 0, strLen);
-            //Span<byte> buffer = span;
-            //try
-            //{
-            //	ReadIntoSpan(buffer);
-            //	return wideDecoder.GetString(buffer);
-            //}
-            //finally
-            //{
-            //	if (rentedBuffer != null)
-            //	{
-            //		ArrayPool<byte>.Shared.Return(rentedBuffer);
-            //	}
-            //}
+			//if (wideDecoder == Encoding.UTF8)
+			//{
+			//    StringBuilder stringBuilder = new StringBuilder();
+			//    for (int i = 0; i < strLen * 2; i++)
+			//    {
+			//        char c = (char)ReadByte();
+			//        if (c != 0)
+			//        {
+			//            stringBuilder.Append(c);
+			//        }
+			//    }
+			//    return stringBuilder.ToString();
+			//}
+			//else
+			//{
+			StringBuilder stringBuilder = new StringBuilder();
+			for (int i = 0; i < strLen; i++)
+			{
+				char c = (char)ReadByte();
+				if (c != 0)
+				{
+					stringBuilder.Append(c);
+				}
+			}
+			return stringBuilder.ToString();
+			//}
 
-        }
+			//byte[] rentedBuffer = ArrayPool<byte>.Shared.Rent(strLen);
+			//Span<byte> span = new Span<byte>(rentedBuffer, 0, strLen);
+			//Span<byte> buffer = span;
+			//try
+			//{
+			//	ReadIntoSpan(buffer);
+			//	return wideDecoder.GetString(buffer);
+			//}
+			//finally
+			//{
+			//	if (rentedBuffer != null)
+			//	{
+			//		ArrayPool<byte>.Shared.Return(rentedBuffer);
+			//	}
+			//}
+
+		}
 
 		public string ReadLine()
 		{
@@ -601,6 +606,9 @@ namespace FrostySdk.IO
 
 		public void Pad(int alignment)
 		{
+			if (alignment == 0)
+				return;
+
 			while (Position % alignment != 0L)
 			{
 				Position++;

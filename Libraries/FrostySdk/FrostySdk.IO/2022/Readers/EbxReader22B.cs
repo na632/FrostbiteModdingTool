@@ -515,7 +515,7 @@ namespace FrostySdk.IO._2022.Readers
 			{
 				int index2 = ((base.magic != EbxVersion.Riff) ? ((short)index + (classType?.Index ?? 0)) : index);
 				guid = EbxReader22B.std.GetGuid(index2);
-				if (classType.Value.SecondSize == 1)
+				if (classType.Value.SecondSize >= 1)
 				{
 					guid = EbxReader22B.patchStd.GetGuid(index2);
 					ebxClass = EbxReader22B.patchStd.GetClass(index2) ?? EbxReader22B.std.GetClass(guid.Value);
@@ -527,14 +527,14 @@ namespace FrostySdk.IO._2022.Readers
 			}
 			if (ebxClass.HasValue)
 			{
-				//TypeLibrary.AddType(ebxClass.Value.Name, guid);
+				TypeLibrary.AddType(ebxClass.Value.Name, guid);
 			}
-			return ebxClass.Value;
+			return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
 		}
 
 		public override EbxField GetField(EbxClass classType, int index)
 		{
-			if (classType.SecondSize == 1)
+			if (classType.SecondSize >= 1)
 			{
 				return EbxReader22B.patchStd.GetField(index).Value;
 			}

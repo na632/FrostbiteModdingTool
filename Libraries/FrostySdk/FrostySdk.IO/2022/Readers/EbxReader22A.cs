@@ -124,7 +124,31 @@ namespace FrostySdk.IO._2022.Readers
 			}
 		}
 
-		public override object ReadClass(EbxClass classType, object obj, long startOffset)
+		private static IEnumerable<EbxField> _AllEbxFields;
+		public static IEnumerable<EbxField> AllEbxFields 
+		{ 
+			get
+			{
+				if (_AllEbxFields == null)
+					_AllEbxFields = EbxReader22B.patchStd.Fields.Union(EbxReader22B.std.Fields);
+
+				return _AllEbxFields;
+            }
+		}
+
+		private static Dictionary<int, EbxField> NameHashToEbxField { get; } = new Dictionary<int, EbxField>();
+
+		public static EbxField GetEbxFieldByNameHash(int nameHash)
+		{
+			if (NameHashToEbxField.ContainsKey(nameHash))
+				return NameHashToEbxField[nameHash];
+
+			var field = AllEbxFields.Single(x => x.NameHash == nameHash);
+			NameHashToEbxField.Add(nameHash, field);
+			return field;
+        }
+
+        public override object ReadClass(EbxClass classType, object obj, long startOffset)
 		{
 			if (obj == null)
 			{
@@ -144,7 +168,11 @@ namespace FrostySdk.IO._2022.Readers
 				}
             }
 
-            foreach (var property in properties)
+			var orderedProps = properties
+				.Where(x => x.Key.GetCustomAttribute<IsTransientAttribute>() == null && x.Key.GetCustomAttribute<FieldIndexAttribute>() != null)
+				.OrderBy(x => x.Key.GetCustomAttribute<FieldIndexAttribute>().Index);
+
+            foreach (var property in orderedProps)
             {
                 var isTransient = property.Key.GetCustomAttribute<IsTransientAttribute>();
 				if (isTransient != null)
@@ -157,17 +185,18 @@ namespace FrostySdk.IO._2022.Readers
 
                 EbxField field = default(EbxField);
 
-                if (propNameHash != null)
-                {
-                    field = EbxReader22B.patchStd.Fields
-                      .Union(EbxReader22B.std.Fields).FirstOrDefault(x => x.NameHash == propNameHash.Hash);
-                }
-                else if (propFieldIndex != null)
-                {
-                    field = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
-                }
+				if (propNameHash != null)
+				{
+					field = GetEbxFieldByNameHash(propNameHash.Hash);// AllEbxFields.FirstOrDefault(x => x.NameHash == propNameHash.Hash);
+				}
+				//           else 
+				//if (propFieldIndex != null)
+    //            {
+    //                field = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
+    //            }
 
                 EbxFieldType debugType = (EbxFieldType)((property.Value.Flags >> 4) & 0x1Fu);
+				EbxTypeCategory debugTypeTC = field.TypeCategory;
                 var classRef = field.ClassRef;
 
                 // Variable from SDK is King here! Override DebugType.
@@ -201,8 +230,8 @@ namespace FrostySdk.IO._2022.Readers
                 base.Position = property.Value.Offset + startOffset;
                 if (debugType == EbxFieldType.Array)
                 {
-                    //ReadArray(obj, property.Key, classType, field, false);
-                    ReadArray(obj, property.Key, classType, false);
+                    //ReadArray(obj, property.Key, classType, false);
+                    ReadArray(obj, property.Key, classType, field, false);
                     continue;
                 }
                 try
@@ -217,62 +246,7 @@ namespace FrostySdk.IO._2022.Readers
                 }
             }
 
-            //for (int i = 0; i < classType.FieldCount; i++)
-            //{
-            //    EbxField field = GetField(classType, classType.FieldIndex + i);
-            //    PropertyInfo property = GetProperty(type, field);
-            //    IsReferenceAttribute isReferenceAttribute = ((property != null) ? property.GetCustomAttribute<IsReferenceAttribute>() : null);
-            //    if (field.DebugType == EbxFieldType.Inherited)
-            //    {
-            //        ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
-            //        continue;
-            //    }
-            //    EbxFieldType debugType = field.DebugType;
-            //    if (debugType == EbxFieldType.ResourceRef
-            //        || debugType == EbxFieldType.TypeRef
-            //        || debugType == EbxFieldType.FileRef
-            //        || debugType == EbxFieldType.BoxedValueRef
-            //        || debugType == EbxFieldType.UInt64
-            //        || debugType == EbxFieldType.Int64
-            //        || debugType == EbxFieldType.Float64)
-            //    {
-            //        base.Pad(8);
-            //    }
-            //    else
-            //    {
-            //        debugType = field.DebugType;
-            //        if (debugType == EbxFieldType.Array
-            //            || debugType == EbxFieldType.Pointer
-            //            || field.Category == EbxFieldCategory.Array
-            //            || field.DebugType22 == EbxFieldType22.ArrayOfStructs
-            //            || field.DebugType22 == EbxFieldType22.Pointer
-            //            )
-            //        {
-            //            base.Pad(4);
-            //        }
-            //    }
-            //    base.Position = field.DataOffset + startOffset;
-            //    if (IsFieldInClassAnArray(classType, field))
-            //    {
-            //        ReadArray(obj, property, classType, field, isReferenceAttribute != null);
-            //        continue;
-            //    }
-            //    object value = ReadField(classType, field.DebugType, field.ClassRef, isReferenceAttribute != null);
-            //    if (property != null)
-            //    {
-            //        try
-            //        {
-            //            property.SetValue(obj, value);
-            //        }
-            //        catch (Exception)
-            //        {
-            //        }
-            //    }
-            //}
-            //         if (this.magic == EbxVersion.Riff)
-            //{
             base.Position = startOffset + classType.Size;
-			//}
 			base.Pad(classType.Alignment);
 			return null;
 		}
@@ -295,13 +269,14 @@ namespace FrostySdk.IO._2022.Readers
 			var ebxfieldmeta = genericType.GetCustomAttribute<EbxFieldMetaAttribute>();
 			var ebxclassmeta = genericType.GetCustomAttribute<EbxClassMetaAttribute>();
 			if (nameHashAttribute != null && ebxfieldmeta != null)
-				field = EbxReader22B.patchStd.Fields
-						  .Union(EbxReader22B.std.Fields).FirstOrDefault(x => x.NameHash == nameHashAttribute.Hash);
-			else if (nameHashAttribute != null && ebxclassmeta != null)
+				field = EbxReader22A.GetEbxFieldByNameHash(nameHashAttribute.Hash);
+            else if (nameHashAttribute != null && ebxclassmeta != null)
 				classType = EbxReader22B.patchStd.Classes
 						  .Union(EbxReader22B.std.Classes).FirstOrDefault(x => x.HasValue && x.Value.NameHash == nameHashAttribute.Hash).Value;
 
-			for (int i = 0; i < arrayCount; i++)
+            EbxClass @class = GetClass(classType, 65535);
+
+            for (int i = 0; i < arrayCount; i++)
 			{
 				EbxFieldType ebxFieldType = EbxFieldType.Struct;
 				if (!Enum.TryParse<EbxFieldType>(genericType.Name, out ebxFieldType)) 

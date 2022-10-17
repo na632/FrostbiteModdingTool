@@ -80,7 +80,14 @@ namespace FrostySdk.Resources
 
 		public MeshSetSection(FileReader reader, int index)
 		{
-            if (ProfilesLibrary.IsFIFA22DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
+				
+			if(ProfilesLibrary.IsFIFA23DataVersion())
+			{
+				Read23(reader, index);
+            }
+            else if (ProfilesLibrary.IsFIFA22DataVersion() 
+				|| ProfilesLibrary.IsMadden22DataVersion()
+                )
             {
 				Read22(reader, index);
             }
@@ -92,7 +99,73 @@ namespace FrostySdk.Resources
 			
 		}
 
-		public void Read22(FileReader reader, int index)
+        public void Read23(FileReader reader, int index)
+        {
+            var startPosition = reader.Position;
+
+            sectionIndex = index;
+            offset1 = reader.ReadInt64LittleEndian();
+            long namePosition = reader.ReadInt64LittleEndian();
+            long bonePositions = reader.ReadInt64LittleEndian();
+            ushort boneCount = reader.ReadUInt16LittleEndian();
+            BonesPerVertex = (byte)reader.ReadUShort();
+            MaterialId = reader.ReadUInt16LittleEndian();
+            vertexStride = reader.ReadByte();
+            PrimitiveType = (PrimitiveType)reader.ReadByte();
+            PrimitiveCount = (uint)reader.ReadUInt32LittleEndian();
+            StartIndex = reader.ReadUInt32LittleEndian();
+            VertexOffset = reader.ReadUInt32LittleEndian();
+            VertexCount = (uint)reader.ReadUInt32LittleEndian();
+            UnknownInt = reader.ReadUInt();
+			reader.ReadUInt(); // hmmm
+			reader.ReadUInt(); // hmmm more unknownness
+            for (int l = 0; l < 6; l++)
+            {
+                texCoordRatios.Add(reader.ReadSingleLittleEndian());
+            }
+
+            for (int i = 0; i < DeclCount; i++)
+            {
+                GeometryDeclDesc[i].Elements = new GeometryDeclarationDesc.Element[GeometryDeclarationDesc.MaxElements];
+                GeometryDeclDesc[i].Streams = new GeometryDeclarationDesc.Stream[GeometryDeclarationDesc.MaxStreams];
+                for (int j = 0; j < GeometryDeclarationDesc.MaxElements; j++)
+                {
+                    GeometryDeclarationDesc.Element element = new GeometryDeclarationDesc.Element
+                    {
+                        Usage = (VertexElementUsage)reader.ReadByte(),
+                        Format = (VertexElementFormat)reader.ReadByte(),
+                        Offset = reader.ReadByte(),
+                        StreamIndex = reader.ReadByte()
+                    };
+                    GeometryDeclDesc[i].Elements[j] = element;
+                }
+                for (int k = 0; k < GeometryDeclarationDesc.MaxStreams; k++)
+                {
+                    GeometryDeclarationDesc.Stream stream = new GeometryDeclarationDesc.Stream
+                    {
+                        VertexStride = reader.ReadByte(),
+                        Classification = (VertexElementClassification)reader.ReadByte()
+                    };
+                    GeometryDeclDesc[i].Streams[k] = stream;
+                }
+                GeometryDeclDesc[i].ElementCount = reader.ReadByte();
+                GeometryDeclDesc[i].StreamCount = reader.ReadByte();
+                reader.ReadBytes(2);
+            }
+            //unknownInt2 = reader.ReadUInt32LittleEndian();
+            unknownData = reader.ReadBytes(56);
+            long position3 = reader.Position;
+            reader.Position = bonePositions;
+            for (int m = 0; m < boneCount; m++)
+            {
+                BoneList.Add(reader.ReadUInt16LittleEndian());
+            }
+            reader.Position = namePosition;
+            Name = reader.ReadNullTerminatedString();
+            reader.Position = position3;
+        }
+
+        public void Read22(FileReader reader, int index)
 		{
 			var startPosition = reader.Position;
 

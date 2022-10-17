@@ -572,16 +572,19 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ExportFaceMesh()
         {
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            var project = projectManagement.StartNewProject();
-            var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_10264_0_0_mesh")).FirstOrDefault();
+            //GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            //ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            //var project = projectManagement.StartNewProject();
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
+            var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
             if (skinnedMeshEntry != null)
             {
-                var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
+                var skinnedMeshEbx = AssetManager.Instance.GetEbx(skinnedMeshEntry);
                 if (skinnedMeshEbx != null)
                 {
-                    var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
-                    var res = project.AssetManager.GetRes(resentry);
+                    var resentry = AssetManager.Instance.GetResEntry(skinnedMeshEntry.Name);
+                    var res = AssetManager.Instance.GetRes(resentry);
 
                     var exporter1 = new MeshSetToFbxExport();
                     MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
@@ -589,6 +592,55 @@ namespace FrostbiteModdingTests
                     exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
                 }
             }
+        }
+
+        [TestMethod]
+        public ProjectManagement TestImportFaceMesh()
+        {
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            var project = projectManagement.StartNewProject();
+            //var skinnedMeshEntry = project.AssetManager.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_192563_0_0_mesh")).FirstOrDefault();
+            var skinnedMeshEntry = project.AssetManager.EnumerateEbx().Where(x => x.Name.ToLower().Contains("head_192563_0_0_mesh")).FirstOrDefault();
+            if (skinnedMeshEntry != null)
+            {
+                var skinnedMeshEbx = project.AssetManager.GetEbx(skinnedMeshEntry);
+                if (skinnedMeshEbx != null)
+                {
+                    var resentry = project.AssetManager.GetResEntry(skinnedMeshEntry.Name);
+                    var res = project.AssetManager.GetRes(resentry);
+                    MeshSet meshSet = new MeshSet(res);
+
+                    FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
+                    //FrostySdk.Frostbite.IO.Input.FT.FBXImporter2 importer = new FrostySdk.Frostbite.IO.Input.FT.FBXImporter2(AssetManager.Instance);
+                    var exporter = new MeshSetToFbxExport();
+                    exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
+                    importer.ImportFBX(@"C:\Users\paula\Desktop\head_250_0_0_mesh.fbx", meshSet, skinnedMeshEbx, skinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
+                    {
+                        SkeletonAsset = "content/character/rig/skeleton/player/skeleton_player"
+                    });
+
+                    //res = project.AssetManager.GetRes(resentry);
+                    //meshSet = new MeshSet(res);
+                    //exporter.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test2.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
+
+
+                }
+            }
+            return projectManagement;
+        }
+
+        [TestMethod]
+        public void TestImportFaceMeshAndRun()
+        {
+            var projectManagement = TestImportFaceMesh();
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    @"test.fbmod"
+                }.ToArray()).Wait();
+
         }
 
         [TestMethod]

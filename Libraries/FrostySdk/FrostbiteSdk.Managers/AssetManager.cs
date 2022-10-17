@@ -1647,29 +1647,35 @@ namespace FrostySdk.Managers
 		{
 			foreach (EbxAssetEntry value in EBX.Values)
 			{
-				if ((!modifiedOnly || (value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified))) && (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
+				if (
+					(!modifiedOnly 
+					|| (
+						value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified)
+						)
+					) 
+					&& (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
 				{
-					if (bundles.Length != 0)
-					{
-						bool flag = false;
-						foreach (int item in bundles)
-						{
-							if (value.Bundles.Contains(item))
-							{
-								flag = true;
-								break;
-							}
-							if (value.AddBundles.Contains(item))
-							{
-								flag = true;
-								break;
-							}
-						}
-						if (!flag)
-						{
-							continue;
-						}
-					}
+					//if (bundles.Length != 0)
+					//{
+					//	bool flag = false;
+					//	foreach (int item in bundles)
+					//	{
+					//		if (value.Bundles.Contains(item))
+					//		{
+					//			flag = true;
+					//			break;
+					//		}
+					//		if (value.AddBundles.Contains(item))
+					//		{
+					//			flag = true;
+					//			break;
+					//		}
+					//	}
+					//	if (!flag)
+					//	{
+					//		continue;
+					//	}
+					//}
 					yield return value;
 				}
 			}

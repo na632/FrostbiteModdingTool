@@ -74,8 +74,8 @@
   "EnableExecution": true,
   "SharedBundles": {},
   "IgnoredResTypes": [],
-  "CanImportMeshes": false,
-  "CanExportMeshes": false,
+  "CanImportMeshes": true,
+  "CanExportMeshes": true,
   // GeometryDeclarationDesc stream count
   "GDDMaxStreams": 16,
   "CompressedFormatEBX": "Oodle", // Checked on GP files. FIFA 23 only uses Oodle!

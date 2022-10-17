@@ -690,11 +690,15 @@ namespace FrostySdk
 				Directory.CreateDirectory("Debugging/Chunk");
 			if (!Directory.Exists("Debugging/Other"))
 				Directory.CreateDirectory("Debugging/Other");
-			
-			if (File.Exists("FrostbiteProfiles/" + profileKey + "Profile.json"))
+
+			var myDirectory = AppContext.BaseDirectory;
+			var frostbiteProfilesPath = Path.Combine(myDirectory, "FrostbiteProfiles");
+			var profilePath = Path.Combine(frostbiteProfilesPath, profileKey + "Profile.json");
+
+            if (File.Exists(profilePath))
 			{
 				Profile profile = default(Profile);
-				profile = JsonConvert.DeserializeObject<Profile>(System.IO.File.ReadAllText("FrostbiteProfiles/" + profileKey + "Profile.json"));
+				profile = JsonConvert.DeserializeObject<Profile>(System.IO.File.ReadAllText(profilePath));
 				LoadedProfile = profile;
 				return true;
 			}

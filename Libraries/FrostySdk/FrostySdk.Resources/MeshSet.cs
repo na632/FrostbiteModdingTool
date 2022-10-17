@@ -7,6 +7,7 @@ using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using static FrostySdk.ProfilesLibrary;
 
 public class MeshSet
 {
@@ -98,12 +99,14 @@ public class MeshSet
 		if (stream == null)
 			return;
 
-		NativeWriter nativeWriterTest = new NativeWriter(new FileStream("MeshSet.dat", FileMode.Create));
+		NativeWriter nativeWriterTest = new NativeWriter(new FileStream("_MeshSet.dat", FileMode.Create));
 		nativeWriterTest.Write(((MemoryStream)stream).ToArray());
 		nativeWriterTest.Close();
 		nativeWriterTest.Dispose();
 
 		FileReader nativeReader = new FileReader(stream);
+		// useful for resetting when live debugging
+		nativeReader.Position = 0;
 		boundingBox = nativeReader.ReadAxisAlignedBox();
 		long[] array = new long[MaxLodCount];
 		for (int i2 = 0; i2 < MaxLodCount; i2++)
@@ -114,20 +117,36 @@ public class MeshSet
 		long position2 = nativeReader.ReadLong();
 		nameHash = nativeReader.ReadUInt();
 		Type = (MeshType)nativeReader.ReadUInt();
-		Flags = (MeshLayoutFlags)nativeReader.ReadUInt();
+		if (ProfilesLibrary.IsFIFA23DataVersion())
+		{
+			nativeReader.Position -= 4;
+			Type = (MeshType)nativeReader.ReadByte();
+			// another type?
+			var type2 = (MeshType)nativeReader.ReadByte();
+			// lots of zeros?
+			nativeReader.Position = 128;
+		}
+        //for (int n = 0; n < MaxLodCount * 2; n++)
+        //{
+        //    lodFadeDistanceFactors.Add(reader.ReadUShort());
+        //}
+        Flags = (MeshLayoutFlags)nativeReader.ReadUInt();
 		ReadUnknownUInts(nativeReader);
 		
 		ushort lodsCount = 0;
-		if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
+		if (
+			ProfilesLibrary.IsMadden21DataVersion() 
+			|| ProfilesLibrary.IsMadden22DataVersion()
+			)
 		{
-			nativeReader.ReadUInt16LittleEndian();
-			lodsCount = nativeReader.ReadUInt16LittleEndian();
-			nativeReader.ReadUInt32LittleEndian();
-			nativeReader.ReadUInt16LittleEndian();
+			nativeReader.ReadUShort();
+			lodsCount = nativeReader.ReadUShort();
+			nativeReader.ReadUInt();
+			nativeReader.ReadUShort();
 		}
 		else
 		{
-			lodsCount = nativeReader.ReadUInt16LittleEndian();
+			lodsCount = nativeReader.ReadUShort();
 			unknownUint2 = nativeReader.ReadUShort();
 		}
 		ushort num2 = 0;
@@ -135,9 +154,19 @@ public class MeshSet
 		{
 			unknownBytes.Add(nativeReader.ReadBytes(8));
 		}
-		if (Type == MeshType.MeshType_Skinned)
+
+		// useful for resetting when live debugging
+		var positionBeforeMeshTypeRead = nativeReader.Position;
+        nativeReader.Position = positionBeforeMeshTypeRead;
+
+        if (Type == MeshType.MeshType_Skinned)
 		{
-			boneCount = nativeReader.ReadUShort();
+            if (ProfilesLibrary.IsFIFA23DataVersion())
+            {
+				// 12 bytes of unknowness
+				nativeReader.ReadBytes(12);
+            }
+            boneCount = nativeReader.ReadUShort();
 			num2 = nativeReader.ReadUShort();
 			if (boneCount != 0)
 			{
@@ -258,8 +287,9 @@ public class MeshSet
 				break;
 			case (int)ProfilesLibrary.DataVersions.MADDEN22:
 			case (int)ProfilesLibrary.DataVersions.MADDEN21:
+			case (int)ProfilesLibrary.DataVersions.FIFA23:
 			case (int)ProfilesLibrary.DataVersions.FIFA22:
-			case (int)ProfilesLibrary.DataVersions.FIFA21:
+            case (int)ProfilesLibrary.DataVersions.FIFA21:
 			case (int)ProfilesLibrary.DataVersions.FIFA20:
 			case 20170929:
 			case 20180807:
