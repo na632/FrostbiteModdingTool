@@ -832,7 +832,7 @@ namespace Frostbite.IO
                     bool isReference = propertyInfo.GetCustomAttribute<IsReferenceAttribute>() != null;
                     if (ebxFieldMetaAttribute.IsArray)
                     {
-                        int fieldNameHash = propertyInfo.GetCustomAttribute<HashAttribute>().Hash;
+                        uint fieldNameHash = propertyInfo.GetCustomAttribute<HashAttribute>().Hash;
                         WriteArray(propertyInfo.Name, propertyInfo.GetValue(obj), ebxFieldMetaAttribute.ArrayType, fieldNameHash, classType, classType.Alignment, writer, isReference, dataContainerIndex, propertyInfoIndex);
                     }
                     else
@@ -951,7 +951,7 @@ namespace Frostbite.IO
             }
         }
 
-        private void WriteArray(string propertyName, object obj, EbxFieldType elementFieldType, int fieldNameHash, EbxClass classType, byte classAlignment, FileWriter writer, bool isReference, int dataContainerIndex, int propertyIndex)
+        private void WriteArray(string propertyName, object obj, EbxFieldType elementFieldType, uint fieldNameHash, EbxClass classType, byte classAlignment, FileWriter writer, bool isReference, int dataContainerIndex, int propertyIndex)
         {
             int classIndex = typesToProcess.FindIndex((Type item) => item == obj.GetType().GetGenericArguments()[0]);
             if (classIndex == -1)

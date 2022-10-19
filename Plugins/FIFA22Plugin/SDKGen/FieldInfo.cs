@@ -8,7 +8,7 @@ namespace SdkGenerator.Fifa22
 	public class FieldInfo : IFieldInfo
 	{
 		//public uint nameHash;
-		public int nameHash { get; set; }
+		public uint nameHash { get; set; }
 
 		public static Random RandomEmpty = new Random();
 
@@ -42,7 +42,7 @@ namespace SdkGenerator.Fifa22
 				name = parentTypeInfo.name + "_UnkField_" + RandomEmpty.Next().ToString();
 			}
 			//nameHash = reader.ReadUInt();
-			nameHash = (int)reader.ReadUInt();
+			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();

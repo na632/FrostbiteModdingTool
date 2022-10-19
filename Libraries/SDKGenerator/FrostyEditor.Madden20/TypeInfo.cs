@@ -9,7 +9,7 @@ namespace SdkGenerator.Madden20
 {
 	public class TypeInfo : BaseInfo.TypeInfo, ITypeInfo
 	{
-		public int nameHash { get; set; }
+		public uint nameHash { get; set; }
 
 		string ITypeInfo.name { get; set; }
 
@@ -27,7 +27,7 @@ namespace SdkGenerator.Madden20
 		public override void Read(MemoryReader reader)
 		{
 			name = reader.ReadNullTerminatedString();
-			nameHash = reader.ReadInt();
+			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			flags >>= 1;
 			size = reader.ReadUInt();

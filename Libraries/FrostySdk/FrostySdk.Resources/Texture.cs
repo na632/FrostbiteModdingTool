@@ -430,72 +430,72 @@ namespace FrostySdk.Resources
 			return ToBytes();
         }
 
-		public byte[] ToBytes()
-		{
-			MemoryStream memoryStream = new MemoryStream();
-			using (NativeWriter nativeWriter = new NativeWriter(memoryStream))
-			{
-				nativeWriter.Write(mipOffsets[0]);
-				nativeWriter.Write(mipOffsets[1]);
-				nativeWriter.Write((uint)type);
-				nativeWriter.Write(pixelFormat);
-				
-					nativeWriter.Write(unknown1);
-				
-				nativeWriter.Write((ushort)flags);
-				nativeWriter.Write(width);
-				nativeWriter.Write(height);
-				nativeWriter.Write(depth);
-				nativeWriter.Write(sliceCount);
-				nativeWriter.Write(mipCount);
-				nativeWriter.Write(firstMip);
-				if (ProfilesLibrary.IsFIFA23DataVersion())
-				{
-					nativeWriter.Write(unknown4);
-				}
-				nativeWriter.Write(chunkId);
-				for (int i = 0; i < 15; i++)
-				{
-					nativeWriter.Write(mipSizes[i]);
-				}
-				nativeWriter.Write(chunkSize);
-				if (ProfilesLibrary.DataVersion == 20170321)
-				{
-					for (int j = 0; j < 4; j++)
-					{
-						nativeWriter.Write(unknown3[j]);
-					}
-				}
-				if (ProfilesLibrary.DataVersion == 20170929 
-					|| ProfilesLibrary.DataVersion == 20180807
+        public byte[] ToBytes()
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            using (NativeWriter nativeWriter = new NativeWriter(memoryStream))
+            {
+                nativeWriter.Write(mipOffsets[0]);
+                nativeWriter.Write(mipOffsets[1]);
+                nativeWriter.Write((uint)type);
+                nativeWriter.Write(pixelFormat);
 
-					)
-				{
-					nativeWriter.Write(unknown3[0]);
-				}
-				nativeWriter.Write(assetNameHash);
-				if (ProfilesLibrary.DataVersion == 20150223)
-				{
-					nativeWriter.Write(unknown3[0]);
-				}
-				if (ProfilesLibrary.IsMadden21DataVersion())
-				{
-					nativeWriter.Write(unknown2);
-					nativeWriter.WriteNullTerminatedString(textureGroup);
-				}
-				else
-				{
-					nativeWriter.WriteFixedSizedString(textureGroup, 16);
-				}
-				if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-				{
-					nativeWriter.Write(unknown3[0]);
-				}
-			}
-			return memoryStream.ToArray();
-		}
+                nativeWriter.Write(unknown1);
 
-		public Texture(TextureType inType, string inFormat, ushort inWidth, ushort inHeight, ushort inDepth = 1)
+                nativeWriter.Write((ushort)flags);
+                nativeWriter.Write(width);
+                nativeWriter.Write(height);
+                nativeWriter.Write(depth);
+                nativeWriter.Write(sliceCount);
+                nativeWriter.Write(mipCount);
+                nativeWriter.Write(firstMip);
+                if (ProfilesLibrary.IsFIFA23DataVersion())
+                {
+                    nativeWriter.Write(unknown4);
+                }
+                nativeWriter.Write(chunkId);
+                for (int i = 0; i < 15; i++)
+                {
+                    nativeWriter.Write(mipSizes[i]);
+                }
+                nativeWriter.Write(chunkSize);
+                if (ProfilesLibrary.DataVersion == 20170321)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        nativeWriter.Write(unknown3[j]);
+                    }
+                }
+                if (ProfilesLibrary.DataVersion == 20170929
+                    || ProfilesLibrary.DataVersion == 20180807
+
+                    )
+                {
+                    nativeWriter.Write(unknown3[0]);
+                }
+                nativeWriter.Write(assetNameHash);
+                if (ProfilesLibrary.DataVersion == 20150223)
+                {
+                    nativeWriter.Write(unknown3[0]);
+                }
+                if (ProfilesLibrary.IsMadden21DataVersion())
+                {
+                    nativeWriter.Write(unknown2);
+                    nativeWriter.WriteNullTerminatedString(textureGroup);
+                }
+                else
+                {
+                    nativeWriter.WriteFixedSizedString(textureGroup, 16);
+                }
+                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+                {
+                    nativeWriter.Write(unknown3[0]);
+                }
+            }
+            return memoryStream.ToArray();
+        }
+
+        public Texture(TextureType inType, string inFormat, ushort inWidth, ushort inHeight, ushort inDepth = 1)
 		{
 			type = inType;
 			pixelFormat = getTextureFormat(inFormat);

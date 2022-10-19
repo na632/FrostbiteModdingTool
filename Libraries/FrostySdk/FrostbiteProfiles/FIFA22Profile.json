@@ -55,7 +55,7 @@
   // Will the Launcher support this Game?
   "CanLaunchMods": true,
   // Can this Application Edit this Game?
-  "CanEdit": true,
+  "CanEdit": false,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
   "CacheWriter": "Fifa22CacheWriter",

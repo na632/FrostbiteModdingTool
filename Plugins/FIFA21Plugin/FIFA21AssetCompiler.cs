@@ -45,11 +45,12 @@ namespace FIFA21Plugin
             }
 
             bool result = false;
-            if (!ModExecutor.UseModData)
-            {
-                result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
-                return result;
-            }
+            //if (!ModExecutor.UseModData)
+            //{
+            //    result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
+            //    return result;
+            //}
+            ModExecutor.UseModData = true;
             result = RunOriginCompiler(fs, logger, frostyModExecuter);
 
             logger.Log($"Compiler completed in {(DateTime.Now - dtStarted).ToString(@"mm\:ss")}");
@@ -193,17 +194,6 @@ namespace FIFA21Plugin
                     else if
                         (
                             !isCas
-                            &&
-                            (
-                                fIDest.Length != fIOrig.Length
-                                ||
-                                    (
-                                        //fIDest.LastWriteTime.Day != fIOrig.LastWriteTime.Day
-                                        //&& fIDest.LastWriteTime.Hour != fIOrig.LastWriteTime.Hour
-                                        //&& fIDest.LastWriteTime.Minute != fIOrig.LastWriteTime.Minute
-                                        !File.ReadAllBytes(finalDestinationPath).SequenceEqual(File.ReadAllBytes(originalFilePath))
-                                    )
-                            )
                         )
                     {
                         File.Delete(finalDestinationPath);
@@ -1085,7 +1075,8 @@ namespace FIFA21Plugin
                             GC.WaitForPendingFinalizers();
                         }
 
-
+                        using (var fsTocSig = new FileStream(sbpath, FileMode.Open))
+                            TOCFile.RebuildTOCSignatureOnly(fsTocSig);
                     }));
 
                         
@@ -1298,7 +1289,8 @@ namespace FIFA21Plugin
                         }
                     }
 
-
+                    using (var fsTocSig = new FileStream(locationTocFileInModData, FileMode.Open))
+                        TOCFile.RebuildTOCSignatureOnly(fsTocSig);
 
                 }
             }

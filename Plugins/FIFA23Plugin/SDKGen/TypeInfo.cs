@@ -9,7 +9,7 @@ namespace SdkGenerator.Fifa23
 {
 	public class TypeInfo : ITypeInfo
 	{
-		public int nameHash { get; set; }
+		public uint nameHash { get; set; }
 
 		public long[] array;
 
@@ -57,14 +57,20 @@ namespace SdkGenerator.Fifa23
 
             }
 
-			//var h = reader.ReadInt();
-			//nameHash = (uint)h;
-			nameHash = reader.ReadInt();
+            if (name.Equals("LinearTransform", System.StringComparison.OrdinalIgnoreCase))
+            {
+
+            }
+
+            nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
             flags >>= 1;
+            //size = reader.ReadUShort();
+            size = reader.ReadUInt();
+            reader.Position -= 4L;
             size = reader.ReadUShort();
 
-			guid = reader.ReadGuid();
+            guid = reader.ReadGuid();
 			if (!Regex.IsMatch(guid.ToString(), @"^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$"))
 			{
 				throw new System.FormatException("Guid is not valid");
@@ -96,7 +102,12 @@ namespace SdkGenerator.Fifa23
 
 			parentClass = array[0];
 
-			if (Type == 2)
+            if (name.Equals("LinearTransform", System.StringComparison.OrdinalIgnoreCase))
+            {
+
+            }
+
+            if (Type == 2)
 			{
 				reader.Position = array[6];
 			}

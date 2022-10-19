@@ -61,9 +61,9 @@ namespace SdkGenerator
 
         public bool GatherTypeInfos(SdkUpdateTask task)
         {
-            Trace.WriteLine("GatherTypeInfos");
-            Debug.WriteLine("GatherTypeInfos");
-            Console.WriteLine("GatherTypeInfos");
+            //Trace.WriteLine("GatherTypeInfos");
+            //Debug.WriteLine("GatherTypeInfos");
+            //Console.WriteLine("GatherTypeInfos");
 
             var executingAssembly = Assembly.GetExecutingAssembly();
             var names = executingAssembly.GetManifestResourceNames();
@@ -105,16 +105,16 @@ namespace SdkGenerator
                     }
                 }
                 //}
-                if (ProfilesLibrary.IsFIFA21DataVersion())
-                {
-                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA21.Classes.txt", FileMode.Open))
-                    {
-                        if (stream != null)
-                        {
-                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                        }
-                    }
-                }
+                //if (ProfilesLibrary.IsFIFA21DataVersion())
+                //{
+                //    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA21.Classes.txt", FileMode.Open))
+                //    {
+                //        if (stream != null)
+                //        {
+                //            classMetaList = TypeLibrary.LoadClassesSDK(stream);
+                //        }
+                //    }
+                //}
             }
 
             classList = DumpClasses(task);
@@ -198,20 +198,39 @@ namespace SdkGenerator
                 {
 
                 }
-                if (fieldMapping.ContainsKey(className) 
+                if (className.StartsWith("LinearTransform", StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
+                if (fieldMapping.ContainsKey(className)
                     && fieldMapping[className].Count < @class.GetValue<DbObject>("fields").List.Count)
                 {
-                    fieldMapping[className].Clear();
-                    List<EbxField> fieldList = new List<EbxField>();
-                    foreach (DbObject fieldInList in @class.GetValue<DbObject>("fields"))
+                    var oldFM = fieldMapping[className];
+                    foreach (EbxField f in oldFM)
                     {
-                        EbxField ebxField = default(EbxField);
-                        ebxField.Name = fieldInList.GetValue<string>("name");
-                        ebxField.Type = (ushort)fieldInList.GetValue("flags", 0);
-                        ebxField.NameHash = fieldInList.GetValue<int>("nameHash", 0);
-                        fieldList.Add(ebxField);
+                        foreach (DbObject dbo in @class.GetValue<DbObject>("fields").List)
+                        {
+                            if(f.Name.Equals(dbo.GetValue<string>("name"), StringComparison.OrdinalIgnoreCase))
+                            {
+                                if(!dbo.HasValue("nameHash"))
+                                    dbo.SetValue("nameHash", f.NameHash);
+
+                                break;
+                            }
+                        }
                     }
-                    fieldMapping[className] = fieldList;
+                    
+                    //fieldMapping[className].Clear();
+                    //List<EbxField> fieldList = new List<EbxField>();
+                    //foreach (DbObject fieldInList in @class.GetValue<DbObject>("fields"))
+                    //{
+                    //    EbxField ebxField = default(EbxField);
+                    //    ebxField.Name = fieldInList.GetValue<string>("name");
+                    //    ebxField.Type = (ushort)fieldInList.GetValue("flags", 0);
+                    //    ebxField.NameHash = fieldInList.GetValue<uint>("nameHash", 0);
+                    //    fieldList.Add(ebxField);
+                    //}
+                    //fieldMapping[className] = fieldList;
                 }
                 if (!fieldMapping.ContainsKey(className))
                 {
@@ -231,7 +250,7 @@ namespace SdkGenerator
                         EbxField ebxField = default(EbxField);
                         ebxField.Name = fieldInList.GetValue<string>("name");
                         ebxField.Type = (ushort)fieldInList.GetValue("flags", 0);
-                        ebxField.NameHash = fieldInList.GetValue<int>("nameHash", 0);
+                        ebxField.NameHash = fieldInList.GetValue<uint>("nameHash", 0);
                         fieldList.Add(ebxField);
                     }
                     if(ebxClass.Name.ToLower().Contains("blocking"))
@@ -282,8 +301,8 @@ namespace SdkGenerator
         private void LoadSharedTypeDescriptors2(string name, Dictionary<string, Tuple<EbxClass, DbObject>> mapping, ref List<Guid> existingClasses)
         {
             var isPatch = name.Contains("patch", StringComparison.OrdinalIgnoreCase);
-            Dictionary<int, DbObject> classDictionaryToHash = new Dictionary<int, DbObject>();
-            Dictionary<int, string> fieldDictionaryToHash = new Dictionary<int, string>();
+            Dictionary<uint, DbObject> classDictionaryToHash = new Dictionary<uint, DbObject>();
+            Dictionary<uint, string> fieldDictionaryToHash = new Dictionary<uint, string>();
             foreach (DbObject sdkClass in classList)
             {
                 if (sdkClass.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
@@ -302,13 +321,13 @@ namespace SdkGenerator
                 }
                 if (!sdkClass.HasValue("basic"))
                 {
-                    classDictionaryToHash.Add(sdkClass.GetValue("nameHash", 0), sdkClass);
+                    classDictionaryToHash.Add(sdkClass.GetValue("nameHash", 0u), sdkClass);
                     foreach (DbObject item4 in sdkClass.GetValue<DbObject>("fields"))
                     {
                         //if (!fieldDictionaryToHash.ContainsKey((ulong)item4.GetValue<ulong>("nameHash")))
-                        if (!fieldDictionaryToHash.ContainsKey(item4.GetValue<int>("nameHash")))
+                        if (!fieldDictionaryToHash.ContainsKey(item4.GetValue<uint>("nameHash")))
                         {
-                            fieldDictionaryToHash.Add(item4.GetValue<int>("nameHash"), item4.GetValue("name", ""));
+                            fieldDictionaryToHash.Add(item4.GetValue<uint>("nameHash"), item4.GetValue("name", ""));
                         }
                         else
                         {
@@ -360,9 +379,9 @@ namespace SdkGenerator
                 {
                     EbxClass stdClass = std.Classes[k].Value;
                     Guid guid = std.Guids[k];
-                    if (classDictionaryToHash.ContainsKey((int)stdClass.NameHash))
+                    if (classDictionaryToHash.ContainsKey((uint)stdClass.NameHash))
                     {
-                        DbObject dboClass = classDictionaryToHash[(int)stdClass.NameHash];
+                        DbObject dboClass = classDictionaryToHash[(uint)stdClass.NameHash];
                         if (mapping.ContainsKey(dboClass.GetValue("name", "")))
                         {
                             //mapping.Remove(dboClass.GetValue("name", ""));
@@ -395,6 +414,17 @@ namespace SdkGenerator
                         {
 
                         }
+
+                        if (ebxClassItem.Name.Contains("lineartransform", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+
+                        if (ebxClassItem.Name.Equals("Vec3", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+
                         ebxClassItem.NameHash = stdClass.NameHash;
                         ebxClassItem.FieldCount = stdClass.FieldCount;
                         ebxClassItem.Alignment = stdClass.Alignment;
@@ -415,9 +445,10 @@ namespace SdkGenerator
                                 EbxField field = std.Fields[stdClass.FieldIndex + l];
                                 if (fieldDictionaryToHash.ContainsKey(field.NameHash))
                                 {
-                                    DbObject dboField = sdkFields.List.SingleOrDefault(x => ((DbObject)x).GetValue<int>("nameHash") == field.NameHash) as DbObject;
+                                    DbObject dboField = sdkFields.List.SingleOrDefault(x => ((DbObject)x).GetValue<uint>("nameHash") == field.NameHash) as DbObject;
                                     if (dboField != null)
                                     {
+                                        dboField.SetValue("debugType", field.DebugType);
                                         dboField.SetValue("type", field.Type);
                                         dboField.SetValue("offset", field.DataOffset);
                                         dboField.SetValue("value", field.DataOffset <= int.MaxValue ? field.DataOffset : 0);
@@ -488,7 +519,9 @@ namespace SdkGenerator
                 return 0;
             }
             processed.Add(pclass);
-            DbObject dboClassMetaList = classMetaList != null ? classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject : null;
+            DbObject dboClassMetaObject = classMetaList != null ? 
+                classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name").Equals(pclass.Name, StringComparison.OrdinalIgnoreCase)) as DbObject 
+                : null;
             DbObject dbObjectFields = pobj.GetValue<DbObject>("fields");
             DbObject dbObject4 = DbObject.CreateList();
             if (pclass.DebugType == EbxFieldType.Enum)
@@ -521,7 +554,7 @@ namespace SdkGenerator
                         Name = dbObject7.GetValue<string>("name"),
                         Type = (ushort)dbObject7.GetValue<int>("flags"),
                         DataOffset = (uint)dbObject7.GetValue<uint>("offset"),
-                        NameHash = dbObject7.GetValue<int>("nameHash")
+                        NameHash = dbObject7.GetValue<uint>("nameHash")
                     });
                 }
                 ebxFieldList = ebxFieldList.OrderBy(x => x.DataOffset).ToList();
@@ -547,20 +580,19 @@ namespace SdkGenerator
                         continue;
                     }
                     DbObject fieldObj = DbObject.CreateObject();
-                    if (dboClassMetaList != null)
+                    if (dboClassMetaObject != null)
                     {
-                        DbObject dbObject10 = dboClassMetaList.GetValue<DbObject>("fields");
-            DbObject dbObject13 = classMetaList.List.FirstOrDefault((object o) => ((DbObject)o).GetValue<string>("name") == pclass.Name) as DbObject;
-                        if (dbObject13 !=  null)
+                        DbObject dboClassMetaObjectFields = dboClassMetaObject.GetValue<DbObject>("fields");
+                        if (dboClassMetaObject !=  null)
                         {
-                            fieldObj.AddValue("meta", dbObject13);
+                            fieldObj.AddValue("meta", dboClassMetaObject);
                         }
                     }
                     fieldObj.AddValue("name", field.Name);
-                    fieldObj.AddValue("type", (int)field.DebugType);
-                    fieldObj.AddValue("flags", (int)field.Type);
-                    fieldObj.AddValue("offset", (int)field.DataOffset);
-                    fieldObj.AddValue("nameHash", (int)field.NameHash);
+                    fieldObj.AddValue("type", (uint)field.DebugType);
+                    fieldObj.AddValue("flags", (uint)field.Type);
+                    fieldObj.AddValue("offset", (uint)field.DataOffset);
+                    fieldObj.AddValue("nameHash", (uint)field.NameHash);
                     if (field.DebugType == EbxFieldType.Pointer || field.DebugType == EbxFieldType.Struct || field.DebugType == EbxFieldType.Enum)
                     {
                         string baseTypeName2 = dbObject6.GetValue<string>("baseType");
@@ -727,17 +759,17 @@ namespace SdkGenerator
             pobj.SetValue("alignment", (int)pclass.Alignment);
             pobj.SetValue("fields", dbObject4);
             fieldIndex += dbObject4.Count;
-            if (dboClassMetaList != null)
+            if (dboClassMetaObject != null)
             {
-                pobj.AddValue("meta", dboClassMetaList);
-                foreach (DbObject dbObject5 in dboClassMetaList.GetValue<DbObject>("fields").List)
+                pobj.AddValue("meta", dboClassMetaObject);
+                foreach (DbObject dboClassMetaObjectField in dboClassMetaObject.GetValue<DbObject>("fields").List)
                 {
-                    if (dbObject5.GetValue<bool>("added"))
+                    if (dboClassMetaObjectField.GetValue<bool>("added"))
                     {
                         DbObject dbObject9 = DbObject.CreateObject();
-                        dbObject9.AddValue("name", dbObject5.GetValue<string>("name"));
+                        dbObject9.AddValue("name", dboClassMetaObjectField.GetValue<string>("name"));
                         dbObject9.AddValue("type", 15);
-                        dbObject9.AddValue("meta", dbObject5);
+                        dbObject9.AddValue("meta", dboClassMetaObjectField);
                         pobj.GetValue<DbObject>("fields").List.Add(dbObject9);
                     }
                 }

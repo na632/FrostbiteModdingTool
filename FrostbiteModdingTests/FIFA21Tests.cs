@@ -305,7 +305,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestGPMod()
         {
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V10\Paulv2k4 FIFA 21 Gameplay Version 10 Alpha 3.fbproject");
@@ -320,6 +320,28 @@ namespace FrostbiteModdingTests
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     //@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 2 Alpha 12.fbmod"
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestSplashscreenMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\FIFA 21 Test Splashscreen Mod.fbproject");
+
+            if (File.Exists("test.fbmod"))
+                File.Delete("test.fbmod");
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
                     "test.fbmod"
                 }.ToArray()).Wait();
 

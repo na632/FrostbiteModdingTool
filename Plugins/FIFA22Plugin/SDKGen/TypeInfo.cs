@@ -9,7 +9,7 @@ namespace SdkGenerator.Fifa22
 {
 	public class TypeInfo : ITypeInfo
 	{
-		public int nameHash { get; set; }
+		public uint nameHash { get; set; }
 
 		public long[] array;
 
@@ -59,7 +59,7 @@ namespace SdkGenerator.Fifa22
 
 			//var h = reader.ReadInt();
 			//nameHash = (uint)h;
-			nameHash = reader.ReadInt();
+			nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
             flags >>= 1;
             size = reader.ReadUShort();

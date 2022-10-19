@@ -9,7 +9,7 @@ namespace SdkGenerator.Fifa21
 {
 	public class TypeInfo : ITypeInfo
 	{
-		public int nameHash { get; set; }
+		public uint nameHash { get; set; }
 
 		public long[] array;
 
@@ -62,9 +62,15 @@ namespace SdkGenerator.Fifa21
 
 			}
 
-			//var h = reader.ReadInt();
-			//nameHash = (uint)h;
-			nameHash = reader.ReadInt();
+            if (name.Equals("Vec3", System.StringComparison.OrdinalIgnoreCase))
+            {
+
+            }
+
+
+            //var h = reader.ReadInt();
+            //nameHash = (uint)h;
+            nameHash = reader.ReadUInt();
 			flags = reader.ReadUShort();
 			flags >>= 1;
 			size = reader.ReadUShort();
@@ -112,7 +118,7 @@ namespace SdkGenerator.Fifa21
 			}
 			else if (Type == 8)
 			{
-				if (fieldCount > 0)
+				if (hasFields)
 				{
 					parentClass = 0L;
 					reader.Position = array[0];
@@ -120,10 +126,9 @@ namespace SdkGenerator.Fifa21
 			}
 			else
 			{
-				if (fieldCount > 0)
+				if (hasFields)
 				{
 					reader.Position = array[5];
-					hasFields = true;
 				}
 			}
 

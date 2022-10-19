@@ -37,7 +37,7 @@
   // SDK Array of Bytes to scan to get first type info address
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
   //"SDKAOBScan": "488b05???????? 488905???????? 488d05???????? 488905???????? E9",
-  "SDKClassesFile": "FIFA22.Classes.txt",
+  "SDKClassesFile": "FIFA21.Classes.txt",
   "SDKGeneratorClassInfoType": "SdkGenerator.Fifa21.ClassInfo",
   "EBXTypeDescriptor": "EbxSharedTypeDescriptors",
   // Supported Launcher Filetypes

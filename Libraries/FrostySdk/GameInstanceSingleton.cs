@@ -44,7 +44,7 @@ namespace v2k4FIFAModdingCL
 
         public string ModDataPath { get { return GAMERootPath + "\\ModData\\"; } }
 
-        public static bool InitializeSingleton(in string filePath, in bool loadCache = false, in ILogger logger = null)
+        public static bool InitializeSingleton(in string filePath, in bool loadCache = false, in ILogger logger = null, in bool loadSDK = true)
         {
             if (Instance != null)
             {
@@ -75,7 +75,7 @@ namespace v2k4FIFAModdingCL
                 if (loadCache)
                 {
                     BuildCache buildCache = new BuildCache();
-                    return buildCache.LoadData(Instance.GAMEVERSION, Instance.GAMERootPath, Logger, false, true);
+                    return buildCache.LoadData(Instance.GAMEVERSION, Instance.GAMERootPath, Logger, false, loadSDK);
                 }
                 //if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
                 //{

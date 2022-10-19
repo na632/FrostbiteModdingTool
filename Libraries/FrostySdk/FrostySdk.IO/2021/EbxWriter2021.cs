@@ -605,7 +605,7 @@ namespace FrostySdk.IO
 				foreach (PropertyInfo propertyInfo2 in array)
 				{
 					HashAttribute customAttribute = propertyInfo2.GetCustomAttribute<HashAttribute>();
-					if (customAttribute != null && customAttribute.Hash == (int)field.NameHash)
+					if (customAttribute != null && (uint)customAttribute.Hash == (uint)field.NameHash)
 					{
 						propertyInfo = propertyInfo2;
 						break;

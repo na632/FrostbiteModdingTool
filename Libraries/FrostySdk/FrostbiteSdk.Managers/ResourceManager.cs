@@ -22,7 +22,19 @@ namespace FrostySdk.Managers
 
 		public static ResourceManager Instance { get; private set; }
 
-		public ResourceManager(FileSystem inFs)
+        public ResourceManager(in ILogger inLogger)
+        {
+            if (Instance != null)
+            {
+                throw new Exception("You cannot have more than one Resource Manager!");
+            }
+            fs = FileSystem.Instance;
+            Instance = this;
+			logger = inLogger;
+			Initialize();
+        }
+
+        public ResourceManager(FileSystem inFs)
 		{
 			if(Instance != null)
             {
@@ -30,6 +42,7 @@ namespace FrostySdk.Managers
             }
 			fs = inFs;
 			Instance = this;
+			Initialize();
 		}
 
 		public void Initialize()

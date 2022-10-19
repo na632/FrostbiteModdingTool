@@ -1,4 +1,5 @@
-﻿using FrostySdk;
+﻿using FrostbiteSdk;
+using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -670,8 +671,33 @@ namespace FIFA21Plugin
 			return (unk << 24) | ((isPatch ? 1 : 0) << 16) | (catalog << 8) | cas;
 		}
 
+        public static void RebuildTOCSignatureOnly(Stream stream)
+        {
+            if (!stream.CanWrite)
+                throw new IOException("Unable to Write to this Stream!");
 
-	}
+            if (!stream.CanRead)
+                throw new IOException("Unable to Read to this Stream!");
+
+            if (!stream.CanSeek)
+                throw new IOException("Unable to Seek this Stream!");
+
+            byte[] streamBuffer = new byte[stream.Length - 556];
+            stream.Position = 556;
+            stream.Read(streamBuffer, 0, (int)stream.Length - 556);
+            var newTocSig = streamBuffer.ToTOCSignature();
+            stream.Position = 8;
+            stream.Write(newTocSig);
+        }
+
+        public static void RebuildTOCSignatureOnly(string filePath)
+        {
+            using (var fsTocSig = new FileStream(filePath, FileMode.Open))
+                TOCFile.RebuildTOCSignatureOnly(fsTocSig);
+        }
+
+
+    }
 
 
 }

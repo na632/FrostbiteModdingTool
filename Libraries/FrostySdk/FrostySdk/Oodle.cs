@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 
 namespace FrostySdk
@@ -85,6 +86,36 @@ namespace FrostySdk
 
 		public static ulong CompressOodle(byte[] buffer, out byte[] compBuffer, out ushort compressCode, ref bool uncompressed, uint compressionOverride = 8)
 		{
+            compBuffer = new byte[524288];
+			compressCode = 6512;
+			uncompressed = false;
+
+            if (ProfilesLibrary.IsFIFA23DataVersion())
+				return CompressOodle23(buffer, out compBuffer, out compressCode, ref uncompressed, compressionOverride);
+
+            ulong compressedSize = 0uL;
+            GCHandle gCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            GCHandle gCHandle2 = GCHandle.Alloc(compBuffer, GCHandleType.Pinned);
+            try 
+			{ 
+				compressCode = 4464;
+				compressedSize = (ulong)Oodle.Compress2(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), compBuffer.Length, 0L, 0L, 0L, 0L, 0L);
+				return compressedSize;
+            }
+            catch (Exception e)
+            {
+				Debug.WriteLine(e);
+            }
+            finally
+            {
+				gCHandle.Free();
+				gCHandle2.Free();
+			}
+			return 0;
+        }
+
+        public static ulong CompressOodle23(byte[] buffer, out byte[] compBuffer, out ushort compressCode, ref bool uncompressed, uint compressionOverride = 8)
+		{
 			var tSize = GetCompressedBufferSizeNeeded(buffer.Length);
 			compBuffer = new byte[tSize];
 			GCHandle gCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
@@ -100,7 +131,6 @@ namespace FrostySdk
 			{
                 
 				int compLevel = (int)compressionOverride > 16 ? 16 : (int)compressionOverride;
-				//compressedSize = (ulong)Oodle.CompressWithCompLevel(13, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 13, 0L, 0L, 0L, 0L, 0L);
 				compressedSize = (ulong)Oodle.CompressWithCompLevel(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 4, 0L, 0L, 0L, 0L, 0L);
 				if (compressedSize > (ulong)buffer.Length)
 				{
@@ -121,44 +151,5 @@ namespace FrostySdk
 			}
 			return 0;
 		}
-
-		public static ulong CompressOodle1(byte[] buffer, out byte[] compBuffer, out ushort compressCode, ref bool uncompressed, uint compressionOverride = 8)
-		{
-			var tSize = GetCompressedBufferSizeNeeded(buffer.Length);
-			compBuffer = new byte[0x800000];
-			GCHandle gCHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-			GCHandle gCHandle2 = GCHandle.Alloc(compBuffer, GCHandleType.Pinned);
-			ulong compressedSize = 0uL;
-
-			//string sCodeOfFifa23 = (28697).ToString("X");
-			//ushort hexCodeOfFifa23 = Convert.ToUInt16(sCodeOfFifa23);
-
-			//compressCode = 0x1170;
-			compressCode = 0x1970;
-			try
-			{
-
-				int compLevel = (int)compressionOverride > 8 ? 8 : (int)compressionOverride;
-				compressedSize = (ulong)Oodle.Compress(8, gCHandle.AddrOfPinnedObject(), buffer.Length, gCHandle2.AddrOfPinnedObject(), 4L);
-				if (compressedSize > (ulong)buffer.Length)
-				{
-					uncompressed = true;
-					compressedSize = 0uL;
-				}
-
-				return compressedSize;
-			}
-			catch (Exception e)
-			{
-				Debug.WriteLine(e);
-			}
-			finally
-			{
-				gCHandle.Free();
-				gCHandle2.Free();
-			}
-			return 0;
-		}
-
 	}
 }

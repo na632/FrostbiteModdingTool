@@ -22,7 +22,7 @@ namespace FrostySdk.IO
         }
 
         //public uint NameHash;
-        public int NameHash { get; set; }   
+        public uint NameHash { get; set; }   
 
         public uint NameHashU => (uint)NameHash;
         //public ulong NameHash;
@@ -37,16 +37,13 @@ namespace FrostySdk.IO
 
 		public uint ThirdOffset;
 
-        //public EbxFieldType DebugType => (EbxFieldType)((Type >> 4) & 0x1Fu);
-        public EbxFieldType DebugType => DebugTypeOverride.HasValue ? DebugTypeOverride.Value : (EbxFieldType)((Type >> 4) & 0x1F);
+        public EbxFieldType DebugType => DebugTypeOverride.HasValue ? DebugTypeOverride.Value : (EbxFieldType)((uint)(Type >> 4) & 0x1Fu);
         public EbxFieldType? DebugTypeOverride { get; set; }
         public EbxFieldType InternalType => (EbxFieldType)((Type >> 4) & 0x1F);
-        public EbxFieldType22 DebugType22 => (EbxFieldType22)Type;
         public EbxFieldCategory Category => (EbxFieldCategory)(Type & 0xFu);
 
         public uint Unk3 { get; internal set; }
-        public ushort Flags { get; internal set; }
-        public EbxTypeCategory TypeCategory => (EbxTypeCategory)(this.Flags & 0xFu);
+        public EbxTypeCategory TypeCategory => (EbxTypeCategory)(this.Type & 0xFu);
 
         public override bool Equals(object obj)
         {

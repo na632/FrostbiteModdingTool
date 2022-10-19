@@ -9,7 +9,7 @@ namespace SdkGenerator.Madden21
 {
 	public class TypeInfo : ITypeInfo
 	{
-		public int nameHash { get; set; }
+		public uint nameHash { get; set; }
 
 		public long[] array;
 
@@ -47,7 +47,7 @@ namespace SdkGenerator.Madden21
 
             }
 			//nameHash = reader.ReadUInt();
-			var h = reader.ReadInt();
+			var h = reader.ReadUInt();
 			if(h == -237252713)
             {
 

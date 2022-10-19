@@ -27,9 +27,9 @@ namespace SdkGenerator.Madden21
 
 
 		private Madden21.TypeInfo parentTypeInfo { get; }
-        public int nameHash { get; set; }
+        public uint nameHash { get; set; }
 
-        public FieldInfo(Madden21.TypeInfo parentType)
+		public FieldInfo(Madden21.TypeInfo parentType)
 		{
 			parentTypeInfo = parentType;
 
@@ -57,19 +57,18 @@ namespace SdkGenerator.Madden21
 			//	reader.Position = parentTypeInfo.array[index];
 			//	name = reader.ReadNullTerminatedString();
 			//}
-			var nH = reader.ReadInt();
-			nameHash = nH;
-			//if (nH == -237252713)
-			//{
+			nameHash = reader.ReadUInt();
+            //if (nH == -237252713)
+            //{
 
-			//}
-			//if (nameHash == 4057714583)
-			//{
+            //}
+            //if (nameHash == 4057714583)
+            //{
 
-			//}
+            //}
 
 
-			flags = reader.ReadUShort();
+            flags = reader.ReadUShort();
 			offset = reader.ReadUShort();
 			typeOffset = reader.ReadLong();
 		}

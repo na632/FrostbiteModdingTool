@@ -4,6 +4,7 @@ using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -29,72 +30,30 @@ namespace v2k4FIFAModding.Frosty
         string lastMessage = null;
 
 
-
-        /// <summary>
-        /// Sets up all the Singleton Paths
-        /// </summary>
-        /// <param name="filePath"></param>
-        private void InitializeOfSelectedGame(string filePath)
-        {
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                if (!File.Exists(filePath))
-                    throw new FileNotFoundException("File path / Game EXE doesn't exist");
-
-                GameInstanceSingleton.InitializeSingleton(filePath, true, this);
-
-                var FIFADirectory = filePath.Substring(0, filePath.LastIndexOf("\\") + 1);
-                GameInstanceSingleton.Instance.GAMERootPath = FIFADirectory;
-                var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
-                GameInstanceSingleton.Instance.GAMEVERSION = fileName.Replace(".exe", "");
-                if (!ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
-                {
-                    throw new Exception("Unable to Initialize Profile");
-                }
-            }
-            else
-            {
-                throw new FileNotFoundException("Empty Game Path given!");
-            }
-        }
-
         private static string PreviousGameVersion { get; set; }
 
-        public ProjectManagement()
-        {
-            if (Instance == null)
-            {
-                Initialize();
-                Instance = this;
-            }
-            else
-            {
-                throw new OverflowException("Cannot create 2 instances of ProjectManagement");
-            }
-        }
+        //public ProjectManagement()
+        //{
+        //    if (AssetManager.Instance == null)
+        //        throw new NullReferenceException("AssetManager Instance must be set before ProjectManagement can be used!");
 
-        private void Initialize()
-        {
-            if (string.IsNullOrEmpty(GameInstanceSingleton.Instance.GAMERootPath))
-                throw new Exception("Game path has not been selected or initialized");
-
-            if (string.IsNullOrEmpty(GameInstanceSingleton.Instance.GAMEVERSION))
-                throw new Exception("Game EXE has not been selected or initialized");
-
-            if (PreviousGameVersion != GameInstanceSingleton.Instance.GAMEVERSION || AssetManager.Instance == null)
-            {
-                var buildCache = new BuildCache();
-                buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, logger: this, loadSDK: true);
-                PreviousGameVersion = GameInstanceSingleton.Instance.GAMEVERSION;
-            }
-        }
+        //    if (Instance == null)
+        //    {
+        //        Instance = this;
+        //    }
+        //    else
+        //    {
+        //        throw new OverflowException("Cannot create 2 instances of ProjectManagement");
+        //    }
+        //}
 
         public ProjectManagement(string gamePath)
         {
+            if (AssetManager.Instance == null)
+                throw new NullReferenceException("AssetManager Instance must be instantiated before ProjectManagement can be used!");
+
             if (Instance == null)
             {
-                InitializeOfSelectedGame(gamePath);
-                Initialize();
                 Instance = this;
                 Project = new FrostbiteProject();
             }
@@ -107,11 +66,12 @@ namespace v2k4FIFAModding.Frosty
         public ProjectManagement(string gamePath, ILogger logger)
         //: this(gamePath)
         {
+            if (AssetManager.Instance == null)
+                throw new NullReferenceException("AssetManager Instance must be instantiated before ProjectManagement can be used!");
+
             if (Instance == null)
             {
                 Logger = logger;
-                InitializeOfSelectedGame(gamePath);
-                Initialize();
                 Instance = this;
                 Project = new FrostbiteProject();
             }

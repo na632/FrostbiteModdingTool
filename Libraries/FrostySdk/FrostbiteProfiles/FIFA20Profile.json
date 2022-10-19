@@ -37,7 +37,7 @@
   "CacheReader": null,
   "SupportedLauncherFileTypes": null,
   "ModCompilerFileType": null,
-  "CanEdit": true,
+  "CanEdit": false,
   "CanLaunchMods": false,
   "CanImportMeshes": true,
   "CanExportMeshes": true,

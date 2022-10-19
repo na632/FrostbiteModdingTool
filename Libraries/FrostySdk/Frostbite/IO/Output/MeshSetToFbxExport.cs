@@ -170,7 +170,8 @@ namespace FrostySdk.Frostbite.IO.Output
 
 		private FbxNode FBXCreateSkeleton(AssetManager assetManager, FbxScene scene, dynamic meshAsset, string skeleton, ref List<FbxNode> boneNodes)
 		{
-			dynamic rootObject = assetManager.GetEbx(assetManager.GetEbxEntry(skeleton)).RootObject;
+			var skeletonEntry = assetManager.GetEbxEntry(skeleton);
+            dynamic rootObject = assetManager.GetEbx(skeletonEntry).RootObject;
 			boneCount = rootObject.BoneNames.Count;
 			for (int i = 0; i < boneCount; i++)
 			{

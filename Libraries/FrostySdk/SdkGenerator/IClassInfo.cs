@@ -28,7 +28,7 @@ namespace FrostbiteSdk.SdkGenerator
 
     public interface ITypeInfo : ISdkGenInfo
     {
-		public int nameHash { get; set; }
+		public uint nameHash { get; set; }
         public string name { get; set; }
 
         public ushort flags { get; set; }
@@ -62,7 +62,7 @@ namespace FrostbiteSdk.SdkGenerator
 
     public interface IFieldInfo : ISdkGenInfo
     {
-        public int nameHash { get; set; }
+        public uint nameHash { get; set; }
 
         public string name { get; set; }
 

@@ -74,7 +74,7 @@ namespace FIFAModdingUI.Windows
 
                 // -----------------------------------------
                 //
-                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, this, true, false);
+                await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, FileSystem.Instance.BasePath, this, true, false);
 
                 Dispatcher.Invoke(() => { txtOuputMessage.Content = "Building SDK. Please wait 1-2 minutes to complete!"; });
 
@@ -151,7 +151,7 @@ namespace FIFAModdingUI.Windows
                     // 0B0E04030409080C010708010E0B0B02﻿
                     Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
 
-                    array = NativeReader.ReadInStream(new FileStream("fifa20.key", FileMode.Open, FileAccess.Read));
+                    array = NativeReader.ReadInStream(new FileStream(System.IO.Path.Combine(AppContext.BaseDirectory, "FrostbiteKeys", "fifa20.key"), FileMode.Open, FileAccess.Read));
                     byte[] array2 = new byte[16];
                     Array.Copy(array, array2, 16);
                     KeyManager.Instance.AddKey("Key1", array2);

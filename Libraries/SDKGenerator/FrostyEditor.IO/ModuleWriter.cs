@@ -113,7 +113,13 @@ namespace SdkGenerator
 				if (@class.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
 				{
 				}
-				EbxFieldType ebxFieldType = (EbxFieldType)@class.GetValue("type", 0);
+                if (@class.GetValue<string>("name").Equals("LinearTransform", StringComparison.OrdinalIgnoreCase))
+                {
+                }
+                if (@class.GetValue<string>("name").Equals("Vec3", StringComparison.OrdinalIgnoreCase))
+                {
+                }
+                EbxFieldType ebxFieldType = (EbxFieldType)@class.GetValue("type", 0);
 				switch (ebxFieldType)
 				{
 				case EbxFieldType.Enum:
@@ -134,7 +140,6 @@ namespace SdkGenerator
 					break;
 				case EbxFieldType.Array:
 				case EbxFieldType.Delegate:
-				case (EbxFieldType)28:
 					break;
 				}
 				if (ebxFieldType == EbxFieldType.Delegate || ebxFieldType == (EbxFieldType)28)
@@ -371,9 +376,12 @@ namespace SdkGenerator
 			{
 			}
 
-			
+            if (classObj.GetValue<string>("name") == "LinearTransform")
+            {
+            }
 
-			var class_fields = classObj.GetValue<DbObject>("fields").list.OrderBy(x => ((DbObject)x).GetValue<int>("offset"));
+
+            var class_fields = classObj.GetValue<DbObject>("fields").list.OrderBy(x => ((DbObject)x).GetValue<int>("offset"));
 			foreach (DbObject item in class_fields)
 			{
 				stringBuilder.Append(WriteField(item));
@@ -547,7 +555,7 @@ namespace SdkGenerator
 			}
 			if (classObj.HasValue("nameHash"))
 			{
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue("nameHash", 0) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue<uint>("nameHash") + ")]");
 			}
 			if (ProfilesLibrary.DataVersion == 20171117)// || ProfilesLibrary.IsFIFA21DataVersion())// || ProfilesLibrary.IsMadden21DataVersion())
 			{
@@ -622,7 +630,7 @@ namespace SdkGenerator
 			{
 				//stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");
 				//stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<uint>("nameHash", 0u) + ")]");
-				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<int>("nameHash", 0) + ")]");
+				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue<uint>("nameHash") + ")]");
 			}
 			// PG - Added this hack for a quick fix
 			//if (fieldObj.GetValue("offset", 0) < 0)

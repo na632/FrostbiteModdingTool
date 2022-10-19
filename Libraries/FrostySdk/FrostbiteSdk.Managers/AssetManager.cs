@@ -432,13 +432,13 @@ namespace FrostySdk.Managers
 
 		private const uint CacheVersion = 2u;
 
-		public FileSystem fs;
+		public FileSystem fs = FileSystem.Instance;
 
 		public FileSystem FileSystem => fs;
 
-		public ResourceManager rm;
+		public ResourceManager rm = ResourceManager.Instance;
 
-		public ResourceManager ResourceManager => rm;
+        public ResourceManager ResourceManager => rm;
 
 
 		public ILogger logger;
@@ -472,7 +472,22 @@ namespace FrostySdk.Managers
 
 		public LocaleINIMod LocaleINIMod;
 
-		public AssetManager(in FileSystem inFs, in ResourceManager inRm)
+		public AssetManager()
+		{
+			if (Instance != null)
+				throw new Exception("There can only be one instance of the AssetManager");
+
+            Instance = this;
+
+            LocaleINIMod = new LocaleINIMod();
+        }
+
+        public AssetManager(in ILogger inLogger) : this()
+        {
+            logger = inLogger;
+        }
+
+        public AssetManager(in FileSystem inFs, in ResourceManager inRm)
 		{
 			fs = inFs;
 			rm = inRm;
@@ -480,11 +495,6 @@ namespace FrostySdk.Managers
             Instance = this;
 
 			LocaleINIMod = new LocaleINIMod();
-        }
-
-        public AssetManager(in FileSystem inFs, in ResourceManager inRm, in ILogger inLogger) : this(inFs, inRm)
-        {
-			logger = inLogger;
         }
 
         // To detect redundant calls
@@ -526,6 +536,7 @@ namespace FrostySdk.Managers
 				//Chunks = null;
 
 				TypeLibrary.ExistingAssembly = null;
+				//ResourceManager.Dispose();
 			}
 		}
 
@@ -633,22 +644,19 @@ namespace FrostySdk.Managers
 		{
 			if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
 			{
-				var t = CachedTypes[className];
-				return Activator.CreateInstance(type: t, args: args);
+				var cachedType = CachedTypes[className];
+				return Activator.CreateInstance(type: cachedType, args: args);
 			}
 
-			var currAss = AppDomain.CurrentDomain.GetAssemblies();
-			foreach (Assembly a in currAss)
-			{
-				var t = a.GetTypes().FirstOrDefault(x => 
-					x.Name.Equals(className, StringComparison.OrdinalIgnoreCase)
-					|| x.FullName.Equals(className, StringComparison.OrdinalIgnoreCase));
-				if (t != null)
-				{
-					CachedTypes.Add(className, t);
-					return Activator.CreateInstance(type: t, args: args);
-				}
-			}
+			IEnumerable<Assembly> currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assembly = currentAssemblies.FirstOrDefault(x => x.GetTypes().Any(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase)));
+            var t = assembly.GetTypes().FirstOrDefault(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase));
+            if (t != null)
+            {
+                CachedTypes.Add(className, t);
+                return Activator.CreateInstance(type: t, args: args);
+            }
+            
 			throw new ArgumentNullException("Unable to find Class");
 		}
 
@@ -742,7 +750,10 @@ namespace FrostySdk.Managers
 			get
 			{
 				if(_EbxItemsWithNoType == null)
-					_EbxItemsWithNoType = EBX.Values.Where(x => string.IsNullOrEmpty(x.Type)).OrderBy(x=>x.ExtraData.CasPath).ToList();
+					_EbxItemsWithNoType = EBX.Values.Where(
+						x => string.IsNullOrEmpty(x.Type)
+						|| x.Type == "UnknownType"
+					).OrderBy(x=>x.ExtraData.CasPath).ToList();
 
 				return _EbxItemsWithNoType;
 			}

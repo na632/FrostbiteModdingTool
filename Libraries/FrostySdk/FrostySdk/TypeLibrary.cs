@@ -98,7 +98,7 @@ namespace FrostySdk
 						var hashAttr = type.GetCustomAttribute<HashAttribute>();
 						if (hashAttr != null)
 						{
-							typeInfosByHash.Add((uint)hashAttr.ActualHash, type);
+							typeInfosByHash.Add((uint)hashAttr.Hash, type);
 						}
 					}
 				}

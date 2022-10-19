@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using System.Windows.Input;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
@@ -31,7 +32,22 @@ namespace FrostbiteModdingTests
     {
         private string prevText = string.Empty;
 
-        public const string GamePath = @"F:\Origin Games\FIFA 23";
+        public string GamePath 
+        { 
+            get
+            {
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 23"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir;
+                    }
+                }
+                return string.Empty;
+            }
+        }
         public string GamePathEXE
         {
             get
@@ -47,7 +63,7 @@ namespace FrostbiteModdingTests
                 }
                 return string.Empty;
             }
-        }// = @"F:\Origin Games\FIFA 23\FIFA23.exe";
+        }
 
         public void Log(string text, params object[] vars)
         {
@@ -148,7 +164,7 @@ namespace FrostbiteModdingTests
             //var buildCache = new BuildCache();
             //buildCache.LoadData("FIFA23", GamePath, this, false, false);
 
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, false);
             var buildSDK = new BuildSDK();
             buildSDK.Build().Wait();
 
@@ -177,6 +193,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ReadSimpleGPFile()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
@@ -192,6 +209,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ReadComplexGPFile()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
@@ -237,6 +255,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ModComplexGPFile2()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
@@ -266,6 +285,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ModGPPhysics()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
@@ -291,15 +311,38 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ModCamera()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("broadcasting/attribsys/broadcasting/gameplay_camera_settings/gameplay_camera_settings_default");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+            var dyn = (dynamic)complexAsset.RootObject;
+            AssetManager.Instance.ModifyEbx("broadcasting/attribsys/broadcasting/gameplay_camera_settings/gameplay_camera_settings_default", complexAsset);
+
+            var testR = "test.fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = true;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+
+
+        }
+
+        [TestMethod]
         public void TestCareerMod()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\V Career Mod - Alpha 1.fbproject");
-
-            if (File.Exists("test.fbmod"))
-                File.Delete("test.fbmod");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\V Career Mod - Alpha 3.fbproject");
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -317,11 +360,7 @@ namespace FrostbiteModdingTests
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
-            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.5.fbproject").Result;
-
-            if (File.Exists("test.fbmod"))
-                File.Delete("test.fbmod");
+            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.7.fbproject").Result;
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -337,7 +376,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestGPMod()
         {
-            var modPath = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.5.fbmod";
+            var modPath = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.6.fbmod";
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
 
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
@@ -420,6 +459,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestSplashscreenMod()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             projectManagement.Project.Load(@"G:\Work\FIFA Modding\test 23 splashscreen.fbproject");

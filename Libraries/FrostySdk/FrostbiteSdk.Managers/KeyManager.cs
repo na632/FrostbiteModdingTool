@@ -7,14 +7,13 @@ namespace FrostySdk.Managers
 {
 	public class KeyManager
 	{
-		private Dictionary<string, byte[]> keys = new Dictionary<string, byte[]>();
+		private Dictionary<string, byte[]> keys { get; } = new Dictionary<string, byte[]>();
 
 		public static KeyManager Instance { get; } = new KeyManager();
 
-		private KeyManager()
+		public KeyManager()
 		{
-
-		}
+        }
 
 		public void AddKey(string id, byte[] data)
 		{
@@ -39,20 +38,18 @@ namespace FrostySdk.Managers
 			return keys.ContainsKey(id);
 		}
 
-		public bool ReadInKeys()
+		public static bool ReadInKeys()
 		{
 			if (Instance.keys.Count > 0)
 				return true;
 
-			byte[] array;
+			var pathToKey = System.IO.Path.Combine(AppContext.BaseDirectory, "FrostbiteKeys", "fifa20.key");
 
-			if (File.Exists(ProfilesLibrary.CacheName + ".key"))
+            if (File.Exists(pathToKey))
 			{
-
-				array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
-				byte[] array2 = new byte[16];
+                byte[] array = NativeReader.ReadInStream(new FileStream(pathToKey, FileMode.Open, FileAccess.Read));
+                byte[] array2 = new byte[16];
 				Array.Copy(array, array2, 16);
-				// From byte array to string
 				string s = System.Text.Encoding.UTF8.GetString(array2, 0, array2.Length);
 				KeyManager.Instance.AddKey("Key1", array2);
 				if (array.Length > 16)

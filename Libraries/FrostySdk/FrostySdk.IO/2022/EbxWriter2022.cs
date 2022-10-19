@@ -439,8 +439,11 @@ namespace FrostySdk.FrostySdk.IO
 		{
 			Type type = typesToProcess[index];
 			EbxClass ebxClass = classTypes[index];
-            if (type.Name == "List`1" || ebxClass.DebugType == EbxFieldType.Array)
-            {
+            if ((type.Name == "List`1" || ebxClass.DebugType == EbxFieldType.Array)
+				&& (arrayTypes.Count > 0)
+				)
+			{
+
 				EbxFieldMetaAttribute ebxFieldMetaAttribute = arrayTypes[0];
 				arrayTypes.RemoveAt(0);
 				ushort classIndex = 0;
@@ -721,7 +724,7 @@ namespace FrostySdk.FrostySdk.IO
 				{
 					continue;
 				}
-				PropertyInfo propertyInfo = Array.Find(properties, (PropertyInfo p) => p.GetCustomAttribute<HashAttribute>()?.Hash == (int?)field2.NameHash);
+				PropertyInfo propertyInfo = Array.Find(properties, (PropertyInfo p) => (uint?)p.GetCustomAttribute<HashAttribute>()?.Hash == (uint?)field2.NameHash);
 				if (propertyInfo == null)
 				{
 					EbxFieldType debugType = field2.DebugType;
@@ -821,7 +824,7 @@ namespace FrostySdk.FrostySdk.IO
 					bool isReference = propertyInfo.GetCustomAttribute<IsReferenceAttribute>() != null;
 					if (ebxFieldMetaAttribute.IsArray)
 					{
-						int fieldNameHash = propertyInfo.GetCustomAttribute<HashAttribute>()!.Hash;
+                        uint fieldNameHash = propertyInfo.GetCustomAttribute<HashAttribute>()!.Hash;
 						WriteArray(propertyInfo.GetValue(obj), ebxFieldMetaAttribute.ArrayType, fieldNameHash, classType, classType.Alignment, writer, isReference);
 					}
 					else
@@ -960,7 +963,7 @@ namespace FrostySdk.FrostySdk.IO
 			}
 		}
 
-		private void WriteArray(object obj, EbxFieldType elementFieldType, int fieldNameHash, EbxClass classType, byte classAlignment, FileWriter writer, bool isReference)
+		private void WriteArray(object obj, EbxFieldType elementFieldType, uint fieldNameHash, EbxClass classType, byte classAlignment, FileWriter writer, bool isReference)
 		{
 			int classIndex = typesToProcess.FindIndex((Type item) => item == obj.GetType().GetGenericArguments()[0]);
 			if (classIndex == -1)

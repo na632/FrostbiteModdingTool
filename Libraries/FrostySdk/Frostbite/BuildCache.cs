@@ -48,27 +48,7 @@ namespace FrostySdk.Frostbite
 
 					if (ProfilesLibrary.RequiresKey)
 					{
-						byte[] array;
-
-						//array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
-						// change this so it reads the easy version of the key
-						// 0B0E04030409080C010708010E0B0B02﻿
-						Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
-
-
-						array = NativeReader.ReadInStream(new FileStream("FrostbiteKeys/fifa20.key", FileMode.Open, FileAccess.Read));
-						byte[] array2 = new byte[16];
-						Array.Copy(array, array2, 16);
-						KeyManager.Instance.AddKey("Key1", array2);
-						if (array.Length > 16)
-						{
-							array2 = new byte[16];
-							Array.Copy(array, 16, array2, 0, 16);
-							KeyManager.Instance.AddKey("Key2", array2);
-							array2 = new byte[16384];
-							Array.Copy(array, 32, array2, 0, 16384);
-							KeyManager.Instance.AddKey("Key3", array2);
-						}
+						KeyManager.ReadInKeys();
 					}
 
 					Debug.WriteLine($"[DEBUG] LoadDataAsync::Initialising Type Library");
@@ -79,45 +59,16 @@ namespace FrostySdk.Frostbite
 							logger = this;
 
 						logger.Log("Loaded Type Library SDK");
+						new FileSystem(GameLocation);
+						new ResourceManager(logger);
+						logger.Log("Initialised File & Resource System");
+						new AssetManager(logger);
+						AssetManager.Instance.RegisterLegacyAssetManager();
+                        AssetManager.Instance.SetLogger(logger);
+                        AssetManager.Instance.Initialize(additionalStartup: true);
 
-						//AssetManagerImportResult result = new AssetManagerImportResult();
+						logger.Log("Initialised Asset Manager");
 
-						var FileSystem = new FileSystem(GameLocation);
-
-						//bool patched = false;
-
-						//foreach (FileSystemSource source in ProfilesLibrary.Sources)
-						//{
-						//	FileSystem.AddSource(source.Path, source.SubDirs);
-						//	if (source.Path.ToLower().Contains("patch"))
-						//		patched = true;
-						//}
-						//byte[] key = KeyManager.Instance.GetKey("Key1");
-						//FileSystem.Initialize(key, patched);
-
-						logger.Log("Initialised File System");
-
-							
-						var resourceManager = ResourceManager.Instance != null ? ResourceManager.Instance : new ResourceManager(FileSystem);
-						resourceManager.SetLogger(logger);
-						resourceManager.Initialize();
-
-						logger.Log("Initialised Resource System");
-
-						if (AssetManager.Instance == null)
-						{
-							var assetManager = new AssetManager(FileSystem, resourceManager, logger);
-							assetManager.RegisterLegacyAssetManager();
-							assetManager.SetLogger(logger);
-							assetManager.Initialize(additionalStartup: true);
-
-							logger.Log("Initialised Asset Manager");
-
-						}
-						else
-                        {
-							AssetManager.Instance.SetLogger(logger);
-						}
 						return true;
 					}
 					return false;

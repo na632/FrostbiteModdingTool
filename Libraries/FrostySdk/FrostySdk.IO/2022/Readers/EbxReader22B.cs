@@ -138,7 +138,7 @@ namespace FrostySdk.IO._2022.Readers
 			{
 				EbxField item = default(EbxField);
 				int key2 = base.ReadInt32LittleEndian();
-				item.Flags = (base.magic == EbxVersion.Version2) ? base.ReadUInt16LittleEndian() : ((ushort)(base.ReadUInt16LittleEndian() >> 1));
+				item.Type = (base.magic == EbxVersion.Version2) ? base.ReadUInt16LittleEndian() : ((ushort)(base.ReadUInt16LittleEndian() >> 1));
 				item.ClassRef = base.ReadUInt16LittleEndian();
 				item.DataOffset = base.ReadUInt32LittleEndian();
 				item.SecondOffset = base.ReadUInt32LittleEndian();
@@ -337,12 +337,27 @@ namespace FrostySdk.IO._2022.Readers
 			}
 			for (int j = 0; j < boxedValueCount; j++)
 			{
-				base.ReadUInt32LittleEndian();
-				base.ReadUInt32LittleEndian();
-				base.ReadUInt32LittleEndian();
-				base.ReadUInt16LittleEndian();
-				base.ReadUInt16LittleEndian();
-			}
+				//base.ReadUInt32LittleEndian();
+				//base.ReadUInt32LittleEndian();
+				//base.ReadUInt32LittleEndian();
+				//base.ReadUInt16LittleEndian();
+				//base.ReadUInt16LittleEndian();
+                uint offset = ReadUInt();
+                uint count = ReadUInt();
+                uint hash = ReadUInt();
+                ushort type = ReadUShort();
+                ushort classRef = ReadUShort();
+
+                boxedValues.Add
+                (
+                    new EbxBoxedValue
+                    {
+                        Offset = offset,
+                        Type = type,
+                        ClassRef = classRef
+                    }
+                );
+            }
 			_ = base.Position;
 			_ = base.Length;
 			foreach (uint dataContainerOffset2 in dataContainerOffsets)
@@ -381,8 +396,9 @@ namespace FrostySdk.IO._2022.Readers
 			base.Position = payloadOffset;
 			base.isValid = true;
 
-			if (RootType.Contains("gp_"))
-			{
+			//if (RootType.Contains("gp_"))
+			if (RootType.Contains("SkeletonAsset"))
+                {
 				Position = 0;
 				var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
 				base.stream.CopyTo(fsDump);
@@ -768,7 +784,12 @@ namespace FrostySdk.IO._2022.Readers
 			uint arrayCount = base.ReadUInt32LittleEndian();
 			for (int i = 0; i < arrayCount; i++)
 			{
-				object obj2 = this.ReadField(classType, field.DebugType, field.ClassRef, isReference);
+				//if (field.DebugType == EbxFieldType.Inherited)
+				//{
+
+				//}
+				//object obj2 = this.ReadField(classType, field.DebugType, field.ClassRef, isReference);
+				object obj2 = this.ReadField(classType, field.InternalType, field.ClassRef, isReference);
 				if (property != null)
 				{
 					try

@@ -45,7 +45,7 @@ namespace FrostySdk.IO
                     //	return t.Name;
                     //               }
                     var hash = EbxClassesTypes[i].GetCustomAttribute<HashAttribute>();
-                    if (hash != null && (hash.Hash == nameHash || hash.ActualHash == nameHash))
+                    if (hash != null && (hash.Hash == nameHash))
                     {
                         return EbxClassesTypes[i].Name;
                     }
@@ -56,7 +56,7 @@ namespace FrostySdk.IO
 
 		}
 
-		public static string GetPropertyName(int nameHash)
+		public static string GetPropertyName(uint nameHash)
 		{
 			if (EbxClassesAssembly != null)
 			{
@@ -168,7 +168,7 @@ namespace FrostySdk.IO
 				ushort stdFieldCount = nativeReader.ReadUShort();
 				for (int i = 0; i < stdFieldCount; i++)
 				{
-					int nameHash = nativeReader.ReadInt();
+                    uint nameHash = nativeReader.ReadUInt();
 					//string actualfieldname = GetPropertyName(nameHash);
 					EbxField item = new EbxField
 					{
