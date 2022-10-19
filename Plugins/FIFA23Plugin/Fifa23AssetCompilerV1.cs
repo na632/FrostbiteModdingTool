@@ -206,42 +206,30 @@ namespace FIFA23Plugin
             //        ErrorCounts[ModType.EBX]++;
             //    }
             //}
-            //foreach (var modRES in parent.modifiedRes)
-            //{
-            //    var originalEntry = AssetManager.Instance.GetResEntry(modRES.Value.Name);
-            //    if (originalEntry != null)
-            //    {
-            //        if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-            //        {
+            foreach (var mod in parent.modifiedRes)
+            {
+                var originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
+                if (originalEntry != null)
+                {
+                    if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+                    {
 
-            //            var casPath = originalEntry.ExtraData.CasPath;
-            //            if (!casToMods.ContainsKey(casPath))
-            //            {
-            //                casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry) });
-            //            }
-            //            else
-            //            {
-            //                casToMods[casPath].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.RES, false, originalEntry));
-            //            }
-            //        }
-            //        //// Is Added
-            //        //else
-            //        //{
-            //        //    if (!casToMods.ContainsKey(string.Empty))
-            //        //    {
-            //        //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true) });
-            //        //    }
-            //        //    else
-            //        //    {
-            //        //        casToMods[string.Empty].Add(new ModdedFile(modRES.Value.Sha1, modRES.Value.Name, ModType.EBX, true));
-            //        //    }
-            //        //}
-            //    }
-            //    else
-            //    {
-            //        ErrorCounts[ModType.RES]++;
-            //    }
-            //}
+                        var casPath = originalEntry.ExtraData.CasPath;
+                        if (!casToMods.ContainsKey(casPath))
+                        {
+                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry) });
+                        }
+                        else
+                        {
+                            casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
+                        }
+                    }
+                }
+                else
+                {
+                    ErrorCounts[ModType.RES]++;
+                }
+            }
             //foreach (var modChunks in parent.ModifiedChunks)
             //{
             //    var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);

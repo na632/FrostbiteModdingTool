@@ -149,8 +149,8 @@ namespace FrostySdk.Frostbite.IO.Input
 
 			//if (ProfilesLibrary.IsFIFA21DataVersion())
 			//{
-				((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
-				AssetManager.Instance.ModifyEbx(entry.Name, asset);
+			((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
+			AssetManager.Instance.ModifyEbx(entry.Name, asset);
 			//}
 		}
 
@@ -387,21 +387,21 @@ namespace FrostySdk.Frostbite.IO.Input
             //meshSetLod.SetIndexBufferFormatSize(4);
 
 
-			nativeWriter.Position = 0;
+			//nativeWriter.Position = 0;
             // --------------------------------------
             // Modifying the chunk fails --- >>
-            if (meshSetLod.ChunkId != Guid.Empty)
-            {
-				ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(meshSetLod.ChunkId);
-				Stream originalChunkStream = AssetManager.Instance.GetChunk(chunkEntry);
+    //        if (meshSetLod.ChunkId != Guid.Empty)
+    //        {
+				//ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(meshSetLod.ChunkId);
+				//Stream originalChunkStream = AssetManager.Instance.GetChunk(chunkEntry);
 
-				AssetManager.Instance.ModifyChunk(meshSetLod.ChunkId, ((MemoryStream)nativeWriter.BaseStream).ToArray(), compressionOverride: CompressionType.Oodle);
-                resEntry.LinkAsset(chunkEntry);
-            }
-            else
-            {
+				//AssetManager.Instance.ModifyChunk(meshSetLod.ChunkId, ((MemoryStream)nativeWriter.BaseStream).ToArray(), compressionOverride: CompressionType.Oodle);
+    //            resEntry.LinkAsset(chunkEntry);
+    //        }
+    //        else
+    //        {
                 meshSetLod.SetInlineData(((MemoryStream)nativeWriter.BaseStream).ToArray());
-            }
+            //}
         }
 	
 		private unsafe void ProcessSection(FbxNode[] sectionNodes, MeshSetLod meshLod, int sectionIndex, MemoryStream verticesBuffer, List<uint> indicesBuffer, uint vertexOffset, ref uint startIndex)

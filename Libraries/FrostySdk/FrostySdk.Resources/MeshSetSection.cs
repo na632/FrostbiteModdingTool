@@ -99,6 +99,9 @@ namespace FrostySdk.Resources
 			
 		}
 
+		private uint FIFA23_UnknownInt1;
+		private uint FIFA23_UnknownInt2;
+
         public void Read23(FileReader reader, int index)
         {
             var startPosition = reader.Position;
@@ -117,8 +120,8 @@ namespace FrostySdk.Resources
             VertexOffset = reader.ReadUInt32LittleEndian();
             VertexCount = (uint)reader.ReadUInt32LittleEndian();
             UnknownInt = reader.ReadUInt();
-			reader.ReadUInt(); // hmmm
-			reader.ReadUInt(); // hmmm more unknownness
+            FIFA23_UnknownInt1 = reader.ReadUInt(); // hmmm
+            FIFA23_UnknownInt2 = reader.ReadUInt(); // hmmm more unknownness
             for (int l = 0; l < 6; l++)
             {
                 texCoordRatios.Add(reader.ReadSingleLittleEndian());
@@ -320,6 +323,10 @@ namespace FrostySdk.Resources
 
 		internal void Process(NativeWriter writer, MeshContainer meshContainer)
 		{
+			if (ProfilesLibrary.IsFIFA23DataVersion()) {
+				Process23(writer, meshContainer);
+				return;
+				}
 			writer.WriteInt64LittleEndian(offset1);
 			meshContainer.WriteRelocPtr("STR", sectionIndex + ":" + Name, writer);
 			writer.WriteInt32LittleEndian(MaterialId);
@@ -367,6 +374,79 @@ namespace FrostySdk.Resources
 			}
 			writer.WriteUInt32LittleEndian(unknownInt2);
 		}
-	}
+
+
+        internal void Process23(NativeWriter writer, MeshContainer meshContainer)
+        {
+            /*
+			 * sectionIndex = index;
+            offset1 = reader.ReadInt64LittleEndian();
+            long namePosition = reader.ReadInt64LittleEndian();
+            long bonePositions = reader.ReadInt64LittleEndian();
+            ushort boneCount = reader.ReadUInt16LittleEndian();
+            BonesPerVertex = (byte)reader.ReadUShort();
+            MaterialId = reader.ReadUInt16LittleEndian();
+            vertexStride = reader.ReadByte();
+            PrimitiveType = (PrimitiveType)reader.ReadByte();
+            PrimitiveCount = (uint)reader.ReadUInt32LittleEndian();
+            StartIndex = reader.ReadUInt32LittleEndian();
+            VertexOffset = reader.ReadUInt32LittleEndian();
+            VertexCount = (uint)reader.ReadUInt32LittleEndian();
+            UnknownInt = reader.ReadUInt();
+            FIFA23_UnknownInt1 = reader.ReadUInt(); // hmmm
+            FIFA23_UnknownInt2 = reader.ReadUInt(); // hmmm more unknownness
+			for (int l = 0; l < 6; l++)
+            {
+                texCoordRatios.Add(reader.ReadSingleLittleEndian());
+            }
+			 */
+            writer.WriteInt64LittleEndian(offset1);
+            meshContainer.WriteRelocPtr("STR", sectionIndex + ":" + Name, writer);
+            if (BoneList.Count > 0)
+            {
+                meshContainer.WriteRelocPtr("BONELIST", BoneList, writer);
+            }
+            else
+            {
+                writer.WriteUInt64LittleEndian(0uL);
+            }
+            writer.WriteUInt16LittleEndian((ushort)BoneList.Count);
+			writer.WriteUInt16LittleEndian(bonesPerVertex);
+            writer.WriteInt32LittleEndian(MaterialId);
+            writer.Write(vertexStride);
+            writer.Write((byte)PrimitiveType);
+            writer.WriteUInt32LittleEndian(PrimitiveCount);
+            writer.WriteUInt32LittleEndian(StartIndex);
+            writer.WriteUInt32LittleEndian(VertexOffset);
+            writer.WriteUInt32LittleEndian(VertexCount);
+            writer.WriteUInt32LittleEndian(UnknownInt);
+            writer.WriteUInt32LittleEndian(FIFA23_UnknownInt1);
+            writer.WriteUInt32LittleEndian(FIFA23_UnknownInt2);
+            for (int l = 0; l < 6; l++)
+            {
+                writer.WriteSingleLittleEndian(texCoordRatios[l]);
+            }
+            for (int i = 0; i < DeclCount; i++)
+            {
+                for (int j = 0; j < GeometryDeclDesc[i].Elements.Length; j++)
+                {
+                    writer.Write((byte)GeometryDeclDesc[i].Elements[j].Usage);
+                    writer.Write((byte)GeometryDeclDesc[i].Elements[j].Format);
+                    writer.Write(GeometryDeclDesc[i].Elements[j].Offset);
+                    writer.Write(GeometryDeclDesc[i].Elements[j].StreamIndex);
+                }
+                for (int k = 0; k < GeometryDeclDesc[i].Streams.Length; k++)
+                {
+                    writer.Write(GeometryDeclDesc[i].Streams[k].VertexStride);
+                    writer.Write((byte)GeometryDeclDesc[i].Streams[k].Classification);
+                }
+                writer.Write(GeometryDeclDesc[i].ElementCount);
+                writer.Write(GeometryDeclDesc[i].StreamCount);
+                writer.WriteUInt16LittleEndian(0);
+            }
+			writer.Write(unknownData);
+           
+        }
+    }
 
 }

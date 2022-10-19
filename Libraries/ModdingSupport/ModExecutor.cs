@@ -2716,10 +2716,11 @@ namespace ModdingSupport
                 {
                     entries.Add(item.Key, item.Value);
                 }
-                foreach (var item in modifiedRes)
-                {
-                    entries.Add(item.Key, item.Value);
-                }
+                // Fucking Derp. These would have the same keys.
+                //foreach (var item in modifiedRes)
+                //{
+                //    entries.Add(item.Key, item.Value);
+                //}
                 foreach (var item in ModifiedChunks)
                 {
                     entries.Add(item.Key.ToString(), item.Value);

@@ -94,7 +94,11 @@ public class MeshSet
 
 	ushort unknownUint2;
 
-	public MeshSet(Stream stream)
+	public MeshType FIFA23_Type2;
+	public byte[] FIFA23_TypeUnknownBytes;
+    public byte[] FIFA23_SkinnedUnknownBytes;
+
+    public MeshSet(Stream stream)
 	{
 		if (stream == null)
 			return;
@@ -121,10 +125,13 @@ public class MeshSet
 		{
 			nativeReader.Position -= 4;
 			Type = (MeshType)nativeReader.ReadByte();
-			// another type?
-			var type2 = (MeshType)nativeReader.ReadByte();
+            // another type?
+            FIFA23_Type2 = (MeshType)nativeReader.ReadByte();
 			// lots of zeros?
-			nativeReader.Position = 128;
+			FIFA23_TypeUnknownBytes = nativeReader.ReadBytes(128 - (int)nativeReader.BaseStream.Position);
+
+			// we should be at 128 anyway?
+            nativeReader.Position = 128;
 		}
         //for (int n = 0; n < MaxLodCount * 2; n++)
         //{
@@ -163,8 +170,8 @@ public class MeshSet
 		{
             if (ProfilesLibrary.IsFIFA23DataVersion())
             {
-				// 12 bytes of unknowness
-				nativeReader.ReadBytes(12);
+                // 12 bytes of unknowness
+                FIFA23_SkinnedUnknownBytes = nativeReader.ReadBytes(12);
             }
             boneCount = nativeReader.ReadUShort();
 			num2 = nativeReader.ReadUShort();
@@ -375,7 +382,12 @@ public class MeshSet
 			meshContainer.AddRelocPtr("BONEINDICES", boneIndices);
 			meshContainer.AddRelocPtr("BONEBBOXES", boneBoundingBoxes);
 		}
-	}
+        else if (Type == MeshType.MeshType_Composite)
+        {
+            meshContainer.AddRelocPtr("PARTTRANSFORMS", partTransforms);
+            meshContainer.AddRelocPtr("PARTBOUNDINGBOXES", partBoundingBoxes);
+        }
+    }
 
 	public byte[] ToBytes()
 	{
@@ -402,7 +414,10 @@ public class MeshSet
 		BitConverter.TryWriteBytes(Meta.AsSpan(4), num2);
 		BitConverter.TryWriteBytes(Meta.AsSpan(8), num3);
 		BitConverter.TryWriteBytes(Meta.AsSpan(12), headerSize);
-		return ((MemoryStream)nativeWriter.BaseStream).ToArray();
+		var array = ((MemoryStream)nativeWriter.BaseStream).ToArray();
+        File.WriteAllBytes("_MeshSetNEW.dat", array);
+
+        return array;
 	}
 
 	private void Write(NativeWriter writer, MeshContainer meshContainer)
@@ -430,7 +445,19 @@ public class MeshSet
 		meshContainer.WriteRelocPtr("STR", fullName, writer);
 		meshContainer.WriteRelocPtr("STR", Name, writer);
 		writer.Write((uint)nameHash);
-		writer.Write((uint)(uint)Type);
+
+		if (ProfilesLibrary.IsFIFA23DataVersion())
+		{
+			writer.Write((byte)Type);
+			writer.Write((byte)FIFA23_Type2);
+			writer.Write(FIFA23_TypeUnknownBytes);
+        }
+        else
+		{
+			writer.Write((uint)(uint)Type);
+		}
+
+
 		writer.Write((uint)(uint)Flags);
 
 		foreach (uint unknownUInt in unknownUInts)
@@ -468,26 +495,27 @@ public class MeshSet
 		{
 			if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
 			{
-				writer.WriteUInt32LittleEndian((ushort)boneIndices.Count);
+				writer.WriteUInt32LittleEndian((uint)boneIndices.Count);
 			}
 			else
 			{
 				writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
 			}
 			//writer.WriteUInt16LittleEndian(boneCount);
-
-			writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
-			if (boneCount > 0)
-			{
+			//writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
+			//if (boneCount > 0)
+			//{
 				meshContainer.WriteRelocPtr("BONEINDICES", boneIndices, writer);
 				meshContainer.WriteRelocPtr("BONEBBOXES", boneBoundingBoxes, writer);
-			}
+			//}
 		}
 		else if (Type == MeshType.MeshType_Composite)
 		{
 			writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
-			writer.WriteUInt16LittleEndian(boneCount);
-		}
+			writer.WriteUInt16LittleEndian(0);
+            meshContainer.WriteRelocPtr("BONEINDICES", boneIndices, writer);
+            meshContainer.WriteRelocPtr("BONEBBOXES", boneBoundingBoxes, writer);
+        }
 		writer.WritePadding(16);
 		foreach (MeshSetLod lod2 in Lods)
 		{

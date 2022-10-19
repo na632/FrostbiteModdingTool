@@ -135,8 +135,9 @@ namespace FrostySdk.Resources
 			}
 			if (ProfilesLibrary.IsFIFA23DataVersion())
             {
-                UnknownChunkPad = reader.ReadBytes(8);
-            }
+				UnknownChunkPad = reader.ReadBytes(8);
+				//reader.Pad(16);
+			}
             ChunkId = reader.ReadGuid();
 			inlineDataOffset = reader.ReadUInt32LittleEndian();
 			if (HasAdjacencyInMesh)
@@ -390,7 +391,12 @@ namespace FrostySdk.Resources
 			{
 				writer.Write((int)0);
 			}
-			writer.WriteGuid(ChunkId);
+            if (ProfilesLibrary.IsFIFA23DataVersion())
+            {
+				writer.Write(UnknownChunkPad);
+            }
+            writer.WriteGuid(ChunkId);
+			
 			writer.Write((uint)inlineDataOffset);
 			if (HasAdjacencyInMesh)
 			{
