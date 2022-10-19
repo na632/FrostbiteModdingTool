@@ -197,15 +197,18 @@ namespace FrostySdk.IO._2022.Readers
 				return null;
 			}
 			Type type = obj.GetType();
-			//if(type.Name.Contains("SkinnedMesh"))
-			//{
+            var ebxClassMeta = type.GetCustomAttribute<EbxClassMetaAttribute>();
 
-			//}
-   //         if (type.Name.Contains("MeshMaterial"))
-   //         {
 
-   //         }
-            if (type.Name.Contains("SkeletonAsset"))
+            if (type.Name.Equals("SkinnedMeshAsset"))
+			{
+
+			}
+			//         if (type.Name.Contains("MeshMaterial"))
+			//         {
+
+			//         }
+			if (type.Name.Contains("SkeletonAsset"))
             {
 
             }
@@ -243,8 +246,12 @@ namespace FrostySdk.IO._2022.Readers
                     continue;
 
                 EbxField field = default(EbxField);
+                if (property.Key.Name.Contains("MaterialVariation")) 
+				{ 
+				}
 
-				if (propNameHash != null)
+
+                if (propNameHash != null)
 				{
 					field = GetEbxFieldByNameHash(classType, propNameHash.Hash);
 					//field = GetEbxFieldByNameHash(propNameHash.Hash);// AllEbxFields.FirstOrDefault(x => x.NameHash == propNameHash.Hash);
@@ -293,6 +300,10 @@ namespace FrostySdk.IO._2022.Readers
                     }
                 }
                 base.Position = property.Value.Offset + startOffset;
+				if(debugType == EbxFieldType.Guid)
+				{
+					base.Pad(16);
+				}
                 if (debugType == EbxFieldType.Array)
                 {
                     if (type.Name.Contains("SkeletonAsset"))
@@ -302,20 +313,40 @@ namespace FrostySdk.IO._2022.Readers
 
                     continue;
                 }
+				object value = null;
                 try
                 {
-                    object value = ReadField(classType, debugType, field.ClassRef, false);
+                    value = ReadField(classType, debugType, field.ClassRef, false);
+					if(debugType == EbxFieldType.Guid)
+					{
+						if (value.ToString().StartsWith("0000"))
+						{
 
+						}
+					}
                     property.Key.SetValue(obj, value);
                 }
                 catch (Exception ex)
                 {
-					Debug.WriteLine(ex.Message);
+					Debug.WriteLine($"{ex.Message}");
+					Debug.WriteLine($"Class:{type.Name}:Property:{property.Key.Name} failed to set with value {value}");
                 }
+				finally
+				{
+
+				}
             }
 
-            base.Position = startOffset + classType.Size;
-			base.Pad(classType.Alignment);
+			if (ebxClassMeta != null)
+			{
+                base.Position = startOffset + ebxClassMeta.Size;
+                base.Pad(ebxClassMeta.Alignment);
+            }
+			else
+			{
+				base.Position = startOffset + classType.Size;
+				base.Pad(classType.Alignment);
+			}
 			return null;
 		}
 

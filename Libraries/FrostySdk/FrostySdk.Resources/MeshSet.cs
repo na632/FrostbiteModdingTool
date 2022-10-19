@@ -17,7 +17,7 @@ public class MeshSet
 
 	private string fullName;
 
-	private uint nameHash;
+	private uint nameHash { get; set; }
 
 	private readonly uint headerSize;
 
@@ -78,7 +78,8 @@ public class MeshSet
 		set
 		{
 			fullName = value.ToLower();
-			nameHash = (uint)Fnv1.HashString(fullName);
+			if(nameHash == 0)
+				nameHash = (uint)Fnv1.HashString(fullName);
 			int num = fullName.LastIndexOf('/');
 			Name = ((num != -1) ? fullName.Substring(num + 1) : string.Empty);
 		}
@@ -97,6 +98,11 @@ public class MeshSet
 	public MeshType FIFA23_Type2;
 	public byte[] FIFA23_TypeUnknownBytes;
     public byte[] FIFA23_SkinnedUnknownBytes;
+
+	public long SkinnedBoneCountUnkLong1;
+	public long SkinnedBoneCountUnkLong2;
+
+	public ushort BonePartCount;
 
     public MeshSet(Stream stream)
 	{
@@ -156,7 +162,7 @@ public class MeshSet
 			lodsCount = nativeReader.ReadUShort();
 			unknownUint2 = nativeReader.ReadUShort();
 		}
-		ushort num2 = 0;
+        BonePartCount = 0;
 		if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
 		{
 			unknownBytes.Add(nativeReader.ReadBytes(8));
@@ -174,16 +180,16 @@ public class MeshSet
                 FIFA23_SkinnedUnknownBytes = nativeReader.ReadBytes(12);
             }
             boneCount = nativeReader.ReadUShort();
-			num2 = nativeReader.ReadUShort();
+            BonePartCount = nativeReader.ReadUShort();
 			if (boneCount != 0)
 			{
-				nativeReader.ReadLong();
-				nativeReader.ReadLong();
+                SkinnedBoneCountUnkLong1 = nativeReader.ReadLong();
+                SkinnedBoneCountUnkLong2 = nativeReader.ReadLong();
 			}
 		}
 		else if (Type == MeshType.MeshType_Composite)
 		{
-			num2 = nativeReader.ReadUShort();
+            BonePartCount = nativeReader.ReadUShort();
 			boneCount = nativeReader.ReadUShort();
 			long num3 = nativeReader.ReadLong();
 			long num4 = nativeReader.ReadLong();
@@ -191,7 +197,7 @@ public class MeshSet
 			if (num3 != 0L)
 			{
 				nativeReader.Position = num3;
-				for (int n2 = 0; n2 < num2; n2++)
+				for (int n2 = 0; n2 < BonePartCount; n2++)
 				{
 					partTransforms.Add(nativeReader.ReadLinearTransform());
 				}
@@ -199,7 +205,7 @@ public class MeshSet
 			if (num4 != 0L)
 			{
 				nativeReader.Position = num4;
-				for (int num5 = 0; num5 < num2; num5++)
+				for (int num5 = 0; num5 < BonePartCount; num5++)
 				{
 					partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
 				}
@@ -256,12 +262,12 @@ public class MeshSet
 		if (Type == MeshType.MeshType_Skinned)
 		{
 			nativeReader.Pad(16);
-			for (int k = 0; k < num2; k++)
+			for (int k = 0; k < BonePartCount; k++)
 			{
 				boneIndices.Add(nativeReader.ReadUShort());
 			}
 			nativeReader.Pad(16);
-			for (int j = 0; j < num2; j++)
+			for (int j = 0; j < BonePartCount; j++)
 			{
 				boneBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
 			}
@@ -269,7 +275,7 @@ public class MeshSet
 		else if (Type == MeshType.MeshType_Composite)
 		{
 			nativeReader.Pad(16);
-			for (int i = 0; i < num2; i++)
+			for (int i = 0; i < BonePartCount; i++)
 			{
 				partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
 			}
@@ -415,6 +421,8 @@ public class MeshSet
 		BitConverter.TryWriteBytes(Meta.AsSpan(8), num3);
 		BitConverter.TryWriteBytes(Meta.AsSpan(12), headerSize);
 		var array = ((MemoryStream)nativeWriter.BaseStream).ToArray();
+
+		if (File.Exists("_MeshSetNEW.dat")) File.Delete("_MeshSetNEW.dat");
         File.WriteAllBytes("_MeshSetNEW.dat", array);
 
         return array;
@@ -493,14 +501,20 @@ public class MeshSet
 		//writer.Write(num);
 		if (Type == MeshType.MeshType_Skinned)
 		{
+			if (ProfilesLibrary.IsFIFA23DataVersion())
+			{
+				writer.Write(FIFA23_SkinnedUnknownBytes);
+			}
+
 			if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsMadden22DataVersion())
 			{
 				writer.WriteUInt32LittleEndian((uint)boneIndices.Count);
 			}
 			else
 			{
-				writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
-			}
+				writer.WriteUInt16LittleEndian((ushort)boneCount);
+				writer.WriteUInt16LittleEndian((ushort)BonePartCount);
+            }
 			//writer.WriteUInt16LittleEndian(boneCount);
 			//writer.WriteUInt16LittleEndian((ushort)boneIndices.Count);
 			//if (boneCount > 0)

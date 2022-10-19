@@ -169,100 +169,30 @@ namespace FIFA23Plugin
 
             }
 
-            //foreach (var modEBX in parent.modifiedEbx)
+            //foreach (var mod in parent.modifiedRes)
             //{
-            //    var originalEntry = AssetManager.Instance.GetEbxEntry(modEBX.Value.Name);
-            //    if (originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-            //    {
-            //        var casPath = originalEntry.ExtraData.CasPath;
-            //        if (casPath.Contains("native_patch"))
-            //        {
-
-            //        }
-
-            //        if (!casToMods.ContainsKey(casPath))
-            //        {
-            //            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry) });
-            //        }
-            //        else
-            //        {
-            //            casToMods[casPath].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, false, originalEntry));
-            //        }
-            //        //// Is Added
-            //        //else
-            //        //{
-            //        //    if (!casToMods.ContainsKey(string.Empty))
-            //        //    {
-            //        //        casToMods.Add(string.Empty, new List<ModdedFile>() { new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true) });
-            //        //    }
-            //        //    else
-            //        //    {
-            //        //        casToMods[string.Empty].Add(new ModdedFile(modEBX.Value.Sha1, modEBX.Value.Name, ModType.EBX, true));
-            //        //    }
-            //        //}
-            //    }
-            //    else
-            //    {
-            //        ErrorCounts[ModType.EBX]++;
-            //    }
-            //}
-            foreach (var mod in parent.modifiedRes)
-            {
-                var originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
-                if (originalEntry != null)
-                {
-                    if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-                    {
-
-                        var casPath = originalEntry.ExtraData.CasPath;
-                        if (!casToMods.ContainsKey(casPath))
-                        {
-                            casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry) });
-                        }
-                        else
-                        {
-                            casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
-                        }
-                    }
-                }
-                else
-                {
-                    ErrorCounts[ModType.RES]++;
-                }
-            }
-            //foreach (var modChunks in parent.ModifiedChunks)
-            //{
-            //    var originalEntry = AssetManager.Instance.GetChunkEntry(modChunks.Key);
-
-            //    if ((modChunks.Value.ModifiedEntry == null || !modChunks.Value.ModifiedEntry.AddToChunkBundle)
-            //        && originalEntry != null && originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
+            //    var originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
+            //    if (originalEntry != null)
             //    {
             //        if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
             //        {
+
             //            var casPath = originalEntry.ExtraData.CasPath;
             //            if (!casToMods.ContainsKey(casPath))
             //            {
-            //                casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry) });
+            //                casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry) });
             //            }
             //            else
             //            {
-            //                casToMods[casPath].Add(new ModdedFile(modChunks.Value.Sha1, modChunks.Key.ToString(), ModType.CHUNK, false, originalEntry));
+            //                casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
             //            }
             //        }
             //    }
             //    else
             //    {
-            //        //AddedChunks.Add(modChunks.Value);
-            //        //parent.Logger.LogWarning($"This mod compiler cannot handle Added Chunks. {modChunks.Key} will be ignored.");
-            //        //ErrorCounts[ModType.CHUNK]++;
-
-            //        //throw new Exception($"Unable to find CAS file to edit for Chunk {originalEntry.Id}");
-            //        //parent.Logger.LogWarning($"Unable to find CAS file to edit for Chunk {modChunks.Key}");
-            //        //parent.Logger.LogWarning("Unable to apply Chunk Entry for mod");
+            //        ErrorCounts[ModType.RES]++;
             //    }
             //}
-
-
 
             return casToMods;
         }
@@ -521,7 +451,6 @@ namespace FIFA23Plugin
                             {
                                 parent.Logger.LogError($"Unable to find original archive data for {modItem.NamePath}");
                                 continue;
-                                //throw new Exception()
                             }
 
                             if (data.Length == 0)

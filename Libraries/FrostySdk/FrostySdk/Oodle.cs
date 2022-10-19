@@ -126,8 +126,9 @@ namespace FrostySdk
 			//ushort hexCodeOfFifa23 = Convert.ToUInt16(sCodeOfFifa23);
 
 			//compressCode = 0x1170;
-			compressCode = 0x1970;
-			try
+			//compressCode = 0x1970;
+			compressCode = 6512;
+            try
 			{
                 
 				int compLevel = (int)compressionOverride > 16 ? 16 : (int)compressionOverride;

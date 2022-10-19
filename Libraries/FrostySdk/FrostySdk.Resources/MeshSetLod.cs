@@ -104,6 +104,8 @@ namespace FrostySdk.Resources
 
 		public byte[] UnknownChunkPad;
 
+		public long UnknownLongAfterNameHash { get; set; }
+
         public MeshSetLod(FileReader reader)
 		{
 			Type = (MeshType)reader.ReadUInt32LittleEndian();
@@ -144,15 +146,15 @@ namespace FrostySdk.Resources
 			{
 				reader.ReadInt64LittleEndian();
 			}
-			long position = reader.ReadInt64LittleEndian();
-			long position2 = reader.ReadInt64LittleEndian();
-			long position3 = reader.ReadInt64LittleEndian();
+			long posShaderDebug = reader.ReadInt64LittleEndian();
+			long posFullname = reader.ReadInt64LittleEndian();
+			long posShortname = reader.ReadInt64LittleEndian();
 			nameHash = reader.ReadUInt32LittleEndian();
 			uint num5 = 0u;
 			long num6 = 0L;
 			long num7 = 0L;
 			long num8 = 0L;
-			reader.ReadInt64LittleEndian();
+            UnknownLongAfterNameHash = reader.ReadInt64LittleEndian();
 			if (Type == MeshType.MeshType_Skinned)
 			{
 				num5 = reader.ReadUInt32LittleEndian();
@@ -216,11 +218,11 @@ namespace FrostySdk.Resources
 					}
 				}
 			}
-			reader.Position = position;
+			reader.Position = posShaderDebug;
 			shaderDebugName = reader.ReadNullTerminatedString();
-			reader.Position = position2;
+			reader.Position = posFullname;
 			name = reader.ReadNullTerminatedString();
-			reader.Position = position3;
+			reader.Position = posShortname;
 			shortName = reader.ReadNullTerminatedString();
 			reader.Position = position4;
 			hasBoneShortNames = BoneShortNameArray.Count > 0;
@@ -363,7 +365,9 @@ namespace FrostySdk.Resources
 
 		public void SetIndexBufferFormatSize(int newSize)
 		{
-			indexBufferFormat.format = (int)((newSize == 2) ? Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R16_UINT") : Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R32_UINT"));
+			var v2 = Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R16_UINT");
+			var v4 = Enum.Parse(TypeLibrary.GetType("RenderFormat"), "RenderFormat_R32_UINT");
+            indexBufferFormat.format = (int)((newSize == 2) ? v2 : v4);
 		}
 
 		internal void Write(NativeWriter writer, MeshContainer meshContainer)
@@ -413,13 +417,16 @@ namespace FrostySdk.Resources
 			meshContainer.WriteRelocPtr("STR", name, writer);
 			meshContainer.WriteRelocPtr("STR", shortName, writer);
 			writer.Write((uint)nameHash);
-			writer.WriteInt64LittleEndian(0L);
+			writer.WriteInt64LittleEndian(UnknownLongAfterNameHash);
 			if (Type == MeshType.MeshType_Skinned)
 			{
 				writer.Write((int)BoneIndexArray.Count);
 				meshContainer.WriteRelocPtr("BONES", BoneIndexArray, writer);
 			}
-			writer.WritePadding(16);
+            else if (Type == MeshType.MeshType_Composite)
+			{ 
+            }
+            writer.WritePadding(16);
 		}
 
 		public MeshSubsetCategoryFlags GetSectionCategories(int index)

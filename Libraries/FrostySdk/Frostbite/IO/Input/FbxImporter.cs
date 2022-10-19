@@ -68,9 +68,10 @@ namespace FrostySdk.Frostbite.IO.Input
 
 		public void ImportFBX(string filename, MeshSet inMeshSet, EbxAsset asset, EbxAssetEntry entry, MeshImportSettings inSettings)
 		{
-			//ulong resRid = ((dynamic)asset.RootObject).MeshSetResource;
-			//resEntry = assetManager.GetResEntry(resRid);
-			resEntry = assetManager.GetResEntry(entry.Name);
+			ulong resRid = ((dynamic)asset.RootObject).MeshSetResource;
+			resEntry = assetManager.GetResEntry(resRid);
+			if(resEntry == null)
+				resEntry = assetManager.GetResEntry(entry.Name);
 			settings = inSettings;
 			meshSet = inMeshSet;
 			resStream = assetManager.GetRes(resEntry);
@@ -149,8 +150,11 @@ namespace FrostySdk.Frostbite.IO.Input
 
 			//if (ProfilesLibrary.IsFIFA21DataVersion())
 			//{
-			((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
-			AssetManager.Instance.ModifyEbx(entry.Name, asset);
+			if (!ProfilesLibrary.IsFIFA23DataVersion())
+			{
+				((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
+				AssetManager.Instance.ModifyEbx(entry.Name, asset);
+			}
 			//}
 		}
 
@@ -365,8 +369,10 @@ namespace FrostySdk.Frostbite.IO.Input
 			{
 				nativeWriter.Write(sectionBytes);
 			}
-			nativeWriter.WritePadding(16);
-			meshSetLod.VertexBufferSize = (uint)nativeWriter.BaseStream.Position;
+			if(!ProfilesLibrary.IsFIFA23DataVersion())
+				nativeWriter.WritePadding(16);
+
+            meshSetLod.VertexBufferSize = (uint)nativeWriter.BaseStream.Position;
 			foreach (List<uint> item3 in list9)
 			{
 				foreach (uint item4 in item3)
@@ -381,28 +387,29 @@ namespace FrostySdk.Frostbite.IO.Input
                     }
                 }
 			}
-			nativeWriter.WritePadding(16);
+			if(!ProfilesLibrary.IsFIFA23DataVersion())
+				nativeWriter.WritePadding(16);
+
 			meshSetLod.IndexBufferSize = (uint)(nativeWriter.BaseStream.Position - meshSetLod.VertexBufferSize);
-            meshSetLod.SetIndexBufferFormatSize(flag ? 4 : 2);
-            //meshSetLod.SetIndexBufferFormatSize(4);
+			//meshSetLod.SetIndexBufferFormatSize(flag ? 4 : 2);
+			//meshSetLod.SetIndexBufferFormatSize(4);
+			meshSetLod.SetIndexBufferFormatSize(2);
 
 
 			//nativeWriter.Position = 0;
-            // --------------------------------------
-            // Modifying the chunk fails --- >>
-    //        if (meshSetLod.ChunkId != Guid.Empty)
-    //        {
-				//ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(meshSetLod.ChunkId);
-				//Stream originalChunkStream = AssetManager.Instance.GetChunk(chunkEntry);
-
-				//AssetManager.Instance.ModifyChunk(meshSetLod.ChunkId, ((MemoryStream)nativeWriter.BaseStream).ToArray(), compressionOverride: CompressionType.Oodle);
-    //            resEntry.LinkAsset(chunkEntry);
-    //        }
-    //        else
-    //        {
-                meshSetLod.SetInlineData(((MemoryStream)nativeWriter.BaseStream).ToArray());
-            //}
-        }
+			// --------------------------------------
+			// Modifying the chunk fails --- >>
+			if (meshSetLod.ChunkId != Guid.Empty)
+			{
+				ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(meshSetLod.ChunkId);
+				AssetManager.Instance.ModifyChunk(meshSetLod.ChunkId, ((MemoryStream)nativeWriter.BaseStream).ToArray());
+				resEntry.LinkAsset(chunkEntry);
+			}
+			else
+			{
+				meshSetLod.SetInlineData(((MemoryStream)nativeWriter.BaseStream).ToArray());
+			}
+		}
 	
 		private unsafe void ProcessSection(FbxNode[] sectionNodes, MeshSetLod meshLod, int sectionIndex, MemoryStream verticesBuffer, List<uint> indicesBuffer, uint vertexOffset, ref uint startIndex)
 		{

@@ -1338,12 +1338,6 @@ namespace FrostySdk.Managers
 			if (RES.ContainsKey(resName))
 			{
 				ResAssetEntry resAssetEntry = RES[resName];
-				// Madden 21 Res is oodle
-				// FIFA 21 Res for meshes is oodle
-				//compressionOverride = (ProfilesLibrary.DataVersion == 20170929 
-				//	|| ProfilesLibrary.IsMadden21DataVersion()
-				//	|| ProfilesLibrary.IsFIFA21DataVersion()
-				//	) ? CompressionType.Oodle : CompressionType.Default;
 				if(compressionOverride == CompressionType.Default)
                 {
 					compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.RES);
