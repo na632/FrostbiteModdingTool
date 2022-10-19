@@ -177,7 +177,8 @@ namespace FrostbiteSdk
                 Type t = obj.GetType();
                 return t.GetProperty(propName);
             }
-            public static dynamic GetPropertyValue(this object obj, string propName)
+
+            public static object GetPropertyValue(this object obj, string propName)
             {
                 Type t = obj.GetType();
                 var p = t.GetProperty(propName);

@@ -383,7 +383,7 @@ namespace FIFAModdingUI.Pages.Common
 									var spGuid = new StackPanel() { Orientation = Orientation.Horizontal };
 									var lblGuid = new Label() { Content = "__Guid" };
 									spGuid.Children.Add(lblGuid);
-									var txtGuid = new Label() { Name = p.PropertyName + "___Guid", Content = FloatCurve.__InstanceGuid.ToString() };
+									var txtGuid = new Label() { Name = p.PropertyName + "___Guid", Content = FloatCurve.GetPropertyValue("__InstanceGuid").ToString() };
 									spGuid.Children.Add(txtGuid);
 									propTreeViewParent.Items.Add(spGuid);
 
@@ -392,15 +392,16 @@ namespace FIFAModdingUI.Pages.Common
 										var spMinX = new StackPanel() { Orientation = Orientation.Horizontal };
 										var lblMinX = new Label() { Content = "MinX" };
 										spMinX.Children.Add(lblMinX);
-										var txtMinX = new TextBox() { Name = "MinX", Text = FloatCurve.MinX.ToString() };
-										spMinX.Children.Add(txtMinX);
+										var txtMinX = new TextBox() { Name = "MinX", Text = FloatCurve.GetPropertyValue("MinX").ToString() };
+
+                                        spMinX.Children.Add(txtMinX);
 										propTreeViewParent.Items.Add(spMinX);
 
 										// Max X 
 										var spMaxX = new StackPanel() { Orientation = Orientation.Horizontal };
 										var lblMaxX = new Label() { Content = "MaxX" };
 										spMaxX.Children.Add(lblMaxX);
-										var txtMaxX = new TextBox() { Name = "MaxX", Text = FloatCurve.MaxX.ToString() };
+										var txtMaxX = new TextBox() { Name = "MaxX", Text = FloatCurve.GetPropertyValue("MaxX").ToString() };
 										spMaxX.Children.Add(txtMaxX);
 										propTreeViewParent.Items.Add(spMaxX);
 
@@ -409,10 +410,10 @@ namespace FIFAModdingUI.Pages.Common
 										PointsTreeViewParent.Header = "Points";
 										propTreeViewParent.Items.Add(PointsTreeViewParent);
 
-									
 
-										// Number of Points
-										var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = FloatCurve.Points.Count.ToString() };
+									var numberOfPoints = (int)FloatCurve.GetPropertyValue("Points").GetPropertyValue("Count");
+                                        // Number of Points
+                                        var txtNumberOfPoints = new TextBox() { Name = p.PropertyName + "_NumberOfPoints", Text = numberOfPoints.ToString() };
 										txtNumberOfPoints.TextChanged += (object sender, TextChangedEventArgs e) =>
 										{
 											AssetHasChanged(sender as TextBox, p.PropertyName);
@@ -428,9 +429,9 @@ namespace FIFAModdingUI.Pages.Common
 									gridNumberOfPoints.Children.Add(txtNumberOfPoints);
 									PointsTreeViewParent.Items.Add(gridNumberOfPoints);
 
-									for (var i = 0; i < FloatCurve.Points.Count; i++)
+									for (var i = 0; i < numberOfPoints; i++)
 										{
-											var point = FloatCurve.Points[i];
+											var point = ((IList)FloatCurve.GetPropertyValue("Points"))[i];
 											if (point != null)
 											{
 												TreeViewItem Child1Item = new TreeViewItem();
@@ -438,14 +439,14 @@ namespace FIFAModdingUI.Pages.Common
 												Child1Item.IsExpanded = true;
 
 												var txtPointX = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_X"
-													, Text = FloatCurve.Points[i].X.ToString() };
+													, Text = point.GetPropertyValue("X").ToString() };
 												txtPointX.LostFocus += (object sender, RoutedEventArgs e) =>
 												{
 													AssetHasChanged(sender as TextBox, p.PropertyName);
 												};
 												Child1Item.Items.Add(txtPointX);
 
-												var txtPointY = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Y", Text = FloatCurve.Points[i].Y.ToString() };
+												var txtPointY = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Y", Text = point.GetPropertyValue("Y").ToString() };
 												//txtPointY.PreviewLostKeyboardFocus += (object sender, KeyboardFocusChangedEventArgs e) =>
 												//{
 												txtPointY.LostFocus += (object sender, RoutedEventArgs e) =>
@@ -631,7 +632,15 @@ namespace FIFAModdingUI.Pages.Common
 
                             break;
 
-						default:
+                        case "System.Collections.Generic.List`1[FrostySdk.Ebx.LodParam]":
+                            var dlp = p.PropertyValue;
+							if (p.PropertyValue.GetType().IsGenericType)
+							{
+								//for(int iLP = 0; iLP <  p.PropertyValue.GetPropertyValue())
+							}
+                            CreateEditor(p, treeView);
+                            break;
+                        default:
 							//EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
 							success = false;
 
@@ -723,20 +732,18 @@ namespace FIFAModdingUI.Pages.Common
 									var index = int.Parse(splitPropName[splitPropName.Length - 2]);
 
 									var FloatCurve = rootProp.PropertyValue.GetPropertyValue("Internal");
-									var fcPoint = FloatCurve.Points[index];
+									var fcPoint = ((IList)FloatCurve.GetPropertyValue("Points"))[index];
 
 									if (splitPropName[splitPropName.Length - 1] == "X")
 									{
-										fcPoint.X = float.Parse(sender.Text);
-                                        Utilities.SetPropertyValue(FloatCurve.Points[index], "X", fcPoint.X);
+										fcPoint.GetProperty("X").SetValue(fcPoint, float.Parse(sender.Text));
 									}
 									else
 									{
-										fcPoint.Y = float.Parse(sender.Text);
-                                        Utilities.SetPropertyValue(FloatCurve.Points[index], "Y", fcPoint.Y);
-									}
+										fcPoint.GetProperty("Y").SetValue(fcPoint, float.Parse(sender.Text));
+                                    }
 
-									await SaveToRootObject();
+                                    await SaveToRootObject();
 
 
 								}
