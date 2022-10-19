@@ -300,10 +300,10 @@ namespace FrostySdk.IO._2022.Readers
                     }
                 }
                 base.Position = property.Value.Offset + startOffset;
-				if(debugType == EbxFieldType.Guid)
-				{
-					base.Pad(16);
-				}
+				//if(debugType == EbxFieldType.Guid)
+				//{
+				//	base.Pad(16);
+				//}
                 if (debugType == EbxFieldType.Array)
                 {
                     if (type.Name.Contains("SkeletonAsset"))
@@ -317,13 +317,13 @@ namespace FrostySdk.IO._2022.Readers
                 try
                 {
                     value = ReadField(classType, debugType, field.ClassRef, false);
-					if(debugType == EbxFieldType.Guid)
-					{
-						if (value.ToString().StartsWith("0000"))
-						{
+					//if(debugType == EbxFieldType.Guid)
+					//{
+					//	if (value.ToString().StartsWith("0000"))
+					//	{
 
-						}
-					}
+					//	}
+					//}
                     property.Key.SetValue(obj, value);
                 }
                 catch (Exception ex)
