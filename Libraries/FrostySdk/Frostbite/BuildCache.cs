@@ -29,7 +29,18 @@ namespace FrostySdk.Frostbite
 		/// <returns></returns>
 		public bool LoadData(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
-			var result = LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
+            if(AssetManager.Instance != null)
+			{
+				AssetManager.Instance.Dispose();
+				AssetManager.Instance = null;
+			}
+
+			if(ResourceManager.Instance != null)
+			{
+				ResourceManager.Instance.Dispose();
+			}
+
+            var result = LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
 			return result;
 		}
 		public async Task<bool> LoadDataAsync(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)

@@ -536,7 +536,8 @@ namespace FrostySdk.Managers
 				//Chunks = null;
 
 				TypeLibrary.ExistingAssembly = null;
-				//ResourceManager.Dispose();
+				ResourceManager.Dispose();
+				Instance = null;
 			}
 		}
 

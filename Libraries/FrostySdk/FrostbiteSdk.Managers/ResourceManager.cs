@@ -8,7 +8,7 @@ using System.IO;
 
 namespace FrostySdk.Managers
 {
-	public class ResourceManager : ILoggable
+	public class ResourceManager : ILoggable, IDisposable
 	{
 		private FileSystem fs;
 
@@ -447,6 +447,11 @@ namespace FrostySdk.Managers
 			{
 				logger.Log(text, vars);
 			}
+		}
+
+		public void Dispose()
+		{
+			Instance = null;
 		}
 	}
 }
