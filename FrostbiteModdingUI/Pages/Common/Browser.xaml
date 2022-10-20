@@ -283,10 +283,14 @@
                                         </DockingManager>
 
 
-                                        <StackPanel  Grid.Row="1" x:Name="ModelDockingManager" Visibility="Hidden" Orientation="Horizontal"  >
+                                        <Grid  Grid.Row="1" x:Name="ModelDockingManager" Visibility="Hidden"   >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*"></ColumnDefinition>
+                                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
                                             <hx:Viewport3DX
             x:Name="ModelViewer"
-            Grid.Row="1"
+            Grid.Column="0"
             Camera="{Binding Camera}"
             EffectsManager="{Binding EffectsManager}"
             EnableSSAO="True"
@@ -317,10 +321,10 @@
                                             </hx:Viewport3DX>
 
 
-                                        <local:Editor Grid.Row="1" x:Name="ModelViewerEBX" Visibility="Collapsed">
+                                        <local:Editor Grid.Column="1" x:Name="ModelViewerEBX">
 
                                         </local:Editor>
-                                        </StackPanel>
+                                    </Grid>
 
                                     </Grid>
                                 </LayoutDocument>
