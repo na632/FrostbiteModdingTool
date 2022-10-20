@@ -1,10 +1,11 @@
+using Frostbite.FileManagers;
 using FrostySdk.Interfaces;
 using System.Collections.Generic;
 using System.IO;
 
 namespace FrostySdk.Managers
 {
-	public interface ICustomAssetManager
+	public interface ICustomAssetManager : ILegacyFileManager
 	{
 		public List<LegacyFileEntry> AddedFileEntries { get; set; }
 

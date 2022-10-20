@@ -417,6 +417,36 @@ namespace FrostySdk.Managers
 			return this.MemberwiseClone() as AssetEntry;
         }
 
+        public bool IsOfType(string type, bool acceptSubType = true)
+        {
+            if (!Type.Equals(type, StringComparison.OrdinalIgnoreCase))
+            {
+                if (acceptSubType)
+                {
+                    return TypeLibrary.IsSubClassOf(Type, type);
+                }
+                return false;
+            }
+            return true;
+        }
+
+        public bool IsOfType(bool acceptSubType, params string[] types)
+        {
+            foreach (string type in types)
+            {
+                if (IsOfType(type, acceptSubType))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool IsOfType(params string[] types)
+        {
+            return IsOfType(acceptSubType: true, types);
+        }
+
         public override string ToString()
         {
 			if(!string.IsNullOrEmpty(Name))

@@ -5,9 +5,13 @@
 	  <TargetFramework>net6.0-windows</TargetFramework>
 	  <UseWPF>true</UseWPF>
   </PropertyGroup>
-
+	<ItemGroup>
+		<SupportedPlatform Include="windows" />
+	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.9" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
   </ItemGroup>
 
   <ItemGroup>

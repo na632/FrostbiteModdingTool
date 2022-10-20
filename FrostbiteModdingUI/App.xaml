@@ -19,6 +19,7 @@ xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
 
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Fonts.xaml" />
 
+                <ResourceDictionary Source="pack://application:,,,/FMT.Controls;component/RD/Styles.xaml" />
 
                 <ResourceDictionary Source="/Resources/Languages/English.xaml" />
 

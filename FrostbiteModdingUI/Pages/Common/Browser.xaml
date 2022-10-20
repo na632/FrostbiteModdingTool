@@ -261,6 +261,7 @@
                                         <local:Editor Grid.Row="1" x:Name="EBXViewer" Visibility="Collapsed">
 
                                         </local:Editor>
+
                                         <local2:BrowserOfBIG Grid.Row="1" x:Name="BIGViewer" Visibility="Collapsed">
                                             
                                         </local2:BrowserOfBIG>
@@ -316,31 +317,9 @@
                                             </hx:Viewport3DX>
 
 
-                                            <xctk:PropertyGrid x:Name="ModelViewerEBXGrid">
-                                                <xctk:PropertyGrid.EditorDefinitions>
-                                                    <xctk:EditorTemplateDefinition TargetProperties="[{x:Type sys:Int32}]">
-                                                        <xctk:EditorTemplateDefinition.EditingTemplate>
-                                                            <DataTemplate>
-                                                                <xctk:PropertyGridEditorIntegerUpDown Increment="1" Value="{Binding Value}"></xctk:PropertyGridEditorIntegerUpDown>
-                                                            </DataTemplate>
-                                                        </xctk:EditorTemplateDefinition.EditingTemplate>
-                                                    </xctk:EditorTemplateDefinition>
+                                        <local:Editor Grid.Row="1" x:Name="ModelViewerEBX" Visibility="Collapsed">
 
-                                                    <!--<xctk:EditorTemplateDefinition TargetProperties="{x:Type frostbite:PointerRef}">
-                                                    <xctk:EditorTemplateDefinition.EditingTemplate>
-                                                        <DataTemplate>
-                                                            <TreeView DataContext="{Binding Value}">
-                                                                <TreeViewItem>
-                                                                    <TextBlock Text="{Binding Value.Internal}"></TextBlock>
-                                                                </TreeViewItem>
-                                                            </TreeView>
-                                                        </DataTemplate>
-                                                    </xctk:EditorTemplateDefinition.EditingTemplate>
-                                                </xctk:EditorTemplateDefinition>-->
-
-                                                </xctk:PropertyGrid.EditorDefinitions>
-                                            </xctk:PropertyGrid>
-                                            <!--<propertygrid:PropertyGrid x:Name="ModelViewerEBXGrid"></propertygrid:PropertyGrid>-->
+                                        </local:Editor>
                                         </StackPanel>
 
                                     </Grid>

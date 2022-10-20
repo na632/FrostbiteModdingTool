@@ -90,9 +90,12 @@ namespace FIFAModdingUI.Pages.Common
 
 		public string FilterText { get; set; }
 
-		#region Entry Properties
+		public HelixToolkit.Wpf.SharpDX.Camera Camera { get; set; }
 
-		private AssetEntry assetEntry1;
+
+        #region Entry Properties
+
+        private AssetEntry assetEntry1;
 
 		public AssetEntry SelectedEntry
 		{
@@ -900,7 +903,7 @@ namespace FIFAModdingUI.Pages.Common
 			UnknownFileViewer.Visibility = Visibility.Visible;
 		}
 
-		void OpenEbxAsset(EbxAssetEntry ebxEntry)
+		async void OpenEbxAsset(EbxAssetEntry ebxEntry)
         {
 			try
 			{
@@ -954,9 +957,9 @@ namespace FIFAModdingUI.Pages.Common
 					ModelViewerModel = new MainViewModel(skinnedMeshAsset: SelectedEbxAsset, meshSet: meshSet);
 					this.ModelViewer.DataContext = ModelViewerModel;
 					this.ModelDockingManager.Visibility = Visibility.Visible;
-					this.ModelViewerEBXGrid.SelectedObject = SelectedEbxAsset.RootObject;
+					await ModelViewerEBX.LoadEbx(ebxEntry, SelectedEbxAsset, ProjectManagement.Instance.Project, MainEditorWindow);
 
-					this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
+                    this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
 					this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
 					this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
 
@@ -977,8 +980,14 @@ namespace FIFAModdingUI.Pages.Common
 						MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
 						//EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-						var successful = EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+
+						var successful = await EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
 						EBXViewer.Visibility = Visibility.Visible;
+						//EBXViewerPG.SetClass(ebx.RootObject);
+						//                  EBXViewerPG.Recreate();
+						//EBXViewerPG.Visibility = Visibility.Visible;
+
+
 						//EBXViewer.Visibility = successful.Result ? Visibility.Visible : Visibility.Collapsed;
 						//BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
 						//BackupEBXViewer.SelectedObject = ebx.RootObject;
