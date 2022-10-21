@@ -22,181 +22,7 @@
         <LayoutRoot>
             <LayoutPanel>
                 <LayoutPanel Orientation="Horizontal">
-                        <LayoutAnchorablePane DockWidth="200">
-                            <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False">
-                                <Grid Grid.Row="0" VerticalAlignment="Stretch">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="75*" ></ColumnDefinition>
-                                        <ColumnDefinition Width="312*" ></ColumnDefinition>
-                                        <ColumnDefinition Width="253*" ></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition MinHeight="30" Height="30" MaxHeight="30"></RowDefinition>
-                                        <RowDefinition MinHeight="100" Height="*"></RowDefinition>
-                                    </Grid.RowDefinitions>
-                                    <Label Grid.Column="0">Filter:</Label>
-                                    <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                                    KeyUp="txtFilter_KeyUp"  />
-                                    <CheckBox Grid.Column="2" x:Name="chkShowOnlyModified" 
-                           Checked="chkShowOnlyModified_Checked" Unchecked="chkShowOnlyModified_Unchecked"
-                           Content="Show Only Modified" HorizontalAlignment="Stretch"  />
-                                
-                                
-                                <TreeView VerticalAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="3" x:Name="assetTreeView" 
-                      ScrollViewer.VerticalScrollBarVisibility="Visible"  
-                      SelectedItemChanged="assetTreeView_SelectedItemChanged"
-                      >
-                                    <TreeView.ItemTemplate>
-                                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                            <TextBlock Text="{Binding PathName}"
-                                                    Tag="{Binding}">
-                                                    <TextBlock.ContextMenu>
-                                                        <ContextMenu >
-                                                            <MenuItem Header="Import Folder"
-                                                                     x:Name="btnImportFolder" Tag="{Binding}"
-                                                                              Click="btnImportFolder_Click" />
-                                                            <MenuItem Header="Export Folder"
-                                                                     x:Name="btnExportFolder" Tag="{Binding}"
-                                                                              Click="btnExportFolder_Click" />
-                                                        </ContextMenu>
-                                                    </TextBlock.ContextMenu>
-
-                                                </TextBlock>
-                                        </HierarchicalDataTemplate>
-                                    </TreeView.ItemTemplate>
-                                </TreeView>
-                                </Grid>
-
-                            </LayoutAnchorable>
-                        </LayoutAnchorablePane>
-                        <LayoutAnchorablePane DockWidth="200">
-                            <LayoutAnchorable  CanAutoHide="False" CanClose="False" CanHide="False">
-
-                                <ListView VerticalAlignment="Stretch"  Grid.Column="0" Grid.Row="2" x:Name="assetListView" 
-                                          ScrollViewer.CanContentScroll="True"
-                      ScrollViewer.VerticalScrollBarVisibility="Visible" 
-                      ScrollViewer.HorizontalScrollBarVisibility="Visible" 
-                      HorizontalAlignment="Stretch" 
-                      SelectionChanged="assetListView_SelectionChanged"
-                      
-                      >
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <!--<StackPanel/>
-                    If StackPanel was used, the memory consumed was over 2GB and dead slow.
-                    -->
-                                            <VirtualizingStackPanel>
-                                                <!--Memory footprint is only 200 mb-->
-                                            </VirtualizingStackPanel>
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
-                                    <ListView.View>
-                                        <GridView  >
-                                            <GridViewColumn Width="200" Header="Name">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding DisplayName}" Tag="{Binding}">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsModified}"
-                                                                            Value="True">
-                                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                            <TextBlock.ContextMenu>
-                                                                <ContextMenu >
-                                                                    <MenuItem Header="Duplicate"
-                                                                     x:Name="btnDuplicate" Tag="{Binding}"
-                                                                              Click="btnDuplicate_Click" />
-                                                                    <MenuItem Header="Revert"
-                                                                     x:Name="btnCMRevert" Tag="{Binding}"
-                                                                              Click="btnRevert_Click" />
-                                                                    <MenuItem Header="Delete"
-                                                                     x:Name="btnDelete" Tag="{Binding}"
-                                                                              Click="btnDelete_Click" IsEnabled="False" >
-                                                                       
-                                                                        <MenuItem.ItemContainerStyle>
-                                                                            <Style TargetType="MenuItem">
-                                                                                <Style.Triggers>
-                                                                                    <DataTrigger Binding="{Binding IsAdded}"
-                                                                            Value="True">
-                                                                                        <Setter Property="IsEnabled" Value="True"/>
-                                                                                    </DataTrigger>
-                                                                                </Style.Triggers>
-                                                                            </Style>
-                                                                        </MenuItem.ItemContainerStyle>
-                                                                    </MenuItem>
-                                                                </ContextMenu>
-                                                            </TextBlock.ContextMenu>
-                                                        </TextBlock>
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                            <GridViewColumn Header="Asset Type">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding AssetType}" Tag="{Binding}"
-                                               >
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsModified}"
-                                                        Value="True">
-                                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                            <GridViewColumn Header="Type">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Type}" Tag="{Binding}"
-                                               >
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsModified}"
-                                                        Value="True">
-                                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                            <GridViewColumn Header="CAS">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding CASFileLocation}" Tag="{Binding}"
-                                                >
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsModified}"
-                                                        Value="True">
-                                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                        </GridView>
-                                    </ListView.View>
-                                </ListView>
-                            </LayoutAnchorable>
-                        </LayoutAnchorablePane>
+                     
                         <LayoutDocumentPaneGroup>
                             <LayoutDocumentPane ShowHeader="False">
                                 <LayoutDocument  CanClose="False" >
@@ -330,8 +156,194 @@
                                 </LayoutDocument>
                             </LayoutDocumentPane>
                         </LayoutDocumentPaneGroup>
-                        
-                    </LayoutPanel>
+                    <LayoutAnchorablePane DockMinWidth="400" DockWidth="400">
+                        <LayoutAnchorable>
+                            <DockingManager>
+                                <LayoutRoot>
+                                    <LayoutPanel Orientation="Vertical">
+                                        <LayoutAnchorablePane DockWidth="200">
+                                            <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False">
+                                                <Grid Grid.Row="0" VerticalAlignment="Stretch">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="75*" ></ColumnDefinition>
+                                                        <ColumnDefinition Width="312*" ></ColumnDefinition>
+                                                        <ColumnDefinition Width="253*" ></ColumnDefinition>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition MinHeight="30" Height="30" MaxHeight="30"></RowDefinition>
+                                                        <RowDefinition MinHeight="100" Height="*"></RowDefinition>
+                                                    </Grid.RowDefinitions>
+                                                    <Label Grid.Column="0">Filter:</Label>
+                                                    <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                    KeyUp="txtFilter_KeyUp"  />
+                                                    <CheckBox Grid.Column="2" x:Name="chkShowOnlyModified" 
+                           Checked="chkShowOnlyModified_Checked" Unchecked="chkShowOnlyModified_Unchecked"
+                           Content="Show Only Modified" HorizontalAlignment="Stretch"  />
+
+
+                                                    <TreeView VerticalAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="3" x:Name="assetTreeView" 
+                      ScrollViewer.VerticalScrollBarVisibility="Visible"  
+                      SelectedItemChanged="assetTreeView_SelectedItemChanged"
+                      >
+                                                        <TreeView.ItemTemplate>
+                                                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                                                <TextBlock Text="{Binding PathName}"
+                                                    Tag="{Binding}">
+                                                                    <TextBlock.ContextMenu>
+                                                                        <ContextMenu >
+                                                                            <MenuItem Header="Import Folder"
+                                                                     x:Name="btnImportFolder" Tag="{Binding}"
+                                                                              Click="btnImportFolder_Click" />
+                                                                            <MenuItem Header="Export Folder"
+                                                                     x:Name="btnExportFolder" Tag="{Binding}"
+                                                                              Click="btnExportFolder_Click" />
+                                                                        </ContextMenu>
+                                                                    </TextBlock.ContextMenu>
+
+                                                                </TextBlock>
+                                                            </HierarchicalDataTemplate>
+                                                        </TreeView.ItemTemplate>
+                                                    </TreeView>
+                                                </Grid>
+
+                                            </LayoutAnchorable>
+                                        </LayoutAnchorablePane>
+                                        <LayoutAnchorablePane DockWidth="200">
+                                            <LayoutAnchorable  CanAutoHide="False" CanClose="False" CanHide="False">
+
+                                                <ListView VerticalAlignment="Stretch"  Grid.Column="0" Grid.Row="2" x:Name="assetListView" 
+                                          ScrollViewer.CanContentScroll="True"
+                      ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                      ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                      HorizontalAlignment="Stretch" 
+                      SelectionChanged="assetListView_SelectionChanged"
+                      
+                      >
+                                                    <ListView.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <!--<StackPanel/>
+                    If StackPanel was used, the memory consumed was over 2GB and dead slow.
+                    -->
+                                                            <VirtualizingStackPanel>
+                                                                <!--Memory footprint is only 200 mb-->
+                                                            </VirtualizingStackPanel>
+                                                        </ItemsPanelTemplate>
+                                                    </ListView.ItemsPanel>
+                                                    <ListView.View>
+                                                        <GridView  >
+                                                            <GridViewColumn Width="200" Header="Name">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding DisplayName}" Tag="{Binding}">
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsModified}"
+                                                                            Value="True">
+                                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                            <TextBlock.ContextMenu>
+                                                                                <ContextMenu >
+                                                                                    <MenuItem Header="Duplicate"
+                                                                     x:Name="btnDuplicate" Tag="{Binding}"
+                                                                              Click="btnDuplicate_Click" />
+                                                                                    <MenuItem Header="Revert"
+                                                                     x:Name="btnCMRevert" Tag="{Binding}"
+                                                                              Click="btnRevert_Click" />
+                                                                                    <MenuItem Header="Delete"
+                                                                     x:Name="btnDelete" Tag="{Binding}"
+                                                                              Click="btnDelete_Click" IsEnabled="False" >
+
+                                                                                        <MenuItem.ItemContainerStyle>
+                                                                                            <Style TargetType="MenuItem">
+                                                                                                <Style.Triggers>
+                                                                                                    <DataTrigger Binding="{Binding IsAdded}"
+                                                                            Value="True">
+                                                                                                        <Setter Property="IsEnabled" Value="True"/>
+                                                                                                    </DataTrigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </MenuItem.ItemContainerStyle>
+                                                                                    </MenuItem>
+                                                                                </ContextMenu>
+                                                                            </TextBlock.ContextMenu>
+                                                                        </TextBlock>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header="Asset Type">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding AssetType}" Tag="{Binding}"
+                                               >
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsModified}"
+                                                        Value="True">
+                                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                        </TextBlock>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header="Type">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding Type}" Tag="{Binding}"
+                                               >
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsModified}"
+                                                        Value="True">
+                                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                        </TextBlock>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header="CAS">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding CASFileLocation}" Tag="{Binding}"
+                                                >
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="TextBlock">
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsModified}"
+                                                        Value="True">
+                                                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                        </TextBlock>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                        </GridView>
+                                                    </ListView.View>
+                                                </ListView>
+                                            </LayoutAnchorable>
+                                        </LayoutAnchorablePane>
+                                    </LayoutPanel>
+                                </LayoutRoot>
+                            </DockingManager>
+
+                        </LayoutAnchorable>
+                    </LayoutAnchorablePane>
+
+                </LayoutPanel>
             </LayoutPanel>
         </LayoutRoot>
     </DockingManager>

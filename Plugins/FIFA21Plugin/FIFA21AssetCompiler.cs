@@ -22,7 +22,7 @@ namespace FIFA21Plugin
     /// FIFA 21 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
     /// Linked to FIFA21BundleAction
     /// </summary>
-    public class FIFA21AssetCompiler : IAssetCompiler
+    public class FIFA21AssetCompiler : BaseAssetCompiler, IAssetCompiler
     {
         public const string ModDirectory = "ModData";
         public const string PatchDirectory = "Patch";
@@ -35,8 +35,10 @@ namespace FIFA21Plugin
         /// <param name="logger"></param>
         /// <param name="frostyModExecuter">Frosty Mod Executer object</param>
         /// <returns></returns>
-        public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
+        public override bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
+            base.Compile(fs, logger, modExecuter);
+
             DateTime dtStarted = DateTime.Now;
             if (!ProfilesLibrary.IsFIFA21DataVersion())
             {
@@ -51,7 +53,7 @@ namespace FIFA21Plugin
             //    return result;
             //}
             ModExecutor.UseModData = true;
-            result = RunOriginCompiler(fs, logger, frostyModExecuter);
+            result = RunOriginCompiler(fs, logger, modExecuter);
 
             logger.Log($"Compiler completed in {(DateTime.Now - dtStarted).ToString(@"mm\:ss")}");
             return result;

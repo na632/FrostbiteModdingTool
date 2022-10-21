@@ -30,8 +30,10 @@ namespace FIFA23Plugin
         /// <param name="logger"></param>
         /// <param name="frostyModExecuter">Frosty Mod Executer object</param>
         /// <returns></returns>
-        public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
+        public override bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
+            base.Compile(fs, logger, modExecuter);
+
             DateTime dtStarted = DateTime.Now;
             if (!ProfilesLibrary.IsFIFA23DataVersion())
             {
@@ -44,35 +46,31 @@ namespace FIFA23Plugin
             ErrorCounts.Add(ModType.EBX, 0);
             ErrorCounts.Add(ModType.RES, 0);
             ErrorCounts.Add(ModType.CHUNK, 0);
+            ModExecutor.UseModData = true;
+
             //if (!FrostyModExecutor.UseModData)
             //{
             //    result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
             //    return result;
             //}
-            result = RunModDataCompiler(fs, logger, frostyModExecuter);
+            result = RunModDataCompiler(logger);
 
             logger.Log($"Compiler completed in {(DateTime.Now - dtStarted).ToString(@"mm\:ss")}");
             return result;
         }
 
-        private bool RunModDataCompiler(FileSystem fs, ILogger logger, object frostyModExecuter)
+        private bool RunModDataCompiler(ILogger logger)
         {
-            if (!Directory.Exists(fs.BasePath))
-                throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {fs.BasePath}");
+            if (!Directory.Exists(FileSystem.Instance.BasePath))
+                throw new DirectoryNotFoundException($"Unable to find the correct base path directory of {FileSystem.Instance.BasePath}");
 
-            Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
-            Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");
-
-            parent = (ModExecutor)frostyModExecuter;
+            Directory.CreateDirectory(FileSystem.Instance.BasePath + ModDirectory + "\\Data");
+            Directory.CreateDirectory(FileSystem.Instance.BasePath + ModDirectory + "\\Patch");
 
             logger.Log("Copying files from Data to ModData/Data");
-            CopyDataFolder(fs.BasePath + "\\Data\\", fs.BasePath + ModDirectory + "\\Data\\", logger);
+            CopyDataFolder(FileSystem.Instance.BasePath + "\\Data\\", FileSystem.Instance.BasePath + ModDirectory + "\\Data\\", logger);
             logger.Log("Copying files from Patch to ModData/Patch");
-            CopyDataFolder(fs.BasePath + "\\Patch\\", fs.BasePath + ModDirectory + "\\Patch\\", logger);
-
-            //        FIFA23BundleAction fifaBundleAction = new FIFA23BundleAction(fme);
-            //        return fifaBundleAction.Run();
-
+            CopyDataFolder(FileSystem.Instance.BasePath + "\\Patch\\", FileSystem.Instance.BasePath + ModDirectory + "\\Patch\\", logger);
 
             return Run();
         }
@@ -85,7 +83,7 @@ namespace FIFA23Plugin
         ///// </summary>
         //public class FIFA23BundleAction
         //{
-        private ModExecutor parent { get; set; }
+        private ModExecutor parent => ModExecuter;
 
         //public static Dictionary<string, List<string>> CatalogCasFiles { get; } = new Dictionary<string, List<string>>();
 
@@ -141,200 +139,97 @@ namespace FIFA23Plugin
         /// 
         /// </summary>
         /// <returns>cas to Tuple of Sha1, Name, Type, IsAdded</returns>
-        private Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
-        {
-            // Handle Legacy first to generate modified chunks
-            ProcessLegacyMods();
-            // ------ End of handling Legacy files ---------
+        //private Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
+        //{
+        //    // Handle Legacy first to generate modified chunks
+        //    ProcessLegacyMods();
+        //    // ------ End of handling Legacy files ---------
 
-            Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
-            foreach(var mod in parent.ModifiedAssets)
-            {
-                AssetEntry originalEntry = null;
-                if (mod.Value is EbxAssetEntry)
-                    originalEntry = AssetManager.Instance.GetEbxEntry(mod.Value.Name);
-                else if (mod.Value is ResAssetEntry)
-                    originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
-                else if (mod.Value is ChunkAssetEntry)
-                    originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(mod.Value.Name));
+        //    Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
+        //    foreach(var mod in parent.ModifiedAssets)
+        //    {
+        //        AssetEntry originalEntry = null;
+        //        if (mod.Value is EbxAssetEntry)
+        //            originalEntry = AssetManager.Instance.GetEbxEntry(mod.Value.Name);
+        //        else if (mod.Value is ResAssetEntry)
+        //            originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
+        //        else if (mod.Value is ChunkAssetEntry)
+        //            originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(mod.Value.Name));
 
-                if (originalEntry == null)
-                    continue;
+        //        if (originalEntry == null)
+        //            continue;
 
-                var casPath = originalEntry.ExtraData.CasPath;
-                if (!casToMods.ContainsKey(casPath))
-                    casToMods.Add(casPath, new List<ModdedFile>());
+        //        var casPath = originalEntry.ExtraData.CasPath;
+        //        if (!casToMods.ContainsKey(casPath))
+        //            casToMods.Add(casPath, new List<ModdedFile>());
 
-                casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
+        //        casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
 
-            }
+        //    }
 
-            //foreach (var mod in parent.modifiedRes)
-            //{
-            //    var originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
-            //    if (originalEntry != null)
-            //    {
-            //        if (originalEntry.ExtraData != null && originalEntry.ExtraData.CasPath != null)
-            //        {
+        //    return casToMods;
+        //}
 
-            //            var casPath = originalEntry.ExtraData.CasPath;
-            //            if (!casToMods.ContainsKey(casPath))
-            //            {
-            //                casToMods.Add(casPath, new List<ModdedFile>() { new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry) });
-            //            }
-            //            else
-            //            {
-            //                casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        ErrorCounts[ModType.RES]++;
-            //    }
-            //}
+        //private void ProcessLegacyMods()
+        //{
+        //    List<Guid> ChunksToRemove = new List<Guid>();
 
-            return casToMods;
-        }
+        //    // -----------------------------------------------------------
+        //    // process modified legacy chunks and make live changes
+        //    if (parent.modifiedLegacy.Count > 0)
+        //    {
+        //        parent.Logger.Log($"Legacy :: {parent.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
 
-        private void ProcessLegacyMods()
-        {
-            List<Guid> ChunksToRemove = new List<Guid>();
-            // *.fifamod files do not put data into "modifiedLegacy" and instead embed into Chunks 
-            // handling those chunks here
-            //if (parent.AddedChunks.Count > 0)
-            //{
+        //        Dictionary<string, byte[]> legacyData = new Dictionary<string, byte[]>();
+        //        var countLegacyChunksModified = 0;
+        //        foreach (var modLegacy in parent.modifiedLegacy)
+        //        {
+        //            byte[] data = null;
+        //            //if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
+        //            //    data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
+        //            //else 
+        //            if (parent.archiveData.ContainsKey(modLegacy.Value.Sha1))
+        //                data = parent.archiveData[modLegacy.Value.Sha1].Data;
 
-            //    foreach(var mod in parent.AddedChunks)
-            //    {
-            //        ChunkAssetEntry cae = mod.Value;
-            //        if (cae != null)
-            //        {
-            //            if(cae.ModifiedEntry != null)
-            //            {
-            //                if(cae.ModifiedEntry.IsLegacyFile)
-            //                {
-            //                    parent.modifiedLegacy.Add(cae.ModifiedEntry.LegacyFullName
-            //                        , new LegacyFileEntry()
-            //                        {
-            //                            Sha1 = cae.ModifiedEntry.Sha1,
-            //                            Name = cae.ModifiedEntry.LegacyFullName
-            //                        });
-            //                    ChunksToRemove.Add(mod.Key);
+        //            if (data != null)
+        //            {
+        //                legacyData.Add(modLegacy.Key, data);
+        //            }
+        //        }
 
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            //else 
-            //if (parent.ModifiedChunks.Count > 0)
-            //{
-            //    foreach (var mod in parent.ModifiedChunks)
-            //    {
-            //        ChunkAssetEntry cae = mod.Value;
-            //        if (cae != null)
-            //        {
-            //            if (cae.ModifiedEntry != null)
-            //            {
-            //                if (cae.ModifiedEntry.IsLegacyFile)
-            //                {
-            //                    parent.modifiedLegacy.Add(cae.ModifiedEntry.LegacyFullName
-            //                        , new LegacyFileEntry()
-            //                        {
-            //                            Sha1 = cae.ModifiedEntry.Sha1,
-            //                            Name = cae.ModifiedEntry.LegacyFullName,
-            //                            ModifiedEntry = new ModifiedAssetEntry()
-            //                            {
-            //                                Name = cae.ModifiedEntry.LegacyFullName,
-            //                                UserData = cae.ModifiedEntry.LegacyFullName,
-            //                                Data = cae.ModifiedEntry.Data
-            //                            }
-            //                        });
-            //                    ChunksToRemove.Add(mod.Key);
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
+        //        LegacyFileManager_FMTV2 legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+        //        if (legacyFileManager != null)
+        //        {
+        //            legacyFileManager.ModifyAssets(legacyData, true);
 
-            //foreach (var mod in ChunksToRemove)
-            //    parent.ModifiedChunks.Remove(mod);
+        //            var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
+        //            foreach (var modLegChunk in modifiedLegacyChunks.Where(x => !parent.ModifiedChunks.ContainsKey(x.Id)))
+        //            {
+        //                if (modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+        //                {
 
+        //                }
+        //                if (modLegChunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+        //                {
 
-            // -----------------------------------------------------------
-            // process modified legacy chunks and make live changes
-            if (parent.modifiedLegacy.Count > 0)
-            {
-                parent.Logger.Log($"Legacy :: {parent.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
+        //                }
+        //                modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+        //                parent.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
+        //                countLegacyChunksModified++;
+        //            }
 
-                Dictionary<string, byte[]> legacyData = new Dictionary<string, byte[]>();
-                var countLegacyChunksModified = 0;
-                foreach (var modLegacy in parent.modifiedLegacy)
-                {
-                    byte[] data = null;
-                    //if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
-                    //    data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
-                    //else 
-                    if (parent.archiveData.ContainsKey(modLegacy.Value.Sha1))
-                        data = parent.archiveData[modLegacy.Value.Sha1].Data;
-
-                    if (data != null)
-                    {
-                        legacyData.Add(modLegacy.Key, data);
-                    }
-                }
-
-                //AssetManager.Instance.ModifyLegacyAssets(legacyData, true);
-                LegacyFileManager_FMTV2 legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as LegacyFileManager_FMTV2;
-                if (legacyFileManager != null)
-                {
-                    legacyFileManager.ModifyAssets(legacyData, true);
-
-                    var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
-                    foreach (var modLegChunk in modifiedLegacyChunks.Where(x => !parent.ModifiedChunks.ContainsKey(x.Id)))
-                    {
-                        if (modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
-                        {
-
-                        }
-                        if (modLegChunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
-                        {
-
-                        }
-                        modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
-                        //if (!parent.ModifiedChunks.ContainsKey(modLegChunk.Id))
-                        //{
-                        parent.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
-                        //}
-                        //else
-                        //{
-                        //    parent.ModifiedChunks[modLegChunk.Id] = modLegChunk;
-                        //}
-                        countLegacyChunksModified++;
-                    }
-
-                    var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
-                    foreach (var chunk in modifiedChunks)
-                    {
-                        if (chunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
-                        {
-
-                        }
-                        if (chunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
-                        {
-
-                        }
-
-                        if (parent.archiveData.ContainsKey(chunk.Sha1))
-                            parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
-                        else
-                            parent.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
-                    }
-                    parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
-                }
-            }
-        }
+        //            var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
+        //            foreach (var chunk in modifiedChunks)
+        //            {
+        //                if (parent.archiveData.ContainsKey(chunk.Sha1))
+        //                    parent.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
+        //                else
+        //                    parent.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+        //            }
+        //            parent.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
+        //        }
+        //    }
+        //}
 
         Dictionary<string, DbObject> SbToDbObject = new Dictionary<string, DbObject>();
 

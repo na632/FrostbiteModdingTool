@@ -22,6 +22,10 @@ namespace Frostbite.FileManagers
 
 		void ModifyAsset(string key, byte[] data);
 
-		void SetCacheModeEnabled(bool enabled);
+        void ModifyAsset(string key, byte[] data, bool rebuildChunk);
+
+		List<LegacyFileEntry> ModifyAssets(Dictionary<string, byte[]> data, bool rebuildChunk);
+
+        void SetCacheModeEnabled(bool enabled);
 	}
 }

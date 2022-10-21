@@ -11,7 +11,6 @@ using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
-using MinHook;
 using ProcessMemoryUtilities.Managed;
 using SdkGenerator;
 using System;

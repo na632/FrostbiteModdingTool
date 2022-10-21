@@ -1,6 +1,8 @@
-﻿using FrostySdk.Interfaces;
+﻿using Frostbite.FileManagers;
+using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,12 +13,14 @@ using static FrostySdk.Frostbite.PluginInterfaces.BaseAssetCompiler;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
-    public abstract class BaseAssetCompiler
+    public abstract class BaseAssetCompiler : IAssetCompiler
     {
         public string ModDirectory { get; } = "ModData";
         public string PatchDirectory { get; } = "Patch";
 
         public Dictionary<ModType, int> ErrorCounts = new Dictionary<ModType, int>();
+
+        public ModExecutor ModExecuter { get; set; }
 
         public void MakeTOCOriginals(string dir)
         {
@@ -168,8 +172,103 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
         }
 
+        protected Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
+        {
+            // Handle Legacy first to generate modified chunks
+            ProcessLegacyMods();
+            // ------ End of handling Legacy files ---------
 
+            Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
+            foreach (var mod in ModExecuter.ModifiedAssets)
+            {
+                AssetEntry originalEntry = null;
+                if (mod.Value is EbxAssetEntry)
+                    originalEntry = AssetManager.Instance.GetEbxEntry(mod.Value.Name);
+                else if (mod.Value is ResAssetEntry)
+                    originalEntry = AssetManager.Instance.GetResEntry(mod.Value.Name);
+                else if (mod.Value is ChunkAssetEntry)
+                    originalEntry = AssetManager.Instance.GetChunkEntry(Guid.Parse(mod.Value.Name));
 
+                if (originalEntry == null)
+                    continue;
+
+                var casPath = originalEntry.ExtraData.CasPath;
+                if (!casToMods.ContainsKey(casPath))
+                    casToMods.Add(casPath, new List<ModdedFile>());
+
+                casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
+
+            }
+
+            return casToMods;
+        }
+
+        protected void ProcessLegacyMods()
+        {
+            List<Guid> ChunksToRemove = new List<Guid>();
+
+            // -----------------------------------------------------------
+            // process modified legacy chunks and make live changes
+            if (ModExecuter.modifiedLegacy.Count > 0)
+            {
+                ModExecuter.Logger.Log($"Legacy :: {ModExecuter.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
+
+                Dictionary<string, byte[]> legacyData = new Dictionary<string, byte[]>();
+                var countLegacyChunksModified = 0;
+                foreach (var modLegacy in ModExecuter.modifiedLegacy)
+                {
+                    byte[] data = null;
+                    //if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
+                    //    data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
+                    //else 
+                    if (ModExecuter.archiveData.ContainsKey(modLegacy.Value.Sha1))
+                        data = ModExecuter.archiveData[modLegacy.Value.Sha1].Data;
+
+                    if (data != null)
+                    {
+                        legacyData.Add(modLegacy.Key, data);
+                    }
+                }
+
+                var legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+                if (legacyFileManager != null)
+                {
+                    legacyFileManager.ModifyAssets(legacyData, true);
+
+                    var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
+                    foreach (var modLegChunk in modifiedLegacyChunks.Where(x => !ModExecuter.ModifiedChunks.ContainsKey(x.Id)))
+                    {
+                        if (modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
+                        {
+
+                        }
+                        if (modLegChunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
+                        {
+
+                        }
+                        modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+                        ModExecuter.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
+                        countLegacyChunksModified++;
+                    }
+
+                    var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
+                    foreach (var chunk in modifiedChunks)
+                    {
+                        if (ModExecuter.archiveData.ContainsKey(chunk.Sha1))
+                            ModExecuter.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
+                        else
+                            ModExecuter.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                    }
+                    ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
+                }
+            }
+        }
+
+        public virtual bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
+        {
+            ModExecuter = modExecuter;
+            return false;
+        }
 
         public struct ModdedFile
         {

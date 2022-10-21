@@ -520,11 +520,12 @@ namespace FrostySdk.Managers
 			// Managed Resources
 			if (disposing)
 			{
-				//foreach (var cam in CustomAssetManagers)
-				//{
-				//	cam.Value.Reset();
-				//}
-				bundles.Clear();
+				CustomAssetManagers.Clear();
+                //foreach (var cam in CustomAssetManagers)
+                //{
+                //	cam.Value.Reset();
+                //}
+                bundles.Clear();
 				bundles = null;
 				EBX.Clear();
 				//EBX = null;

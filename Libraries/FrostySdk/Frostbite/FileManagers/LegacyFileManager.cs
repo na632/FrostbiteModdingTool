@@ -261,5 +261,10 @@ namespace FrostbiteSdk.Frostbite.FileManagers
         public void ResetAndDispose()
         {
         }
-    }
+
+		public List<LegacyFileEntry> ModifyAssets(Dictionary<string, byte[]> data, bool rebuildChunk)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

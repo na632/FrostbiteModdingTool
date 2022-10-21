@@ -188,21 +188,21 @@ namespace FIFAModdingUI.Pages.Common
                 {
 				//if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
 				{
-					string[] array = item.Path.Split(new char[1]
+					string[] directories = item.Path.Split(new char[1]
 					{
 							'/'
 					}, StringSplitOptions.RemoveEmptyEntries);
 					AssetPath assetPath2 = assetPath;
-					foreach (string text in array)
+					foreach (string directory in directories)
 					{
 						bool flag = false;
 						foreach (AssetPath child in assetPath2.Children)
 						{
-							if (child.PathName.Equals(text, StringComparison.OrdinalIgnoreCase))
+							if (child.PathName.Equals(directory, StringComparison.OrdinalIgnoreCase))
 							{
-								if (text.ToCharArray().Any((char a) => char.IsUpper(a)))
+								if (directory.ToCharArray().Any((char a) => char.IsUpper(a)))
 								{
-									child.UpdatePathName(text);
+									child.UpdatePathName(directory);
 								}
 								assetPath2 = child;
 								flag = true;
@@ -211,11 +211,11 @@ namespace FIFAModdingUI.Pages.Common
 						}
 						if (!flag)
 						{
-							string text2 = assetPath2.FullPath + "/" + text;
+							string text2 = assetPath2.FullPath + "/" + directory;
 							AssetPath assetPath3 = null;
 							if (!assetPathMapping.ContainsKey(text2))
 							{
-								assetPath3 = new AssetPath(text, text2, assetPath2);
+								assetPath3 = new AssetPath(directory, text2, assetPath2);
 								assetPathMapping.Add(text2, assetPath3);
 							}
 							else

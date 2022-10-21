@@ -31,12 +31,34 @@ namespace FrostbiteModdingUI.Windows
     {
         private string modProfileDirectory { get; } = App.ApplicationDirectory + "\\Mods\\Profiles\\";
 
+        public string GamePathEXE
+        {
+            get
+            {
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey($"Software\\EA Sports\\{ProfilesLibrary.DisplayName}"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir + $"{ProfilesLibrary.ProfileName}.exe";
+                    }
+                }
+                return string.Empty;
+            }
+        }
+
         public FindGameEXEWindow()
         {
             InitializeComponent();
 
             // Create the Profiles Directory if it doesn't already exist
             Directory.CreateDirectory(App.ApplicationDirectory + "\\Mods\\Profiles\\");
+
+           
+
+            Loaded += FindGameEXEWindow_Loaded;
+
 
             List<string> lastLocationPaths = new List<string>();
             foreach(var dir in Directory.GetDirectories(modProfileDirectory))
@@ -51,6 +73,17 @@ namespace FrostbiteModdingUI.Windows
                 new FileInfo(File.ReadAllText(x))
                 ).Where(x=>x.Exists).ToList();
             lv.ItemsSource = lstOfLocations;
+        }
+
+        private void FindGameEXEWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // If the Registry has the key and path, use that!
+            var registryPath = GamePathEXE;
+            if (File.Exists(registryPath))
+            {
+                InitializeOfSelectedGame(registryPath);
+                this.Close();
+            }
         }
 
         private void btnFindGameEXE_Click(object sender, RoutedEventArgs e)

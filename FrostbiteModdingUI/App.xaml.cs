@@ -11,9 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using FrostbiteSdk;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
-//using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.Identity.Client;
 
 //namespace FIFAModdingUI

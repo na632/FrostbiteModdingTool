@@ -17,7 +17,7 @@ namespace FrostySdk
 	{
 		public static class Reflection
 		{
-			public static Dictionary<Guid, string> typeInfos = new Dictionary<Guid, string>();
+			public static Dictionary<Guid, string> typeInfos  = new Dictionary<Guid, string>();
 
 			public static Dictionary<string, dynamic> TypeData = new Dictionary<string, dynamic>();
 
@@ -144,25 +144,25 @@ namespace FrostySdk
 
 		private const string ModuleName = "EbxClasses";
 
-		private const string Namespace = "FrostySdk.Ebx.";
+		private static string Namespace { get; } = "FrostySdk.Ebx.";
 
-		private static AssemblyBuilder assemblyBuilder;
+		private static AssemblyBuilder assemblyBuilder { get; set; }
 
-		private static ModuleBuilder moduleBuilder;
+        private static ModuleBuilder moduleBuilder { get; set; }
 
-		public static Assembly ExistingAssembly;
+        public static Assembly ExistingAssembly { get; set; }
 
-		public static List<TypeBuilder> constructingTypes = new List<TypeBuilder>();
+		public static List<TypeBuilder> constructingTypes { get; } = new List<TypeBuilder>();
 
-		public static List<ConstructorBuilder> constructors = new List<ConstructorBuilder>();
+		public static List<ConstructorBuilder> constructors { get; } = new List<ConstructorBuilder>();
 
-		private static List<Guid> constructingGuids = new List<Guid>();
+		private static List<Guid> constructingGuids { get; } = new List<Guid>();
 
-		public static ConcurrentDictionary<Guid, Type> guidTypeMapping = new ConcurrentDictionary<Guid, Type>();
+		public static ConcurrentDictionary<Guid, Type> guidTypeMapping { get; } = new ConcurrentDictionary<Guid, Type>();
 
-		private static string ProfileSDKLocation = "SDK/" + ProfilesLibrary.SDKFilename + ".dll";
+		private static string ProfileSDKLocation { get; } = "SDK/" + ProfilesLibrary.SDKFilename + ".dll";
 
-		public static bool RequestLoadSDK = false;
+		public static bool RequestLoadSDK { get; set; } = false;
 		public static bool Initialize(bool loadSDK = true)
 		{
 			RequestLoadSDK = loadSDK;
@@ -466,132 +466,7 @@ namespace FrostySdk
 				str
 			};
 		}
-		/*
-		public static void BuildModule(string sdkFilename, DbObject classList)
-		{
-			AssemblyName name = new AssemblyName("EbxClasses");
-			assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Save);
-			moduleBuilder = assemblyBuilder.DefineDynamicModule("EbxClasses", sdkFilename + ".dll");
-			EbxClass classInfo;
-			foreach (DbObject @class in classList)
-			{
-				switch ((byte)@class.GetValue("type", 0))
-				{
-				case 2:
-				case 3:
-					AddType(@class.GetValue<string>("name"));
-					break;
-				case 8:
-				{
-					List<Tuple<string, int>> list = new List<Tuple<string, int>>();
-					foreach (DbObject item2 in @class.GetValue<DbObject>("fields"))
-					{
-						list.Add(new Tuple<string, int>(item2.GetValue<string>("name"), item2.GetValue("value", 0)));
-					}
-					string value = @class.GetValue<string>("name");
-					classInfo = new EbxClass
-					{
-						Alignment = (byte)@class.GetValue("alignment", 0),
-						Size = (ushort)@class.GetValue("size", 0),
-						Type = (ushort)@class.GetValue("flags", 0),
-						Namespace = @class.GetValue<string>("namespace")
-					};
-					AddEnum(value, list, classInfo);
-					break;
-				}
-				}
-			}
-			foreach (DbObject class2 in classList)
-			{
-				EbxFieldType ebxFieldType = (EbxFieldType)class2.GetValue("type", 0);
-				if (ebxFieldType == EbxFieldType.Struct || ebxFieldType == EbxFieldType.Pointer)
-				{
-					List<FieldType> list2 = new List<FieldType>();
-					foreach (DbObject item3 in class2.GetValue<DbObject>("fields"))
-					{
-						EbxFieldType ebxFieldType2 = (EbxFieldType)item3.GetValue("type", 0);
-						string value2 = item3.GetValue<string>("baseType");
-						Type typeFromEbxType = GetTypeFromEbxType(ebxFieldType2, value2, item3.GetValue("arrayFlags", -1));
-						Type type = null;
-						switch (ebxFieldType2)
-						{
-						case EbxFieldType.Pointer:
-							type = AddType(value2);
-							break;
-						case EbxFieldType.Array:
-							if ((byte)((item3.GetValue("arrayFlags", 0) >> 4) & 0x1F) == 3)
-							{
-								type = AddType(value2);
-							}
-							break;
-						}
-						MetaDataType? inMetaData = null;
-						if (item3.GetValue<DbObject>("meta") != null)
-						{
-							DbObject value3 = item3.GetValue<DbObject>("meta");
-							inMetaData = new MetaDataType(value3);
-						}
-						string value4 = item3.GetValue<string>("name");
-						Type inBaseType = type;
-						EbxField value5 = new EbxField
-						{
-							DataOffset = (uint)item3.GetValue("offset", 0),
-							Type = (ushort)item3.GetValue("flags", 0)
-						};
-						EbxField? inFieldType = value5;
-						EbxField? inArrayType;
-						if (ebxFieldType2 != EbxFieldType.Array)
-						{
-							inArrayType = null;
-						}
-						else
-						{
-							value5 = new EbxField
-							{
-								DataOffset = 0u,
-								Type = (ushort)item3.GetValue("arrayFlags", 0)
-							};
-							inArrayType = value5;
-						}
-						FieldType item = new FieldType(value4, typeFromEbxType, inBaseType, inFieldType, inArrayType, inMetaData);
-						list2.Add(item);
-					}
-					Type type2 = null;
-					switch (ebxFieldType)
-					{
-					case EbxFieldType.Struct:
-						type2 = typeof(object);
-						break;
-					case EbxFieldType.Pointer:
-						if (class2.GetValue<string>("parent") != "")
-						{
-							type2 = AddType(class2.GetValue<string>("parent"));
-						}
-						break;
-					}
-					MetaDataType? metaData = null;
-					if (class2.GetValue<DbObject>("meta") != null)
-					{
-						DbObject value6 = class2.GetValue<DbObject>("meta");
-						metaData = new MetaDataType(value6);
-					}
-					string value7 = class2.GetValue<string>("name");
-					Type parentType = type2;
-					classInfo = new EbxClass
-					{
-						Type = (ushort)class2.GetValue("flags", 0),
-						Alignment = (byte)class2.GetValue("alignment", 0),
-						Size = (ushort)class2.GetValue("size", 0),
-						Namespace = class2.GetValue<string>("namespace")
-					};
-					FinalizeClass(value7, list2, parentType, classInfo, metaData);
-				}
-			}
-			assemblyBuilder.Save(sdkFilename + ".dll");
-		}
-
-		*/
-
+	
 		private static Type GetTypeFromEbxType(EbxFieldType inType, string baseType, int arrayType = -1)
 		{
 			Type result = null;

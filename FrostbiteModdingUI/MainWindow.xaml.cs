@@ -5,8 +5,6 @@ using FrostbiteModdingUI.Windows;
 using FrostySdk;
 using FrostySdk.Managers;
 using MahApps.Metro.Controls;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -194,6 +192,8 @@ namespace FMT
         private void Tile_Click(object sender, RoutedEventArgs e)
         {
             Profile profile = (Profile)((Tile)sender).Tag;
+            ProfilesLibrary.LoadedProfile = profile;
+
             var bS = new FindGameEXEWindow().ShowDialog();
             if (bS.HasValue && bS.Value == true && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))
             {

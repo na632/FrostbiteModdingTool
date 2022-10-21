@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\FrostySdk\FrostySdk.csproj" />
-    <ProjectReference Include="..\..\Libraries\ModdingSupport\ModdingSupport.csproj" />
   </ItemGroup>
 
 </Project>

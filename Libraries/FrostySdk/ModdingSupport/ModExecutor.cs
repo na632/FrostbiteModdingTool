@@ -20,7 +20,6 @@ using System.IO.Compression;
 using FrostySdk.FrostySdk.Deobfuscators;
 using FrostySdk.Frosty;
 using Newtonsoft.Json;
-using Microsoft.ApplicationInsights;
 using FrostbiteSdk.Frosty.Abstract;
 using System.Text;
 using FrostbiteSdk.FrostbiteSdk.Managers;
@@ -3468,8 +3467,6 @@ namespace ModdingSupport
             }
         }
 
-        public static TelemetryClient AppInsightClient;
-
         public bool ForceRebuildOfMods = false;
 
         public static string ApplicationDirectory
@@ -3850,18 +3847,16 @@ namespace ModdingSupport
 
             // Dyvinia Approach!
             // https://github.com/Dyvinia/FrostyFix/blob/master/Windows/MainWindow.xaml.cs
-            Environment.SetEnvironmentVariable("GAME_DATA_DIR", Path.Combine(fs.BasePath, "ModData"), EnvironmentVariableTarget.User);
-            Environment.SetEnvironmentVariable("dataPath", Path.Combine(fs.BasePath, "ModData"), EnvironmentVariableTarget.User);
+            //Environment.SetEnvironmentVariable("GAME_DATA_DIR", Path.Combine(fs.BasePath, "ModData"), EnvironmentVariableTarget.User);
+            //Environment.SetEnvironmentVariable("dataPath", Path.Combine(fs.BasePath, "ModData"), EnvironmentVariableTarget.User);
 
             Process p = new();
             p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             p.StartInfo.FileName = "cmd.exe";
-            p.StartInfo.Arguments = "/C set \"GAME_DATA_DIR=" + Path.Combine(fs.BasePath, "ModData") + "\" && start \"\" \"";
-
+            p.StartInfo.Arguments = "/C start \"\" \"";
             p.StartInfo.Arguments += Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Electronic Arts\EA Desktop")?.GetValue("ClientPath")?.ToString(); ;
-            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Electronic Arts\EA Desktop")?.GetValue("ClientPath")?.ToString());
-
             p.StartInfo.Arguments += "\"";
+            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Electronic Arts\EA Desktop")?.GetValue("ClientPath")?.ToString());
             p.Start();
         }
 

@@ -2,6 +2,7 @@
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using ModdingSupport;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
     public interface IAssetCompiler
     {
-        bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter);
+        bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter);
     }
 }

@@ -21,7 +21,7 @@ namespace FIFA22Plugin
     /// <summary>
     /// Currently. The Madden 21 Compiler does not work in game.
     /// </summary>
-    public class Fifa22AssetCompiler : IAssetCompiler
+    public class Fifa22AssetCompiler : BaseAssetCompiler, IAssetCompiler
     {
         public const string ModDirectory = "ModData";
         public const string PatchDirectory = "Patch";
@@ -54,43 +54,43 @@ namespace FIFA22Plugin
             }
         }
 
-        private void MakeTOCOriginals(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
+        //private void MakeTOCOriginals(string dir)
+        //{
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
+        //    {
+        //        if (File.Exists(tFile + ".bak"))
+        //            File.Copy(tFile + ".bak", tFile, true);
+        //    }
 
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
+        //    {
+        //        if (File.Exists(tFile + ".bak"))
+        //            File.Copy(tFile + ".bak", tFile, true);
+        //    }
 
-            foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            {
-                MakeTOCOriginals(internalDir);
-            }
-        }
+        //    foreach (var internalDir in Directory.EnumerateDirectories(dir))
+        //    {
+        //        MakeTOCOriginals(internalDir);
+        //    }
+        //}
 
-        private void MakeTOCBackups(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
+        //private void MakeTOCBackups(string dir)
+        //{
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
+        //    {
+        //        File.Copy(tFile, tFile + ".bak", true);
+        //    }
 
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
+        //    foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
+        //    {
+        //        File.Copy(tFile, tFile + ".bak", true);
+        //    }
 
-            foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            {
-                MakeTOCBackups(internalDir);
-            }
-        }
+        //    foreach (var internalDir in Directory.EnumerateDirectories(dir))
+        //    {
+        //        MakeTOCBackups(internalDir);
+        //    }
+        //}
 
         /// <summary>
         /// Construct the Modded Bundles within CAS files
@@ -147,7 +147,7 @@ namespace FIFA22Plugin
 
         }
 
-        ModExecutor ModExecuter = null;
+        //ModExecutor ModExecuter = null;
         ModExecutor parent => ModExecuter;
 
         /// <summary>
@@ -157,11 +157,13 @@ namespace FIFA22Plugin
         /// <param name="logger"></param>
         /// <param name="frostyModExecuter">Frosty Mod Executer object</param>
         /// <returns></returns>
-        public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
+        public override bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
-            ModExecuter = (ModExecutor)frostyModExecuter;
-            
-                if (UseModData)
+            base.Compile(fs, logger, modExecuter);
+            ModExecutor.UseModData = true;
+
+
+            if (UseModData)
                 {
                     Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Data");
                     Directory.CreateDirectory(fs.BasePath + ModDirectory + "\\Patch");

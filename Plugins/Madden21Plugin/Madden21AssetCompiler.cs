@@ -156,9 +156,9 @@ namespace Madden21Plugin
         /// <param name="logger"></param>
         /// <param name="frostyModExecuter">Frosty Mod Executer object</param>
         /// <returns></returns>
-        public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
+        public bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
-            ModExecuter = (ModExecutor)frostyModExecuter;
+            ModExecuter = (ModExecutor)modExecuter;
             // ------------------------------------------------------------------------------------------
             // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
             if (ProfilesLibrary.IsMadden21DataVersion())

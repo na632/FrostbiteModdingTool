@@ -22,7 +22,7 @@ namespace FIFA22Plugin
     /// FIFA 22 Version of the FIFA 21 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
     /// Linked to FIFA21BundleAction
     /// </summary>
-    public class Fifa22AssetCompiler_Old : IAssetCompiler
+    public class Fifa22AssetCompiler_Old : BaseAssetCompiler, IAssetCompiler
     {
         public const string ModDirectory = "ModData";
         public const string PatchDirectory = "Patch";
@@ -35,8 +35,10 @@ namespace FIFA22Plugin
         /// <param name="logger"></param>
         /// <param name="frostyModExecuter">Frosty Mod Executer object</param>
         /// <returns></returns>
-        public bool Compile(FileSystem fs, ILogger logger, object frostyModExecuter)
+        public override bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
+            base.Compile(fs, logger, modExecuter);
+
             DateTime dtStarted = DateTime.Now;
             if (!ProfilesLibrary.IsFIFA22DataVersion())
             {
@@ -44,14 +46,15 @@ namespace FIFA22Plugin
                 return false;
             }
 
-           
+            ModExecutor.UseModData = true;
+
             bool result = false;
             if (!ModExecutor.UseModData)
             {
-                result = RunEADesktopCompiler(fs, logger, frostyModExecuter);
+                result = RunEADesktopCompiler(fs, logger, modExecuter);
                 return result;
             }
-            result = RunOriginCompiler(fs, logger, frostyModExecuter);
+            result = RunOriginCompiler(fs, logger, modExecuter);
 
             logger.Log($"Compiler completed in {(DateTime.Now - dtStarted).ToString(@"mm\:ss")}");
             return result;
