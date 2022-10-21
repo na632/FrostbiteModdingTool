@@ -107,6 +107,7 @@
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
+    <PackageReference Include="CsvHelper" Version="29.0.0" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.70.2" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.70.2" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
@@ -141,6 +142,7 @@
     <ProjectReference Include="..\Libraries\CSIL\CSIL.csproj">
 		  
 	  </ProjectReference>
+    <ProjectReference Include="..\Libraries\FifaLibrary\FifaLibrary.csproj" />
     <ProjectReference Include="..\Libraries\FMT.Controls\FMT.Controls.csproj" />
 	  <ProjectReference Include="..\Libraries\FrostySdk\FrostySdk.csproj">
 	  </ProjectReference>
