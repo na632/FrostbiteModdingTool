@@ -629,6 +629,7 @@ namespace Frostbite.FileManagers
 
 						ModifiedChunks.Add(chunkEntry);
 
+						AssetManager.Instance.RevertAsset(chunkEntry);
 						AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType);
 						chunkEntry.ModifiedEntry.AddToChunkBundle = true;
 						chunkEntry.ModifiedEntry.AddToTOCChunks = true;
@@ -652,9 +653,13 @@ namespace Frostbite.FileManagers
 							batchGuid = groupOfLegacyFilesWithOnlyOne.Key;
 
 							// standard way of doing it
-							//var groupOfLegacyFiles = chunkBatch.ChunkGroupsInBatch.First(x => x.Key == batchGuid).Value;
 							var groupChunkEntry = AssetManager.Instance.GetChunkEntry(batchGuid);
-							var groupChunk = AssetManager.Instance.GetChunk(groupChunkEntry);
+							// -----------------------------------------------------------------
+							// Revert back to Vanilla Asset first
+							AssetManager.Instance.RevertAsset(groupChunkEntry);
+                            groupChunkEntry = AssetManager.Instance.GetChunkEntry(batchGuid);
+
+                            var groupChunk = AssetManager.Instance.GetChunk(groupChunkEntry);
 
 							var ms_newChunkGroup = new MemoryStream();
 							using (var nw_newChunkGroup = new NativeWriter(ms_newChunkGroup, leaveOpen: true))
@@ -697,6 +702,9 @@ namespace Frostbite.FileManagers
 
 
 							var oldEntry = AssetManager.Instance.GetChunkEntry(batchGuid);
+                            // -----------------------------------------------------------------
+                            // Revert back to Vanilla Asset first
+                            AssetManager.Instance.RevertAsset(oldEntry);
 							ModifiedChunks.Add(oldEntry);
 
 							//AssetManager.Instance.ModifyChunk(batchGuid, newChunkGroupData, compressionOverride: compressionType);

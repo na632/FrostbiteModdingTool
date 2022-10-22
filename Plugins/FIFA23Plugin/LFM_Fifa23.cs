@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace FIFA23Plugin
 {
-    public class LFM_Fifa22 : LegacyFileManager_FMTV2, ILegacyFileManager, ICustomAssetManager
+    public class LFM_Fifa23 : LegacyFileManager_FMTV2, ILegacyFileManager, ICustomAssetManager
     {
 
 		public override void Initialize(ILogger logger)
 		{
-			logger.Log("[LEGACY] Loading files");
+			logger.Log($"[{GetType().Name}][LEGACY] Loading files");
 			AddedFileEntries = new List<LegacyFileEntry>();
 
 			foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
