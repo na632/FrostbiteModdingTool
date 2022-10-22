@@ -58,7 +58,6 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\CSIL\CSIL.csproj" />
-	  <ProjectReference Include="..\FifaLibrary\FifaLibrary.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -136,7 +135,8 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	  <None Update="ThirdParty\config.ini">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Update="ThirdParty\CryptBase.dll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -163,6 +163,7 @@
 	  </None>
 	  <None Update="ThirdParty\FIFA23\FIFATU2.dll">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	  <None Update="ThirdParty\FIFA23\imgui.ini">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -234,10 +235,6 @@
 	  </None>
 	</ItemGroup>
 	
-	<ItemGroup>
-	  <Folder Include="Frostbite\ANT\EA.Ant.Backend\Default\" />
-	</ItemGroup>
-
 	<Target Name="AfterBuild">
 		<Message Text="1. ReferencePath:%0D%0A%09@(ReferencePath->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />
 		<Message Text="2. ReferenceCopyLocalPaths:%0D%0A%09@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />

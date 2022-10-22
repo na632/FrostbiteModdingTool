@@ -397,8 +397,8 @@ namespace FrostySdk.IO._2022.Readers
 			base.isValid = true;
 
 			//if (RootType.Contains("gp_"))
-			if (RootType.Contains("SkeletonAsset"))
-                {
+			if (RootType.Contains("Hotspot"))
+            {
 				Position = 0;
 				var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
 				base.stream.CopyTo(fsDump);
@@ -777,7 +777,9 @@ namespace FrostySdk.IO._2022.Readers
 
 		protected override void ReadArray(object obj, PropertyInfo property, EbxClass classType, EbxField field, bool isReference)
 		{
-			long position = base.Position;
+            //EbxClass @class = this.GetClass(classType, field.ClassRef);
+
+            long position = base.Position;
 			int arrayOffset = base.ReadInt32LittleEndian();
 			base.Position += arrayOffset - 4;
 			base.Position -= 4L;

@@ -1538,15 +1538,15 @@ namespace FrostySdk.Managers
 
 		public void DuplicateEntry(AssetEntry EntryToDuplicate, string NewEntryPath, bool IsLegacy)
 		{
+			if (EntryToDuplicate == null)
+				throw new ArgumentNullException("Entry to duplicate must be provided!");
+
 			if (IsLegacy)
 			{
 				LegacyFileEntry ae = JsonConvert.DeserializeObject<LegacyFileEntry>(JsonConvert.SerializeObject(EntryToDuplicate));
 				ae.Name = NewEntryPath;
 				ICustomAssetManager customAssetManager = AssetManager.Instance.GetLegacyAssetManager();
-				customAssetManager.AddAsset(ae.Name, ae);
-				customAssetManager.ModifyAsset(ae.Name, ((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", ae)).ToArray());
-				ae.ModifiedEntry.ChunkId = Guid.NewGuid();
-
+				customAssetManager.DuplicateAsset(NewEntryPath, (LegacyFileEntry)EntryToDuplicate);
 			}
 			else
 			{

@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 
 namespace FIFA23Plugin
 {
@@ -729,12 +730,12 @@ namespace FIFA23Plugin
         {
             foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
             {
-                foreach (string key3 in catalogInfo.SuperBundles.Keys)
+                foreach (string sbKey in catalogInfo.SuperBundles.Keys)
                 {
-                    string tocFile = key3;
-                    if (catalogInfo.SuperBundles[key3])
+                    string tocFile = sbKey;
+                    if (catalogInfo.SuperBundles[sbKey])
                     {
-                        tocFile = key3.Replace("win32", catalogInfo.Name);
+                        tocFile = sbKey.Replace("win32", catalogInfo.Name);
                     }
 
                     // Only handle Legacy stuff right now
@@ -743,18 +744,18 @@ namespace FIFA23Plugin
                         continue;
                     }
 
-                    var tocFileRAW = $"{directory}/{tocFile}.toc";
-                    string location_toc_file = parent.fs.ResolvePath(tocFileRAW);
+                    var oathToTOCFileRAW = $"{directory}/{tocFile}.toc";
+                    string location_toc_file = parent.fs.ResolvePath(oathToTOCFileRAW);
                     TocSbReader_Fifa22 tocSb = new TocSbReader_Fifa22(false, false);
 
-                    var locationTocFileInModData = ModExecutor.UseModData
+                    var pathToTOCFile = ModExecutor.UseModData
                         ? location_toc_file
                         .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
                         .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
                         : location_toc_file;
 
                     // read the changed toc file in ModData
-                    tocSb.Read(locationTocFileInModData, 0, tocFileRAW);
+                    tocSb.Read(pathToTOCFile, 0, oathToTOCFileRAW);
                     if (tocSb.TOCFile == null || !tocSb.TOCFile.TocChunks.Any())
                         continue;
 
@@ -773,7 +774,7 @@ namespace FIFA23Plugin
                         nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false), ModExecutor.UseModData);
                         patch = false;
                     }
-                    using (NativeWriter nw_toc = new NativeWriter(new FileStream(locationTocFileInModData, FileMode.Open)))
+                    using (NativeWriter nw_toc = new NativeWriter(new FileStream(pathToTOCFile, FileMode.Open)))
                     {
                         foreach (var modChunk in parent.ModifiedChunks)
                         {
@@ -795,9 +796,15 @@ namespace FIFA23Plugin
                                     {
                                         nw_cas.Position = nw_cas.Length;
                                         var newPosition = nw_cas.Position;
-
-
                                         nw_cas.WriteBytes(data);
+                                        modChunk.Value.Size = data.Length;
+                                        modChunk.Value.ExtraData = new AssetExtraData()
+                                        {
+                                            DataOffset = (uint)newPosition,
+                                            Cas = newCas,
+                                            Catalog = catalog,
+                                            IsPatch = patch,
+                                        };
 
                                         nw_toc.Position = dboChunk.GetValue<long>("patchPosition");
                                         nw_toc.Write(Convert.ToByte(patch ? 1 : 0));
@@ -812,10 +819,35 @@ namespace FIFA23Plugin
                                     }
                                 }
                             }
+
+                            // Added / Duplicate chunk -- Does nothing at the moment
+                            if (modChunk.Value.ExtraData == null && tocFile == "win32/globalsfull")
+                            {
+                                using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
+                                {
+                                    var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                    nw_cas.Position = nw_cas.Length;
+                                    var newPosition = nw_cas.Position;
+                                    //nw_cas.WriteBytes(data);
+                                    modChunk.Value.Size = data.Length;
+                                    modChunk.Value.ExtraData = new AssetExtraData()
+                                    {
+                                        DataOffset = (uint)newPosition,
+                                        Cas = newCas,
+                                        Catalog = catalog,
+                                        IsPatch = patch,
+                                    };
+                                    //tocSb.TOCFile.TocChunks.Add(modChunk.Value);
+                                }
+                            }
                         }
                     }
 
-                    TOCFile.RebuildTOCSignatureOnly(locationTocFileInModData);
+                    //using (var fsToc = new FileStream(pathToTOCFile, FileMode.Open))
+                    //{
+                    //    tocSb.TOCFile.Write(fsToc);
+                    //}
+                    TOCFile.RebuildTOCSignatureOnly(pathToTOCFile);
                 }
             }
 

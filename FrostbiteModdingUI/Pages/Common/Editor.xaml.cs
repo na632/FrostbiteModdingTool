@@ -76,6 +76,9 @@ namespace FIFAModdingUI.Pages.Common
 						{
 							try
 							{
+								if (Property.PropertyType.Name.Equals("AssetClassGuid"))
+									return;
+
 								Property.SetValue(RootObject, Convert.ChangeType(value, Property.PropertyType));
                                 if (PropertyChanged != null)
                                 {
@@ -240,7 +243,7 @@ namespace FIFAModdingUI.Pages.Common
 					{
 						foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
 						{
-							var modprop = new ModdableProperty(RootObject, p, null, Modprop_PropertyChanged);
+							var modprop = new ModdableProperty(vanillaEbx.RootObject, p, null, Modprop_PropertyChanged);
 							//var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
                             _VanillaRootProps.Add(modprop);
 						}
@@ -458,7 +461,8 @@ namespace FIFAModdingUI.Pages.Common
 					break;
 				// Unknown/Other Struct
 				default:
-                    var structProperties = ModdableProperty.GetModdableProperties(d.PropertyValue, (s,n) => {
+                    var structProperties = ModdableProperty.GetModdableProperties(d.PropertyValue, (s,n) => 
+					{
 						_ = SaveToRootObject();
 					}).ToList();
 					TreeViewItem structTreeView = new TreeViewItem();
@@ -497,9 +501,13 @@ namespace FIFAModdingUI.Pages.Common
 			foreach (var p in moddableProperties)
 			{
 				TreeViewItem propTreeViewParent = new TreeViewItem();
-				propTreeViewParent.Header = p.PropertyName;
 
-				bool AddToPropTreeViewParent = true;
+				//await Dispatcher.InvokeAsync(() =>
+				//{
+					propTreeViewParent.Header = p.PropertyName;
+				//});
+
+                bool AddToPropTreeViewParent = true;
 
                 // Attempt to use the prebuilt controls
                 Control control = GetMatchingTypedControl(p);
@@ -561,24 +569,6 @@ namespace FIFAModdingUI.Pages.Common
 						case "FrostySdk.Ebx.PointerRef":
 							CreatePointerRefControl(p, ref propTreeViewParent);
 							break;
-						//case "System.Collections.Generic.List`1[System.Single]":
-
-						//	var listSingle = p.PropertyValue as List<System.Single>;
-
-						//	for (var i = 0; i < listSingle.Count; i++)
-						//	{
-						//		var point = listSingle[i];
-
-						//		var txtPointX = new TextBox() { Name = p.PropertyName + "_Points_" + i.ToString() + "_Value", Text = listSingle[i].ToString() };
-						//		txtPointX.TextChanged += (object sender, TextChangedEventArgs e) =>
-						//		{
-						//			AssetHasChanged(sender as TextBox, p.PropertyName);
-						//		};
-						//		propTreeViewParent.Items.Add(txtPointX);
-						//	}
-
-
-						//	break;
 						case "System.Collections.Generic.List`1[System.Boolean]":
 
 							var listBool = p.PropertyValue as List<System.Boolean>;
@@ -597,147 +587,23 @@ namespace FIFAModdingUI.Pages.Common
 
 							break;
 
-						case "System.Collections.Generic.List`1[FrostySdk.Ebx.HotspotEntry]":
-							var d = (dynamic)p.PropertyValue;
-							CreateEditor(p, treeView);
 
-                            TreeViewItem lstHSDynamicTreeViewParent = new TreeViewItem();
-                            lstHSDynamicTreeViewParent.Header = "Values";
-                            for (var i = 0; i < d.Count; i++)
-                            {
-                                Grid gridBounds = new Grid();
-                                RowDefinition gridRow1 = new RowDefinition();
-                                RowDefinition gridRow2 = new RowDefinition();
-                                RowDefinition gridRow3 = new RowDefinition();
-                                RowDefinition gridRow4 = new RowDefinition();
-                                RowDefinition gridRow5 = new RowDefinition();
-								gridBounds.RowDefinitions.Add(gridRow1);
-                                gridBounds.RowDefinitions.Add(gridRow2);
-                                gridBounds.RowDefinitions.Add(gridRow3);
-                                gridBounds.RowDefinitions.Add(gridRow4);
-                                gridBounds.RowDefinitions.Add(gridRow5);
-
-								ColumnDefinition gridCol1 = new ColumnDefinition();
-                                ColumnDefinition gridCol2 = new ColumnDefinition();
-                                ColumnDefinition gridCol3 = new ColumnDefinition();
-                                ColumnDefinition gridCol4 = new ColumnDefinition();
-                                gridBounds.ColumnDefinitions.Add(gridCol1);
-                                gridBounds.ColumnDefinitions.Add(gridCol2);
-                                gridBounds.ColumnDefinitions.Add(gridCol3);
-                                gridBounds.ColumnDefinitions.Add(gridCol4);
-
-								TextBlock hsTextGroup = new TextBlock();
-								hsTextGroup.Text = d[i].Name + " (" + d[i].Group.ToString() + ")";
-								Grid.SetRow(hsTextGroup, 0);
-								gridBounds.Children.Add(hsTextGroup);
-
-								TextBlock hsboundx = new TextBlock();
-                                hsboundx.Text = "X";
-								
-								Grid.SetRow(hsboundx, 1);
-                                Grid.SetColumn(hsboundx, 0);
-
-								TextBlock lblhsboundy = new TextBlock();
-                                lblhsboundy.Text = "Y";
-                                Grid.SetRow(lblhsboundy, 1);
-                                Grid.SetColumn(lblhsboundy, 1);
-
-								TextBlock lblhsboundz = new TextBlock();
-                                lblhsboundz.Text = "Z";
-                                Grid.SetRow(lblhsboundz, 1);
-                                Grid.SetColumn(lblhsboundz, 2);
-
-								TextBlock lblhsboundw = new TextBlock();
-								lblhsboundw.Text = "W";
-								Grid.SetRow(lblhsboundw, 1);
-								Grid.SetColumn(lblhsboundw, 3);
-
-								TextBox txthsboundx = new TextBox();
-								txthsboundx.Name = p.PropertyName + "_Bounds_X";
-                                txthsboundx.Text = d[i].Bounds.x.ToString();
-								txthsboundx.TextChanged += (object sender, TextChangedEventArgs e) =>
-								{
-									AssetHasChanged(sender as TextBox, p.PropertyName);
-								};
-								Grid.SetRow(txthsboundx, 2);
-                                Grid.SetColumn(txthsboundx, 0);
-
-                                TextBox txthsboundy = new TextBox();
-								txthsboundy.Name = p.PropertyName + "_Bounds_Y";
-								txthsboundy.Text = d[i].Bounds.y.ToString();
-								txthsboundy.TextChanged += (object sender, TextChangedEventArgs e) =>
-								{
-									AssetHasChanged(sender as TextBox, p.PropertyName);
-								};
-								Grid.SetRow(txthsboundy, 2);
-                                Grid.SetColumn(txthsboundy, 1);
-
-                                TextBox txthsboundz = new TextBox();
-								txthsboundz.Name = p.PropertyName + "_Bounds_Z";
-                                txthsboundz.Text = d[i].Bounds.z.ToString();
-								//txthsboundz.SetBinding(AssetEntryProperty, p.PropertyName);
-								txthsboundz.TextChanged += (object sender, TextChangedEventArgs e) =>
-								{
-									AssetHasChanged(sender as TextBox, p.PropertyName);
-								};
-								Grid.SetRow(txthsboundz, 2);
-                                Grid.SetColumn(txthsboundz, 2);
-
-								TextBox txthsboundw = new TextBox();
-								txthsboundw.Text = d[i].Bounds.w.ToString();
-								txthsboundw.TextChanged += (object sender, TextChangedEventArgs e) =>
-								{
-									AssetHasChanged(sender as TextBox, p.PropertyName);
-								};
-								Grid.SetRow(txthsboundw, 2);
-								Grid.SetColumn(txthsboundw, 3);
-
-								gridBounds.Children.Add(hsboundx);
-                                gridBounds.Children.Add(lblhsboundy);
-                                gridBounds.Children.Add(lblhsboundz);
-
-                                gridBounds.Children.Add(txthsboundx);
-                                gridBounds.Children.Add(txthsboundy);
-                                gridBounds.Children.Add(txthsboundz);
-
-								TextBlock hsRotationLabel = new TextBlock();
-								hsRotationLabel.Text = "Rotation";
-								Grid.SetRow(hsRotationLabel, 3);
-								gridBounds.Children.Add(hsRotationLabel);
-
-								TextBox hsRotationText = new TextBox();
-								hsRotationText.Text = d[i].Rotation.ToString();
-								hsRotationText.TextChanged += (object sender, TextChangedEventArgs e) =>
-								{
-									AssetHasChanged(sender as TextBox, p.PropertyName);
-								};
-								Grid.SetRow(hsRotationText, 3);
-								Grid.SetColumn(hsRotationText, 1);
-								gridBounds.Children.Add(hsRotationText);
-
-								lstHSDynamicTreeViewParent.Items.Add(gridBounds);
-
-                            }
-                            propTreeViewParent.Items.Add(lstHSDynamicTreeViewParent);
-
-                            break;
-
-                        case "System.Collections.Generic.List`1[FrostySdk.Ebx.LodParam]":
-                            var dlp = p.PropertyValue;
-							if (p.PropertyValue.GetType().IsGenericType)
-							{
-								//for(int iLP = 0; iLP <  p.PropertyValue.GetPropertyValue())
-							}
-                            CreateEditor(p, treeView);
-                            break;
+                        // Unknown/Other Struct
                         default:
-							//EditorWindow.LogError($"Unhandled EBX Item {p.PropertyName} of type {p.PropertyType}");
-							success = false;
+                            var structProperties = ModdableProperty.GetModdableProperties(p.PropertyValue, (s, n) =>
+                            {
+                                _ = SaveToRootObject();
+                            }).ToList();
+                            propTreeViewParent.Header = p.PropertyName;
+                            foreach (var property in structProperties)
+                            {
+                                _ = CreateEditor(property, propTreeViewParent);
+                            }
+                            //treeView.Items.Add(propTreeViewParent);
+                            break;
 
-							break;
 
-
-					}
+                    }
 				}
 				if (AddToPropTreeViewParent)
 					treeView.Items.Add(propTreeViewParent);

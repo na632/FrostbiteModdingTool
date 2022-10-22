@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FifaLibrary\FifaLibrary.csproj" />
     <ProjectReference Include="..\FrostySdk\FrostySdk.csproj" />
   </ItemGroup>
 

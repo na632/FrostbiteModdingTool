@@ -506,9 +506,6 @@ namespace FIFA23Plugin
 			writer.Write(ToCXor);
 			while (writer.Position != 556)
 				writer.Write((byte)0);
-            //writer.Write((long)30331136);
-            //writer.WriteBytes(InitialHeaderData);
-            //writer.WriteBytes(new byte[548]);
 
             long metaDataOffset = writer.Position;
 			MetaData.Write(writer);

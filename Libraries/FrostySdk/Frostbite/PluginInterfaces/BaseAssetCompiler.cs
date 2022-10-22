@@ -192,6 +192,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 if (originalEntry == null)
                     continue;
 
+                if (originalEntry.ExtraData == null || string.IsNullOrEmpty(originalEntry.ExtraData.CasPath))
+                    continue;
+
                 var casPath = originalEntry.ExtraData.CasPath;
                 if (!casToMods.ContainsKey(casPath))
                     casToMods.Add(casPath, new List<ModdedFile>());

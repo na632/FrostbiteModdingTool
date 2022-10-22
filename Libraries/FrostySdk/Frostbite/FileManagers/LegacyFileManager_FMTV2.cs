@@ -6,6 +6,7 @@ using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using NetDiscordRpc.RPC;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -14,14 +15,18 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace Frostbite.FileManagers
 {
 	public class LegacyFileManager_FMTV2 : ILegacyFileManager, ICustomAssetManager
 	{
+        public const long ChunkFileCollectorDataSize = 10485760L;
 
-		public List<LegacyFileEntry> AddedFileEntries { get; set; }
+        public const long ChunkFileCollectorFixup = 680960L;
+
+        public List<LegacyFileEntry> AddedFileEntries { get; set; }
 
 		public List<LegacyFileEntry> OriginalLegacyEntries = new List<LegacyFileEntry>();
 
@@ -1049,15 +1054,71 @@ namespace Frostbite.FileManagers
 
 		public void AddAsset(string key, LegacyFileEntry lfe)
 		{
-			if (!LegacyEntries.ContainsKey(key))
+            if (LegacyEntries.ContainsKey(key))
+            {
+                throw new ArgumentException("An asset with this name already exists.", "name");
+            }
+            byte[] data = ((MemoryStream)GetAsset(lfe)).ToArray();
+            LegacyFileEntry legacyFileEntry = new LegacyFileEntry()
 			{
-				lfe.IsAdded = true;
-				lfe.ModifiedEntry = new ModifiedAssetEntry() { Data = ((MemoryStream)GetChunkStream(lfe)).ToArray() };
-				LegacyEntries.Add(key, lfe);
-			}
-		}
+                Name = key,
+                IsAdded = true
+            };
+            Guid guid = AssetManager.AddChunk(data, GenerateDeterministicGuid(legacyFileEntry));
+            ChunkAssetEntry chunkEntry = AssetManager.GetChunkEntry(guid);
+            chunkEntry.ModifiedEntry.AddToChunkBundle = true;
+            chunkEntry.ModifiedEntry.UserData = "legacy;" + legacyFileEntry.Name;
+            legacyFileEntry.LinkAsset(chunkEntry);
+            legacyFileEntry.IsDirty = true;
+            LegacyEntries[key] = legacyFileEntry;
+        }
 
-		public static (byte[] newChunk, long uncompressedSize) CompressChunkGroup(
+        public void DuplicateAsset(string name, LegacyFileEntry originalAsset)
+        {
+            if (LegacyEntries.ContainsKey(name))
+            {
+                throw new ArgumentException("An asset with this name already exists.", "name");
+            }
+			byte[] data = ((MemoryStream)GetAsset(originalAsset)).ToArray();
+            LegacyFileEntry legacyFileEntry = new LegacyFileEntry()
+            {
+                Name = name,
+                IsAdded = true
+            };
+			LegacyEntries.Add(name, legacyFileEntry);
+            Guid guid = AssetManager.AddChunk(data, GenerateDeterministicGuid(legacyFileEntry));
+            ChunkAssetEntry chunkEntry = AssetManager.GetChunkEntry(guid);
+            //foreach (LegacyFileEntry.ChunkCollectorInstance originalCollectorInstance in originalAsset.CollectorInstances)
+            //{
+            //    LegacyFileEntry.ChunkCollectorInstance newCollectorInstance = new LegacyFileEntry.ChunkCollectorInstance
+            //    {
+            //        ChunkId = guid,
+            //        Offset = 0L,
+            //        CompressedStartOffset = 0L,
+            //        Size = data.Length,
+            //        CompressedEndOffset = chunkEntry.ModifiedEntry.Data.Length,
+            //        Entry = originalCollectorInstance.Entry
+            //    };
+            //    legacyFileEntry.CollectorInstances.Add(newCollectorInstance);
+            //    newCollectorInstance.ModifiedEntry = new LegacyFileEntry.ChunkCollectorInstance
+            //    {
+            //        ChunkId = guid,
+            //        Offset = 0L,
+            //        CompressedStartOffset = 0L,
+            //        Size = data.Length,
+            //        CompressedEndOffset = chunkEntry.ModifiedEntry.Data.Length
+            //    };
+            //    newCollectorInstance.Entry.LinkAsset(legacyFileEntry);
+            //}
+            chunkEntry.ModifiedEntry.AddToChunkBundle = true;
+            chunkEntry.ModifiedEntry.UserData = "legacy;" + legacyFileEntry.Name + ";dupof;" + originalAsset.Name;
+            legacyFileEntry.LinkAsset(chunkEntry);
+            legacyFileEntry.IsDirty = true;
+			legacyFileEntry.ParentGuid = originalAsset.ParentGuid;
+            LegacyEntries[name] = legacyFileEntry;
+        }
+
+        public static (byte[] newChunk, long uncompressedSize) CompressChunkGroup(
 			Stream uncompressedChunkStream
 			, List<LegacyFileEntry> filesInChunk
 			, CompressionType compressionType)

@@ -266,5 +266,10 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 		{
 			throw new NotImplementedException();
 		}
+
+		public void DuplicateAsset(string name, LegacyFileEntry originalAsset)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

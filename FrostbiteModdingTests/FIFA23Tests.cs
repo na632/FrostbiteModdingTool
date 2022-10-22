@@ -214,6 +214,18 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ReadHotspotFile()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("content/character/kit/kit_0/_default_0/home_0_0/hotspots_0_0_0");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+        }
+
+        [TestMethod]
         public void ReadComplexGPFile()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
@@ -805,6 +817,28 @@ namespace FrostbiteModdingTests
             }
 
             toc.Write(new MemoryStream());
+        }
+
+
+        [TestMethod]
+        public void TestLegacyMod_DupEntry()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            AssetManager.Instance.DuplicateEntry(
+                AssetManager.Instance.GetCustomAssetEntry("legacy", "data/ui/imgAssets/heads/p192563.dds")
+                , "data/ui/imgAssets/heads/p271517.dds"
+                , true);
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
         }
     }
 }

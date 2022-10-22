@@ -176,10 +176,10 @@ namespace FrostySdk
 					byte[] uncompArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
 					byte[] array = Utils.CompressFile(uncompArray, null, ResourceType.Invalid, compressionOverride);
 					//if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021 || ))
-					if(name.Contains("gp_"))
-                    {
-						File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", uncompArray); 
-					}
+					//if(name.Contains("gp_"))
+     //               {
+					//	File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", uncompArray); 
+					//}
 
 					// this writes to Original Size not Size of the data ?!
 					//size = array.Length;

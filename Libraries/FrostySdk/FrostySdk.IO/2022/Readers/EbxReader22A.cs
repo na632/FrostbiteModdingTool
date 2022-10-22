@@ -521,12 +521,13 @@ namespace FrostySdk.IO._2022.Readers
 					return this.ReadBoxedValueRef();
 				case EbxFieldType.Struct:
 					{
+						var positionBeforeRead = base.Position;
                         EbxClass @class = GetClass(parentClass, fieldClassRef);
                         base.Pad(@class.Alignment);
                         object obj = CreateObject(@class);
                         this.ReadClass(@class, obj, base.Position);
+						base.Position = positionBeforeRead + @class.Size;
                         return obj;
-                        //return null;
                     }
 				case EbxFieldType.Enum:
 					return base.ReadInt32LittleEndian();

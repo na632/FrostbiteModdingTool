@@ -27,5 +27,7 @@ namespace Frostbite.FileManagers
 		List<LegacyFileEntry> ModifyAssets(Dictionary<string, byte[]> data, bool rebuildChunk);
 
         void SetCacheModeEnabled(bool enabled);
-	}
+		void DuplicateAsset(string name, LegacyFileEntry originalAsset);
+
+    }
 }
