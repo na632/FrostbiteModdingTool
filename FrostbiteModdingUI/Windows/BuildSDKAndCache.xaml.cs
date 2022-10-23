@@ -72,6 +72,8 @@ namespace FIFAModdingUI.Windows
 
                 Dispatcher.Invoke(() => { txtOuputMessage.Content = "Building Cache. Please wait 3-15 minutes to complete!"; });
 
+                if (FileSystem.Instance == null)
+                    new FileSystem(GameInstanceSingleton.Instance.GAMERootPath);
                 // -----------------------------------------
                 //
                 await buildCache.LoadDataAsync(GameInstanceSingleton.Instance.GAMEVERSION, FileSystem.Instance.BasePath, this, true, false);
