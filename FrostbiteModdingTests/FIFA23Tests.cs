@@ -240,6 +240,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ModComplexGPFile()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
@@ -247,7 +248,8 @@ namespace FrostbiteModdingTests
             Assert.IsNotNull(ebxEntry);
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
-            dyn.ATTR_DribbleJogSpeed = 0.01f;
+            dyn.ATTR_DribbleJogSpeed = 0.05f;
+            dyn.ATTR_JogSpeed = 0.05f;
             //dyn.ATTR_DribbleWalkSpeed = 0.005f;
             //dyn.ATTR_JogSpeed = 0.005f;
             //dyn.ATTR_WalkSpeed = 0.005f;
@@ -257,7 +259,7 @@ namespace FrostbiteModdingTests
             //dyn.ATTR_WalkSpeed = 0.9f;
             AssetManager.Instance.ModifyEbx("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime", complexAsset);
 
-            var testR = "test-" + new Random().Next().ToString() + ".fbmod";
+            var testR = "test.fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();

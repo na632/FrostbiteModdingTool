@@ -148,7 +148,7 @@ namespace FrostySdk.IO._2022.Readers
 			return field;
         }
 
-        public EbxField GetEbxFieldByProperty(EbxClass classType, PropertyInfo property)
+        public static EbxField GetEbxFieldByProperty(EbxClass classType, PropertyInfo property)
         {
 			var fieldIndex = property.GetCustomAttribute<FieldIndexAttribute>().Index;
 			var nameHash = property.GetCustomAttribute<HashAttribute>().Hash;

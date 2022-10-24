@@ -1,5 +1,4 @@
-﻿// Sdk.IO.EbxWriterRiff
-using FrostySdk.Attributes;
+﻿using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
 using FrostySdk.IO._2022.Readers;
@@ -17,7 +16,7 @@ namespace FrostySdk.FrostySdk.IO
 {
 	public class EbxWriter2022 : EbxBaseWriter
 	{
-		private readonly List<object> objsToProcess = new List<object>();
+		protected readonly List<object> objsToProcess = new List<object>();
 
 		private readonly List<Type> typesToProcess = new List<Type>();
 
@@ -502,7 +501,7 @@ namespace FrostySdk.FrostySdk.IO
 			AddField(pi.Name, ebxFieldMetaAttribute.Flags, classIndex, ebxFieldMetaAttribute.Offset, 0u);
 		}
 
-		private void ProcessData()
+		protected virtual void ProcessData()
 		{
 			HashSet<Type> uniqueTypes = new HashSet<Type>();
 			List<object> exportedInstances = new List<object>();
@@ -535,6 +534,7 @@ namespace FrostySdk.FrostySdk.IO
 			sortedObjs.AddRange(exportedInstances);
 			sortedObjs.AddRange(nonExportedInstances);
 			MemoryStream memoryStream = new MemoryStream();
+			_ = base.Position;
 			FileWriter nativeWriter = new FileWriter(memoryStream);
 			for (int i = 0; i < sortedObjs.Count; i++)
 			{
@@ -583,11 +583,11 @@ namespace FrostySdk.FrostySdk.IO
 				{
 					long beforePaddingPosition = nativeWriter.Position;
 					nativeWriter.WritePadding(16);
-					if (nativeWriter.Position - beforePaddingPosition < 4)
-					{
-						nativeWriter.WriteEmpty(16);
-					}
-					nativeWriter.Position -= 4L;
+					//if (nativeWriter.Position - beforePaddingPosition < 4)
+					//{
+					//	nativeWriter.WriteEmpty(16);
+					//}
+					//nativeWriter.Position -= 4L;
 					nativeWriter.WriteUInt32LittleEndian(arrayInfo.Count);
 					long beforeArrayPosition = nativeWriter.Position;
 					nativeWriter.WriteBytes(arrayData);
@@ -691,7 +691,7 @@ namespace FrostySdk.FrostySdk.IO
 			uniqueClassCount = (ushort)uniqueTypes.Count;
 		}
 
-		private void WriteClass(object obj, Type objType, FileWriter writer)
+		protected virtual void WriteClass(object obj, Type objType, FileWriter writer)
 		{
 			if (obj == null)
 			{
@@ -842,24 +842,24 @@ namespace FrostySdk.FrostySdk.IO
 			writer.WritePadding(classType.Alignment);
 		}
 
-		private void WriteField(object obj, EbxFieldType ebxType, byte classAlignment, FileWriter writer, bool isReference)
+		protected void WriteField(object obj, EbxFieldType ebxType, byte classAlignment, FileWriter writer, bool isReference)
 		{
-			switch (ebxType)
-			{
-				case EbxFieldType.FileRef:
-				case EbxFieldType.Int64:
-				case EbxFieldType.UInt64:
-				case EbxFieldType.Float64:
-				case EbxFieldType.ResourceRef:
-				case EbxFieldType.TypeRef:
-				case EbxFieldType.BoxedValueRef:
-					writer.WritePadding(8);
-					break;
-				case EbxFieldType.Pointer:
-				case EbxFieldType.Array:
-					writer.WritePadding(4);
-					break;
-			}
+			//switch (ebxType)
+			//{
+			//	case EbxFieldType.FileRef:
+			//	case EbxFieldType.Int64:
+			//	case EbxFieldType.UInt64:
+			//	case EbxFieldType.Float64:
+			//	case EbxFieldType.ResourceRef:
+			//	case EbxFieldType.TypeRef:
+			//	case EbxFieldType.BoxedValueRef:
+			//		writer.WritePadding(8);
+			//		break;
+			//	case EbxFieldType.Pointer:
+			//	case EbxFieldType.Array:
+			//		writer.WritePadding(4);
+			//		break;
+			//}
 			switch (ebxType)
 			{
 				case EbxFieldType.TypeRef:
@@ -963,7 +963,7 @@ namespace FrostySdk.FrostySdk.IO
 			}
 		}
 
-		private void WriteArray(object obj, EbxFieldType elementFieldType, uint fieldNameHash, EbxClass classType, byte classAlignment, FileWriter writer, bool isReference)
+		protected void WriteArray(object obj, EbxFieldType elementFieldType, uint fieldNameHash, EbxClass classType, byte classAlignment, FileWriter writer, bool isReference)
 		{
 			int classIndex = typesToProcess.FindIndex((Type item) => item == obj.GetType().GetGenericArguments()[0]);
 			if (classIndex == -1)
@@ -1078,7 +1078,7 @@ namespace FrostySdk.FrostySdk.IO
 			return typesToProcess.FindIndex((Type value) => value == type);
 		}
 
-		internal EbxClass GetClass(Type objType)
+        protected EbxClass GetClass(Type objType)
 		{
 			if (objType == null)
 			{
@@ -1099,7 +1099,7 @@ namespace FrostySdk.FrostySdk.IO
 			return @class;
 		}
 
-		internal Guid GetTypeInfoGuid(EbxClass classType)
+        protected Guid GetTypeInfoGuid(EbxClass classType)
 		{
 			if (classType.SecondSize == 0)
 			{
@@ -1108,7 +1108,7 @@ namespace FrostySdk.FrostySdk.IO
 			return EbxReader22B.patchStd.GetGuid(classType).Value;
 		}
 
-		internal EbxClass GetClass(Guid guid)
+        protected EbxClass GetClass(Guid guid)
 		{
 			if (EbxReader22B.patchStd.GetClass(guid).HasValue)
 			{
@@ -1117,7 +1117,7 @@ namespace FrostySdk.FrostySdk.IO
 			return EbxReader22B.std.GetClass(guid).Value;
 		}
 
-		internal EbxField GetField(EbxClass classType, int index)
+        protected EbxField GetField(EbxClass classType, int index)
 		{
             if (classType.SecondSize >= 1 && EbxReader22B.patchStd.GetField(index).HasValue)
             {
@@ -1126,7 +1126,7 @@ namespace FrostySdk.FrostySdk.IO
             return EbxReader22B.std.GetField(index).Value;
 		}
 
-		private EbxClass GetClass(EbxClass parentClassType, EbxField field)
+		protected EbxClass GetClass(EbxClass parentClassType, EbxField field)
 		{
 			if (parentClassType.SecondSize >= 1 && EbxReader22B.patchStd.GetClass(parentClassType.Index + (short)field.ClassRef).HasValue)
 			{

@@ -60,6 +60,10 @@ namespace FrostySdk.IO
 
         public override bool Equals(object obj)
         {
+            if(obj is EbxClass other)
+            {
+                return (other.NameHash == NameHash && other.name == name);
+            }
             return base.Equals(obj);
         }
 

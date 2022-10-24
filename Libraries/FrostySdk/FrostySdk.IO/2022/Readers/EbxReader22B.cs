@@ -397,7 +397,8 @@ namespace FrostySdk.IO._2022.Readers
 			base.isValid = true;
 
 			//if (RootType.Contains("gp_"))
-			if (RootType.Contains("Hotspot"))
+			//if (RootType.Contains("Hotspot"))
+			if (RootType.Contains("movement"))
             {
 				Position = 0;
 				var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
