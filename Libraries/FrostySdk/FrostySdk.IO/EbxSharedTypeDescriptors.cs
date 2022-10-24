@@ -20,8 +20,9 @@ namespace FrostySdk.IO
 
 		private List<Guid> guids = new List<Guid>();
 		public List<Guid> Guids { get { return guids; } }
+        public Dictionary<EbxClass, List<EbxField>> ClassFields { get; } = new Dictionary<EbxClass, List<EbxField>>();
 
-		public bool ReflectionTypeDescripter { get; set; } = false;
+        public bool ReflectionTypeDescripter { get; set; } = false;
 
         private static Assembly EbxClassesAssembly;
 		private static Type[] EbxClassesTypes;

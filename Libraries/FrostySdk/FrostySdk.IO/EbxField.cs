@@ -50,7 +50,7 @@ namespace FrostySdk.IO
             if(obj is EbxField)
             {
                 EbxField other = (EbxField)obj;
-                return other.NameHash == NameHash;
+                return other.NameHash == NameHash && (other.DebugType == this.DebugType || other.DebugType == this.InternalType);
             }
 
             return base.Equals(obj);

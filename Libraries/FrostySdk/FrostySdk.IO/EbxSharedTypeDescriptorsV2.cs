@@ -342,7 +342,9 @@ namespace FrostySdk.IO
 
 		public List<Guid> Guids { get; }
 
-		public EbxClass? GetClass(Guid guid);
+        public Dictionary<EbxClass, List<EbxField>> ClassFields { get; } 
+
+        public EbxClass? GetClass(Guid guid);
 		public EbxClass? GetClass(int index);
 		public Guid? GetGuid(EbxClass classType);
 		public Guid? GetGuid(int index);

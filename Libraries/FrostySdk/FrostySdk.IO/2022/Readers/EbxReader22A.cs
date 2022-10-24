@@ -148,18 +148,32 @@ namespace FrostySdk.IO._2022.Readers
 			return field;
         }
 
-        public EbxField GetEbxFieldByNameHash(EbxClass classType, uint nameHash, int fieldIndex = -1)
+        public EbxField GetEbxFieldByProperty(EbxClass classType, PropertyInfo property)
         {
+			var fieldIndex = property.GetCustomAttribute<FieldIndexAttribute>().Index;
+			var nameHash = property.GetCustomAttribute<HashAttribute>().Hash;
+			var ebxfieldmeta = property.GetCustomAttribute<EbxFieldMetaAttribute>();
+            EbxFieldType fieldType = (EbxFieldType)((ebxfieldmeta.Flags >> 4) & 0x1Fu);
+
+            // This needs fixing by looking at the movement GP
+            // Need to include both patch and non patch in search, which highlights how shit the current system is!
+
+            var allFields = EbxReader22B.std.Fields;
+			List<EbxField> classFields = EbxReader22B.std.ClassFields.ContainsKey(classType) ? EbxReader22B.std.ClassFields[classType] : null;
             if (classType.SecondSize >= 1)
             {
-				if (EbxReader22B.patchStd.Fields.Any(x => x.NameHash == nameHash))
-				{
-					var patchedField = EbxReader22B.patchStd.Fields.FirstOrDefault(x => x.NameHash == nameHash);
-					return patchedField;
-				}
+                classFields = EbxReader22B.patchStd.ClassFields[classType];
+				allFields = allFields.Union(EbxReader22B.patchStd.Fields).ToList();
             }
-            return EbxReader22B.std.Fields
-				.First(x => x.NameHash == nameHash);
+
+			EbxField field;
+			field = classFields.FirstOrDefault(x => x.NameHash == nameHash && (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
+			if (field.Equals(default(EbxField)) && fieldIndex > -1 && classFields.Count > fieldIndex)
+				field = classFields[fieldIndex];
+			else if (field.Equals(default(EbxField)))
+                field = allFields.FirstOrDefault(x => x.NameHash == nameHash && x.DebugType == fieldType);
+
+			return field;
         }
 
         private static IEnumerable<EbxClass> _AllEbxClasses;
@@ -250,16 +264,18 @@ namespace FrostySdk.IO._2022.Readers
 				{ 
 				}
 
+                EbxFieldType debugType = (EbxFieldType)((property.Value.Flags >> 4) & 0x1Fu);
+
 
                 if (propNameHash != null)
 				{
-					field = GetEbxFieldByNameHash(classType, propNameHash.Hash);
+					field = GetEbxFieldByProperty(classType, property.Key);
 					//field = GetEbxFieldByNameHash(propNameHash.Hash);// AllEbxFields.FirstOrDefault(x => x.NameHash == propNameHash.Hash);
-					if (type.Name.Contains("LinearTransform") && property.Key.PropertyType.FullName.Equals("FrostySdk.Ebx.Vec3"))
-					{
-                        var f2 = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
-                        field = f2;
-                    }
+					//if (type.Name.Contains("LinearTransform") && property.Key.PropertyType.FullName.Equals("FrostySdk.Ebx.Vec3"))
+					//{
+     //                   var f2 = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
+     //                   field = f2;
+     //               }
                 }
 				//           else 
 				//if (propFieldIndex != null)
@@ -267,7 +283,6 @@ namespace FrostySdk.IO._2022.Readers
 				//field = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
 				//            }
 
-				EbxFieldType debugType = (EbxFieldType)((property.Value.Flags >> 4) & 0x1Fu);
 				EbxTypeCategory debugTypeTC = field.TypeCategory;
                 var classRef = field.ClassRef;
 
@@ -280,25 +295,25 @@ namespace FrostySdk.IO._2022.Readers
                     ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
                     continue;
                 }
-                if (debugType == EbxFieldType.ResourceRef
-                    || debugType == EbxFieldType.TypeRef
-                    || debugType == EbxFieldType.FileRef
-                    || debugType == EbxFieldType.BoxedValueRef
-                    || debugType == EbxFieldType.UInt64
-                    || debugType == EbxFieldType.Int64
-                    || debugType == EbxFieldType.Float64)
-                {
-                    base.Pad(8);
-                }
-                else
-                {
-                    if (debugType == EbxFieldType.Array
-                        || debugType == EbxFieldType.Pointer
-                        )
-                    {
-                        base.Pad(4);
-                    }
-                }
+                //if (debugType == EbxFieldType.ResourceRef
+                //    || debugType == EbxFieldType.TypeRef
+                //    || debugType == EbxFieldType.FileRef
+                //    || debugType == EbxFieldType.BoxedValueRef
+                //    || debugType == EbxFieldType.UInt64
+                //    || debugType == EbxFieldType.Int64
+                //    || debugType == EbxFieldType.Float64)
+                //{
+                //    base.Pad(8);
+                //}
+                //else
+                //{
+                //    if (debugType == EbxFieldType.Array
+                //        || debugType == EbxFieldType.Pointer
+                //        )
+                //    {
+                //        base.Pad(4);
+                //    }
+                //}
                 base.Position = property.Value.Offset + startOffset;
 				//if(debugType == EbxFieldType.Guid)
 				//{
@@ -306,9 +321,9 @@ namespace FrostySdk.IO._2022.Readers
 				//}
                 if (debugType == EbxFieldType.Array)
                 {
-                    if (type.Name.Contains("SkeletonAsset"))
-                        ReadArray(obj, property.Key, classType, isReferenceAttribute);
-					else
+     //               if (type.Name.Contains("SkeletonAsset"))
+     //                   ReadArray(obj, property.Key, classType, isReferenceAttribute);
+					//else
 						ReadArray(obj, property.Key, classType, field, isReferenceAttribute);
 
                     continue;
