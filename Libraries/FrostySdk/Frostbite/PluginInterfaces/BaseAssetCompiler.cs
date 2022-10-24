@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using static FrostySdk.Frostbite.PluginInterfaces.BaseAssetCompiler;
@@ -60,96 +61,168 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
         }
 
+        static void CopyDirectory(string sourceDir, string destinationDir, bool recursive, ILogger logger)
+        {
+            // Get information about the source directory
+            var dir = new DirectoryInfo(sourceDir);
+
+            // Check if the source directory exists
+            if (!dir.Exists)
+                throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
+
+            // Cache directories before we start copying
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            // Create the destination directory
+            Directory.CreateDirectory(destinationDir);
+
+            var filesToCopy = new List<(FileInfo, FileInfo)>();
+
+            // Get the files in the source directory and copy to the destination directory
+            foreach (FileInfo file in dir.GetFiles())
+            {
+                string targetFilePath = Path.Combine(destinationDir, file.Name);
+                if (file.Extension.Contains("bak", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var targetFile = new FileInfo(targetFilePath);
+                if (!file.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase))
+                {
+                    filesToCopy.Add((file, targetFile));
+                }
+                else
+                {
+                    if (!targetFile.Exists)
+                    {
+                        filesToCopy.Add((file, targetFile));
+                        continue;
+                    }
+
+                    if(targetFile.Length != file.Length)
+                    {
+                        filesToCopy.Add((file, targetFile));
+                        continue;
+                    }
+
+                    if (targetFile.LastWriteTime != file.LastWriteTime)
+                    {
+                        filesToCopy.Add((file, targetFile));
+                        continue;
+                    }
+                }
+            }
+
+            var index = 1;
+            foreach(var ftc in filesToCopy)
+            {
+                ftc.Item1.CopyTo(ftc.Item2.FullName, true);
+                logger.Log($"Data Setup - Copied ({index}/{filesToCopy.Count}) - {ftc.Item1.FullName}");
+                index++;
+            }
+
+            // If recursive and copying subdirectories, recursively call this method
+            if (recursive)
+            {
+                foreach (DirectoryInfo subDir in dirs)
+                {
+                    string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                    CopyDirectory(subDir.FullName, newDestinationDir, true, logger);
+                }
+            }
+        }
+
 
         protected static void CopyDataFolder(string from_datafolderpath, string to_datafolderpath, ILogger logger)
         {
-            Directory.CreateDirectory(to_datafolderpath);
+            CopyDirectory(from_datafolderpath, to_datafolderpath, true, logger);
+            //Directory.CreateDirectory(to_datafolderpath);
 
-            var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
-            var dataFileCount = dataFiles.Count();
-            var indexOfDataFile = 0;
-            //ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
-            //Parallel.ForEach(dataFiles, (f) =>
-            foreach (var originalFilePath in dataFiles)
-            {
-                var finalDestinationPath = originalFilePath.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
+            
+            //var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
+            //var dataFileCount = dataFiles.Count();
+            //var indexOfDataFile = 0;
+            ////ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+            ////Parallel.ForEach(dataFiles, (f) =>
+            //foreach (var originalFilePath in dataFiles)
+            //{
+            //    var finalDestinationPath = originalFilePath.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
 
-                bool Copied = false;
+            //    bool Copied = false;
 
-                var lastIndexOf = finalDestinationPath.LastIndexOf("\\");
-                var newDirectory = finalDestinationPath.Substring(0, lastIndexOf) + "\\";
-                if (!Directory.Exists(newDirectory))
-                {
-                    Directory.CreateDirectory(newDirectory);
-                }
+            //    var lastIndexOf = finalDestinationPath.LastIndexOf("\\");
+            //    var newDirectory = finalDestinationPath.Substring(0, lastIndexOf) + "\\";
+            //    if (!Directory.Exists(newDirectory))
+            //    {
+            //        Directory.CreateDirectory(newDirectory);
+            //    }
 
 
-                if (!finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new Exception("Incorrect Copy of Files to ModData");
-                }
+            //    if (!finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        throw new Exception("Incorrect Copy of Files to ModData");
+            //    }
 
-                var fIDest = new FileInfo(finalDestinationPath);
-                var fIOrig = new FileInfo(originalFilePath);
+            //    var fIDest = new FileInfo(finalDestinationPath);
+            //    var fIOrig = new FileInfo(originalFilePath);
 
-                var isPatch = fIOrig.FullName.Contains("Patch", StringComparison.OrdinalIgnoreCase);
+            //    var isPatch = fIOrig.FullName.Contains("Patch", StringComparison.OrdinalIgnoreCase);
 
-                if (fIDest.Exists && finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
-                {
-                    var isCas = fIDest.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase);
-                    var twogbinsize = 2L * (1048576L * 1024L);
-                    if (
-                        isCas
-                        && fIDest.Length != fIOrig.Length
-                        && (isPatch || (fIDest.Length >= twogbinsize))
-                        )
-                    {
-                        fIDest.Delete();
-                    }
-                    else if
-                        (
-                            !isCas
-                        //&&
-                        //(
-                        //    fIDest.Length != fIOrig.Length
-                        //    ||
-                        //        (
-                        //            //fIDest.LastWriteTime.Day != fIOrig.LastWriteTime.Day
-                        //            //&& fIDest.LastWriteTime.Hour != fIOrig.LastWriteTime.Hour
-                        //            //&& fIDest.LastWriteTime.Minute != fIOrig.LastWriteTime.Minute
-                        //            !File.ReadAllBytes(finalDestinationPath).SequenceEqual(File.ReadAllBytes(originalFilePath))
-                        //        )
-                        //)
-                        )
-                    {
-                        File.Delete(finalDestinationPath);
-                    }
-                }
+            //    if (fIDest.Exists && finalDestinationPath.Contains("moddata", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        var isCas = fIDest.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase);
+            //        var twogbinsize = 2L * (1048576L * 1024L);
+            //        if (
+            //            isCas
+            //            && fIDest.Length != fIOrig.Length
+            //            && (isPatch || (fIDest.Length >= twogbinsize))
+            //            )
+            //        {
+            //            fIDest.Delete();
+            //        }
+            //        else if
+            //            (
+            //                !isCas
+            //            //&&
+            //            //(
+            //            //    fIDest.Length != fIOrig.Length
+            //            //    ||
+            //            //        (
+            //            //            //fIDest.LastWriteTime.Day != fIOrig.LastWriteTime.Day
+            //            //            //&& fIDest.LastWriteTime.Hour != fIOrig.LastWriteTime.Hour
+            //            //            //&& fIDest.LastWriteTime.Minute != fIOrig.LastWriteTime.Minute
+            //            //            !File.ReadAllBytes(finalDestinationPath).SequenceEqual(File.ReadAllBytes(originalFilePath))
+            //            //        )
+            //            //)
+            //            )
+            //        {
+            //            File.Delete(finalDestinationPath);
+            //        }
+            //    }
 
-                if (!File.Exists(finalDestinationPath))
-                {
-                    // Quick Copy
-                    if (fIOrig.Length < 1024 * 100)
-                    {
-                        using (var inputStream = new NativeReader(File.Open(originalFilePath, FileMode.Open)))
-                        using (var outputStream = new NativeWriter(File.Open(finalDestinationPath, FileMode.Create)))
-                        {
-                            outputStream.Write(inputStream.ReadToEnd());
-                        }
-                    }
-                    else
-                    {
-                        //File.Copy(f, finalDestination);
-                        CopyFile(originalFilePath, finalDestinationPath);
-                    }
-                    Copied = true;
-                }
-                indexOfDataFile++;
+            //    if (!File.Exists(finalDestinationPath))
+            //    {
+            //        // Quick Copy
+            //        if (fIOrig.Length < 1024 * 100)
+            //        {
+            //            using (var inputStream = new NativeReader(File.Open(originalFilePath, FileMode.Open)))
+            //            using (var outputStream = new NativeWriter(File.Open(finalDestinationPath, FileMode.Create)))
+            //            {
+            //                outputStream.Write(inputStream.ReadToEnd());
+            //            }
+            //        }
+            //        else
+            //        {
+            //            //File.Copy(f, finalDestination);
+            //            CopyFile(originalFilePath, finalDestinationPath);
+            //        }
+            //        Copied = true;
+            //    }
+            //    indexOfDataFile++;
 
-                if (Copied)
-                    logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {originalFilePath}");
-                //});
-            }
+            //    if (Copied)
+            //        logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {originalFilePath}");
+            //    //});
+            //}
         }
 
         protected static void CopyFile(string inputFilePath, string outputFilePath)
