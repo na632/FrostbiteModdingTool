@@ -113,7 +113,16 @@ namespace FrostySdk
                 set { _canUseModData = value; }
             }
 
+            private bool? _forceUseModData;
 
+            /// <summary>
+            /// A switch as to whether this tool will force the use of "ModData" folder for this profile
+            /// </summary>
+            public bool ForceUseModData
+            {
+                get { return !_forceUseModData.HasValue || _forceUseModData.Value; }
+                set { _forceUseModData = value; }
+            }
 
 
             /// <summary>

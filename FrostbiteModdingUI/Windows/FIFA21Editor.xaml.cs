@@ -285,7 +285,7 @@ namespace FIFAModdingUI.Windows
             DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
 
             LauncherOptions = await LauncherOptions.LoadAsync();
-            swUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
+            swUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData && !ProfilesLibrary.LoadedProfile.ForceUseModData;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
 
             TabFaces.Visibility = !ProfilesLibrary.CanExportMeshes && !ProfilesLibrary.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;

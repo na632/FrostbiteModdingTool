@@ -17,13 +17,13 @@
   // EBX Reader (Overriding the base Reader)
   "EBXReader": "EbxReader22B",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EbxWriter2022",
+  "EBXWriter": "EbxWriter2023",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
 
-  "ProjectEbxWriter": "EbxWriter2022",
+  "ProjectEbxWriter": "EbxWriter2023",
   "ProjectEbxReader": "EbxReader22B",
 
 
@@ -84,6 +84,7 @@
   "CompressedFormatLegacy": "None",
   "LegacyFileManager": "LFM_Fifa23",
   "CanUseModData": true,
+  "ForceUseModData": true,
   "SupportLowMemoryFootprint": true,
   "GameIdentifier": 16115019,
   "UseACBypass": false
