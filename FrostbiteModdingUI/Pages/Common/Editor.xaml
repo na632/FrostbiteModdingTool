@@ -13,23 +13,23 @@
         <DockingManager Grid.Row="1">
             <LayoutRoot>
                 <LayoutPanel>
-                    <LayoutAnchorablePane  >
-                        <LayoutAnchorable Title="Modded" CanClose="False" CanHide="False" >
+                    <LayoutDocumentPane  >
+                        <LayoutDocument Title="EBX" CanClose="False" CanFloat="False" >
                             <TreeView x:Name="TreeView1" VerticalContentAlignment="Top" VerticalAlignment="Top"
                                     ScrollViewer.VerticalScrollBarVisibility="Visible"
                                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                     >
                             </TreeView>
-                        </LayoutAnchorable>
-                    </LayoutAnchorablePane>
-                    <LayoutAnchorablePane >
+                        </LayoutDocument>
+                    </LayoutDocumentPane>
+                    <!--<LayoutAnchorablePane >
                         <LayoutAnchorable x:Name="vanillaAnchorable" Title="Vanilla" CanAutoHide="True">
                             <TreeView x:Name="TreeViewOriginal"   ScrollViewer.VerticalScrollBarVisibility="Visible"
                                     ScrollViewer.HorizontalScrollBarVisibility="Visible" VerticalAlignment="Top" VerticalContentAlignment="Top">
 
                             </TreeView>
                         </LayoutAnchorable>
-                    </LayoutAnchorablePane>
+                    </LayoutAnchorablePane>-->
                 </LayoutPanel>
             </LayoutRoot>
         </DockingManager>
