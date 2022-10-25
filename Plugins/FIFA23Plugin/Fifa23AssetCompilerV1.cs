@@ -630,8 +630,7 @@ namespace FIFA23Plugin
                     break;
             }
 
-            if (origEbxDbo != null
-                && parent.modifiedEbx.ContainsKey(assetBundle.Key.Name))
+            if (origEbxDbo != null)
             {
                 var originalSizeOfData = assetBundle.Value.Item3;
 
@@ -914,6 +913,41 @@ namespace FIFA23Plugin
 
             fiCas = null;
             return text;
+        }
+
+        public override bool Cleanup(FileSystem fs, ILogger logger, ModExecutor modExecuter)
+        {
+            var r = base.Cleanup(fs, logger, modExecuter);
+
+            if (AssetManager.Instance == null)
+                return true;
+
+            foreach (EbxAssetEntry item in AssetManager.Instance.EnumerateEbx("ChunkFileCollector"))
+            {
+                GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
+                if (chunkAssetEntry != null)
+                {
+                    AssetManager.Instance.RevertAsset(chunkAssetEntry);
+                }
+                AssetManager.Instance.RevertAsset(item);
+            }
+
+            return r;
+        }
+
+        public void GetChunkAssetForEbx(EbxAssetEntry ebxAssetEntry, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset)
+        {
+            chunkAssetEntry = null;
+            ebxAsset = AssetManager.Instance.GetEbx(ebxAssetEntry);
+            if (ebxAsset != null)
+            {
+                dynamic rootObject = ebxAsset.RootObject;
+                if (rootObject != null)
+                {
+                    dynamic val = rootObject.Manifest;
+                    chunkAssetEntry = AssetManager.Instance.GetChunkEntry(val.ChunkId);
+                }
+            }
         }
     }
 

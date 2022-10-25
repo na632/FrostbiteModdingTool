@@ -44,5 +44,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
     public interface IAssetCompiler
     {
         bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter);
+
+        bool Cleanup(FileSystem fs, ILogger logger, ModExecutor modExecuter);
     }
 }

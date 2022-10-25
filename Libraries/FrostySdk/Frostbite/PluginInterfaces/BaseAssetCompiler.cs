@@ -225,26 +225,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             //}
         }
 
-        protected static void CopyFile(string inputFilePath, string outputFilePath)
-        {
-            using (var inStream = new FileStream(inputFilePath, FileMode.Open))
-            {
-                int bufferSize = 1024 * 1024;
-
-                using (FileStream fileStream = new FileStream(outputFilePath, FileMode.OpenOrCreate, FileAccess.Write))
-                {
-                    fileStream.SetLength(inStream.Length);
-                    int bytesRead = -1;
-                    byte[] bytes = new byte[bufferSize];
-
-                    while ((bytesRead = inStream.Read(bytes, 0, bufferSize)) > 0)
-                    {
-                        fileStream.Write(bytes, 0, bytesRead);
-                    }
-                }
-            }
-        }
-
         protected Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
         {
             // Handle Legacy first to generate modified chunks
@@ -343,6 +323,11 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public virtual bool Compile(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
             ModExecuter = modExecuter;
+            return false;
+        }
+
+        public virtual bool Cleanup(FileSystem fs, ILogger logger, ModExecutor modExecuter)
+        {
             return false;
         }
 

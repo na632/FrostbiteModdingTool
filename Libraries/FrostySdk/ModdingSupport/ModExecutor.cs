@@ -3493,13 +3493,8 @@ namespace ModdingSupport
             }
         }
 
-        private static bool useModData = true;
 
-        public static bool UseModData
-        {
-            get { return useModData; }
-            set { useModData = value; }
-        }
+        public static bool UseModData { get; set; } = true;
 
         public bool GameWasPatched { get; set; }
 
@@ -3788,68 +3783,22 @@ namespace ModdingSupport
                 var r = GameInstanceSingleton.InjectDLL(new FileInfo(@"ThirdParty\\FIFA23\\FIFA.dll").FullName, true).Result;
             }
 
-            //_ = Task.Delay(60000).ContinueWith((x) =>
-            //{
-            //    if (!UseModData && ProfilesLibrary.IsFIFA22DataVersion())
-            //    {
-            //        var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
-            //        if (configIni.Exists)
-            //        {
-            //            StringBuilder newConfig = new StringBuilder();
-            //            newConfig.AppendLine("LAUNCH_EXE = fifa22.exe");
-            //            newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
-            //            File.WriteAllText(configIni.FullName, newConfig.ToString());
-            //        }
-            //    }
-            //});
+            // ------------------------------------------------------------------------------------------------------------------------------------------------
+            // Run any Plugin defined cleanup operations
+            var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfilesLibrary.AssetCompilerName);
+            if (pluginCompiler == null && !string.IsNullOrEmpty(ProfilesLibrary.AssetCompilerName))
+                throw new NotImplementedException($"Could not find class {ProfilesLibrary.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
 
-            //});
+            if (pluginCompiler != null)
+            {
+                ((IAssetCompiler)pluginCompiler).Cleanup(fs, logger, this);
+            }
+
             return true;
         }
 
         private void RunEADesktop()
         {
-            // insert -dataPath ModData into the commands
-            var EADesktopLocalAppDataPath =
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
-                , "Electronic Arts"
-                , "EA Desktop");
-            var EADesktopUserFiles = Directory.EnumerateFiles(EADesktopLocalAppDataPath, "user_*.ini");
-            //foreach (var file in EADesktopUserFiles)
-            //{
-            //    var bytesOfConfigFile = File.ReadAllBytes(file);
-            //    if(!File.Exists(file + ".bak"))
-            //        File.Move(file, file + ".bak");
-
-            //    File.Delete(file);
-                
-            //    var msConfig = new MemoryStream(bytesOfConfigFile);
-            //    using (NativeWriter nwMem = new NativeWriter(new FileStream(file, FileMode.OpenOrCreate)))
-            //    {
-            //        bool wroteDataPath = false;
-            //        using (NativeReader nr = new NativeReader(msConfig))
-            //        {
-            //            while (nr.Position < nr.Length)
-            //            {
-            //                var readLine = nr.ReadLine();
-            //                if (readLine.Contains("user.gamecommandline.origin.ofr.50.0004970"))
-            //                {
-            //                    readLine = "user.gamecommandline.origin.ofr.50.0004970=-dataPath ModData";
-            //                    wroteDataPath = true;
-            //                }
-            //                nwMem.WriteLine(readLine);
-            //            }
-            //        }
-            //        if (!wroteDataPath)
-            //            nwMem.WriteLine("user.gamecommandline.origin.ofr.50.0004970=-dataPath ModData");
-            //    }
-            //}
-
-            // Dyvinia Approach!
-            // https://github.com/Dyvinia/FrostyFix/blob/master/Windows/MainWindow.xaml.cs
-            //Environment.SetEnvironmentVariable("GAME_DATA_DIR", Path.Combine(fs.BasePath, "ModData"), EnvironmentVariableTarget.User);
-            //Environment.SetEnvironmentVariable("dataPath", Path.Combine(fs.BasePath, "ModData"), EnvironmentVariableTarget.User);
-
             Process p = new();
             p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             p.StartInfo.FileName = "cmd.exe";

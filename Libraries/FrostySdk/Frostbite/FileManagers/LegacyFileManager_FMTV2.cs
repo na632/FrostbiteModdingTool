@@ -611,12 +611,9 @@ namespace Frostbite.FileManagers
 
 				var edited = replaceFileEntries.GroupBy(x => x.ChunkId).ToDictionary(x => x.Key, x => x.ToList());
 
-				var edited2 = chunkBatch.BatchLegacyFiles.Where(x => x.ModifiedEntry != null).GroupBy(x => x.ChunkId).ToDictionary(x => x.Key, x => x.ToList());
+				//var edited2 = chunkBatch.BatchLegacyFiles.Where(x => x.ModifiedEntry != null).GroupBy(x => x.ChunkId).ToDictionary(x => x.Key, x => x.ToList());
 				foreach (var gItem in edited)
 				{
-					//BuildNewChunkForLegacyItem(gItem);
-
-
 					// Easily handle Singular Chunk
 					if (gItem.Value.Count == 1 && chunkBatch.ChunkGroupsInBatch[gItem.Value.First().ChunkId].Count == 1)
 					{
@@ -687,7 +684,6 @@ namespace Frostbite.FileManagers
 										itemInChunkGroup.ModifiedEntry.Size = d.Length;
 										lastOffset += d.Length;
 
-										//var compressedData = Utils.CompressFile(d, compressionOverride: compressionType);
 										itemInChunkGroup.ModifiedEntry.CompressedOffset = 0;
 										nw_newChunkGroup.Write(d);
 										itemInChunkGroup.ModifiedEntry.CompressedOffsetEnd = d.Length;
@@ -724,19 +720,20 @@ namespace Frostbite.FileManagers
 								AddToChunkBundle = true,
 								AddToTOCChunks = true
 							};
-						}
+							ModifiedChunks.Add(groupChunkEntry);
+                        }
 
 
-						//                  var unmodifiedfiles = groupOfLegacyFiles.Where(x => x.ModifiedEntry == null);
-						//var zeroCompLegacyFiles = groupOfLegacyFiles.Where(x => x.ModifiedEntry != null && x.ModifiedEntry.CompressedOffset == 0);
+                        //                  var unmodifiedfiles = groupOfLegacyFiles.Where(x => x.ModifiedEntry == null);
+                        //var zeroCompLegacyFiles = groupOfLegacyFiles.Where(x => x.ModifiedEntry != null && x.ModifiedEntry.CompressedOffset == 0);
 
-						//groupChunkEntry.IsDirty = true;
-						//groupChunkEntry.ModifiedEntry.AddToChunkBundle = true;
+                        //groupChunkEntry.IsDirty = true;
+                        //groupChunkEntry.ModifiedEntry.AddToChunkBundle = true;
 
-						//AssetManager.Instance.ModifyChunk(gItem.Key, newChunkGroupData, compressionOverride: compressionType);
+                        //AssetManager.Instance.ModifyChunk(gItem.Key, newChunkGroupData, compressionOverride: compressionType);
 
 
-					}
+                    }
 
 				}
 
@@ -795,7 +792,7 @@ namespace Frostbite.FileManagers
 
                 var newBatchData = new NativeReader(msNewBatch).ReadToEnd();
 
-                ModifiedChunks.Add(AssetManager.Instance.GetChunkEntry(chunkBatch.ChunkAssetEntry.Id));
+                ModifiedChunks.Add(chunkBatch.ChunkAssetEntry);
 
                 AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, newBatchData, compressionOverride: compressionType);
                 var cE = AssetManager.Instance.GetChunkEntry(chunkBatch.ChunkAssetEntry.Id);
@@ -820,19 +817,19 @@ namespace Frostbite.FileManagers
 		}
 
 
-		private static void BuildNewChunkForLegacyItem(KeyValuePair<Guid, List<LegacyFileEntry>> gItem)
-        {
-            foreach (var i in gItem.Value)
-            {
-                var newGuid = GenerateDeterministicGuid(i);
-                i.ChunkId = newGuid;
-                i.ModifiedEntry.NewOffset = 0;
-                i.ModifiedEntry.CompressedOffset = 0;
-                i.ModifiedEntry.CompressedOffsetEnd = 0;
-                i.ModifiedEntry.AddToChunkBundle = true;
-                i.ModifiedEntry.AddToTOCChunks = true;
-            }
-        }
+		//private static void BuildNewChunkForLegacyItem(KeyValuePair<Guid, List<LegacyFileEntry>> gItem)
+  //      {
+  //          foreach (var i in gItem.Value)
+  //          {
+  //              var newGuid = GenerateDeterministicGuid(i);
+  //              i.ChunkId = newGuid;
+  //              i.ModifiedEntry.NewOffset = 0;
+  //              i.ModifiedEntry.CompressedOffset = 0;
+  //              i.ModifiedEntry.CompressedOffsetEnd = 0;
+  //              i.ModifiedEntry.AddToChunkBundle = true;
+  //              i.ModifiedEntry.AddToTOCChunks = true;
+  //          }
+  //      }
 
         public void ModifyAsset(string key, byte[] data)
 		{
