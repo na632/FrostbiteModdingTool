@@ -8,55 +8,55 @@ namespace FrostySdk.Resources
 {
 	public class Texture : IDisposable
 	{
-		private uint[] mipOffsets = new uint[2];
+		public uint[] mipOffsets = new uint[2];
 
-		private TextureType type;
+        public TextureType type;
 
-		private int pixelFormat;
+        public int pixelFormat;
 
-		private uint unknown1;
+        public uint unknown1;
 
-		private uint unknown2 { get; set; }
+        public uint unknown2 { get; set; }
 
-		private int unknown4;
+        public int unknown4;
 
-		private TextureFlags flags;
+        public TextureFlags flags;
 
-		private ushort width;
+        public ushort width;
 
-		private ushort height;
+        public ushort height;
 
-		private ushort depth;
+        public ushort depth;
 
-		private ushort sliceCount;
+        public ushort sliceCount;
 
-		private byte mipCount;
+        public byte mipCount;
 
-		private byte firstMip;
+        public byte firstMip;
 
-		private Guid chunkId;
+        public Guid chunkId;
 
-		private uint[] mipSizes = new uint[15];
+        public uint[] mipSizes = new uint[15];
 
-		private uint chunkSize;
+        public uint chunkSize;
 
-		private uint[] unknown3 = new uint[4];
+        public uint[] unknown3 = new uint[4];
 
-		private uint assetNameHash;
+        public uint assetNameHash;
 
-		private string textureGroup;
+        public string textureGroup;
 
-		private Stream data;
+        public Stream data;
 
-		private uint logicalOffset;
+        public uint logicalOffset;
 
-		private uint logicalSize;
+        public uint logicalSize;
 
-		private uint rangeStart;
+        public uint rangeStart;
 
-		private uint rangeEnd;
+        public uint rangeEnd;
 
-		public uint FirstMipOffset
+        public uint FirstMipOffset
 		{
 			get
 			{
@@ -68,7 +68,7 @@ namespace FrostySdk.Resources
 			}
 		}
 
-		public uint SecondMipOffset
+        public uint SecondMipOffset
 		{
 			get
 			{
@@ -80,7 +80,7 @@ namespace FrostySdk.Resources
 			}
 		}
 
-		public int PixelFormatNumber
+        public int PixelFormatNumber
         {
 			get
             {
@@ -89,7 +89,7 @@ namespace FrostySdk.Resources
         }
 
 
-		public string PixelFormat
+        public string PixelFormat
 		{
 			get
 			{
@@ -99,9 +99,9 @@ namespace FrostySdk.Resources
 			
 		}
 
-		public TextureType Type => type;
+        public TextureType Type => type;
 
-		public TextureFlags Flags
+        public TextureFlags Flags
 		{
 			get
 			{
