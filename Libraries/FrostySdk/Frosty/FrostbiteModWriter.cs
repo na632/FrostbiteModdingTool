@@ -435,31 +435,31 @@ namespace FrostySdk
 			{
 				if (resAsset.HasModifiedData)
 				{
-                    bool flag = false;
-					var a = Assembly.GetAssembly(this.GetType());
+     //               bool flag = false;
+					//var a = Assembly.GetAssembly(this.GetType());
 
-					if (a == null)
-						a = Assembly.GetEntryAssembly();
 					//if (a == null)
-					//	a = Assembly.GetCallingAssembly();
-					if (a == null)
-						a = Assembly.GetExecutingAssembly();
-					var allAttr = a.GetCustomAttributes(true);
-					var onlyRes = a.GetCustomAttributes<ResCustomHandlerAttribute>();
+					//	a = Assembly.GetEntryAssembly();
+					////if (a == null)
+					////	a = Assembly.GetCallingAssembly();
+					//if (a == null)
+					//	a = Assembly.GetExecutingAssembly();
+					//var allAttr = a.GetCustomAttributes(true);
+					//var onlyRes = a.GetCustomAttributes<ResCustomHandlerAttribute>();
 
-					foreach (ResCustomHandlerAttribute customAttribute in onlyRes)
-                    {
-                        if (customAttribute.ResType == (ResourceType)resAsset.ResType)
-                        {
-                            ((ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler)).SaveToMod(this, resAsset);
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (!flag)
-                    {
+					//foreach (ResCustomHandlerAttribute customAttribute in onlyRes)
+     //               {
+     //                   if (customAttribute.ResType == (ResourceType)resAsset.ResType)
+     //                   {
+     //                       ((ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler)).SaveToMod(this, resAsset);
+     //                       flag = true;
+     //                       break;
+     //                   }
+     //               }
+     //               if (!flag)
+     //               {
                         AddResource(new ResResource(resAsset, manifest));
-                    }
+                    //}
                 }
 			}
 			foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.EnumerateChunks(modifiedOnly: true))

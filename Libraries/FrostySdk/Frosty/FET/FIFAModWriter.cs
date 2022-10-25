@@ -1,4 +1,5 @@
-﻿using FrostbiteSdk.Frostbite.FileManagers;
+﻿using Frostbite.FileManagers;
+using FrostbiteSdk.Frostbite.FileManagers;
 using Frosty.Hash;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -9,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using static FrostySdk.FrostbiteModWriter;
 
 namespace FrostySdk.Frosty.FET
 {
@@ -122,6 +124,10 @@ namespace FrostySdk.Frosty.FET
                     AddResource(new ChunkResource(item4, ResourceManifest));
                 }
             }
+            foreach (LegacyFileEntry lfe in AssetManager.Instance.EnumerateCustomAssets("legacy", true))
+            {
+                AddResource(new FIFAEditorLegacyResource(lfe.Name, lfe.EbxAssetEntry != null ? lfe.EbxAssetEntry.Name : "", lfe.ModifiedEntry.Data, null, manifest));
+            }
             //foreach (KeyValuePair<EbxAssetEntry, List<(string, LegacyFileEntry.ChunkCollectorInstance)>> kvp in legacyCollectorsToModifiedEntries)
             {
                 //dynamic rootObject = assetManager.GetEbx(kvp.Key).RootObject;
@@ -168,5 +174,42 @@ namespace FrostySdk.Frosty.FET
             WriteUInt64LittleEndian(dataChecksum);
         }
 
+        private class FIFAEditorLegacyResource : EditorModResource
+        {
+            public static uint Hash => 3181116261u;
+
+            public override ModResourceType Type => ModResourceType.Chunk;
+
+            public FIFAEditorLegacyResource(string inName, string ebxName, byte[] data, IEnumerable<int> bundles, Manifest manifest)
+            {
+                name = inName;
+                sha1 = Sha1.Create(data);
+                resourceIndex = manifest.Add(data);
+                size = data.Length;
+                flags = 2;
+                handlerHash = (int)Hash;
+                userData = "legacy;Collector (" + ebxName + ")";
+                AddBundle("chunks", modify: true);
+                //foreach (int bundle in bundles)
+                //{
+                //    BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
+                //    AddBundle(bundleEntry.Name, modify: true);
+                //}
+            }
+
+            public override void Write(NativeWriter writer)
+            {
+                base.Write(writer);
+                writer.WriteInt32LittleEndian(0);
+                writer.WriteInt32LittleEndian(0);
+                writer.WriteInt32LittleEndian(0);
+                writer.WriteInt32LittleEndian(0);
+                writer.WriteInt32LittleEndian(0);
+                writer.WriteInt32LittleEndian(0);
+            }
+        }
+
     }
+
+    
 }

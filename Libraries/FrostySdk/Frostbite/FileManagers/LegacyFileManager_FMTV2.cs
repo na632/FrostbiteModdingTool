@@ -176,26 +176,26 @@ namespace Frostbite.FileManagers
 			var chAttempt1 = AssetManager.Instance.GetChunkEntry(Guid.Parse("FA40D5B2-358C-B8BF-DACA-B7EA34EF1F45"));
 			var chAttempt2 = AssetManager.Instance.GetChunkEntry(Guid.Parse("FA40D5B2-358C-B8BF-DACA-B7EA34EF1F45"));
 
-            foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
+            foreach (EbxAssetEntry ebxEntry in AssetManager.EnumerateEbx("ChunkFileCollector"))
 			{
-				GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
+				GetChunkAssetForEbx(ebxEntry, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
 				if (chunkAssetEntry == null)
 					continue;
 
 				chunkAssetEntry.IsLegacy = true;
 
 				MemoryStream chunk = new MemoryStream();
-				GetChunkStreamForEbx(item).CopyTo(chunk);
+				GetChunkStreamForEbx(ebxEntry).CopyTo(chunk);
 				if (chunk != null)
 				{
 					using (NativeReader nativeReader = new NativeReader(chunk))
 					{
-						File.WriteAllBytes("_debug_legacy_" + item.Name.Replace(@"/","_") + ".dat", chunk.ToArray());
+						//File.WriteAllBytes("_debug_legacy_" + ebxEntry.Name.Replace(@"/","_") + ".dat", chunk.ToArray());
 						nativeReader.Position = 0;
 
 						var chunkBatch = new ChunkBatch()
 						{
-							EbxAssetEntry = item,
+							EbxAssetEntry = ebxEntry,
 							EbxAsset = ebxAsset,
 							ChunkAssetEntry = chunkAssetEntry,
 							UnkCount1 = nativeReader.ReadUInt(), // 0
@@ -222,6 +222,7 @@ namespace Frostbite.FileManagers
 						for (uint index = 0u; index < chunkBatch.NumberOfFiles; index++)
 						{
 							LegacyFileEntry legacyFileEntry = new LegacyFileEntry();
+							legacyFileEntry.EbxAssetEntry = ebxEntry;
 							legacyFileEntry.FileNameInBatchOffset = nativeReader.ReadLong(); // 0 - 8
 							
 							//legacyFileEntry.BatchOffset = positionOfItem;

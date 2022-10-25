@@ -179,6 +179,8 @@ namespace FrostySdk
 
 		public long FileNameInBatchOffset { get; set; }
 
+        public EbxAssetEntry EbxAssetEntry { get; set; }
+
         public override void ClearModifications()
 		{
 			foreach (ChunkCollectorInstance collectorInstance in CollectorInstances)
