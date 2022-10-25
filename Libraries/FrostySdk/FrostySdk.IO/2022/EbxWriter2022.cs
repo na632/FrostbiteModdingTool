@@ -583,11 +583,11 @@ namespace FrostySdk.FrostySdk.IO
 				{
 					long beforePaddingPosition = nativeWriter.Position;
 					nativeWriter.WritePadding(16);
-					//if (nativeWriter.Position - beforePaddingPosition < 4)
-					//{
-					//	nativeWriter.WriteEmpty(16);
-					//}
-					//nativeWriter.Position -= 4L;
+					if (nativeWriter.Position - beforePaddingPosition < 4)
+					{
+						nativeWriter.WriteEmpty(16);
+					}
+					nativeWriter.Position -= 4L;
 					nativeWriter.WriteUInt32LittleEndian(arrayInfo.Count);
 					long beforeArrayPosition = nativeWriter.Position;
 					nativeWriter.WriteBytes(arrayData);
@@ -990,7 +990,7 @@ namespace FrostySdk.FrostySdk.IO
 			{
 				Count = (uint)arrayCount,
 				ClassRef = classIndex,
-				PathDepth = 0u,
+				PathDepth = fieldNameHash,
 				TypeFlags = 0,
 				Offset = 0u
 			});

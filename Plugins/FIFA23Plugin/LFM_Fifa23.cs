@@ -18,17 +18,32 @@ namespace FIFA23Plugin
 
 		public override void Initialize(ILogger logger)
 		{
-			logger.Log($"[{GetType().Name}][LEGACY] Loading files");
-			AddedFileEntries = new List<LegacyFileEntry>();
+			Logger = logger;
+            AddedFileEntries = new List<LegacyFileEntry>();
+            OriginalLegacyEntries.Clear();
+            LegacyEntries.Clear();
+            ModifiedChunks.Clear();
+            LegacyChunksToParent.Clear();
+            ChunkBatches.Clear();
 
-			foreach (EbxAssetEntry item in AssetManager.EnumerateEbx("ChunkFileCollector"))
+            logger.Log($"[{GetType().Name}][LEGACY] Loading files");
+			var cfcEntries = AssetManager.EnumerateEbx("ChunkFileCollector");
+            foreach (EbxAssetEntry ebxEntry in cfcEntries)
+            {
+                AssetManager.Instance.RevertAsset(ebxEntry);
+            }
+
+            foreach (EbxAssetEntry item in cfcEntries)
 			{
 				GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
-				if (chunkAssetEntry == null)
+
+                if (chunkAssetEntry == null)
 				{
 					continue;
 				}
-				chunkAssetEntry.IsLegacy = true;
+                AssetManager.Instance.RevertAsset(chunkAssetEntry);
+
+                chunkAssetEntry.IsLegacy = true;
 
 				MemoryStream chunk = new MemoryStream();
 				AssetManager.Instance.GetChunk(chunkAssetEntry).CopyTo(chunk);
@@ -137,7 +152,10 @@ namespace FIFA23Plugin
 							var chunkOriginalSize = nativeReader.ReadLong();
 							var chunkGuid = nativeReader.ReadGuid();
 							var otherChunk = AssetManager.Instance.GetChunkEntry(chunkGuid);
-							otherChunk.OriginalSize = chunkOriginalSize;
+							if(otherChunk != null)
+								AssetManager.Instance.RevertAsset(otherChunk);
+
+                            otherChunk.OriginalSize = chunkOriginalSize;
 							chunkBatch.LinkedChunks.Add(otherChunk);
 						}
 
@@ -152,7 +170,7 @@ namespace FIFA23Plugin
 						ChunkBatches.Add(chunkBatch);
 
 
-					}
+                    }
 				}
 			}
 

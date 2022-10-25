@@ -417,6 +417,11 @@ namespace FrostySdk.Managers
 			return this.MemberwiseClone() as AssetEntry;
         }
 
+        public virtual T Clone<T>()
+        {
+            return (T)this.MemberwiseClone();
+        }
+
         public bool IsOfType(string type, bool acceptSubType = true)
         {
             if (!Type.Equals(type, StringComparison.OrdinalIgnoreCase))

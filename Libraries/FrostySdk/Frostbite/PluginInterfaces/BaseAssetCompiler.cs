@@ -109,15 +109,22 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                         filesToCopy.Add((file, targetFile));
                         continue;
                     }
+
+                    //if (targetFile.LastAccessTime != file.LastAccessTime)
+                    //{
+                    //    filesToCopy.Add((file, targetFile));
+                    //    continue;
+                    //}
                 }
             }
 
-            var index = 1;
+            //var index = 1;
+            logger.Log($"Data Setup - Copying {sourceDir}");
             foreach(var ftc in filesToCopy)
             {
                 ftc.Item1.CopyTo(ftc.Item2.FullName, true);
-                logger.Log($"Data Setup - Copied ({index}/{filesToCopy.Count}) - {ftc.Item1.FullName}");
-                index++;
+                //logger.Log($"Data Setup - Copied ({index}/{filesToCopy.Count}) - {ftc.Item1.FullName}");
+                //index++;
             }
 
             // If recursive and copying subdirectories, recursively call this method
@@ -291,29 +298,29 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 {
                     legacyFileManager.ModifyAssets(legacyData, true);
 
-                    var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
-                    foreach (var modLegChunk in modifiedLegacyChunks.Where(x => !ModExecuter.ModifiedChunks.ContainsKey(x.Id)))
+                    //var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
+                    var modifiedLegacyChunks = legacyFileManager.ModifiedChunks;
+                    foreach (var modLegChunk in modifiedLegacyChunks)
                     {
-                        if (modLegChunk.Id.ToString() == "f0ca4187-b95e-5153-a1eb-1e0a7fff6371")
-                        {
-
-                        }
-                        if (modLegChunk.Id.ToString() == "3e3ea546-1d18-6ed0-c3e4-2af56e6e8b6d")
-                        {
-
-                        }
                         modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+                        //if(ModExecuter.ModifiedChunks.ContainsKey(modLegChunk.Id))
+                        //    ModExecuter.ModifiedChunks.Remove(modLegChunk.Id);
+
                         ModExecuter.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
                         countLegacyChunksModified++;
                     }
 
-                    var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
-                    foreach (var chunk in modifiedChunks)
+                    //var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
+                    //foreach (var chunk in ModExecuter.ModifiedChunks)
+                    foreach (var chunk in modifiedLegacyChunks)
+                        //foreach (var chunk in AssetManager.Instance.EnumerateChunks(true))
                     {
-                        if (ModExecuter.archiveData.ContainsKey(chunk.Sha1))
-                            ModExecuter.archiveData[chunk.Sha1] = new ArchiveInfo() { Data = chunk.ModifiedEntry.Data };
-                        else
-                            ModExecuter.archiveData.TryAdd(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                        //if (ModExecuter.archiveData.ContainsKey(chunk.Sha1))
+                        //    ModExecuter.archiveData.Remove(chunk.Sha1);
+                        //ModExecuter.archiveData[chunk.Value.ModifiedEntry.Sha1] = new ArchiveInfo() { Data = chunk.Value.ModifiedEntry.Data };
+                        //else
+
+                        ModExecuter.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                     }
                     ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
                 }

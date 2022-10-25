@@ -71,10 +71,8 @@ namespace FrostbiteModdingUI.Windows
 
         public void Update(string loadingSubTitle, string loadingCurrentMessage, int progress)
         {
+            Update(loadingSubTitle, loadingCurrentMessage);
             Dispatcher.Invoke(() => {
-
-                lblLoadingSubtitle.Content = loadingSubTitle;
-                lblProgress.Text = loadingCurrentMessage;
                 pbar.Value = progress;
             });
         }

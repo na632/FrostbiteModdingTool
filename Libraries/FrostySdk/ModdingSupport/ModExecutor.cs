@@ -2741,7 +2741,7 @@ namespace ModdingSupport
 
         public Dictionary<string, LegacyFileEntry> modifiedLegacy = new Dictionary<string, LegacyFileEntry>();
 
-        public ConcurrentDictionary<Sha1, ArchiveInfo> archiveData = new ConcurrentDictionary<Sha1, ArchiveInfo>();
+        public Dictionary<Sha1, ArchiveInfo> archiveData { get; } = new Dictionary<Sha1, ArchiveInfo>();
 
 
         public int numTasks;
@@ -3070,7 +3070,7 @@ namespace ModdingSupport
                                     archiveData[ebxAssetEntry.Sha1].RefCount--;
                                     if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
                                     {
-                                        archiveData.TryRemove(ebxAssetEntry.Sha1, out _);
+                                        archiveData.Remove(ebxAssetEntry.Sha1, out _);
                                     }
                                     modifiedEbx.Remove(resource.Name);
                                 }
@@ -3096,7 +3096,7 @@ namespace ModdingSupport
                                 {
                                     modifiedRes.Remove(resource.Name);
                                     if (archiveData.ContainsKey(resource.Sha1))
-                                        archiveData.TryRemove(resource.Sha1, out ArchiveInfo _);
+                                        archiveData.Remove(resource.Sha1, out ArchiveInfo _);
 
                                 }
                                 ResAssetEntry resAssetEntry3 = new ResAssetEntry();

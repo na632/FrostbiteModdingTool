@@ -20,7 +20,7 @@ namespace Madden21Plugin
     /// <summary>
     /// Currently. The Madden 21 Compiler does not work in game.
     /// </summary>
-    public class Madden21AssetCompiler : IAssetCompiler
+    public class Madden21AssetCompiler : BaseAssetCompiler, IAssetCompiler
     {
         public const string ModDirectory = "ModData";
         public const string PatchDirectory = "Patch";

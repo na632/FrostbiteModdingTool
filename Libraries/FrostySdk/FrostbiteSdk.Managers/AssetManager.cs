@@ -1260,43 +1260,43 @@ namespace FrostySdk.Managers
 				return false;
 			}
 			ChunkAssetEntry chunkAssetEntry = Chunks[chunkId];
-			// fifa 21 chunk is oodle
-			// madden 21 chunk is oodle
-			//if ((ProfilesLibrary.IsFIFADataVersion() 
-			//	|| ProfilesLibrary.IsMadden21DataVersion()
-			//	|| ProfilesLibrary.IsFIFA21DataVersion()
-			//	) 
-			//	&& texture != null)
-			//{
-			//	compressionOverride = CompressionType.Oodle;
-			//}
-			if (compressionOverride == CompressionType.Default)
-			{
+			return ModifyChunk(chunkAssetEntry, buffer, texture, compressionOverride, addToChunkBundle);
+
+        }
+
+        public bool ModifyChunk(
+			ChunkAssetEntry chunkAssetEntry
+            , byte[] buffer
+            , Texture texture = null
+			, CompressionType compressionOverride = CompressionType.Default
+            , bool addToChunkBundle = false)
+        {
+			if(compressionOverride == CompressionType.Default)
 				compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Chunks);
-			}
 
-			if (chunkAssetEntry.ModifiedEntry == null)
-			{
-				chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-			}
-			chunkAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
-			chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
-			chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
-			chunkAssetEntry.ModifiedEntry.LogicalSize = (uint)buffer.Length;
-			if (texture != null)
-			{
-				chunkAssetEntry.ModifiedEntry.LogicalOffset = texture.LogicalOffset;
-				chunkAssetEntry.ModifiedEntry.LogicalSize = texture.LogicalSize;
-				chunkAssetEntry.ModifiedEntry.RangeStart = texture.RangeStart;
-				chunkAssetEntry.ModifiedEntry.RangeEnd = (uint)chunkAssetEntry.ModifiedEntry.Data.Length;
-				chunkAssetEntry.ModifiedEntry.FirstMip = texture.FirstMip;
-			}
-			chunkAssetEntry.IsDirty = true;
-			chunkAssetEntry.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
-			return true;
-		}
+            if (chunkAssetEntry.ModifiedEntry == null)
+            {
+                chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+            }
+            chunkAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
+            chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
+            chunkAssetEntry.ModifiedEntry.Size = chunkAssetEntry.ModifiedEntry.Data.Length;
+            chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
+            chunkAssetEntry.ModifiedEntry.LogicalSize = (uint)buffer.Length;
+            if (texture != null)
+            {
+                chunkAssetEntry.ModifiedEntry.LogicalOffset = texture.LogicalOffset;
+                chunkAssetEntry.ModifiedEntry.LogicalSize = texture.LogicalSize;
+                chunkAssetEntry.ModifiedEntry.RangeStart = texture.RangeStart;
+                chunkAssetEntry.ModifiedEntry.RangeEnd = (uint)chunkAssetEntry.ModifiedEntry.Data.Length;
+                chunkAssetEntry.ModifiedEntry.FirstMip = texture.FirstMip;
+            }
+            chunkAssetEntry.IsDirty = true;
+            chunkAssetEntry.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
+            return true;
+        }
 
-		public void ModifyRes(ulong resRid, byte[] buffer, byte[] meta = null)
+        public void ModifyRes(ulong resRid, byte[] buffer, byte[] meta = null)
 		{
 			if (resRidList.ContainsKey(resRid))
 			{

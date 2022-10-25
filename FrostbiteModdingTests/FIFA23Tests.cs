@@ -226,6 +226,34 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void ModHotspotFile()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.StartNewProject();
+
+            var ebxEntry = AssetManager.Instance.GetEbxEntry("content/character/kit/kit_112000/newport_county_112254/home_0_0/hotspots_112254_0_0");
+            Assert.IsNotNull(ebxEntry);
+            var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+            ((dynamic)complexAsset.RootObject).Hotspots[0].Rotation = 0.5f;
+            ((dynamic)complexAsset.RootObject).Hotspots[1].Rotation = 0.5f;
+            ((dynamic)complexAsset.RootObject).Hotspots[2].Rotation = 0.5f;
+            ((dynamic)complexAsset.RootObject).Hotspots[3].Rotation = 0.5f;
+            ((dynamic)complexAsset.RootObject).Hotspots[4].Rotation = 0.5f;
+            AssetManager.Instance.ModifyEbx("content/character/kit/kit_112000/newport_county_112254/home_0_0/hotspots_112254_0_0", complexAsset);
+
+            var testR = "test.fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    testR
+                }.ToArray()).Wait();
+        }
+
+        [TestMethod]
         public void ReadComplexGPFile()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
@@ -235,6 +263,7 @@ namespace FrostbiteModdingTests
             var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
             Assert.IsNotNull(ebxEntry);
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+
         }
 
         [TestMethod]
@@ -249,7 +278,6 @@ namespace FrostbiteModdingTests
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
             dyn.ATTR_DribbleJogSpeed = 0.05f;
-            dyn.ATTR_JogSpeed = 0.05f;
             //dyn.ATTR_DribbleWalkSpeed = 0.005f;
             //dyn.ATTR_JogSpeed = 0.005f;
             //dyn.ATTR_WalkSpeed = 0.005f;
@@ -263,7 +291,6 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
-            ModdingSupport.ModExecutor.UseModData = false;
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
@@ -359,6 +386,26 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void TestAvatarExpansionMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\FIFA 23 Avatar Customization Mod.fbproject");
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+
+            var allLegacy = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+        }
+
+        [TestMethod]
         public void TestCareerMod()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
@@ -374,6 +421,8 @@ namespace FrostbiteModdingTests
                     "test.fbmod"
                 }.ToArray()).Wait();
 
+
+            var allLegacy = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
 
         [TestMethod]

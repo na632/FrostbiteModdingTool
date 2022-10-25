@@ -721,10 +721,14 @@ namespace FIFAModdingUI.Windows
 
         private async void btnLaunchFIFAInEditor_Click(object sender, RoutedEventArgs e)
         {
+            //LegacyFileManager_FMTV2.CleanUpChunks();
+
+            loadingDialog.Update("Launching game", "-", 0);
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = false; });
 
             if (!string.IsNullOrEmpty(ProjectManagement.Project.Filename))
             {
+                loadingDialog.Update("Launching game", "Autosaving project", 25);
                 Log("Autosaving Project");
                 bool saved = await Task.Run(() =>
                 {
@@ -746,7 +750,7 @@ namespace FIFAModdingUI.Windows
             //Log("Deleting old test mods");
             foreach (var tFile in Directory.GetFiles(App.ApplicationDirectory, "*.fbmod")) { File.Delete(tFile); };
 
-            var testmodname = "test-" + RandomSaver.Next().ToString() + ".fbmod";
+            var testmodname = "EditorProject.fbmod";
 
             var author = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
             var category = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
@@ -754,6 +758,7 @@ namespace FIFAModdingUI.Windows
             var title = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
             var version = ProjectManagement.Project.ModSettings != null ? ProjectManagement.Project.ModSettings.Author : string.Empty;
 
+            loadingDialog.Update("Launching game", "Creating Mod", 50);
             await Task.Run(() =>
             {
                 ProjectManagement.Project.WriteToMod(testmodname
@@ -771,6 +776,8 @@ namespace FIFAModdingUI.Windows
 
             try
             {
+                loadingDialog.Update("Launching game", "Compiling", 99);
+
                 await Task.Run(() =>
                 {
                     ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
@@ -789,7 +796,8 @@ namespace FIFAModdingUI.Windows
 
             await Dispatcher.InvokeAsync(() => { btnLaunchFIFAInEditor.IsEnabled = true; });
 
-            LegacyFileManager_FMTV2.CleanUpChunks();
+            //LegacyFileManager_FMTV2.CleanUpChunks();
+            loadingDialog.Update("","");
 
         }
 

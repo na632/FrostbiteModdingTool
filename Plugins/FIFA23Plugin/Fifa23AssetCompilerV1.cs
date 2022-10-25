@@ -1,4 +1,5 @@
 ﻿using Frostbite.FileManagers;
+using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.PluginInterfaces;
@@ -918,19 +919,6 @@ namespace FIFA23Plugin
         public override bool Cleanup(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
             var r = base.Cleanup(fs, logger, modExecuter);
-
-            if (AssetManager.Instance == null)
-                return true;
-
-            foreach (EbxAssetEntry item in AssetManager.Instance.EnumerateEbx("ChunkFileCollector"))
-            {
-                GetChunkAssetForEbx(item, out ChunkAssetEntry chunkAssetEntry, out EbxAsset ebxAsset);
-                if (chunkAssetEntry != null)
-                {
-                    AssetManager.Instance.RevertAsset(chunkAssetEntry);
-                }
-                AssetManager.Instance.RevertAsset(item);
-            }
 
             return r;
         }

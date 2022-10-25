@@ -81,7 +81,7 @@
   "CompressedFormatEBX": "Oodle", // Checked on GP files. FIFA 23 only uses Oodle!
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
-  "CompressedFormatLegacy": "None",
+  "CompressedFormatLegacy": "Oodle",
   "LegacyFileManager": "LFM_Fifa23",
   "CanUseModData": true,
   "ForceUseModData": true,
