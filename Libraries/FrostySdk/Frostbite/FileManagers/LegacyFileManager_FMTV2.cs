@@ -657,6 +657,7 @@ namespace Frostbite.FileManagers
                         chunkEntryClone.ModifiedEntry.AddToTOCChunks = true;
                         ModifiedChunks.Add(chunkEntryClone);
 
+						editedLegacyFilesByProcess.Add(legacyItem);
                         //AssetManager.Instance.RevertAsset(chunkEntry);
                         //AssetManager.Instance.ModifyChunk(gItem.Key, legacyItem.ModifiedEntry.Data, null, compressionType);
 

@@ -453,9 +453,9 @@ namespace FIFAModdingUI.Windows
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
         {
             DisableEditor();
-            // ---------------------------------------------------------
-            // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_FMTV2.CleanUpChunks();
+            //// ---------------------------------------------------------
+            //// Remove chunks and actual unmodified files before writing
+            //LegacyFileManager_FMTV2.CleanUpChunks();
 
             try
             {

@@ -276,22 +276,20 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             {
                 ModExecuter.Logger.Log($"Legacy :: {ModExecuter.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
 
-                Dictionary<string, byte[]> legacyData = new Dictionary<string, byte[]>();
+                Dictionary<string, byte[]> legacyData = ModExecuter.modifiedLegacy.ToDictionary(x => x.Key, x => x.Value.ModifiedEntry.Data);
                 var countLegacyChunksModified = 0;
-                foreach (var modLegacy in ModExecuter.modifiedLegacy)
-                {
-                    byte[] data = null;
-                    //if (modLegacy.Value.ModifiedEntry != null && modLegacy.Value.ModifiedEntry.Data != null)
-                    //    data = new CasReader(new MemoryStream(modLegacy.Value.ModifiedEntry.Data)).Read();
-                    //else 
-                    if (ModExecuter.archiveData.ContainsKey(modLegacy.Value.Sha1))
-                        data = ModExecuter.archiveData[modLegacy.Value.Sha1].Data;
+                //foreach (var modLegacy in ModExecuter.modifiedLegacy)
+                //{
+                //    byte[] data = null;
+                    
+                //    if (ModExecuter.archiveData.ContainsKey(modLegacy.Value.Sha1))
+                //        data = ModExecuter.archiveData[modLegacy.Value.Sha1].Data;
 
-                    if (data != null)
-                    {
-                        legacyData.Add(modLegacy.Key, data);
-                    }
-                }
+                //    if (data != null)
+                //    {
+                //        legacyData.Add(modLegacy.Key, data);
+                //    }
+                //}
 
                 var legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as LegacyFileManager_FMTV2;
                 if (legacyFileManager != null)
@@ -302,7 +300,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     var modifiedLegacyChunks = legacyFileManager.ModifiedChunks;
                     foreach (var modLegChunk in modifiedLegacyChunks)
                     {
-                        modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
+                        //modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
                         //if(ModExecuter.ModifiedChunks.ContainsKey(modLegChunk.Id))
                         //    ModExecuter.ModifiedChunks.Remove(modLegChunk.Id);
 
@@ -320,7 +318,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                         //ModExecuter.archiveData[chunk.Value.ModifiedEntry.Sha1] = new ArchiveInfo() { Data = chunk.Value.ModifiedEntry.Data };
                         //else
 
-                        ModExecuter.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                        if (!ModExecuter.archiveData.ContainsKey(chunk.Sha1))
+                            ModExecuter.archiveData.Add(chunk.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                     }
                     ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
                 }

@@ -3259,19 +3259,19 @@ namespace ModdingSupport
                             else
                                 modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
 
-                            if (!archiveData.ContainsKey(legacyAssetEntry.Sha1))
-                            {
-                                archiveData.TryAdd(legacyAssetEntry.Sha1, new ArchiveInfo
-                                {
-                                    Data = resourceData,
-                                    RefCount = 1
-                                });
-                            }
-                            else
-                            {
-                                archiveData[legacyAssetEntry.Sha1].Data = resourceData;
-                                archiveData[legacyAssetEntry.Sha1].RefCount++;
-                            }
+                            //if (!archiveData.ContainsKey(legacyAssetEntry.Sha1))
+                            //{
+                            //    archiveData.TryAdd(legacyAssetEntry.Sha1, new ArchiveInfo
+                            //    {
+                            //        Data = resourceData,
+                            //        RefCount = 1
+                            //    });
+                            //}
+                            //else
+                            //{
+                            //    archiveData[legacyAssetEntry.Sha1].Data = resourceData;
+                            //    archiveData[legacyAssetEntry.Sha1].RefCount++;
+                            //}
                         }
                         //});
                     }

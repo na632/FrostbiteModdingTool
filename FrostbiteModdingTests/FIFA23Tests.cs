@@ -458,6 +458,23 @@ namespace FrostbiteModdingTests
 
         }
 
+        [TestMethod]
+        public void TestCombinationMod()
+        {
+            var modPath1 = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.11.fbmod";
+            var modPath2 = @"G:\Work\FIFA Modding\GraphicMod\FIFA 23\V FIFA 23 Licensing Mod.fbmod";
+            var modPath3 = @"G:\Work\FIFA Modding\Career Mod\FIFA-23-Career-Mod\V Career Mod - Alpha 4.fbmod";
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    modPath1, modPath2, modPath3
+                }.ToArray()).Wait();
+
+        }
+
         public void DeleteAllBackupsInFolder(string dir)
         {
             int countOfDelete = 0;
