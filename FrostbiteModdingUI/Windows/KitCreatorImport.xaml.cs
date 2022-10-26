@@ -44,7 +44,10 @@ namespace FMT.Windows
             Dispatcher.Invoke(() =>
             {
                 txtLog.Text = string.Empty;
-                btnImport.IsEnabled = false;
+                //btnImport.IsEnabled = false;
+                this.IsEnabled = false;
+                pSuccess.Visibility = Visibility.Collapsed;
+                pFail.Visibility = Visibility.Collapsed;
             });
 
             if (string.IsNullOrEmpty(SelectedFile) || string.IsNullOrEmpty(txtTeamId.Text) || string.IsNullOrEmpty(txtKitType.Text))
@@ -55,6 +58,13 @@ namespace FMT.Windows
 
             ZipFile zip = new ZipFile(SelectedFile);
             var entries = zip.Entries.ToList();
+            Dispatcher.Invoke(() =>
+            {
+                pBar.Minimum = 0;
+                pBar.Maximum = entries.Count > 0 ? entries.Count : 1;
+                pBar.Value = 0;
+            });
+
             for (var i = 0; i < entries.Count; i++)
             {
                 var entry = entries[i];
@@ -207,12 +217,17 @@ namespace FMT.Windows
 
                 }
 
-
+                Dispatcher.Invoke(() =>
+                {
+                    pBar.Value = i;
+                });
             }
 
             Dispatcher.Invoke(() =>
             {
-                btnImport.IsEnabled = true;
+                //btnImport.IsEnabled = true;
+                this.IsEnabled = true;
+                pSuccess.Visibility = Visibility.Visible;
             });
 
         }

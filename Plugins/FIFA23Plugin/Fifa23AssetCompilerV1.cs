@@ -485,24 +485,13 @@ namespace FIFA23Plugin
                                         var assetBundleToCAS = new Dictionary<string, List<AssetEntry>>();
                                         foreach (var assetBundle in tocGroup.Value)
                                         {
-                                            var positionOfNewData = assetBundle.Value.Item1;
-                                            var sizeOfData = assetBundle.Value.Item2;
-                                            var originalSizeOfData = assetBundle.Value.Item3;
-                                            var sha = assetBundle.Value.Item4;
-
-                                            int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
-                                            var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
-                                            nw_toc.BaseStream.Position = sb_cas_offset_position;
-                                            nw_toc.Write((uint)positionOfNewData, Endian.Big);
-                                            nw_toc.Write((uint)sizeOfData, Endian.Big);
-
                                             var casPath = string.Empty;
                                             if (assetBundle.Key is EbxAssetEntry)
                                             {
                                                 DbObject origEbxDbo = null;
                                                 foreach (DbObject dbInBundle in origEbxBundles)
                                                 {
-                                                    origEbxDbo = (DbObject)dbInBundle.List.Single(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                    origEbxDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
                                                     if (origEbxDbo != null)
                                                         break;
                                                 }
@@ -518,7 +507,7 @@ namespace FIFA23Plugin
                                                 DbObject origResDbo = null;
                                                 foreach (DbObject dbInBundle in origResBundles)
                                                 {
-                                                    origResDbo = (DbObject)dbInBundle.List.Single(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                    origResDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
                                                     if (origResDbo != null)
                                                         break;
                                                 }
@@ -534,7 +523,7 @@ namespace FIFA23Plugin
                                                 DbObject origChunkDbo = null;
                                                 foreach (DbObject dbInBundle in origChunkBundles)
                                                 {
-                                                    origChunkDbo = (DbObject)dbInBundle.List.Single(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+                                                    origChunkDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
                                                     if (origChunkDbo != null)
                                                         break;
                                                 }
@@ -547,6 +536,17 @@ namespace FIFA23Plugin
 
                                             if (!string.IsNullOrEmpty(casPath))
                                             {
+                                                var positionOfNewData = assetBundle.Value.Item1;
+                                                var sizeOfData = assetBundle.Value.Item2;
+                                                var originalSizeOfData = assetBundle.Value.Item3;
+                                                var sha = assetBundle.Value.Item4;
+
+                                                int sb_cas_size_position = assetBundle.Key.SB_CAS_Size_Position;
+                                                var sb_cas_offset_position = assetBundle.Key.SB_CAS_Offset_Position;
+                                                nw_toc.BaseStream.Position = sb_cas_offset_position;
+                                                nw_toc.Write((uint)positionOfNewData, Endian.Big);
+                                                nw_toc.Write((uint)sizeOfData, Endian.Big);
+
                                                 if (!assetBundleToCAS.ContainsKey(casPath))
                                                     assetBundleToCAS.Add(casPath, new List<AssetEntry>());
 

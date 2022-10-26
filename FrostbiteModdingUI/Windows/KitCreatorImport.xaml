@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FMT.Windows"
         mc:Ignorable="d"
-        Title="Kit Creator Import" Height="300" Width="800">
+        Title="Kit Creator Import" Height="400" Width="720" WindowStartupLocation="CenterScreen" >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -16,7 +16,8 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition Height="15"></RowDefinition>
         </Grid.RowDefinitions>
         <Label>Team Id</Label>
         <TextBox x:Name="txtTeamId" Text="{Binding TeamId}" Grid.Column="1"></TextBox>
@@ -32,6 +33,9 @@
             <Button x:Name="btnKitCreatorZip" Click="btnKitCreatorZip_Click" Grid.Column="1">Browse</Button>
         </Grid>
         <Button x:Name="btnImport" Click="Import_Click" Grid.ColumnSpan="2" Grid.Row="3">Import</Button>
-        <TextBlock x:Name="txtLog" Grid.Row="4" Grid.ColumnSpan="2"></TextBlock>
+        <TextBox IsReadOnly="True" x:Name="txtLog" Grid.Row="4" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Visible"></TextBox>
+        <ProgressBar x:Name="pBar" Grid.Row="5"></ProgressBar>
+        <Label x:Name="pSuccess" Grid.Row="5" Grid.Column="1" Background="Green" Visibility="Collapsed"></Label>
+        <Label x:Name="pFail" Grid.Row="5" Grid.Column="1" Background="Red" Visibility="Collapsed"></Label>
     </Grid>
 </Window>
