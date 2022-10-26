@@ -475,6 +475,24 @@ namespace FrostbiteModdingTests
 
         }
 
+        [TestMethod]
+        public void TestLargeLegacyModProject()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\GraphicMod\FIFA 23\V FIFA 23 Licensing Mod.fbproject").Result;
+
+            projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
         public void DeleteAllBackupsInFolder(string dir)
         {
             int countOfDelete = 0;

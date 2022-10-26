@@ -641,18 +641,21 @@ namespace Frostbite.FileManagers
 				//var edited2 = chunkBatch.BatchLegacyFiles.Where(x => x.ModifiedEntry != null).GroupBy(x => x.ChunkId).ToDictionary(x => x.Key, x => x.ToList());
 				foreach (var gItem in edited)
 				{
-					// Easily handle Singular Chunk
-					if (gItem.Value.Count == 1 && chunkBatch.ChunkGroupsInBatch[gItem.Value.First().ChunkId].Count == 1)
+                    
+                    // Easily handle Singular Chunk
+                    if (gItem.Value.Count == 1 && !ModifiedChunks.Any(y => y.Id == gItem.Key))// && chunkBatch.ChunkGroupsInBatch[gItem.Value.First().ChunkId].Count == 1)
 					{
 						var chunkEntryClone = AssetManager.Instance.GetChunkEntry(gItem.Key).Clone<ChunkAssetEntry>();
 						var legacyItem = gItem.Value.First();
 						legacyItem.ModifiedEntry.NewOffset = 0;
 						legacyItem.ModifiedEntry.Size = legacyItem.ModifiedEntry.Data.Length;
-                        //legacyItem.ModifiedEntry.CompressedOffset = 0;
-                        //legacyItem.ModifiedEntry.CompressedOffsetEnd = 0;
-
 
 						AssetManager.Instance.ModifyChunk(chunkEntryClone, legacyItem.ModifiedEntry.Data, null, compressionType);
+
+                        legacyItem.ModifiedEntry.CompressedOffset = 0;
+						legacyItem.ModifiedEntry.CompressedOffsetEnd = chunkEntryClone.ModifiedEntry.Size;
+
+						chunkEntryClone.ModifiedEntry.Sha1 = AssetManager.Instance.GenerateSha1(Encoding.UTF8.GetBytes(legacyItem.Name));
                         chunkEntryClone.ModifiedEntry.AddToChunkBundle = true;
                         chunkEntryClone.ModifiedEntry.AddToTOCChunks = true;
                         ModifiedChunks.Add(chunkEntryClone);
@@ -666,14 +669,14 @@ namespace Frostbite.FileManagers
                     else
 					{
 						var batchGuid = gItem.Key;
-                        //var groupOfLegacyFilesWithOnlyOne = chunkBatch.ChunkGroupsInBatch
-                        //        .Where(x => !chunkBatch.ChunkGroupsInBatchModified.ContainsKey(x.Key))
-                        //        .Where(x => x.Value.Count == 1)
-                        //        .First();
+                        var groupOfLegacyFilesWithOnlyOne = chunkBatch.ChunkGroupsInBatch
+                                .Where(x => !ModifiedChunks.Any(y => y.Id == x.Key))
+                                .Where(x => x.Value.Count == 1)
+                                .First();
                         //batchGuid = groupOfLegacyFilesWithOnlyOne.Key;
-						foreach (var gItem2 in gItem.Value)
+                        foreach (var gItem2 in gItem.Value)
 						{
-                            var groupOfLegacyFilesWithOnlyOne = chunkBatch.ChunkGroupsInBatch
+                            groupOfLegacyFilesWithOnlyOne = chunkBatch.ChunkGroupsInBatch
                                 .Where(x => !ModifiedChunks.Any(y => y.Id == x.Key))
                                 .Where(x => x.Value.Count == 1)
                                 .First();
@@ -878,19 +881,6 @@ namespace Frostbite.FileManagers
 		public List<LegacyFileEntry> ModifyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
 		{
             ModifiedChunks.Clear();
-
-            //CleanUpChunks(false);
-            //ReInitialize(Logger);
-
-            //var mc = ModifiedChunks;
-            //         ChunkBatches.Clear();
-            //         ChunkBatches.AddRange(VanillaChunkBatches);
-            //         var cb = ChunkBatches;
-            //var modifiedAssets = EnumerateAssets(true).ToList();
-            //foreach (var ma in modifiedAssets)
-            //	AssetManager.Instance.RevertAsset(ma);
-            //foreach (var ma in ModifiedChunks)
-            //	AssetManager.Instance.RevertAsset(ma);
 
             List<LegacyFileEntry> filesEdited = new List<LegacyFileEntry>();
 

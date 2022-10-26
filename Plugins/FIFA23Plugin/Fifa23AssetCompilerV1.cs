@@ -307,7 +307,7 @@ namespace FIFA23Plugin
                     }
 
                     Debug.WriteLine($"Modifying CAS file - {casPath}");
-                    parent.Logger.Log($"Modifying CAS file - {casPath}");
+                    //parent.Logger.Log($"Modifying CAS file - {casPath}");
 
 
                     using (NativeWriter nwCas = new NativeWriter(new FileStream(casPath, FileMode.Open)))
@@ -346,7 +346,7 @@ namespace FIFA23Plugin
                             }
                             else
                             {
-                                parent.Logger.LogError($"Unable to find original archive data for {modItem.NamePath}");
+                                //parent.Logger.LogError($"Unable to find original archive data for {modItem.NamePath}");
                                 continue;
                             }
 
@@ -789,7 +789,8 @@ namespace FIFA23Plugin
                                         && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
                                     if (chunkIndex != -1)
                                     {
-                                        var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                        //var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                        var data = parent.archiveData[modChunk.Value.ModifiedEntry.Sha1].Data;
 
                                         var chunkGuid = tocSb.TOCFile.TocChunkGuids[chunkIndex];
 
