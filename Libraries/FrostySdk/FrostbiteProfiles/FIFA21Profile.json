@@ -68,6 +68,8 @@
   "LegacyFileManager": "LegacyFileManager_FMTV2",
   "CanUseLiveLegacyMods": true,
   "CanUseModData": true,
+  "ForceUseModData": true,
+
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
   "CacheWriter": "Fifa21CacheWriter",
   // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
