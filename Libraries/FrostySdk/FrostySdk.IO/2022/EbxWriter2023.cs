@@ -22,7 +22,7 @@ namespace FrostySdk.FrostySdk.IO
         {
         }
 
-        protected override void WriteClass(object obj, Type objType, FileWriter writer)
+        protected override void WriteClass(object obj, Type objType, FileWriter writer, long startPosition = 0)
         {
             if (obj == null)
             {
@@ -38,10 +38,10 @@ namespace FrostySdk.FrostySdk.IO
             }
             if (objType.BaseType!.Namespace == "FrostySdk.Ebx")
             {
-                WriteClass(obj, objType.BaseType, writer);
+                WriteClass(obj, objType.BaseType, writer, writer.Position);
             }
 
-            var startPosition = writer.Position;
+            if (startPosition == 0L) startPosition = writer.Position;
 
             PropertyInfo[] properties = objType
                 .GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
@@ -59,6 +59,7 @@ namespace FrostySdk.FrostySdk.IO
                 .Where(x => x.GetCustomAttribute<HashAttribute>() != null && x.GetCustomAttribute<FieldIndexAttribute>() != null)
                 .OrderBy(x => x.GetCustomAttribute<EbxFieldMetaAttribute>().Offset)
                 .Select(x => EbxReader22A.GetEbxFieldByProperty(classType, x))
+                //.OrderBy(x => x.DataOffset)
                 .ToList();
 
             //foreach (EbxField field in fields)
@@ -70,97 +71,31 @@ namespace FrostySdk.FrostySdk.IO
                     continue;
                 }
                 PropertyInfo propertyInfo = Array.Find(properties, (PropertyInfo p) => (uint?)p.GetCustomAttribute<HashAttribute>()?.Hash == (uint?)field.NameHash);
+
+                //long currentOffset = writer.Position - startPosition;
+                //if (currentOffset < 0)
+                //{
+                //    writer.Position = startPosition;
+                //}
+                //else if (currentOffset > field.DataOffset)
+                //{
+                //    writer.Position = startPosition + field.DataOffset;
+                //}
+                //else if (currentOffset < field.DataOffset)
+                //{
+                //    int adjustment = (int)(field.DataOffset - currentOffset);
+                //    int adjustmentByPaddingTo8 = (int)(8 - currentOffset % 8);
+                //    if (adjustment != adjustmentByPaddingTo8)
+                //    {
+                //        //continue;
+                //    }
+                //    writer.WriteEmpty(adjustment);
+                //}
+
                 if (propertyInfo == null)
                 {
-                    //EbxFieldType debugType = field2.DebugType;
-                    //if (debugType == EbxFieldType.ResourceRef || debugType == EbxFieldType.TypeRef || debugType == EbxFieldType.FileRef || debugType == EbxFieldType.BoxedValueRef || debugType == EbxFieldType.UInt64 || debugType == EbxFieldType.Int64 || debugType == EbxFieldType.Float64)
-                    //{
-                    //    writer.WritePadding(8);
-                    //}
-                    //else
-                    //{
-                    //    debugType = field2.DebugType;
-                    //    if (debugType == EbxFieldType.Array || debugType == EbxFieldType.Pointer)
-                    //    {
-                    //        writer.WritePadding(4);
-                    //    }
-                    //}
-                    //switch (field2.DebugType)
-                    //{
-                    //    case EbxFieldType.TypeRef:
-                    //        writer.WriteUInt64LittleEndian(0uL);
-                    //        break;
-                    //    case EbxFieldType.FileRef:
-                    //        writer.WriteUInt64LittleEndian(0uL);
-                    //        break;
-                    //    case EbxFieldType.CString:
-                    //        writer.WriteInt64LittleEndian(0L);
-                    //        break;
-                    //    case EbxFieldType.Pointer:
-                    //        writer.WriteInt64LittleEndian(0L);
-                    //        break;
-                    //    case EbxFieldType.Struct:
-                    //        {
-                    //            EbxClass value = GetClass(classType, field2);
-                    //            writer.WritePadding(value.Alignment);
-                    //            writer.WriteEmpty(value.Size);
-                    //            break;
-                    //        }
-                    //    case EbxFieldType.Array:
-                    //        writer.WriteInt64LittleEndian(0L);
-                    //        break;
-                    //    case EbxFieldType.Enum:
-                    //        writer.WriteInt32LittleEndian(0);
-                    //        break;
-                    //    case EbxFieldType.Float32:
-                    //        writer.WriteSingleLittleEndian(0f);
-                    //        break;
-                    //    case EbxFieldType.Float64:
-                    //        writer.WriteDoubleLittleEndian(0.0);
-                    //        break;
-                    //    case EbxFieldType.Boolean:
-                    //        writer.Write((byte)0);
-                    //        break;
-                    //    case EbxFieldType.Int8:
-                    //        writer.Write(0);
-                    //        break;
-                    //    case EbxFieldType.UInt8:
-                    //        writer.Write((byte)0);
-                    //        break;
-                    //    case EbxFieldType.Int16:
-                    //        writer.WriteInt16LittleEndian(0);
-                    //        break;
-                    //    case EbxFieldType.UInt16:
-                    //        writer.WriteUInt16LittleEndian(0);
-                    //        break;
-                    //    case EbxFieldType.Int32:
-                    //        writer.WriteInt32LittleEndian(0);
-                    //        break;
-                    //    case EbxFieldType.UInt32:
-                    //        writer.WriteUInt32LittleEndian(0u);
-                    //        break;
-                    //    case EbxFieldType.Int64:
-                    //        writer.WriteInt64LittleEndian(0L);
-                    //        break;
-                    //    case EbxFieldType.UInt64:
-                    //        writer.WriteUInt64LittleEndian(0uL);
-                    //        break;
-                    //    case EbxFieldType.Guid:
-                    //        writer.WriteGuid(Guid.Empty);
-                    //        break;
-                    //    case EbxFieldType.Sha1:
-                    //        writer.Write(Sha1.Zero);
-                    //        break;
-                    //    case EbxFieldType.String:
-                    //        writer.WriteFixedSizedString(string.Empty, 32);
-                    //        break;
-                    //    case EbxFieldType.ResourceRef:
-                    //        writer.WriteUInt64LittleEndian(0uL);
-                    //        break;
-                    //    case EbxFieldType.BoxedValueRef:
-                    //        writer.WriteGuid(Guid.Empty);
-                    //        break;
-                    //}
+                    AssetManager.Instance.LogError($"EBX Writing: Unable to write field {field.NameHash} of class {obj.GetType().Name}");
+                    continue;
                 }
                 else
                 {
