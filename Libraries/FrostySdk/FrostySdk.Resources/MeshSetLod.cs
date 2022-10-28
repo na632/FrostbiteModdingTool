@@ -50,7 +50,7 @@ namespace FrostySdk.Resources
 		public List<MeshSetSection> Sections { get; } = new List<MeshSetSection>();
 
 
-		public MeshLayoutFlags Flags { get; private set; }
+		public EMeshLayout Flags { get; private set; }
 
 		public int IndexUnitSize
 		{
@@ -126,7 +126,7 @@ namespace FrostySdk.Resources
 					CategorySubsetIndices[i].Add(byte.MaxValue);
 				}
 			}
-			Flags = (MeshLayoutFlags)reader.ReadUInt32LittleEndian();
+			Flags = (EMeshLayout)reader.ReadUInt32LittleEndian();
 			indexBufferFormat.format = reader.ReadInt32LittleEndian();
 			IndexBufferSize = reader.ReadUInt32LittleEndian();
 			VertexBufferSize = reader.ReadUInt32LittleEndian();
@@ -467,7 +467,7 @@ namespace FrostySdk.Resources
 		{
 			inlineData = inBuffer;
 			ChunkId = Guid.Empty;
-			Flags = MeshLayoutFlags.Inline;
+			Flags = EMeshLayout.Inline;
 		}
 
 		private int GetSectionIndex(MeshSetSection inSection)

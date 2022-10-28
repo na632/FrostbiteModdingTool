@@ -7,7 +7,6 @@ using FrostbiteSdk;
 using FrostbiteSdk.FbxExporter;
 using FrostySdk;
 using FrostySdk.Frosty;
-using FrostySdk.FrostySdk.Resources.Mesh2;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
