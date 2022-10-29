@@ -6,7 +6,7 @@
              xmlns:src="clr-namespace:Frosty;assembly=FrostySdk"
              xmlns:local="clr-namespace:FIFAModdingUI.Pages.Common"
              mc:Ignorable="d" >
-    <Grid DataContext="{Binding}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>

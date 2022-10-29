@@ -7,6 +7,8 @@ using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +18,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -109,8 +112,55 @@ namespace FIFAModdingUI.Pages.Common
 
 			public bool IsInList => ArrayType != null || Property.PropertyType.IsGenericType;
 
+			public string PropertyDescription
+			{
+				get
+				{
+					return GetPropertyDescription();
+				}
+			}
 
-			public ModdableProperty(string n, string t, object v)
+			public string GetPropertyDescription()
+			{
+                try
+                {
+
+                    if (EBXDescriptions.CachedDescriptions != null)
+                    {
+                        foreach (var tDescription in EBXDescriptions.CachedDescriptions.Descriptions)
+                        {
+                            var indexOfPropertyDescription = tDescription
+                                .Properties
+                                .FindIndex(x => x.PropertyName.Equals(Property.Name, StringComparison.OrdinalIgnoreCase));
+                            if (indexOfPropertyDescription != -1)
+                                return tDescription.Properties[indexOfPropertyDescription].Description;
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+                return "";
+            }
+
+			public bool HasPropertyDescription
+			{
+				get
+				{
+					return !string.IsNullOrEmpty(PropertyDescription);
+				}
+			}
+
+            public Visibility HasPropertyDescriptionVisibility
+            {
+                get
+                {
+                    return HasPropertyDescription ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
+
+            public ModdableProperty(string n, string t, object v)
 			{
 				PropertyName = n;
 				PropertyType = t;
@@ -181,7 +231,46 @@ namespace FIFAModdingUI.Pages.Common
             }
         }
 
+		public class EBXDescriptions
+		{
+			public class EBXDescription
+			{
+				public class EBXDescriptionProperty
+				{
+					public string PropertyName { get; set; }
 
+					public string Description { get; set; }
+
+                }
+
+				public string TypeName { get; set; }
+
+				public List<EBXDescriptionProperty> Properties { get; set; }
+
+
+            }
+
+			public List<EBXDescription> Descriptions;
+
+
+			private static EBXDescriptions cachedDescriptions;
+
+			public static EBXDescriptions CachedDescriptions
+			{
+				get 
+				{
+					if(cachedDescriptions == null)
+                        cachedDescriptions = JsonConvert.DeserializeObject<EBXDescriptions>(
+                            System.IO.File.ReadAllText(
+                                System.IO.Path.Combine(AppContext.BaseDirectory, "Pages", "Common", "EBX", "EBXDescriptions.json")
+                                ));
+
+                    return cachedDescriptions; 
+				}
+				set { cachedDescriptions = value; }
+			}
+
+		}
 
 		public static readonly DependencyProperty AssetEntryProperty;
 
@@ -239,34 +328,34 @@ namespace FIFAModdingUI.Pages.Common
 			}
         }
 
-		private List<ModdableProperty> _VanillaRootProps;
+		//private List<ModdableProperty> _VanillaRootProps;
 
-		public List<ModdableProperty> VanillaRootObjectProperties
-		{
-			get
-			{
-				if (_VanillaRootProps == null)
-				{
-					_VanillaRootProps = new List<ModdableProperty>();
+		//public List<ModdableProperty> VanillaRootObjectProperties
+		//{
+		//	get
+		//	{
+		//		if (_VanillaRootProps == null)
+		//		{
+		//			_VanillaRootProps = new List<ModdableProperty>();
 
-					var vanillaEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false);
-					if (vanillaEbx != null)
-					{
-						foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
-						{
-							var modprop = new ModdableProperty(vanillaEbx.RootObject, p, null, Modprop_PropertyChanged);
-							//var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
-                            _VanillaRootProps.Add(modprop);
-						}
-						return _VanillaRootProps
-							.OrderBy(x => x.PropertyName == "BaseField")
-                            .OrderBy(x => x.PropertyName == "Name")
-                            .ThenBy(x => x.PropertyName).ToList();
-                    }
-				}
-				return _VanillaRootProps;
-			}
-		}
+		//			var vanillaEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false);
+		//			if (vanillaEbx != null)
+		//			{
+		//				foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
+		//				{
+		//					var modprop = new ModdableProperty(vanillaEbx.RootObject, p, null, Modprop_PropertyChanged);
+		//					//var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
+  //                          _VanillaRootProps.Add(modprop);
+		//				}
+		//				return _VanillaRootProps
+		//					.OrderBy(x => x.PropertyName == "BaseField")
+  //                          .OrderBy(x => x.PropertyName == "Name")
+  //                          .ThenBy(x => x.PropertyName).ToList();
+  //                  }
+		//		}
+		//		return _VanillaRootProps;
+		//	}
+		//}
 
 		private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -301,7 +390,7 @@ namespace FIFAModdingUI.Pages.Common
 		public Editor()
 		{
             InitializeComponent();
-			this.DataContext = Asset;
+			this.DataContext = this;
 		}
 
 		//[Deprecated("This is only used for Testing Purposes", DeprecationType.Deprecate, 1)]
@@ -312,7 +401,7 @@ namespace FIFAModdingUI.Pages.Common
 			PropertyChanged += Editor_PropertyChanged;
 			// intialise objs
 			Asset = ebx;
-			this.DataContext = ebx;
+			this.DataContext = this;
 			this.TreeView1.DataContext = RootObject;
 			//this.TreeViewOriginal.DataContext = RootObject;
 			//this.TreeViewOriginal.IsEnabled = false;
@@ -347,7 +436,7 @@ namespace FIFAModdingUI.Pages.Common
 
 			//await Task.Delay(1);
 
-			_VanillaRootProps = null;
+			//_VanillaRootProps = null;
 			_rootObjProps = null;
 			PropertyChanged += Editor_PropertyChanged;
 			// intialise objs
@@ -361,11 +450,11 @@ namespace FIFAModdingUI.Pages.Common
 			
 				await Dispatcher.InvokeAsync(() =>
 				{
-					this.DataContext = this;
-
-					success = CreateEditor(RootObjectProperties, TreeView1).Result;
-					//success = CreateEditor(VanillaRootObjectProperties, TreeViewOriginal).Result;
-				});
+                    success = CreateEditor(RootObjectProperties, TreeView1).Result;
+                    this.DataContext = null;
+                    this.DataContext = this;
+                    //success = CreateEditor(VanillaRootObjectProperties, TreeViewOriginal).Result;
+                });
 
 			//loadingDialog.Close();
 			//loadingDialog = null;
@@ -462,8 +551,9 @@ namespace FIFAModdingUI.Pages.Common
             Control control = GetMatchingTypedControl(d);
             if (control != null)
             {
+                control.ToolTip = d.PropertyDescription;
                 control.DataContext = d;
-				treeViewItem.Items.Add(control);
+                treeViewItem.Items.Add(control);
                 return true;
             }
 
@@ -482,11 +572,13 @@ namespace FIFAModdingUI.Pages.Common
 						_ = SaveToRootObject();
 					}).ToList();
 					TreeViewItem structTreeView = new TreeViewItem();
+					structTreeView.ToolTip = d.PropertyDescription;
 					structTreeView.Header = d.PropertyName;
                     foreach (var property in structProperties) 
 					{
 						_ = CreateEditor(property, structTreeView);
 					}
+                    treeViewItem.ToolTip = d.PropertyDescription;
                     treeViewItem.Items.Add(structTreeView);
                     break;
             }

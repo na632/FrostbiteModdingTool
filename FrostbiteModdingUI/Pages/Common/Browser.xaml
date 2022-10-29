@@ -156,13 +156,13 @@
                                 </LayoutDocument>
                             </LayoutDocumentPane>
                         </LayoutDocumentPaneGroup>
-                    <LayoutAnchorablePane DockMinWidth="400" DockWidth="400">
-                        <LayoutAnchorable>
+                    <LayoutAnchorablePane  DockMinWidth="400" DockWidth="400">
+                        <LayoutAnchorable Title="Browser" CanClose="False">
                             <DockingManager>
                                 <LayoutRoot>
                                     <LayoutPanel Orientation="Vertical">
                                         <LayoutAnchorablePane DockWidth="200">
-                                            <LayoutAnchorable CanAutoHide="False" CanClose="False" CanHide="False">
+                                            <LayoutAnchorable Title="Folders" CanAutoHide="False" CanClose="False" CanHide="False">
                                                 <Grid Grid.Row="0" VerticalAlignment="Stretch">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="75*" ></ColumnDefinition>
@@ -209,7 +209,7 @@
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>
                                         <LayoutAnchorablePane DockWidth="200">
-                                            <LayoutAnchorable  CanAutoHide="False" CanClose="False" CanHide="False">
+                                            <LayoutAnchorable Title="Files" CanAutoHide="False" CanClose="False" CanHide="False">
 
                                                 <ListView VerticalAlignment="Stretch"  Grid.Column="0" Grid.Row="2" x:Name="assetListView" 
                                           ScrollViewer.CanContentScroll="True"

@@ -1,0 +1,223 @@
+﻿{
+	"Descriptions": [
+		{
+			"TypeName": "AttribSchema_gp_actor_movement",
+			"Properties": [
+				{
+					"PropertyName": "ATTR_DribbleJogSpeedModifier",
+					"Description": "Modifies base dribble jog speed based on attributes"
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_cpuai_cpuaiballhandler",
+			"Properties": [
+				{
+					"PropertyName": "CrossReceiverDistFromPKSpot",
+					"Description": "Maximum distance a player may be from the pk spot in order to be considered as a cross receiver. Increasing this value will make it more likely that a player will do a cross."
+				},
+				{
+					"PropertyName": "DribbleTTDistToTargetWeight",
+					"Description": "When deciding where to dribble the player will use this value to determine how important it is to get to the attack position (penalty spot or good corner kick position). This value is AttackPace dependant."
+				},
+				{
+					"PropertyName": "GroundPassDecisionDistToTargetMod",
+					"Description": "Bonus given to the dribbler's distance to target rating when considering a ground pass to gain position. Increasing this value will make it less likely that the dribbler will pass. Connected to everything starting wtih GroundPassDecision and TraitSelfishGroundPassDecision."
+				},
+				{
+					"PropertyName": "GroundPassDecisionDribbleMinSpace",
+					"Description": "The cuttoff point for the dribbler's space rating at which he will try and get rid of the ball. Increasing this value will make it more likely that the dribbler will pass as soon as opponents get closer to him. Connected to everything starting wtih GroundPassDecision and TraitSelfishGroundPassDecision."
+				},
+				{
+					"PropertyName": "GroundPassDecisionMinCourseSafety",
+					"Description": "Minimum course safety rating of the pass needed for the ball handler to pass when considering a ground pass to gain position. Increasing this value will make it less likely that the dribbler will pass. Connected to everything starting wtih GroundPassDecision and TraitSelfishGroundPassDecision."
+				},
+				{
+					"PropertyName": "GroundPassDecisionSpaceRatingMod",
+					"Description": "Bonus given to the dribbler's space rating when considering a ground pass to gain position. Increasing this value will make it less likely that the dribbler will pass. Connected to everything starting wtih GroundPassDecision and TraitSelfishGroundPassDecision."
+				},
+				{
+					"PropertyName": "ThroughPassMod",
+					"Description": "Modification to the safety needed to perform a through pass instead of a regular pass. Increasing this value will make it less likely that the player will perform a through pass."
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_cpuai_crossingdecision",
+			"Properties": [
+				{
+					"PropertyName": "crossingDefensiveCoverReductionMax",
+					"Description": "With random chance, we will reduce the defensive cover for the cross evaluation.\r\nWe will reduce the cover more if the possessor is in good position to make the cross.\r\n\r\nx axis - dice roll\r\ny axis - reduction multiplier"
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_cpuai_dribbledecision",
+			"Properties": [
+				{
+					"PropertyName": "dribbleAggressivenessByDistFromAttackingGoalForMaxSkill",
+					"Description": "This graph represent the dribble aggressiveness for a player with the best dribbling skills depending on the distance from the attacking goal (X coordinates wise)\r\n\r\nx axis - distance to the attacking goal weight (0 - close 1 - far)\r\ny axis - aggressiveness (0 - safe dribble 1 - tackign on defenders)\r\n"
+				},
+				{
+					"PropertyName": "dribbleAggressivenessByDistFromAttackingGoalForMinSkill",
+					"Description": "This graph represent the dribble aggressiveness for a player with the worst dribbling skills depending on the distance from the attacking goal (X coordinates wise)\r\n\r\nx axis - distance to the attacking goal weight (0 - close 1 - far)\r\ny axis - aggressiveness (0 - safe dribble 1 - tackign on defenders)\r\n"
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_kickpass_cross",
+			"Properties": [
+				{
+					"PropertyName": "PASS_CrossDistanceFromPowerBar_FAR",
+					"Description": "x = power bar (0 to 1)\r\ny = distance to target (in yards).\r\n\r\nuses this value when PASS_CrossDistanceGraphBlendRate is 1"
+				},
+				{
+					"PropertyName": "PASS_CrossPenVsDistOutsideBox",
+					"Description": "Cross receiver score penalty as a function of distance outside the box. For receiver selection logic."
+				},
+				{
+					"PropertyName": "PASS_LeadingAngleBaseScoreCrossLofted",
+					"Description": "[0] = FarLead\r\n[1] = NearLead\r\n[2] = NearLead\r\n[3] = NearLead\r\n[4] = FarLead\r\n[5] = FarLead\r\n[6] = FarLead/2\r\n[7] = FarLead/2\r\n[8] = StopPos\r\n[9] = (minLead + StopPos)/2"
+				},
+				{
+					"PropertyName": "PASS_LeadingAngleBaseScoreCrossLow",
+					"Description": "[0] = FarLead\r\n[1] = NearLead\r\n[2] = NearLead\r\n[3] = NearLead\r\n[4] = FarLead\r\n[5] = FarLead\r\n[6] = FarLead/2\r\n[7] = FarLead/2\r\n[8] = StopPos\r\n[9] = (minLead + StopPos)/2"
+				},
+				{
+					"PropertyName": "PASS_LeadingAngleBaseScoreCrossGround",
+					"Description": "[0] = FarLead\r\n[1] = NearLead\r\n[2] = NearLead\r\n[3] = NearLead\r\n[4] = FarLead\r\n[5] = FarLead\r\n[6] = FarLead/2\r\n[7] = FarLead/2\r\n[8] = StopPos\r\n[9] = (minLead + StopPos)/2"
+				},
+				{
+					"PropertyName": "PASS_DistanceFromCentreNormalCrossCloseInYards",
+					"Description": "Distance (in yards) from the centre (towards the back post).  If ball's bounce point is beyond this distance, then we'll use the timing in PASS_TravelTimeNormalCrossClose.  Otherwise, use PASS_TravelTimeNormalCross."
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_kickpass_passing",
+			"Properties": [
+				{
+					"PropertyName": "PASS_FanOpennessScalarVsAttribute",
+					"Description": "x: pass angle relative to facing\r\ny:scales the openness score as a function of attribute"
+				},
+				{
+					"PropertyName": "PASS_FanFirstTimeScalarVsAngle",
+					"Description": "x: pass angle relative to facing\r\ny:scales the spread of the fan for avoidance"
+				},
+				{
+					"PropertyName": "PASS_FanScalarVsAngle",
+					"Description": "x: pass angle relative to facing\r\ny:scales the spread of the fan for avoidance for non-first time passes."
+				},
+				{
+					"PropertyName": "PASS_FanScalarVsAttribute",
+					"Description": "x: attribute of player\r\ny:scales the spread of the fan for avoidance for non-first time passes."
+				},
+				{
+					"PropertyName": "PASS_FanScalarVsVision",
+					"Description": "How much the Fan avoidance is scaled as a function of how visible the target is"
+				},
+				{
+					"PropertyName": "PASS_FanScoreVsBlockRate",
+					"Description": "x: input value\r\ny: score"
+				},
+				{
+					"PropertyName": "PASS_FanScoreVsThreat",
+					"Description": "x: input value\r\ny: score"
+				},
+				{
+					"PropertyName": "PASS_FanScoreVsVision",
+					"Description": "x: input value\r\ny: score"
+				},
+				{
+					"PropertyName": "PASS_ThroughScoreAngleScalar",
+					"Description": "Scales the surface score as a function of angle error from player position. +ve is in front of the player"
+				},
+				{
+					"PropertyName": "PASS_ThroughScoreDistVsSpeed",
+					"Description": "Scales of the distance of the optimimum aimtarget in front of the receiver as a function of attacking speed. Product of this and PASS_ThroughScoreTargetDistance is used."
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_goalkeeper_goalkeeper",
+			"Properties": [
+				{
+					"PropertyName": "GK_Positioning_ReadCrossTrajectoryTime_PointGraph",
+					"Description": "Time it takes keeper to read a crossing trajectory before going for a looseball\r\nX axis: Distance from ball when kicked (in feet)\r\nY axis: Time to read trajectory (in ticks)"
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_positioning_perception",
+			"Properties": [
+				{
+					"PropertyName": "attackerInfoUpdateIntervalMin",
+					"Description": "This is the minumum interval to update the attacker's information that the defender is marking.\r\n\r\nx axis - marking attribute\r\ny axis - minimum marking interval (ai ticks)"
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_physics_touchcontacts",
+			"Properties": [
+				{
+					"PropertyName": "Soccerball_GripConstant",
+					"Description": "how much the ball grips the ground on a contact.\r\n1.0 is just enough grip to go into rolling mode, and never more.\r\n0.5 is super ball levels of grip.\r\n0.92 is default."
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_rules_foul_playercontactscore",
+			"Properties": [
+				{
+					"PropertyName": "PenaltyModifiersCollisionResult",
+					"Description": "Penalty modifiers for Collision Result Type:\r\n0:None 1:StumbleVeryHeavy 2:StumbleHeavy 3:StumbleMediumStrong 4:StumbleMedium 5:StumbleMediumLight 6:StumbleLight 7:ForceFall 8:ForceBallTouchCanceled"
+				},
+				{
+					"PropertyName": "PenaltyModifiersCollisionPartFoot",
+					"Description": "Penalty modifiers for Collision Part [Foot vs.]:\r\n0:Foot 1:Calf 2:Thigh 3:Hips 4:Torso 5:Head"
+				},
+				{
+					"PropertyName": "PenaltyModifiersCollisionPartCalf",
+					"Description": "Penalty modifiers for Collision Part [Foot vs.]:\r\n0:Foot 1:Calf 2:Thigh 3:Hips 4:Torso 5:Head"
+				},
+				{
+					"PropertyName": "PenaltyModifiersTackleAngle",
+					"Description": "Penalty modifiers for Tackle Angle:\r\n0:Behind 1:BehindSide 2:Side 3:ForwardSide 4:Forward 5:ETC(dummy)"
+				},
+				{
+					"PropertyName": "PenaltyWeightsStandTackle",
+					"Description": "Penalty weights for Stand Tackle:\r\n0:CollisionResult 1:CollisionIntensity 2:CollisionPart 3:TackleAngle"
+				}
+			]
+		},
+		{
+			"TypeName": "AttribSchema_gp_kickerror_passshotcontexteffect",
+			"Properties": [
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_BackHeel_Modifier",
+					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
+				},
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_Head_Modifier",
+					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
+				},
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_InsideFoot_Modifier",
+					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
+				},
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_OutsideFoot_Modifier",
+					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
+				},
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_WeakFoot",
+					"Description": "NO LONGER USED"
+				},
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_WeakFoot_Difficulty",
+					"Description": "NO LONGER USED"
+				}
+			]
+		}
+	]
+}
