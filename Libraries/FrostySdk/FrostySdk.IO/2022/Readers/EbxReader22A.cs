@@ -167,11 +167,13 @@ namespace FrostySdk.IO._2022.Readers
             }
 
 			EbxField field;
-			field = classFields.FirstOrDefault(x => x.NameHash == nameHash && (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
-			if (field.Equals(default(EbxField)) && fieldIndex > -1 && classFields.Count > fieldIndex)
-				field = classFields[fieldIndex];
-			else if (field.Equals(default(EbxField)))
-                field = allFields.FirstOrDefault(x => x.NameHash == nameHash && x.DebugType == fieldType);
+			var nameHashFields = classFields.Where(x => x.NameHash == nameHash);
+			field = nameHashFields.FirstOrDefault(x => (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
+			//if (field.Equals(default(EbxField)) && fieldIndex > -1 && classFields.Count > fieldIndex)
+			//	field = classFields[fieldIndex];
+			//else 
+			if (field.Equals(default(EbxField)))
+                field = allFields.FirstOrDefault(x => x.NameHash == nameHash && (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
 
 			return field;
         }

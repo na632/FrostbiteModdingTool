@@ -819,76 +819,77 @@ namespace FrostySdk
 									ebxEntry.ModifiedEntry = new ModifiedAssetEntry();
 									ebxEntry.ModifiedEntry.IsTransientModified = isTransientModified;
 									ebxEntry.ModifiedEntry.UserData = userData;
-									EbxReader ebxReader = null;
-									
-									if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.ProjectEbxWriter))
-									{
-										ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
-											ProfilesLibrary.LoadedProfile.ProjectEbxReader,
-											new MemoryStream(ebxAssetBytes), false);
-									}
+									ebxEntry.ModifiedEntry.Data = ebxAssetBytes;
+									//EbxReader ebxReader = null;
 
-									if(ebxReader == null)
-                                    {
-                                        if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
-                                            ebxReader = new EbxReaderV2(new MemoryStream(ebxAssetBytes), inPatched: false);
-                                        else
-                                            ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
-                                    }
+									//if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.ProjectEbxWriter))
+									//{
+									//	ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
+									//		ProfilesLibrary.LoadedProfile.ProjectEbxReader,
+									//		new MemoryStream(ebxAssetBytes), false);
+									//}
+
+									//if(ebxReader == null)
+									//                           {
+									//                               if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
+									//                                   ebxReader = new EbxReaderV2(new MemoryStream(ebxAssetBytes), inPatched: false);
+									//                               else
+									//                                   ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
+									//                           }
 
 
 									//using (
 									//	ebxReader
 									//			)
 									//{
-									if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
-										AssetManager.Instance.logger.Log($"[Project Load][EBX]({ebxEntry.Name})");
+									//if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
+									//	AssetManager.Instance.logger.Log($"[Project Load][EBX]({ebxEntry.Name})");
 
-									try
-									{
-										//tasks.Add(Task.Run(() =>
-										await Task.Run(() =>
-										{
-											try
-											{
-												EbxAsset ebxAsset = ebxReader.ReadAsset();
-												ebxEntry.ModifiedEntry.DataObject = ebxAsset;
-												if (ebxEntry.IsAdded)
-												{
-													ebxEntry.Type = ebxAsset.RootObject.GetType().Name;
-												}
-												ebxEntry.ModifiedEntry.DependentAssets.AddRange(ebxAsset.Dependencies);
+									//try
+									//{
+									//	//tasks.Add(Task.Run(() =>
+									//	await Task.Run(() =>
+									//	{
+									//		try
+									//		{
+									//			EbxAsset ebxAsset = ebxReader.ReadAsset();
+									//			ebxEntry.ModifiedEntry.DataObject = ebxAsset;
+									//			if (ebxEntry.IsAdded)
+									//			{
+									//				ebxEntry.Type = ebxAsset.RootObject.GetType().Name;
+									//			}
+									//			ebxEntry.ModifiedEntry.DependentAssets.AddRange(ebxAsset.Dependencies);
 
-												int key = Fnv1.HashString(ebxEntry.Name);
-												if (!dictionary.ContainsKey(key))
-												{
-													dictionary.Add(key, ebxEntry);
-												}
-											}
-											catch
-											{
-												if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
-													AssetManager.Instance.logger.LogError($"[Project Log][EBX][ERROR]({ebxEntry.Name})");
-											}
-										}, cancellationToken)
-										.WaitAsync(new TimeSpan(0, 0, 15), cancellationToken);
-										//);
-                                    }
-									catch
-									{
-										AssetManager.Instance.RevertAsset(ebxEntry);
-                                    }
-									finally
-									{
-                                        ebxReader.BaseStream.Close();
-										ebxReader.Dispose();
-										GC.Collect();
-										GC.WaitForPendingFinalizers();
-                                    }
-                                    //}
-                                }
-								
-							}
+									//			int key = Fnv1.HashString(ebxEntry.Name);
+									//			if (!dictionary.ContainsKey(key))
+									//			{
+									//				dictionary.Add(key, ebxEntry);
+									//			}
+									//		}
+									//		catch
+									//		{
+									//			if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
+									//				AssetManager.Instance.logger.LogError($"[Project Log][EBX][ERROR]({ebxEntry.Name})");
+									//		}
+									//	}, cancellationToken)
+									//	.WaitAsync(new TimeSpan(0, 0, 15), cancellationToken);
+									//	//);
+									//                           }
+									//catch
+									//{
+									//	AssetManager.Instance.RevertAsset(ebxEntry);
+									//                           }
+									//finally
+									//{
+									//                               ebxReader.BaseStream.Close();
+									//	ebxReader.Dispose();
+									//	GC.Collect();
+									//	GC.WaitForPendingFinalizers();
+									//                           }
+									//}
+								}
+
+                            }
 							//reader.Position = readerPositionAfterEbx;
 							reader.Position = readerPositionBeforeEbx;
 

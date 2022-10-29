@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using static PInvoke.Kernel32;
 
 namespace FrostySdk
 {
@@ -139,55 +140,66 @@ namespace FrostySdk
 
 			public override ModResourceType Type => ModResourceType.Ebx;
 
-			public EbxResource(EbxAssetEntry entry, Manifest manifest)
+            public EbxResource(EbxAssetEntry entry, Manifest manifest)
 			{
 				CompressionType compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.EBX);
 
-				name = entry.Name.ToLower();
+				byte[] decompressedArray = null;
+				byte[] compressedArray = null;
+                name = entry.Name.ToLower();
 				userData = entry.ModifiedEntry.UserData;
 
-				EbxBaseWriter ebxBaseWriter = null;
-				if (!string.IsNullOrEmpty(ProfilesLibrary.EBXWriter))
+				FileInfo fileInfo = new FileInfo(Path.Combine("EBX", entry.Filename.ToLower() + ".dat"));
+				if (fileInfo.Exists)
 				{
-					ebxBaseWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXWriter
-						, new MemoryStream(), EbxWriteFlags.None, false);
+					decompressedArray = File.ReadAllBytes(fileInfo.FullName);
 				}
 				else
 				{
-					throw new Exception("No EBX Writer provided for Game Profile");
-					//ebxBaseWriter =
-					//(
-					//ProfilesLibrary.IsFIFA20DataVersion()
-					//|| ProfilesLibrary.IsFIFA21DataVersion()
-					//|| ProfilesLibrary.IsMadden21DataVersion()
-					//)
+					// -------------------------------------
+					// get via ebx writer
+					EbxBaseWriter ebxBaseWriter = null;
+					if (string.IsNullOrEmpty(ProfilesLibrary.EBXWriter))
+						throw new Exception("No EBX Writer provided for Game Profile");
 
-					//? (EbxBaseWriter)new EbxWriterV2(new MemoryStream(), EbxWriteFlags.None, false)
-					//: ((EbxBaseWriter)new EbxWriter(new MemoryStream(), EbxWriteFlags.None, false));
-				}
+					ebxBaseWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXWriter
+						, new MemoryStream(), EbxWriteFlags.None, false);
 
-                using (ebxBaseWriter)
-				{
-
-					var newAsset = entry.ModifiedEntry.DataObject as EbxAsset;
-					newAsset.ParentEntry = entry;
-					ebxBaseWriter.WriteAsset(newAsset);
-
-					byte[] uncompArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
-					byte[] array = Utils.CompressFile(uncompArray, null, ResourceType.Invalid, compressionOverride);
-					//if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021 || ))
-					//if (name.Contains("gp_"))
-					if (name.Contains("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"))
+					using (ebxBaseWriter)
 					{
-						File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", uncompArray);
-					}
+						var newAsset = entry.ModifiedEntry.DataObject as EbxAsset;
+						newAsset.ParentEntry = entry;
+						ebxBaseWriter.WriteAsset(newAsset);
 
-					// this writes to Original Size not Size of the data ?!
-					//size = array.Length;
-					size = ebxBaseWriter.Length;
-					resourceIndex = manifest.Add(array);
-					sha1 = Utils.GenerateSha1(array);
+						decompressedArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
+					}
+					//
+					// -------------------------------------
 				}
+
+                if (decompressedArray == null || decompressedArray.Length == 0)
+					return;
+
+                compressedArray = Utils.CompressFile(decompressedArray, null, ResourceType.Invalid, compressionOverride);
+                //if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021 || ))
+                //if (name.Contains("gp_"))
+                //if (name.Contains("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"))
+                if (name.Contains("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"))
+                {
+                    File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
+                }
+                if (name.Contains("head_"))
+				{
+                    File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
+                }
+
+				if (compressedArray.Length > 0)
+				{
+					size = decompressedArray.LongLength;
+					resourceIndex = manifest.Add(compressedArray);
+					sha1 = Utils.GenerateSha1(compressedArray);
+				}
+				//}
 				foreach (int bundle in entry.Bundles)
 				{
 					BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);

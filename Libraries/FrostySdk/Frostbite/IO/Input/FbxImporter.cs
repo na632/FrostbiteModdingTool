@@ -150,9 +150,10 @@ namespace FrostySdk.Frostbite.IO.Input
 
 			//if (ProfilesLibrary.IsFIFA21DataVersion())
 			//{
-			if (!ProfilesLibrary.IsFIFA23DataVersion())
+			//if (!ProfilesLibrary.IsFIFA23DataVersion())
 			{
-				((dynamic)asset.RootObject).ComputeGraph = default(PointerRef);
+				var ebxRO = ((dynamic)asset.RootObject);
+				ebxRO.ComputeGraph = default(PointerRef);
 				AssetManager.Instance.ModifyEbx(entry.Name, asset);
 			}
 			//}

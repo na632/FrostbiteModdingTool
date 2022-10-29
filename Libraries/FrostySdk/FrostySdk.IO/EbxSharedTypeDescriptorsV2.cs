@@ -181,8 +181,8 @@ namespace FrostySdk.IO
 					ebxClass.FieldCount = (byte)fieldCount;
                     ebxClass.Alignment = (byte)((alignment == 0) ? 8 : alignment);
                     ebxClass.Size = (ushort)size;
-					//ebxClass.Type = ReflectionTypeDescripter ? classType : ((ushort)(classType >> 1));
-					ebxClass.Type = classType;
+					ebxClass.Type = ReflectionTypeDescripter ? classType : ((ushort)(classType >> 1));
+					//ebxClass.Type = classType;
 					ebxClass.Index = l;
 					ebxClass.Name = Guids[l].ToString();
 					EbxClass value = ebxClass;

@@ -17,7 +17,6 @@ using System.Threading;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 using SdkGenerator;
-using FrostySdk.FrostySdk.Resources.Mesh2;
 using FrostySdk;
 using FrostbiteSdk.Frostbite.FileManagers;
 using Frostbite.FileManagers;
@@ -121,7 +120,6 @@ namespace FrostbiteModdingTests
                     var res = project.AssetManager.GetRes(resentry);
 
                     var exporter1 = new MeshSetToFbxExport();
-                    var exporter2 = new MeshSetToFbxExport2();
                     MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
 
                     exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, "test.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);

@@ -1,5 +1,7 @@
+using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace FrostySdk.Managers
 {
@@ -13,7 +15,28 @@ namespace FrostySdk.Managers
 			get;set;
         }
 
-		public object DataObject { get; set; }
+		private object dataObject;
+
+		public object DataObject
+		{
+			get 
+			{ 
+				if(dataObject == null && Data != null && Data.Length > 0)
+				{
+                    if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.EBXReader))
+					{
+						using (var ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
+							ProfilesLibrary.LoadedProfile.EBXReader,
+							new MemoryStream(Data), false))
+							dataObject = ebxReader.ReadAsset();
+                    }
+                }
+
+				return dataObject; 
+			}
+			set { dataObject = value; }
+		}
+
 
 		public long? CompressedOffset { get; set; } 
 

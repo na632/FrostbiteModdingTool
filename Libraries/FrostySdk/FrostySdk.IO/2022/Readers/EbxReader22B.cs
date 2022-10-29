@@ -666,24 +666,24 @@ namespace FrostySdk.IO._2022.Readers
 				case EbxFieldType.Pointer:
 					{
 						int num = base.ReadInt32LittleEndian();
-						if (base.magic == EbxVersion.Riff)
+						//if (base.magic == EbxVersion.Riff)
 						{
-							if (num == 0)
-							{
-								return default(PointerRef);
-							}
-							if (num - 1 >= 0 && num - 1 < base.objects.Count)
-							{
-								if (!dontRefCount)
-								{
-									base.refCounts[num - 1]++;
-								}
-								return new PointerRef(base.objects[num - 1]);
-							}
-							long offset = base.Position - 4 + num;
-							offset -= this.payloadPosition;
-							return new PointerRef(this.importOffsets.Find((uint o) => o == offset));
-						}
+                            if (num == 0)
+                            {
+                                return default(PointerRef);
+                            }
+                            if (num - 1 >= 0 && num - 1 < objects.Count)
+                            {
+                                if (!dontRefCount)
+                                {
+                                    refCounts[num - 1]++;
+                                }
+                                return new PointerRef(objects[num - 1]);
+                            }
+                            long offset = base.Position - 4 + num;
+                            offset -= payloadPosition;
+                            return new PointerRef(importOffsets.Find((uint o) => o == offset));
+                        }
 						if (num >> 31 == 1)
 						{
 							EbxImportReference ebxImportReference = base.imports[(int)((long)num & 0x7FFFFFFFL)];

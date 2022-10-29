@@ -40,7 +40,7 @@ namespace FrostySdk.IO
         //public EbxFieldType DebugType => (EbxFieldType)((uint)(Type >> 4) & 0x1Fu);
         public EbxFieldType DebugType => DebugTypeOverride.HasValue ? DebugTypeOverride.Value : (EbxFieldType)((Type >> 4) & 0x1Fu);
         public EbxFieldType? DebugTypeOverride { get; set; }
-        public EbxFieldCategory Category => (EbxFieldCategory)((uint)(Type >> 4) & 0x1Fu);
+        public EbxFieldCategory Category => DebugTypeOverride.HasValue ? ((EbxFieldCategory)((uint)DebugTypeOverride.Value << 4)) : (EbxFieldCategory)((uint)(Type >> 4) & 0x1Fu);
 
         public override string ToString()
         {
@@ -55,7 +55,10 @@ namespace FrostySdk.IO
                     return EbxSharedTypeDescriptors.GetClassName(NameHash);
                 }
             }
-            return Name.ToString();
+            if(!string.IsNullOrEmpty(Name))
+                return Name.ToString();
+
+            return base.ToString();
         }
 
         public override bool Equals(object obj)

@@ -3,6 +3,7 @@ using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.PluginInterfaces;
+using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -482,59 +483,59 @@ namespace FIFA23Plugin
 
                                 using (NativeWriter nw_toc = new NativeWriter(new FileStream(tocPath, FileMode.Open)))
                                     {
-                                        var assetBundleToCAS = new Dictionary<string, List<AssetEntry>>();
+                                        var assetBundleToCAS = new Dictionary<string, List<(AssetEntry, DbObject)>>();
                                         foreach (var assetBundle in tocGroup.Value)
                                         {
+                                                DbObject origDbo = null;
                                             var casPath = string.Empty;
                                             if (assetBundle.Key is EbxAssetEntry)
                                             {
-                                                DbObject origEbxDbo = null;
                                                 foreach (DbObject dbInBundle in origEbxBundles)
                                                 {
-                                                    origEbxDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-                                                    if (origEbxDbo != null)
+                                                origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                    if (origDbo != null)
                                                         break;
                                                 }
 
-                                                if (origEbxDbo != null)
+                                                if (origDbo != null)
                                                 {
-                                                    casPath = origEbxDbo.GetValue<string>("ParentCASBundleLocation");
+                                                    casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
                                                 }
                                             }
 
                                             if (assetBundle.Key is ResAssetEntry)
                                             {
-                                                DbObject origResDbo = null;
+                                                
                                                 foreach (DbObject dbInBundle in origResBundles)
                                                 {
-                                                    origResDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-                                                    if (origResDbo != null)
+                                                origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+                                                    if (origDbo != null)
                                                         break;
                                                 }
 
-                                                if (origResDbo != null)
+                                                if (origDbo != null)
                                                 {
-                                                    casPath = origResDbo.GetValue<string>("ParentCASBundleLocation");
+                                                    casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
                                                 }
                                             }
 
                                             if (assetBundle.Key is ChunkAssetEntry)
                                             {
-                                                DbObject origChunkDbo = null;
+                                                
                                                 foreach (DbObject dbInBundle in origChunkBundles)
                                                 {
-                                                    origChunkDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
-                                                    if (origChunkDbo != null)
+                                                origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+                                                    if (origDbo != null)
                                                         break;
                                                 }
 
-                                                if (origChunkDbo != null)
+                                                if (origDbo != null)
                                                 {
-                                                    casPath = origChunkDbo.GetValue<string>("ParentCASBundleLocation");
+                                                    casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
                                                 }
                                             }
 
-                                            if (!string.IsNullOrEmpty(casPath))
+                                            if (origDbo != null && !string.IsNullOrEmpty(casPath))
                                             {
                                                 var positionOfNewData = assetBundle.Value.Item1;
                                                 var sizeOfData = assetBundle.Value.Item2;
@@ -548,27 +549,29 @@ namespace FIFA23Plugin
                                                 nw_toc.Write((uint)sizeOfData, Endian.Big);
 
                                                 if (!assetBundleToCAS.ContainsKey(casPath))
-                                                    assetBundleToCAS.Add(casPath, new List<AssetEntry>());
+                                                    assetBundleToCAS.Add(casPath, new List<(AssetEntry, DbObject)>());
 
-                                                assetBundleToCAS[casPath].Add(assetBundle.Key);
+                                                assetBundleToCAS[casPath].Add((assetBundle.Key, origDbo));
                                             }
                                         }
 
                                         foreach (var abtc in assetBundleToCAS)
                                         {
+
                                             var resolvedCasPath = FileSystem.Instance.ResolvePath(abtc.Key, ModExecutor.UseModData);
                                             using (var nwCas = new NativeWriter(new FileStream(resolvedCasPath, FileMode.Open)))
                                             {
                                                 foreach (var assetEntry in abtc.Value)
                                                 {
-                                                    var assetBundle = tocGroup.Value.LastOrDefault(x => x.Key == assetEntry);
-                                                    if (assetBundle.Key is EbxAssetEntry)
-                                                        WriteEbxChangesToSuperBundle(origEbxBundles, nwCas, assetBundle);
-                                                    else if (assetBundle.Key is ResAssetEntry)
-                                                        WriteResChangesToSuperBundle(origResBundles, nwCas, assetBundle);
-                                                    else if (assetBundle.Key is ChunkAssetEntry)
-                                                        WriteChunkChangesToSuperBundle(origChunkBundles, nwCas, assetBundle);
-                                                }
+                                                    var assetBundle = tocGroup.Value.LastOrDefault(x => x.Key.Equals(assetEntry.Item1));
+                                                    //if (assetBundle.Key is EbxAssetEntry)
+                                                    //    WriteEbxChangesToSuperBundle(assetEntry.Item2, nwCas, assetBundle);
+                                                    //else if (assetBundle.Key is ResAssetEntry)
+                                                    //    WriteResChangesToSuperBundle(assetEntry.Item2, nwCas, assetBundle);
+                                                    //else if (assetBundle.Key is ChunkAssetEntry)
+                                                    //    WriteChunkChangesToSuperBundle(assetEntry.Item2, nwCas, assetBundle);
+                                                    WriteChangesToSuperBundle(assetEntry.Item2, nwCas, assetBundle);
+                                            }
                                             }
                                         }
 
@@ -621,15 +624,25 @@ namespace FIFA23Plugin
 
         }
 
-        private void WriteEbxChangesToSuperBundle(List<DbObject> origEbxBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteChangesToSuperBundle(DbObject origDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
         {
-            DbObject origEbxDbo = null;
-            foreach (DbObject dbInBundle in origEbxBundles)
-            {
-                origEbxDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-                if (origEbxDbo != null)
-                    break;
-            }
+            if (assetBundle.Key is EbxAssetEntry)
+                WriteEbxChangesToSuperBundle(origDbo, writer, assetBundle);
+            else if (assetBundle.Key is ResAssetEntry)
+                WriteResChangesToSuperBundle(origDbo, writer, assetBundle);
+            else if (assetBundle.Key is ChunkAssetEntry)
+                WriteChunkChangesToSuperBundle(origDbo, writer, assetBundle);
+        }
+
+        private void WriteEbxChangesToSuperBundle(DbObject origEbxDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            //DbObject origEbxDbo = null;
+            //foreach (DbObject dbInBundle in origEbxBundles)
+            //{
+            //    origEbxDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+            //    if (origEbxDbo != null)
+            //        break;
+            //}
 
             if (origEbxDbo != null)
             {
@@ -649,15 +662,15 @@ namespace FIFA23Plugin
             }
         }
 
-        private void WriteResChangesToSuperBundle(List<DbObject> origResBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteResChangesToSuperBundle(DbObject origResDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
         {
-            DbObject origResDbo = null;
-            foreach (DbObject dbInBundle in origResBundles)
-            {
-                origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-                if (origResDbo != null)
-                    break;
-            }
+            //DbObject origResDbo = null;
+            //foreach (DbObject dbInBundle in origResBundles)
+            //{
+            //    origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+            //    if (origResDbo != null)
+            //        break;
+            //}
 
             if (origResDbo != null
                 && parent.modifiedRes.ContainsKey(assetBundle.Key.Name)
@@ -690,15 +703,15 @@ namespace FIFA23Plugin
             }
         }
 
-        private void WriteChunkChangesToSuperBundle(List<DbObject> origChunkBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteChunkChangesToSuperBundle(DbObject origChunkDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
         {
-            DbObject origChunkDbo = null;
-            foreach (DbObject dbInBundle in origChunkBundles)
-            {
-                origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
-                if (origChunkDbo != null)
-                    break;
-            }
+            //DbObject origChunkDbo = null;
+            //foreach (DbObject dbInBundle in origChunkBundles)
+            //{
+            //    origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+            //    if (origChunkDbo != null)
+            //        break;
+            //}
 
             if (Guid.TryParse(assetBundle.Key.Name, out Guid bndleId))
             {

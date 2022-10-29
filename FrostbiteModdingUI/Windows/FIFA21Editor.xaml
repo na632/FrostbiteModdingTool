@@ -38,10 +38,11 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition MaxHeight="35" Height="35"></RowDefinition>
+            <RowDefinition MaxHeight="45" Height="45"></RowDefinition>
+            <RowDefinition MaxHeight="20" Height="0"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0">
+        <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
                 <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
                     <MenuItem x:Name="miProject" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False">
@@ -55,7 +56,7 @@
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="Create" VerticalAlignment="Center" />
-                                    <Label Content="New Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="New Project" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -63,7 +64,7 @@
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="OpenInApp" VerticalAlignment="Center" />
-                                    <Label Content="Open Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="Open Project" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -71,7 +72,7 @@
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="ContentSave" VerticalAlignment="Center" />
-                                    <Label Content="Save Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="Save Project" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -79,7 +80,7 @@
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="PersonCardDetails" VerticalAlignment="Center" />
-                                    <Label Content="Open Mod Details" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="Open Mod Details" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -87,7 +88,7 @@
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="ContentDuplicate" VerticalAlignment="Center" />
-                                    <Label Content="Merge Project" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="Merge Project" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -96,7 +97,7 @@
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="ZipBox" VerticalAlignment="Center" />
-                                    <Label Content="Compile Legacy Mod From Folder" FontSize="10" FontWeight="Bold"  VerticalAlignment="Center" />
+                                    <Label Content="Compile Legacy Mod From Folder" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -104,7 +105,7 @@
                             <MenuItem.Header>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="Cleaning" VerticalAlignment="Center" />
-                                    <Label Content="Clean up Legacy chunks"  FontSize="10" FontWeight="Bold"  VerticalAlignment="Center" />
+                                    <Label Content="Clean up Legacy chunks"  FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -113,7 +114,7 @@
                             <MenuItem.Header>
                                 <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="FolderZip" VerticalAlignment="Center" />
-                                    <Label Content="Manage Embedded Files" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="Manage Embedded Files" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -122,7 +123,7 @@
                             <MenuItem.Header>
                                 <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="OpenInNew" VerticalAlignment="Center" />
-                                    <Label Content="Open Cache SDK Builder" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="Open Cache SDK Builder" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -131,7 +132,7 @@
                             <MenuItem.Header>
                                 <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="ClockFast" VerticalAlignment="Center" />
-                                    <Label Content="Recent Files" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <Label Content="Recent Files" FontSize="10" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                             <ListView ItemsSource="{Binding RecentProjectFiles}">
@@ -156,7 +157,7 @@
                             <MenuItem.Header>
                                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                                    <Label Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
+                                    <Label FontSize="10" Content="Save Frostbite Mod (*.fbmod)" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -164,7 +165,7 @@
                             <MenuItem.Header>
                                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="ContentSaveMove" VerticalAlignment="Center" />
-                                    <Label Content="Save FIFA Mod (*.fifamod)" VerticalAlignment="Center" />
+                                    <Label FontSize="10" Content="Save FIFA Mod (*.fifamod)" VerticalAlignment="Center" />
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
@@ -250,11 +251,20 @@
             </StackPanel>
 
         </Grid>
-
-        <DockingManager Grid.Row="1" >
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+        </StackPanel>
+        <DockingManager Grid.Row="2" >
             <DockingManager.Theme>
                 <Vs2013DarkTheme></Vs2013DarkTheme>
             </DockingManager.Theme>
+            <DockingManager.DocumentHeaderTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="0" MaxHeight="100">
+                        <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
+                        <TextBlock Text="{Binding Title}" FontSize="14" />
+                    </StackPanel>
+                </DataTemplate>
+            </DockingManager.DocumentHeaderTemplate>
             <LayoutRoot>
                 <LayoutPanel Orientation="Vertical" >
                     <LayoutDocumentPane ShowHeader="False" DockMinHeight="450" DockHeight="450"  >
@@ -306,7 +316,7 @@
                                         </StackPanel>
                                     </TabItem.Header>
                                     <Grid>
-                                        <localControls:Browser Grid.Row="1" x:Name="legacyBrowser"></localControls:Browser>
+                                        <localControls:Browser x:Name="legacyBrowser"></localControls:Browser>
                                     </Grid>
                                 </TabItem>
 

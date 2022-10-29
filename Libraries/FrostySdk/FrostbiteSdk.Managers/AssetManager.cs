@@ -1385,7 +1385,8 @@ namespace FrostySdk.Managers
 				{
 					ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
 				}
-				ebxAssetEntry.ModifiedEntry.DataObject = asset;
+				ebxAssetEntry.ModifiedEntry.Data = null;
+                ebxAssetEntry.ModifiedEntry.DataObject = asset;
 				ebxAssetEntry.ModifiedEntry.OriginalSize = 0L;
 				ebxAssetEntry.ModifiedEntry.Sha1 = Sha1.Zero;
 				ebxAssetEntry.ModifiedEntry.IsTransientModified = asset.TransientEdit;
@@ -2003,7 +2004,7 @@ namespace FrostySdk.Managers
 
 			if(assetStream == null)
 			{
-				assetStream = GetAsset(entry);
+				assetStream = GetAsset(entry, getModified);
 				if (assetStream == null)
 				{
 					return null;
@@ -2077,14 +2078,9 @@ namespace FrostySdk.Managers
             return ebxReader.ReadAsset();
 		}
 
-		/// <summary>
-		/// Only gathers the ORIGINAL/VANILLA stream from the system. DO NOT USE
-		/// </summary>
-		/// <param name="entry"></param>
-		/// <returns></returns>
 		public Stream GetEbxStream(EbxAssetEntry entry)
 		{
-			return GetAsset(entry);
+			return GetAsset(entry, false);
 		}
 
 		public Stream GetRes(ResAssetEntry entry)
@@ -2130,14 +2126,14 @@ namespace FrostySdk.Managers
 			return ((MemoryStream)GetAsset(entry)).ToArray();
 		}
 
-		private Stream GetAsset(AssetEntry entry)
+		private Stream GetAsset(AssetEntry entry, bool getModified = true)
 		{
 			if(entry == null)
             {
 				throw new Exception("Failed to find Asset Entry");
             }
 
-			if (entry.ModifiedEntry != null && entry.ModifiedEntry.Data != null)
+			if (entry.ModifiedEntry != null && entry.ModifiedEntry.Data != null && getModified)
 			{
 				return rm.GetResourceData(entry.ModifiedEntry.Data);
 			}
@@ -3279,22 +3275,24 @@ namespace FrostySdk.Managers
 			}
 			else
 			{
-				//TextureImporter textureImporter = new TextureImporter();
-    //            TextureUtils.DDSHeader originalImageHeader = textureImporter.GetDDSHeaderFromBytes(bytes);
-				//Texture originalTextureAsset = new Texture();
-				//textureImporter.ImportTextureFromStreamToTextureAsset(new MemoryStream(bytes), ref originalTextureAsset, out string message);
-				//TextureImporter.GetPixelFormat(originalImageHeader, originalTextureAsset, out string pixelFormat, out TextureFlags flags);
-				//DDSImage originalImage = new DDSImage();
 
 				ImageEngineImage originalImage = new ImageEngineImage(bytes);
 
 				ImageEngineImage imageEngineImage = new ImageEngineImage(importFilePath);
-				//var imageBytes = imageEngineImage.Save(
-				//	new ImageFormats.ImageEngineFormatDetails(originalImage.FormatDetails.Format)
-				//	, MipHandling.KeepTopOnly
-				//	, removeAlpha: false);
-
-				var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
+				//imageEngineImage.Resize(
+				//	(imageEngineImage.Height + imageEngineImage.Width)
+				//	/ (originalImage.Height + originalImage.Width)
+				//	);
+				if (imageEngineImage.Height > originalImage.Height)
+				{
+					//imageEngineImage.Resize(
+					//	(imageEngineImage.Height + imageEngineImage.Width)
+					//	*
+					//	(originalImage.Height + originalImage.Width)
+					//	- (imageEngineImage.Height + imageEngineImage.Width)
+					//	);
+				}
+                var mipHandling = originalImage.MipMaps.Count > 1 ? MipHandling.GenerateNew : MipHandling.KeepTopOnly;
 
 
 				if (originalImage.Format == ImageEngineFormat.DDS_DXT5)

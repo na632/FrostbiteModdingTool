@@ -278,7 +278,7 @@ namespace FrostbiteModdingTests
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
             var dyn = (dynamic)complexAsset.RootObject;
             dyn.ATTR_DribbleJogSpeed = 0.05f;
-            //dyn.ATTR_DribbleWalkSpeed = 0.005f;
+            dyn.ATTR_DribbleWalkSpeed = 0.05f;
             //dyn.ATTR_JogSpeed = 0.005f;
             //dyn.ATTR_WalkSpeed = 0.005f;
             //dyn.ATTR_DribbleJogSpeed = 0.9f;
@@ -430,7 +430,7 @@ namespace FrostbiteModdingTests
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.7.fbproject").Result;
+            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.12.fbproject").Result;
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -773,7 +773,7 @@ namespace FrostbiteModdingTests
             var exporter = new MeshSetToFbxExport();
             exporter.Export(AssetManager.Instance, overwriteSkinnedMeshEbx.RootObject, $"{TestMeshesPath}\\head_192563_0_0_mesh.fbx", "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "*.fbx", meshSet);
             FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
-            importer.ImportFBX($"{TestMeshesPath}\\head_192563_0_0_mesh.fbx", meshSet, overwriteSkinnedMeshEbx, overwriteSkinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
+            importer.ImportFBX($"{TestMeshesPath}\\test.fbx", meshSet, overwriteSkinnedMeshEbx, overwriteSkinnedMeshEntry, new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
             {
                 SkeletonAsset = "content/character/rig/skeleton/player/skeleton_player"
             });

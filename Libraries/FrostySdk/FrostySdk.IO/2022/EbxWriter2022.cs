@@ -28,6 +28,9 @@ namespace FrostySdk.FrostySdk.IO
 
 		private readonly List<Guid> dependencies = new List<Guid>();
 
+		/// <summary>
+		/// Only used for Indexing. Otherwise redundant.
+		/// </summary>
 		private readonly List<EbxClass> classTypes = new List<EbxClass>();
 
 		private readonly List<Guid> classGuids = new List<Guid>();
@@ -280,18 +283,23 @@ namespace FrostySdk.FrostySdk.IO
 			WriteUInt32LittleEndian(0u);
 			WriteGuid(fileGuid);
 			WriteInt32LittleEndian(classGuids.Count);
-			//WriteInt32LittleEndian(distinctObjsToProcess.Count);
+			//WriteInt32LittleEndian(uniqueTypes.Count);
 			_ = classGuids;
 			_ = uniqueTypes;
+            List<int> usedIndex = new List<int>();
 			foreach (Guid classGuid in classGuids)
 			//foreach (Guid classGuid in uniqueTypes.Select(x => x.GetCustomAttribute<GuidAttribute>().Guid))
 			{
 				WriteGuid(classGuid);
+				usedIndex.Add(classGuids.FindIndex(x=>x == classGuid));
 			}
 			WriteInt32LittleEndian(typeInfoSignatures.Count);
+			//WriteInt32LittleEndian(uniqueTypes.Count);
 			foreach (uint signature in typeInfoSignatures)
+			//foreach (var iSig in usedIndex)
 			{
 				WriteUInt32LittleEndian(signature);
+				//WriteUInt32LittleEndian(typeInfoSignatures[iSig]);
 			}
 			WriteInt32LittleEndian(exportedCount);
 			WriteInt32LittleEndian(instances.Count);
@@ -445,13 +453,15 @@ namespace FrostySdk.FrostySdk.IO
 		private void ProcessType(int index)
 		{
 			Type type = typesToProcess[index];
-			EbxClass ebxClass = classTypes[index];
-            if ((type.Name == "List`1" || ebxClass.DebugType == EbxFieldType.Array)
-				&& (arrayTypes.Count > 0)
-				)
-			{
+            //EbxClass ebxClass = classTypes[index];
+            var classMetaAttribute = type.GetCustomAttribute<EbxClassMetaAttribute>();
+            if (
+                (type.Name == "List`1" || classMetaAttribute.Type == EbxFieldType.Array)
+                && (arrayTypes.Count > 0)
+                )
+            {
 
-				EbxFieldMetaAttribute ebxFieldMetaAttribute = arrayTypes[0];
+                EbxFieldMetaAttribute ebxFieldMetaAttribute = arrayTypes[0];
 				arrayTypes.RemoveAt(0);
 				ushort classIndex = 0;
 				if (type.GenericTypeArguments.Length > 0)
@@ -469,7 +479,7 @@ namespace FrostySdk.FrostySdk.IO
 				AddField("member", ebxFieldMetaAttribute.ArrayFlags, classIndex, 0u, 0u);
 				return;
 			}
-			if (ebxClass.DebugType == EbxFieldType.Enum)
+			if (classMetaAttribute.Type == EbxFieldType.Enum)
 			{
 				string[] enumNames = type.GetEnumNames();
 				Array enumValues = type.GetEnumValues();
@@ -547,13 +557,14 @@ namespace FrostySdk.FrostySdk.IO
 			{
 				AssetClassGuid assetClassGuid = ((dynamic)sortedObjs[i]).GetInstanceGuid();
 				Type type = sortedObjs[i].GetType();
+				var ebxClassMeta = type.GetCustomAttribute<EbxClassMetaAttribute>();
 				int classIndex = FindExistingClass(type);
-				EbxClass ebxClass = classTypes[classIndex];
+				//EbxClass ebxClass = classTypes[classIndex];
 				if (!uniqueTypes.Contains(type))
 				{
 					uniqueTypes.Add(type);
 				}
-				nativeWriter.WritePadding(ebxClass.Alignment);
+				nativeWriter.WritePadding(ebxClassMeta.Alignment);
 				if (assetClassGuid.IsExported)
 				{
 					nativeWriter.WriteGuid(assetClassGuid.ExportedGuid);
@@ -561,7 +572,7 @@ namespace FrostySdk.FrostySdk.IO
 				dataContainerOffsets.Add((int)nativeWriter.Position);
 				nativeWriter.WriteInt32LittleEndian(classIndex);
 				nativeWriter.WritePadding(8);
-				if (ebxClass.Alignment != 4)
+				if (ebxClassMeta.Alignment != 4)
 				{
 					nativeWriter.WriteUInt64LittleEndian(0uL);
 				}
@@ -836,7 +847,7 @@ namespace FrostySdk.FrostySdk.IO
 					if (ebxFieldMetaAttribute.IsArray)
 					{
                         uint fieldNameHash = propertyInfo.GetCustomAttribute<HashAttribute>()!.Hash;
-						WriteArray(propertyInfo.GetValue(obj), ebxFieldMetaAttribute.ArrayType, fieldNameHash, classType, classType.Alignment, writer, isReference);
+						WriteArray(propertyInfo.GetValue(obj), ebxFieldMetaAttribute.ArrayType, fieldNameHash, classType.Alignment, writer, isReference);
 					}
 					else
 					{
@@ -918,7 +929,7 @@ namespace FrostySdk.FrostySdk.IO
 					{
 						Type structObjType = obj.GetType();
 						int existingClassIndex = FindExistingClass(structObjType);
-						byte alignment = ((existingClassIndex == -1) ? structObjType.GetCustomAttribute<EbxClassMetaAttribute>()!.Alignment : classTypes[existingClassIndex].Alignment);
+						byte alignment = ((existingClassIndex == -1) ? structObjType.GetCustomAttribute<EbxClassMetaAttribute>()!.Alignment : (byte)4);
 						writer.WritePadding(alignment);
 						WriteClass(obj, structObjType, writer);
 						break;
@@ -983,7 +994,7 @@ namespace FrostySdk.FrostySdk.IO
 			}
 		}
 
-		protected void WriteArray(object obj, EbxFieldType elementFieldType, uint fieldNameHash, EbxClass classType, byte classAlignment, FileWriter writer, bool isReference)
+		protected void WriteArray(object obj, EbxFieldType elementFieldType, uint fieldNameHash, byte classAlignment, FileWriter writer, bool isReference)
 		{
 			int classIndex = typesToProcess.FindIndex((Type item) => item == obj.GetType().GetGenericArguments()[0]);
 			if (classIndex == -1)
@@ -1067,13 +1078,16 @@ namespace FrostySdk.FrostySdk.IO
 			EbxClass @class = GetClass(classType);
 			classTypes.Add(@class);
 			Span<byte> typeInfoGuidBytes = stackalloc byte[16];
-			GetTypeInfoGuid(@class).TryWriteBytes(typeInfoGuidBytes);
+			var typeInfo = classType.GetCustomAttributes<TypeInfoGuidAttribute>().LastOrDefault();
+			//GetTypeInfoGuid(@class).TryWriteBytes(typeInfoGuidBytes);
+			typeInfo.Guid.TryWriteBytes(typeInfoGuidBytes);
 			//List<uint> list = typeInfoSignatures;
 			Span<byte> span = typeInfoGuidBytes;
             typeInfoSignatures.Add(BinaryPrimitives.ReadUInt32LittleEndian(span[12..]));
 			AddTypeName(name);
 			typesToProcess.Add(classType);
 			return classTypes.Count - 1;
+			//return typesToProcess.Count - 1;
 		}
 
 		private void AddField(string name, ushort type, ushort classRef, uint dataOffset, uint secondOffset)
