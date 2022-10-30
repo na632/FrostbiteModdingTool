@@ -5,6 +5,7 @@ namespace FrostySdk.Managers
 {
 	public sealed class ChunkAssetEntry : AssetEntry
 	{
+
 		//public Guid Id { get; set; }
 
 		public uint BundledSize { get; set; }
@@ -45,7 +46,7 @@ namespace FrostySdk.Managers
 
 		public override string Type => "Chunk";
 
-		public override string AssetType => "chunk";
+		public override string AssetType => EAssetType.chunk.ToString();
 
 		public override string ToString()
 		{

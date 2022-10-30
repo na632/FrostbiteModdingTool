@@ -5,13 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using FrostbiteSdk;
-using Frosty;
-using FrostySdk;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
-//using UsefulThings;
 using Vortice.Mathematics;
 
 namespace FrostySdk.Frostbite.IO.Input
@@ -209,7 +206,7 @@ namespace FrostySdk.Frostbite.IO.Input
 				throw new ArgumentNullException("filename");
 			}
 			FbxManager.GetFileFormatVersion(out var pMajor, out var pMinor, out var pRevision);
-			using FrostbiteSdk.Import.FbxImporter fbxImporter = new FrostbiteSdk.Import.FbxImporter(manager, "");
+			using FbxImporter fbxImporter = new FbxImporter(manager, "");
 			if (!fbxImporter.Initialize(filename, -1, manager.GetIOSettings()))
 			{
 				//Log.Error(fbxImporter.Status.ErrorString);

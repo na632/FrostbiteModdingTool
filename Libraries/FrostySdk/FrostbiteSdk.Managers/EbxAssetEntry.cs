@@ -6,11 +6,15 @@ namespace FrostySdk.Managers
 {
 	public sealed class EbxAssetEntry : AssetEntry, IAssetEntry
 	{
-		public Guid? Guid { get; set; }
+        public EbxAssetEntry(ModifiedAssetEntry modifiedAssetEntry = null) : base(modifiedAssetEntry)
+        {
+        }
+
+        public Guid? Guid { get; set; }
 
 		//public List<Guid> DependentAssets { get; } = new List<Guid>();
 
-		public override string AssetType => "ebx";
+		public override string AssetType => EAssetType.ebx.ToString();
 
         public bool IsBinary { get; internal set; }
 

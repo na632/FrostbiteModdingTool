@@ -167,7 +167,7 @@ namespace FrostySdk
 
 					using (ebxBaseWriter)
 					{
-						var newAsset = entry.ModifiedEntry.DataObject as EbxAsset;
+						var newAsset = ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject as EbxAsset;
 						newAsset.ParentEntry = entry;
 						ebxBaseWriter.WriteAsset(newAsset);
 

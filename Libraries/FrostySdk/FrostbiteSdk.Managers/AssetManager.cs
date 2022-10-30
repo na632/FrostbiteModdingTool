@@ -1161,7 +1161,7 @@ namespace FrostySdk.Managers
 			resAssetEntry.ModifiedEntry.Data = Utils.CompressFile(buffer);
 			resAssetEntry.ModifiedEntry.OriginalSize = buffer.Length;
 			resAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(resAssetEntry.ModifiedEntry.Data);
-			resAssetEntry.ModifiedEntry.IsInline = false;
+			((ModifiedAssetEntry)resAssetEntry.ModifiedEntry).IsInline = false;
 			resAssetEntry.ModifiedEntry.ResMeta = resAssetEntry.ResMeta;
 			resAssetEntry.IsAdded = true;
 			resAssetEntry.IsDirty = true;
@@ -1321,19 +1321,19 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public void ModifyRes(ulong resRid, Resource resource)
-		{
-			if (resRidList.ContainsKey(resRid))
-			{
-				ResAssetEntry resAssetEntry = resRidList[resRid];
-				if (resAssetEntry.ModifiedEntry == null)
-				{
-					resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-				}
-				resAssetEntry.ModifiedEntry.DataObject = resource.Save();
-				resAssetEntry.IsDirty = true;
-			}
-		}
+		//public void ModifyRes(ulong resRid, Resource resource)
+		//{
+		//	if (resRidList.ContainsKey(resRid))
+		//	{
+		//		ResAssetEntry resAssetEntry = resRidList[resRid];
+		//		if (resAssetEntry.ModifiedEntry == null)
+		//		{
+		//			resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+		//		}
+		//		resAssetEntry.ModifiedEntry.DataObject = resource.Save();
+		//		resAssetEntry.IsDirty = true;
+		//	}
+		//}
 
 		public void ModifyRes(string resName, byte[] buffer, byte[] meta = null, CompressionType compressionOverride = CompressionType.Default)
 		{
@@ -1357,23 +1357,23 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public void ModifyRes(string resName, Resource resource, byte[] meta = null)
-		{
-			if (RES.ContainsKey(resName))
-			{
-				ResAssetEntry resAssetEntry = RES[resName];
-				if (resAssetEntry.ModifiedEntry == null)
-				{
-					resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-				}
-				resAssetEntry.ModifiedEntry.DataObject = resource.Save();
-				if (meta != null)
-				{
-					resAssetEntry.ModifiedEntry.ResMeta = meta;
-				}
-				resAssetEntry.IsDirty = true;
-			}
-		}
+		//public void ModifyRes(string resName, Resource resource, byte[] meta = null)
+		//{
+		//	if (RES.ContainsKey(resName))
+		//	{
+		//		ResAssetEntry resAssetEntry = RES[resName];
+		//		if (resAssetEntry.ModifiedEntry == null)
+		//		{
+		//			resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+		//		}
+		//		resAssetEntry.ModifiedEntry.DataObject = resource.Save();
+		//		if (meta != null)
+		//		{
+		//			resAssetEntry.ModifiedEntry.ResMeta = meta;
+		//		}
+		//		resAssetEntry.IsDirty = true;
+		//	}
+		//}
 
 		public void ModifyEbx(string name, EbxAsset asset)
 		{
@@ -1386,7 +1386,7 @@ namespace FrostySdk.Managers
 					ebxAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
 				}
 				ebxAssetEntry.ModifiedEntry.Data = null;
-                ebxAssetEntry.ModifiedEntry.DataObject = asset;
+                ((ModifiedAssetEntry)ebxAssetEntry.ModifiedEntry).DataObject = asset;
 				ebxAssetEntry.ModifiedEntry.OriginalSize = 0L;
 				ebxAssetEntry.ModifiedEntry.Sha1 = Sha1.Zero;
 				ebxAssetEntry.ModifiedEntry.IsTransientModified = asset.TransientEdit;
@@ -1986,7 +1986,7 @@ namespace FrostySdk.Managers
 			Stream assetStream = null;
 			if (getModified)
 			{
-				if (entry != null && entry.ModifiedEntry != null && entry.ModifiedEntry.DataObject != null)
+				if (entry != null && entry.ModifiedEntry != null && ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject != null)
 				{
 					if (entry.IsBinary || entry.ModifiedEntry.Data != null)
 					{
@@ -1994,7 +1994,7 @@ namespace FrostySdk.Managers
 					}
 					else
 					{
-						var r = entry.ModifiedEntry.DataObject as EbxAsset;
+						var r = ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject as EbxAsset;
 						r.ParentEntry = entry;
 
 						return r;
@@ -2096,20 +2096,20 @@ namespace FrostySdk.Managers
 			});
 		}
 
-		public T GetResAs<T>(ResAssetEntry entry) where T : Resource, new()
-		{
-			using (NativeReader reader = new NativeReader(GetAsset(entry)))
-			{
-				ModifiedResource modifiedData = null;
-				if (entry.ModifiedEntry != null && entry.ModifiedEntry.DataObject != null)
-				{
-					modifiedData = (entry.ModifiedEntry.DataObject as ModifiedResource);
-				}
-				T val = new T();
-				val.Read(reader, this, entry, modifiedData);
-				return val;
-			}
-		}
+		//public T GetResAs<T>(ResAssetEntry entry) where T : Resource, new()
+		//{
+		//	using (NativeReader reader = new NativeReader(GetAsset(entry)))
+		//	{
+		//		ModifiedResource modifiedData = null;
+		//		if (entry.ModifiedEntry != null && entry.ModifiedEntry.DataObject != null)
+		//		{
+		//			modifiedData = (entry.ModifiedEntry.DataObject as ModifiedResource);
+		//		}
+		//		T val = new T();
+		//		val.Read(reader, this, entry, modifiedData);
+		//		return val;
+		//	}
+		//}
 
 		public Stream GetChunk(Guid id)
 		{

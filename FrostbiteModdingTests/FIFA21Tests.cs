@@ -1,5 +1,4 @@
 using FIFAModdingUI;
-using FrostbiteSdk.Import;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Frosty.FET;
@@ -212,20 +211,20 @@ namespace FrostbiteModdingTests
             }
         }
 
-        [TestMethod]
-        public void TestFETSaveFETProjectAndLoad()
-        {
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Final.fbproject");
+        //[TestMethod]
+        //public void TestFETSaveFETProjectAndLoad()
+        //{
+        //    ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+        //    projectManagement.Project = new FrostySdk.FrostbiteProject();
+        //    projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\Paulv2k4 FIFA 21 Gameplay Version 3 Final.fbproject");
 
-            FIFAEditorProject editorProject = FIFAEditorProject.ConvertFromFbProject(projectManagement.Project, @"G:\testgpfromfbproject.fifaproject");
-            //FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
-            //editorProject.Save(@"G:\testgpfromfbproject.fifaproject");
-            //editorProject.Load(@"G:\testgpfromfbproject.fifaproject");
+        //    FIFAEditorProject editorProject = FIFAEditorProject.ConvertFromFbProject(projectManagement.Project, @"G:\testgpfromfbproject.fifaproject");
+        //    //FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+        //    //editorProject.Save(@"G:\testgpfromfbproject.fifaproject");
+        //    //editorProject.Load(@"G:\testgpfromfbproject.fifaproject");
 
 
-        }
+        //}
 
         [TestMethod]
         public void TestFETFIFAMod()
@@ -264,19 +263,19 @@ namespace FrostbiteModdingTests
 
         }
 
-        [TestMethod]
-        public void OpenFETEditorProject()
-        {
-            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
-            editorProject.Load(@"C:\Users\paula\Downloads\JAYS BOOTPACK.fifaproject");
-            var count = AssetManager.Instance.EnumerateEbx(modifiedOnly: true).Count();
-            var res = AssetManager.Instance.EnumerateRes(modifiedOnly: true).ToList();
-            var count2 = res.Count();
-            var count3 = AssetManager.Instance.EnumerateChunks(modifiedOnly: true).Count();
+        //[TestMethod]
+        //public void OpenFETEditorProject()
+        //{
+        //    ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+        //    FIFAEditorProject editorProject = new FIFAEditorProject("FIFA21", AssetManager.Instance, AssetManager.Instance.fs);
+        //    editorProject.Load(@"C:\Users\paula\Downloads\JAYS BOOTPACK.fifaproject");
+        //    var count = AssetManager.Instance.EnumerateEbx(modifiedOnly: true).Count();
+        //    var res = AssetManager.Instance.EnumerateRes(modifiedOnly: true).ToList();
+        //    var count2 = res.Count();
+        //    var count3 = AssetManager.Instance.EnumerateChunks(modifiedOnly: true).Count();
 
 
-        }
+        //}
 
         [TestMethod]
         public void ReadSimpleGPFile()

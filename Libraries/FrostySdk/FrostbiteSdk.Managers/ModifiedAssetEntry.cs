@@ -1,3 +1,4 @@
+using FrostySdk.FrostbiteSdk.Managers;
 using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,20 @@ using System.IO;
 namespace FrostySdk.Managers
 {
 	//public class ModifiedAssetEntry : AssetEntry
-	public class ModifiedAssetEntry : AssetEntry
+	public class ModifiedAssetEntry : AssetEntry, IModifiedAssetEntry
 	{
-		public byte[] Data { get; set; }
+
+		public ModifiedAssetEntry()
+		{
+
+		}
+
+		public ModifiedAssetEntry(byte[] data)
+		{
+			Data = data;
+		}
+
+        public byte[] Data { get; set; }
 
 		public long? NewOffset
         {
@@ -20,16 +32,32 @@ namespace FrostySdk.Managers
 		public object DataObject
 		{
 			get 
-			{ 
-				if(dataObject == null && Data != null && Data.Length > 0)
+			{
+				var thisType = GetType();
+				if(dataObject == null && Data != null && Data.Length > 0
+					&& 
+					(
+						ResMeta == null 
+						|| (ResMeta != null && ResMeta.Length == 0) 
+					)
+					&& 
+					LogicalSize == 0
+					)
 				{
-                    if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.EBXReader))
+					try
 					{
-						using (var ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
-							ProfilesLibrary.LoadedProfile.EBXReader,
-							new MemoryStream(Data), false))
-							dataObject = ebxReader.ReadAsset();
-                    }
+						if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.EBXReader))
+						{
+							using (var ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
+								ProfilesLibrary.LoadedProfile.EBXReader,
+								new MemoryStream(Data), false))
+								dataObject = ebxReader.ReadAsset();
+						}
+					}
+					catch
+					{
+
+					}
                 }
 
 				return dataObject; 
@@ -52,7 +80,7 @@ namespace FrostySdk.Managers
 
 		public uint RangeEnd { get; set; }
 
-        private int firstMip = -1;
+        private int firstMip { get; set; } = -1;
 
         public int FirstMip
         {
@@ -61,17 +89,17 @@ namespace FrostySdk.Managers
         }
 
 
-		public bool AddToChunkBundle = true;
+		public bool AddToChunkBundle { get; set; } = true;
 
-		public bool AddToTOCChunks = false;
+		public bool AddToTOCChunks { get; set; } = false;
 
 		public bool IsTransientModified { get; set; }
 
-		public int H32;
+		public int H32 { get; set; }
 
-		public List<Guid> DependentAssets = new List<Guid>();
+        public List<Guid> DependentAssets { get; set; } = new List<Guid>();
 
-		public string UserData = "";
+		public string UserData { get; set; } = "";
 
 		/// <summary>
 		/// Only related to *.fifamod

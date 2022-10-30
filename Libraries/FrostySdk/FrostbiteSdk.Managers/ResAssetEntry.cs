@@ -21,7 +21,7 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public override string AssetType => "res";
+		public override string AssetType => EAssetType.res.ToString();
 
         public override string ToString()
         {

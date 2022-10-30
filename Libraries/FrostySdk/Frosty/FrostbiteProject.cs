@@ -282,23 +282,24 @@ namespace FrostySdk
 				nativeWriter.Write(num);
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 				position = nativeWriter.BaseStream.Position;
-				nativeWriter.Write(3735928559u);
+				var modifiedEbxAssets = AssetManager.EnumerateEbx("", modifiedOnly: true, includeLinked: true);
+                nativeWriter.Write(modifiedEbxAssets.Count());
 				num = 0;
-				foreach (EbxAssetEntry ebxItem in AssetManager.EnumerateEbx("", modifiedOnly: true, includeLinked: true))
+				foreach (EbxAssetEntry modifiedEbx in modifiedEbxAssets)
 				{
-					nativeWriter.WriteNullTerminatedString(ebxItem.Name);
-					SaveLinkedAssets(ebxItem, nativeWriter);
-					nativeWriter.Write(ebxItem.IsDirectlyModified);
-					if (ebxItem.IsDirectlyModified)
+					nativeWriter.WriteNullTerminatedString(modifiedEbx.Name);
+					SaveLinkedAssets(modifiedEbx, nativeWriter);
+					nativeWriter.Write(modifiedEbx.IsDirectlyModified);
+					if (modifiedEbx.IsDirectlyModified)
 					{
-						nativeWriter.Write(ebxItem.ModifiedEntry.IsTransientModified);
-						nativeWriter.WriteNullTerminatedString(ebxItem.ModifiedEntry.UserData);
-						nativeWriter.Write(ebxItem.AddBundles.Count);
-						foreach (int addBundle in ebxItem.AddBundles)
+						nativeWriter.Write(modifiedEbx.ModifiedEntry.IsTransientModified);
+						nativeWriter.WriteNullTerminatedString(modifiedEbx.ModifiedEntry.UserData);
+						nativeWriter.Write(modifiedEbx.AddBundles.Count);
+						foreach (int addBundle in modifiedEbx.AddBundles)
 						{
 							nativeWriter.WriteNullTerminatedString(AssetManager.GetBundleEntry(addBundle).Name);
 						}
-						EbxAsset asset = ebxItem.ModifiedEntry.DataObject as EbxAsset;
+						EbxAsset asset = ((ModifiedAssetEntry)modifiedEbx.ModifiedEntry).DataObject as EbxAsset;
 
 						EbxBaseWriter ebxWriter = null;
 						if(!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.ProjectEbxWriter))
@@ -313,7 +314,7 @@ namespace FrostySdk
 
                         //using (EbxWriterV2 ebxWriter = new EbxWriterV2(new MemoryStream(), EbxWriteFlags.IncludeTransient))
                         {
-							asset.ParentEntry = ebxItem;
+							asset.ParentEntry = modifiedEbx;
 							ebxWriter.WriteAsset(asset);
 							byte[] array = ((MemoryStream)ebxWriter.BaseStream).ToArray();
 							nativeWriter.Write(array.Length);
@@ -321,51 +322,49 @@ namespace FrostySdk
 						}
 						if (updateDirtyState)
 						{
-							ebxItem.IsDirty = false;
+							modifiedEbx.IsDirty = false;
 						}
 					}
 					num++;
 				}
-				nativeWriter.BaseStream.Position = position;
-				nativeWriter.Write(num);
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 				position = nativeWriter.BaseStream.Position;
 				nativeWriter.Write(3735928559u);
 				num = 0;
-				foreach (ResAssetEntry item6 in AssetManager.EnumerateRes(0u, modifiedOnly: true))
+				foreach (ResAssetEntry modifiedRes in AssetManager.EnumerateRes(0u, modifiedOnly: true))
 				{
-					nativeWriter.WriteNullTerminatedString(item6.Name);
-					SaveLinkedAssets(item6, nativeWriter);
-					nativeWriter.Write(item6.IsDirectlyModified);
-					if (item6.IsDirectlyModified)
+					nativeWriter.WriteNullTerminatedString(modifiedRes.Name);
+					SaveLinkedAssets(modifiedRes, nativeWriter);
+					nativeWriter.Write(modifiedRes.IsDirectlyModified);
+					if (modifiedRes.IsDirectlyModified)
 					{
-						nativeWriter.Write(item6.ModifiedEntry.Sha1);
-						nativeWriter.Write(item6.ModifiedEntry.OriginalSize);
-						if (item6.ModifiedEntry.ResMeta != null)
+						nativeWriter.Write(modifiedRes.ModifiedEntry.Sha1);
+						nativeWriter.Write(modifiedRes.ModifiedEntry.OriginalSize);
+						if (modifiedRes.ModifiedEntry.ResMeta != null)
 						{
-							nativeWriter.Write(item6.ModifiedEntry.ResMeta.Length);
-							nativeWriter.Write(item6.ModifiedEntry.ResMeta);
+							nativeWriter.Write(modifiedRes.ModifiedEntry.ResMeta.Length);
+							nativeWriter.Write(modifiedRes.ModifiedEntry.ResMeta);
 						}
 						else
 						{
 							nativeWriter.Write(0);
 						}
-						nativeWriter.WriteNullTerminatedString(item6.ModifiedEntry.UserData);
-						nativeWriter.Write(item6.AddBundles.Count);
-						foreach (int addBundle2 in item6.AddBundles)
+						nativeWriter.WriteNullTerminatedString(modifiedRes.ModifiedEntry.UserData);
+						nativeWriter.Write(modifiedRes.AddBundles.Count);
+						foreach (int addBundle2 in modifiedRes.AddBundles)
 						{
 							nativeWriter.WriteNullTerminatedString(AssetManager.GetBundleEntry(addBundle2).Name);
 						}
-						byte[] array2 = item6.ModifiedEntry.Data;
-						if (item6.ModifiedEntry.DataObject != null)
-						{
-							array2 = (item6.ModifiedEntry.DataObject as ModifiedResource).Save();
-						}
+						byte[] array2 = modifiedRes.ModifiedEntry.Data;
+						//if (item6.ModifiedEntry.DataObject != null)
+						//{
+						//	array2 = (item6.ModifiedEntry.DataObject as ModifiedResource).Save();
+						//}
 						nativeWriter.Write(array2.Length);
 						nativeWriter.Write(array2);
 						if (updateDirtyState)
 						{
-							item6.IsDirty = false;
+							modifiedRes.IsDirty = false;
 						}
 					}
 					num++;
@@ -374,35 +373,33 @@ namespace FrostySdk
 				nativeWriter.Write(num);
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 				position = nativeWriter.BaseStream.Position;
-				nativeWriter.Write(3735928559u);
+				var modifiedChunks = AssetManager.EnumerateChunks(modifiedOnly: true);
+                nativeWriter.Write((uint)modifiedChunks.Count());
 				num = 0;
-				foreach (ChunkAssetEntry item7 in AssetManager.EnumerateChunks(modifiedOnly: true))
+				foreach (ChunkAssetEntry modifiedChunk in modifiedChunks)
 				{
-					nativeWriter.Write(item7.Id);
-					nativeWriter.Write(item7.ModifiedEntry.Sha1);
-					nativeWriter.Write(item7.ModifiedEntry.LogicalOffset);
-					nativeWriter.Write(item7.ModifiedEntry.LogicalSize);
-					nativeWriter.Write(item7.ModifiedEntry.RangeStart);
-					nativeWriter.Write(item7.ModifiedEntry.RangeEnd);
-					nativeWriter.Write(item7.ModifiedEntry.FirstMip);
-					nativeWriter.Write(item7.ModifiedEntry.H32);
-					nativeWriter.Write(item7.ModifiedEntry.AddToChunkBundle);
-					nativeWriter.WriteNullTerminatedString(item7.ModifiedEntry.UserData);
-					nativeWriter.Write(item7.AddBundles.Count);
-					foreach (int addBundle3 in item7.AddBundles)
+					nativeWriter.Write(modifiedChunk.Id);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.Sha1);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.LogicalOffset);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.LogicalSize);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.RangeStart);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.RangeEnd);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.FirstMip);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.H32);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.AddToChunkBundle);
+					nativeWriter.WriteNullTerminatedString(modifiedChunk.ModifiedEntry.UserData);
+					nativeWriter.Write(modifiedChunk.AddBundles.Count);
+					foreach (int addBundle3 in modifiedChunk.AddBundles)
 					{
 						nativeWriter.WriteNullTerminatedString(AssetManager.GetBundleEntry(addBundle3).Name);
 					}
-					nativeWriter.Write(item7.ModifiedEntry.Data.Length);
-					nativeWriter.Write(item7.ModifiedEntry.Data);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.Data.Length);
+					nativeWriter.Write(modifiedChunk.ModifiedEntry.Data);
 					if (updateDirtyState)
 					{
-						item7.IsDirty = false;
+						modifiedChunk.IsDirty = false;
 					}
-					num++;
 				}
-				nativeWriter.BaseStream.Position = position;
-				nativeWriter.Write(num);
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 				position = nativeWriter.BaseStream.Position;
 
@@ -905,7 +902,7 @@ namespace FrostySdk
 							Sha1 sha = Sha1.Zero;
 							long originalSize = 0L;
 							List<int> list2 = new List<int>();
-							byte[] array = null;
+							byte[] resMeta = null;
 							byte[] array2 = null;
 							string userData2 = "";
 							if (flag2)
@@ -915,7 +912,7 @@ namespace FrostySdk
 								int num7 = reader.ReadInt();
 								if (num7 > 0)
 								{
-									array = reader.ReadBytes(num7);
+									resMeta = reader.ReadBytes(num7);
 								}
 								if (num >= 12)
 								{
@@ -976,28 +973,28 @@ namespace FrostySdk
 									//	resEntry2.IsDirty = false;
 									//}
 								}
-								else if (resEntry != null && resEntry.ResType == 3639990959u)
-								{
-									ShaderBlockDepot shaderBlockDepot = new ShaderBlockDepot();
-									using (CasReader casReader2 = new CasReader(new MemoryStream(array2)))
-									{
-										using (NativeReader reader3 = new NativeReader(new MemoryStream(casReader2.Read())))
-										{
-											shaderBlockDepot.Read(reader3, AssetManager, resEntry, null);
-										}
-									}
-									for (int num10 = 0; num10 < shaderBlockDepot.ResourceCount; num10++)
-									{
-										Resources.ShaderBlockResource resource = shaderBlockDepot.GetResource(num10);
-										if (resource is Resources.ShaderPersistentParamDbBlock || resource is Resources.MeshParamDbBlock)
-										{
-											resource.IsModified = true;
-										}
-									}
-									AssetManager.ModifyRes(resEntry.Name, shaderBlockDepot, array);
-									resEntry.IsDirty = false;
-									flag2 = false;
-								}
+								//else if (resEntry != null && resEntry.ResType == 3639990959u)
+								//{
+								//	ShaderBlockDepot shaderBlockDepot = new ShaderBlockDepot();
+								//	using (CasReader casReader2 = new CasReader(new MemoryStream(array2)))
+								//	{
+								//		using (NativeReader reader3 = new NativeReader(new MemoryStream(casReader2.Read())))
+								//		{
+								//			shaderBlockDepot.Read(reader3, AssetManager, resEntry, null);
+								//		}
+								//	}
+								//	for (int num10 = 0; num10 < shaderBlockDepot.ResourceCount; num10++)
+								//	{
+								//		Resources.ShaderBlockResource resource = shaderBlockDepot.GetResource(num10);
+								//		if (resource is Resources.ShaderPersistentParamDbBlock || resource is Resources.MeshParamDbBlock)
+								//		{
+								//			resource.IsModified = true;
+								//		}
+								//	}
+								//	//AssetManager.ModifyRes(resEntry.Name, shaderBlockDepot, array);
+								//	resEntry.IsDirty = false;
+								//	flag2 = false;
+								//}
 							}
 							if (resEntry == null)
 							{
@@ -1010,11 +1007,11 @@ namespace FrostySdk
 								resEntry.ModifiedEntry = new ModifiedAssetEntry();
 								resEntry.ModifiedEntry.Sha1 = sha;
 								resEntry.ModifiedEntry.OriginalSize = originalSize;
-								resEntry.ModifiedEntry.ResMeta = array;
+								resEntry.ModifiedEntry.ResMeta = resMeta;
 								resEntry.ModifiedEntry.UserData = userData2;
 								if (sha == Sha1.Zero)
 								{
-									resEntry.ModifiedEntry.DataObject = ModifiedResource.Read(array2);
+									((ModifiedAssetEntry)resEntry.ModifiedEntry).DataObject = ModifiedResource.Read(array2);
 								}
 								else
 								{
@@ -1107,7 +1104,17 @@ namespace FrostySdk
 									var rawFile = reader.ReadLengthPrefixedString();
 									if (legacyFileManager != null)
 									{
-										LegacyFileEntry lfe = JsonConvert.DeserializeObject<LegacyFileEntry>(rawFile);
+										dynamic lfeD = JsonConvert.DeserializeObject<dynamic>(rawFile, new JsonSerializerSettings()
+										{
+											TypeNameHandling = TypeNameHandling.All
+										});
+										LegacyFileEntry lfe = new LegacyFileEntry(new ModifiedAssetEntry()
+										{
+											Data = lfeD.ModifiedEntry.Data
+										})
+										{
+											Name = lfeD.Name
+										};
 										legacyFileEntries.Add(lfe);
 									}
 								}

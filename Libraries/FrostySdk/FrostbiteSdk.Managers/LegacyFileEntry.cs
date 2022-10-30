@@ -1,24 +1,21 @@
 using Frosty.Hash;
+using FrostySdk.FrostbiteSdk.Managers;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Controls;
 
 namespace FrostySdk
 {
 	public class LegacyFileEntry : AssetEntry, IAssetEntry
 	{
-		public LegacyFileEntry()
+        public LegacyFileEntry(ModifiedAssetEntry modifiedAssetEntry = null)
         {
-
+			ModifiedEntry = modifiedAssetEntry;
         }
 
-		private readonly AssetManager AssetManager;
-		public LegacyFileEntry(AssetManager assetManager)
-        {
-			AssetManager = assetManager;
-        }
         public class ChunkCollectorInstance
 		{
 			public EbxAssetEntry Entry { get; set; }
@@ -136,6 +133,20 @@ namespace FrostySdk
 		//	}
 		//}
 		public override bool IsModified => ModifiedEntry != null && ModifiedEntry.Data != null;
+
+		//private ModifiedLegacyAssetEntry ModifiedLegacyAsset { get; set; }
+
+		//public override IModifiedAssetEntry ModifiedEntry
+		//{
+		//	get
+		//	{
+		//		return ModifiedLegacyAsset;
+		//	}
+		//	set
+		//	{
+		//		ModifiedLegacyAsset = (ModifiedLegacyAssetEntry)value;
+		//	}
+		//}
 
 		private long _size;
 

@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using FrostbiteSdk;
 
-namespace FrostbiteSdk.Import
+namespace FrostbiteSdk
 {
 	public class FbxImporter : FbxIOBase
 	{

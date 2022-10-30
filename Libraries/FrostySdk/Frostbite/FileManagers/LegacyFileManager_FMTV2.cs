@@ -548,10 +548,12 @@ namespace Frostbite.FileManagers
 
 		public IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly)
 		{
-			var lE = LegacyEntries.Where(x =>
+			var lE = LegacyEntries
+				.Select(x => (LegacyFileEntry)x.Value)
+				.Where(x =>
 				!modifiedOnly
-				|| x.Value.HasModifiedData);
-			return lE.Select(x => x.Value);
+				|| x.HasModifiedData);
+			return lE;
 		}
 
 		public AssetEntry GetAssetEntry(string key)
@@ -713,7 +715,7 @@ namespace Frostbite.FileManagers
 										{
 											nr_GroupChunk.Position = itemInChunkGroup.ExtraData.DataOffset;
 											d = nr_GroupChunk.ReadBytes((int)itemInChunkGroup.Size);
-											itemInChunkGroup.ModifiedEntry = new ModifiedAssetEntry();
+											itemInChunkGroup.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry();
 										}
 										itemInChunkGroup.ModifiedEntry.NewOffset = lastOffset;
 										itemInChunkGroup.ModifiedEntry.Size = d.Length;
@@ -861,8 +863,8 @@ namespace Frostbite.FileManagers
 				if (!OriginalLegacyEntries.Contains(legacyFileEntry))
 					OriginalLegacyEntries.Add(legacyFileEntry);
 
-				legacyFileEntry.ModifiedEntry = new ModifiedAssetEntry()
-				{
+				legacyFileEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry()
+                {
 					Data = data,
 					AddToTOCChunks = true,
 					AddToChunkBundle = true,
@@ -887,8 +889,8 @@ namespace Frostbite.FileManagers
 			foreach (var dpi in data.Where(x => LegacyEntries.ContainsKey(x.Key)))
 			{
 				LegacyFileEntry legacyFileEntry = LegacyEntries[dpi.Key].Clone<LegacyFileEntry>();
-				legacyFileEntry.ModifiedEntry = new ModifiedAssetEntry()
-				{
+				legacyFileEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry()
+                {
 					Data = dpi.Value,
 					AddToTOCChunks = true,
 					AddToChunkBundle = true,
@@ -948,7 +950,7 @@ namespace Frostbite.FileManagers
 				{
 					if (LegacyEntries.ContainsKey(lfe.Name))
 					{
-                        LegacyEntries[lfe.Name].ModifiedEntry = new ModifiedAssetEntry()
+                        LegacyEntries[lfe.Name].ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry()
                         {
                             Data = lfe.ModifiedEntry.Data
                         };
@@ -974,8 +976,8 @@ namespace Frostbite.FileManagers
 			{
 				foreach (var lfe in group.Value)
 				{
-					LegacyEntries[lfe.Name].ModifiedEntry = new ModifiedAssetEntry()
-					{
+					LegacyEntries[lfe.Name].ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry()
+                    {
 						Data = lfe.ModifiedEntry.Data
 					};
 

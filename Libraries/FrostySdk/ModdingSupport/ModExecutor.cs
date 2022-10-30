@@ -3208,7 +3208,7 @@ namespace ModdingSupport
                                 legacyAssetEntry.Name = chunkAssetEntry3.ModifiedEntry.LegacyFullName;
 
                                 var d = new CasReader(new MemoryStream(resourceData)).Read();
-                                legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = d };
+                                legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = d };
                                 legacyAssetEntry.Size = d.Length;
 
                                 if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
@@ -3251,7 +3251,7 @@ namespace ModdingSupport
                         {
                             LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
                             resource.FillAssetEntry(legacyAssetEntry);
-                            legacyAssetEntry.ModifiedEntry = new ModifiedAssetEntry() { Data = resourceData };
+                            legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = resourceData };
                             legacyAssetEntry.Size = resourceData.Length;
 
                             if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))

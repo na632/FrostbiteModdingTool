@@ -1,4 +1,5 @@
 using Frosty.Hash;
+using FrostySdk.FrostbiteSdk.Managers;
 using FrostySdk.FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,12 @@ namespace FrostySdk.Managers
 	[Serializable]
 	public class AssetEntry : IAssetEntry, IEqualityComparer<AssetEntry>
 	{
-		public CompressionType OriginalCompressionType = CompressionType.Default;
+		public AssetEntry(ModifiedAssetEntry modifiedAssetEntry = null)
+		{
+			ModifiedEntry = modifiedAssetEntry;
+        }
+
+		public CompressionType OriginalCompressionType { get; set; } = CompressionType.Default;
 
 		public Guid Id { get; set; }
 
@@ -66,7 +72,23 @@ namespace FrostySdk.Managers
 
 		public List<int> RemBundles = new List<int>();
 
-		public ModifiedAssetEntry ModifiedEntry { get; set; }
+		//private IModifiedAssetEntry modifiedAsset;
+		//public virtual IModifiedAssetEntry ModifiedEntry { get; set; }
+
+		private IModifiedAssetEntry modifiedAsset;
+
+		public IModifiedAssetEntry ModifiedEntry
+		{
+			get 
+			{ 
+				return modifiedAsset; 
+			}
+			set 
+			{ 
+				modifiedAsset = value; 
+			}
+		}
+
 
 		private List<AssetEntry> linkedAssets = new List<AssetEntry>();
 
@@ -193,7 +215,7 @@ namespace FrostySdk.Managers
 				{
 					if (ModifiedEntry.Data == null)
 					{
-						return ModifiedEntry.DataObject != null;
+						return ((ModifiedAssetEntry)ModifiedEntry).DataObject != null;
 					}
 					return ModifiedEntry.Data != null;
 				}
@@ -461,4 +483,11 @@ namespace FrostySdk.Managers
             return base.ToString();
         }
     }
+
+	public enum EAssetType
+	{
+		ebx,
+		res,
+		chunk
+	}
 }
