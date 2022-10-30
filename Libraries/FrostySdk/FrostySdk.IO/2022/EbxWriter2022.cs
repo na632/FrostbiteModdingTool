@@ -757,7 +757,9 @@ namespace FrostySdk.FrostySdk.IO
                 }
                 else
                 {
-                    writtenProperties.Add(propertyInfo);
+#if DEBUG
+					writtenProperties.Add(propertyInfo);
+#endif
                     bool isReference = propertyInfo.GetCustomAttribute<IsReferenceAttribute>() != null;
                     if (ebxFieldMetaAttribute.IsArray)
                     {
