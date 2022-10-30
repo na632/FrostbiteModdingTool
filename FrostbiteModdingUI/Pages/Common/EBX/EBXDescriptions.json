@@ -6,6 +6,10 @@
 				{
 					"PropertyName": "ATTR_DribbleJogSpeedModifier",
 					"Description": "Modifies base dribble jog speed based on attributes"
+				},
+				{
+					"PropertyName": "ATTR_ReactionTimeRate",
+					"Description": "The heigher this value, the less time it will take for the player to react to input"
 				}
 			]
 		},
@@ -162,6 +166,14 @@
 				{
 					"PropertyName": "Soccerball_GripConstant",
 					"Description": "how much the ball grips the ground on a contact.\r\n1.0 is just enough grip to go into rolling mode, and never more.\r\n0.5 is super ball levels of grip.\r\n0.92 is default."
+				},
+				{
+					"PropertyName": "normal_max_clamp",
+					"Description": "Intentional lower pitch range of the asset normal.  Contact assets will clamp any normals below this range."
+				},
+				{
+					"PropertyName": "contact_velocity_min",
+					"Description": "Acceptable magnitude difference between animation contact velocity and desired contact velocity in contact normal."
 				}
 			]
 		},
