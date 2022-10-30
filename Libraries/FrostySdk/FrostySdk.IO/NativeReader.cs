@@ -215,14 +215,9 @@ namespace FrostySdk.IO
             if (inEndian == Endian.Little)
             {
 				return BitConverter.ToInt32(buffer.Take(4).ToArray());
-                //return buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
 			}
 			return BinaryPrimitives.ReverseEndianness(BitConverter.ToInt32(buffer.Take(4).ToArray()));
-			//return buffer[3] | (buffer[2] << 8) | (buffer[1] << 16) | (buffer[0] << 24);
 
-			//Span<byte> span = stackalloc byte[4];
-			//ReadIntoSpan(span);
-			//return inEndian == Endian.Little ? BinaryPrimitives.ReadInt32LittleEndian(span) : BinaryPrimitives.ReadInt32BigEndian(span);
 		}
 
 		public int ReadInt32LittleEndian()
@@ -241,14 +236,8 @@ namespace FrostySdk.IO
             if (inEndian == Endian.Little)
             {
 				return BitConverter.ToUInt32(buffer.Take(4).ToArray());
-                //return (uint)(buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24));
             }
-			//return (uint)(buffer[3] | (buffer[2] << 8) | (buffer[1] << 16) | (buffer[0] << 24));
 			return BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt32(buffer.Take(4).ToArray()));
-
-			//Span<byte> span = stackalloc byte[4];
-			//ReadIntoSpan(span);
-			//return inEndian == Endian.Little ? BinaryPrimitives.ReadUInt32LittleEndian(span) : BinaryPrimitives.ReadUInt32BigEndian(span);
 		}
 
 		public uint ReadUInt32LittleEndian()
@@ -268,16 +257,6 @@ namespace FrostySdk.IO
 			if(inEndian == Endian.Little)
 				return BitConverter.ToInt64(buffer.Take(8).ToArray());
 			return BinaryPrimitives.ReverseEndianness(BitConverter.ToInt64(buffer.Take(8).ToArray()));
-
-			//if (inEndian == Endian.Little)
-			//{
-			//	return (long)(((ulong)(uint)(buffer[4] | (buffer[5] << 8) | (buffer[6] << 16) | (buffer[7] << 24)) << 32) | (uint)(buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24)));
-			//}
-			//return (long)(((ulong)(uint)(buffer[3] | (buffer[2] << 8) | (buffer[1] << 16) | (buffer[0] << 24)) << 32) | (uint)(buffer[7] | (buffer[6] << 8) | (buffer[5] << 16) | (buffer[4] << 24)));
-
-			//Span<byte> span = stackalloc byte[8];
-			//ReadIntoSpan(span);
-			//return inEndian == Endian.Little ? BinaryPrimitives.ReadInt64LittleEndian(span) : BinaryPrimitives.ReadInt64BigEndian(span);
 		}
 
 		public long ReadInt64LittleEndian()

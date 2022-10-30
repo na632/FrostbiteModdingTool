@@ -78,118 +78,119 @@ namespace FrostySdk.IO._2022.Readers
 			}
 			this.patched = inPatched;
 			base.magic = (EbxVersion)base.ReadUInt32LittleEndian();
-			if (base.magic == EbxVersion.Riff)
+			//if (base.magic == EbxVersion.Riff)
+			//{
+			try
 			{
-				try
-				{
-					this.LoadRiffEbx();
-					return;
-				}
-				catch (EndOfStreamException)
-				{
-					throw;
-				}
-			}
-			EbxVersion ebxVersion = base.magic;
-			if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
-			{
+				this.LoadRiffEbx();
+				this.isValid = true;
 				return;
 			}
-			this.importOffsets = new List<uint>();
-			base.stringsOffset = base.ReadUInt32LittleEndian();
-			base.stringsAndDataLen = base.ReadUInt32LittleEndian();
-			base.guidCount = base.ReadUInt32LittleEndian();
-			base.instanceCount = base.ReadUInt16LittleEndian();
-			base.exportedCount = base.ReadUInt16LittleEndian();
-			base.uniqueClassCount = base.ReadUInt16LittleEndian();
-			base.classTypeCount = base.ReadUInt16LittleEndian();
-			base.fieldTypeCount = base.ReadUInt16LittleEndian();
-			base.typeNamesLen = base.ReadUInt16LittleEndian();
-			base.stringsLen = base.ReadUInt32LittleEndian();
-			base.arrayCount = base.ReadUInt32LittleEndian();
-			base.dataLen = base.ReadUInt32LittleEndian();
-			base.arraysOffset = base.stringsOffset + base.stringsLen + base.dataLen;
-			base.fileGuid = base.ReadGuid();
-			base.boxedValuesCount = base.ReadUInt32LittleEndian();
-			base.boxedValuesOffset = base.ReadUInt32LittleEndian();
-			base.boxedValuesOffset += base.stringsOffset + base.stringsLen;
-			for (int num = 0; num < base.guidCount; num++)
+			catch (EndOfStreamException)
 			{
-				EbxImportReference ebxImportReference = new EbxImportReference
-				{
-					FileGuid = base.ReadGuid(),
-					ClassGuid = base.ReadGuid()
-				};
-				base.imports.Add(ebxImportReference);
-				if (!base.dependencies.Contains(ebxImportReference.FileGuid))
-				{
-					base.dependencies.Add(ebxImportReference.FileGuid);
-				}
+				throw;
 			}
-			Dictionary<int, string> dictionary = new Dictionary<int, string>();
-			long position = base.Position;
-			while (base.Position - position < base.typeNamesLen)
-			{
-				string text = base.ReadNullTerminatedString();
-				int key = base.HashString(text);
-				dictionary.TryAdd(key, text);
-			}
-			for (int j = 0; j < base.fieldTypeCount; j++)
-			{
-				EbxField item = default(EbxField);
-				int key2 = base.ReadInt32LittleEndian();
-				item.Type = (base.magic == EbxVersion.Version2) ? base.ReadUInt16LittleEndian() : ((ushort)(base.ReadUInt16LittleEndian() >> 1));
-				item.ClassRef = base.ReadUInt16LittleEndian();
-				item.DataOffset = base.ReadUInt32LittleEndian();
-				item.SecondOffset = base.ReadUInt32LittleEndian();
-				item.Name = dictionary[key2];
-				base.fieldTypes.Add(item);
-			}
-			for (int k = 0; k < base.classTypeCount; k++)
-			{
-				Guid item2 = base.ReadGuid();
-				this.classGuids.Add(item2);
-				this.typeInfoGuids.Add(item2);
-			}
-			ushort num2 = base.exportedCount;
-			for (int l = 0; l < base.instanceCount; l++)
-			{
-				EbxInstance item3 = new EbxInstance
-				{
-					ClassRef = base.ReadUInt16LittleEndian(),
-					Count = base.ReadUInt16LittleEndian()
-				};
-				if (num2 != 0)
-				{
-					item3.IsExported = true;
-					num2 = (ushort)(num2 - 1);
-				}
-				base.instances.Add(item3);
-			}
-			base.Pad(16);
-			for (int i = 0; i < base.arrayCount; i++)
-			{
-				EbxArray item4 = new EbxArray
-				{
-					Offset = base.ReadUInt32LittleEndian(),
-					Count = base.ReadUInt32LittleEndian(),
-					ClassRef = base.ReadInt32LittleEndian()
-				};
-				base.arrays.Add(item4);
-			}
-			base.Pad(16);
-			for (int m = 0; m < base.boxedValuesCount; m++)
-			{
-				EbxBoxedValue item5 = new EbxBoxedValue
-				{
-					Offset = base.ReadUInt32LittleEndian(),
-					ClassRef = base.ReadUInt16LittleEndian(),
-					Type = base.ReadUInt16LittleEndian()
-				};
-				base.boxedValues.Add(item5);
-			}
-			base.Position = base.stringsOffset + base.stringsLen;
-			base.isValid = true;
+			//}
+			//EbxVersion ebxVersion = base.magic;
+			//if (ebxVersion != EbxVersion.Version2 && ebxVersion != EbxVersion.Version4)
+			//{
+			//	return;
+			//}
+			//this.importOffsets = new List<uint>();
+			//base.stringsOffset = base.ReadUInt32LittleEndian();
+			//base.stringsAndDataLen = base.ReadUInt32LittleEndian();
+			//base.guidCount = base.ReadUInt32LittleEndian();
+			//base.instanceCount = base.ReadUInt16LittleEndian();
+			//base.exportedCount = base.ReadUInt16LittleEndian();
+			//base.uniqueClassCount = base.ReadUInt16LittleEndian();
+			//base.classTypeCount = base.ReadUInt16LittleEndian();
+			//base.fieldTypeCount = base.ReadUInt16LittleEndian();
+			//base.typeNamesLen = base.ReadUInt16LittleEndian();
+			//base.stringsLen = base.ReadUInt32LittleEndian();
+			//base.arrayCount = base.ReadUInt32LittleEndian();
+			//base.dataLen = base.ReadUInt32LittleEndian();
+			//base.arraysOffset = base.stringsOffset + base.stringsLen + base.dataLen;
+			//base.fileGuid = base.ReadGuid();
+			//base.boxedValuesCount = base.ReadUInt32LittleEndian();
+			//base.boxedValuesOffset = base.ReadUInt32LittleEndian();
+			//base.boxedValuesOffset += base.stringsOffset + base.stringsLen;
+			//for (int num = 0; num < base.guidCount; num++)
+			//{
+			//	EbxImportReference ebxImportReference = new EbxImportReference
+			//	{
+			//		FileGuid = base.ReadGuid(),
+			//		ClassGuid = base.ReadGuid()
+			//	};
+			//	base.imports.Add(ebxImportReference);
+			//	if (!base.dependencies.Contains(ebxImportReference.FileGuid))
+			//	{
+			//		base.dependencies.Add(ebxImportReference.FileGuid);
+			//	}
+			//}
+			//Dictionary<int, string> dictionary = new Dictionary<int, string>();
+			//long position = base.Position;
+			//while (base.Position - position < base.typeNamesLen)
+			//{
+			//	string text = base.ReadNullTerminatedString();
+			//	int key = base.HashString(text);
+			//	dictionary.TryAdd(key, text);
+			//}
+			//for (int j = 0; j < base.fieldTypeCount; j++)
+			//{
+			//	EbxField item = default(EbxField);
+			//	int key2 = base.ReadInt32LittleEndian();
+			//	item.Type = (base.magic == EbxVersion.Version2) ? base.ReadUInt16LittleEndian() : ((ushort)(base.ReadUInt16LittleEndian() >> 1));
+			//	item.ClassRef = base.ReadUInt16LittleEndian();
+			//	item.DataOffset = base.ReadUInt32LittleEndian();
+			//	item.SecondOffset = base.ReadUInt32LittleEndian();
+			//	item.Name = dictionary[key2];
+			//	base.fieldTypes.Add(item);
+			//}
+			//for (int k = 0; k < base.classTypeCount; k++)
+			//{
+			//	Guid item2 = base.ReadGuid();
+			//	this.classGuids.Add(item2);
+			//	this.typeInfoGuids.Add(item2);
+			//}
+			//ushort num2 = base.exportedCount;
+			//for (int l = 0; l < base.instanceCount; l++)
+			//{
+			//	EbxInstance item3 = new EbxInstance
+			//	{
+			//		ClassRef = base.ReadUInt16LittleEndian(),
+			//		Count = base.ReadUInt16LittleEndian()
+			//	};
+			//	if (num2 != 0)
+			//	{
+			//		item3.IsExported = true;
+			//		num2 = (ushort)(num2 - 1);
+			//	}
+			//	base.instances.Add(item3);
+			//}
+			//base.Pad(16);
+			//for (int i = 0; i < base.arrayCount; i++)
+			//{
+			//	EbxArray item4 = new EbxArray
+			//	{
+			//		Offset = base.ReadUInt32LittleEndian(),
+			//		Count = base.ReadUInt32LittleEndian(),
+			//		ClassRef = base.ReadInt32LittleEndian()
+			//	};
+			//	base.arrays.Add(item4);
+			//}
+			//base.Pad(16);
+			//for (int m = 0; m < base.boxedValuesCount; m++)
+			//{
+			//	EbxBoxedValue item5 = new EbxBoxedValue
+			//	{
+			//		Offset = base.ReadUInt32LittleEndian(),
+			//		ClassRef = base.ReadUInt16LittleEndian(),
+			//		Type = base.ReadUInt16LittleEndian()
+			//	};
+			//	base.boxedValues.Add(item5);
+			//}
+			//base.Position = base.stringsOffset + base.stringsLen;
+			//base.isValid = true;
 		}
 
 		private void LoadRiffEbx()
@@ -199,20 +200,12 @@ namespace FrostySdk.IO._2022.Readers
 			uint chunkName = base.ReadUInt32LittleEndian();
 			if (chunkName != 5784133 && chunkName != 1398293061)
 			{
-				DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(53, 1);
-				defaultInterpolatedStringHandler.AppendLiteral("Expected \"EBX\\0\" or \"EBXS\" four-CC, but instead got ");
-				defaultInterpolatedStringHandler.AppendFormatted(chunkName);
-				defaultInterpolatedStringHandler.AppendLiteral(".");
-				throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
+				throw new InvalidDataException("Incorrectly formatted RIFF detected.");
 			}
 			chunkName = base.ReadUInt32LittleEndian();
 			if (chunkName != 1146634821)
 			{
-				DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(42, 1);
-				defaultInterpolatedStringHandler.AppendLiteral("Expected \"EBXD\" four-CC, but instead got ");
-				defaultInterpolatedStringHandler.AppendFormatted(chunkName);
-				defaultInterpolatedStringHandler.AppendLiteral(".");
-				throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
+				throw new InvalidDataException("Incorrectly formatted RIFF detected. Expected EBXD.");
 			}
 			chunkSize = base.ReadUInt32LittleEndian();
 			chunkSizeRelativeToPosition = base.Position;
@@ -224,13 +217,9 @@ namespace FrostySdk.IO._2022.Readers
 			chunkName = base.ReadUInt32LittleEndian();
 			if (chunkName != 1481197125)
 			{
-				DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(42, 1);
-				defaultInterpolatedStringHandler.AppendLiteral("Expected \"EFIX\" four-CC, but instead got ");
-				defaultInterpolatedStringHandler.AppendFormatted(chunkName);
-				defaultInterpolatedStringHandler.AppendLiteral(".");
-				throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
-			}
-			chunkSize = base.ReadUInt32LittleEndian();
+				throw new InvalidDataException("Incorrectly formatted RIFF detected. Expected EFIX.");
+            }
+            chunkSize = base.ReadUInt32LittleEndian();
 			chunkSizeRelativeToPosition = base.Position;
 			Guid partitionGuid = (base.fileGuid = base.ReadGuid());
 			uint guidCount = base.ReadUInt32LittleEndian();
@@ -396,17 +385,19 @@ namespace FrostySdk.IO._2022.Readers
 			base.Position = payloadOffset;
 			base.isValid = true;
 
-			//if (RootType.Contains("gp_"))
-			//if (RootType.Contains("Hotspot"))
-			//if (RootType.Contains("movement"))
-   //         {
-			//	Position = 0;
-			//	var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
-			//	base.stream.CopyTo(fsDump);
-			//	fsDump.Close();
-			//	fsDump.Dispose();
-			//	Position = payloadOffset;
-			//}
+
+#if DEBUG
+            //if (RootType.Contains("gp_"))
+            //if (RootType.Contains("Hotspot"))
+            //if (RootType.Contains("movement"))
+            //         {
+            //	Position = 0;
+            //	var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
+            //	base.stream.CopyTo(fsDump);
+            //	fsDump.Close();
+            //	fsDump.Dispose();
+            //	Position = payloadOffset;
+            //}
 
             if (RootType.Contains("Mesh", StringComparison.OrdinalIgnoreCase))
             {
@@ -417,7 +408,8 @@ namespace FrostySdk.IO._2022.Readers
                 fsDump.Dispose();
                 Position = payloadOffset;
             }
-        }
+#endif
+		}
 
         public override EbxAsset ReadAsset(EbxAssetEntry entry = null)
         {

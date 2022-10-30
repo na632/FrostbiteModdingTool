@@ -215,25 +215,29 @@ namespace FrostySdk.IO._2022.Readers
 			Type type = obj.GetType();
             var ebxClassMeta = type.GetCustomAttribute<EbxClassMetaAttribute>();
 
-
-            if (type.Name.Equals("SkinnedMeshAsset"))
+#if DEBUG
+			if (type.Name.Equals("SkinnedMeshAsset"))
 			{
 
 			}
-			//         if (type.Name.Contains("MeshMaterial"))
-			//         {
 
-			//         }
+			if (type.Name.Contains("MeshMaterial"))
+			{
+
+			}
+
 			if (type.Name.Contains("SkeletonAsset"))
             {
 
             }
+
 			if (type.Name.Contains("LinearTransform"))
 			{
 
 			}
+#endif
 
-            Dictionary<PropertyInfo, EbxFieldMetaAttribute> properties = new Dictionary<PropertyInfo, EbxFieldMetaAttribute>();
+			Dictionary<PropertyInfo, EbxFieldMetaAttribute> properties = new Dictionary<PropertyInfo, EbxFieldMetaAttribute>();
 			foreach(var prp in obj.GetType().GetProperties())
             {
 				var ebxfieldmeta = prp.GetCustomAttribute<EbxFieldMetaAttribute>();
