@@ -6,23 +6,23 @@ namespace FrostbiteSdk
 {
 	public class FrostbiteModDetails
 	{
-		private string title;
+		//private string title;
 
-		private string author;
+		//private string author;
 
-		private string version;
+		//private string version;
 
-		private string description;
+		//private string description;
 
 		private string category;
 
-		public string Title => title;
+		public string Title { get; set; }
 
-		public string Author => author;
+        public string Author { get; set; }
 
-		public string Version => version;
+        public string Version { get; set; }
 
-		public string Description => description;
+        public string Description { get; set; }
 
 		public int ScreenshotsCount { get; set; }
 
@@ -42,20 +42,20 @@ namespace FrostbiteSdk
 
 		public FrostbiteModDetails(string inTitle, string inAuthor, string inCategory, string inVersion, string inDescription)
 		{
-			title = inTitle;
-			author = inAuthor;
-			version = inVersion;
-			description = inDescription;
+			Title = inTitle;
+			Author = inAuthor;
+			Version = inVersion;
+			Description = inDescription;
 			category = inCategory;
 		}
 
 		public FrostbiteModDetails(string inTitle, string inAuthor, string inCategory, string inVersion, string inDescription, int embeddedFileCount)
 		{
-			title = inTitle;
-			author = inAuthor;
-			version = inVersion;
-			description = inDescription;
-			category = inCategory;
+            Title = inTitle;
+            Author = inAuthor;
+            Version = inVersion;
+            Description = inDescription;
+            category = inCategory;
 			EmbeddedFileCount = embeddedFileCount;
 		}
 

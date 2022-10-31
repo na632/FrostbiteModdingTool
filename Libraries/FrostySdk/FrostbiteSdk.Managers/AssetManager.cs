@@ -162,15 +162,6 @@ namespace FrostySdk.Managers
 		public Dictionary<int, string> ModCASFiles = new Dictionary<int, string>();
 
 
-		public class BaseBundleInfo
-		{
-			public string Name;
-
-			public long Offset;
-
-			public long Size;
-		}
-
 		internal class FifaAssetLoader : IAssetLoader
 		{
 			internal struct BundleFileInfo
