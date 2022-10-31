@@ -7,6 +7,7 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Win32;
 using SdkGenerator;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,53 @@ using v2k4FIFAModdingCL;
 namespace FrostbiteModdingTests
 {
     [TestClass]
-    public class Fifa22Tests : ILogger
+    public class Fifa22Tests : ILogger, IFMTTest
     {
         private string prevText = string.Empty;
 
-        public const string GamePath = @"F:\Origin Games\FIFA 22";
-        public const string GamePathEXE = @"F:\Origin Games\FIFA 22\FIFA22.exe";
+        public string GamePath
+        {
+            get
+            {
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 22"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir;
+                    }
+                }
+                return string.Empty;
+            }
+        }
+
+        public string GameName { get { return "FIFA22"; } }
+
+        public string GameEXE
+        {
+            get
+            {
+                return $"{GameName}.exe";
+            }
+        }
+
+        public string GamePathEXE
+        {
+            get
+            {
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 23"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir + GameEXE;
+                    }
+                }
+                return string.Empty;
+            }
+        }
 
         public void Log(string text, params object[] vars)
         {
@@ -58,8 +100,7 @@ namespace FrostbiteModdingTests
         public void BuildCache()
         {
             var buildCache = new BuildCache();
-            //buildCache.LoadData("Fifa22", GamePath, this, true, false);
-            buildCache.LoadData("Fifa22", GamePath, this, true, true);
+            buildCache.LoadData("FIFA22", GamePath, this, true, true);
 
             var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
             var resItems = AssetManager.Instance.EnumerateRes().ToList();

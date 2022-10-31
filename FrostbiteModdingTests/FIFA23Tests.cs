@@ -431,7 +431,7 @@ namespace FrostbiteModdingTests
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.12.fbproject").Result;
+            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.14.fbproject").Result;
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
