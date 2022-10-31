@@ -233,11 +233,6 @@ namespace FIFAModdingUI.Windows
         {
             DisableEditor();
             loadingDialog.Update("Loading Game Files", "");
-            await GameInstanceSingleton.InitializeSingletonAsync(filePath, true, this);
-            GameInstanceSingleton.Logger = this;
-            lstProjectFiles.Items.Clear();
-            lstProjectFiles.ItemsSource = null;
-
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
             if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
@@ -245,6 +240,11 @@ namespace FIFAModdingUI.Windows
                 loadingDialog.Update("", "");
                 buildSDKAndCacheWindow.ShowDialog();
             }
+
+            await GameInstanceSingleton.InitializeSingletonAsync(filePath, true, this);
+            GameInstanceSingleton.Logger = this;
+            lstProjectFiles.Items.Clear();
+            lstProjectFiles.ItemsSource = null;
 
             loadingDialog.Update("Loading Game Files", "");
 
