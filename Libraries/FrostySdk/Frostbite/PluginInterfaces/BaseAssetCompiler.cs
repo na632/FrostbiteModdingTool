@@ -5,6 +5,7 @@ using FrostySdk.Managers;
 using ModdingSupport;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -340,6 +341,256 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public virtual bool Cleanup(FileSystem fs, ILogger logger, ModExecutor modExecuter)
         {
             return false;
+        }
+
+        public void WriteChangesToSuperBundle(DbObject origDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            if (assetBundle.Key is EbxAssetEntry)
+                WriteEbxChangesToSuperBundle(origDbo, writer, assetBundle);
+            else if (assetBundle.Key is ResAssetEntry)
+                WriteResChangesToSuperBundle(origDbo, writer, assetBundle);
+            else if (assetBundle.Key is ChunkAssetEntry)
+                WriteChunkChangesToSuperBundle(origDbo, writer, assetBundle);
+        }
+
+        private void WriteEbxChangesToSuperBundle(DbObject origEbxDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            //DbObject origEbxDbo = null;
+            //foreach (DbObject dbInBundle in origEbxBundles)
+            //{
+            //    origEbxDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+            //    if (origEbxDbo != null)
+            //        break;
+            //}
+
+            if (origEbxDbo != null)
+            {
+                var originalSizeOfData = assetBundle.Value.Item3;
+
+                if (origEbxDbo.HasValue("SB_OriginalSize_Position"))
+                {
+                    writer.Position = origEbxDbo.GetValue<long>("SB_OriginalSize_Position");
+                    writer.Write((uint)originalSizeOfData, Endian.Little);
+                }
+
+                if (origEbxDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+                {
+                    writer.Position = origEbxDbo.GetValue<long>("SB_Sha1_Position");
+                    writer.Write(assetBundle.Value.Item4);
+                }
+            }
+        }
+
+        private void WriteResChangesToSuperBundle(DbObject origResDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            //DbObject origResDbo = null;
+            //foreach (DbObject dbInBundle in origResBundles)
+            //{
+            //    origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
+            //    if (origResDbo != null)
+            //        break;
+            //}
+
+            if (origResDbo != null
+                && ModExecuter.modifiedRes.ContainsKey(assetBundle.Key.Name)
+                && (assetBundle.Key.Type == "SkinnedMeshAsset"
+                || assetBundle.Key.Type == "MeshSet"
+                || assetBundle.Key.Type == "Texture"))
+            {
+                writer.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
+                writer.WriteBytes(ModExecuter.modifiedRes[assetBundle.Key.Name].ResMeta);
+
+                if (ModExecuter.modifiedRes[assetBundle.Key.Name].ResRid != 0)
+                {
+                    writer.BaseStream.Position = origResDbo.GetValue<int>("SB_ReRid_Position");
+                    writer.Write(ModExecuter.modifiedRes[assetBundle.Key.Name].ResRid);
+                }
+            }
+
+            var originalSizeOfData = assetBundle.Value.Item3;
+
+            if (origResDbo.HasValue("SB_OriginalSize_Position"))
+            {
+                writer.Position = origResDbo.GetValue<long>("SB_OriginalSize_Position");
+                writer.Write((uint)originalSizeOfData, Endian.Little);
+            }
+
+            if (origResDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            {
+                writer.Position = origResDbo.GetValue<long>("SB_Sha1_Position");
+                writer.Write(assetBundle.Value.Item4);
+            }
+        }
+
+        private void WriteChunkChangesToSuperBundle(DbObject origChunkDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        {
+            //DbObject origChunkDbo = null;
+            //foreach (DbObject dbInBundle in origChunkBundles)
+            //{
+            //    origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
+            //    if (origChunkDbo != null)
+            //        break;
+            //}
+
+            if (Guid.TryParse(assetBundle.Key.Name, out Guid bndleId))
+            {
+                if (origChunkDbo != null
+                    && ModExecuter.ModifiedChunks.ContainsKey(bndleId)
+                    )
+                {
+                    writer.BaseStream.Position = origChunkDbo.GetValue<int>("SB_LogicalOffset_Position");
+                    writer.Write(ModExecuter.ModifiedChunks[bndleId].LogicalOffset);
+                }
+            }
+
+            var originalSizeOfData = assetBundle.Value.Item3;
+
+            if (origChunkDbo.HasValue("SB_OriginalSize_Position"))
+            {
+                writer.Position = origChunkDbo.GetValue<long>("SB_OriginalSize_Position");
+                writer.Write((uint)originalSizeOfData, Endian.Little);
+            }
+
+            if (origChunkDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            {
+                writer.Position = origChunkDbo.GetValue<long>("SB_Sha1_Position");
+                writer.Write(assetBundle.Value.Item4);
+            }
+        }
+
+        public void ModifyTOCChunks(string directory = "native_patch")
+        {
+            int sbIndex = -1;
+            foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
+            {
+                foreach (string sbKey in catalogInfo.SuperBundles.Keys)
+                {
+                    sbIndex++;
+                    string tocFile = sbKey;
+                    if (catalogInfo.SuperBundles[sbKey])
+                    {
+                        tocFile = sbKey.Replace("win32", catalogInfo.Name);
+                    }
+
+                    // Only handle Legacy stuff right now
+                    if (!tocFile.Contains("globals", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var pathToTOCFileRAW = $"{directory}/{tocFile}.toc";
+                    string location_toc_file = FileSystem.Instance.ResolvePath(pathToTOCFileRAW);
+
+                    var pathToTOCFile = ModExecutor.UseModData
+                        ? location_toc_file
+                        .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
+                        .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
+                        : location_toc_file;
+
+                    using TOCFile tocFile2 = new TOCFile(new FileStream(location_toc_file, FileMode.Open), false, false);
+
+                    // read the changed toc file in ModData
+                    if (!tocFile2.TocChunks.Any())
+                        continue;
+
+                    var patch = true;
+                    var catalog = tocFile2.TocChunks.Max(x => x.ExtraData.Catalog.Value);
+                    if (!tocFile2.TocChunks.Any(x => x.ExtraData.IsPatch))
+                        patch = false;
+
+                    var cas = tocFile2.TocChunks.Where(x => x.ExtraData.Catalog == catalog).Max(x => x.ExtraData.Cas.Value);
+
+                    var newCas = cas;
+                    //var nextCasPath = GetNextCasInCatalog(catalogInfo, cas, patch, out int newCas);
+                    var nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, patch), ModExecutor.UseModData);
+                    if (!File.Exists(nextCasPath))
+                    {
+                        nextCasPath = FileSystem.Instance.ResolvePath(FileSystem.Instance.GetFilePath(catalog, cas, false), ModExecutor.UseModData);
+                        patch = false;
+                    }
+                    if (string.IsNullOrEmpty(nextCasPath))
+                    {
+                        Debug.WriteLine("Error finding nextCasPath in BaseAssetCompiler.ModifyTOCChunks!");
+                        return;
+                    }
+
+                    using (NativeWriter nw_cas = new NativeWriter(new FileStream(nextCasPath, FileMode.OpenOrCreate)))
+                    {
+                        using (NativeWriter nw_toc = new NativeWriter(new FileStream(pathToTOCFile, FileMode.Open)))
+                        {
+                            foreach (var modChunk in ModExecuter.ModifiedChunks)
+                            {
+                                if (tocFile2.TocChunkGuids.Contains(modChunk.Key))
+                                {
+                                    var chunkIndex = tocFile2.TocChunks.FindIndex(x => x.Id == modChunk.Key
+                                        && modChunk.Value.ModifiedEntry != null
+                                        && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
+                                    if (chunkIndex != -1)
+                                    {
+                                        //var data = parent.archiveData[modChunk.Value.Sha1].Data;
+                                        var data = ModExecuter.archiveData[modChunk.Value.ModifiedEntry.Sha1].Data;
+
+                                        var chunkGuid = tocFile2.TocChunkGuids[chunkIndex];
+
+                                        var chunk = tocFile2.TocChunks[chunkIndex];
+                                        DbObject dboChunk = tocFile2.TocChunkInfo[modChunk.Key];
+
+                                        nw_cas.Position = nw_cas.Length;
+                                        var newPosition = nw_cas.Position;
+                                        nw_cas.WriteBytes(data);
+                                        modChunk.Value.Size = data.Length;
+                                        modChunk.Value.ExtraData = new AssetExtraData()
+                                        {
+                                            DataOffset = (uint)newPosition,
+                                            Cas = newCas,
+                                            Catalog = catalog,
+                                            IsPatch = patch,
+                                        };
+
+                                        nw_toc.Position = dboChunk.GetValue<long>("patchPosition");
+                                        nw_toc.Write(Convert.ToByte(patch ? 1 : 0));
+                                        nw_toc.Write(Convert.ToByte(catalog));
+                                        nw_toc.Write(Convert.ToByte(newCas));
+
+                                        nw_toc.Position = chunk.SB_CAS_Offset_Position;
+                                        nw_toc.Write((uint)newPosition, Endian.Big);
+
+                                        nw_toc.Position = chunk.SB_CAS_Size_Position;
+                                        nw_toc.Write((uint)data.Length, Endian.Big);
+                                    }
+                                }
+
+                                // Added / Duplicate chunk -- Does nothing at the moment
+                                if (modChunk.Value.ExtraData == null && tocFile == "win32/globalsfull")
+                                {
+                                    var data = ModExecuter.archiveData[modChunk.Value.Sha1].Data;
+                                    nw_cas.Position = nw_cas.Length;
+                                    var newPosition = nw_cas.Position;
+                                    //nw_cas.WriteBytes(data);
+                                    modChunk.Value.Size = data.Length;
+                                    modChunk.Value.ExtraData = new AssetExtraData()
+                                    {
+                                        DataOffset = (uint)newPosition,
+                                        Cas = newCas,
+                                        Catalog = catalog,
+                                        IsPatch = patch,
+                                    };
+                                    //tocSb.TOCFile.TocChunks.Add(modChunk.Value);
+                                }
+                            }
+                        }
+                    }
+
+                    //using (var fsToc = new FileStream(pathToTOCFile, FileMode.Open))
+                    //{
+                    //    tocSb.TOCFile.Write(fsToc);
+                    //}
+                    TOCFile.RebuildTOCSignatureOnly(pathToTOCFile);
+                }
+            }
+
+            if (directory == "native_patch")
+                ModifyTOCChunks("native_data");
         }
 
         public struct ModdedFile
