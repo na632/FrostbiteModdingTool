@@ -19,8 +19,6 @@ Moving on to recent times FIFA Editor Tool is a much more feature rich and stabl
 
 This remains a hobby project and now open source for others to use/research as they wish. I do however ask that you send a quick message if you wish to sell this commercially.
 
-*It came to my attention on late September 2022 Frosty Toolsuite is open source on [GitHub](https://github.com/CadeEvs/FrostyToolsuite)*
-
 # Credits
 - Jaycensolo - Jay has been a great help in testing almost everything this Tool does
 - Somers - Made an enormous mod for FIFA 21 and really put this tool to the test
@@ -34,12 +32,10 @@ As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github
 - FIFA 20
 - FIFA 21
 - FIFA 22
+- FIFA 23
 
 ## 50-75% supported
 - MADDEN 21
-
-## Actively developing
-- FIFA 23
 
 # Solution explanation
 - All projects use C# .NET Core 6 and dependant on each other (i.e. if you attempt to build FrostbiteModdingUI, it will expect the other projects to exist in your file system)
