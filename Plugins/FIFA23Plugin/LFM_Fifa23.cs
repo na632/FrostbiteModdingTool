@@ -18,6 +18,8 @@ namespace FIFA23Plugin
 
 		public override void Initialize(ILogger logger)
 		{
+			base.Initialize(logger);
+
 			Logger = logger;
             AddedFileEntries = new List<LegacyFileEntry>();
             OriginalLegacyEntries.Clear();

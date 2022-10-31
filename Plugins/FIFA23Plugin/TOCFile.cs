@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using static FIFA23Plugin.AssetLoader_Fifa22;
+using FrostySdk.Frostbite.PluginInterfaces;
 
 namespace FIFA23Plugin
 {

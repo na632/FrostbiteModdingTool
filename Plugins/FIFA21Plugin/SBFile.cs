@@ -1,6 +1,7 @@
 ﻿using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Deobfuscators;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using ModdingSupport;
@@ -139,7 +140,7 @@ namespace FIFA21Plugin
 
                 dbObjects.Add(dbObject);
                 index++;
-                FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex++;
+                BaseBundleInfo.BundleItemIndex++;
             }
 
             //CachingSB.CachingSBs.Add(cachingSBData);
@@ -321,7 +322,7 @@ namespace FIFA21Plugin
                 }
 
 
-                o.SetValue("BundleIndex", FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex);
+                o.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
 
             }
 
@@ -357,7 +358,7 @@ namespace FIFA21Plugin
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
                 }
-                o.SetValue("BundleIndex", FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex);
+                o.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
             }
 
             var chunkCount = dbObject.GetValue<DbObject>("chunks").Count;
@@ -391,7 +392,7 @@ namespace FIFA21Plugin
                     CachedBundle.LastCAS = cas;
                     CachedBundle.LastCatalogId = catalog;
                 }
-                o.SetValue("BundleIndex", FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex);
+                o.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
             }
 
             for (int i = 0; i < ebxCount; i++)

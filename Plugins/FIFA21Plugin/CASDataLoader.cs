@@ -86,7 +86,7 @@ namespace FIFA21Plugin
                             };
                             AssetManager.Instance.bundles.Add(bundleEntry);
                             BundleEntry.PersistedIndexCount++;
-                            FIFA21AssetLoader.BaseBundleInfo.BundleItemIndex++;
+                            BaseBundleInfo.BundleItemIndex++;
                         }
 
                         var binaryReader = new BinaryReader_FIFA21();

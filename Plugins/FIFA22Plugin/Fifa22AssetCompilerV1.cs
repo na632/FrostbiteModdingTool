@@ -17,14 +17,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Markup;
 
-namespace FIFA23Plugin
+namespace FIFA22Plugin
 {
 
     /// <summary>
-    /// FIFA 23 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
-    /// Linked to FIFA21BundleAction
     /// </summary>
-    public class Fifa23AssetCompilerV1 : BaseAssetCompiler, IAssetCompiler
+    public class Fifa22AssetCompilerV1 : BaseAssetCompiler, IAssetCompiler
     {
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken
@@ -38,7 +36,7 @@ namespace FIFA23Plugin
             base.Compile(fs, logger, modExecuter);
 
             DateTime dtStarted = DateTime.Now;
-            if (!ProfileManager.IsFIFA23DataVersion())
+            if (!ProfileManager.IsFIFA22DataVersion())
             {
                 logger.Log("[ERROR] Wrong compiler used for Game");
                 return false;

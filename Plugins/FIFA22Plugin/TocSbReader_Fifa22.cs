@@ -1,4 +1,5 @@
 ﻿using FrostySdk;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json.Serialization;
@@ -14,7 +15,7 @@ using static FrostySdk.Managers.AssetManager;
 
 namespace FIFA22Plugin
 {
-    public class TocSbReader_Fifa22
+    public class TocSbReader_Fifa22 : IDisposable
     {
         private const uint ReadableSectionMagic = 3599661469;
 
@@ -69,7 +70,7 @@ namespace FIFA22Plugin
                 {
                     
                     // TOC File 
-                    TOCFile = new TOCFile(this);
+                    TOCFile = new TOCFile(new FileStream(tocPath, FileMode.Open, FileAccess.Read));
                     TOCFile.SuperBundleName = SBName;
                     TOCFile.NativeFileLocation = nativePath;
                     TOCFile.FileLocation = tocPath;
@@ -86,5 +87,12 @@ namespace FIFA22Plugin
             return null;
         }
 
+        public void Dispose()
+        {
+            if(TOCFile != null)
+                TOCFile.Dispose();
+
+            TOCFile = null;
+        }
     }
 }

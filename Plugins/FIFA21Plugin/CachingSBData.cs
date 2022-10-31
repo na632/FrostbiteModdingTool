@@ -1,4 +1,5 @@
 ﻿using FrostySdk;
+using FrostySdk.Frostbite.PluginInterfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -61,7 +62,7 @@ namespace FIFA21Plugin
             public int LastCAS { get; set; }
             public long BinaryDataOffsetEnd { get; set; }
             public long CatalogCasGroupOffsetEnd { get; set; }
-            public FIFA21AssetLoader.BaseBundleInfo BaseBundleItem { get; internal set; }
+            public BaseBundleInfo BaseBundleItem { get; internal set; }
 
             private Dictionary<string, List<string>> listOfItems;
 
