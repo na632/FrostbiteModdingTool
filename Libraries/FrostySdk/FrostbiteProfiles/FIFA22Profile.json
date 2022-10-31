@@ -6,7 +6,7 @@
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
-  "AssetCompiler": "Fifa22AssetCompiler_Old",
+  "AssetCompiler": "Fifa22AssetCompilerV1",
   //"AssetCompiler": "Fifa22AssetCompiler",
   "EditorScreen": "FIFA22Editor",
   // Texture Importer (Overriding the base Importer)
@@ -55,7 +55,7 @@
   // Will the Launcher support this Game?
   "CanLaunchMods": true,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
 
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
   "CacheWriter": "Fifa22CacheWriter",
