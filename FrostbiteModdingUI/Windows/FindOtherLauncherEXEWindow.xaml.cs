@@ -64,7 +64,7 @@ namespace FrostbiteModdingUI.Windows
                         LogAsync("Legacy Injection - FIFA 20 found. Using FIFA20Legacy.DLL.");
                         legacyModSupportFile = runningLocation + @"\FIFA20Legacy.dll";
                     }
-                    else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
+                    else if (ProfileManager.IsFIFA21DataVersion())// GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                     {
                         LogAsync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
                         legacyModSupportFile = runningLocation + @"\FIFA.dll";

@@ -21,12 +21,12 @@ namespace FrostbiteModdingUI.Models
         {
             get 
             {
-                if (ProfilesLibrary.LoadedProfile.CanUseModData)
+                if (ProfileManager.LoadedProfile.CanUseModData)
                     return useModData;
                 else
                     return false;
             }
-            set { useModData = ProfilesLibrary.LoadedProfile.CanUseModData ? value : false; }
+            set { useModData = ProfileManager.LoadedProfile.CanUseModData ? value : false; }
         }
 
 
@@ -36,7 +36,7 @@ namespace FrostbiteModdingUI.Models
         {
             get
             {
-                if (ProfilesLibrary.LoadedProfile.CanUseLiveLegacyMods)
+                if (ProfileManager.LoadedProfile.CanUseLiveLegacyMods)
                     return useLegacyModSupport;
                 else
                     return false;
@@ -58,7 +58,7 @@ namespace FrostbiteModdingUI.Models
         { 
             get 
             {
-                var dir = AppContext.BaseDirectory + "/Mods/Profiles/" + ProfilesLibrary.ProfileName + "/";
+                var dir = AppContext.BaseDirectory + "/Mods/Profiles/" + ProfileManager.ProfileName + "/";
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
 

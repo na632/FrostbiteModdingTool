@@ -959,8 +959,8 @@ namespace FIFAModdingUI.Pages.Common
 					this.ModelDockingManager.Visibility = Visibility.Visible;
 					await ModelViewerEBX.LoadEbx(ebxEntry, SelectedEbxAsset, ProjectManagement.Instance.Project, MainEditorWindow);
 
-                    this.btnExport.IsEnabled = ProfilesLibrary.CanExportMeshes;
-					this.btnImport.IsEnabled = ProfilesLibrary.CanImportMeshes;
+                    this.btnExport.IsEnabled = ProfileManager.CanExportMeshes;
+					this.btnImport.IsEnabled = ProfileManager.CanImportMeshes;
 					this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
 
 				}

@@ -9,6 +9,7 @@ using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using FrostySdk.ThirdParty;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 using ProcessMemoryUtilities.Managed;
@@ -801,31 +802,31 @@ namespace FrostbiteModdingTests
 
         //}
 
-        [TestMethod]
-        public void TestDecompressRecompress()
-        {
-            Oodle.Bind(GamePath);
-            //var filePath = GamePath + "/data/win32/superbundlelayout/fifa_installpackage_02/cas_01.cas";
-            var filePath = "F:\\Origin Games\\FIFA 23\\Data\\\\win32\\superbundlelayout\\fifa_installpackage_02\\cas_01.cas";
-            using (var readerCas = new NativeReader(filePath))
-            {
-                var originalSize = 692;
-                var originalPosition = 4984462;
-                readerCas.Position = originalPosition;
-                var originalBytes = readerCas.ReadBytes((int)originalSize);
-                var decomp = new CasReader(new MemoryStream(originalBytes)).Read();
-                byte[] recomp = null;
-                recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: 8);
-                for (uint i = 4; i < 14; i++)
-                {
-                    recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: i);
-                    if (recomp.Length <= originalSize)
-                    {
+        //[TestMethod]
+        //public void TestDecompressRecompress()
+        //{
+        //    Oodle.Bind(GamePath);
+        //    //var filePath = GamePath + "/data/win32/superbundlelayout/fifa_installpackage_02/cas_01.cas";
+        //    var filePath = "F:\\Origin Games\\FIFA 23\\Data\\\\win32\\superbundlelayout\\fifa_installpackage_02\\cas_01.cas";
+        //    using (var readerCas = new NativeReader(filePath))
+        //    {
+        //        var originalSize = 692;
+        //        var originalPosition = 4984462;
+        //        readerCas.Position = originalPosition;
+        //        var originalBytes = readerCas.ReadBytes((int)originalSize);
+        //        var decomp = new CasReader(new MemoryStream(originalBytes)).Read();
+        //        byte[] recomp = null;
+        //        recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: 8);
+        //        for (uint i = 4; i < 14; i++)
+        //        {
+        //            recomp = Utils.CompressFile(decomp, compressionOverride: CompressionType.Oodle, oodleCO: i);
+        //            if (recomp.Length <= originalSize)
+        //            {
 
-                    }
-                }
-            }
-        }
+        //            }
+        //        }
+        //    }
+        //}
 
 
         [TestMethod]

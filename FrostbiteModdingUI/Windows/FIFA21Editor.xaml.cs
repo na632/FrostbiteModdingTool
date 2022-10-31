@@ -78,7 +78,7 @@ namespace FIFAModdingUI.Windows
         {
             get
             {
-                var dir = ProfilesLibrary.GetModProfileParentDirectoryPath() + "\\FIFA21\\";
+                var dir = ProfileManager.GetModProfileParentDirectoryPath() + "\\FIFA21\\";
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
                 
@@ -285,18 +285,18 @@ namespace FIFAModdingUI.Windows
             DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
 
             LauncherOptions = await LauncherOptions.LoadAsync();
-            swUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData && !ProfilesLibrary.LoadedProfile.ForceUseModData;
+            swUseModData.IsEnabled = ProfileManager.LoadedProfile.CanUseModData && !ProfileManager.LoadedProfile.ForceUseModData;
             swUseModData.IsOn = LauncherOptions.UseModData.HasValue ? LauncherOptions.UseModData.Value : true;
 
-            TabFaces.Visibility = !ProfilesLibrary.CanExportMeshes && !ProfilesLibrary.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
-            TabBoots.Visibility = !ProfilesLibrary.CanExportMeshes && !ProfilesLibrary.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
+            TabFaces.Visibility = !ProfileManager.CanExportMeshes && !ProfileManager.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
+            TabBoots.Visibility = !ProfileManager.CanExportMeshes && !ProfileManager.CanImportMeshes ? Visibility.Collapsed : Visibility.Visible;
 
             Dispatcher.Invoke(() =>
             {
-                swEnableLegacyInjection.IsOn = LauncherOptions.UseLegacyModSupport.HasValue && LauncherOptions.UseLegacyModSupport.Value && ProfilesLibrary.CanUseLiveLegacyMods;
-                swEnableLegacyInjection.IsEnabled = ProfilesLibrary.CanUseLiveLegacyMods;
+                swEnableLegacyInjection.IsOn = LauncherOptions.UseLegacyModSupport.HasValue && LauncherOptions.UseLegacyModSupport.Value && ProfileManager.CanUseLiveLegacyMods;
+                swEnableLegacyInjection.IsEnabled = ProfileManager.CanUseLiveLegacyMods;
 
-                btnLaunchFIFAInEditor.IsEnabled = ProfilesLibrary.EnableExecution;
+                btnLaunchFIFAInEditor.IsEnabled = ProfileManager.EnableExecution;
 
                 UpdateWindowTitle("New Project");
 
@@ -808,11 +808,11 @@ namespace FIFAModdingUI.Windows
                 if (swEnableLegacyInjection.IsOn)
                 {
                     string legacyModSupportFile = null;
-                    if (ProfilesLibrary.IsFIFA20DataVersion())
+                    if (ProfileManager.IsFIFA20DataVersion())
                     {
                         legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA20Legacy.dll";
                     }
-                    else if (ProfilesLibrary.IsFIFA21DataVersion())
+                    else if (ProfileManager.IsFIFA21DataVersion())
                     {
                         legacyModSupportFile = Directory.GetParent(App.ApplicationDirectory) + @"\FIFA21Legacy.dll";
                     }

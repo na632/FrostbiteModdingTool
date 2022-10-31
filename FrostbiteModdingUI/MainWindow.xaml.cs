@@ -22,7 +22,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using static FrostySdk.ProfilesLibrary;
+using static FrostySdk.ProfileManager;
 
 //namespace FIFAModdingUI
 namespace FMT
@@ -44,7 +44,7 @@ namespace FMT
 
 #pragma warning disable CA1416 // Validate platform compatibility
                 if (profiles == null || !profiles.Any())
-                    profiles = ProfilesLibrary.EditorProfiles.ToList();
+                    profiles = ProfileManager.EditorProfiles.ToList();
                 return profiles;
 #pragma warning restore CA1416 // Validate platform compatibility
 
@@ -192,7 +192,7 @@ namespace FMT
         private void Tile_Click(object sender, RoutedEventArgs e)
         {
             Profile profile = (Profile)((Tile)sender).Tag;
-            ProfilesLibrary.LoadedProfile = profile;
+            ProfileManager.LoadedProfile = profile;
 
             var bS = new FindGameEXEWindow().ShowDialog();
             if (bS.HasValue && bS.Value == true && !string.IsNullOrEmpty(AppSettings.Settings.GameInstallEXEPath))

@@ -353,9 +353,9 @@ namespace FMT
                 LoadingDialog.Update("Launching", "Copying locale.ini");
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
-                if (ProfilesLibrary.IsFIFA21DataVersion() 
-                    || ProfilesLibrary.IsFIFA22DataVersion()
-                    || ProfilesLibrary.IsFIFA23DataVersion())
+                if (ProfileManager.IsFIFA21DataVersion() 
+                    || ProfileManager.IsFIFA22DataVersion()
+                    || ProfileManager.IsFIFA23DataVersion())
                 {
                     FileInfo localeIni = new FileInfo(GameInstanceSingleton.Instance.FIFALocaleINIPath);
                     if (localeIni.Exists)
@@ -470,7 +470,7 @@ namespace FMT
 
                                 legacyModSupportFile = ApplicationRunningLocation + @"\FIFA20Legacy.dll";
                             }
-                            else if (ProfilesLibrary.IsFIFA21DataVersion())// GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
+                            else if (ProfileManager.IsFIFA21DataVersion())// GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")
                             {
                                 LogSync("Legacy Injection - FIFA 21 found. Using FIFA.DLL.");
                                 legacyModSupportFile = ApplicationRunningLocation + @"\FIFA21Legacy.dll";
@@ -626,7 +626,7 @@ namespace FMT
             dialog.Multiselect = false;
             // remove zip as not compatible with *.fifamod / FIFA 21
             //dialog.Filter = "Mod files (*.zip, *.lmod, *.fbmod, *.fifamod)|*.zip;*.lmod;*.fbmod;*.fifamod";
-            var supportedFiles = ProfilesLibrary.SupportedLauncherFileTypes;
+            var supportedFiles = ProfileManager.SupportedLauncherFileTypes;
             var filter = "Mod files (*.fbmod)|*.fbmod";
             if (supportedFiles != null && supportedFiles.Count > 0)
             {
@@ -647,17 +647,27 @@ namespace FMT
             }
             dialog.Filter = filter;//"Mod files (*.lmod, *.fbmod, *.fifamod)|*.lmod;*.fbmod;*.fifamod";
             dialog.FilterIndex = 0;
-            dialog.ShowDialog(this);
-            var filePath = dialog.FileName;
-            if (!string.IsNullOrEmpty(filePath))
+            if (dialog.ShowDialog(this) == true)
             {
-                var mL = new Mods.ModList(Profile);
-                mL.ModListItems.Add(new ModList.ModItem(filePath));
-                mL.Save();
-                GetListOfModsAndOrderThem();
-
-                switchForceReinstallMods.IsEnabled = false;
-                switchForceReinstallMods.IsOn = true;
+                var filePath = dialog.FileName;
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    var mL = new Mods.ModList(Profile);
+                    try
+                    {
+                        var mli = new ModList.ModItem(filePath);
+                        var fbMod = mli.GetFrostbiteMod();
+                        mL.ModListItems.Add(mli);
+                        mL.Save();
+                        GetListOfModsAndOrderThem();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError(ex.ToString());
+                    }
+                    switchForceReinstallMods.IsEnabled = false;
+                    switchForceReinstallMods.IsOn = true;
+                }
             }
 
         }
@@ -720,13 +730,13 @@ namespace FMT
                 //btnOpenCEMWindow.IsEnabled = false;
                 // -------------------------------------
 
-                if (ProfilesLibrary.IsFIFA20DataVersion())
+                if (ProfileManager.IsFIFA20DataVersion())
                 {
                     switchUseSymbolicLink.Visibility = Visibility.Visible;
                     switchUseSymbolicLink.IsOn = false;
                 }
 
-                if (ProfilesLibrary.IsFIFA23DataVersion() && ProfilesLibrary.LoadedProfile.UseACBypass)
+                if (ProfileManager.IsFIFA23DataVersion() && ProfileManager.LoadedProfile.UseACBypass)
                 {
                     txtImportantMessage.Visibility = Visibility.Visible;
                     txtImportantMessage.Content = "FIFA 23 modding provided by Aranaktu's Live Editor!";
@@ -736,7 +746,7 @@ namespace FMT
                     txtImportantMessage.Visibility = Visibility.Collapsed;
                 }
 
-                switchUseModData.IsEnabled = ProfilesLibrary.LoadedProfile.CanUseModData;
+                switchUseModData.IsEnabled = ProfileManager.LoadedProfile.CanUseModData;
 
                 switchCleanLegacyModDirectory.IsOn = false;
                 switchCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
@@ -744,8 +754,8 @@ namespace FMT
                 switchUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchUseLegacyModSupport.IsOn = false;
 
-                switchInstallEmbeddedFiles.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
-                switchUseLiveEditor.IsEnabled = ProfilesLibrary.IsFIFA21DataVersion();
+                switchInstallEmbeddedFiles.IsEnabled = ProfileManager.IsFIFA21DataVersion();
+                switchUseLiveEditor.IsEnabled = ProfileManager.IsFIFA21DataVersion();
 
                 if (GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())
                 {
@@ -767,12 +777,12 @@ namespace FMT
 
                 launcherOptions = await LauncherOptions.LoadAsync();
                 switchUseModData.IsOn = launcherOptions.UseModData.HasValue 
-                                                ? launcherOptions.UseModData.Value : ProfilesLibrary.LoadedProfile.CanUseModData;
+                                                ? launcherOptions.UseModData.Value : ProfileManager.LoadedProfile.CanUseModData;
                 switchUseLegacyModSupport.IsOn = launcherOptions.UseLegacyModSupport.HasValue && GameInstanceSingleton.IsCompatibleWithLegacyMod()
                                                 ? launcherOptions.UseLegacyModSupport.Value : GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchInstallEmbeddedFiles.IsOn = launcherOptions.InstallEmbeddedFiles.HasValue ? launcherOptions.InstallEmbeddedFiles.Value : false;
                 switchUseLiveEditor.IsOn = launcherOptions.UseLiveEditor.HasValue ? launcherOptions.UseLiveEditor.Value : false;
-                btnLaunch.IsEnabled = ProfilesLibrary.LoadedProfile.CanLaunchMods;
+                btnLaunch.IsEnabled = ProfileManager.LoadedProfile.CanLaunchMods;
             }
 
             DataContext = null;
@@ -798,7 +808,7 @@ namespace FMT
 
         public void LogError(string text, params object[] vars)
         {
-            LogSync("[ERROR] " + text);
+            LogSync("[ERROR] " + text + Environment.NewLine);
             File.AppendAllText($"ErrorLog-{DateTime.Now.ToString("yyyy-MM-dd")}.txt", DateTime.Now.ToString() + " \n" + text);
         }
 
@@ -808,35 +818,43 @@ namespace FMT
 
         private void listMods_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (this.listMods != null && this.listMods.SelectedIndex != -1 && this.listMods.SelectedItem != null) {
-                var selectedIndex = this.listMods.SelectedIndex;
-                SelectedModListItem = this.listMods.SelectedItem as ModList.ModItem;
-                if (SelectedModListItem == null)
-                    return;
-
-                var selectedMod = SelectedModListItem.Path;
-
-                if (selectedMod.Contains(".zip"))
+            try
+            {
+                if (this.listMods != null && this.listMods.SelectedIndex != -1 && this.listMods.SelectedItem != null)
                 {
-                    txtModDescription.Text = "Includes the following mods: \n";
-                    using (FileStream fsModZipped = new FileStream(selectedMod, FileMode.Open))
+                    var selectedIndex = this.listMods.SelectedIndex;
+                    SelectedModListItem = this.listMods.SelectedItem as ModList.ModItem;
+                    if (SelectedModListItem == null)
+                        return;
+
+                    var selectedMod = SelectedModListItem.Path;
+
+                    if (selectedMod.Contains(".zip"))
                     {
-                        ZipArchive zipArchive = new ZipArchive(fsModZipped);
-                        foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
+                        txtModDescription.Text = "Includes the following mods: \n";
+                        using (FileStream fsModZipped = new FileStream(selectedMod, FileMode.Open))
                         {
-                            txtModDescription.Text += zaentr.Name + "\n";
+                            ZipArchive zipArchive = new ZipArchive(fsModZipped);
+                            foreach (var zaentr in zipArchive.Entries.Where(x => x.FullName.Contains(".fbmod")))
+                            {
+                                txtModDescription.Text += zaentr.Name + "\n";
+                            }
                         }
-                    }
 
-                    txtModAuthor.Text = "Multiple";
-                    txtModTitle.Text = selectedMod;
-                    FileInfo fiZip = new FileInfo(selectedMod);
-                    txtModVersion.Text = fiZip.CreationTime.ToString();
+                        txtModAuthor.Text = "Multiple";
+                        txtModTitle.Text = selectedMod;
+                        FileInfo fiZip = new FileInfo(selectedMod);
+                        txtModVersion.Text = fiZip.CreationTime.ToString();
+                    }
+                    else
+                    {
+                        SelectedFrostbiteMod = SelectedModListItem.GetFrostbiteMod();
+                    }
                 }
-                else
-                {
-                    SelectedFrostbiteMod = SelectedModListItem.GetFrostbiteMod();
-                }
+            }
+            catch(Exception ex)
+            {
+                LogError(ex.ToString());
             }
 
 

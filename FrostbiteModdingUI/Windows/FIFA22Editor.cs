@@ -20,7 +20,7 @@ namespace FMT.Windows
         {
             get
             {
-                var dir = ProfilesLibrary.GetModProfileParentDirectoryPath() + "\\FIFA22\\";
+                var dir = ProfileManager.GetModProfileParentDirectoryPath() + "\\FIFA22\\";
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
 

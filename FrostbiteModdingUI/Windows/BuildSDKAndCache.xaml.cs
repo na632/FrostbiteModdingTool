@@ -137,14 +137,14 @@ namespace FIFAModdingUI.Windows
             if (!GameInstanceSingleton.Instance.INITIALIZED)
                 throw new Exception("Game has not been selected");
 
-            if (ProfilesLibrary.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
+            if (ProfileManager.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
             {
-                if (!File.Exists(ProfilesLibrary.CacheName + ".cache"))
+                if (!File.Exists(ProfileManager.CacheName + ".cache"))
                 {
                     return true;
                 }
 
-                if (ProfilesLibrary.RequiresKey)
+                if (ProfileManager.RequiresKey)
                 {
                     byte[] array;
 
@@ -171,7 +171,7 @@ namespace FIFAModdingUI.Windows
 
                     bool patched = false;
 
-                    foreach (FileSystemSource source in ProfilesLibrary.Sources)
+                    foreach (FileSystemSource source in ProfileManager.Sources)
                     {
                         FileSystem.AddSource(source.Path, source.SubDirs);
                         if (source.Path.ToLower().Contains("patch"))
@@ -183,7 +183,7 @@ namespace FIFAModdingUI.Windows
                     //using (NativeReader nativeReader = new NativeReader(new FileStream(ProfilesLibrary.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
                     using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
                     {
-                        if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
+                        if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
                         {
                             return true;
                         }

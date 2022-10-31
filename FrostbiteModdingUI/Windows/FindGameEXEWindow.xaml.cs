@@ -36,12 +36,12 @@ namespace FrostbiteModdingUI.Windows
             get
             {
 
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey($"Software\\EA Sports\\{ProfilesLibrary.DisplayName}"))
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey($"Software\\EA Sports\\{ProfileManager.DisplayName}"))
                 {
                     if (key != null)
                     {
                         string installDir = key.GetValue("Install Dir").ToString();
-                        return installDir + $"{ProfilesLibrary.ProfileName}.exe";
+                        return installDir + $"{ProfileManager.ProfileName}.exe";
                     }
                 }
                 return string.Empty;
@@ -117,8 +117,8 @@ namespace FrostbiteModdingUI.Windows
                     //    throw new Exception("Unable to Initialize Profile");
                     //}
                     DialogResult = true;
-                    Directory.CreateDirectory(System.IO.Path.Combine(modProfileDirectory, ProfilesLibrary.ProfileName));
-                    File.WriteAllText(System.IO.Path.Combine(modProfileDirectory, ProfilesLibrary.ProfileName, "LastLocation.json"), filePath);
+                    Directory.CreateDirectory(System.IO.Path.Combine(modProfileDirectory, ProfileManager.ProfileName));
+                    File.WriteAllText(System.IO.Path.Combine(modProfileDirectory, ProfileManager.ProfileName, "LastLocation.json"), filePath);
                 }
                 else
                 {

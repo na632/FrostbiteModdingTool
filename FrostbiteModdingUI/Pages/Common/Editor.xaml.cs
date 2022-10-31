@@ -144,6 +144,11 @@ namespace FIFAModdingUI.Pages.Common
                 return "";
             }
 
+			public bool IsReadOnly
+			{
+				get { return !Property.CanWrite || Property.PropertyType.GetType().Name.Contains("CString", StringComparison.OrdinalIgnoreCase); }
+			}
+
 			public bool HasPropertyDescription
 			{
 				get

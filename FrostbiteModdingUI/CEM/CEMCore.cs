@@ -3,6 +3,7 @@ using FifaLibrary;
 using FrostbiteModdingUI.CEM;
 using FrostbiteSdk;
 using Frosty;
+using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using System;
