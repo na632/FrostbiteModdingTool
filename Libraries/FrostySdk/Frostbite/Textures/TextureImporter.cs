@@ -155,7 +155,7 @@ namespace Frostbite.Textures
 			Enum.Parse(imageFormat.GetType(), extension);
 
 			MemoryStream memoryStream = null;
-			TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
 			if (extension == "DDS")
 			{
 				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(path, FileMode.Open, FileAccess.Read)));
@@ -199,7 +199,7 @@ namespace Frostbite.Textures
 			Enum.Parse(imageFormat.GetType(), extension);
 
 			MemoryStream memoryStream = null;
-			TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
 			if (extension == "DDS")
 			{
 				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(path, FileMode.Open, FileAccess.Read)));
@@ -247,7 +247,7 @@ namespace Frostbite.Textures
 			Enum.Parse(imageFormat.GetType(), extension);
 
 			MemoryStream memoryStream = null;
-			TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+			//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
 			if (extension == "DDS")
 			{
 				memoryStream = new MemoryStream(NativeReader.ReadInStream(new FileStream(path, FileMode.Open, FileAccess.Read)));
@@ -270,46 +270,46 @@ namespace Frostbite.Textures
 					TextureUtils.DDSHeader dDSHeader = new TextureUtils.DDSHeader();
 					if (dDSHeader.Read(nativeReader))
 					{
-						TextureType textureType = TextureType.TT_2d;
-						if (dDSHeader.HasExtendedHeader)
-						{
-							if ((int)dDSHeader.ExtendedHeader.resourceDimension == 3)
-							{
-								if ((dDSHeader.ExtendedHeader.miscFlag & 4) != 0)
-								{
-									textureType = TextureType.TT_Cube;
-								}
-								else if (dDSHeader.ExtendedHeader.arraySize > 1)
-								{
-									textureType = TextureType.TT_2dArray;
-								}
-							}
-							else if ((int)dDSHeader.ExtendedHeader.resourceDimension == 4)
-							{
-								textureType = TextureType.TT_3d;
-							}
-						}
-						else if ((dDSHeader.dwCaps2 & TextureUtils.DDSCaps2.CubeMap) != 0)
-						{
-							textureType = TextureType.TT_Cube;
-						}
-						else if ((dDSHeader.dwCaps2 & TextureUtils.DDSCaps2.Volume) != 0)
-						{
-							textureType = TextureType.TT_3d;
-						}
+						//TextureType textureType = TextureType.TT_2d;
+						//if (dDSHeader.HasExtendedHeader)
+						//{
+						//	if ((int)dDSHeader.ExtendedHeader.resourceDimension == 3)
+						//	{
+						//		if ((dDSHeader.ExtendedHeader.miscFlag & 4) != 0)
+						//		{
+						//			textureType = TextureType.TT_Cube;
+						//		}
+						//		else if (dDSHeader.ExtendedHeader.arraySize > 1)
+						//		{
+						//			textureType = TextureType.TT_2dArray;
+						//		}
+						//	}
+						//	else if ((int)dDSHeader.ExtendedHeader.resourceDimension == 4)
+						//	{
+						//		textureType = TextureType.TT_3d;
+						//	}
+						//}
+						//else if ((dDSHeader.dwCaps2 & TextureUtils.DDSCaps2.CubeMap) != 0)
+						//{
+						//	textureType = TextureType.TT_Cube;
+						//}
+						//else if ((dDSHeader.dwCaps2 & TextureUtils.DDSCaps2.Volume) != 0)
+						//{
+						//	textureType = TextureType.TT_3d;
+						//}
 						//if (textureType != textureAsset.Type)
 						//{
 						//	message = $"Imported texture must match original texture type. Original texture type is {textureAsset.Type}. Imported texture type is {textureType}";
 						//	return;
 						//}
 
-						var texAssetType = TextureType.TT_2d;
-						var mipMaps = 1;
-						if (textureAsset.Type != TextureType.TT_2dArray && textureAsset.Type != TextureType.TT_3d)
-						{
-							texAssetType = textureAsset.Type;
-							mipMaps = 1;
-						}
+						//var texAssetType = TextureType.TT_2d;
+						//var mipMaps = 1;
+						//if (textureAsset.Type != TextureType.TT_2dArray && textureAsset.Type != TextureType.TT_3d)
+						//{
+						//	texAssetType = textureAsset.Type;
+						//	mipMaps = 1;
+						//}
 
 						string pixelFormat = "";
 						TextureFlags flags = (TextureFlags)0;
