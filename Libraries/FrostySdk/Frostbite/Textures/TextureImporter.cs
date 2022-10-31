@@ -27,7 +27,7 @@ namespace Frostbite.Textures
 		public bool Import(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
 		{
 			bool run = false;
-			if (ProfilesLibrary.TextureImporter == null)
+			if (ProfileManager.TextureImporter == null)
             {
 				DoImport(path, assetEntry, ref textureAsset);
 				run = true;
@@ -45,7 +45,7 @@ namespace Frostbite.Textures
 							{
 								try
 								{
-									if (t.Name == ProfilesLibrary.TextureImporter)
+									if (t.Name == ProfileManager.TextureImporter)
 									{
 										((ITextureImporter)Activator.CreateInstance(t)).DoImport(path, assetEntry, ref textureAsset);
 										run = true;
@@ -527,7 +527,7 @@ namespace Frostbite.Textures
 							}
 							array8 = memoryStream3.ToArray();
 						}
-						if (ProfilesLibrary.MustAddChunks && chunkEntry.Bundles.Count == 0 && !chunkEntry.IsAdded)
+						if (ProfileManager.MustAddChunks && chunkEntry.Bundles.Count == 0 && !chunkEntry.IsAdded)
 						{
 							textureAsset.ChunkId = assetManager.AddChunk(array8, null, ((texture.Flags & TextureFlags.OnDemandLoaded) != 0) ? null : texture);
 							chunkEntry = assetManager.GetChunkEntry(textureAsset.ChunkId);

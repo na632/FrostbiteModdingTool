@@ -16,17 +16,17 @@ namespace FIFA21Plugin
         public static void Save()
         {
             var json = JsonConvert.SerializeObject(CachingSBs);
-            if (File.Exists(ProfilesLibrary.ProfileName + ".CachingSBData.cache"))
-                File.Delete(ProfilesLibrary.ProfileName + ".CachingSBData.cache");
+            if (File.Exists(ProfileManager.ProfileName + ".CachingSBData.cache"))
+                File.Delete(ProfileManager.ProfileName + ".CachingSBData.cache");
 
-            File.WriteAllText(ProfilesLibrary.ProfileName + ".CachingSBData.cache", json);
+            File.WriteAllText(ProfileManager.ProfileName + ".CachingSBData.cache", json);
         }
 
         public static List<CachingSBData> Load()
         {
-            if (File.Exists(ProfilesLibrary.ProfileName + ".CachingSBData.cache"))
+            if (File.Exists(ProfileManager.ProfileName + ".CachingSBData.cache"))
             {
-                CachingSBs = JsonConvert.DeserializeObject<List<CachingSBData>>(File.ReadAllText(ProfilesLibrary.ProfileName + ".CachingSBData.cache"));
+                CachingSBs = JsonConvert.DeserializeObject<List<CachingSBData>>(File.ReadAllText(ProfileManager.ProfileName + ".CachingSBData.cache"));
 
                 return CachingSBs;
             }

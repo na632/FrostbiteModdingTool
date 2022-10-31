@@ -15,12 +15,12 @@ namespace SdkGenerator.FIFA18
             if (!string.IsNullOrEmpty(name) && name.Length > 0)
             {
                 flags = reader.ReadUShort();
-                if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180914 || ProfileManager.IsMadden20DataVersion() || ProfileManager.DataVersion == 20180628)
                 {
                     flags >>= 1;
                 }
                 size = reader.ReadUInt();
-                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion())
+                if (ProfileManager.DataVersion == 20180914 || ProfileManager.IsMadden20DataVersion())
                 {
                     reader.Position -= 4L;
                     size = reader.ReadUShort();
@@ -29,7 +29,7 @@ namespace SdkGenerator.FIFA18
                 }
                 padding1 = reader.ReadUShort();
                 long position = reader.ReadLong();
-                if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20160927 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180914 || ProfileManager.DataVersion == 20171117 || ProfileManager.IsMadden20DataVersion() || ProfileManager.DataVersion == 20180628)
                 {
                     reader.ReadLong();
                 }
@@ -48,7 +48,7 @@ namespace SdkGenerator.FIFA18
                 reader.Position = position;
                 nameSpace = reader.ReadNullTerminatedString();
                 bool flag2 = false;
-                if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180628)
                 {
                     parentClass = array[0];
                     if (Type == 2)

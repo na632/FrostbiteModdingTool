@@ -659,7 +659,7 @@ namespace FrostySdk.IO._2022.Readers
 					{
 						int num = base.ReadInt32LittleEndian();
 						//if (base.magic == EbxVersion.Riff)
-						{
+						//{
                             if (num == 0)
                             {
                                 return default(PointerRef);
@@ -675,25 +675,25 @@ namespace FrostySdk.IO._2022.Readers
                             long offset = base.Position - 4 + num;
                             offset -= payloadPosition;
                             return new PointerRef(importOffsets.Find((uint o) => o == offset));
-                        }
-						if (num >> 31 == 1)
-						{
-							EbxImportReference ebxImportReference = base.imports[(int)((long)num & 0x7FFFFFFFL)];
-							if (dontRefCount && !base.dependencies.Contains(ebxImportReference.FileGuid))
-							{
-								base.dependencies.Add(ebxImportReference.FileGuid);
-							}
-							return new PointerRef(ebxImportReference);
-						}
-						if (num == 0)
-						{
-							return default(PointerRef);
-						}
-						if (!dontRefCount)
-						{
-							base.refCounts[num - 1]++;
-						}
-						return new PointerRef(base.objects[num - 1]);
+                        //}
+						//if (num >> 31 == 1)
+						//{
+						//	EbxImportReference ebxImportReference = base.imports[(int)((long)num & 0x7FFFFFFFL)];
+						//	if (dontRefCount && !base.dependencies.Contains(ebxImportReference.FileGuid))
+						//	{
+						//		base.dependencies.Add(ebxImportReference.FileGuid);
+						//	}
+						//	return new PointerRef(ebxImportReference);
+						//}
+						//if (num == 0)
+						//{
+						//	return default(PointerRef);
+						//}
+						//if (!dontRefCount)
+						//{
+						//	base.refCounts[num - 1]++;
+						//}
+						//return new PointerRef(base.objects[num - 1]);
 					}
 				case EbxFieldType.String:
 					return base.ReadSizedString(32);

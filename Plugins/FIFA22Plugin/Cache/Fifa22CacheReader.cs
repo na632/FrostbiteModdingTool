@@ -19,7 +19,7 @@ namespace FIFA22Plugin.Cache
 			//using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
 			using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
 			{
-				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
+				if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
 					return false;
 
 				var cacheHead = nativeReader.ReadULong();
@@ -28,7 +28,7 @@ namespace FIFA22Plugin.Cache
 					flag = true;
 				}
 				int count = nativeReader.ReadInt();
-				if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+				if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
 				{
 					AssetManager.Instance.superBundles.Add(new SuperBundleEntry
 					{

@@ -151,9 +151,9 @@ namespace SdkGenerator
 					stringBuilder.AppendLine("public class Delegate_" + @class.GetValue<Guid>("guid").ToString().Replace('-', '_') + " { }\r\n}");
 				}
 			}
-            if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20140225
+            if (ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20131115 || ProfileManager.DataVersion == 20140225
 				 ||
-				ProfilesLibrary.IsBF4DataVersion()
+				ProfileManager.IsBF4DataVersion()
 				)
             {
                 DbObject dbObject2 = DbObject.CreateObject();
@@ -479,7 +479,7 @@ namespace SdkGenerator
 				bool flag = false;
 				foreach (int item in meta.GetValue<DbObject>("version"))
 				{
-					if (item == ProfilesLibrary.DataVersion)
+					if (item == ProfileManager.DataVersion)
 					{
 						flag = true;
 						break;
@@ -557,7 +557,7 @@ namespace SdkGenerator
 			{
 				stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + classObj.GetValue<uint>("nameHash") + ")]");
 			}
-			if (ProfilesLibrary.DataVersion == 20171117)// || ProfilesLibrary.IsFIFA21DataVersion())// || ProfilesLibrary.IsMadden21DataVersion())
+			if (ProfileManager.DataVersion == 20171117)// || ProfilesLibrary.IsFIFA21DataVersion())// || ProfilesLibrary.IsMadden21DataVersion())
 			{
 				stringBuilder.AppendLine("[" + typeof(RuntimeSizeAttribute).Name + "(" + classObj.GetValue("runtimeSize", 0) + ")]");
 			}

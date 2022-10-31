@@ -5,6 +5,7 @@ using FrostySdk.Ebx;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using FrostySdk.ThirdParty;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -24,10 +25,10 @@ namespace FrostySdk
 		{
 			get
 			{
-                if (ProfilesLibrary.IsFIFADataVersion()
-                    || ProfilesLibrary.IsFIFA21DataVersion()
-                    || ProfilesLibrary.IsFIFA22DataVersion()
-                    || ProfilesLibrary.IsFIFA23DataVersion()
+                if (ProfileManager.IsFIFADataVersion()
+                    || ProfileManager.IsFIFA21DataVersion()
+                    || ProfileManager.IsFIFA22DataVersion()
+                    || ProfileManager.IsFIFA23DataVersion()
 					)
                 {
                     return 262144;
@@ -391,7 +392,7 @@ namespace FrostySdk
 					remainingByteCount -= bufferSize;
 					totalBytesRead += bufferSize;
 					//if (dataVersion == DataVersion.Madden22 || dataVersion == DataVersion.Madden23)
-					if (ProfilesLibrary.IsMadden22DataVersion())
+					if (ProfileManager.IsMadden22DataVersion())
 					{
 						totalBytesWritten += (long)(compressedSize + 8);
 					}
@@ -406,7 +407,7 @@ namespace FrostySdk
 							texture.SecondMipOffset = (uint)totalBytesWritten;
 						}
 					}
-					if (!ProfilesLibrary.IsMadden22DataVersion())
+					if (!ProfileManager.IsMadden22DataVersion())
 					{
 						totalBytesWritten += (long)(compressedSize + 8);
 					}

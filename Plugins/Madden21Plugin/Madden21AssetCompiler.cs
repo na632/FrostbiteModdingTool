@@ -101,7 +101,7 @@ namespace Madden21Plugin
             if (ModExecuter.modifiedLegacy.Count > 0)
             {
                 BuildCache buildCache = new BuildCache();
-                buildCache.LoadData(ProfilesLibrary.ProfileName, ModExecuter.GamePath, ModExecuter.Logger, false, true); ;
+                buildCache.LoadData(ProfileManager.ProfileName, ModExecuter.GamePath, ModExecuter.Logger, false, true); ;
 
                 ModExecuter.Logger.Log($"Legacy :: {ModExecuter.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
 
@@ -161,7 +161,7 @@ namespace Madden21Plugin
             ModExecuter = (ModExecutor)modExecuter;
             // ------------------------------------------------------------------------------------------
             // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
-            if (ProfilesLibrary.IsMadden21DataVersion())
+            if (ProfileManager.IsMadden21DataVersion())
             {
                 if (UseModData)
                 {

@@ -19,7 +19,7 @@ namespace FrostySdk.IO
 			EbxReader reader = new EbxReader(stream);
 			foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
 			{
-				Type t = a.GetTypes().FirstOrDefault(x => x.Name == ProfilesLibrary.EBXReader);
+				Type t = a.GetTypes().FirstOrDefault(x => x.Name == ProfileManager.EBXReader);
 				if (t != null)
 				{
 					reader = (EbxReader)Activator.CreateInstance(t, stream);

@@ -122,7 +122,7 @@ namespace FrostySdk.IO
 				ProcessType(i);
 			}
 			ProcessData();
-			Write((ProfilesLibrary.EbxVersion == 4) ? 263508430 : 263377358);
+			Write((ProfileManager.EbxVersion == 4) ? 263508430 : 263377358);
 			Write(0);
 			Write(0);
 			Write(imports.Count);
@@ -136,7 +136,7 @@ namespace FrostySdk.IO
 			Write(arrays.Count);
 			Write(0);
 			Write(fileGuid);
-			if (ProfilesLibrary.EbxVersion == 4)
+			if (ProfileManager.EbxVersion == 4)
 			{
 				Write(3735928559u);
 				Write(3735928559u);
@@ -161,7 +161,7 @@ namespace FrostySdk.IO
 			foreach (EbxField fieldType in fieldTypes)
 			{
 				ushort num6 = fieldType.Type;
-				if (ProfilesLibrary.EbxVersion == 4)
+				if (ProfileManager.EbxVersion == 4)
 				{
 					num6 = (ushort)(num6 << 1);
 				}
@@ -174,7 +174,7 @@ namespace FrostySdk.IO
 			foreach (EbxClass classType in classTypes)
 			{
 				ushort num7 = classType.Type;
-				if (ProfilesLibrary.EbxVersion == 4)
+				if (ProfileManager.EbxVersion == 4)
 				{
 					num7 = (ushort)(num7 << 1);
 				}
@@ -257,7 +257,7 @@ namespace FrostySdk.IO
 				Write(arrays[n].Count);
 				Write(arrays[n].ClassRef);
 			}
-			if (ProfilesLibrary.EbxVersion == 4)
+			if (ProfileManager.EbxVersion == 4)
 			{
 				BaseStream.Position = 56L;
 				Write(boxedValueRefs.Count);
@@ -492,7 +492,7 @@ namespace FrostySdk.IO
 				{
 					ushort classRef = (ushort)FindExistingClass(type.BaseType);
 					value.FieldCount++;
-					if (ProfilesLibrary.EbxVersion == 2)
+					if (ProfileManager.EbxVersion == 2)
 					{
 						AddField("$", 0, classRef, (uint)((value.Alignment < 8) ? 8 : value.Alignment), 0u);
 					}

@@ -18,7 +18,7 @@ namespace FIFA23Plugin.Cache
             //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
             using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
-                nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
+                nativeWriter.WriteLengthPrefixedString(ProfileManager.ProfileName);
                 nativeWriter.Write(fs.SystemIteration);
 
                 var stuffOffsetPositions = nativeWriter.Position;

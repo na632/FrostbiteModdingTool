@@ -124,7 +124,7 @@ namespace FIFA22Plugin
 
 						}
 
-						if (ProfilesLibrary.IsFIFA21DataVersion())
+						if (ProfileManager.IsFIFA21DataVersion())
 						{
 							nativeReader.Position = chunkBatch.BootableItemOffset;
 							for (uint j = 0u; j < chunkBatch.BootableItemCount; j++)

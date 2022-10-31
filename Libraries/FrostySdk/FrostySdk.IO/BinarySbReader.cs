@@ -78,7 +78,7 @@ namespace FrostySdk.IO
 			stringsOffset = ReadUInt(Endian.Big) - 36;
 			metaOffset = ReadUInt(Endian.Big) - 36;
 			metaSize = ReadUInt(Endian.Big);
-			byte[] array = (ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190905) ? ReadToEnd() : ReadBytes((int)(size - Position));
+			byte[] array = (ProfileManager.DataVersion == 20181207 || ProfileManager.DataVersion == 20190905) ? ReadToEnd() : ReadBytes((int)(size - Position));
 			switch (num2)
 			{
 				case 3280507699u:

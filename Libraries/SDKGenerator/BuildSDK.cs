@@ -3,6 +3,7 @@ using Frosty;
 using FrostyEditor.IO;
 using FrostyEditor.Windows;
 using FrostySdk;
+using FrostySdk.Frostbite;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using System;
@@ -41,7 +42,7 @@ namespace SdkGenerator
             }
         }
 
-		public string ProcessName = ProfilesLibrary.ProfileName;
+		public string ProcessName = ProfileManager.ProfileName;
 		public string OverrideProfileName = null;
 
 		public Process GetProcess()
@@ -110,7 +111,7 @@ namespace SdkGenerator
 
 			if (SdkProcess != null)
 			{
-				ProfilesLibrary.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName : OverrideProfileName);
+				ProfileManager.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName : OverrideProfileName);
 
 				Debug.WriteLine($"Process Found {SdkProcess.ProcessName}");
 				Trace.WriteLine($"Process Found {SdkProcess.ProcessName}");
@@ -254,19 +255,19 @@ namespace SdkGenerator
 
                     };
 
-                    if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKAOBScan))
+                    if (!string.IsNullOrEmpty(ProfileManager.LoadedProfile.SDKAOBScan))
                     {
 						patterns.Clear();
-						patterns.Insert(0, ProfilesLibrary.LoadedProfile.SDKAOBScan);
-						Debug.WriteLine("Attempting to use Profile Pattern :: " + ProfilesLibrary.LoadedProfile.SDKAOBScan);
+						patterns.Insert(0, ProfileManager.LoadedProfile.SDKAOBScan);
+						Debug.WriteLine("Attempting to use Profile Pattern :: " + ProfileManager.LoadedProfile.SDKAOBScan);
 					}
 
 
-					if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo))
+					if (!string.IsNullOrEmpty(ProfileManager.LoadedProfile.SDKFirstTypeInfo))
 					{
-						sdkUpdateState.TypeInfoOffset = Convert.ToInt64(ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo, 16);
+						sdkUpdateState.TypeInfoOffset = Convert.ToInt64(ProfileManager.LoadedProfile.SDKFirstTypeInfo, 16);
 
-						Debug.WriteLine("Attempting to use Profile TypeInfoOffset :: " + ProfilesLibrary.LoadedProfile.SDKFirstTypeInfo);
+						Debug.WriteLine("Attempting to use Profile TypeInfoOffset :: " + ProfileManager.LoadedProfile.SDKFirstTypeInfo);
 					}
 					else
 					{

@@ -18,7 +18,7 @@ namespace FrostySdk.IO
 		{
 			if (writeHeader)
 			{
-				Write((ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20150223 || ProfilesLibrary.DataVersion == 20131115) ? 63885568 : 30331136);
+				Write((ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103 || ProfileManager.DataVersion == 20150223 || ProfileManager.DataVersion == 20131115) ? 63885568 : 30331136);
 				Write(new byte[552]);
 			}
 			Write(WriteDbObject("", inObj));

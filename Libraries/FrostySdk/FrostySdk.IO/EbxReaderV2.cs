@@ -24,18 +24,18 @@ namespace FrostySdk.IO
 
 		public static void InitialiseStd()
 		{
-			if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
+			if (!string.IsNullOrEmpty(ProfileManager.EBXTypeDescriptor))
 			{
 				if (std == null)
 				{
-					std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+					std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
 						, AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", false);
 					//std = new EbxSharedTypeDescriptorV2(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);
 				}
 
 				if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
 				{
-					patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+					patchStd = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
 						, AssetManager.Instance.fs, "SharedTypeDescriptors_patch.ebx", true);
 				}
 
@@ -50,7 +50,7 @@ namespace FrostySdk.IO
 
 				if (std == null)
 				{
-					if (ProfilesLibrary.IsFIFA19DataVersion())
+					if (ProfileManager.IsFIFA19DataVersion())
 						std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "Dictionaries/ebx.dict", patch: false);
 					else
 						std = new EbxSharedTypeDescriptors(AssetManager.Instance.fs, "SharedTypeDescriptors.ebx", patch: false);

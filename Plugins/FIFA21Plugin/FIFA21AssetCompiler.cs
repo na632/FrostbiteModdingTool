@@ -37,7 +37,7 @@ namespace FIFA21Plugin
             base.Compile(fs, logger, modExecuter);
 
             DateTime dtStarted = DateTime.Now;
-            if (!ProfilesLibrary.IsFIFA21DataVersion())
+            if (!ProfileManager.IsFIFA21DataVersion())
             {
                 logger.Log("[ERROR] Wrong compiler used for Game");
                 return false;
@@ -263,7 +263,7 @@ namespace FIFA21Plugin
             if (AssetManager.Instance == null)
             {
                 BuildCache buildCache = new BuildCache();
-                buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true);
+                buildCache.LoadData(ProfileManager.ProfileName, parent.GamePath, parent.Logger, false, true);
             }
 
             parent.Logger.Log("Loading Cached Super Bundles.");

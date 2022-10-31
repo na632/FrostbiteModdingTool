@@ -222,7 +222,7 @@ namespace FrostySdk.Frostbite.IO.Output
 				}
 
 				reader.Position = 0;
-				var debugMeshesChunkDataPath = "MeshesChunkData_" + ProfilesLibrary.ProfileName + ".dat";
+				var debugMeshesChunkDataPath = "MeshesChunkData_" + ProfileManager.ProfileName + ".dat";
 				if(File.Exists(debugMeshesChunkDataPath))
 					File.Delete(debugMeshesChunkDataPath);
 
@@ -250,14 +250,14 @@ namespace FrostySdk.Frostbite.IO.Output
 						boneList.Add(num);
 					}
 				}
-				if (ProfilesLibrary.DataVersion == 20160927
-					|| ProfilesLibrary.DataVersion == 20170929
-					|| ProfilesLibrary.DataVersion == 20180807
-					|| ProfilesLibrary.DataVersion == 20180914
-					|| ProfilesLibrary.DataVersion == 20180628
-					|| ProfilesLibrary.IsFIFA20DataVersion()
-					|| ProfilesLibrary.IsFIFA21DataVersion()
-					|| ProfilesLibrary.IsFIFA22DataVersion()
+				if (ProfileManager.DataVersion == 20160927
+					|| ProfileManager.DataVersion == 20170929
+					|| ProfileManager.DataVersion == 20180807
+					|| ProfileManager.DataVersion == 20180914
+					|| ProfileManager.DataVersion == 20180628
+					|| ProfileManager.IsFIFA20DataVersion()
+					|| ProfileManager.IsFIFA21DataVersion()
+					|| ProfileManager.IsFIFA22DataVersion()
 					)
 				{
 					boneList.Clear();

@@ -68,9 +68,9 @@ namespace SdkGenerator
             var executingAssembly = Assembly.GetExecutingAssembly();
             var names = executingAssembly.GetManifestResourceNames();
 
-            if (!string.IsNullOrEmpty(ProfilesLibrary.SDKClassesFile))
+            if (!string.IsNullOrEmpty(ProfileManager.SDKClassesFile))
             {
-                var classesTxtFilePath = AppContext.BaseDirectory + "/SdkGen/" + ProfilesLibrary.SDKClassesFile;
+                var classesTxtFilePath = AppContext.BaseDirectory + "/SdkGen/" + ProfileManager.SDKClassesFile;
                 using (FileStream stream = new FileStream(classesTxtFilePath, FileMode.Open))
                 {
                     if (stream != null)
@@ -81,7 +81,7 @@ namespace SdkGenerator
             }
             else 
             { 
-                if (ProfilesLibrary.IsMadden21DataVersion())
+                if (ProfileManager.IsMadden21DataVersion())
                 {
                     using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/M21.Classes.txt", FileMode.Open))
                     {
@@ -94,7 +94,7 @@ namespace SdkGenerator
              
                 //else
                 //{
-                if (ProfilesLibrary.IsFIFA20DataVersion())
+                if (ProfileManager.IsFIFA20DataVersion())
                 {
                     using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA20.Classes.txt", FileMode.Open))
                     {
@@ -282,7 +282,7 @@ namespace SdkGenerator
             }
             if (File.Exists("EbxClasses.dll"))
             {
-                FileInfo fileInfo = new FileInfo(".\\TmpProfiles\\" + ProfilesLibrary.SDKFilename + ".dll");
+                FileInfo fileInfo = new FileInfo(".\\TmpProfiles\\" + ProfileManager.SDKFilename + ".dll");
                 if (!fileInfo.Directory.Exists)
                 {
                     Directory.CreateDirectory(fileInfo.Directory.FullName);
@@ -338,9 +338,9 @@ namespace SdkGenerator
             }
             IEbxSharedTypeDescriptor std = null;
             //EbxSharedTypeDescriptorV2 std;
-            if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
+            if (!string.IsNullOrEmpty(ProfileManager.EBXTypeDescriptor))
             {
-                std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfilesLibrary.EBXTypeDescriptor
+                std = (IEbxSharedTypeDescriptor)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXTypeDescriptor
                         , FileSystem.Instance, name, name.Contains("patch", StringComparison.OrdinalIgnoreCase));
             }
             //else
@@ -486,7 +486,7 @@ namespace SdkGenerator
 
         private void LoadSharedTypeDescriptors(string name, Dictionary<string, Tuple<EbxClass, DbObject>> mapping, ref List<Guid> existingClasses)
         {
-            if (!string.IsNullOrEmpty(ProfilesLibrary.EBXTypeDescriptor))
+            if (!string.IsNullOrEmpty(ProfileManager.EBXTypeDescriptor))
             {
                 LoadSharedTypeDescriptors2(name, mapping, ref existingClasses);
                 return;
@@ -743,7 +743,7 @@ namespace SdkGenerator
                     }
                 }
             }
-            if (!ProfilesLibrary.IsFIFA22DataVersion())
+            if (!ProfileManager.IsFIFA22DataVersion())
             {
                 while (offset % (int)pclass.Alignment != 0)
                 {
@@ -788,9 +788,9 @@ namespace SdkGenerator
             //string typeStr = "SdkGenerator.Madden20.ClassInfo";
             string typeStr = "SdkGenerator.BaseInfo.ClassInfo";
 
-            if (!string.IsNullOrEmpty(ProfilesLibrary.SDKGeneratorClassInfoType))
+            if (!string.IsNullOrEmpty(ProfileManager.SDKGeneratorClassInfoType))
             {
-                typeStr = ProfilesLibrary.SDKGeneratorClassInfoType;
+                typeStr = ProfileManager.SDKGeneratorClassInfoType;
             }
             else
             {
@@ -808,19 +808,19 @@ namespace SdkGenerator
                 //    str = "FrostyEditor.Madden20.";
                 //}
                 //else 
-                switch (ProfilesLibrary.DataVersion)
+                switch (ProfileManager.DataVersion)
                 {
 
-                    case (int)ProfilesLibrary.DataVersions.FIFA19:
+                    case (int)ProfileManager.DataVersions.FIFA19:
                         typeStr = "SdkGenerator.BaseInfo.ClassInfo";
                         break;
-                    case (int)ProfilesLibrary.DataVersions.FIFA20:
+                    case (int)ProfileManager.DataVersions.FIFA20:
                         typeStr = "SdkGenerator.Madden20.ClassInfo";
                         break;
-                    case (int)ProfilesLibrary.DataVersions.MADDEN20:
+                    case (int)ProfileManager.DataVersions.MADDEN20:
                         typeStr = "SdkGenerator.Madden20.ClassInfo";
                         break;
-                    case (int)ProfilesLibrary.DataVersions.FIFA21:
+                    case (int)ProfileManager.DataVersions.FIFA21:
                         typeStr = "SdkGenerator.FIFA21.ClassInfo";
                         break;
                     //case (int)ProfilesLibrary.DataVersions.MADDEN21:

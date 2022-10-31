@@ -1,4 +1,5 @@
 using FrostySdk.Managers;
+using FrostySdk.ThirdParty;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -82,7 +83,7 @@ namespace FrostySdk.IO
 				useDictionary = true;
 			}
 			bool unobfuscateCode = ((compressType >> 7) & 1) != 0;
-			bool unobfuscate = unobfuscateCode && ProfilesLibrary.DataVersion == 20180914;
+			bool unobfuscate = unobfuscateCode && ProfileManager.DataVersion == 20180914;
 			var sw = (ushort)(compressType & 0x7F);
 			switch (sw)
 			{

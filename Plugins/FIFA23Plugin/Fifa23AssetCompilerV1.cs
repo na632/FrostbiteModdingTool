@@ -38,7 +38,7 @@ namespace FIFA23Plugin
             base.Compile(fs, logger, modExecuter);
 
             DateTime dtStarted = DateTime.Now;
-            if (!ProfilesLibrary.IsFIFA23DataVersion())
+            if (!ProfileManager.IsFIFA23DataVersion())
             {
                 logger.Log("[ERROR] Wrong compiler used for Game");
                 return false;
@@ -264,7 +264,7 @@ namespace FIFA23Plugin
             if (AssetManager.Instance == null)
             {
                 BuildCache buildCache = new BuildCache();
-                buildCache.LoadData(ProfilesLibrary.ProfileName, parent.GamePath, parent.Logger, false, true);
+                buildCache.LoadData(ProfileManager.ProfileName, parent.GamePath, parent.Logger, false, true);
             }
 
             parent.Logger.Log("Loading Cached Super Bundles.");

@@ -291,9 +291,9 @@ namespace Frostbite.FileManagers
 
 						}
 
-						if (ProfilesLibrary.IsFIFA21DataVersion()
-							 || ProfilesLibrary.IsFIFA22DataVersion()
-							 || ProfilesLibrary.IsFIFA23DataVersion()
+						if (ProfileManager.IsFIFA21DataVersion()
+							 || ProfileManager.IsFIFA22DataVersion()
+							 || ProfileManager.IsFIFA23DataVersion()
                             )
 						{
 							nativeReader.Position = chunkBatch.BootableItemOffset;
@@ -500,7 +500,7 @@ namespace Frostbite.FileManagers
 				//File.WriteAllBytes("_debug_legacy_new_" + chunkBatch.EbxAssetEntry.Name.Replace(@"/", "_") + ".dat", ms_newChunkBatch.ToArray());
 
 
-				AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, ms_newChunkBatch.ToArray(), null, ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Legacy));
+				AssetManager.Instance.ModifyChunk(chunkBatch.ChunkAssetEntry.Id, ms_newChunkBatch.ToArray(), null, ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Legacy));
 				//AssetManager.Instance.ModifyEbx(chunkBatch.EbxAssetEntry.Name, chunkBatch.EbxAsset);
 			}
 		}
@@ -626,7 +626,7 @@ namespace Frostbite.FileManagers
 
 			replaceFileEntries.ForEach(x => { if(x.ModifiedEntry != null && x.ModifiedEntry.ChunkId.HasValue) x.ModifiedEntry.ChunkId = null; });
 
-            CompressionType compressionType = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Legacy);
+            CompressionType compressionType = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Legacy);
 
             var edited = replaceFileEntries.GroupBy(x => x.ChunkId).ToDictionary(x => x.Key, x => x.ToList());
 			List<LegacyFileEntry> editedLegacyFilesByProcess = new List<LegacyFileEntry>();

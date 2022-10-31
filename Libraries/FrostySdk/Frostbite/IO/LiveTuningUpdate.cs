@@ -17,7 +17,7 @@ namespace FrostySdk.Frostbite.IO
             ReadFIFALiveTuningUpdate();
         }
 
-        public string FIFALiveTuningUpdatePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName, "onlinecache0", "attribdb.bin");
+        public string FIFALiveTuningUpdatePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfileManager.DisplayName, "onlinecache0", "attribdb.bin");
         public bool HasFIFALiveTuningUpdate => File.Exists(FIFALiveTuningUpdatePath);
         public Dictionary<string, (int, int)> LiveTuningUpdates { get; } = new Dictionary<string, (int, int)>();
 

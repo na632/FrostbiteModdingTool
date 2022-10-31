@@ -34,8 +34,8 @@ namespace SdkGenerator.BaseInfo
                 ClassesSdkCreator.offset = reader.ReadLong();
                 Guid guid = Guid.Empty;
                 if (
-                    ProfilesLibrary.IsFIFA19DataVersion() || 
-                    ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180628)
+                    ProfileManager.IsFIFA19DataVersion() || 
+                    ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20180628)
                 {
                     guid = reader.ReadGuid();
                 }
@@ -45,13 +45,13 @@ namespace SdkGenerator.BaseInfo
             //if (ProfilesLibrary.IsFIFA19DataVersion())
             //    reader.ReadUShort();
 
-            if (ProfilesLibrary.IsFIFA19DataVersion())
+            if (ProfileManager.IsFIFA19DataVersion())
             {
                 reader.ReadByte();
             }
 
             //isDataContainer = reader.ReadUShort();
-            isDataContainer = ProfilesLibrary.IsFIFA19DataVersion() ? reader.ReadByte() : reader.ReadUShort();
+            isDataContainer = ProfileManager.IsFIFA19DataVersion() ? reader.ReadByte() : reader.ReadUShort();
                 padding = new byte[4]
                 {
                     reader.ReadByte(),
@@ -63,7 +63,7 @@ namespace SdkGenerator.BaseInfo
                 reader.Position = position2;
                 typeInfo = new TypeInfo();
                 typeInfo.Read(reader);
-                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20180628)
                 {
                     typeInfo.guid = guid;
                 }

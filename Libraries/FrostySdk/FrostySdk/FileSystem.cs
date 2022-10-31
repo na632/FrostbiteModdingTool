@@ -134,8 +134,8 @@ namespace FrostySdk
 			{
 				basePath += @"\";
 			}
-			cacheName = ProfilesLibrary.CacheName;
-			deobfuscatorType = ProfilesLibrary.Deobfuscator;
+			cacheName = ProfileManager.CacheName;
+			deobfuscatorType = ProfileManager.Deobfuscator;
 
 			Instance = this;
 			LiveTuningUpdate.ReadFIFALiveTuningUpdate();
@@ -143,7 +143,7 @@ namespace FrostySdk
 			if (paths.Count == 0)
 			{
 				bool patched = false;
-				foreach (FileSystemSource source in ProfilesLibrary.Sources)
+				foreach (FileSystemSource source in ProfileManager.Sources)
 				{
 					FileSystem.Instance.AddSource(source.Path, source.SubDirs);
 					if (source.Path.ToLower().Contains("patch"))
@@ -161,7 +161,7 @@ namespace FrostySdk
 			if (KeyManager.Instance.HasKey("Key1"))
 				return KeyManager.Instance.GetKey("Key1");
 
-			if (ProfilesLibrary.RequiresKey)
+			if (ProfileManager.RequiresKey)
 			{
 				byte[] array;
 
@@ -261,7 +261,7 @@ namespace FrostySdk
 			if (filename.Contains("native_patch"))
 				resolvedPath = basePath + (checkModData ? "ModData\\" : "") + filename.Replace("native_patch", "Patch\\");
 
-			if(ProfilesLibrary.IsBF4DataVersion() && !Directory.Exists(Directory.GetParent(resolvedPath).FullName) && filename.Contains("native_patch"))
+			if(ProfileManager.IsBF4DataVersion() && !Directory.Exists(Directory.GetParent(resolvedPath).FullName) && filename.Contains("native_patch"))
             {
 				resolvedPath = basePath + (checkModData ? "ModData\\" : "") + filename.Replace("native_patch", "Update\\Patch\\Data\\");
 			}
@@ -824,9 +824,9 @@ namespace FrostySdk
 						{
 							DbObject dbObject = sbReader.ReadDbObject();
 							string newValue = manifestBundle.hash.ToString("x8");
-							if (ProfilesLibrary.SharedBundles.ContainsKey(manifestBundle.hash))
+							if (ProfileManager.SharedBundles.ContainsKey(manifestBundle.hash))
 							{
-								newValue = ProfilesLibrary.SharedBundles[manifestBundle.hash];
+								newValue = ProfileManager.SharedBundles[manifestBundle.hash];
 							}
 							dbObject.SetValue("name", newValue);
 							dbObject.SetValue("catalog", catalogInfo.Name);

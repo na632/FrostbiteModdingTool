@@ -1457,7 +1457,7 @@ namespace ModdingSupport
                     {
                         flag3 = true;
                     }
-                    if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20150223 && ProfilesLibrary.DataVersion != 20131115)
+                    if (ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103 && ProfileManager.DataVersion != 20150223 && ProfileManager.DataVersion != 20131115)
                     {
                         goto IL_0105;
                     }
@@ -1467,7 +1467,7 @@ namespace ModdingSupport
                         {
                             dbObject = dbReader.ReadDbObject();
                         }
-                        if (dbObject.GetValue("alwaysEmitSuperBundle", defaultValue: false) || ProfilesLibrary.DataVersion == 20150223)
+                        if (dbObject.GetValue("alwaysEmitSuperBundle", defaultValue: false) || ProfileManager.DataVersion == 20150223)
                         {
                             flag2 = true;
                         }
@@ -1506,7 +1506,7 @@ namespace ModdingSupport
                     ModBundleInfo modBundleInfo = parent.modifiedBundles[chunksBundleHash];
                     if (!flag2)
                     {
-                        if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
+                        if (ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103 || ProfileManager.DataVersion == 20131115)
                         {
                             if (flag3)
                             {
@@ -2305,7 +2305,7 @@ namespace ModdingSupport
                                 foreach (DbObject item38 in dbObject.GetValue<DbObject>("bundles"))
                                 {
                                     bool flag12 = false;
-                                    if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
+                                    if (ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103 || ProfileManager.DataVersion == 20131115)
                                     {
                                         flag12 = !item38.GetValue("delta", defaultValue: false);
                                     }
@@ -2369,7 +2369,7 @@ namespace ModdingSupport
                                                     {
                                                         item39.SetValue("idata", parent.archiveData[ebxAssetEntry3.Sha1].Data);
                                                     }
-                                                    if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
+                                                    if (ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103 || ProfileManager.DataVersion == 20131115)
                                                     {
                                                         item39.SetValue("casPatchType", 1);
                                                         item39.RemoveValue("baseSha1");
@@ -2430,7 +2430,7 @@ namespace ModdingSupport
                                                     {
                                                         item42.SetValue("idata", parent.archiveData[resAssetEntry2.Sha1].Data);
                                                     }
-                                                    if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
+                                                    if (ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103 || ProfileManager.DataVersion == 20131115)
                                                     {
                                                         item42.SetValue("casPatchType", 1);
                                                         item42.RemoveValue("baseSha1");
@@ -2498,7 +2498,7 @@ namespace ModdingSupport
                                                             item44.SetValue("rangeStart", (int)chunkAssetEntry8.RangeStart);
                                                             item44.SetValue("rangeEnd", (int)chunkAssetEntry8.RangeEnd);
                                                             dbObject47.GetValue<DbObject>("meta").RemoveValue("firstMip");
-                                                            if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180807)
+                                                            if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180807)
                                                             {
                                                                 item44.SetValue("bundledSize", (int)(chunkAssetEntry8.RangeEnd - chunkAssetEntry8.RangeStart));
                                                             }
@@ -2506,12 +2506,12 @@ namespace ModdingSupport
                                                         }
                                                         else
                                                         {
-                                                            if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
+                                                            if (ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103 || ProfileManager.DataVersion == 20131115)
                                                             {
                                                                 item44.RemoveValue("rangeStart");
                                                                 item44.RemoveValue("rangeEnd");
                                                             }
-                                                            if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180807)
+                                                            if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180807)
                                                             {
                                                                 item44.SetValue("bundledSize", (int)chunkAssetEntry8.Size);
                                                             }
@@ -2526,7 +2526,7 @@ namespace ModdingSupport
                                                         {
                                                             item44.RemoveValue("idata");
                                                         }
-                                                        if (ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103 || ProfilesLibrary.DataVersion == 20131115)
+                                                        if (ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103 || ProfileManager.DataVersion == 20131115)
                                                         {
                                                             item44.SetValue("casPatchType", 1);
                                                         }
@@ -2536,7 +2536,7 @@ namespace ModdingSupport
                                                             chunkEntries.Add(chunkAssetEntry8);
                                                         }
                                                     }
-                                                    num23 += ((ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180807) ? item44.GetValue("bundledSize", 0L) : item44.GetValue("size", 0L));
+                                                    num23 += ((ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180807) ? item44.GetValue("bundledSize", 0L) : item44.GetValue("size", 0L));
                                                 }
                                             }
                                         }
@@ -2565,12 +2565,12 @@ namespace ModdingSupport
                                                 dbObject49.SetValue("rangeStart", (int)chunkAssetEntry9.RangeStart);
                                                 dbObject49.SetValue("rangeEnd", (int)chunkAssetEntry9.RangeEnd);
                                                 dbObject48.GetValue<DbObject>("meta").SetValue("firstMip", chunkAssetEntry9.FirstMip);
-                                                if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180807)
+                                                if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180807)
                                                 {
                                                     dbObject49.SetValue("bundledSize", (int)(chunkAssetEntry9.RangeEnd - chunkAssetEntry9.RangeStart));
                                                 }
                                             }
-                                            else if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180807)
+                                            else if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180807)
                                             {
                                                 dbObject49.SetValue("bundledSize", (int)chunkAssetEntry9.Size);
                                             }
@@ -2587,9 +2587,9 @@ namespace ModdingSupport
                                             }
                                             dbObject41.GetValue<DbObject>("chunks").Add(dbObject49);
                                             dbObject41.GetValue<DbObject>("chunkMeta").Add(dbObject48);
-                                            num23 += ((ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180807) ? dbObject49.GetValue("bundledSize", 0L) : dbObject49.GetValue("size", 0L));
+                                            num23 += ((ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180807) ? dbObject49.GetValue("bundledSize", 0L) : dbObject49.GetValue("size", 0L));
                                         }
-                                        if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
+                                        if (ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103 && ProfileManager.DataVersion != 20131115)
                                         {
                                             dbObject41.SetValue("chunkBundleSize", num23);
                                             dbObject41.SetValue("resBundleSize", num24);
@@ -2597,7 +2597,7 @@ namespace ModdingSupport
                                             dbObject41.SetValue("dbxBundleSize", 0L);
                                         }
                                         dbObject41.SetValue("totalSize", num23 + num24 + num25);
-                                        if (ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20131115)
+                                        if (ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103 && ProfileManager.DataVersion != 20131115)
                                         {
                                             dbObject41.SetValue("dbxTotalSize", 0L);
                                         }
@@ -2765,8 +2765,8 @@ namespace ModdingSupport
         }
 
         public string GamePath { get { return fs.BasePath; } }
-        public string GameEXEPath { get { return Path.Combine(GamePath, ProfilesLibrary.ProfileName + ".exe"); } }
-        public string GameEXEPathNoExtension { get { return Path.Combine(GamePath, ProfilesLibrary.ProfileName); } }
+        public string GameEXEPath { get { return Path.Combine(GamePath, ProfileManager.ProfileName + ".exe"); } }
+        public string GameEXEPathNoExtension { get { return Path.Combine(GamePath, ProfileManager.ProfileName); } }
 
         public bool EADesktopIsInstalled
         {
@@ -2789,9 +2789,9 @@ namespace ModdingSupport
         public bool LaunchedViaEADesktop { get; set; } = false;
 
         public static bool UseACBypass { get; set; }
-            = ProfilesLibrary.IsFIFA23DataVersion()
+            = ProfileManager.IsFIFA23DataVersion()
             && FileSystem.Instance.Head <= 1572210
-            && ProfilesLibrary.LoadedProfile.UseACBypass;
+            && ProfileManager.LoadedProfile.UseACBypass;
         //public bool UseACBypass { get; set; } = false;
 
         public bool UseSymbolicLinks = false;
@@ -2870,7 +2870,7 @@ namespace ModdingSupport
             //    }
             //});
             //Process[] processes = Process.GetProcesses();
-            string profileName = ProfilesLibrary.ProfileName;
+            string profileName = ProfileManager.ProfileName;
             if(Process.GetProcesses().Any(x=>x.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase)))
                 throw new Exception("Game process is already running, please close and relaunch");
 
@@ -3313,9 +3313,9 @@ namespace ModdingSupport
                 //SymbolicLinkList.Clear();
 
 
-                var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfilesLibrary.AssetCompilerName);
-                if (pluginCompiler == null && !string.IsNullOrEmpty(ProfilesLibrary.AssetCompilerName))
-                    throw new NotImplementedException($"Could not find class {ProfilesLibrary.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
+                var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfileManager.AssetCompilerName);
+                if (pluginCompiler == null && !string.IsNullOrEmpty(ProfileManager.AssetCompilerName))
+                    throw new NotImplementedException($"Could not find class {ProfileManager.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
 
                 if (pluginCompiler != null)
                 {
@@ -3333,7 +3333,7 @@ namespace ModdingSupport
                             {
                                 //try
                                 //{
-                                if (t.Name == ProfilesLibrary.AssetCompilerName)
+                                if (t.Name == ProfileManager.AssetCompilerName)
                                 {
                                     Logger.Log("Attempting to load Compiler for " + GameEXEPath);
 
@@ -3354,7 +3354,7 @@ namespace ModdingSupport
                     }
                 }
 
-                if (ProfilesLibrary.IsFIFA20DataVersion())
+                if (ProfileManager.IsFIFA20DataVersion())
                 {
                     DbObject layoutToc = null;
 
@@ -3523,7 +3523,7 @@ namespace ModdingSupport
 
             // -----------------------------------------------------------------------------------
             // Always uninstall InstallerData.xml change
-            if (ProfilesLibrary.IsFIFA23DataVersion())
+            if (ProfileManager.IsFIFA23DataVersion())
             {
                 ConfigureInstallerDataXml(false);
             }
@@ -3591,7 +3591,7 @@ namespace ModdingSupport
             //// Notify if new Patch detected
             if (fs.Head != lastHead)
             {
-                Logger.Log("Detected New Version of " + ProfilesLibrary.ProfileName + ".exe, rebuilding mods");
+                Logger.Log("Detected New Version of " + ProfileManager.ProfileName + ".exe, rebuilding mods");
                 // If new patch detected, force rebuild of mods
                 sameAsLast = false;
                 GameWasPatched = true;
@@ -3602,7 +3602,7 @@ namespace ModdingSupport
                 // Notify if NO changes are made to mods
                 if (sameAsLast && !ForceRebuildOfMods)
                 {
-                    Logger.Log("Detected NO changes in mods for " + ProfilesLibrary.ProfileName + ".exe");
+                    Logger.Log("Detected NO changes in mods for " + ProfileManager.ProfileName + ".exe");
                     await Task.Delay(1000);
                 }
                 // Rebuild mods
@@ -3648,8 +3648,8 @@ namespace ModdingSupport
             FileInfo fIGameExe = new FileInfo(GameEXEPath);
             FileInfo fiFifaConfig = new FileInfo(Path.Combine(AppContext.BaseDirectory, "thirdparty", "fifaconfig.exe"));
 
-            if (ProfilesLibrary.IsFIFA21DataVersion()
-                || ProfilesLibrary.IsFIFA22DataVersion()
+            if (ProfileManager.IsFIFA21DataVersion()
+                || ProfileManager.IsFIFA22DataVersion()
                 //|| ProfilesLibrary.IsFIFA23DataVersion()
                 )
             {
@@ -3657,9 +3657,9 @@ namespace ModdingSupport
             }
 
             CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
-            if ((ProfilesLibrary.IsFIFADataVersion()
-                || ProfilesLibrary.IsFIFA21DataVersion()
-                || ProfilesLibrary.IsFIFA22DataVersion())
+            if ((ProfileManager.IsFIFADataVersion()
+                || ProfileManager.IsFIFA21DataVersion()
+                || ProfileManager.IsFIFA22DataVersion())
                 && UseModData)
             {
                 if (!new FileInfo(fs.BasePath + "\\FIFASetup\\fifaconfig_orig.exe").Exists)
@@ -3669,7 +3669,7 @@ namespace ModdingSupport
                 }
                 CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
             }
-            else if (ProfilesLibrary.IsFIFA23DataVersion())
+            else if (ProfileManager.IsFIFA23DataVersion())
             {
                 //var origPath = Path.Combine(fs.BasePath, ProfilesLibrary.ProfileName + "_orig.exe");
                 //var fiOriginal = new FileInfo(origPath);
@@ -3715,8 +3715,8 @@ namespace ModdingSupport
 
             if (foundMods && !UseModData)
             {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods)");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
+                Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe (with Frostbite Mods)");
+                ExecuteProcess(fs.BasePath + ProfileManager.ProfileName + ".exe", "");
             }
             else if (UseModData)
             {
@@ -3755,9 +3755,9 @@ namespace ModdingSupport
                     else
                     {
                         if (!foundMods)
-                            Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
+                            Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe");
                         else
-                            Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
+                            Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe (with Frostbite Mods in ModData)");
 
                         ExecuteProcess(GameEXEPath, arguments);
                     }
@@ -3774,20 +3774,20 @@ namespace ModdingSupport
             }
             else
             {
-                Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
-                ExecuteProcess(fs.BasePath + ProfilesLibrary.ProfileName + ".exe", "");
+                Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe");
+                ExecuteProcess(fs.BasePath + ProfileManager.ProfileName + ".exe", "");
             }
 
-            if (UseACBypass && ProfilesLibrary.IsFIFA23DataVersion())
+            if (UseACBypass && ProfileManager.IsFIFA23DataVersion())
             {
                 var r = GameInstanceSingleton.InjectDLL(new FileInfo(@"ThirdParty\\FIFA23\\FIFA.dll").FullName, true).Result;
             }
 
             // ------------------------------------------------------------------------------------------------------------------------------------------------
             // Run any Plugin defined cleanup operations
-            var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfilesLibrary.AssetCompilerName);
-            if (pluginCompiler == null && !string.IsNullOrEmpty(ProfilesLibrary.AssetCompilerName))
-                throw new NotImplementedException($"Could not find class {ProfilesLibrary.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
+            var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfileManager.AssetCompilerName);
+            if (pluginCompiler == null && !string.IsNullOrEmpty(ProfileManager.AssetCompilerName))
+                throw new NotImplementedException($"Could not find class {ProfileManager.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
 
             if (pluginCompiler != null)
             {
@@ -3811,7 +3811,7 @@ namespace ModdingSupport
 
         private void RunFIFA23Setup()
         {
-            if (!ProfilesLibrary.IsFIFA23DataVersion())
+            if (!ProfileManager.IsFIFA23DataVersion())
                 return;
 
             // --------------------------------------------------------------
@@ -3839,7 +3839,7 @@ namespace ModdingSupport
             var installerXmlPath = FileSystem.Instance.BasePath + "\\__Installer\\installerdata.xml";
 
             if (!File.Exists(installerXmlPath))
-                throw new FileNotFoundException($"Unable to find installer data for {ProfilesLibrary.DisplayName} at path {installerXmlPath}");
+                throw new FileNotFoundException($"Unable to find installer data for {ProfileManager.DisplayName} at path {installerXmlPath}");
 
             if (install && !File.Exists(installerXmlPath + ".bak"))
                 File.Copy(installerXmlPath, installerXmlPath + ".bak", false);
@@ -3886,7 +3886,7 @@ namespace ModdingSupport
 
             try
             {
-                if (ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+                if (ProfileManager.IsMadden20DataVersion() || ProfileManager.IsMadden21DataVersion())
                 {
                     string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
                     if (Directory.Exists(path))
@@ -3904,7 +3904,7 @@ namespace ModdingSupport
                     }
                 }
 
-                Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName), recursive: true);
+                Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfileManager.DisplayName), recursive: true);
                 //Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName, "onlinecache0"), recursive: true);
                 Logger.Log("Successfully deleted the Live Updates folder.");
             }
@@ -3919,7 +3919,7 @@ namespace ModdingSupport
         /// </summary>
         private void RunSetupFIFAConfig()
         {
-            if (ProfilesLibrary.IsFIFA21DataVersion())
+            if (ProfileManager.IsFIFA21DataVersion())
             {
                 var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
                 if (configIni.Exists)
@@ -3933,13 +3933,13 @@ namespace ModdingSupport
 
             }
 
-            if (ProfilesLibrary.IsFIFA22DataVersion())
+            if (ProfileManager.IsFIFA22DataVersion())
             {
                 var configIni = new FileInfo(fs.BasePath + "\\FIFASetup\\config.ini");
                 if (configIni.Exists)
                 {
                     StringBuilder newConfig = new StringBuilder();
-                    newConfig.AppendLine($"LAUNCH_EXE = {ProfilesLibrary.CacheName.ToLower()}.exe");
+                    newConfig.AppendLine($"LAUNCH_EXE = {ProfileManager.CacheName.ToLower()}.exe");
                     newConfig.AppendLine("SETTING_FOLDER = 'FIFA 22'");
                     newConfig.AppendLine("AUTO_LAUNCH = 1");
                     File.WriteAllText(configIni.FullName, newConfig.ToString());

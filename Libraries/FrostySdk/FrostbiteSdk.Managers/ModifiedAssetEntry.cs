@@ -46,10 +46,10 @@ namespace FrostySdk.Managers
 				{
 					try
 					{
-						if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.EBXReader))
+						if (!string.IsNullOrEmpty(ProfileManager.LoadedProfile.EBXReader))
 						{
 							using (var ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
-								ProfilesLibrary.LoadedProfile.EBXReader,
+								ProfileManager.LoadedProfile.EBXReader,
 								new MemoryStream(Data), false))
 								dataObject = ebxReader.ReadAsset();
 						}

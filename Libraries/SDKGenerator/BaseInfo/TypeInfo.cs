@@ -35,17 +35,17 @@ namespace SdkGenerator.BaseInfo
 
         public virtual void Read(MemoryReader reader)
         {
-            bool flag = ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20140225;
+            bool flag = ProfileManager.DataVersion == 20131115 || ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20140225;
             name = reader.ReadNullTerminatedString();
             if (!string.IsNullOrEmpty(name) && name.Length > 0)
             {
                 flags = reader.ReadUShort();
-                if (ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180914 || ProfileManager.IsMadden20DataVersion() || ProfileManager.DataVersion == 20180628)
                 {
                     flags >>= 1;
                 }
                 size = reader.ReadUInt();
-                if (ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.IsMadden20DataVersion())
+                if (ProfileManager.DataVersion == 20180914 || ProfileManager.IsMadden20DataVersion())
                 {
                     reader.Position -= 4L;
                     size = reader.ReadUShort();
@@ -54,7 +54,7 @@ namespace SdkGenerator.BaseInfo
                 }
                 padding1 = reader.ReadUShort();
                 long position = reader.ReadLong();
-                if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180914 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20160927 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180914 || ProfileManager.DataVersion == 20171117 || ProfileManager.IsMadden20DataVersion() || ProfileManager.DataVersion == 20180628)
                 {
                     reader.ReadLong();
                 }
@@ -73,16 +73,16 @@ namespace SdkGenerator.BaseInfo
                 reader.Position = position;
                 nameSpace = reader.ReadNullTerminatedString();
                 bool flag2 = false;
-                if (ProfilesLibrary.DataVersion == 20170929 
-                    || ProfilesLibrary.DataVersion == 20171117 
-                    || ProfilesLibrary.DataVersion == 20171110 
-                    || ProfilesLibrary.DataVersion == 20180807 
-                    || ProfilesLibrary.DataVersion == 20180628
-                    || ProfilesLibrary.IsFIFA19DataVersion()
+                if (ProfileManager.DataVersion == 20170929 
+                    || ProfileManager.DataVersion == 20171117 
+                    || ProfileManager.DataVersion == 20171110 
+                    || ProfileManager.DataVersion == 20180807 
+                    || ProfileManager.DataVersion == 20180628
+                    || ProfileManager.IsFIFA19DataVersion()
                     )
                 {
                     parentClass = array[0];
-                    if (Type == 2 && !ProfilesLibrary.IsFIFA19DataVersion())
+                    if (Type == 2 && !ProfileManager.IsFIFA19DataVersion())
                     {
                         reader.Position = array[5];
                         flag2 = true;
@@ -92,7 +92,7 @@ namespace SdkGenerator.BaseInfo
                         reader.Position = array[1];
                         flag2 = true;
                     }
-                    else if (Type == 8 && !ProfilesLibrary.IsFIFA19DataVersion())
+                    else if (Type == 8 && !ProfileManager.IsFIFA19DataVersion())
                     {
                         reader.Position = array[0];
                         flag2 = true;

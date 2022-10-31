@@ -160,7 +160,7 @@ namespace FrostySdk
 
 		public static ConcurrentDictionary<Guid, Type> guidTypeMapping { get; } = new ConcurrentDictionary<Guid, Type>();
 
-		private static string ProfileSDKLocation { get; } = "SDK/" + ProfilesLibrary.SDKFilename + ".dll";
+		private static string ProfileSDKLocation { get; } = "SDK/" + ProfileManager.SDKFilename + ".dll";
 
 		public static bool RequestLoadSDK { get; set; } = false;
 		public static bool Initialize(bool loadSDK = true)
@@ -168,7 +168,7 @@ namespace FrostySdk
 			RequestLoadSDK = loadSDK;
 			try
 			{
-				FileInfo fileInfo = new FileInfo("TmpProfiles/" + ProfilesLibrary.SDKFilename + ".dll");
+				FileInfo fileInfo = new FileInfo("TmpProfiles/" + ProfileManager.SDKFilename + ".dll");
 				if (fileInfo.Exists)
 				{
 					FileInfo fileInfo2 = new FileInfo(ProfileSDKLocation);

@@ -325,7 +325,7 @@ namespace FrostySdk.Managers
 											};
 											parent.bundles.Add(item);
 											BinarySbReader binarySbReader = null;
-											if (ProfilesLibrary.IsMadden21DataVersion())
+											if (ProfileManager.IsMadden21DataVersion())
 												binarySbReader = new BinarySbReaderV2(memoryStream, 0L, parent.fs.CreateDeobfuscator());
 											else
 												binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator());
@@ -549,24 +549,24 @@ namespace FrostySdk.Managers
 
         public void RegisterLegacyAssetManager()
         {
-			if (!InitialisePlugins() && !ProfilesLibrary.DoesNotUsePlugin)
+			if (!InitialisePlugins() && !ProfileManager.DoesNotUsePlugin)
 			{
 				throw new Exception("Plugins could not be initialised!");
 			}
 
-			if (!string.IsNullOrEmpty(ProfilesLibrary.LegacyFileManager))
+			if (!string.IsNullOrEmpty(ProfileManager.LegacyFileManager))
             {
 				ICustomAssetManager cam;
-				cam = (ICustomAssetManager)LoadTypeFromPlugin(ProfilesLibrary.LegacyFileManager);
+				cam = (ICustomAssetManager)LoadTypeFromPlugin(ProfileManager.LegacyFileManager);
 				if(cam == null)
-					cam = (ICustomAssetManager)LoadTypeByName(ProfilesLibrary.LegacyFileManager);
+					cam = (ICustomAssetManager)LoadTypeByName(ProfileManager.LegacyFileManager);
 
 
 				if(cam != null)
 					CustomAssetManagers.Add("legacy", cam);
 
 			}
-			else if (ProfilesLibrary.IsMadden21DataVersion() || ProfilesLibrary.IsFIFA21DataVersion())
+			else if (ProfileManager.IsMadden21DataVersion() || ProfileManager.IsFIFA21DataVersion())
 			{
 				CustomAssetManagers.Add("legacy", new LegacyFileManager_FMTV2());
 			}
@@ -582,11 +582,11 @@ namespace FrostySdk.Managers
 		public static bool InitialisePlugins()
         {
 
-			if (Directory.Exists("Plugins") && !ProfilesLibrary.DoesNotUsePlugin)
+			if (Directory.Exists("Plugins") && !ProfileManager.DoesNotUsePlugin)
 			{
 				foreach (var p in Directory.EnumerateFiles("Plugins"))
 				{
-					if (p.ToLower().EndsWith(".dll") && p.ToLower().Contains(ProfilesLibrary.ProfileName.ToLower()))
+					if (p.ToLower().EndsWith(".dll") && p.ToLower().Contains(ProfileManager.ProfileName.ToLower()))
 					{
                         if (Assembly.UnsafeLoadFrom(p) != null)
                         {
@@ -670,21 +670,21 @@ namespace FrostySdk.Managers
 
 			DateTime dtAtStart = DateTime.Now;
 
-            if (!ProfilesLibrary.LoadedProfile.CanUseModData)
+            if (!ProfileManager.LoadedProfile.CanUseModData)
             {
-                logger.Log($"[WARNING] {ProfilesLibrary.LoadedProfile.DisplayName} ModData is not supported. Making backups of your files!");
+                logger.Log($"[WARNING] {ProfileManager.LoadedProfile.DisplayName} ModData is not supported. Making backups of your files!");
                 FileSystem.MakeGameDataBackup(FileSystem.BasePath);
             }
 
             logger.Log("Initialising Plugins");
-			if(!InitialisePlugins() && !ProfilesLibrary.DoesNotUsePlugin)
+			if(!InitialisePlugins() && !ProfileManager.DoesNotUsePlugin)
             {
 				throw new Exception("Plugins could not be initialised!");
             }				
 			TypeLibrary.Initialize(additionalStartup || TypeLibrary.RequestLoadSDK);
-			if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfilesLibrary.SDKFilename + ".dll"))
+			if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfileManager.SDKFilename + ".dll"))
 			{
-				logger.Log($"Plugins and SDK {"SDK/" + ProfilesLibrary.SDKFilename + ".dll"} Initialised");
+				logger.Log($"Plugins and SDK {"SDK/" + ProfileManager.SDKFilename + ".dll"} Initialised");
 			}
 
 
@@ -698,11 +698,11 @@ namespace FrostySdk.Managers
                 logger.Log($"Cache Needs to Built/Updated");
 
                 BinarySbDataHelper binarySbDataHelper = new BinarySbDataHelper(this);
-                if (ProfilesLibrary.AssetLoader != null)
-                    ((IAssetLoader)Activator.CreateInstance(ProfilesLibrary.AssetLoader)).Load(this, binarySbDataHelper);
+                if (ProfileManager.AssetLoader != null)
+                    ((IAssetLoader)Activator.CreateInstance(ProfileManager.AssetLoader)).Load(this, binarySbDataHelper);
                 else
                 {
-                    ((IAssetLoader)LoadTypeFromPlugin(ProfilesLibrary.AssetLoaderName)).Load(this, binarySbDataHelper);
+                    ((IAssetLoader)LoadTypeFromPlugin(ProfileManager.AssetLoaderName)).Load(this, binarySbDataHelper);
                 }
                 GC.Collect();
                 CacheWrite();
@@ -802,11 +802,11 @@ namespace FrostySdk.Managers
 						//}
 						//else
 						//{
-							if (!string.IsNullOrEmpty(ProfilesLibrary.EBXReader))
+							if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
 							{
 								if (EbxReaderType == null)
 								{
-									ebxReader = (EbxReader)LoadTypeByName(ProfilesLibrary.EBXReader, ebxStream, true);
+									ebxReader = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
 									EbxReaderType = ebxReader.GetType();
 								}
 							ebxStream.Position = 0;
@@ -1173,7 +1173,7 @@ namespace FrostySdk.Managers
 		public Guid AddChunk(byte[] buffer, Guid? overrideGuid = null, Texture texture = null, params int[] bundles)
 		{
 			ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-			CompressionType compressionOverride = (ProfilesLibrary.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
+			CompressionType compressionOverride = (ProfileManager.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
 			chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
 			chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
 			chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
@@ -1227,7 +1227,7 @@ namespace FrostySdk.Managers
 			//}
 			if (compressionOverride == CompressionType.Default)
 			{
-				compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Chunks);
+				compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Chunks);
 			}
 
 			if (chunkAssetEntry.ModifiedEntry == null)
@@ -1272,7 +1272,7 @@ namespace FrostySdk.Managers
             , bool addToChunkBundle = false)
         {
 			if(compressionOverride == CompressionType.Default)
-				compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.Chunks);
+				compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Chunks);
 
             if (chunkAssetEntry.ModifiedEntry == null)
             {
@@ -1302,7 +1302,7 @@ namespace FrostySdk.Managers
 			{
 				ResAssetEntry resAssetEntry = resRidList[resRid];
 				//CompressionType compressionOverride = (ProfilesLibrary.DataVersion == 20170929) ? CompressionType.Oodle : CompressionType.Default;
-				CompressionType compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.RES);
+				CompressionType compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.RES);
 				//if (ProfilesLibrary.IsMadden21DataVersion()) compressionOverride = CompressionType.Oodle;
 				
 
@@ -1342,7 +1342,7 @@ namespace FrostySdk.Managers
 				ResAssetEntry resAssetEntry = RES[resName];
 				if(compressionOverride == CompressionType.Default)
                 {
-					compressionOverride = ProfilesLibrary.GetCompressionType(ProfilesLibrary.CompTypeArea.RES);
+					compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.RES);
                 }
 
 				resAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
@@ -2038,34 +2038,34 @@ namespace FrostySdk.Managers
         {
 			EbxReader ebxReader = null;
 
-			if (!string.IsNullOrEmpty(ProfilesLibrary.EBXReader))
+			if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
 			{
 				//            if (ProfilesLibrary.EBXReader.Contains("V3", StringComparison.OrdinalIgnoreCase))
 				//            {
 				//	return new EbxReaderV3(asset, inPatched).ReadAsset();
 				//}
-				ebxReader = (EbxReader)LoadTypeByName(ProfilesLibrary.EBXReader, asset, inPatched);
+				ebxReader = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, asset, inPatched);
 			}
 			else
 			{
 
-				if (ProfilesLibrary.IsFIFA21DataVersion())
+				if (ProfileManager.IsFIFA21DataVersion())
 				{
 					//ebxReader = new EbxReader_F21(asset, inPatched);
 					//ebxReader = new EbxReaderV2(asset, inPatched);
 					ebxReader = new EbxReaderV3(asset, inPatched);
 
 				}
-				else if (ProfilesLibrary.IsMadden21DataVersion())
+				else if (ProfileManager.IsMadden21DataVersion())
 				{
 					//ebxReader = new EbxReader_F21(asset, inPatched);
 					//ebxReader = new EbxReaderV2(asset, inPatched);
 					ebxReader = new EbxReaderV3(asset, inPatched);
 
 				}
-				else if (ProfilesLibrary.DataVersion == 20181207
-					|| ProfilesLibrary.IsFIFA20DataVersion()
-					|| ProfilesLibrary.DataVersion == 20190905)
+				else if (ProfileManager.DataVersion == 20181207
+					|| ProfileManager.IsFIFA20DataVersion()
+					|| ProfileManager.DataVersion == 20190905)
 				{
 					ebxReader = new EbxReaderV2(asset, inPatched);
 				}
@@ -2167,7 +2167,7 @@ namespace FrostySdk.Managers
 
                     }
 
-					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfilesLibrary.IsMadden21DataVersion() ) ;
+					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion() ) ;
                     //EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
                     //               if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
                     //{
@@ -2234,7 +2234,7 @@ namespace FrostySdk.Managers
 			{
 				foreach (DbObject item in sb.GetValue<DbObject>("res"))
 				{
-					if (!ProfilesLibrary.IsResTypeIgnored((ResourceType)item.GetValue("resType", 0L)))
+					if (!ProfileManager.IsResTypeIgnored((ResourceType)item.GetValue("resType", 0L)))
 					{
 						ResAssetEntry resAssetEntry = new ResAssetEntry();
                         resAssetEntry = (ResAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, resAssetEntry);
@@ -2315,7 +2315,7 @@ namespace FrostySdk.Managers
 				foreach (DbObject item in sb.GetValue<DbObject>("chunks"))
 				{
                     ChunkAssetEntry chunkAssetEntry = AddChunk(item
-                        , ProfilesLibrary.IsMadden21DataVersion() 
+                        , ProfileManager.IsMadden21DataVersion() 
 						//|| ProfilesLibrary.IsFIFA21DataVersion()
 						//|| ProfilesLibrary.IsFIFA22DataVersion()
 						);
@@ -2396,7 +2396,7 @@ namespace FrostySdk.Managers
 			{
 				dbObject = dbReader.ReadDbObject();
 			}
-			if (isBase && ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103 && ProfilesLibrary.DataVersion != 20150223 && ProfilesLibrary.DataVersion != 20131115 && ProfilesLibrary.DataVersion != 20140225)
+			if (isBase && ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103 && ProfileManager.DataVersion != 20150223 && ProfileManager.DataVersion != 20131115 && ProfileManager.DataVersion != 20140225)
 			{
 				return dbObject;
 			}
@@ -2686,9 +2686,9 @@ namespace FrostySdk.Managers
 			}
 			WriteToLog("Loading data (" + fs.CacheName + ".cache)");
 
-			if (!string.IsNullOrEmpty(ProfilesLibrary.CacheReader))
+			if (!string.IsNullOrEmpty(ProfileManager.CacheReader))
 			{
-				var resultFromPlugin = ((ICacheReader)LoadTypeFromPlugin(ProfilesLibrary.CacheReader)).Read();
+				var resultFromPlugin = ((ICacheReader)LoadTypeFromPlugin(ProfileManager.CacheReader)).Read();
 				AssetManager.Instance = this;
 				return resultFromPlugin;
 			}
@@ -2698,7 +2698,7 @@ namespace FrostySdk.Managers
 			//using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
 			using (NativeReader nativeReader = new NativeReader(CacheDecompress()))
 			{
-				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
+				if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
 					return false;
 
 				var cacheHead = nativeReader.ReadULong();
@@ -2709,7 +2709,7 @@ namespace FrostySdk.Managers
 					//CacheUpdate = true;
 				}
 				int count = nativeReader.ReadInt();
-				if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+				if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
 				{
 					superBundles.Add(new SuperBundleEntry
 					{
@@ -2726,7 +2726,7 @@ namespace FrostySdk.Managers
 					}
 				}
 				count = nativeReader.ReadInt();
-				if (!ProfilesLibrary.IsFIFA21DataVersion() && count == 0)
+				if (!ProfileManager.IsFIFA21DataVersion() && count == 0)
 				{
 					return false;
 				}
@@ -2775,7 +2775,7 @@ namespace FrostySdk.Managers
 					//{
 					//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
 					//}
-					if (ProfilesLibrary.IsFIFA21DataVersion())
+					if (ProfileManager.IsFIFA21DataVersion())
 					{
 						if (nativeReader.ReadBoolean())
 							ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
@@ -2838,7 +2838,7 @@ namespace FrostySdk.Managers
                         resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
                         resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
                     }
-                    if (ProfilesLibrary.IsFIFA21DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
+                    if (ProfileManager.IsFIFA21DataVersion() || ProfileManager.IsMadden21DataVersion())
                     {
                         if (nativeReader.ReadBoolean())
                             resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
@@ -2956,7 +2956,7 @@ namespace FrostySdk.Managers
                 chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
             }
 
-            if (ProfilesLibrary.IsFIFA21DataVersion() )
+            if (ProfileManager.IsFIFA21DataVersion() )
             {
                 if (nativeReader.ReadBoolean())
                     chunkAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
@@ -2992,9 +2992,9 @@ namespace FrostySdk.Managers
 
         private void CacheWrite()
         {
-            if (!string.IsNullOrEmpty(ProfilesLibrary.CacheWriter))
+            if (!string.IsNullOrEmpty(ProfileManager.CacheWriter))
             {
-                ((ICacheWriter)LoadTypeFromPlugin(ProfilesLibrary.CacheWriter)).Write();
+                ((ICacheWriter)LoadTypeFromPlugin(ProfileManager.CacheWriter)).Write();
                 return;
             }
 
@@ -3002,9 +3002,9 @@ namespace FrostySdk.Managers
             //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
             using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
-                nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
+                nativeWriter.WriteLengthPrefixedString(ProfileManager.ProfileName);
                 nativeWriter.Write(fs.SystemIteration);
-                if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
+                if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
                 {
                     nativeWriter.Write(0);
                 }
@@ -3056,7 +3056,7 @@ namespace FrostySdk.Managers
                     //    nativeWriter.Write(item);
                     //}
 
-                    if (ProfilesLibrary.IsFIFA21DataVersion())
+                    if (ProfileManager.IsFIFA21DataVersion())
                     {
                         nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
                         if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
@@ -3106,7 +3106,7 @@ namespace FrostySdk.Managers
                         nativeWriter.Write(resEntry.ExtraData.IsPatch);
                         nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
                     }
-                    if (ProfilesLibrary.IsFIFA21DataVersion())
+                    if (ProfileManager.IsFIFA21DataVersion())
                     {
                         nativeWriter.Write(!string.IsNullOrEmpty(resEntry.SBFileLocation));
                         if (!string.IsNullOrEmpty(resEntry.SBFileLocation))
@@ -3127,7 +3127,7 @@ namespace FrostySdk.Managers
 						nativeWriter.WriteLengthPrefixedString(resEntry.DuplicatedFromName);
 
 					}
-					if (ProfilesLibrary.IsMadden21DataVersion())
+					if (ProfileManager.IsMadden21DataVersion())
                     {
                         nativeWriter.Write(resEntry.ParentBundleOffset);
                         nativeWriter.Write(resEntry.ParentBundleSize);
@@ -3375,7 +3375,7 @@ namespace FrostySdk.Managers
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.ExtraData.CasPath);
             }
            
-            if (ProfilesLibrary.IsFIFA21DataVersion())
+            if (ProfileManager.IsFIFA21DataVersion())
             {
                 nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.SBFileLocation));
                 if (!string.IsNullOrEmpty(chunkEntry.SBFileLocation))

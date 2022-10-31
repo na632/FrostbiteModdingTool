@@ -1,6 +1,7 @@
 using Frosty.Hash;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
+using FrostySdk.ThirdParty;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -63,12 +64,12 @@ namespace FrostySdk.Managers
 			//	}
 			//}
 
-			if ((ProfilesLibrary.DataVersion == 20170929 
-				|| ProfilesLibrary.DataVersion == 20180914 
-				|| ProfilesLibrary.IsFIFADataVersion()
-				|| ProfilesLibrary.IsFIFA21DataVersion()
+			if ((ProfileManager.DataVersion == 20170929 
+				|| ProfileManager.DataVersion == 20180914 
+				|| ProfileManager.IsFIFADataVersion()
+				|| ProfileManager.IsFIFA21DataVersion()
 				//|| ProfilesLibrary.IsMadden21DataVersion()
-				|| ProfilesLibrary.IsFIFA22DataVersion() // FIFA 22
+				|| ProfileManager.IsFIFA22DataVersion() // FIFA 22
 				)
 				&& fs.HasFileInMemoryFs("Dictionaries/ebx.dict")
 				)

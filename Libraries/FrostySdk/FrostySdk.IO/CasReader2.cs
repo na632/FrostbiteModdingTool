@@ -1,4 +1,5 @@
 using FrostySdk.Managers;
+using FrostySdk.ThirdParty;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -71,7 +72,7 @@ namespace FrostySdk.IO
 				num &= 0xFFFFFF;
 				useDictionary = true;
 			}
-			bool unobfuscate = ((num2 >> 7) & 1) != 0 && ProfilesLibrary.DataVersion == 20180914;
+			bool unobfuscate = ((num2 >> 7) & 1) != 0 && ProfileManager.DataVersion == 20180914;
 			var swR = (ushort)(num2 & 0x7F);
 			switch (swR)
 			{

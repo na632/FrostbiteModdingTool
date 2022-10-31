@@ -46,18 +46,18 @@ namespace FrostySdk.Frostbite
 		public async Task<bool> LoadDataAsync(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
 			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({GameVersion},{GameLocation})");
-			if (ProfilesLibrary.Initialize(GameVersion))
+			if (ProfileManager.Initialize(GameVersion))
 			{
-				if (File.Exists(ProfilesLibrary.CacheName + ".cache") && forceDeleteOfOld)
-					File.Delete(ProfilesLibrary.CacheName + ".cache");
+				if (File.Exists(ProfileManager.CacheName + ".cache") && forceDeleteOfOld)
+					File.Delete(ProfileManager.CacheName + ".cache");
 
-				if (File.Exists(ProfilesLibrary.CacheName + ".CachingSBData.cache") && forceDeleteOfOld)
-					File.Delete(ProfilesLibrary.CacheName + ".CachingSBData.cache");
+				if (File.Exists(ProfileManager.CacheName + ".CachingSBData.cache") && forceDeleteOfOld)
+					File.Delete(ProfileManager.CacheName + ".CachingSBData.cache");
 
 
 				return await Task.Run(() => {
 
-					if (ProfilesLibrary.RequiresKey)
+					if (ProfileManager.RequiresKey)
 					{
 						KeyManager.ReadInKeys();
 					}

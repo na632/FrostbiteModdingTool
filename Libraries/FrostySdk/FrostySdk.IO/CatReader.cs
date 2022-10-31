@@ -29,17 +29,17 @@ namespace FrostySdk.IO
 			entryCount = (uint)(Length - Position) / 32u;
 			patchCount = 0u;
 			encryptedCount = 0u;
-			if (ProfilesLibrary.DataVersion == 20131115 || ProfilesLibrary.DataVersion == 20141118 || ProfilesLibrary.DataVersion == 20141117 || ProfilesLibrary.DataVersion == 20151103)
+			if (ProfileManager.DataVersion == 20131115 || ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103)
 			{
 				return;
 			}
 			entryCount = ReadUInt();
 			patchCount = ReadUInt();
-			if (ProfilesLibrary.DataVersion == 20170321 || ProfilesLibrary.DataVersion == 20160927 || ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20170929 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180628)
+			if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20160927 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180628)
 			{
 				encryptedCount = ReadUInt();
 				Position += 12L;
-				if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20171110 || ProfilesLibrary.DataVersion == 20180807 || ProfilesLibrary.DataVersion == 20180628)
+				if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180628)
 				{
 					encryptedCount = 0u;
 				}
@@ -52,7 +52,7 @@ namespace FrostySdk.IO
 			result.Sha1 = ReadSha1();
 			result.Offset = ReadUInt();
 			result.Size = ReadUInt();
-			if (ProfilesLibrary.DataVersion != 20131115 && ProfilesLibrary.DataVersion != 20141118 && ProfilesLibrary.DataVersion != 20141117 && ProfilesLibrary.DataVersion != 20151103)
+			if (ProfileManager.DataVersion != 20131115 && ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103)
 			{
 				result.LogicalOffset = ReadUInt();
 			}

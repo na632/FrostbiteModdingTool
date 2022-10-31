@@ -367,7 +367,7 @@ namespace FrostySdk.Frostbite.IO.Input
 			{
 				nativeWriter.Write(sectionBytes);
 			}
-			if(!ProfilesLibrary.IsFIFA23DataVersion())
+			if(!ProfileManager.IsFIFA23DataVersion())
 				nativeWriter.WritePadding(16);
 
             meshSetLod.VertexBufferSize = (uint)nativeWriter.BaseStream.Position;
@@ -385,7 +385,7 @@ namespace FrostySdk.Frostbite.IO.Input
                     }
                 }
 			}
-			if(!ProfilesLibrary.IsFIFA23DataVersion())
+			if(!ProfileManager.IsFIFA23DataVersion())
 				nativeWriter.WritePadding(16);
 
 			meshSetLod.IndexBufferSize = (uint)(nativeWriter.BaseStream.Position - meshSetLod.VertexBufferSize);

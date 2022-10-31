@@ -1,4 +1,5 @@
-﻿using Frosty.Hash;
+﻿using Frostbite.Deobfuscators;
+using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Deobfuscators;
 using FrostySdk.IO;

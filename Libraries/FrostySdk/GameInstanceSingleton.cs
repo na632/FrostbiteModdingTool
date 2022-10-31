@@ -64,9 +64,9 @@ namespace v2k4FIFAModdingCL
                     Instance.GAMEVERSION = fileName.Replace(".exe", "");
                     Instance.INITIALIZED = true;
                 }
-                if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
+                if(ProfileManager.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
                 {
-                    ProfilesLibrary.Initialize(Instance.GAMEVERSION);
+                    ProfileManager.Initialize(Instance.GAMEVERSION);
                     if (FileSystem.Instance == null)
                     {
                         new FileSystem(GameDirectory);
@@ -121,12 +121,12 @@ namespace v2k4FIFAModdingCL
 
         public static bool IsCompatibleWithFbMod()
         {
-            return ProfilesLibrary.SupportedLauncherFileTypes.Contains("fbmod");
+            return ProfileManager.SupportedLauncherFileTypes.Contains("fbmod");
         }
 
         public static bool IsCompatibleWithLegacyMod()
         {
-            return ProfilesLibrary.SupportedLauncherFileTypes.Contains("lmod");
+            return ProfileManager.SupportedLauncherFileTypes.Contains("lmod");
         }
 
         public static ILogger Logger;

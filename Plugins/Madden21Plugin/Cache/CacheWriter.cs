@@ -18,7 +18,7 @@ namespace Madden21Plugin.Cache
             //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
             using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
             {
-                nativeWriter.WriteLengthPrefixedString(ProfilesLibrary.ProfileName);
+                nativeWriter.WriteLengthPrefixedString(ProfileManager.ProfileName);
                 nativeWriter.Write(fs.Head);
                 nativeWriter.Write(AssetManager.Instance.superBundles.Count);
                 foreach (SuperBundleEntry superBundle in AssetManager.Instance.superBundles)

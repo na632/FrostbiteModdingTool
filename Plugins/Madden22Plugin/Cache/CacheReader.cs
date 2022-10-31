@@ -19,7 +19,7 @@ namespace Madden22Plugin.Cache
 			//using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
 			using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
 			{
-				if (nativeReader.ReadLengthPrefixedString() != ProfilesLibrary.ProfileName)
+				if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
 					return false;
 
 				var cacheHead = nativeReader.ReadULong();

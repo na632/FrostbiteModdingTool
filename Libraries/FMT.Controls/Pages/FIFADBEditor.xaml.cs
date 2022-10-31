@@ -165,7 +165,7 @@ namespace FMT.Controls.Pages
             if (DBMetaAssetStream == null)
                 return;
 
-            var metaFilePath = System.IO.Path.Combine(AppContext.BaseDirectory, ProfilesLibrary.ProfileName + "-db-meta.xml");
+            var metaFilePath = System.IO.Path.Combine(AppContext.BaseDirectory, ProfileManager.ProfileName + "-db-meta.xml");
             if (!File.Exists(metaFilePath))
             {
                 NativeWriter nativeWriter =new NativeWriter(new FileStream(metaFilePath, FileMode.Create));
