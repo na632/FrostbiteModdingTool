@@ -513,11 +513,11 @@ namespace CSharpImageLibrary
                         this.eTGAFormat = TGAFormat.ORIGINAL_TGA;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // clear all 
                     this.ClearAll();
-                    throw ex;
+                    //throw ex;
                 }
             }
             else
@@ -585,9 +585,9 @@ namespace CSharpImageLibrary
                         objTargaHeader.SetImageIDValue(System.Text.Encoding.ASCII.GetString(ImageIDValueBytes).TrimEnd('\0'));
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    throw ex;
+                    //throw ex;
                 }
 
 
@@ -644,9 +644,9 @@ namespace CSharpImageLibrary
 
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
-                                throw ex;
+                                //throw ex;
                             }
 
 
@@ -781,10 +781,10 @@ namespace CSharpImageLibrary
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         this.ClearAll();
-                        throw ex;
+                        //throw ex;
                     }
                 }
             }
@@ -1404,7 +1404,7 @@ namespace CSharpImageLibrary
                         this.bmpImageThumbnail.Dispose();
                     }
 
-                    if (this.ImageByteHandle != null)
+                    //if (this.ImageByteHandle != null)
                     {
                         if (this.ImageByteHandle.IsAllocated)
                         {
@@ -1413,7 +1413,7 @@ namespace CSharpImageLibrary
 
                     }
 
-                    if (this.ThumbnailByteHandle != null)
+                    //if (this.ThumbnailByteHandle != null)
                     {
                         if (this.ThumbnailByteHandle.IsAllocated)
                         {
