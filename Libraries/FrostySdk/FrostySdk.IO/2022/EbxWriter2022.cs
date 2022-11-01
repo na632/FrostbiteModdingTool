@@ -606,8 +606,9 @@ namespace FrostySdk.FrostySdk.IO
                     {
 						nativeWriter.WriteEmpty(16);
 					}
-					nativeWriter.Position -= 12L;
-					nativeWriter.WriteUInt32LittleEndian(arrayInfo.Count);
+					//nativeWriter.Position -= 12L;
+					nativeWriter.Position -= 4L;
+                    nativeWriter.WriteUInt32LittleEndian(arrayInfo.Count);
 					long beforeArrayPosition = nativeWriter.Position;
 					nativeWriter.WriteBytes(arrayData);
 					arrayInfo.Offset = (uint)beforeArrayPosition;

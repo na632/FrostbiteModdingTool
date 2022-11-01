@@ -399,7 +399,7 @@ namespace FrostySdk.IO._2022.Readers
             //	Position = payloadOffset;
             //}
 
-            if (RootType.Contains("Mesh", StringComparison.OrdinalIgnoreCase))
+            if (RootType.Contains("Hotspot", StringComparison.OrdinalIgnoreCase))
             {
                 Position = 0;
                 var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);

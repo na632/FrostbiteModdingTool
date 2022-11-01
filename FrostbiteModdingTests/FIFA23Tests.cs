@@ -236,6 +236,7 @@ namespace FrostbiteModdingTests
             var ebxEntry = AssetManager.Instance.GetEbxEntry("content/character/kit/kit_112000/newport_county_112254/home_0_0/hotspots_112254_0_0");
             Assert.IsNotNull(ebxEntry);
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
+            ((dynamic)complexAsset.RootObject).Hotspots[0].Bounds.x = -1f;
             ((dynamic)complexAsset.RootObject).Hotspots[0].Rotation = 0.5f;
             ((dynamic)complexAsset.RootObject).Hotspots[1].Rotation = 0.5f;
             ((dynamic)complexAsset.RootObject).Hotspots[2].Rotation = 0.5f;
