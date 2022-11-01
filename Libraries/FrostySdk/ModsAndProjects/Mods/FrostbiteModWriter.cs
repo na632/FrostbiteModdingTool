@@ -181,10 +181,11 @@ namespace FrostySdk
 					return;
 
                 compressedArray = Utils.CompressFile(decompressedArray, null, ResourceType.Invalid, compressionOverride);
-                //if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021 || ))
-                //if (name.Contains("gp_"))
-                //if (name.Contains("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"))
-                if (name.Contains("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"))
+				//if(name.Contains("gp_") && (ebxBaseWriter is EbxWriterV2 || ebxBaseWriter is EbxWriter2021 || ))
+				//if (name.Contains("gp_"))
+				//if (name.Contains("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"))
+#if DEBUG
+				if (name.Contains("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime"))
                 {
                     File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
                 }
@@ -192,8 +193,13 @@ namespace FrostySdk
 				{
                     File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
                 }
+                if (name.Contains("hotspot"))
+                {
+                    File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
+                }
+#endif
 
-				if (compressedArray.Length > 0)
+                if (compressedArray.Length > 0)
 				{
 					size = decompressedArray.LongLength;
 					resourceIndex = manifest.Add(compressedArray);
