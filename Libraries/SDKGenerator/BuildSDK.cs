@@ -319,16 +319,19 @@ namespace SdkGenerator
 			Debug.WriteLine("OnGatherTypesFromMemory");
 
 			SdkUpdateState obj = state as SdkUpdateState;
-            obj.Creator = new SdkGenerator.ClassesSdkCreator(obj);
-            //obj.Creator = new SdkGenerator.ClassesSdkCreator(SdkProcess, obj.TypeInfoOffset);
+			//obj.Creator = new SdkGenerator.ClassesSdkCreator(obj);
+			obj.Creator = new SDKGenerator.ClassesSdkCreatorV2(obj);
 
             bool flag = obj.Creator.GatherTypeInfos(task);
-            task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
+			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
 			Debug.WriteLine("OnGatherTypesFromMemory:: " + flag);
 
 			ResultState = flag;
 			return flag;
+
+			//task.State = SdkUpdateTaskState.CompletedSuccessful;
+			//return true;
 		}
 
 
@@ -338,13 +341,16 @@ namespace SdkGenerator
 
 			Debug.WriteLine("OnCrossReferenceAssets");
 
-            bool flag = (state as SdkUpdateState).Creator.CrossReferenceAssets(task);
-            task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
+			bool flag = (state as SdkUpdateState).Creator.CrossReferenceAssets(task);
+			task.State = (flag ? SdkUpdateTaskState.CompletedSuccessful : SdkUpdateTaskState.CompletedFail);
 
 			Debug.WriteLine("OnCrossReferenceAssets:: " + flag);
 
 			ResultState = flag;
 			return flag;
+
+			//task.State = SdkUpdateTaskState.CompletedSuccessful;
+			//return true;
 		}
 
 		private bool OnCreateSdk(SdkUpdateTask task, object state)

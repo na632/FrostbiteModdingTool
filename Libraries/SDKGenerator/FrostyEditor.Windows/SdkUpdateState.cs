@@ -1,3 +1,4 @@
+using SDKGenerator;
 using System.Diagnostics;
 
 namespace SdkGenerator
@@ -8,6 +9,8 @@ namespace SdkGenerator
 
 		public long TypeInfoOffset;
 
-		public ClassesSdkCreator Creator;
-	}
+		//public ClassesSdkCreator Creator;
+
+		public ClassesSdkCreatorV2 Creator;
+    }
 }

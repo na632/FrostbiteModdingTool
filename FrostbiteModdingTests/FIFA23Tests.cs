@@ -851,8 +851,6 @@ namespace FrostbiteModdingTests
 
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
-            ModdingSupport.ModExecutor.UseModData = false;
-            frostyModExecutor.ForceRebuildOfMods = false;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>()
                 {
@@ -880,32 +878,6 @@ namespace FrostbiteModdingTests
                 }.ToArray()).Wait();
 
         }
-
-        [TestMethod]
-        public void TestLoadWithoutACAlt()
-        {
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
-
-            var r2 = GameInstanceSingleton.InjectDLL(new FileInfo(@"Plugins\\FIFA23Plugin.dll").FullName, true).Result;
-
-        }
-
-        /// <summary>
-        /// To start without AC you need to alter your Installer.xml
-        /// </summary>
-        [TestMethod]
-        public void TestTOCReadWrite()
-        {
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
-            var toc = new FIFA23Plugin.TOCFile();
-            using (NativeReader nr = new NativeReader(new FileStream("F:\\Origin Games\\FIFA 23\\Patch\\Win32\\careersba.toc", FileMode.Open))) 
-            {
-                var dbo = toc.Read(nr);
-            }
-
-            toc.Write(new MemoryStream());
-        }
-
 
         [TestMethod]
         public void TestLegacyMod_DupEntry()

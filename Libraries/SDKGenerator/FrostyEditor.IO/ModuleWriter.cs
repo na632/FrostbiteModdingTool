@@ -335,17 +335,17 @@ namespace SdkGenerator
 			{
 				if (parentClassName == "DataContainer")
 				{
-					stringBuilder.AppendLine("[" + typeof(IsTransientAttribute).Name + "]");
-					if (!classObj.HasValue("isData"))
-					{
-						stringBuilder.AppendLine("[" + typeof(IsHiddenAttribute).Name + "]");
-					}
-					stringBuilder.AppendLine("[" + typeof(DisplayNameAttribute).Name + "(\"Id\")]");
-					stringBuilder.AppendLine("[" + typeof(CategoryAttribute).Name + "(\"Annotations\")]");
-					stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(8310, 8u, null, false, 0)]");
-					stringBuilder.AppendLine("[" + typeof(FieldIndexAttribute).Name + "(-2)]");
-					stringBuilder.AppendLine("public CString __Id\r\n{\r\nget\r\n{\r\nreturn GetId();\r\n}\r\nset { __id = value; }\r\n}\r\n");
-					stringBuilder.AppendLine("protected CString __id = new CString();");
+					//stringBuilder.AppendLine("[" + typeof(IsTransientAttribute).Name + "]");
+					//if (!classObj.HasValue("isData"))
+					//{
+					//	stringBuilder.AppendLine("[" + typeof(IsHiddenAttribute).Name + "]");
+					//}
+					//stringBuilder.AppendLine("[" + typeof(DisplayNameAttribute).Name + "(\"Id\")]");
+					//stringBuilder.AppendLine("[" + typeof(CategoryAttribute).Name + "(\"Annotations\")]");
+					//stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(8310, 8u, null, false, 0)]");
+					//stringBuilder.AppendLine("[" + typeof(FieldIndexAttribute).Name + "(-2)]");
+					//stringBuilder.AppendLine("public CString __Id\r\n{\r\nget\r\n{\r\nreturn GetId();\r\n}\r\nset { __id = value; }\r\n}\r\n");
+					//stringBuilder.AppendLine("protected CString __id = new CString();");
 				}
 				if (parentClassName == "")
 				{
@@ -395,32 +395,32 @@ namespace SdkGenerator
 					if (classObj.HasValue("isData"))
 					{
 						string value2 = item.GetValue<string>("name");
-						stringBuilder.AppendLine("protected virtual CString GetId()\r\n{");
-						stringBuilder.AppendLine("if (__id != \"\") return __id;");
-                        //stringBuilder.AppendLine("if (_" + value2 + " != \"\") return _" + value2 + "." + name3 + "();");
-                        stringBuilder.AppendLine("if (_" + value2 + " != \"\") return _" + value2 + ".ToString();");
-                        stringBuilder.AppendLine("if (" + typeof(GlobalAttributes).Name + "." + name2 + ")\r\n{\r\n" + typeof(EbxClassMetaAttribute).Name + " attr = GetType().GetCustomAttribute<" + typeof(EbxClassMetaAttribute).Name + ">();\r\nif (attr != null && attr." + name + " != \"\")\r\nreturn attr." + name + " + \".\" + GetType().Name;\r\n}\r\nreturn GetType().Name;");
-						stringBuilder.AppendLine("}");
+						//stringBuilder.AppendLine("protected virtual CString GetId()\r\n{");
+						//stringBuilder.AppendLine("if (__id != \"\") return __id;");
+      //                  //stringBuilder.AppendLine("if (_" + value2 + " != \"\") return _" + value2 + "." + name3 + "();");
+      //                  stringBuilder.AppendLine("if (_" + value2 + " != \"\") return _" + value2 + ".ToString();");
+      //                  stringBuilder.AppendLine("if (" + typeof(GlobalAttributes).Name + "." + name2 + ")\r\n{\r\n" + typeof(EbxClassMetaAttribute).Name + " attr = GetType().GetCustomAttribute<" + typeof(EbxClassMetaAttribute).Name + ">();\r\nif (attr != null && attr." + name + " != \"\")\r\nreturn attr." + name + " + \".\" + GetType().Name;\r\n}\r\nreturn GetType().Name;");
+						//stringBuilder.AppendLine("}");
 						flag2 = true;
 					}
 					else
 					{
 						string value3 = item.GetValue<string>("name");
-						stringBuilder.AppendLine("protected override CString GetId()\r\n{");
-						stringBuilder.AppendLine("if (__id != \"\") return __id;");
-						//stringBuilder.AppendLine("if (_" + value3 + " != \"\") return _" + value3 + "." + name3 + "();\r\nreturn base.GetId();");
-						stringBuilder.AppendLine("if (_" + value3 + " != \"\") return _" + value3 + ".ToString();\r\nreturn base.GetId();");
-						stringBuilder.AppendLine("}");
+						//stringBuilder.AppendLine("protected override CString GetId()\r\n{");
+						//stringBuilder.AppendLine("if (__id != \"\") return __id;");
+						////stringBuilder.AppendLine("if (_" + value3 + " != \"\") return _" + value3 + "." + name3 + "();\r\nreturn base.GetId();");
+						//stringBuilder.AppendLine("if (_" + value3 + " != \"\") return _" + value3 + ".ToString();\r\nreturn base.GetId();");
+						//stringBuilder.AppendLine("}");
 					}
 				}
 			}
 			if (parentClassName == "DataContainer" && !flag2)
 			{
-				string name4 = typeof(EbxClassMetaAttribute).GetProperties()[4].Name;
-				string name5 = typeof(GlobalAttributes).GetFields()[0].Name;
-				stringBuilder.AppendLine("protected virtual CString GetId()\r\n{");
-				stringBuilder.AppendLine("if (__id == \"\")\r\n{\r\nif (" + typeof(GlobalAttributes).Name + "." + name5 + ")\r\n{\r\n" + typeof(EbxClassMetaAttribute).Name + " attr = GetType().GetCustomAttribute<" + typeof(EbxClassMetaAttribute).Name + ">();\r\nif (attr != null && attr." + name4 + " != \"\")\r\nreturn attr." + name4 + " + \".\" + GetType().Name;\r\n}\r\nreturn GetType().Name;\r\n}\r\nreturn __id;");
-				stringBuilder.AppendLine("}");
+				//string name4 = typeof(EbxClassMetaAttribute).GetProperties()[4].Name;
+				//string name5 = typeof(GlobalAttributes).GetFields()[0].Name;
+				//stringBuilder.AppendLine("protected virtual CString GetId()\r\n{");
+				//stringBuilder.AppendLine("if (__id == \"\")\r\n{\r\nif (" + typeof(GlobalAttributes).Name + "." + name5 + ")\r\n{\r\n" + typeof(EbxClassMetaAttribute).Name + " attr = GetType().GetCustomAttribute<" + typeof(EbxClassMetaAttribute).Name + ">();\r\nif (attr != null && attr." + name4 + " != \"\")\r\nreturn attr." + name4 + " + \".\" + GetType().Name;\r\n}\r\nreturn GetType().Name;\r\n}\r\nreturn __id;");
+				//stringBuilder.AppendLine("}");
 			}
 			if (value != null)
 			{
@@ -625,7 +625,20 @@ namespace SdkGenerator
 			{
 				baseType = "typeof(" + baseType + ")";
 			}
-			int value3 = fieldObj.GetValue("index", 0);
+
+			baseType = baseType.Replace("Float32", "float", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("UInt16", "ushort", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("UInt32", "uint", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("Int16", "short", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("Int32", "int", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("UInt64", "ulong", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("Int64", "long", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("UInt8", "sbyte", StringComparison.OrdinalIgnoreCase);
+			baseType = baseType.Replace("Int8", "byte", StringComparison.OrdinalIgnoreCase);
+			if (baseType.Contains("ulongprovider", StringComparison.OrdinalIgnoreCase))
+				return String.Empty;
+
+            int value3 = fieldObj.GetValue("index", 0);
 			if (fieldObj.HasValue("nameHash"))
 			{
 				//stringBuilder.AppendLine("[" + typeof(HashAttribute).Name + "(" + fieldObj.GetValue("nameHash", 0ul) + ")]");

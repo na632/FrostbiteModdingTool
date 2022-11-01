@@ -129,8 +129,6 @@ namespace SdkGenerator
             return false;
         }
 
-        
-
         public bool CrossReferenceAssets(SdkUpdateTask task)
         {
             if(FileSystem == null)
@@ -783,9 +781,6 @@ namespace SdkGenerator
         private DbObject DumpClasses(SdkUpdateTask task)
         {
             MemoryReader memoryReader = null;
-            //string typeStr = "v2k4FIFASDKGenerator.ClassesSdkCreator+ClassInfo";
-            //string typeStr = "v2k4FIFASDKGenerator.Madden21.ClassInfo";
-            //string typeStr = "SdkGenerator.Madden20.ClassInfo";
             string typeStr = "SdkGenerator.BaseInfo.ClassInfo";
 
             if (!string.IsNullOrEmpty(ProfileManager.SDKGeneratorClassInfoType))
@@ -795,19 +790,6 @@ namespace SdkGenerator
             else
             {
 
-                //if (ProfilesLibrary.DataVersion == 20181207)
-                //{
-                //    str = "FrostyEditor.Anthem.";
-                //}
-                //else if (ProfilesLibrary.IsMadden20DataVersion())
-                //{
-                //    str = "FrostyEditor.Madden20.";
-                //}
-                //else if (ProfilesLibrary.DataVersion == 20190905)
-                //{
-                //    str = "FrostyEditor.Madden20.";
-                //}
-                //else 
                 switch (ProfileManager.DataVersion)
                 {
 

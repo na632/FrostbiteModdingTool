@@ -1042,5 +1042,27 @@ namespace FrostySdk
 			});
 			pb.SetCustomAttribute(customAttribute);
 		}
-	}
+
+        public static Dictionary<string, Type> CachedTypes = new Dictionary<string, Type>();
+
+        public static object LoadTypeByName(string className, params object[] args)
+        {
+            if (CachedTypes.Any() && CachedTypes.ContainsKey(className))
+            {
+                var cachedType = CachedTypes[className];
+                return Activator.CreateInstance(type: cachedType, args: args);
+            }
+
+            IEnumerable<Assembly> currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assembly = currentAssemblies.FirstOrDefault(x => x.GetTypes().Any(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase)));
+            var t = assembly.GetTypes().FirstOrDefault(x => x.FullName.Contains(className, StringComparison.OrdinalIgnoreCase));
+            if (t != null)
+            {
+                CachedTypes.Add(className, t);
+                return Activator.CreateInstance(type: t, args: args);
+            }
+
+            throw new ArgumentNullException("Unable to find Class");
+        }
+    }
 }
