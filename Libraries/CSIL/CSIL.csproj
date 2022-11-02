@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Marvin.StreamExtensions" Version="1.2.0" />
     <PackageReference Include="ShadowDancer.BitStreams" Version="0.0.5" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
   </ItemGroup>
 
 
