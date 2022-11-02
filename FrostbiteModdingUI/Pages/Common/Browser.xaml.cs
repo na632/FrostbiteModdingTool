@@ -55,6 +55,9 @@ using FolderBrowserEx;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using FrostySdk.Frostbite.IO;
 using FrostbiteSdk;
+using System.Drawing.Drawing2D;
+using FMT.Pages.Common;
+using Microsoft.Identity.Client;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -75,6 +78,31 @@ namespace FIFAModdingUI.Pages.Common
 		{
 			InitializeComponent();
 			DataContext = this;
+
+			AssetManager.AssetManagerModified += AssetManager_AssetManagerModified;
+		}
+
+		private void AssetManager_AssetManagerModified(IAssetEntry modifiedAsset)
+		{
+			//_ = Task.Run(() =>
+			//{
+			//	if (AllAssetEntries.Any(x => x.Name == modifiedAsset.Name))
+			//	{
+			//		if (assetPathMapping.ContainsKey("/" + modifiedAsset.Path))
+			//		{
+			//			assetPathMapping["/" + modifiedAsset.Path].Asset = modifiedAsset;
+			//		}
+			//	}
+
+   //             Update();
+
+   // //            Dispatcher.Invoke(() => {
+
+			//	//	DataContext = null;
+			//	//	DataContext = this;
+			
+			//	//});
+			//});
 		}
 
 		public int HalfMainWindowWidth { get { return MainEditorWindow != null ? (int)Math.Round(((Window)MainEditorWindow).ActualWidth / 2) : 400; } }
@@ -176,23 +204,28 @@ namespace FIFAModdingUI.Pages.Common
 
 		private Dictionary<string, AssetPath> assetPathMapping = new Dictionary<string, AssetPath>(StringComparer.OrdinalIgnoreCase);
 		private AssetPath selectedPath = null;
+		public AssetPath AssetPath { get; set; }
 
-		public async void Update()
+        public async void Update()
 		{
-			AssetPath assetPath = new AssetPath("", "", null, true);
+			//if (AssetPath == null)
+                AssetPath = new AssetPath("", "", null, true);
 
-			var assets = await GetFilteredAssetEntries();
+            var assets = await GetFilteredAssetEntries();
 
 			//foreach (AssetEntry item in assets)
 			foreach (IAssetEntry item in assets)
+            {
+				var path = item.Path;
+				if (!path.StartsWith("/"))
+                    path = path.Insert(0, "/");
+                //if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
                 {
-				//if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
-				{
-					string[] directories = item.Path.Split(new char[1]
+					string[] directories = path.Split(new char[1]
 					{
 							'/'
 					}, StringSplitOptions.RemoveEmptyEntries);
-					AssetPath assetPath2 = assetPath;
+					AssetPath assetPath2 = AssetPath;
 					foreach (string directory in directories)
 					{
 						bool flag = false;
@@ -238,13 +271,31 @@ namespace FIFAModdingUI.Pages.Common
 				//assetPathMapping.Add("/", new AssetPath("![root]", "", null, bInRoot: true));
 				assetPathMapping.Add("/", new AssetPath("", "", null, bInRoot: true));
 			}
-			assetPath.Children.Insert(0, assetPathMapping["/"]);
+			AssetPath.Children.Insert(0, assetPathMapping["/"]);
 
-			await Dispatcher.InvokeAsync((Action)(() =>
+			foreach (IAssetEntry item in assets.OrderBy(x=>x.Name))
 			{
-				assetTreeView.ItemsSource = assetPath.Children;
-				assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
-			}));
+				if(assetPathMapping.ContainsKey("/" + item.Path))
+				{
+					var fileAssetPath = new AssetPath(item.Filename, "/" + item.Path + "/" + item.Filename, assetPathMapping["/" + item.Path], false);
+					fileAssetPath.Asset = item;
+                    assetPathMapping["/" + item.Path].Children.Add(fileAssetPath);
+				}
+			}
+
+			//         await Dispatcher.InvokeAsync((Action)(() =>
+			//{
+			//	assetTreeView.ItemsSource = assetPath.Children;
+			//	assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
+			//}));
+			await Dispatcher.InvokeAsync((Action)(() =>
+		   {
+			   assetTreeView.ItemsSource = AssetPath.Children;
+			   assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
+		   }));
+
+			this.DataContext = null;
+			this.DataContext = this;
 
 		}
 
@@ -824,12 +875,12 @@ namespace FIFAModdingUI.Pages.Common
 
 						).ToList();
 
-					Dispatcher.Invoke(() =>
-					{
-						var selectedit = assetListView.SelectedItem;
-						assetListView.ItemsSource = filteredAssets.OrderBy(x => x.Name);
-						assetListView.SelectedItem = selectedit;
-					});
+					//Dispatcher.Invoke(() =>
+					//{
+					//	var selectedit = assetListView.SelectedItem;
+					//	assetListView.ItemsSource = filteredAssets.OrderBy(x => x.Name);
+					//	assetListView.SelectedItem = selectedit;
+					//});
 
 				}
 			}
@@ -903,7 +954,7 @@ namespace FIFAModdingUI.Pages.Common
 			UnknownFileViewer.Visibility = Visibility.Visible;
 		}
 
-		async void OpenEbxAsset(EbxAssetEntry ebxEntry)
+		private async Task OpenEbxAsset(EbxAssetEntry ebxEntry)
         {
 			try
 			{
@@ -1016,18 +1067,18 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		private void OpenAsset(IAssetEntry entry)
+		private async void OpenAsset(IAssetEntry entry)
 		{
 			ResetViewers();
 			if (entry is EbxAssetEntry ebxEntry)
             {
-				OpenEbxAsset(ebxEntry);
+				await OpenEbxAsset(ebxEntry);
 				return;
 			}
 
 			if(entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
 			{
-				OpenLTUAsset(ltuEntry);
+				await OpenLTUAsset(ltuEntry);
 				return;
 			}
 
@@ -1154,11 +1205,11 @@ namespace FIFAModdingUI.Pages.Common
 			DataContext = this;
 		}
 
-		private void OpenLTUAsset(LiveTuningUpdate.LiveTuningUpdateEntry entry)
+		private async Task OpenLTUAsset(LiveTuningUpdate.LiveTuningUpdateEntry entry)
 		{
             MainEditorWindow.Log("Loading EBX " + entry.Filename);
 			var ebx = entry.GetAsset();
-            var successful = EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+            var successful = await EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
             EBXViewer.Visibility = Visibility.Visible;
         }
 
@@ -1632,9 +1683,38 @@ namespace FIFAModdingUI.Pages.Common
 				}
 			}
 		}
-    }
 
-    internal class AssetPath
+		private void Label_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+		{
+			var labelTag = ((ContentControl)sender).Tag as AssetPath;
+			if (labelTag == null)
+				return;
+
+			var assetEntry = labelTag.Asset as IAssetEntry;
+			if (assetEntry == null)
+				return;
+
+            // ---- ----------
+            // stop duplicates
+            browserDocuments.AllowDuplicateContent = false;
+            foreach (var child in browserDocuments.Children)
+            {
+                if (child.Title.StartsWith(assetEntry.Filename))
+                {
+                    browserDocuments.SelectedContentIndex = browserDocuments.Children.IndexOf(child);
+                    return;
+                }
+            }
+            // ---- ----------
+            var layoutDocument = new LayoutDocument();
+			layoutDocument.Title = assetEntry.Filename;
+			layoutDocument.Content = new OpenedFile(assetEntry);
+			browserDocuments.Children.Insert(0, layoutDocument);
+			browserDocuments.SelectedContentIndex = 0;
+        }
+	}
+
+	public class AssetPath
 	{
 		//private static ImageSource ClosedImage;// = new ImageSourceConverter().ConvertFromString("pack://application:,,,/FrostyEditor;component/Images/CloseFolder.png") as ImageSource;
 
@@ -1656,7 +1736,11 @@ namespace FIFAModdingUI.Pages.Common
 
 		public string DisplayName => name.Trim('!');
 
-		public string PathName => name;
+		public string PathName { get {
+
+				return IsModified ? "!" + name : name;
+			
+			} set { name = value; } }
 
 		public string FullPath => fullPath;
 
@@ -1693,6 +1777,14 @@ namespace FIFAModdingUI.Pages.Common
 		}
 
 		public bool IsRoot => root;
+
+		public IAssetEntry Asset { get; internal set; }
+
+		public bool IsModified { get {
+
+				return Asset != null && Asset.IsModified;
+			
+			} }
 
 		public AssetPath(string inName, string path, AssetPath inParent, bool bInRoot = false)
 		{

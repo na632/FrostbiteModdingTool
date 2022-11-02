@@ -34,7 +34,7 @@ namespace FIFAModdingUI.Windows
     public partial class BuildSDKAndCache : MetroWindow, ILogger, IDisposable
     {
 
-        private BuildCache buildCache = new BuildCache();
+        private CacheManager buildCache = new CacheManager();
         public bool DoNotAutoRebuild = false;
 
         public BuildSDKAndCache()

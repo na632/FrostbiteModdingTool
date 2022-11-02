@@ -27,8 +27,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="8*"></ColumnDefinition>
-            <ColumnDefinition Width="7*"></ColumnDefinition>
-            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="8*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <TextBlock x:Name="lblPropertyName" Grid.Column="0" ToolTip="{Binding PropertyDescription}" Text="{Binding PropertyName, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBlock>
         <Grid Grid.Column="1">
@@ -45,7 +44,7 @@
                     </Binding>
                 </TextBox.Text>
             </TextBox>-->
-            <TextBox x:Name="ValueBox" Grid.Column="1" MinWidth="100" 
+            <TextBox x:Name="ValueBox" Grid.Column="1"
                      ToolTip="{Binding PropertyDescription}"
                      >
                 <TextBox.Text>
@@ -63,19 +62,8 @@
             </TextBox>
             <TextBlock MinWidth="100" IsHitTestVisible="False" Text="{Binding PropertyOriginalValue, Mode=OneTime}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" Foreground="DarkGray">
             </TextBlock>
+            <TextBlock MinWidth="30" IsHitTestVisible="False" Visibility="{Binding HasPropertyDescriptionVisibility}" Text="?" FontSize="12" VerticalAlignment="Top" HorizontalAlignment="Right" TextAlignment="Right" Margin="3" Foreground="DarkGray">
+            </TextBlock>
         </Grid>
-        <Button Content="?" Grid.Column="2" Visibility="{Binding HasPropertyDescriptionVisibility}" BorderThickness="0,1,1,1"  >
-            <Button.ToolTip>
-                <Grid Width="300" >
-                    <Grid.RowDefinitions>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <TextBlock FontSize="20" Text="Description" TextWrapping="Wrap"></TextBlock>
-                    <TextBlock FontSize="18" Grid.Row="1" TextWrapping="Wrap" Text="{Binding PropertyDescription}"></TextBlock>
-                </Grid>
-            </Button.ToolTip>
-        </Button>
-        
     </Grid>
 </UserControl>

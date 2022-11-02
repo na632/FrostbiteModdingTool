@@ -24,8 +24,8 @@
                 <LayoutPanel Orientation="Horizontal">
                      
                         <LayoutDocumentPaneGroup>
-                            <LayoutDocumentPane ShowHeader="False">
-                                <LayoutDocument  CanClose="False" >
+                            <LayoutDocumentPane x:Name="browserDocuments" ShowHeader="True">
+                                <LayoutDocument Title="OldShit"  CanClose="False" >
                                     <Grid VerticalAlignment="Stretch" Grid.Column="1" Grid.RowSpan="2" ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                         <Grid.RowDefinitions>
                                             <RowDefinition MaxHeight="30"></RowDefinition>
@@ -91,10 +91,6 @@
                                         <local2:BrowserOfBIG Grid.Row="1" x:Name="BIGViewer" Visibility="Collapsed">
                                             
                                         </local2:BrowserOfBIG>
-                                        <!--<xctk:PropertyGrid Grid.Row="1" x:Name="BackupEBXViewer" Visibility="Collapsed" Background="DarkGray">
-                                        </xctk:PropertyGrid>-->
-                                        <!--<local2:FMTPropertyGrid x:Name="BackupEBXViewer" Grid.Row="1" Visibility="Collapsed">
-                                    </local2:FMTPropertyGrid>-->
 
 
                                         <DockingManager Grid.Row="1" x:Name="UnknownFileViewer" Visibility="Collapsed">
@@ -127,13 +123,7 @@
             ShowFrameDetails="False"
                  EnableDeferredRendering="True">
                                                 <hx:Viewport3DX.InputBindings>
-                                                    <!--<KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
-                                                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
-                                                            <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
-                                                            <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
-                                                            <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
-                                                            <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
-                                                            <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />-->
+                                                 
                                                     <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
                                                     <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
                                                     <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
@@ -184,23 +174,37 @@
                                                     <TreeView VerticalAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="3" x:Name="assetTreeView" 
                       ScrollViewer.VerticalScrollBarVisibility="Visible"  
                       SelectedItemChanged="assetTreeView_SelectedItemChanged"
+                                                              ItemsSource="{Binding AssetPath}"
+                                                              VirtualizingStackPanel.IsVirtualizing="True"
+            VirtualizingStackPanel.VirtualizationMode="Recycling"
                       >
                                                         <TreeView.ItemTemplate>
                                                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                                                <TextBlock Text="{Binding PathName}"
-                                                    Tag="{Binding}">
-                                                                    <TextBlock.ContextMenu>
-                                                                        <ContextMenu >
-                                                                            <MenuItem Header="Import Folder"
+                                                                <ContentControl MouseDoubleClick="Label_MouseDoubleClick"  Tag="{Binding}">
+                                                                    <TextBlock Text="{Binding PathName}"
+                                                     >
+                                                                        <TextBlock.ContextMenu>
+                                                                            <ContextMenu >
+                                                                                <MenuItem Header="Import Folder"
                                                                      x:Name="btnImportFolder" Tag="{Binding}"
                                                                               Click="btnImportFolder_Click" />
-                                                                            <MenuItem Header="Export Folder"
+                                                                                <MenuItem Header="Export Folder"
                                                                      x:Name="btnExportFolder" Tag="{Binding}"
                                                                               Click="btnExportFolder_Click" />
-                                                                        </ContextMenu>
-                                                                    </TextBlock.ContextMenu>
-
-                                                                </TextBlock>
+                                                                            </ContextMenu>
+                                                                        </TextBlock.ContextMenu>
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsModified}"
+                                                        Value="True">
+                                                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </ContentControl>
                                                             </HierarchicalDataTemplate>
                                                         </TreeView.ItemTemplate>
                                                     </TreeView>
@@ -208,7 +212,7 @@
 
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>
-                                        <LayoutAnchorablePane DockWidth="200">
+                                        <!--<LayoutAnchorablePane DockWidth="200">
                                             <LayoutAnchorable Title="Files" CanAutoHide="False" CanClose="False" CanHide="False">
 
                                                 <ListView VerticalAlignment="Stretch"  Grid.Column="0" Grid.Row="2" x:Name="assetListView" 
@@ -221,11 +225,11 @@
                       >
                                                     <ListView.ItemsPanel>
                                                         <ItemsPanelTemplate>
-                                                            <!--<StackPanel/>
+                                                            --><!--<StackPanel/>
                     If StackPanel was used, the memory consumed was over 2GB and dead slow.
-                    -->
+                    --><!--
                                                             <VirtualizingStackPanel>
-                                                                <!--Memory footprint is only 200 mb-->
+                                                                --><!--Memory footprint is only 200 mb--><!--
                                                             </VirtualizingStackPanel>
                                                         </ItemsPanelTemplate>
                                                     </ListView.ItemsPanel>
@@ -335,7 +339,7 @@
                                                     </ListView.View>
                                                 </ListView>
                                             </LayoutAnchorable>
-                                        </LayoutAnchorablePane>
+                                        </LayoutAnchorablePane>-->
                                     </LayoutPanel>
                                 </LayoutRoot>
                             </DockingManager>

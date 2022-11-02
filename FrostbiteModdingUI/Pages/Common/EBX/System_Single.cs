@@ -10,7 +10,8 @@ namespace FrostbiteModdingUI.Pages.Common.EBX
     {
         public System_Single() : base()
         {
-
         }
+
+
     }
 }

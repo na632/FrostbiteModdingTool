@@ -293,6 +293,7 @@ namespace FIFAModdingUI.Windows
 
             Dispatcher.Invoke(() =>
             {
+                //swEnableLegacyInjection.Visibility = ProfileManager.CanUseLiveLegacyMods ? Visibility.Visible : Visibility.Collapsed;
                 swEnableLegacyInjection.IsOn = LauncherOptions.UseLegacyModSupport.HasValue && LauncherOptions.UseLegacyModSupport.Value && ProfileManager.CanUseLiveLegacyMods;
                 swEnableLegacyInjection.IsEnabled = ProfileManager.CanUseLiveLegacyMods;
 
@@ -302,8 +303,27 @@ namespace FIFAModdingUI.Windows
 
             });
 
+
             EnableEditor();
 
+        }
+
+       
+
+        public static readonly DependencyProperty ProfileSupportsLegacyModsProperty = DependencyProperty.Register(
+            "CanUseLiveLegacyMods", typeof(bool),
+            typeof(ProfileManager.Profile)
+            );
+
+        public Visibility ProfileSupportsLegacyMods
+        {
+            get
+            {
+                if (ProfileSupportsLegacyModsProperty != null)
+                    return (bool)GetValue(ProfileSupportsLegacyModsProperty) ? Visibility.Visible : Visibility.Collapsed;
+                else
+                    return ProfileManager.CanUseLiveLegacyMods ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         private void InitialiseBrowsers()
@@ -484,7 +504,7 @@ namespace FIFAModdingUI.Windows
         {
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_FMTV2.CleanUpChunks();
+            ChunkFileManager2022.CleanUpChunks();
 
             try
             {
@@ -597,7 +617,7 @@ namespace FIFAModdingUI.Windows
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_FMTV2.CleanUpChunks();
+            ChunkFileManager2022.CleanUpChunks();
 
             //loadingDialog.Close();
             loadingDialog.Update("", "");
@@ -689,7 +709,7 @@ namespace FIFAModdingUI.Windows
                     // A chunk clean up of bad and broken projects
                     await Task.Run(() =>
                     {
-                        LegacyFileManager_FMTV2.CleanUpChunks();
+                        ChunkFileManager2022.CleanUpChunks();
                     });
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;
@@ -1172,7 +1192,7 @@ namespace FIFAModdingUI.Windows
         private void btnCleanUpLegacyFiles_Click(object sender, RoutedEventArgs e)
         {
             //LegacyFileManager_M21.CleanUpChunks();
-            LegacyFileManager_FMTV2.CleanUpChunks(true);
+            ChunkFileManager2022.CleanUpChunks(true);
             Log("Legacy files have been cleaned");
         }
 
@@ -1260,7 +1280,7 @@ namespace FIFAModdingUI.Windows
                     // A chunk clean up of bad and broken projects
                     await Task.Run(() =>
                     {
-                        LegacyFileManager_FMTV2.CleanUpChunks();
+                        ChunkFileManager2022.CleanUpChunks();
                     });
                     lstProjectFiles.ItemsSource = null;
                     lstProjectFiles.ItemsSource = ProjectManagement.Project.ModifiedAssetEntries;

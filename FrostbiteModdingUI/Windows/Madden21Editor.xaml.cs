@@ -216,7 +216,7 @@ namespace FrostbiteModdingUI.Windows
         {
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
-            LegacyFileManager_FMTV2.CleanUpChunks();
+            ChunkFileManager2022.CleanUpChunks();
 
             try
             {
