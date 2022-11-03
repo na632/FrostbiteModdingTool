@@ -98,13 +98,13 @@ namespace FMT.Controls.Pages
 
         public void AttachToAssetManager()
         {
-            AssetManager.AssetManagerInitialised += AssetManagerInitialised;
+            //AssetManager.AssetManagerInitialised += AssetManagerInitialised;
             //AssetManager.AssetManagerModified += AssetManagerInitialised;
         }
 
         public void DetachFromAssetManager()
         {
-            AssetManager.AssetManagerInitialised -= AssetManagerInitialised;
+            //AssetManager.AssetManagerInitialised -= AssetManagerInitialised;
             //AssetManager.AssetManagerModified -= AssetManagerInitialised;
         }
 

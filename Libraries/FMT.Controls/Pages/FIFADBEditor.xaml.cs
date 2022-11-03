@@ -71,7 +71,7 @@ namespace FMT.Controls.Pages
             if (EditorMode != DBEditorMode.DB)
                 return;
 
-            AssetManager.AssetManagerInitialised += AssetManagerInitialised;
+            //AssetManager.AssetManagerInitialised += AssetManagerInitialised;
             //AssetManager.AssetManagerModified += AssetManagerInitialised;
         }
 
@@ -80,7 +80,7 @@ namespace FMT.Controls.Pages
             if (EditorMode != DBEditorMode.DB)
                 return;
 
-            AssetManager.AssetManagerInitialised -= AssetManagerInitialised;
+            //AssetManager.AssetManagerInitialised -= AssetManagerInitialised;
             //AssetManager.AssetManagerModified -= AssetManagerInitialised;
         }
 
