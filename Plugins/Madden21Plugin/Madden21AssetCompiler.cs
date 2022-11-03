@@ -161,7 +161,7 @@ namespace Madden21Plugin
             ModExecuter = (ModExecutor)modExecuter;
             // ------------------------------------------------------------------------------------------
             // You will need to change this to ProfilesLibrary.DataVersion if you change the Profile.json DataVersion field
-            if (ProfileManager.IsMadden21DataVersion())
+            if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
             {
                 if (UseModData)
                 {

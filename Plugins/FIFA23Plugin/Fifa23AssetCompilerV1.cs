@@ -404,6 +404,9 @@ namespace FIFA23Plugin
                                 }
                             }
 
+                            if (string.IsNullOrEmpty(originalEntry.TOCFileLocation))
+                                continue;
+
                             EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
                         }
 

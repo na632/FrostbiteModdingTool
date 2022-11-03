@@ -31,6 +31,7 @@ using FrostySdk.Frostbite.PluginInterfaces;
 using System.Runtime.CompilerServices;
 using FrostyModManager;
 using Microsoft.Win32;
+using Frostbite.FileManagers;
 
 namespace ModdingSupport
 {
@@ -2848,42 +2849,9 @@ namespace ModdingSupport
             string modPath = fs.BasePath + modDirName + "\\";
             string patchPath = "Patch";
 
-            //await Task.Run(() =>
-            //{
-
-            //    if (ProfilesLibrary.IsMadden20DataVersion() || ProfilesLibrary.IsMadden21DataVersion())
-            //    {
-            //        string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
-            //        if (Directory.Exists(path))
-            //        {
-            //            DirectoryInfo directoryInfo = new DirectoryInfo(path);
-            //            directoryInfo.Delete(true);
-            //        }
-
-            //        path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 21");
-            //        if (Directory.Exists(path))
-            //        {
-            //            DirectoryInfo directoryInfo = new DirectoryInfo(path);
-            //            // delete or throw???
-            //            directoryInfo.Delete(true);
-            //        }
-            //    }
-            //});
-            //Process[] processes = Process.GetProcesses();
             string profileName = ProfileManager.ProfileName;
             if(Process.GetProcesses().Any(x=>x.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase)))
                 throw new Exception("Game process is already running, please close and relaunch");
-
-            //foreach (Process process in processes)
-            //{
-            //    if (process.ProcessName.Equals(profileName, StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        throw new Exception("Game process is already running, please close and relaunch");
-            //    }
-            //}
-            //processes = null;
-
-            //Logger.Log("Initializing resources");
 
             if (ResourceManager.Instance == null)
             {
@@ -2894,6 +2862,7 @@ namespace ModdingSupport
             {
                 rm = ResourceManager.Instance;
             }
+
 
             bool FrostyModsFound = false;
 
@@ -3119,131 +3088,29 @@ namespace ModdingSupport
                                 break;
                         }
 
-                        //if (resource.Type == ModResourceType.Ebx)
-                        //{
-
-                        //}
-                        //else
-                        //if (resource.Type == ModResourceType.Res)
-                        //{
-                        //    if (resource.HasHandler)
-                        //    {
-                        //        ResAssetEntry resAssetEntry = null;
-                        //        HandlerExtraData handlerExtraData = null;
-                        //        //byte[] resourceData2 = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                        //        if (modifiedRes.ContainsKey(resource.Name))
-                        //        {
-                        //            resAssetEntry = modifiedRes[resource.Name];
-                        //            handlerExtraData = (HandlerExtraData)resAssetEntry.ExtraData;
-                        //        }
-                        //        else
-                        //        {
-                        //            resAssetEntry = new ResAssetEntry();
-                        //            handlerExtraData = new HandlerExtraData();
-                        //            resource.FillAssetEntry(resAssetEntry);
-                        //            foreach (ResCustomHandlerAttribute customAttribute in Assembly.GetExecutingAssembly().GetCustomAttributes<ResCustomHandlerAttribute>())
-                        //            {
-                        //                if (customAttribute.ResType == (ResourceType)resAssetEntry.ResType)
-                        //                {
-                        //                    handlerExtraData.Handler = (Frosty.ModSupport.Handlers.ICustomActionHandler)Activator.CreateInstance(customAttribute.CustomHandler);
-                        //                    break;
-                        //                }
-                        //            }
-                        //            resAssetEntry.ExtraData = handlerExtraData;
-                        //            modifiedRes.Add(resource.Name, resAssetEntry);
-                        //        }
-                        //        //handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData2);
-                        //        handlerExtraData.Data = handlerExtraData.Handler.Load(handlerExtraData.Data, resourceData);
-                        //    }
-                        //    else
-                        //    {
-                        //        if (modifiedRes.ContainsKey(resource.Name))
-                        //        {
-                        //            modifiedRes.Remove(resource.Name);
-                        //            if (archiveData.ContainsKey(resource.Sha1))
-                        //                archiveData.TryRemove(resource.Sha1, out ArchiveInfo _);
-
-                        //        }
-                        //        ResAssetEntry resAssetEntry3 = new ResAssetEntry();
-                        //        resource.FillAssetEntry(resAssetEntry3);
-                        //        resAssetEntry3.Size = resourceData.Length;
-                        //        modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
-                        //        if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
-                        //        {
-                        //            archiveData.TryAdd(resAssetEntry3.Sha1, new ArchiveInfo
-                        //            {
-                        //                //Data = resourceData3,
-                        //                Data = resourceData,
-                        //                RefCount = 1
-                        //            });
-                        //        }
-                        //        else
-                        //        {
-                        //            archiveData[resAssetEntry3.Sha1].RefCount++;
-                        //        }
-                        //    }
-                        //}
-                        //else 
+                        
                         if (resource.Type == ModResourceType.Chunk)
                         {
-
-
-
                             Guid guid = new Guid(resource.Name);
                             if (ModifiedChunks.ContainsKey(guid))
                             {
                                 ModifiedChunks.Remove(guid);
                             }
-                            ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
-                            resource.FillAssetEntry(chunkAssetEntry3);
-                            chunkAssetEntry3.Size = resourceData.Length;
+                            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                            resource.FillAssetEntry(chunkAssetEntry);
+                            chunkAssetEntry.Size = resourceData.Length;
 
-                            if (chunkAssetEntry3.ModifiedEntry != null
-                                && chunkAssetEntry3.ModifiedEntry.IsLegacyFile
-                                && !string.IsNullOrEmpty(chunkAssetEntry3.ModifiedEntry.LegacyFullName)
-                                && chunkAssetEntry3.ModifiedEntry.LegacyFullName.Length > 10
-                                )
+                            ModifiedChunks.Add(guid, chunkAssetEntry);
+                            if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
                             {
-                                LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
-                                legacyAssetEntry.Name = chunkAssetEntry3.ModifiedEntry.LegacyFullName;
-
-                                var d = new CasReader(new MemoryStream(resourceData)).Read();
-                                legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = d };
-                                legacyAssetEntry.Size = d.Length;
-
-                                if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
-                                    modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
-                                else
-                                    modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
-
-                                archiveData.TryAdd(legacyAssetEntry.Sha1, new ArchiveInfo
-                                {
-                                    Data = d,
-                                });
-
-                                continue;
-                            }
-                            //chunkAssetEntry3.ModifiedEntry = new ModifiedAssetEntry()
-                            //{
-                            //    Data = resourceData
-                            //        ,
-                            //    UserData = resource.UserData
-                            //        ,
-                            //    Sha1 = chunkAssetEntry3.Sha1
-                            //};
-
-
-                            ModifiedChunks.Add(guid, chunkAssetEntry3);
-                            if (!archiveData.ContainsKey(chunkAssetEntry3.Sha1))
-                            {
-                                archiveData.TryAdd(chunkAssetEntry3.Sha1, new ArchiveInfo
+                                archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
                                 {
                                     Data = resourceData,
                                 });
                             }
                             else
                             {
-                                archiveData[chunkAssetEntry3.Sha1].Data = resourceData;
+                                archiveData[chunkAssetEntry.Sha1].Data = resourceData;
                             }
                         }
 
@@ -3258,22 +3125,7 @@ namespace ModdingSupport
                                 modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
                             else
                                 modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
-
-                            //if (!archiveData.ContainsKey(legacyAssetEntry.Sha1))
-                            //{
-                            //    archiveData.TryAdd(legacyAssetEntry.Sha1, new ArchiveInfo
-                            //    {
-                            //        Data = resourceData,
-                            //        RefCount = 1
-                            //    });
-                            //}
-                            //else
-                            //{
-                            //    archiveData[legacyAssetEntry.Sha1].Data = resourceData;
-                            //    archiveData[legacyAssetEntry.Sha1].RefCount++;
-                            //}
                         }
-                        //});
                     }
 
                 }
@@ -3886,7 +3738,7 @@ namespace ModdingSupport
 
             try
             {
-                if (ProfileManager.IsMadden20DataVersion() || ProfileManager.IsMadden21DataVersion())
+                if (ProfileManager.IsMadden20DataVersion() || ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
                 {
                     string path = Environment.ExpandEnvironmentVariables("%ProgramData%\\Frostbite\\Madden NFL 20");
                     if (Directory.Exists(path))
