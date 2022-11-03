@@ -297,7 +297,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 //    }
                 //}
 
-                var legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+                var legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as ChunkFileManager2022;
                 if (legacyFileManager != null)
                 {
                     legacyFileManager.ModifyAssets(legacyData, true);

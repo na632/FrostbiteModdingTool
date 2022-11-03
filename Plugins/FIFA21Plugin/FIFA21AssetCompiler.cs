@@ -262,7 +262,7 @@ namespace FIFA21Plugin
 
             if (AssetManager.Instance == null)
             {
-                BuildCache buildCache = new BuildCache();
+                CacheManager buildCache = new CacheManager();
                 buildCache.LoadData(ProfileManager.ProfileName, parent.GamePath, parent.Logger, false, true);
             }
 

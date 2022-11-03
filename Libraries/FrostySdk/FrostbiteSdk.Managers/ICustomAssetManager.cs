@@ -5,7 +5,7 @@ using System.IO;
 
 namespace FrostySdk.Managers
 {
-	public interface ICustomAssetManager : ILegacyFileManager
+	public interface ICustomAssetManager : IChunkFileManager
 	{
 		public List<LegacyFileEntry> AddedFileEntries { get; set; }
 

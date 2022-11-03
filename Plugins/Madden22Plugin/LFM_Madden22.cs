@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace FIFA22Plugin
 {
-    public class LFM_Madden22 : LegacyFileManager_FMTV2, ILegacyFileManager, ICustomAssetManager
+    public class LFM_Madden22 : ChunkFileManager2022, IChunkFileManager, ICustomAssetManager
     {
 
 		public override void Initialize(ILogger logger)
@@ -177,7 +177,7 @@ namespace FIFA22Plugin
 			}
 
 			logger.Log($"Loaded {LegacyEntries.Count} legacy files");
-			LegacyFileManager.Instance = this;
+			ChunkFileManager.Instance = this;
 		}
 	}
 }

@@ -13,14 +13,18 @@ using System.Threading.Tasks;
 
 namespace FIFA23Plugin
 {
-    public class LFM_Fifa23 : LegacyFileManager_FMTV2, ILegacyFileManager, ICustomAssetManager
+    public class LFM_Fifa23 : ChunkFileManager2022, IChunkFileManager, ICustomAssetManager
     {
+
 
 		public override void Initialize(ILogger logger)
 		{
-			base.Initialize(logger);
+			//base.Initialize(logger);
 
-			Logger = logger;
+			if (LegacyEntries.Count > 0)
+				return;
+
+            Logger = logger;
             AddedFileEntries = new List<LegacyFileEntry>();
             OriginalLegacyEntries.Clear();
             LegacyEntries.Clear();
@@ -177,7 +181,7 @@ namespace FIFA23Plugin
 			}
 
 			logger.Log($"[LEGACY] Loaded {LegacyEntries.Count} files");
-			LegacyFileManager.Instance = this;
+			ChunkFileManager.Instance = this;
 		}
 
 	}

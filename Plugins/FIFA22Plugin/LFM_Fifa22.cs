@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace FIFA22Plugin
 {
-    public class LFM_Fifa22 : LegacyFileManager_FMTV2, ILegacyFileManager, ICustomAssetManager
+    public class LFM_Fifa22 : ChunkFileManager2022, IChunkFileManager, ICustomAssetManager
     {
 		public override void Initialize(ILogger logger)
 		{

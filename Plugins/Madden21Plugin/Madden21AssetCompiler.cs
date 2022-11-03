@@ -100,7 +100,7 @@ namespace Madden21Plugin
             // Handle Legacy first to generate modified chunks
             if (ModExecuter.modifiedLegacy.Count > 0)
             {
-                BuildCache buildCache = new BuildCache();
+                CacheManager buildCache = new CacheManager();
                 buildCache.LoadData(ProfileManager.ProfileName, ModExecuter.GamePath, ModExecuter.Logger, false, true); ;
 
                 ModExecuter.Logger.Log($"Legacy :: {ModExecuter.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");

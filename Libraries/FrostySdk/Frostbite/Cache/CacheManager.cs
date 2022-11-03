@@ -10,13 +10,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace FrostySdk.Frostbite
 {
 	/// <summary>
 	/// A Build / Load Cache Data via FrostySDK
 	/// </summary>
-    public class BuildCache : ILogger
+    public class CacheManager : ILogger
     {
 		/// <summary>
 		/// 
@@ -43,6 +44,7 @@ namespace FrostySdk.Frostbite
             var result = LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
 			return result;
 		}
+
 		public async Task<bool> LoadDataAsync(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
 			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({GameVersion},{GameLocation})");
@@ -93,7 +95,55 @@ namespace FrostySdk.Frostbite
 			return false;
 		}
 
-		private string LastMessage = null;
+
+		public static bool HasEbx(string name)
+		{
+			return GetEbx(name) != null;
+		}
+
+        public static EbxAssetEntry GetEbx(string name)
+        {
+            EbxAssetEntry entry = null;
+            using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
+            {
+                if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
+                    return null;
+
+                _ = nativeReader.ReadULong();
+
+                var EbxDataOffset = nativeReader.ReadULong();
+                var ResDataOffset = nativeReader.ReadULong();
+                var ChunkDataOffset = nativeReader.ReadULong();
+                var NameToPositionOffset = nativeReader.ReadULong();
+
+
+            }
+            return entry;
+        }
+
+        protected IEnumerable<EbxAssetEntry> EnumerateEbx(string name, string type, bool modifiedOnly, bool includeLinked)
+        {
+            using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
+            {
+                if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
+                    return null;
+
+                _ = nativeReader.ReadULong();
+
+                var EbxDataOffset = nativeReader.ReadULong();
+                var ResDataOffset = nativeReader.ReadULong();
+                var ChunkDataOffset = nativeReader.ReadULong();
+                var NameToPositionOffset = nativeReader.ReadULong();
+
+				nativeReader.Position = (long)EbxDataOffset;
+				var ebxCount = nativeReader.ReadUInt();
+
+
+            }
+            return new List<EbxAssetEntry>();
+        }
+
+        private string LastMessage = null;
 
 		public void Log(string text, params object[] vars)
         {

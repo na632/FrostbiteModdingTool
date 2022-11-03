@@ -12,10 +12,10 @@ namespace FIFA21Plugin.Cache
 {
 	public class Fifa21CacheReader : ICacheReader
 	{
-		public ulong EbxDataOffset { get; private set; }
-		public ulong ResDataOffset { get; private set; }
-		public ulong ChunkDataOffset { get; private set; }
-		public ulong NameToPositionOffset { get; private set; }
+		public ulong EbxDataOffset { get; set; }
+		public ulong ResDataOffset { get; set; }
+		public ulong ChunkDataOffset { get; set; }
+		public ulong NameToPositionOffset { get; set; }
 
 		public bool Read()
 		{

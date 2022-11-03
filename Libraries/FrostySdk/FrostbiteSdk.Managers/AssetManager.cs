@@ -27,6 +27,7 @@ using Frostbite.Textures;
 using CSharpImageLibrary;
 using System.Collections;
 using FrostySdk.FrostySdk.Managers;
+using FrostySdk.Frostbite;
 
 namespace FrostySdk.Managers
 {
@@ -559,11 +560,11 @@ namespace FrostySdk.Managers
 			}
 			else if (ProfileManager.IsMadden21DataVersion() || ProfileManager.IsFIFA21DataVersion())
 			{
-				CustomAssetManagers.Add("legacy", new LegacyFileManager_FMTV2());
+				CustomAssetManagers.Add("legacy", new ChunkFileManager2022());
 			}
 			else
 			{
-				CustomAssetManagers.Add("legacy", new LegacyFileManager(this));
+				CustomAssetManagers.Add("legacy", new ChunkFileManager(this));
 			}
 			
         }
@@ -700,17 +701,19 @@ namespace FrostySdk.Managers
             }
 
             DoEbxIndexing();
-            foreach (ICustomAssetManager value in CustomAssetManagers.Values)
-			{
-				value.Initialize(logger);
-			}
+
+			// Load these when you need them!
+   //         foreach (ICustomAssetManager value in CustomAssetManagers.Values)
+			//{
+			//	value.Initialize(logger);
+			//}
 			
 			TimeSpan timeSpan = DateTime.Now - dtAtStart;
 			logger.Log($"Loading complete {timeSpan.ToString(@"mm\:ss")}");
 
 			if(AssetManagerInitialised != null)
             {
-				AssetManagerInitialised();
+				AssetManagerInitialised(null);
             }
 
 			_ = EBX;
@@ -718,7 +721,7 @@ namespace FrostySdk.Managers
 			_ = Chunks;
         }
 
-		public delegate void AssetManagerModifiedHandler();
+		public delegate void AssetManagerModifiedHandler(IAssetEntry modifiedAsset);
 
 		public static event AssetManagerModifiedHandler AssetManagerInitialised;
 
@@ -961,7 +964,7 @@ namespace FrostySdk.Managers
 			}
 			EmbeddedFileEntries = new List<EmbeddedFileEntry>();
 
-			LegacyFileManager_FMTV2.CleanUpChunks(true);
+			ChunkFileManager2022.CleanUpChunks(true);
 			LocaleINIMod = new LocaleINIMod();
 
 		}
@@ -973,7 +976,7 @@ namespace FrostySdk.Managers
 			resRidList.Clear();
 			Chunks.Clear();
 
-			var lam = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
+			var lam = GetLegacyAssetManager() as ChunkFileManager2022;
 			if (lam != null)
 			{
 				lam.LegacyEntries.Clear();
@@ -1006,10 +1009,10 @@ namespace FrostySdk.Managers
                 assetEntry.AddBundles.Clear();
                 assetEntry.RemBundles.Clear();
 
-				var m21LAM = GetLegacyAssetManager() as LegacyFileManager_FMTV2;
-				if (m21LAM != null)
+				var chunkFileManager = GetLegacyAssetManager() as ChunkFileManager;
+				if (chunkFileManager != null)
 				{
-					m21LAM.RevertAsset(assetEntry);
+                    chunkFileManager.RevertAsset(assetEntry);
 				}
 
                 assetEntry.IsDirty = false;
@@ -1385,7 +1388,11 @@ namespace FrostySdk.Managers
 				ebxAssetEntry.ModifiedEntry.DependentAssets.AddRange(asset.Dependencies);
 				ebxAssetEntry.IsDirty = true;
 				ebxAssetEntry.IsBinary = false;
-			}
+
+				if (AssetManagerModified != null)
+					AssetManagerModified(ebxAssetEntry);
+
+            }
 		}
 
 		public void ModifyEbxBinary(string name, byte[] data)
@@ -1503,17 +1510,20 @@ namespace FrostySdk.Managers
 			if (CustomAssetManagers.ContainsKey("legacy"))
 			{
 				CustomAssetManagers["legacy"].ModifyAsset(name, data, rebuildChunk);
-			}
 
-			if (AssetManagerModified != null)
-			{
-				AssetManagerModified();
-			}
-		}
+				var assetEntry = CustomAssetManagers["legacy"].GetAssetEntry(name);
+                if (AssetManagerModified != null)
+                {
+                    AssetManagerModified(assetEntry);
+                }
+            }
+
+            
+        }
 
 		public void ModifyLegacyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
 		{
-			var lm = CustomAssetManagers["legacy"] as LegacyFileManager_FMTV2;
+			var lm = CustomAssetManagers["legacy"] as ChunkFileManager2022;
 			if(lm != null)
             {
 				lm.ModifyAssets(data, true);
@@ -1864,6 +1874,10 @@ namespace FrostySdk.Managers
 			if (EBX.ContainsKey($"{Fnv1.HashString(name.ToString())}"))
                 return EBX[$"{Fnv1.HashString(name.ToString())}"];
 
+			if (CacheManager.HasEbx(name.ToString()))
+			{
+				EBX.TryAdd(name.ToString(), CacheManager.GetEbx(name.ToString()));
+			}
 
             return null;
 		}

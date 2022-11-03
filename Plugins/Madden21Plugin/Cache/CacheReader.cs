@@ -12,7 +12,12 @@ namespace Madden21Plugin.Cache
 {
     public class CacheReader : ICacheReader
     {
-        public bool Read()
+		public ulong EbxDataOffset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public ulong ResDataOffset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public ulong ChunkDataOffset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public ulong NameToPositionOffset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+		public bool Read()
         {
 			var fs = AssetManager.Instance.fs;
 			bool flag = false;

@@ -158,7 +158,7 @@ namespace v2k4FIFAModding.Frosty
         {
             if(AssetManager.Instance == null)
             {
-                BuildCache buildCache = new BuildCache();
+                CacheManager buildCache = new CacheManager();
                 buildCache.LoadData(GameInstanceSingleton.Instance.GAMEVERSION, GameInstanceSingleton.Instance.GAMERootPath, Logger, false, true);
             }
 

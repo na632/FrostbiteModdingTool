@@ -33,7 +33,12 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 	public interface ICacheReader
 	{
-		public bool Read();
+        public ulong EbxDataOffset { get; set; }
+        public ulong ResDataOffset { get; set; }
+        public ulong ChunkDataOffset { get; set; }
+        public ulong NameToPositionOffset { get; set; }
+
+        public bool Read();
 	}
 
     public interface IAssetLoader
