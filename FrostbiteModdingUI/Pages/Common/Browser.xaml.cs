@@ -345,13 +345,13 @@ namespace FIFAModdingUI.Pages.Common
 						}
 						else
 						{
-							if(SelectedLegacyEntry.Type.ToUpper() != "DB" && SelectedLegacyEntry.Type.ToUpper() != "LOC")
-								TextViewer.Text = ASCIIEncoding.UTF8.GetString(bytes);
+							//if(SelectedLegacyEntry.Type.ToUpper() != "DB" && SelectedLegacyEntry.Type.ToUpper() != "LOC")
+							//	TextViewer.Text = ASCIIEncoding.UTF8.GetString(bytes);
 
-							AssetManager.Instance.ModifyLegacyAsset(
-								SelectedLegacyEntry.Name
-								, bytes
-								, false);
+							//AssetManager.Instance.ModifyLegacyAsset(
+							//	SelectedLegacyEntry.Name
+							//	, bytes
+							//	, false);
 						}
 
 						MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedLegacyEntry.Filename}");
@@ -416,8 +416,7 @@ namespace FIFAModdingUI.Pages.Common
 
 								// Update the Viewers
 								UpdateAssetListView();
-								//EBXViewer = new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-								await EBXViewer.LoadEbx(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+								//await EBXViewer.LoadEbx(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
 
 							}
 						}
@@ -921,26 +920,26 @@ namespace FIFAModdingUI.Pages.Common
         {
 			SelectedEntry = null;
 			SelectedLegacyEntry = null;
-			btnImport.IsEnabled = false;
-			btnExport.IsEnabled = false;
-			btnRevert.IsEnabled = false;
+			//btnImport.IsEnabled = false;
+			//btnExport.IsEnabled = false;
+			//btnRevert.IsEnabled = false;
 
-			ImageViewerScreen.Visibility = Visibility.Collapsed;
-			TextViewer.Visibility = Visibility.Collapsed;
-			EBXViewer.Visibility = Visibility.Collapsed;
-			//BackupEBXViewer.Visibility = Visibility.Collapsed;
-			UnknownFileViewer.Visibility = Visibility.Collapsed;
-			ModelDockingManager.Visibility = Visibility.Collapsed;
-			BIGViewer.Visibility = Visibility.Collapsed;
+			//ImageViewerScreen.Visibility = Visibility.Collapsed;
+			//TextViewer.Visibility = Visibility.Collapsed;
+			//EBXViewer.Visibility = Visibility.Collapsed;
+			////BackupEBXViewer.Visibility = Visibility.Collapsed;
+			//UnknownFileViewer.Visibility = Visibility.Collapsed;
+			//ModelDockingManager.Visibility = Visibility.Collapsed;
+			//BIGViewer.Visibility = Visibility.Collapsed;
 		}
 
 		private void DisplayUnknownFileViewer(Stream stream)
         {
-			btnExport.IsEnabled = true;
-			btnImport.IsEnabled = true;
-			btnRevert.IsEnabled = true;
+			//btnExport.IsEnabled = true;
+			//btnImport.IsEnabled = true;
+			//btnRevert.IsEnabled = true;
 
-			unknownFileDocumentsPane.Children.Clear();
+			//unknownFileDocumentsPane.Children.Clear();
 			var newLayoutDoc = new LayoutDocument();
 			newLayoutDoc.Title = SelectedEntry.DisplayName;
 			WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
@@ -948,10 +947,10 @@ namespace FIFAModdingUI.Pages.Common
 			newLayoutDoc.Content = hexEditor;
 			hexEditor.BytesModified -= HexEditor_BytesModified;
 			hexEditor.BytesModified += HexEditor_BytesModified;
-			unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
-			unknownFileDocumentsPane.SelectedContentIndex = 0;
+			//unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
+			//unknownFileDocumentsPane.SelectedContentIndex = 0;
 
-			UnknownFileViewer.Visibility = Visibility.Visible;
+			//UnknownFileViewer.Visibility = Visibility.Visible;
 		}
 
 		private async Task OpenEbxAsset(EbxAssetEntry ebxEntry)
@@ -1006,13 +1005,13 @@ namespace FIFAModdingUI.Pages.Common
 						ModelViewerModel.Dispose();
 
 					ModelViewerModel = new MainViewModel(skinnedMeshAsset: SelectedEbxAsset, meshSet: meshSet);
-					this.ModelViewer.DataContext = ModelViewerModel;
-					this.ModelDockingManager.Visibility = Visibility.Visible;
-					await ModelViewerEBX.LoadEbx(ebxEntry, SelectedEbxAsset, ProjectManagement.Instance.Project, MainEditorWindow);
+					//this.ModelViewer.DataContext = ModelViewerModel;
+					//this.ModelDockingManager.Visibility = Visibility.Visible;
+					//await ModelViewerEBX.LoadEbx(ebxEntry, SelectedEbxAsset, ProjectManagement.Instance.Project, MainEditorWindow);
 
-                    this.btnExport.IsEnabled = ProfileManager.CanExportMeshes;
-					this.btnImport.IsEnabled = ProfileManager.CanImportMeshes;
-					this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
+     //               this.btnExport.IsEnabled = ProfileManager.CanExportMeshes;
+					//this.btnImport.IsEnabled = ProfileManager.CanImportMeshes;
+					//this.btnRevert.IsEnabled = SelectedEntry.HasModifiedData;
 
 				}
 				else if (string.IsNullOrEmpty(ebxEntry.Type) || ebxEntry.Type == "UnknownType")
@@ -1030,30 +1029,12 @@ namespace FIFAModdingUI.Pages.Common
 					{
 						MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
-						//EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+						//var successful = await EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+						//EBXViewer.Visibility = Visibility.Visible;
 
-						var successful = await EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-						EBXViewer.Visibility = Visibility.Visible;
-						//EBXViewerPG.SetClass(ebx.RootObject);
-						//                  EBXViewerPG.Recreate();
-						//EBXViewerPG.Visibility = Visibility.Visible;
-
-
-						//EBXViewer.Visibility = successful.Result ? Visibility.Visible : Visibility.Collapsed;
-						//BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
-						//BackupEBXViewer.SelectedObject = ebx.RootObject;
-						//BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
-						//BackupEBXViewer.Asset = ebx;
-						//BackupEBXViewer.SetClass(ebx.RootObject);
-						//BackupEBXViewer.Recreate();
-
-
-						btnRevert.IsEnabled = true;
-						//if (ebxEntry.Type == "HotspotDataAsset")
-						//{
-						btnImport.IsEnabled = true;
-						btnExport.IsEnabled = true;
-						//}
+						//btnRevert.IsEnabled = true;
+						//btnImport.IsEnabled = true;
+						//btnExport.IsEnabled = true;
 					}
 				}
 			}
@@ -1091,7 +1072,7 @@ namespace FIFAModdingUI.Pages.Common
 							if (legacyFileEntry != null)
 							{
 								SelectedLegacyEntry = legacyFileEntry;
-								btnImport.IsEnabled = true;
+								//btnImport.IsEnabled = true;
 
 								List<string> textViewers = new List<string>()
 						{
@@ -1123,23 +1104,22 @@ namespace FIFAModdingUI.Pages.Common
 								{
 									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
-									btnImport.IsEnabled = true;
-									btnExport.IsEnabled = true;
-									btnRevert.IsEnabled = true;
+									//btnImport.IsEnabled = true;
+									//btnExport.IsEnabled = true;
+									//btnRevert.IsEnabled = true;
 
-									TextViewer.Visibility = Visibility.Visible;
-									using (var nr = new NativeReader(AssetManager.Instance.GetCustomAsset("legacy", legacyFileEntry)))
-									{
-										//TextViewer.Text = ASCIIEncoding.ASCII.GetString(nr.ReadToEnd());
-										TextViewer.Text = UTF8Encoding.UTF8.GetString(nr.ReadToEnd());
-									}
+									//TextViewer.Visibility = Visibility.Visible;
+									//using (var nr = new NativeReader(AssetManager.Instance.GetCustomAsset("legacy", legacyFileEntry)))
+									//{
+									//	TextViewer.Text = UTF8Encoding.UTF8.GetString(nr.ReadToEnd());
+									//}
 								}
 								else if (imageViewers.Contains(legacyFileEntry.Type))
 								{
 									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
-									btnImport.IsEnabled = true;
-									btnExport.IsEnabled = true;
-									ImageViewerScreen.Visibility = Visibility.Visible;
+									//btnImport.IsEnabled = true;
+									//btnExport.IsEnabled = true;
+									//ImageViewerScreen.Visibility = Visibility.Visible;
 
 									BuildTextureViewerFromStream((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry));
 
@@ -1147,46 +1127,43 @@ namespace FIFAModdingUI.Pages.Common
 								}
 							else if (bigViewers.Contains(legacyFileEntry.Type))
                             {
-								BIGViewer.Visibility = Visibility.Visible;
-								BIGViewer.AssetEntry = legacyFileEntry;
-								BIGViewer.ParentBrowser = this;
-								switch(legacyFileEntry.Type)
-                                {
-									//case "BIG":
-									//	BIGViewer.LoadBig();
-									//	break;
-									default:
-										BIGViewer.LoadBig();
-										break;
+								//BIGViewer.Visibility = Visibility.Visible;
+								//BIGViewer.AssetEntry = legacyFileEntry;
+								//BIGViewer.ParentBrowser = this;
+								//switch(legacyFileEntry.Type)
+        //                        {
+								//	default:
+								//		BIGViewer.LoadBig();
+								//		break;
 
-								}
+								//}
 
-								btnImport.IsEnabled = true;
-								btnExport.IsEnabled = true;
-								btnRevert.IsEnabled = true;
+								//btnImport.IsEnabled = true;
+								//btnExport.IsEnabled = true;
+								//btnRevert.IsEnabled = true;
                             }
 							else
 							{
 								MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
-								btnExport.IsEnabled = true;
-                                btnImport.IsEnabled = true;
-                                btnRevert.IsEnabled = true;
+								//btnExport.IsEnabled = true;
+        //                        btnImport.IsEnabled = true;
+        //                        btnRevert.IsEnabled = true;
 
-								unknownFileDocumentsPane.Children.Clear();
-								var newLayoutDoc = new LayoutDocument();
-								newLayoutDoc.Title = SelectedEntry.DisplayName;
-								WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
-                                using (var nr = new NativeReader(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
-                                {
-                                    hexEditor.Stream = new MemoryStream(nr.ReadToEnd());
-                                }
-                                newLayoutDoc.Content = hexEditor;
-								hexEditor.BytesModified += HexEditor_BytesModified;
-								unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
-								unknownFileDocumentsPane.SelectedContentIndex = 0;
+								//unknownFileDocumentsPane.Children.Clear();
+								//var newLayoutDoc = new LayoutDocument();
+								//newLayoutDoc.Title = SelectedEntry.DisplayName;
+								//WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
+        //                        using (var nr = new NativeReader(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+        //                        {
+        //                            hexEditor.Stream = new MemoryStream(nr.ReadToEnd());
+        //                        }
+        //                        newLayoutDoc.Content = hexEditor;
+								//hexEditor.BytesModified += HexEditor_BytesModified;
+								//unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
+								//unknownFileDocumentsPane.SelectedContentIndex = 0;
 							
 
-								UnknownFileViewer.Visibility = Visibility.Visible;
+								//UnknownFileViewer.Visibility = Visibility.Visible;
 							}
 
 						}
@@ -1209,8 +1186,8 @@ namespace FIFAModdingUI.Pages.Common
 		{
             MainEditorWindow.Log("Loading EBX " + entry.Filename);
 			var ebx = entry.GetAsset();
-            var successful = await EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-            EBXViewer.Visibility = Visibility.Visible;
+            //var successful = await EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+            //EBXViewer.Visibility = Visibility.Visible;
         }
 
         private void HexEditor_BytesModified(object sender, WpfHexaEditor.Core.EventArguments.ByteEventArgs e)
@@ -1285,58 +1262,58 @@ namespace FIFAModdingUI.Pages.Common
 
 			using (Texture textureAsset = new Texture(res))
 			{
-				try
-				{
-					ImageViewer.Source = null;
-					CurrentDDSImageFormat = textureAsset.PixelFormat;
+				//try
+				//{
+				//	ImageViewer.Source = null;
+				//	CurrentDDSImageFormat = textureAsset.PixelFormat;
 
 
-					var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
+				//	var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
-					TextureExporter textureExporter = new TextureExporter();
-					MemoryStream memoryStream = new MemoryStream();
+				//	TextureExporter textureExporter = new TextureExporter();
+				//	MemoryStream memoryStream = new MemoryStream();
 
-                    Stream expToStream = null;
-                    try
-					{
-                        expToStream = textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG);
-						expToStream.Position = 0;
-                        //var ddsData = textureExporter.WriteToDDS(textureAsset);
-                        //BuildTextureViewerFromStream(new MemoryStream(ddsData));
+    //                Stream expToStream = null;
+    //                try
+				//	{
+    //                    expToStream = textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG);
+				//		expToStream.Position = 0;
+    //                    //var ddsData = textureExporter.WriteToDDS(textureAsset);
+    //                    //BuildTextureViewerFromStream(new MemoryStream(ddsData));
 
-                    }
-					catch (Exception exception_ToStream)
-					{
-						MainEditorWindow.LogError($"Error loading texture with message :: {exception_ToStream.Message}");
-						MainEditorWindow.LogError(exception_ToStream.ToString());
-						ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
+    //                }
+				//	catch (Exception exception_ToStream)
+				//	{
+				//		MainEditorWindow.LogError($"Error loading texture with message :: {exception_ToStream.Message}");
+				//		MainEditorWindow.LogError(exception_ToStream.ToString());
+				//		ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
 
-						textureExporter.Export(textureAsset, res.Filename + ".DDS", "*.DDS");
-						MainEditorWindow.LogError($"As the viewer failed. The image has been exported to {res.Filename}.dds instead.");
-						return;
-					}
+				//		textureExporter.Export(textureAsset, res.Filename + ".DDS", "*.DDS");
+				//		MainEditorWindow.LogError($"As the viewer failed. The image has been exported to {res.Filename}.dds instead.");
+				//		return;
+				//	}
 
-					//using var nr = new NativeReader(expToStream);
-					//nr.Position = 0;
-					//var textureBytes = nr.ReadToEnd();
+				//	//using var nr = new NativeReader(expToStream);
+				//	//nr.Position = 0;
+				//	//var textureBytes = nr.ReadToEnd();
 
-					//ImageViewer.Source = LoadImage(textureBytes);
-					ImageViewer.Source = LoadImage(((MemoryStream)expToStream).ToArray());
-					ImageViewerScreen.Visibility = Visibility.Visible;
-					ImageViewer.MaxHeight = textureAsset.Height;
-					ImageViewer.MaxWidth = textureAsset.Width;
+				//	//ImageViewer.Source = LoadImage(textureBytes);
+				//	ImageViewer.Source = LoadImage(((MemoryStream)expToStream).ToArray());
+				//	ImageViewerScreen.Visibility = Visibility.Visible;
+				//	ImageViewer.MaxHeight = textureAsset.Height;
+				//	ImageViewer.MaxWidth = textureAsset.Width;
 
-                    btnExport.IsEnabled = true;
-					btnImport.IsEnabled = true;
-					btnRevert.IsEnabled = true;
+    //                btnExport.IsEnabled = true;
+				//	btnImport.IsEnabled = true;
+				//	btnRevert.IsEnabled = true;
 
-				}
-				catch (Exception e)
-				{
-					MainEditorWindow.LogError($"Error loading texture with message :: {e.Message}");
-					MainEditorWindow.LogError(e.ToString());
-					ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
-				}
+				//}
+				//catch (Exception e)
+				//{
+				//	MainEditorWindow.LogError($"Error loading texture with message :: {e.Message}");
+				//	MainEditorWindow.LogError(e.ToString());
+				//	ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
+				//}
 			}
 		}
 
@@ -1346,40 +1323,28 @@ namespace FIFAModdingUI.Pages.Common
         private void BuildTextureViewerFromStream(MemoryStream stream)
         {
 
-			try
-			{
-				ImageViewer.Source = null;
+			//try
+			//{
+			//	ImageViewer.Source = null;
 
-				var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
+			//	var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
-				ImageEngineImage imageEngineImage = new ImageEngineImage(((MemoryStream)stream).ToArray());
-				var iData = imageEngineImage.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.BMP), MipHandling.KeepTopOnly, removeAlpha: false);
+			//	ImageEngineImage imageEngineImage = new ImageEngineImage(((MemoryStream)stream).ToArray());
+			//	var iData = imageEngineImage.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.BMP), MipHandling.KeepTopOnly, removeAlpha: false);
 
-				//var CurrentDDSImage = new DDSImage(stream);
-				//stream.Position = 0;
-				//var dds2 = new DDSImage2(((MemoryStream)stream).ToArray());
-				//FourCC fourCC = dds2.GetPixelFormatFourCC();
+			//	ImageViewer.Source = LoadImage(iData);
+			//	ImageViewerScreen.Visibility = Visibility.Visible;
 
-				//CurrentDDSImageFormat = fourCC.ToString() + " - " + CurrentDDSImage._image.ToString() + " - " + CurrentDDSImage._image.Format.ToString();
-				//var textureBytes = new NativeReader(CurrentDDSImage.SaveToStream()).ReadToEnd();
-				////var textureBytes = new NativeReader(textureExporter.ExportToStream(texture)).ReadToEnd();
+			//	btnExport.IsEnabled = true;
+			//	btnImport.IsEnabled = true;
+			//	btnRevert.IsEnabled = true;
 
-				//CurrentDDSImageFormat = imageEngineImage.Format.ToString() + " - " + imageEngineImage.FormatDetails.DX10Format;
-
-				//ImageViewer.Source = LoadImage(textureBytes);
-				ImageViewer.Source = LoadImage(iData);
-				ImageViewerScreen.Visibility = Visibility.Visible;
-
-				btnExport.IsEnabled = true;
-				btnImport.IsEnabled = true;
-				btnRevert.IsEnabled = true;
-
-			}
-			catch (Exception e)
-			{
-				MainEditorWindow.LogError(e.Message);
-				ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
-			}
+			//}
+			//catch (Exception e)
+			//{
+			//	MainEditorWindow.LogError(e.Message);
+			//	ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
+			//}
 
 		}
 
@@ -1403,33 +1368,33 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnRevert_Click(object sender, RoutedEventArgs e)
         {
-			if (SelectedEntry != null)
-			{
-				if (EBXViewer != null && EBXViewer.Visibility == Visibility.Visible)
-				{
-					EBXViewer.RevertAsset();
-				}
-				else 
-				{
-					AssetManager.Instance.RevertAsset(SelectedEntry);
-				}
-			}
-			else if (SelectedLegacyEntry != null)
-            {
-				AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
-				if(SelectedLegacyEntry.Type == "DDS")
-                {
-					//BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
-					BuildTextureViewerFromStream((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
-                }
-            }
+			//if (SelectedEntry != null)
+			//{
+			//	if (EBXViewer != null && EBXViewer.Visibility == Visibility.Visible)
+			//	{
+			//		EBXViewer.RevertAsset();
+			//	}
+			//	else 
+			//	{
+			//		AssetManager.Instance.RevertAsset(SelectedEntry);
+			//	}
+			//}
+			//else if (SelectedLegacyEntry != null)
+   //         {
+			//	AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
+			//	if(SelectedLegacyEntry.Type == "DDS")
+   //             {
+			//		//BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+			//		BuildTextureViewerFromStream((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
+   //             }
+   //         }
 
-			if(MainEditorWindow != null)
-				MainEditorWindow.UpdateAllBrowsers();
+			//if(MainEditorWindow != null)
+			//	MainEditorWindow.UpdateAllBrowsers();
 
-			OpenAsset(SelectedEntry);
+			//OpenAsset(SelectedEntry);
 
-			UpdateAssetListView();
+			//UpdateAssetListView();
 
 		}
 
@@ -1458,15 +1423,15 @@ namespace FIFAModdingUI.Pages.Common
 
         private void TextViewer_LostFocus(object sender, RoutedEventArgs e)
         {
-			var bytes = ASCIIEncoding.UTF8.GetBytes(TextViewer.Text);
+			//var bytes = ASCIIEncoding.UTF8.GetBytes(TextViewer.Text);
 
-			if (SelectedLegacyEntry != null)
-			{
-				AssetManager.Instance.ModifyLegacyAsset(SelectedLegacyEntry.Name
-							, bytes
-							, false);
-				UpdateAssetListView();
-			}
+			//if (SelectedLegacyEntry != null)
+			//{
+			//	AssetManager.Instance.ModifyLegacyAsset(SelectedLegacyEntry.Name
+			//				, bytes
+			//				, false);
+			//	UpdateAssetListView();
+			//}
 		}
 
         private void TextBlock_PreviewKeyUp(object sender, KeyEventArgs e)

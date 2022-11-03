@@ -25,7 +25,7 @@
                      
                         <LayoutDocumentPaneGroup>
                             <LayoutDocumentPane x:Name="browserDocuments" ShowHeader="True">
-                                <LayoutDocument Title="OldShit"  CanClose="False" >
+                                <!--<LayoutDocument  Title="OldShit"  CanClose="False" >
                                     <Grid VerticalAlignment="Stretch" Grid.Column="1" Grid.RowSpan="2" ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                         <Grid.RowDefinitions>
                                             <RowDefinition MaxHeight="30"></RowDefinition>
@@ -143,7 +143,7 @@
                                     </Grid>
 
                                     </Grid>
-                                </LayoutDocument>
+                                </LayoutDocument>-->
                             </LayoutDocumentPane>
                         </LayoutDocumentPaneGroup>
                     <LayoutAnchorablePane  DockMinWidth="400" DockWidth="400">
