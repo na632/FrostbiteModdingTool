@@ -80,41 +80,8 @@ namespace SdkGenerator
                 }
             }
             else 
-            { 
-                if (ProfileManager.IsMadden21DataVersion())
-                {
-                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/M21.Classes.txt", FileMode.Open))
-                    {
-                        if (stream != null)
-                        {
-                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                        }
-                    }
-                }
-             
-                //else
-                //{
-                if (ProfileManager.IsFIFA20DataVersion())
-                {
-                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA20.Classes.txt", FileMode.Open))
-                    {
-                        if (stream != null)
-                        {
-                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                        }
-                    }
-                }
-                //}
-                //if (ProfilesLibrary.IsFIFA21DataVersion())
-                //{
-                //    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA21.Classes.txt", FileMode.Open))
-                //    {
-                //        if (stream != null)
-                //        {
-                //            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                //        }
-                //    }
-                //}
+            {
+                throw new ArgumentNullException("SDK Classes File not provided in the Profile. Please set a file!");
             }
 
             classList = DumpClasses(task);
@@ -793,16 +760,16 @@ namespace SdkGenerator
                 switch (ProfileManager.DataVersion)
                 {
 
-                    case (int)ProfileManager.DataVersions.FIFA19:
+                    case (int)ProfileManager.EGame.FIFA19:
                         typeStr = "SdkGenerator.BaseInfo.ClassInfo";
                         break;
-                    case (int)ProfileManager.DataVersions.FIFA20:
+                    case (int)ProfileManager.EGame.FIFA20:
                         typeStr = "SdkGenerator.Madden20.ClassInfo";
                         break;
-                    case (int)ProfileManager.DataVersions.MADDEN20:
+                    case (int)ProfileManager.EGame.MADDEN20:
                         typeStr = "SdkGenerator.Madden20.ClassInfo";
                         break;
-                    case (int)ProfileManager.DataVersions.FIFA21:
+                    case (int)ProfileManager.EGame.FIFA21:
                         typeStr = "SdkGenerator.FIFA21.ClassInfo";
                         break;
                     //case (int)ProfilesLibrary.DataVersions.MADDEN21:

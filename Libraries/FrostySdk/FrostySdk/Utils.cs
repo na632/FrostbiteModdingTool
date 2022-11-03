@@ -392,7 +392,7 @@ namespace FrostySdk
 					remainingByteCount -= bufferSize;
 					totalBytesRead += bufferSize;
 					//if (dataVersion == DataVersion.Madden22 || dataVersion == DataVersion.Madden23)
-					if (ProfileManager.IsMadden22DataVersion())
+					if (ProfileManager.IsMadden22DataVersion(ProfileManager.Game))
 					{
 						totalBytesWritten += (long)(compressedSize + 8);
 					}
@@ -407,7 +407,7 @@ namespace FrostySdk
 							texture.SecondMipOffset = (uint)totalBytesWritten;
 						}
 					}
-					if (!ProfileManager.IsMadden22DataVersion())
+					if (!ProfileManager.IsMadden22DataVersion(ProfileManager.Game))
 					{
 						totalBytesWritten += (long)(compressedSize + 8);
 					}

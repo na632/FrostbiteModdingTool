@@ -478,7 +478,7 @@ namespace FrostySdk.Resources
                 {
                     nativeWriter.Write(unknown3[0]);
                 }
-                if (ProfileManager.IsMadden21DataVersion())
+                if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
                 {
                     nativeWriter.Write(unknown2);
                     nativeWriter.WriteNullTerminatedString(textureGroup);

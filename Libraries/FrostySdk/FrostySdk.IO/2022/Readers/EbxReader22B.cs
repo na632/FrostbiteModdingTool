@@ -15,51 +15,51 @@ namespace FrostySdk.IO._2022.Readers
 {
 	public class EbxReader22B : EbxReader22A
 	{
-		internal const int EbxExternalReferenceMask = 1;
+		//internal const int EbxExternalReferenceMask = 1;
 
 		internal static EbxSharedTypeDescriptorV2 std { get; private set; }
 
 		internal static EbxSharedTypeDescriptorV2 patchStd { get; private set; }
 
-		private readonly List<Guid> classGuids = new List<Guid>();
+		//private readonly List<Guid> classGuids = new List<Guid>();
 
-		private readonly List<Guid> typeInfoGuids = new List<Guid>();
+		////private readonly List<Guid> typeInfoGuids = new List<Guid>();
 
-		private bool patched;
+		//private bool patched;
 
-		private Guid unkGuid;
+		//private Guid unkGuid;
 
-		private long payloadPosition;
+		//private long payloadPosition;
 
-		private long arrayOffset;
+		//private long arrayOffset;
 
-		private List<uint> importOffsets;
+		//private List<uint> importOffsets;
 
-		private List<uint> dataContainerOffsets;
+		//private List<uint> dataContainerOffsets;
 
-		public override string RootType
-		{
-			get
-			{
+		//public override string RootType
+		//{
+		//	get
+		//	{
 
 
-				if (this.typeInfoGuids.Count > 0)
-				{
-					Type type = TypeLibrary.GetType(this.typeInfoGuids[0]);
+		//		//if (this.typeInfoGuids.Count > 0)
+		//		//{
+		//		//	Type type = TypeLibrary.GetType(this.typeInfoGuids[0]);
 
-					return type?.Name ?? "UnknownType";
-				}
-				if (base.instances.Count == 0)
-				{
-					return string.Empty;
-				}
-				if (this.classGuids.Count <= base.instances[0].ClassRef)
-				{
-					return string.Empty;
-				}
-				return TypeLibrary.GetType(this.classGuids[base.instances[0].ClassRef])?.Name ?? string.Empty;
-			}
-		}
+		//		//	return type?.Name ?? "UnknownType";
+		//		//}
+		//		if (base.instances.Count == 0)
+		//		{
+		//			return string.Empty;
+		//		}
+		//		if (this.classGuids.Count <= base.instances[0].ClassRef)
+		//		{
+		//			return string.Empty;
+		//		}
+		//		return TypeLibrary.GetType(this.classGuids[base.instances[0].ClassRef])?.Name ?? string.Empty;
+		//	}
+		//}
 
 		public EbxReader22B(Stream ebxDataStream, bool inPatched)
 			: base(ebxDataStream, passthru: true)
@@ -362,26 +362,26 @@ namespace FrostySdk.IO._2022.Readers
 			}
 			_ = this.classGuids.Count;
 			_ = signatures.Count;
-			Span<byte> classGuidBytes = stackalloc byte[20];
-			for (int i = 0; i < this.classGuids.Count && i < signatures.Count; i++)
-			{
-				if (!this.classGuids[i].TryWriteBytes(classGuidBytes))
-				{
-					throw new InvalidOperationException("Couldn't write class GUID to span.");
-				}
-				_ = signatures.Count;
-				Span<byte> span = classGuidBytes;
-				int length = span.Length;
-				int num = 16;
-				int length2 = length - num;
-				BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(num, length2), signatures[i]);
-				List<Guid> list = this.typeInfoGuids;
-				span = classGuidBytes;
-				int length3 = span.Length;
-				length2 = 4;
-				num = length3 - length2;
-				list.Add(new Guid(span.Slice(length2, num)));
-			}
+			//Span<byte> classGuidBytes = stackalloc byte[20];
+			//for (int i = 0; i < this.classGuids.Count && i < signatures.Count; i++)
+			//{
+			//	if (!this.classGuids[i].TryWriteBytes(classGuidBytes))
+			//	{
+			//		throw new InvalidOperationException("Couldn't write class GUID to span.");
+			//	}
+			//	_ = signatures.Count;
+			//	Span<byte> span = classGuidBytes;
+			//	int length = span.Length;
+			//	int num = 16;
+			//	int length2 = length - num;
+			//	BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(num, length2), signatures[i]);
+			//	List<Guid> list = this.typeInfoGuids;
+			//	span = classGuidBytes;
+			//	int length3 = span.Length;
+			//	length2 = 4;
+			//	num = length3 - length2;
+			//	list.Add(new Guid(span.Slice(length2, num)));
+			//}
 			base.Position = payloadOffset;
 			base.isValid = true;
 
@@ -428,26 +428,31 @@ namespace FrostySdk.IO._2022.Readers
 			return val;
 		}
 
+		/// <summary>
+		/// Reads objects to objects list by type from the EBX bytes
+		/// </summary>
 		public override void InternalReadObjects()
 		{
-			foreach (EbxInstance ebxInstance in base.instances)
+			// ----------------------------------------------------------------------
+			// Instantiates all objects before processing
+			for (int i = 0; i < instances.Count; i++)
 			{
-				Type type = TypeLibrary.GetType(this.typeInfoGuids[ebxInstance.ClassRef]);
-				for (int i = 0; i < ebxInstance.Count; i++)
-				{
-					base.objects.Add(TypeLibrary.CreateObject(type));
-					base.refCounts.Add(0);
-				}
+				var ebxInstance2 = base.instances[i];
+				Type objType = TypeLibrary.GetType(this.classGuids[ebxInstance2.ClassRef]);
+				var instanceObj = TypeLibrary.CreateObject(objType);
+				if (!objects.Contains(instanceObj))
+					objects.Add(instanceObj);
 			}
-			int num = 0;
 			int num2 = 0;
-			foreach (EbxInstance ebxInstance2 in base.instances)
-			{
-				for (int j = 0; j < ebxInstance2.Count; j++)
+			for (int i = 0; i < instances.Count; i++)
+            {
+				var ebxInstance2 = base.instances[i];
+                Type objType = TypeLibrary.GetType(this.classGuids[ebxInstance2.ClassRef]);
+
+                for (int j = 0; j < ebxInstance2.Count; j++)
 				{
-					dynamic obj = base.objects[num++];
-					Type objType = obj.GetType();
-					EbxClass @class = this.GetClass(objType);
+					dynamic obj = base.objects[i];
+                    EbxClass @class = this.GetClass(objType);
 					base.Pad(@class.Alignment);
 					Guid inGuid = Guid.Empty;
 					if (ebxInstance2.IsExported)
@@ -455,11 +460,11 @@ namespace FrostySdk.IO._2022.Readers
 						inGuid = base.ReadGuid();
 					}
 					long classPosition = base.Position;
-					if (base.magic == EbxVersion.Riff)
-					{
+					//if (base.magic == EbxVersion.Riff)
+					//{
 						base.ReadInt32LittleEndian();
 						base.Position += 12L;
-					}
+					//}
 					if (@class.Alignment != 4)
 					{
 						base.Position += 8L;
@@ -485,22 +490,22 @@ namespace FrostySdk.IO._2022.Readers
 					return nHClass.Value;
 			}
 
-			foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in objType.GetCustomAttributes(typeof(TypeInfoGuidAttribute), inherit: true).Cast<TypeInfoGuidAttribute>())
-			{
-				if (this.typeInfoGuids.Contains(typeInfoGuidAttribute.Guid))
-				{
-					//if (this.patched && EbxReader22B.patchStd != null)
-					if (EbxReader22B.patchStd != null)
-					{
-						ebxClass = EbxReader22B.patchStd.GetClass(typeInfoGuidAttribute.Guid);
-					}
-					if (!ebxClass.HasValue)
-					{
-						ebxClass = EbxReader22B.std.GetClass(typeInfoGuidAttribute.Guid);
-					}
-					break;
-				}
-			}
+			//foreach (TypeInfoGuidAttribute typeInfoGuidAttribute in objType.GetCustomAttributes(typeof(TypeInfoGuidAttribute), inherit: true).Cast<TypeInfoGuidAttribute>())
+			//{
+			//	if (this.typeInfoGuids.Contains(typeInfoGuidAttribute.Guid))
+			//	{
+			//		//if (this.patched && EbxReader22B.patchStd != null)
+			//		if (EbxReader22B.patchStd != null)
+			//		{
+			//			ebxClass = EbxReader22B.patchStd.GetClass(typeInfoGuidAttribute.Guid);
+			//		}
+			//		if (!ebxClass.HasValue)
+			//		{
+			//			ebxClass = EbxReader22B.std.GetClass(typeInfoGuidAttribute.Guid);
+			//		}
+			//		break;
+			//	}
+			//}
 			return ebxClass.Value;
 		}
 
@@ -521,44 +526,44 @@ namespace FrostySdk.IO._2022.Readers
 			return propertyInfo;
 		}
 
-		public override EbxClass GetClass(EbxClass? classType, int index)
-		{
-			Guid? guid;
-			EbxClass? ebxClass;
-			if (!classType.HasValue)
-			{
-				guid = this.classGuids[index];
-				ebxClass = EbxReader22B.patchStd?.GetClass(guid.Value) ?? EbxReader22B.std.GetClass(guid.Value);
-			}
-			else
-			{
-				int index2 = ((base.magic != EbxVersion.Riff) ? ((short)index + (classType?.Index ?? 0)) : index);
-				guid = EbxReader22B.std.GetGuid(index2);
-				if (classType.Value.SecondSize >= 1)
-				{
-					guid = EbxReader22B.patchStd.GetGuid(index2);
-					ebxClass = EbxReader22B.patchStd.GetClass(index2) ?? EbxReader22B.std.GetClass(guid.Value);
-				}
-				else
-				{
-					ebxClass = EbxReader22B.std.GetClass(index2);
-				}
-			}
-			if (ebxClass.HasValue)
-			{
-				TypeLibrary.AddType(ebxClass.Value.Name, guid);
-			}
-			return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
-		}
+		//public override EbxClass GetClass(EbxClass? classType, int index)
+		//{
+		//	Guid? guid;
+		//	EbxClass? ebxClass;
+		//	if (!classType.HasValue)
+		//	{
+		//		guid = this.classGuids[index];
+		//		ebxClass = EbxReader22B.patchStd?.GetClass(guid.Value) ?? EbxReader22B.std.GetClass(guid.Value);
+		//	}
+		//	else
+		//	{
+		//		int index2 = ((base.magic != EbxVersion.Riff) ? ((short)index + (classType?.Index ?? 0)) : index);
+		//		guid = EbxReader22B.std.GetGuid(index2);
+		//		if (classType.Value.SecondSize >= 1)
+		//		{
+		//			guid = EbxReader22B.patchStd.GetGuid(index2);
+		//			ebxClass = EbxReader22B.patchStd.GetClass(index2) ?? EbxReader22B.std.GetClass(guid.Value);
+		//		}
+		//		else
+		//		{
+		//			ebxClass = EbxReader22B.std.GetClass(index2);
+		//		}
+		//	}
+		//	if (ebxClass.HasValue)
+		//	{
+		//		TypeLibrary.AddType(ebxClass.Value.Name, guid);
+		//	}
+		//	return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
+		//}
 
-		public override EbxField GetField(EbxClass classType, int index)
-		{
-			if (classType.SecondSize >= 1)
-			{
-				return EbxReader22B.patchStd.GetField(index).Value;
-			}
-			return EbxReader22B.std.GetField(index).Value;
-		}
+		//public override EbxField GetField(EbxClass classType, int index)
+		//{
+		//	if (classType.SecondSize >= 1)
+		//	{
+		//		return EbxReader22B.patchStd.GetField(index).Value;
+		//	}
+		//	return EbxReader22B.std.GetField(index).Value;
+		//}
 
 		public override object CreateObject(EbxClass classType)
 		{
@@ -767,10 +772,10 @@ namespace FrostySdk.IO._2022.Readers
 				{
 					return default(PointerRef);
 				}
-				if (!dontRefCount)
-				{
-					base.refCounts[dc]++;
-				}
+				//if (!dontRefCount)
+				//{
+				//	base.refCounts[dc]++;
+				//}
 				return new PointerRef(objects[dc]);
 			}
 			return base.ReadField(parentClass, fieldType, fieldClassRef, dontRefCount);

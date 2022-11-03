@@ -317,7 +317,7 @@ namespace FrostySdk.Managers
 											};
 											parent.bundles.Add(item);
 											BinarySbReader binarySbReader = null;
-											if (ProfileManager.IsMadden21DataVersion())
+											if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
 												binarySbReader = new BinarySbReaderV2(memoryStream, 0L, parent.fs.CreateDeobfuscator());
 											else
 												binarySbReader = new BinarySbReader(memoryStream, 0L, parent.fs.CreateDeobfuscator());
@@ -558,7 +558,7 @@ namespace FrostySdk.Managers
 					CustomAssetManagers.Add("legacy", cam);
 
 			}
-			else if (ProfileManager.IsMadden21DataVersion() || ProfileManager.IsFIFA21DataVersion())
+			else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsFIFA21DataVersion())
 			{
 				CustomAssetManagers.Add("legacy", new ChunkFileManager2022());
 			}
@@ -2061,7 +2061,7 @@ namespace FrostySdk.Managers
 					ebxReader = new EbxReaderV3(asset, inPatched);
 
 				}
-				else if (ProfileManager.IsMadden21DataVersion())
+				else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
 				{
 					//ebxReader = new EbxReader_F21(asset, inPatched);
 					//ebxReader = new EbxReaderV2(asset, inPatched);
@@ -2172,7 +2172,7 @@ namespace FrostySdk.Managers
 
                     }
 
-					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion() ) ;
+					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion(ProfileManager.Game) ) ;
                     //EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
                     //               if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
                     //{
@@ -2320,7 +2320,7 @@ namespace FrostySdk.Managers
 				foreach (DbObject item in sb.GetValue<DbObject>("chunks"))
 				{
                     ChunkAssetEntry chunkAssetEntry = AddChunk(item
-                        , ProfileManager.IsMadden21DataVersion() 
+                        , ProfileManager.IsMadden21DataVersion(ProfileManager.Game) 
 						//|| ProfilesLibrary.IsFIFA21DataVersion()
 						//|| ProfilesLibrary.IsFIFA22DataVersion()
 						);
@@ -2843,7 +2843,7 @@ namespace FrostySdk.Managers
                         resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
                         resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
                     }
-                    if (ProfileManager.IsFIFA21DataVersion() || ProfileManager.IsMadden21DataVersion())
+                    if (ProfileManager.IsFIFA21DataVersion() || ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
                     {
                         if (nativeReader.ReadBoolean())
                             resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
@@ -3132,7 +3132,7 @@ namespace FrostySdk.Managers
 						nativeWriter.WriteLengthPrefixedString(resEntry.DuplicatedFromName);
 
 					}
-					if (ProfileManager.IsMadden21DataVersion())
+					if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
                     {
                         nativeWriter.Write(resEntry.ParentBundleOffset);
                         nativeWriter.Write(resEntry.ParentBundleSize);

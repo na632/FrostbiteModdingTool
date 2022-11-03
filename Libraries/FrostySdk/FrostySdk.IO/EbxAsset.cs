@@ -49,7 +49,7 @@ namespace FrostySdk.IO
 			{
 				for (int i = 0; i < objects.Count; i++)
 				{
-					if (refCounts[i] == 0 || i == 0)
+					//if (refCounts[i] == 0 || i == 0)
 					{
 						yield return objects[i];
 					}

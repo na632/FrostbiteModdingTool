@@ -398,8 +398,12 @@ namespace FrostySdk
         [SupportedOSPlatform("windows")]
 		public static int DataVersion => LoadedProfile.DataVersion;
 
-		public enum DataVersions : int
+		public static EGame Game => (EGame)LoadedProfile.DataVersion;
+
+		public enum EGame : int
         {
+			UNSET = -1,
+
 			FIFA17 = 20160927,
 			FIFA18 = 20170929,
 			FIFA19 = 20180914,
@@ -414,13 +418,23 @@ namespace FrostySdk
 			MADDEN23 = 20220812,
 		}
 
-		public static bool IsFIFADataVersion()
+        public static bool IsGameVersion()
+        {
+
+            bool isFIFA = false;
+
+            isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA23);
+
+            return isFIFA;
+        }
+
+        public static bool IsFIFADataVersion()
 		{
 
-			bool isFIFA = (LoadedProfile.DataVersion == (int)ProfileManager.DataVersions.FIFA17
-				|| LoadedProfile.DataVersion == (int)ProfileManager.DataVersions.FIFA18
-				|| LoadedProfile.DataVersion == (int)ProfileManager.DataVersions.FIFA19
-				|| LoadedProfile.DataVersion == (int)ProfileManager.DataVersions.FIFA20
+			bool isFIFA = (LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA17
+				|| LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA18
+				|| LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA19
+				|| LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA20
 				)
 				;
 
@@ -432,7 +446,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.DataVersions.FIFA19);
+			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA19);
 
 			return isFIFA;
 		}
@@ -443,7 +457,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.DataVersions.FIFA20);
+			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA20);
 
 			return isFIFA;
 		}
@@ -454,7 +468,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.DataVersions.FIFA21);
+			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA21);
 
 			return isFIFA;
 		}
@@ -464,7 +478,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.DataVersions.FIFA22);
+			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA22);
 
 			return isFIFA;
 		}
@@ -474,7 +488,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.DataVersions.FIFA23);
+			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA23);
 
 			return isFIFA;
 		}
@@ -494,40 +508,38 @@ namespace FrostySdk
 
 			bool isMadden = false;
 
-			isMadden = (ProfileManager.DataVersion == (int)ProfileManager.DataVersions.MADDEN20);
+			isMadden = (ProfileManager.DataVersion == (int)ProfileManager.EGame.MADDEN20);
 
 			return isMadden;
 		}
 
-		public static bool IsMadden21DataVersion()
+		public static bool IsMadden21DataVersion(EGame version)
 		{
 
 			bool isMadden = false;
 
-			isMadden = (ProfileManager.DataVersion == (int)ProfileManager.DataVersions.MADDEN20
-				|| ProfileManager.DataVersion == (int)ProfileManager.DataVersions.MADDEN21
-				|| ProfileManager.ProfileName.ToUpper().Contains("MADDEN")
-				);
+			isMadden = (version == ProfileManager.EGame.MADDEN21
+                );
 
 			return isMadden;
 		}
 
-		public static bool IsMadden22DataVersion()
-		{
+		public static bool IsMadden22DataVersion(EGame version)
+        {
 
 			bool isMadden = false;
 
-			isMadden = ProfileManager.DataVersion == (int)ProfileManager.DataVersions.MADDEN22;
+			isMadden = version == ProfileManager.EGame.MADDEN22;
 
 			return isMadden;
 		}
 
-		public static bool IsMadden23DataVersion()
-		{
+		public static bool IsMadden23DataVersion(EGame version)
+        {
 
 			bool isMadden = false;
 
-			isMadden = ProfileManager.DataVersion == (int)ProfileManager.DataVersions.MADDEN23;
+			isMadden = version == ProfileManager.EGame.MADDEN23;
 
 			return isMadden;
 		}

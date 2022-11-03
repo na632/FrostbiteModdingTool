@@ -717,6 +717,13 @@ namespace FrostySdk
                             guidTypeMapping.TryAdd(customAttribute.Guid, type);
                         }
                     }
+
+                    var ExportedTypes2 = ExistingAssembly.GetExportedTypes().Where(x => x.GetCustomAttribute<GuidAttribute>() != null).ToList();
+
+                    foreach (Type type in ExportedTypes)
+                    {
+                        guidTypeMapping.TryAdd(type.GetCustomAttribute<GuidAttribute>().Guid, type);
+                    }
                 }
 
                 if (guidTypeMapping.TryGetValue(guid, out v))

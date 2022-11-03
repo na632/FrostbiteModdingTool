@@ -86,7 +86,7 @@ namespace FrostySdk.Resources
 				Read23(reader, index);
             }
             else if (ProfileManager.IsFIFA22DataVersion() 
-				|| ProfileManager.IsMadden22DataVersion()
+				|| ProfileManager.IsMadden22DataVersion(ProfileManager.Game)
                 )
             {
 				Read22(reader, index);

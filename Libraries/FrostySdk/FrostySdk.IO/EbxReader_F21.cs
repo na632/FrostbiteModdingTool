@@ -60,8 +60,9 @@ namespace FrostySdk.IO
 				fileStreamFromCas.Dispose();
 			}
 
-			if (TypeLibrary.Reflection.ConcreteTypes == null && ProfileManager.IsMadden21DataVersion())
-            {
+											
+			if (TypeLibrary.Reflection.ConcreteTypes == null && ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
+                {
 				TypeLibrary.Reflection.LoadClassInfoAssets(AssetManager.Instance);
             }
 

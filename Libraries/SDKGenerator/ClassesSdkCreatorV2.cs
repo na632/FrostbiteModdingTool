@@ -56,40 +56,7 @@ namespace SDKGenerator
             }
             else
             {
-                if (ProfileManager.IsMadden21DataVersion())
-                {
-                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/M21.Classes.txt", FileMode.Open))
-                    {
-                        if (stream != null)
-                        {
-                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                        }
-                    }
-                }
-
-                //else
-                //{
-                if (ProfileManager.IsFIFA20DataVersion())
-                {
-                    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA20.Classes.txt", FileMode.Open))
-                    {
-                        if (stream != null)
-                        {
-                            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                        }
-                    }
-                }
-                //}
-                //if (ProfilesLibrary.IsFIFA21DataVersion())
-                //{
-                //    using (FileStream stream = new FileStream(AppContext.BaseDirectory + "/SdkGen/FIFA21.Classes.txt", FileMode.Open))
-                //    {
-                //        if (stream != null)
-                //        {
-                //            classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                //        }
-                //    }
-                //}
+                throw new ArgumentNullException("SDK Classes File not provided in the Profile. Please set a file!");
             }
 
             classList = DumpClasses(task);

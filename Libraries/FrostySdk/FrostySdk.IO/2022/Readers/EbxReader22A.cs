@@ -19,11 +19,54 @@ namespace FrostySdk.IO._2022.Readers
 	{
 		private List<EbxClass> classTypes = new List<EbxClass>();
 
-		internal byte[] boxedValueBuffer;
+        internal const int EbxExternalReferenceMask = 1;
 
-		//internal EbxVersion magic;
+        //internal static EbxSharedTypeDescriptorV2 std { get; private set; }
 
-		public override string RootType => this.classTypes[this.instances[0].ClassRef].Name;
+        //internal static EbxSharedTypeDescriptorV2 patchStd { get; private set; }
+
+        public readonly List<Guid> classGuids = new List<Guid>();
+
+        //private readonly List<Guid> typeInfoGuids = new List<Guid>();
+
+        public bool patched;
+
+        public Guid unkGuid;
+
+        public long payloadPosition;
+
+        public long arrayOffset;
+
+        public List<uint> importOffsets;
+
+        public List<uint> dataContainerOffsets;
+
+        public override string RootType
+        {
+            get
+            {
+
+
+                //if (this.typeInfoGuids.Count > 0)
+                //{
+                //	Type type = TypeLibrary.GetType(this.typeInfoGuids[0]);
+
+                //	return type?.Name ?? "UnknownType";
+                //}
+                if (base.instances.Count == 0)
+                {
+                    return string.Empty;
+                }
+                if (this.classGuids.Count <= base.instances[0].ClassRef)
+                {
+                    return string.Empty;
+                }
+                return TypeLibrary.GetType(this.classGuids[base.instances[0].ClassRef])?.Name ?? string.Empty;
+            }
+        }
+
+        internal byte[] boxedValueBuffer;
+
 
 		internal EbxReader22A(Stream inStream, bool passthru)
 			: base(inStream)
@@ -83,47 +126,6 @@ namespace FrostySdk.IO._2022.Readers
 			return list;
 		}
 
-		public override void InternalReadObjects()
-		{
-			foreach (EbxInstance instance in this.instances)
-			{
-				EbxClass @class = this.GetClass(null, instance.ClassRef);
-				for (int i = 0; i < instance.Count; i++)
-				{
-					Type inType = this.ParseClass(@class);
-					this.objects.Add(TypeLibrary.CreateObject(inType));
-					this.refCounts.Add(0);
-				}
-			}
-			int num = 0;
-			int num2 = 0;
-			foreach (EbxInstance instance2 in this.instances)
-			{
-				EbxClass class2 = this.GetClass(null, instance2.ClassRef);
-				for (int j = 0; j < instance2.Count; j++)
-				{
-					base.Pad(class2.Alignment);
-					Guid inGuid = Guid.Empty;
-					if (instance2.IsExported)
-					{
-						inGuid = base.ReadGuid();
-					}
-					if (class2.Alignment != 4)
-					{
-						base.Position += 8L;
-					}
-					dynamic val = this.objects[num++];
-					val.SetInstanceGuid(new AssetClassGuid(inGuid, num2++));
-					this.ReadClass(class2, val, base.Position - 8);
-				}
-			}
-			if (this.boxedValuesCount != 0)
-			{
-				base.Position = this.boxedValuesOffset;
-				this.boxedValueBuffer = base.ReadToEnd();
-			}
-		}
-
 		private static IEnumerable<EbxField> _AllEbxFields;
 		public static IEnumerable<EbxField> AllEbxFields 
 		{ 
@@ -155,9 +157,6 @@ namespace FrostySdk.IO._2022.Readers
 			var ebxfieldmeta = property.GetCustomAttribute<EbxFieldMetaAttribute>();
             EbxFieldType fieldType = (EbxFieldType)((ebxfieldmeta.Flags >> 4) & 0x1Fu);
 
-            // This needs fixing by looking at the movement GP
-            // Need to include both patch and non patch in search, which highlights how shit the current system is!
-
             var allFields = EbxReader22B.std.Fields;
 			List<EbxField> classFields = EbxReader22B.std.ClassFields.ContainsKey(classType) ? EbxReader22B.std.ClassFields[classType] : null;
             if (classType.SecondSize >= 1)
@@ -169,9 +168,7 @@ namespace FrostySdk.IO._2022.Readers
 			EbxField field;
 			var nameHashFields = classFields.Where(x => x.NameHash == nameHash);
 			field = nameHashFields.FirstOrDefault(x => (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
-			//if (field.Equals(default(EbxField)) && fieldIndex > -1 && classFields.Count > fieldIndex)
-			//	field = classFields[fieldIndex];
-			//else 
+
 			if (field.Equals(default(EbxField)))
                 field = allFields.FirstOrDefault(x => x.NameHash == nameHash && (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
 
@@ -271,30 +268,17 @@ namespace FrostySdk.IO._2022.Readers
 				}
 
                 EbxFieldType debugType = (EbxFieldType)((property.Value.Flags >> 4) & 0x1Fu);
+                EbxTypeCategory debugTypeTC = (EbxTypeCategory)(property.Value.Flags & 0xFu);
+                //EbxTypeCategory debugTypeTC2 = (EbxTypeCategory)(property.Value.Flags & 0xFu);
 
 
                 if (propNameHash != null)
 				{
 					field = GetEbxFieldByProperty(classType, property.Key);
-					//field = GetEbxFieldByNameHash(propNameHash.Hash);// AllEbxFields.FirstOrDefault(x => x.NameHash == propNameHash.Hash);
-					//if (type.Name.Contains("LinearTransform") && property.Key.PropertyType.FullName.Equals("FrostySdk.Ebx.Vec3"))
-					//{
-     //                   var f2 = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
-     //                   field = f2;
-     //               }
                 }
-				//           else 
-				//if (propFieldIndex != null)
-				//            {
-				//field = this.GetField(classType, classType.FieldIndex + propFieldIndex.Index);
-				//            }
 
-				EbxTypeCategory debugTypeTC = field.TypeCategory;
+				//EbxTypeCategory debugTypeTC = field.TypeCategory;
                 var classRef = field.ClassRef;
-
-                // Variable from SDK is King here! Override DebugType.
-                //if (field.DebugType != debugType) 
-                //	field.Type = property.Value.Flags;
 
                 if (debugType == EbxFieldType.Inherited)
                 {
@@ -475,17 +459,48 @@ namespace FrostySdk.IO._2022.Readers
 			return objType.GetProperty(field.Name);
 		}
 
-		public override EbxClass GetClass(EbxClass? parentClass, int index)
-		{
-			return this.classTypes[index];
-		}
 
-		public override EbxField GetField(EbxClass classType, int index)
-		{
-			return this.fieldTypes[index];
-		}
+        public override EbxClass GetClass(EbxClass? classType, int index)
+        {
+            Guid? guid;
+            EbxClass? ebxClass;
+            if (!classType.HasValue)
+            {
+                guid = this.classGuids[index];
+                ebxClass = EbxReader22B.patchStd?.GetClass(guid.Value) ?? EbxReader22B.std.GetClass(guid.Value);
+            }
+            else
+            {
+                int index2 = ((base.magic != EbxVersion.Riff) ? ((short)index + (classType?.Index ?? 0)) : index);
+                guid = EbxReader22B.std.GetGuid(index2);
+                if (classType.Value.SecondSize >= 1)
+                {
+                    guid = EbxReader22B.patchStd.GetGuid(index2);
+                    ebxClass = EbxReader22B.patchStd.GetClass(index2) ?? EbxReader22B.std.GetClass(guid.Value);
+                }
+                else
+                {
+                    ebxClass = EbxReader22B.std.GetClass(index2);
+                }
+            }
+            if (ebxClass.HasValue)
+            {
+                TypeLibrary.AddType(ebxClass.Value.Name, guid);
+            }
+            return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
+        }
 
-		public override object CreateObject(EbxClass classType)
+
+        public override EbxField GetField(EbxClass classType, int index)
+        {
+            if (classType.SecondSize >= 1)
+            {
+                return EbxReader22B.patchStd.GetField(index).Value;
+            }
+            return EbxReader22B.std.GetField(index).Value;
+        }
+
+        public override object CreateObject(EbxClass classType)
 		{
 			return TypeLibrary.CreateObject(classType.Name);
 		}
@@ -585,32 +600,32 @@ namespace FrostySdk.IO._2022.Readers
 			}
 		}
 
-		internal Type ParseClass(EbxClass classType)
-		{
-			Type type = TypeLibrary.AddType(classType.Name);
-			if (type != null)
-			{
-				return type;
-			}
-			List<FieldType> list = new List<FieldType>();
-			Type parentType = null;
-			for (int i = 0; i < classType.FieldCount; i++)
-			{
-				EbxField ebxField = this.fieldTypes[classType.FieldIndex + i];
-				if (ebxField.DebugType == EbxFieldType.Inherited)
-				{
-					parentType = this.ParseClass(this.classTypes[ebxField.ClassRef]);
-					continue;
-				}
-				Type typeFromEbxField = this.GetTypeFromEbxField(ebxField);
-				list.Add(new FieldType(ebxField.Name, typeFromEbxField, null, ebxField, (ebxField.DebugType == EbxFieldType.Array) ? new EbxField?(this.fieldTypes[this.classTypes[ebxField.ClassRef].FieldIndex]) : null));
-			}
-			if (classType.DebugType == EbxFieldType.Struct)
-			{
-				return TypeLibrary.FinalizeStruct(classType.Name, list, classType);
-			}
-			return TypeLibrary.FinalizeClass(classType.Name, list, parentType, classType);
-		}
+		//internal Type ParseClass(EbxClass classType)
+		//{
+		//	Type type = TypeLibrary.AddType(classType.Name);
+		//	if (type != null)
+		//	{
+		//		return type;
+		//	}
+		//	List<FieldType> list = new List<FieldType>();
+		//	Type parentType = null;
+		//	for (int i = 0; i < classType.FieldCount; i++)
+		//	{
+		//		EbxField ebxField = this.fieldTypes[classType.FieldIndex + i];
+		//		if (ebxField.DebugType == EbxFieldType.Inherited)
+		//		{
+		//			parentType = this.ParseClass(this.classTypes[ebxField.ClassRef]);
+		//			continue;
+		//		}
+		//		Type typeFromEbxField = this.GetTypeFromEbxField(ebxField);
+		//		list.Add(new FieldType(ebxField.Name, typeFromEbxField, null, ebxField, (ebxField.DebugType == EbxFieldType.Array) ? new EbxField?(this.fieldTypes[this.classTypes[ebxField.ClassRef].FieldIndex]) : null));
+		//	}
+		//	if (classType.DebugType == EbxFieldType.Struct)
+		//	{
+		//		return TypeLibrary.FinalizeStruct(classType.Name, list, classType);
+		//	}
+		//	return TypeLibrary.FinalizeClass(classType.Name, list, parentType, classType);
+		//}
 
 		internal Type GetTypeFromEbxField(EbxField fieldType)
 		{

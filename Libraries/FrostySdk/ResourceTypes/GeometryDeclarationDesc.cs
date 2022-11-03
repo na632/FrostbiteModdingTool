@@ -194,9 +194,9 @@ namespace FrostySdk.Resources
 					return 16;
 				case 20190905:
 					return 16;
-				case (int)ProfileManager.DataVersions.FIFA20: // FIFA20DataVersion
-				case (int)ProfileManager.DataVersions.FIFA21: // FIFA21DataVersion
-				case (int)ProfileManager.DataVersions.MADDEN21: // Madden21DataVersion
+				case (int)ProfileManager.EGame.FIFA20: // FIFA20DataVersion
+				case (int)ProfileManager.EGame.FIFA21: // FIFA21DataVersion
+				case (int)ProfileManager.EGame.MADDEN21: // Madden21DataVersion
 					return 16;
 
 

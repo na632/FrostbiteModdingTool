@@ -115,15 +115,20 @@ public class MeshSet
 
     public List<ushort> LodFade { get; } = new List<ushort>();
 
-    public MeshSet(Stream stream)
+    public MeshSet(Stream stream, ProfileManager.EGame gameVersion = EGame.UNSET)
 	{
 		if (stream == null)
 			return;
 
+		if (gameVersion == ProfileManager.EGame.UNSET)
+			gameVersion = (ProfileManager.EGame)ProfileManager.LoadedProfile.DataVersion;
+
+#if DEBUG
 		NativeWriter nativeWriterTest = new NativeWriter(new FileStream("_MeshSet.dat", FileMode.Create));
 		nativeWriterTest.Write(((MemoryStream)stream).ToArray());
 		nativeWriterTest.Close();
 		nativeWriterTest.Dispose();
+#endif
 
 		FileReader nativeReader = new FileReader(stream);
 		// useful for resetting when live debugging
@@ -163,18 +168,13 @@ public class MeshSet
 		ShaderDrawOrder = (ShaderDrawOrder)nativeReader.ReadByte();
         ShaderDrawOrderUserSlot = (ShaderDrawOrderUserSlot)nativeReader.ReadByte();
 		ShaderDrawOrderSubOrder = (ShaderDrawOrderSubOrder)nativeReader.ReadUShort();
-		//ShaderDrawOrder = (ShaderDrawOrder)nativeReader.ReadByte();
-		//ShaderDrawOrderUserSlot = nativeReader.ReadByte();
-		//ShaderDrawOrderSubOrder = nativeReader.ReadInt16LittleEndian();
-		//      Flags = (MeshLayoutFlags)nativeReader.ReadUInt();
-		//ReadUnknownUInts(nativeReader);
-		//nativeReader.ReadBytes(16);
 
 		ushort lodsCount = 0;
 		if (
-			ProfileManager.IsMadden21DataVersion() 
-			|| ProfileManager.IsMadden22DataVersion()
-			)
+			IsMadden21DataVersion(gameVersion) 
+			|| IsMadden22DataVersion(gameVersion)
+			|| IsMadden23DataVersion(gameVersion)
+            )
 		{
 			nativeReader.ReadUShort();
 			lodsCount = nativeReader.ReadUShort();
@@ -187,7 +187,7 @@ public class MeshSet
 			MeshCount = nativeReader.ReadUShort();
 		}
         boneCount = 0;
-		if (ProfileManager.IsMadden21DataVersion() || ProfileManager.IsMadden22DataVersion())
+		if (IsMadden21DataVersion(gameVersion) || IsMadden22DataVersion(gameVersion) || IsMadden23DataVersion(gameVersion))
 		{
 			unknownBytes.Add(nativeReader.ReadBytes(8));
 		}
@@ -198,7 +198,7 @@ public class MeshSet
 
         if (Type == MeshType.MeshType_Skinned)
 		{
-            if (ProfileManager.IsFIFA23DataVersion())
+            if (gameVersion == EGame.FIFA23)
             {
                 // 12 bytes of unknowness
                 FIFA23_SkinnedUnknownBytes = nativeReader.ReadBytes(12);
@@ -329,85 +329,6 @@ public class MeshSet
 		}
 	}
 
-	private void ReadUnknownUInts(NativeReader nativeReader)
-	{
-		switch (ProfileManager.DataVersion)
-		{
-			case 20160927:
-				unknownUInts.Add(nativeReader.ReadUInt());
-				unknownUInts.Add(nativeReader.ReadUInt());
-				break;
-			case 20171210:
-				unknownUInts.Add(nativeReader.ReadUShort());
-				break;
-			case (int)ProfileManager.DataVersions.MADDEN22:
-			case (int)ProfileManager.DataVersions.MADDEN21:
-			case (int)ProfileManager.DataVersions.FIFA23:
-			case (int)ProfileManager.DataVersions.FIFA22:
-            case (int)ProfileManager.DataVersions.FIFA21:
-			case (int)ProfileManager.DataVersions.FIFA20:
-			case 20170929:
-			case 20180807:
-			case 20180914:
-				{
-					for (int m = 0; m < 4; m++)
-					{
-						unknownUInts.Add(nativeReader.ReadUInt());
-					}
-					break;
-				}
-			case 20180628:
-				{
-					for (int k = 0; k < 6; k++)
-					{
-						unknownUInts.Add(nativeReader.ReadUInt());
-					}
-					break;
-				}
-			case 20181207:
-			case 20190905:
-			case 20191101:
-				{
-					for (int j = 0; j < 7; j++)
-					{
-						unknownUInts.Add(nativeReader.ReadUInt());
-					}
-					break;
-				}
-			
-			case 20190729:
-				{
-					for (int l = 0; l < 8; l++)
-					{
-						unknownUInts.Add(nativeReader.ReadUInt());
-					}
-					break;
-				}
-			default:
-				unknownUInts.Add(nativeReader.ReadUInt());
-				if (ProfileManager.DataVersion != 20170321)
-				{
-					unknownUInts.Add(nativeReader.ReadUInt());
-					unknownUInts.Add(nativeReader.ReadUInt());
-					unknownUInts.Add(nativeReader.ReadUInt());
-					unknownUInts.Add(nativeReader.ReadUInt());
-					unknownUInts.Add(nativeReader.ReadUInt());
-					if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110)
-					{
-						unknownUInts.Add(nativeReader.ReadUInt());
-					}
-				}
-				break;
-			case 20131115:
-			case 20140225:
-			case 20141117:
-			case 20141118:
-			case 20150223:
-			case 20151103:
-				break;
-		}
-	}
-
 	private void PreProcess(MeshContainer meshContainer)
 	{
 		if (meshContainer == null)
@@ -470,7 +391,7 @@ public class MeshSet
         return array;
 	}
 
-	private void Write(NativeWriter writer, MeshContainer meshContainer)
+	private void Write(NativeWriter writer, MeshContainer meshContainer, EGame gameVersion = EGame.UNSET)
 	{
 		if (writer == null)
 		{
@@ -480,7 +401,11 @@ public class MeshSet
 		{
 			throw new ArgumentNullException("meshContainer");
 		}
-		writer.WriteAxisAlignedBox(boundingBox);
+
+        if (gameVersion == ProfileManager.EGame.UNSET)
+            gameVersion = (ProfileManager.EGame)ProfileManager.LoadedProfile.DataVersion;
+
+        writer.WriteAxisAlignedBox(boundingBox);
 		for (int i = 0; i < MaxLodCount; i++)
 		{
 			if (i < Lods.Count)
@@ -534,7 +459,7 @@ public class MeshSet
         //	writer.Write((uint)unknownUInt);
         //}
         var sumOfLOD = (ushort)(Lods.Sum(x => x.Sections.Count));
-		if (ProfileManager.IsMadden21DataVersion() || ProfileManager.IsMadden22DataVersion())
+		if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsMadden22DataVersion(ProfileManager.Game))
 		{
 			writer.WriteUInt16LittleEndian(0);
 			writer.Write((ushort)Lods.Count);
@@ -568,7 +493,7 @@ public class MeshSet
 			}
 
 			writer.WriteUInt16LittleEndian((ushort)boneCount);
-			if (ProfileManager.IsMadden21DataVersion() || ProfileManager.IsMadden22DataVersion())
+			if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsMadden22DataVersion(ProfileManager.Game))
             {
 				writer.WriteUInt32LittleEndian((uint)CullBoxCount);
 			}
