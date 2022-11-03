@@ -12,6 +12,8 @@ using Microsoft.VisualBasic;
 using System.Diagnostics;
 using System.Linq;
 using FrostySdk.IO._2022.Readers;
+using System.Collections.Generic;
+using static FrostySdk.FIFAModReader;
 
 namespace FrostySdk
 {
@@ -154,7 +156,9 @@ namespace FrostySdk
 
 		private readonly ulong headerChecksum;
 
-		public bool HasChecksums { get; }
+        PlayerLuaModification PlayerLuaModifications = new PlayerLuaModification();
+
+        public bool HasChecksums { get; }
 
 		public FIFAModReader(Stream stream)
 			: base(stream)
@@ -260,7 +264,10 @@ namespace FrostySdk
 			string facebookLink = ((Version >= 8) ? ReadLengthPrefixedString() : string.Empty);
 			string customLink = ((Version >= 8) ? ReadLengthPrefixedString() : string.Empty);
 			uint screenshotsCount = ((Version < 5) ? 4u : ReadUInt32LittleEndian());
-			return new FIFAModDetails(inTitle: inTitle, inAuthor: author, mainCategory: mainCategory, subCategory: subCategory, customCategory: customCategory, secondCustomCategory: customSubCategory, inVersion: userVersion, inDescription: description)
+			ReadLocaleIniSettings();
+			ReadInitFsModifications();
+            PlayerLuaModifications = ReadPlayerLuaModifications(PlayerLuaModifications);
+            return new FIFAModDetails(inTitle: inTitle, inAuthor: author, mainCategory: mainCategory, subCategory: subCategory, customCategory: customCategory, secondCustomCategory: customSubCategory, inVersion: userVersion, inDescription: description)
 			{
 				OutOfDateModWebsiteLink = outOfDateModWebsiteLink,
 				DiscordServerLink = discordServerLink,
@@ -274,58 +281,226 @@ namespace FrostySdk
 			};
 		}
 
-		//private LocaleIniSettings ReadLocaleIniSettings()
-		//{
-		//	if (Version < 9)
-		//	{
-		//		return new LocaleIniSettings();
-		//	}
-		//	LocaleIniSettings settings = new LocaleIniSettings();
-		//	int count = Read7BitEncodedInt();
-		//	for (int i = 0; i < count; i++)
-		//	{
-		//		string description = ReadLengthPrefixedString();
-		//		string contents = ReadLengthPrefixedString();
-		//		settings.AddLocaleIniFile(new LocaleIniFile
-		//		{
-		//			Description = description,
-		//			Contents = contents
-		//		});
-		//	}
-		//	return settings;
-		//}
+        private void ReadLocaleIniSettings()
+        {
+            if (Version < 9)
+            {
+				return;
+                //return new LocaleIniSettings();
+            }
+            //LocaleIniSettings settings = new LocaleIniSettings();
+            int count = Read7BitEncodedInt();
+            for (int i = 0; i < count; i++)
+            {
+                string description = ReadLengthPrefixedString();
+                string contents = ReadLengthPrefixedString();
+                //settings.AddLocaleIniFile(new LocaleIniFile
+                //{
+                //    Description = description,
+                //    Contents = contents
+                //});
+            }
+            //return settings;
+        }
 
-		//private InitFsSettings ReadInitFsModifications()
-		//{
-		//	if (Version < 11)
-		//	{
-		//		return new InitFsSettings();
-		//	}
-		//	InitFsSettings settings = new InitFsSettings();
-		//	int count = Read7BitEncodedInt();
-		//	for (int i = 0; i < count; i++)
-		//	{
-		//		string description = ReadLengthPrefixedString();
-		//		int filesInModification = Read7BitEncodedInt();
-		//		InitFSModification modification = new InitFSModification
-		//		{
-		//			Description = description
-		//		};
-		//		settings.AddInitFsModification(modification);
-		//		for (int j = 0; j < filesInModification; j++)
-		//		{
-		//			string fileName = ReadLengthPrefixedString();
-		//			int fileLength = Read7BitEncodedInt();
-		//			byte[] fileData = ReadBytes(fileLength);
-		//			modification.ModifyFile(fileName, fileData);
-		//		}
-		//		modification.ClearDirtyFlag();
-		//	}
-		//	settings.ClearDirtyFlag();
-		//	return settings;
-		//}
+		private void ReadInitFsModifications()
+		{
+			if (Version < 11)
+			{
+				return;
+				//return new InitFsSettings();
+			}
+			//InitFsSettings settings = new InitFsSettings();
+			int count = Read7BitEncodedInt();
+			for (int i = 0; i < count; i++)
+			{
+				string description = ReadLengthPrefixedString();
+				int filesInModification = Read7BitEncodedInt();
+				//InitFSModification modification = new InitFSModification
+				//{
+				//	Description = description
+				//};
+				//settings.AddInitFsModification(modification);
+				for (int j = 0; j < filesInModification; j++)
+				{
+					string fileName = ReadLengthPrefixedString();
+					int fileLength = Read7BitEncodedInt();
+					byte[] fileData = ReadBytes(fileLength);
+					//modification.ModifyFile(fileName, fileData);
+				}
+				//modification.ClearDirtyFlag();
+			}
+			//settings.ClearDirtyFlag();
+			//return settings;
+		}
 
-		public BaseModResource[] ReadResources()
+        private PlayerLuaModification ReadPlayerLuaModifications(PlayerLuaModification playerLuaMods)
+        {
+            if (Version < 12)
+            {
+                return playerLuaMods;
+            }
+            if (Version <= 15)
+            {
+                LoadDictionary("Faces");
+                LoadDictionary("AlternateFaces");
+                LoadDictionary("BodyType");
+                LoadDictionary("SkinTone");
+                LoadDictionary("TattooLeftArm");
+                LoadDictionary("TattooRightArm");
+                LoadDictionary("TattooFront");
+                LoadDictionary("TattooBack");
+                LoadDictionary("ManagerFaces");
+                LoadDictionary("RefereeFaces");
+                LoadDictionary("Boots");
+                LoadDictionary("TeamKits");
+                if (Version < 14)
+                {
+                    LoadDictionary("ManagerSelection", playerKit: false, skip: true);
+                }
+                else
+                {
+                    LoadDictionary("ManagerSelection");
+                }
+                LoadDictionary("Kits");
+                LoadDictionary("AlternateKits");
+                if (Version >= 14)
+                {
+                    LoadDictionary("WarmOutfits", playerKit: true);
+                    LoadDictionary("ColdOutfits", playerKit: true);
+                    LoadDictionary("ManagerDetails");
+                    LoadDictionary("RefereeDetails");
+                    LoadDictionary("PlayerDetails");
+                    LoadDictionary("TattooLeftLeg");
+                    LoadDictionary("TattooRightLeg");
+                }
+                if (Version >= 15)
+                {
+                    LoadDictionary("ManagerTattoos");
+                }
+            }
+            else if (Version <= 27)
+            {
+                LoadList("Faces");
+                LoadList("AlternateFaces");
+                LoadList("GenericFaces");
+                LoadList("BodyType");
+                LoadList("SkinTone");
+                LoadList("TattooLeftArm");
+                LoadList("TattooRightArm");
+                LoadList("TattooFront");
+                LoadList("TattooBack");
+                LoadList("ManagerFaces");
+                LoadList("RefereeFaces");
+                LoadList("Boots");
+                LoadList("TeamKits");
+                LoadList("ManagerSelection");
+                LoadList("Kits");
+                LoadList("AlternateKits");
+                LoadList("ManagerDetails");
+                LoadList("RefereeDetails");
+                LoadList("PlayerDetails");
+                LoadList("TattooLeftLeg");
+                LoadList("TattooRightLeg");
+                LoadList("ManagerTattoos");
+                if (Version >= 17)
+                {
+                    LoadList("ManagerAccessories");
+                }
+                if (Version >= 19)
+                {
+                    LoadList("DynamicYouthSystemEnable");
+                    LoadList("DynamicAppearanceSystemEnable");
+                    LoadList("DynamicBootsSystemEnable");
+                }
+                if (Version >= 20)
+                {
+                    LoadList("ManagerSelectionAccessories");
+                }
+                if (Version == 21)
+                {
+                    LoadList("SockLengths", playerKit: true);
+                }
+                if (Version >= 22)
+                {
+                    LoadList("AlternateBoots");
+                    LoadList("PlayerCareerTattoos");
+                }
+                if (Version >= 23)
+                {
+                    LoadList("PlayerDetailsPerAge");
+                    LoadList("Sleeves");
+                }
+                if (Version >= 24)
+                {
+                    LoadList("GkGloves");
+                }
+                if (Version >= 26)
+                {
+                    LoadList("KitFonts");
+                }
+            }
+            else
+            {
+                int count = Read7BitEncodedInt();
+                for (int i = 0; i < count; i++)
+                {
+                    string modKey2 = ReadLengthPrefixedString();
+                    LoadList(modKey2);
+                }
+            }
+            playerLuaMods.ClearDirtyFlag();
+            return playerLuaMods;
+            void LoadDictionary(string modKey, bool playerKit = false, bool skip = false)
+            {
+                if (modKey == null)
+                {
+                    throw new ArgumentNullException("modKey");
+                }
+                int count3 = Read7BitEncodedInt();
+                for (int k = 0; k < count3; k++)
+                {
+                    string key = ReadLengthPrefixedString();
+                    string value2 = ReadLengthPrefixedString();
+                    if (!skip)
+                    {
+                        if (!playerKit)
+                        {
+                            playerLuaMods.AddModification(modKey, key + ", " + value2);
+                        }
+                        else
+                        {
+                            //playerKitLuaModification.AddModification(modKey, key + ", " + value2);
+                        }
+                    }
+                }
+            }
+            void LoadList(string modKey, bool playerKit = false, bool skip = false)
+            {
+                if (modKey == null)
+                {
+                    throw new ArgumentNullException("modKey");
+                }
+                int count2 = Read7BitEncodedInt();
+                for (int j = 0; j < count2; j++)
+                {
+                    string value = ReadLengthPrefixedString();
+                    if (!skip)
+                    {
+                        if (!playerKit)
+                        {
+                            playerLuaMods.AddModification(modKey, value);
+                        }
+                        else
+                        {
+                            //playerKitLuaModification.AddModification(modKey, value);
+                        }
+                    }
+                }
+            }
+        }
+
+        public BaseModResource[] ReadResources()
 		{
 			if (Version >= 10)
 			{
@@ -372,7 +547,7 @@ namespace FrostySdk
 			return array.Where(x => x != null).ToArray();
 		}
 
-		public byte[] GetResourceData(BaseModResource resource)
+        public byte[] GetResourceData(BaseModResource resource)
 		{
 			if (resource == null)
 			{
@@ -411,5 +586,158 @@ namespace FrostySdk
 			long resourceLength = ReadInt64LittleEndian();
 			return (dataOffset + dataCount * 16 + resourceOffset, resourceLength);
 		}
-	}
+
+
+        public class PlayerLuaModification
+        {
+            public static class Keys
+            {
+                public const string AssignedFaces = "Faces";
+
+                public const string AssignedAlternateFaces = "AlternateFaces";
+
+                public const string GenericFaces = "GenericFaces";
+
+                public const string ChangeBodyType = "BodyType";
+
+                public const string ChangeSkinTone = "SkinTone";
+
+                public const string ChangeBoots = "Boots";
+
+                public const string TattooLeftArm = "TattooLeftArm";
+
+                public const string TattooRightArm = "TattooRightArm";
+
+                public const string TattooFront = "TattooFront";
+
+                public const string TattooBack = "TattooBack";
+
+                public const string ManagerSelection = "ManagerSelection";
+
+                public const string ManagerFaces = "ManagerFaces";
+
+                public const string ManagerTattoos = "ManagerTattoos";
+
+                public const string RefereeFaces = "RefereeFaces";
+
+                public const string AssignKits = "Kits";
+
+                public const string AssignAlternateKits = "AlternateKits";
+
+                public const string TeamKits = "TeamKits";
+
+                public const string ManagerDetails = "ManagerDetails";
+
+                public const string RefereeDetails = "RefereeDetails";
+
+                public const string PlayerDetails = "PlayerDetails";
+
+                public const string TattooLeftLeg = "TattooLeftLeg";
+
+                public const string TattooRightLeg = "TattooRightLeg";
+
+                public const string ManagerAccessories = "ManagerAccessories";
+
+                public const string ManagerSelectionAccessories = "ManagerSelectionAccessories";
+
+                public const string DynamicYouthSystemEnable = "DynamicYouthSystemEnable";
+
+                public const string DynamicAppearanceSystemEnable = "DynamicAppearanceSystemEnable";
+
+                public const string DynamicBootsSystemEnable = "DynamicBootsSystemEnable";
+
+                public const string AlternateBoots = "AlternateBoots";
+
+                public const string PlayerCareerTattoos = "PlayerCareerTattoos";
+
+                public const string PlayerDetailsPerAge = "PlayerDetailsPerAge";
+
+                public const string Sleeves = "Sleeves";
+
+                public const string GkGloves = "GkGloves";
+
+                public const string KitFonts = "KitFonts";
+            }
+
+            private readonly Dictionary<string, List<string>> content = new Dictionary<string, List<string>>();
+
+            private bool isDirty;
+
+            public IReadOnlyDictionary<string, List<string>> AllModifications => content;
+
+            public bool IsDirty
+            {
+                get
+                {
+                    return isDirty;
+                }
+                private set
+                {
+                    isDirty = value;
+                    if (value)
+                    {
+                        this.Modified?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+            }
+
+            public bool ContainsMods => content.Count > 0;
+
+            public event EventHandler Modified;
+
+            public void AddModification(string key, string content)
+            {
+                if (key == null)
+                {
+                    throw new ArgumentNullException("key");
+                }
+                if (content == null)
+                {
+                    throw new ArgumentNullException("content");
+                }
+                if (!this.content.TryGetValue(key, out var lines))
+                {
+                    lines = (this.content[key] = new List<string>());
+                }
+                lines.Add(content);
+                IsDirty = true;
+            }
+
+            public bool TryGetModifications(string key, out List<string> lines)
+            {
+                if (key == null)
+                {
+                    throw new ArgumentNullException("key");
+                }
+                return content.TryGetValue(key, out lines);
+            }
+
+            public void RemoveTeamKit(string teamId, string kitType)
+            {
+                if (content.TryGetValue("TeamKits", out var lines))
+                {
+                    lines.RemoveAll(delegate (string entry)
+                    {
+                        string[] array = entry.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                        return array[0].Equals(teamId, StringComparison.OrdinalIgnoreCase) && array[1].Equals(kitType, StringComparison.OrdinalIgnoreCase);
+                    });
+                }
+            }
+
+            public void ClearDirtyFlag()
+            {
+                IsDirty = false;
+            }
+
+            public void RemoveAllModifications()
+            {
+                if (ContainsMods)
+                {
+                    IsDirty = true;
+                }
+                content.Clear();
+            }
+        }
+
+    }
 }

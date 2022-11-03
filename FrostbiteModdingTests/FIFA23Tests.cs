@@ -432,7 +432,7 @@ namespace FrostbiteModdingTests
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V Gameplay Mod - v0.14.fbproject").Result;
+            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V2\V Gameplay Mod - v2a1.fbproject").Result;
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -910,7 +910,8 @@ namespace FrostbiteModdingTests
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     //@"C:\Users\paula\Downloads\FIFAMod\FIFAModding Legacy.fifamod"
-                    @"C:\Users\paula\Downloads\eSIM AIO Mod 1.0 - TU#2.fifamod"
+                    //@"C:\Users\paula\Downloads\eSIM AIO Mod 1.0 - TU#2.fifamod"
+                    @"C:\Users\paula\Downloads\Darwin_Nunez_23.fifamod"
 
 
                 }.ToArray()).Wait();

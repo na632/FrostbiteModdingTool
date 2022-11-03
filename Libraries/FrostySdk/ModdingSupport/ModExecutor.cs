@@ -2942,8 +2942,6 @@ namespace ModdingSupport
 
                         // ------------------------------------------------------------------
                         // Get the Resource Data out of the mod
-                        //byte[] resourceData = kvpMods.Value is FIFAMod ? frostbiteMod.GetResourceData(resource) : frostbiteMod.GetResourceData(resource, kvpMods.Key);
-                        //byte[] resourceData = frostbiteMod.GetResourceData(resource);
                         BaseModResource resource = r.Item1;
                         byte[] resourceData = r.Item2;
                         // ------------------------------------------------------------------
@@ -3031,34 +3029,24 @@ namespace ModdingSupport
                             case ModResourceType.Ebx:
                                 if (modifiedEbx.ContainsKey(resource.Name))
                                 {
-                                    EbxAssetEntry ebxAssetEntry = modifiedEbx[resource.Name];
-                                    if (ebxAssetEntry.Sha1 == resource.Sha1)
-                                    {
-                                        //continue;
-                                    }
-                                    archiveData[ebxAssetEntry.Sha1].RefCount--;
-                                    if (archiveData[ebxAssetEntry.Sha1].RefCount == 0)
-                                    {
-                                        archiveData.Remove(ebxAssetEntry.Sha1, out _);
-                                    }
                                     modifiedEbx.Remove(resource.Name);
+                                    if (archiveData.ContainsKey(resource.Sha1))
+                                        archiveData.Remove(resource.Sha1, out ArchiveInfo _);
                                 }
-                                EbxAssetEntry ebxAssetEntry2 = new EbxAssetEntry();
-                                resource.FillAssetEntry(ebxAssetEntry2);
-                                ebxAssetEntry2.Size = resourceData.Length;
-                                modifiedEbx.Add(ebxAssetEntry2.Name, ebxAssetEntry2);
-                                if (!archiveData.ContainsKey(ebxAssetEntry2.Sha1))
-                                {
-                                    archiveData.TryAdd(ebxAssetEntry2.Sha1, new ArchiveInfo
+                                EbxAssetEntry ebxEntry = new EbxAssetEntry();
+                                resource.FillAssetEntry(ebxEntry);
+                                ebxEntry.Size = resourceData.Length;
+                                modifiedEbx.Add(ebxEntry.Name, ebxEntry);
+                                if (!archiveData.ContainsKey(ebxEntry.Sha1))
+                                    archiveData.Add(ebxEntry.Sha1, new ArchiveInfo
                                     {
                                         Data = resourceData,
                                         RefCount = 1
                                     });
-                                }
-                                else
-                                {
-                                    archiveData[ebxAssetEntry2.Sha1].RefCount++;
-                                }
+
+
+                                archiveData[ebxEntry.Sha1].Data = resourceData;
+
                                 break;
                             case ModResourceType.Res:
                                 if (modifiedRes.ContainsKey(resource.Name))
@@ -3068,23 +3056,20 @@ namespace ModdingSupport
                                         archiveData.Remove(resource.Sha1, out ArchiveInfo _);
 
                                 }
-                                ResAssetEntry resAssetEntry3 = new ResAssetEntry();
-                                resource.FillAssetEntry(resAssetEntry3);
-                                resAssetEntry3.Size = resourceData.Length;
-                                modifiedRes.Add(resAssetEntry3.Name, resAssetEntry3);
-                                if (!archiveData.ContainsKey(resAssetEntry3.Sha1))
-                                {
-                                    archiveData.TryAdd(resAssetEntry3.Sha1, new ArchiveInfo
+                                ResAssetEntry resEntry = new ResAssetEntry();
+                                resource.FillAssetEntry(resEntry);
+                                resEntry.Size = resourceData.Length;
+                                modifiedRes.Add(resEntry.Name, resEntry);
+                                if (!archiveData.ContainsKey(resEntry.Sha1))
+                                    archiveData.Add(resEntry.Sha1, new ArchiveInfo
                                     {
-                                        //Data = resourceData3,
                                         Data = resourceData,
                                         RefCount = 1
                                     });
-                                }
-                                else
-                                {
-                                    archiveData[resAssetEntry3.Sha1].RefCount++;
-                                }
+
+
+                                archiveData[resEntry.Sha1].Data = resourceData;
+
                                 break;
                         }
 
