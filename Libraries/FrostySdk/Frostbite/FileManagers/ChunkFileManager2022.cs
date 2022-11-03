@@ -20,13 +20,13 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace Frostbite.FileManagers
 {
-	public class LegacyFileManager_FMTV2 : ILegacyFileManager, ICustomAssetManager
+	public class ChunkFileManager2022 : IChunkFileManager, ICustomAssetManager
 	{
 		protected ILogger Logger { get; set; }
 
-        public const long ChunkFileCollectorDataSize = 10485760L;
+        public long ChunkFileCollectorDataSize { get; } = 10485760L;
 
-        public const long ChunkFileCollectorFixup = 680960L;
+        public long ChunkFileCollectorFixup { get; } = 680960L;
 
         public List<LegacyFileEntry> AddedFileEntries { get; set; } = new List<LegacyFileEntry>();
 
@@ -61,7 +61,7 @@ namespace Frostbite.FileManagers
 			{
 				get
 				{
-					var lam = (LegacyFileManager_FMTV2)AssetManager.Instance.GetLegacyAssetManager();
+					var lam = (ChunkFileManager2022)AssetManager.Instance.GetLegacyAssetManager();
 					if(lam != null)
                     {
 						return lam.LegacyEntries.Values.Where(x => x.ParentGuid == ChunkAssetEntry.Id);
@@ -164,7 +164,7 @@ namespace Frostbite.FileManagers
 		public List<ChunkBatch> ChunkBatches { get; } = new List<ChunkBatch>();
 
 
-        public LegacyFileManager_FMTV2()
+        public ChunkFileManager2022()
 		{
 		}
 
@@ -346,7 +346,7 @@ namespace Frostbite.FileManagers
 			}
 
 			logger.Log($"Loaded {LegacyEntries.Count} legacy files");
-			LegacyFileManager.Instance = this;
+			ChunkFileManager.Instance = this;
 		}
 
 		public void ReInitialize(ILogger logger)
@@ -546,8 +546,11 @@ namespace Frostbite.FileManagers
 			//cachedChunks.Clear();
 		}
 
-		public IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly)
+		public virtual IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly)
 		{
+			if (LegacyEntries.Count == 0)
+				Initialize(Logger == null ? new NullLogger() : Logger);
+
 			var lE = LegacyEntries
 				.Select(x => (LegacyFileEntry)x.Value)
 				.Where(x =>
@@ -556,9 +559,12 @@ namespace Frostbite.FileManagers
 			return lE;
 		}
 
-		public AssetEntry GetAssetEntry(string key)
+		public virtual AssetEntry GetAssetEntry(string key)
 		{
-			LegacyFileEntry legacyFileEntry = null;
+            if (LegacyEntries.Count == 0)
+                Initialize(Logger == null ? new NullLogger() : Logger);
+
+            LegacyFileEntry legacyFileEntry = null;
 			if (LegacyEntries.ContainsKey(key))
 			{
 				legacyFileEntry = LegacyEntries[key];
@@ -576,15 +582,21 @@ namespace Frostbite.FileManagers
 
 		public LegacyFileEntry GetLFEntry(string key)
 		{
-			return GetAssetEntry(key) as LegacyFileEntry;
+            if (LegacyEntries.Count == 0)
+                Initialize(Logger == null ? new NullLogger() : Logger);
+
+            return GetAssetEntry(key) as LegacyFileEntry;
 		}
 
 		long? testDO;
 
-		public Stream GetAsset(AssetEntry entry)
+		public virtual Stream GetAsset(AssetEntry entry)
 		{
-			//LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
-			LegacyFileEntry legacyFileEntry = (LegacyFileEntry)GetAssetEntry(entry.Name);
+            if (LegacyEntries.Count == 0)
+                Initialize(Logger == null ? new NullLogger() : Logger);
+
+            //LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
+            LegacyFileEntry legacyFileEntry = (LegacyFileEntry)GetAssetEntry(entry.Name);
 
             if (legacyFileEntry == null)
 				return null;
@@ -623,8 +635,10 @@ namespace Frostbite.FileManagers
 
 		public virtual List<LegacyFileEntry> RebuildEntireChunk(Guid chunkId, List<LegacyFileEntry> replaceFileEntries, List<LegacyFileEntry> newFileEntries = null)
 		{
+            if (LegacyEntries.Count == 0)
+                Initialize(Logger == null ? new NullLogger() : Logger);
 
-			replaceFileEntries.ForEach(x => { if(x.ModifiedEntry != null && x.ModifiedEntry.ChunkId.HasValue) x.ModifiedEntry.ChunkId = null; });
+            replaceFileEntries.ForEach(x => { if(x.ModifiedEntry != null && x.ModifiedEntry.ChunkId.HasValue) x.ModifiedEntry.ChunkId = null; });
 
             CompressionType compressionType = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Legacy);
 
@@ -882,6 +896,9 @@ namespace Frostbite.FileManagers
 
 		public List<LegacyFileEntry> ModifyAssets(Dictionary<string, byte[]> data, bool rebuildChunk = true)
 		{
+            if (LegacyEntries.Count == 0)
+                Initialize(Logger == null ? new NullLogger() : Logger);
+
             ModifiedChunks.Clear();
 
             List<LegacyFileEntry> filesEdited = new List<LegacyFileEntry>();
@@ -959,7 +976,7 @@ namespace Frostbite.FileManagers
 			}
 
 			// Reset Chunks broken by patches
-			foreach (var chunk in LegacyFileManager.LegacyChunks)
+			foreach (var chunk in ChunkFileManager.LegacyChunks)
 			{
 				AssetManager.Instance.RevertAsset(chunk);
 			}
@@ -1040,7 +1057,7 @@ namespace Frostbite.FileManagers
 
 		public static void CleanUpChunks(bool fullReset = false)
 		{
-			var lam = (LegacyFileManager_FMTV2)AssetManager.Instance.GetLegacyAssetManager();
+			var lam = (ChunkFileManager2022)AssetManager.Instance.GetLegacyAssetManager();
 			var movedEntries = lam.LegacyEntries.Where(x => x.Value.ModifiedEntry != null
 					&& x.Value.ModifiedEntry.Data == null
 					&& x.Value.ModifiedEntry.NewOffset.HasValue

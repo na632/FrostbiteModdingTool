@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace FrostbiteSdk.Frostbite.FileManagers
 {
-	public class LegacyFileManager : ICustomAssetManager, ILegacyFileManager
+	public class ChunkFileManager : ICustomAssetManager, IChunkFileManager
 	{
 		public static IEnumerable<ChunkAssetEntry> LegacyChunks
         {
@@ -24,7 +24,7 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 
 		public List<LegacyFileEntry> AddedFileEntries { get; set; }
 
-		public static ILegacyFileManager Instance = null;
+		public static IChunkFileManager Instance = null;
 
 		private Dictionary<string, LegacyFileEntry> legacyEntries = new Dictionary<string, LegacyFileEntry>();
 
@@ -33,7 +33,7 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 		private bool cacheMode;
         public AssetManager AssetManager;
 
-        public LegacyFileManager(AssetManager assetManager)
+        public ChunkFileManager(AssetManager assetManager)
         {
             this.AssetManager = assetManager;
 			Instance = this;
@@ -268,6 +268,11 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 		}
 
 		public void DuplicateAsset(string name, LegacyFileEntry originalAsset)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RevertAsset(AssetEntry assetEntry)
 		{
 			throw new NotImplementedException();
 		}

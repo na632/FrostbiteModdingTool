@@ -6,7 +6,7 @@ using FrostySdk.Managers;
 
 namespace Frostbite.FileManagers
 {
-	public interface ILegacyFileManager
+	public interface IChunkFileManager
 	{
 		IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly);
 
@@ -24,7 +24,9 @@ namespace Frostbite.FileManagers
 
         void ModifyAsset(string key, byte[] data, bool rebuildChunk);
 
-		List<LegacyFileEntry> ModifyAssets(Dictionary<string, byte[]> data, bool rebuildChunk);
+        void RevertAsset(AssetEntry assetEntry);
+
+        List<LegacyFileEntry> ModifyAssets(Dictionary<string, byte[]> data, bool rebuildChunk);
 
         void SetCacheModeEnabled(bool enabled);
 		void DuplicateAsset(string name, LegacyFileEntry originalAsset);
