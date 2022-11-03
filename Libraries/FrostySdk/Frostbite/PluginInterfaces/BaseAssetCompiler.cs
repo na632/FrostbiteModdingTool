@@ -302,30 +302,16 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 {
                     legacyFileManager.ModifyAssets(legacyData, true);
 
-                    //var modifiedLegacyChunks = AssetManager.Instance.EnumerateChunks(true);
                     var modifiedLegacyChunks = legacyFileManager.ModifiedChunks;
                     foreach (var modLegChunk in modifiedLegacyChunks)
                     {
-                        //modLegChunk.Sha1 = modLegChunk.ModifiedEntry.Sha1;
-                        //if(ModExecuter.ModifiedChunks.ContainsKey(modLegChunk.Id))
-                        //    ModExecuter.ModifiedChunks.Remove(modLegChunk.Id);
-
                         ModExecuter.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
                         countLegacyChunksModified++;
                     }
 
-                    //var modifiedChunks = AssetManager.Instance.EnumerateChunks(true);
-                    //foreach (var chunk in ModExecuter.ModifiedChunks)
                     foreach (var chunk in modifiedLegacyChunks)
-                        //foreach (var chunk in AssetManager.Instance.EnumerateChunks(true))
                     {
-                        //if (ModExecuter.archiveData.ContainsKey(chunk.Sha1))
-                        //    ModExecuter.archiveData.Remove(chunk.Sha1);
-                        //ModExecuter.archiveData[chunk.Value.ModifiedEntry.Sha1] = new ArchiveInfo() { Data = chunk.Value.ModifiedEntry.Data };
-                        //else
-
-                        if (!ModExecuter.archiveData.ContainsKey(chunk.ModifiedEntry.Sha1))
-                            ModExecuter.archiveData.Add(chunk.ModifiedEntry.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
+                        ModExecuter.archiveData.Add(chunk.ModifiedEntry.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                     }
                     ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
                 }
@@ -528,7 +514,14 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                     if (chunkIndex != -1)
                                     {
                                         //var data = parent.archiveData[modChunk.Value.Sha1].Data;
-                                        var data = ModExecuter.archiveData[modChunk.Value.ModifiedEntry.Sha1].Data;
+                                        byte[] data = null;
+                                        if (ModExecuter.archiveData.ContainsKey(modChunk.Value.ModifiedEntry.Sha1))
+                                            data = ModExecuter.archiveData[modChunk.Value.ModifiedEntry.Sha1].Data;
+                                        //else if (ModExecuter.archiveData.ContainsKey(modChunk.Value.Sha1))
+                                        //    data = ModExecuter.archiveData[modChunk.Value.Sha1].Data;
+
+                                        if (data == null)
+                                            continue;
 
                                         var chunkGuid = tocFile2.TocChunkGuids[chunkIndex];
 
