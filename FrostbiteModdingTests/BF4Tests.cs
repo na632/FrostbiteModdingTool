@@ -47,14 +47,14 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("BF4", GamePath, this, true, false);
         }
 
         [TestMethod]
         public void BuildSDK()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("BF4", GamePath, this, false);
 
             var buildSDK = new BuildSDK();

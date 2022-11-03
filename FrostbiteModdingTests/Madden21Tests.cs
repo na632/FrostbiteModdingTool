@@ -47,21 +47,21 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestBuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("Madden21", GamePath, this, true);
         }
 
         [TestMethod]
         public void TestBuildCacheWithLoadedSDK()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("Madden21", GamePath, this, true, true);
         }
 
         [TestMethod]
         public void TestBuildSDK()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("Madden21", GamePath, this, false);
 
             var buildSDK = new BuildSDK();

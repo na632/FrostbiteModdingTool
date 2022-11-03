@@ -46,14 +46,14 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA19", GamePath, this, true);
         }
 
         [TestMethod]
         public void BuildSDK()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA19", GamePath, this, false);
 
             var buildSDK = new BuildSDK();

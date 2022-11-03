@@ -136,7 +136,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             //buildCache.LoadData("FIFA23", GamePath, this, true, false);
             buildCache.LoadData("FIFA23", GamePath, this, true, true);
 
@@ -149,7 +149,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCacheIndexing()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
             AssetManager.Instance.DoEbxIndexing();
         }
@@ -192,7 +192,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ReadSharedTypeDescriptor()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA23", GamePath, this, false, false);
             EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors.ebx", false);
             EbxSharedTypeDescriptorV2 patchstd = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors_patch.ebx", false);
@@ -588,7 +588,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void LoadSplashscreenTexture()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
             var ebxEntrySplash = AssetManager.Instance.GetEbxEntry("fifa/fesplash/splashscreen/splashscreen");
             var ebxSplash = AssetManager.Instance.GetEbx(ebxEntrySplash);
@@ -598,7 +598,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void LoadInitfs()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
 
         }
@@ -606,7 +606,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void LoadInitfsWriteInitfs()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
             var initfs = FileSystem.Instance.ReadInitfs(FileSystem.Instance.LoadKey());
             using (FileStream fsTestInitfs = new FileStream("initfsTest.dat", FileMode.OpenOrCreate))
@@ -656,7 +656,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void LoadLegacy()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA23", GamePath, this, false, true);
 
             var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
@@ -897,6 +897,22 @@ namespace FrostbiteModdingTests
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
                     "test.fbmod"
+                }.ToArray()).Wait();
+
+        }
+
+        [TestMethod]
+        public void TestFETFIFAMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE);
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    //@"C:\Users\paula\Downloads\FIFAMod\FIFAModding Legacy.fifamod"
+                    @"C:\Users\paula\Downloads\eSIM AIO Mod 1.0 - TU#2.fifamod"
+
+
                 }.ToArray()).Wait();
 
         }

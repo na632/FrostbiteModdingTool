@@ -63,7 +63,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestBuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             //buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
             buildCache.LoadData("FIFA21", GamePath, this, true, true);
         }
@@ -71,7 +71,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestBuildCacheIndexing()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             //buildCache.LoadData("FIFA21", @"E:\Origin Games\FIFA 21", this, false);
             buildCache.LoadData("FIFA21", GamePath, this, false);
             //AssetManager.Instance.ebxGuidList.Clear();
@@ -81,7 +81,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestBuildSDK()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA21", GamePath, this, false);
 
             var buildSDK = new BuildSDK();
@@ -641,7 +641,7 @@ namespace FrostbiteModdingTests
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostbiteProject();
 
-            LegacyFileManager_FMTV2 fileManager = new LegacyFileManager_FMTV2();
+            ChunkFileManager2022 fileManager = new ChunkFileManager2022();
             fileManager.WriteAllLegacy();
 
             projectManagement.Project.WriteToMod("test.fbmod", new ModSettings());

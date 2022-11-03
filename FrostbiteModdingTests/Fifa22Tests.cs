@@ -99,7 +99,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA22", GamePath, this, true, true);
 
             var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
@@ -111,7 +111,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCacheIndexing()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("Fifa22", GamePath, this, false, true);
             AssetManager.Instance.DoEbxIndexing();
         }
@@ -119,7 +119,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildSDK()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("Fifa22", GamePath, this, false, false);
 
             var buildSDK = new BuildSDK();
@@ -134,7 +134,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ReadSharedTypeDescriptor()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("Fifa22", GamePath, this, false, false);
             EbxSharedTypeDescriptorV2 std = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors.ebx", false);
         }
@@ -314,7 +314,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void LoadLegacy()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("Fifa22", GamePath, this, false, true);
 
             var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x=>x.Contains("legacy", StringComparison.OrdinalIgnoreCase));

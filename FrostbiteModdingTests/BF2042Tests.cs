@@ -49,7 +49,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("BF2042", GamePath, this, true, false);
 
             var ebxItems = AssetManager.Instance.EnumerateEbx().ToList();
@@ -61,7 +61,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildSDK()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("BF2042", GamePath, this, false);
 
             var buildSDK = new BuildSDK();

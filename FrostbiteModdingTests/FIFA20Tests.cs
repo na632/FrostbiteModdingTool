@@ -44,7 +44,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void BuildCache()
         {
-            var buildCache = new BuildCache();
+            var buildCache = new CacheManager();
             buildCache.LoadData("FIFA20", GamePath, this, true, true);
         }
     }
