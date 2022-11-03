@@ -324,7 +324,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                         //ModExecuter.archiveData[chunk.Value.ModifiedEntry.Sha1] = new ArchiveInfo() { Data = chunk.Value.ModifiedEntry.Data };
                         //else
 
-                        //if (!ModExecuter.archiveData.ContainsKey(chunk.Sha1))
+                        if (!ModExecuter.archiveData.ContainsKey(chunk.ModifiedEntry.Sha1))
                             ModExecuter.archiveData.Add(chunk.ModifiedEntry.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                     }
                     ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");
