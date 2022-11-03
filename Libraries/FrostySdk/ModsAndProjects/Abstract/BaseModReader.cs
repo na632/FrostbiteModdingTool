@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using static FrostySdk.ProfileManager;
 
 namespace FrostbiteSdk.Frosty.Abstract
 {
@@ -19,7 +20,19 @@ namespace FrostbiteSdk.Frosty.Abstract
 		}
 
 		public bool IsValid { get; set; }
-		public int GameVersion { get; set; }
+		public string GameName { get; set; }
+
+		public EGame Game
+		{
+			get
+			{
+				Enum.TryParse<EGame>(GameName.Replace(" ", ""), out EGame result);
+
+				return result;
+			}
+		}
+
+        public int GameVersion { get; set; }
         public uint Version { get; set; }
 
         public class EmbeddedResource : BaseModResource

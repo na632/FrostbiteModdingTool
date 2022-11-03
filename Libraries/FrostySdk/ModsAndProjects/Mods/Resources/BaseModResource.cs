@@ -160,9 +160,9 @@ namespace FrostySdk
 				userData = "";
 				//if ((reader as FrostyModReader).Version >= 3)
 				//{
-					userData = reader.ReadNullTerminatedString();
-				//}
-				int num = reader.ReadInt();
+					userData = ReadString(reader, modVersion);
+                //}
+                int num = reader.ReadInt();
 				for (int i = 0; i < num; i++)
 				{
 					bundlesToModify.Add(reader.ReadInt());

@@ -66,6 +66,7 @@ namespace FrostbiteSdk
 		public bool IsEncrypted { get; set; }
 
 		public byte[] ModBytes { get; set; }
+		public ProfileManager.EGame Game { get; set; }
 
 		private void ReadFromStream(Stream stream)
 		{
@@ -102,6 +103,7 @@ namespace FrostbiteSdk
 				if (frostyModReader.IsValid)
 				{
 					bNewFormat = true;
+					Game = frostyModReader.Game;
 					gameVersion = frostyModReader.GameVersion;
 					ModDetails = frostyModReader.ReadModDetails();
 					Resources = frostyModReader.ReadResources();

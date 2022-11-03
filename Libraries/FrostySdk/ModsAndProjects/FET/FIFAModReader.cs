@@ -10,6 +10,8 @@ using FrostySdk.Frosty.FET;
 using FrostbiteSdk.Frosty.Abstract;
 using Microsoft.VisualBasic;
 using System.Diagnostics;
+using System.Linq;
+using FrostySdk.IO._2022.Readers;
 
 namespace FrostySdk
 {
@@ -21,10 +23,12 @@ namespace FrostySdk
 
 			public override ModResourceType Type => ModResourceType.Bundle;
 
-			public override void Read(NativeReader reader, uint modVersion = 6u)
+            
+
+            public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
-				base.Read(reader);
-				name = reader.ReadNullTerminatedString();
+				base.Read(reader, modVersion);
+				name = ReadString(reader, modVersion);
 				superBundleName = reader.ReadInt32LittleEndian();
 			}
 
@@ -150,8 +154,6 @@ namespace FrostySdk
 
 		private readonly ulong headerChecksum;
 
-		public string GameName { get; }
-
 		public bool HasChecksums { get; }
 
 		public FIFAModReader(Stream stream)
@@ -165,10 +167,9 @@ namespace FrostySdk
 					return;
 				}
 				Version = ReadUInt32LittleEndian();
-				uint version = Version;
 				//if (version <= 11 && version >= 4)
 				//{
-				if (version <= 28 && version >= 4)
+				if (Version <= 28 && Version >= 4)
 				{
 					if (Version >= 10)
 					{
@@ -180,6 +181,7 @@ namespace FrostySdk
 					dataOffset = ReadInt64LittleEndian();
 					dataCount = ReadInt32LittleEndian();
 					GameName = ReadLengthPrefixedString();
+					var G = Game;
 					GameVersion = ReadInt32LittleEndian();
 					IsValid = true;
 				}
@@ -333,7 +335,8 @@ namespace FrostySdk
 			BaseModResource[] array = new BaseModResource[num];
 			for (int i = 0; i < num; i++)
 			{
-				switch (ReadByte())
+				var s = ReadByte();
+                switch (s)
 				{
 					case 0:
 						array[i] = new EmbeddedResource();
@@ -351,9 +354,22 @@ namespace FrostySdk
 						array[i] = new BundleResource();
 						break;
 				}
-				array[i].Read(this, Version);
+				try
+				{
+					var r = array[i];
+					if(r != null)
+						r.Read(this, Version);
+					else
+					{
+						break;
+					}
+				}
+				catch
+				{
+
+				}
 			}
-			return array;
+			return array.Where(x => x != null).ToArray();
 		}
 
 		public byte[] GetResourceData(BaseModResource resource)
@@ -370,7 +386,14 @@ namespace FrostySdk
 			long num = ReadInt64LittleEndian();
 			long num2 = ReadInt64LittleEndian();
 			base.Position = dataOffset + dataCount * 16 + num;
-			return ReadBytes((int)num2);
+			var b = ReadBytes((int)num2);
+			//if (resource.GetType().Name.Contains("ebx", StringComparison.OrdinalIgnoreCase))
+			//{
+			//	var db = new CasReader(new MemoryStream(b)).Read();
+			//	EbxReader22B ebxReader = new EbxReader22B(new MemoryStream(db), false);
+			//	ebxReader.ReadObject();
+			//}
+			return b;
 		}
 
 		public (long position, long length) GetResourceDataOffset(BaseModResource resource)

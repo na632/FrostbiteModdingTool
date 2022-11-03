@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static FrostySdk.ProfileManager;
 
 namespace FrostbiteSdk
 {
@@ -33,8 +34,10 @@ namespace FrostbiteSdk
 			set;
 		}
 
+        public EGame Game { get; set; }
+
 		public int GameVersion
-		{
+        {
 			get;
 		}
 
@@ -76,9 +79,10 @@ namespace FrostbiteSdk
 					throw new InvalidDataException("The file is not a valid mod.");
 				}
 				NewFormat = true;
-				GameVersion = modReader.GameVersion;
+                GameVersion = modReader.GameVersion;
+                Game = modReader.Game;
 				ModDetails = modReader.ReadModDetails();
-				Resources = modReader.ReadResources();
+                Resources = modReader.ReadResources();
 				ModDetails.SetIcon(modReader.GetResourceData(Resources.First()));
 				for (int i = 0; i < ModDetails.ScreenshotsCount; i++)
 				{

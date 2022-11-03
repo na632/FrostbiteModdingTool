@@ -55,14 +55,15 @@ namespace FrostbiteSdk
 				dataOffset = ReadLong();
 				dataCount = ReadInt();
 				//var pn = ReadSizedString(ReadByte());
-				var pn = ReadLengthPrefixedString();
+				GameName = ReadLengthPrefixedString();
+
 				//Debug.WriteLine("FrostyModReader::Mod ProfileName::" + pn);
-				if (pn == ProfileManager.ProfileName)
+				if (GameName == ProfileManager.ProfileName)
 				{
                     GameVersion = ReadInt();
 					IsValid = true;
-					//Debug.WriteLine("FrostyModReader::Mod Game Version::" + gameVersion);
-				}
+                    //Debug.WriteLine("FrostyModReader::Mod Game Version::" + gameVersion);
+                }
 				else
                 {
                     IsValid = false;

@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FrostySdk;
+using static FrostySdk.ProfileManager;
 
 namespace FrostbiteSdk
 {
     public interface IFrostbiteMod : IDisposable
     {
+        public EGame Game { get; set; }
         public string Filename { get; set; }
         public IEnumerable<BaseModResource> Resources 
         { 
