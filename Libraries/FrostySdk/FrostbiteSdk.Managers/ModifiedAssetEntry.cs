@@ -29,7 +29,7 @@ namespace FrostySdk.Managers
 
 		private object dataObject;
 
-		public object DataObject
+		public virtual object DataObject
 		{
 			get 
 			{

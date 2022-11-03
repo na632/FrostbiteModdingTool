@@ -633,7 +633,11 @@ namespace Frostbite.FileManagers
 		//}
 
 
-		public virtual List<LegacyFileEntry> RebuildEntireChunk(Guid chunkId, List<LegacyFileEntry> replaceFileEntries, List<LegacyFileEntry> newFileEntries = null)
+		public virtual List<LegacyFileEntry> RebuildEntireChunk(
+			Guid chunkId
+			, List<LegacyFileEntry> replaceFileEntries
+			, List<LegacyFileEntry> newFileEntries = null
+			)
 		{
             if (LegacyEntries.Count == 0)
                 Initialize(Logger == null ? new NullLogger() : Logger);
@@ -646,7 +650,8 @@ namespace Frostbite.FileManagers
 			List<LegacyFileEntry> editedLegacyFilesByProcess = new List<LegacyFileEntry>();
 
             // get the chunk batch (the main batch with offsets etc)
-            ChunkBatch chunkBatch = ChunkBatches.FirstOrDefault(x => x.ChunkAssetEntry.Id == chunkId);
+			var chunkBatchIndex = ChunkBatches.FindIndex(x => x.ChunkAssetEntry.Id == chunkId);
+            ChunkBatch chunkBatch = ChunkBatches.SingleOrDefault(x => x.ChunkAssetEntry.Id == chunkId);
 			if (chunkBatch == null)
 				return null;
 

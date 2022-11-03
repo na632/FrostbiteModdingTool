@@ -284,33 +284,27 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
                 Dictionary<string, byte[]> legacyData = ModExecuter.modifiedLegacy.ToDictionary(x => x.Key, x => x.Value.ModifiedEntry.Data);
                 var countLegacyChunksModified = 0;
-                //foreach (var modLegacy in ModExecuter.modifiedLegacy)
-                //{
-                //    byte[] data = null;
-                    
-                //    if (ModExecuter.archiveData.ContainsKey(modLegacy.Value.Sha1))
-                //        data = ModExecuter.archiveData[modLegacy.Value.Sha1].Data;
-
-                //    if (data != null)
-                //    {
-                //        legacyData.Add(modLegacy.Key, data);
-                //    }
-                //}
 
                 var legacyFileManager = AssetManager.Instance.GetLegacyAssetManager() as ChunkFileManager2022;
                 if (legacyFileManager != null)
                 {
                     legacyFileManager.ModifyAssets(legacyData, true);
 
-                    var modifiedLegacyChunks = legacyFileManager.ModifiedChunks;
+                    var modifiedLegacyChunks = legacyFileManager.ModifiedChunks.Distinct();
                     foreach (var modLegChunk in modifiedLegacyChunks)
                     {
+                        if (ModExecuter.ModifiedChunks.ContainsKey(modLegChunk.Id))
+                            ModExecuter.ModifiedChunks.Remove(modLegChunk.Id);
+                        
                         ModExecuter.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
                         countLegacyChunksModified++;
                     }
 
                     foreach (var chunk in modifiedLegacyChunks)
                     {
+                        if(ModExecuter.archiveData.ContainsKey(chunk.ModifiedEntry.Sha1))
+                            ModExecuter.archiveData.Remove(chunk.ModifiedEntry.Sha1);
+
                         ModExecuter.archiveData.Add(chunk.ModifiedEntry.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
                     }
                     ModExecuter.Logger.Log($"Legacy :: Modified {countLegacyChunksModified} associated chunks");

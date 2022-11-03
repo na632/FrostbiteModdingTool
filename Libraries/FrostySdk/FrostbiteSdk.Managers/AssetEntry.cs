@@ -207,7 +207,7 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public bool HasModifiedData
+		public virtual bool HasModifiedData
 		{
 			get
 			{
@@ -215,7 +215,7 @@ namespace FrostySdk.Managers
 				{
 					if (ModifiedEntry.Data == null)
 					{
-						return ((ModifiedAssetEntry)ModifiedEntry).DataObject != null;
+						return ModifiedEntry.DataObject != null;
 					}
 					return ModifiedEntry.Data != null;
 				}
