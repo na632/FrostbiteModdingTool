@@ -960,6 +960,9 @@ namespace Frostbite.FileManagers
 		/// <param name="entries"></param>
 		public void LoadEntriesModifiedFromProject(List<LegacyFileEntry> entries)
 		{
+			if (LegacyEntries.Count == 0)
+				Initialize(Logger == null ? new NullLogger() : Logger);
+
 			var groupedAssets = entries.GroupBy(x => x.ParentGuid).ToDictionary(x => x.Key, x => x.ToList());
 			foreach (var group in groupedAssets)
 			{
