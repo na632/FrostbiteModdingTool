@@ -79,7 +79,7 @@
   //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "Oodle",
   //"CompressedFormatLegacy": "None",
-  "LegacyFileManager": "LFM_Fifa22",
+  "LegacyFileManager": "ChunkFileManager2022",
   "CanUseModData": true,
   "ForceUseModData": true,
   "GameIdentifier": 196837
