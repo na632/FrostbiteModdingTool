@@ -82,7 +82,7 @@ namespace FIFAModdingUI.Pages.Common
 			AssetManager.AssetManagerModified += AssetManager_AssetManagerModified;
 		}
 
-		private void AssetManager_AssetManagerModified(IAssetEntry modifiedAsset)
+		private async void AssetManager_AssetManagerModified(IAssetEntry modifiedAsset)
 		{
 			//_ = Task.Run(() =>
 			//{
@@ -94,13 +94,13 @@ namespace FIFAModdingUI.Pages.Common
 			//		}
 			//	}
 
-   //             Update();
+			await Update();
 
-   // //            Dispatcher.Invoke(() => {
+			// //            Dispatcher.Invoke(() => {
 
 			//	//	DataContext = null;
 			//	//	DataContext = this;
-			
+
 			//	//});
 			//});
 		}
@@ -153,43 +153,40 @@ namespace FIFAModdingUI.Pages.Common
         public async Task<IEnumerable<IAssetEntry>> GetFilteredAssetEntries()
 		{
 			var onlymodified = false;
+			var filterText = "";
 
-			Dispatcher.Invoke(() =>
+
+            Dispatcher.Invoke(() =>
 			{
 				onlymodified = chkShowOnlyModified.IsChecked.Value;
-			});
-			return await Dispatcher.InvokeAsync(() =>
+				filterText = txtFilter.Text;
+            });
+
+			return await Task.Run(() =>
 			{
 				var assets = allAssets;
 				if (assets != null)
 				{
-					bool OnlyModified
-					= chkShowOnlyModified.IsChecked.HasValue
-					&& chkShowOnlyModified.IsChecked.Value;
-
-					if (!string.IsNullOrEmpty(txtFilter.Text))
+					if (!string.IsNullOrEmpty(filterText))
 					{
 						assets = assets.Where(x =>
-							x.Name.Contains(txtFilter.Text, StringComparison.OrdinalIgnoreCase)
+							x.Name.Contains(filterText, StringComparison.OrdinalIgnoreCase)
 							);
 					}
 
 					assets = assets.Where(x =>
-
 						(
 						onlymodified == true
 						&& x.IsModified
 						)
 						|| onlymodified == false
-
 						);
 
 				}
 				return assets;
-
 			});
 
-		}
+        }
 
 		public List<string> CurrentAssets { get; set; }
 
@@ -206,101 +203,116 @@ namespace FIFAModdingUI.Pages.Common
 		private AssetPath selectedPath = null;
 		public AssetPath AssetPath { get; set; }
 
-        public async void Update()
+		public bool IsUpdating { get; set; } = false;
+
+        public async Task Update()
 		{
+			if (IsUpdating)
+				return;
+
+			IsUpdating = true;
+
 			//if (AssetPath == null)
                 AssetPath = new AssetPath("", "", null, true);
 
             var assets = await GetFilteredAssetEntries();
 
-			//foreach (AssetEntry item in assets)
-			foreach (IAssetEntry item in assets)
-            {
-				var path = item.Path;
-				if (!path.StartsWith("/"))
-                    path = path.Insert(0, "/");
-                //if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
-                {
-					string[] directories = path.Split(new char[1]
+			await Task.Run(() =>
+			{
+
+				//foreach (AssetEntry item in assets)
+				foreach (IAssetEntry item in assets)
+				{
+					var path = item.Path;
+					if (!path.StartsWith("/"))
+						path = path.Insert(0, "/");
+					//if ((!ShowOnlyModified || item.IsModified) && FilterText(item.Name, item))
 					{
+						string[] directories = path.Split(new char[1]
+						{
 							'/'
-					}, StringSplitOptions.RemoveEmptyEntries);
-					AssetPath assetPath2 = AssetPath;
-					foreach (string directory in directories)
-					{
-						bool flag = false;
-						foreach (AssetPath child in assetPath2.Children)
+						}, StringSplitOptions.RemoveEmptyEntries);
+						AssetPath assetPath2 = AssetPath;
+						foreach (string directory in directories)
 						{
-							if (child.PathName.Equals(directory, StringComparison.OrdinalIgnoreCase))
+							bool flag = false;
+							foreach (AssetPath child in assetPath2.Children)
 							{
-								if (directory.ToCharArray().Any((char a) => char.IsUpper(a)))
+								if (child.PathName.Equals(directory, StringComparison.OrdinalIgnoreCase))
 								{
-									child.UpdatePathName(directory);
-								}
-								assetPath2 = child;
-								flag = true;
-								break;
-							}
-						}
-						if (!flag)
-						{
-							string text2 = assetPath2.FullPath + "/" + directory;
-							AssetPath assetPath3 = null;
-							if (!assetPathMapping.ContainsKey(text2))
-							{
-								assetPath3 = new AssetPath(directory, text2, assetPath2);
-								assetPathMapping.Add(text2, assetPath3);
-							}
-							else
-							{
-								assetPath3 = assetPathMapping[text2];
-								assetPath3.Children.Clear();
-								if (assetPath3 == selectedPath)
-								{
-									selectedPath.IsSelected = true;
+									if (directory.ToCharArray().Any((char a) => char.IsUpper(a)))
+									{
+										child.UpdatePathName(directory);
+									}
+									assetPath2 = child;
+									flag = true;
+									break;
 								}
 							}
-							assetPath2.Children.Add(assetPath3);
-							assetPath2 = assetPath3;
+							if (!flag)
+							{
+								string text2 = assetPath2.FullPath + "/" + directory;
+								AssetPath assetPath3 = null;
+								if (!assetPathMapping.ContainsKey(text2))
+								{
+									assetPath3 = new AssetPath(directory, text2, assetPath2);
+									assetPathMapping.Add(text2, assetPath3);
+								}
+								else
+								{
+									assetPath3 = assetPathMapping[text2];
+									assetPath3.Children.Clear();
+									if (assetPath3 == selectedPath)
+									{
+										selectedPath.IsSelected = true;
+									}
+								}
+								assetPath2.Children.Add(assetPath3);
+								assetPath2 = assetPath3;
+							}
 						}
 					}
 				}
-			}
-			if (!assetPathMapping.ContainsKey("/"))
-			{
-				//assetPathMapping.Add("/", new AssetPath("![root]", "", null, bInRoot: true));
-				assetPathMapping.Add("/", new AssetPath("", "", null, bInRoot: true));
-			}
-			AssetPath.Children.Insert(0, assetPathMapping["/"]);
-
-			foreach (IAssetEntry item in assets.OrderBy(x=>x.Name))
-			{
-				if(assetPathMapping.ContainsKey("/" + item.Path))
+				if (!assetPathMapping.ContainsKey("/"))
 				{
-					var fileAssetPath = new AssetPath(item.Filename, "/" + item.Path + "/" + item.Filename, assetPathMapping["/" + item.Path], false);
-					fileAssetPath.Asset = item;
-                    assetPathMapping["/" + item.Path].Children.Add(fileAssetPath);
+					//assetPathMapping.Add("/", new AssetPath("![root]", "", null, bInRoot: true));
+					assetPathMapping.Add("/", new AssetPath("", "", null, bInRoot: true));
 				}
-			}
+				AssetPath.Children.Insert(0, assetPathMapping["/"]);
 
-			//         await Dispatcher.InvokeAsync((Action)(() =>
-			//{
-			//	assetTreeView.ItemsSource = assetPath.Children;
-			//	assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
-			//}));
-			await Dispatcher.InvokeAsync((Action)(() =>
+				foreach (IAssetEntry item in assets.OrderBy(x => x.Name))
+				{
+					if (assetPathMapping.ContainsKey("/" + item.Path))
+					{
+						var fileAssetPath = new AssetPath(item.Filename, "/" + item.Path + "/" + item.Filename, assetPathMapping["/" + item.Path], false);
+						fileAssetPath.Asset = item;
+						assetPathMapping["/" + item.Path].Children.Add(fileAssetPath);
+					}
+				}
+			});
+
+            //         await Dispatcher.InvokeAsync((Action)(() =>
+            //{
+            //	assetTreeView.ItemsSource = assetPath.Children;
+            //	assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
+            //}));
+            await Dispatcher.InvokeAsync(() =>
 		   {
-			   assetTreeView.ItemsSource = AssetPath.Children;
-			   assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
-		   }));
+			   assetTreeView.ItemsSource = AssetPath.Children.OrderBy(x=>x.PathName);
+			   //assetTreeView.Items.SortDescriptions.Add(new SortDescription("PathName", ListSortDirection.Ascending));
+		   });
 
-			this.DataContext = null;
-			this.DataContext = this;
+            //Dispatcher.Invoke(() =>
+            //{
+            //	this.DataContext = null;
+            //	this.DataContext = this;
+            //});
+            IsUpdating = false;
 
-		}
+        }
 
 
-		private async void btnImport_Click(object sender, RoutedEventArgs e)
+        private async void btnImport_Click(object sender, RoutedEventArgs e)
 		{
 			var importStartTime = DateTime.Now;
 
