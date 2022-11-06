@@ -1,4 +1,5 @@
 ﻿using FrostySdk;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json.Serialization;
@@ -75,19 +76,21 @@ namespace FIFA21Plugin
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 List<DbObject> objs = new List<DbObject>();
-                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
+                //using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
                 {
                     
                     // TOC File 
-                    TOCFile = new TOCFile(this);
-                    TOCFile.SuperBundleName = SBName;
-                    TOCFile.NativeFileLocation = nativePath;
-                    TOCFile.FileLocation = tocPath;
-                    TOCFile.DoLogging = DoLogging;
-                    TOCFile.ProcessData = ProcessData;
-                    var tObjs = TOCFile.Read(nativeReader);
-                    if (tObjs != null && tObjs.Count > 0 && !ProcessData)
-                        objs.AddRange(tObjs);
+                    TOCFile = new TOCFile(nativePath.Replace(".sb", ".toc"), DoLogging, ProcessData, false);
+                    //TOCFile.SuperBundleName = SBName;
+                    //TOCFile.NativeFileLocation = nativePath;
+                    //TOCFile.FileLocation = tocPath;
+                    //TOCFile.DoLogging = DoLogging;
+                    //TOCFile.ProcessData = ProcessData;
+                    //var tObjs = TOCFile.Read(nativeReader);
+                    //if (tObjs != null && tObjs.Count > 0 && !ProcessData)
+                    //    objs.AddRange(tObjs);
+                    if (TOCFile.TOCObjects != null && TOCFile.TOCObjects.Count > 0 && !ProcessData)
+                        objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
 
                     // SB File
                     var sbObjs = ReadSB(SbPath, nativePath != null ? nativePath.Replace(".toc", ".sb") : null);

@@ -18,11 +18,13 @@ using System.Threading.Tasks;
 namespace FrostySdk
 {
 
-    public class FrostbiteProject
+	public class FrostbiteProject
 	{
-		private const uint FormatVersion = 12u;
+		//private const uint FormatVersion = 12u;
+		private uint CurrentFormatVersion { get; } = 23u;
+		protected uint ProjectFormatVersion { get; set; } = 23u;
 
-		private const ulong Magic = 98218709832262uL;
+        private const ulong Magic = 98218709832262uL;
 
 		private string filename;
 
@@ -185,7 +187,7 @@ namespace FrostySdk
 			using (NativeWriter nativeWriter = new NativeWriter(new FileStream(text, FileMode.Create)))
 			{
 				nativeWriter.Write(98218709832262uL);
-				nativeWriter.Write(12u);
+				nativeWriter.Write(CurrentFormatVersion);
 				nativeWriter.WriteNullTerminatedString(ProfileManager.ProfileName);
 				nativeWriter.Write(creationDate.Ticks);
 				nativeWriter.Write(modifiedDate.Ticks);
@@ -302,11 +304,11 @@ namespace FrostySdk
 						EbxAsset asset = ((ModifiedAssetEntry)modifiedEbx.ModifiedEntry).DataObject as EbxAsset;
 
 						EbxBaseWriter ebxWriter = null;
-						if(!string.IsNullOrEmpty(ProfileManager.LoadedProfile.ProjectEbxWriter))
+						if(!string.IsNullOrEmpty(ProfileManager.LoadedProfile.EBXWriter))
                         {
 							ebxWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(
-								ProfileManager.LoadedProfile.ProjectEbxWriter
-								, new MemoryStream(), EbxWriteFlags.IncludeTransient, false);
+								ProfileManager.LoadedProfile.EBXWriter
+                                , new MemoryStream(), EbxWriteFlags.IncludeTransient, false);
 						}
 
 						if (ebxWriter == null)
@@ -329,9 +331,10 @@ namespace FrostySdk
 				}
 				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 				position = nativeWriter.BaseStream.Position;
-				nativeWriter.Write(3735928559u);
-				num = 0;
-				foreach (ResAssetEntry modifiedRes in AssetManager.EnumerateRes(0u, modifiedOnly: true))
+                var modifiedResAssets = AssetManager.EnumerateRes(0u, modifiedOnly: true);
+                nativeWriter.Write(modifiedResAssets.Count());
+                num = 0;
+				foreach (ResAssetEntry modifiedRes in modifiedResAssets)
 				{
 					nativeWriter.WriteNullTerminatedString(modifiedRes.Name);
 					SaveLinkedAssets(modifiedRes, nativeWriter);
@@ -688,504 +691,422 @@ namespace FrostySdk
 
 		private async Task<bool> InternalLoad(NativeReader reader, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			List<Task> tasks = new List<Task>();	
-            uint num = reader.ReadUInt();
-			switch (num)
+			List<Task> tasks = new List<Task>();
+			ProjectFormatVersion = reader.ReadUInt();
+			if (ProjectFormatVersion <= 11u)
+				return false;
+
+			if (ProfileManager.Game > ProfileManager.EGame.FIFA21 && ProjectFormatVersion == 12u)
+				ProjectFormatVersion = 23u;
+
+			if (reader.ReadNullTerminatedString() != ProfileManager.ProfileName)
 			{
-				default:
-					return false;
-				case 0u:
-				case 1u:
-				case 2u:
-				case 3u:
-				case 4u:
-				case 5u:
-				case 6u:
-				case 7u:
-				case 8u:
-					return false;
-				case 9u:
-				case 10u:
-				case 11u:
-				case 12u:
-					{
-						if (reader.ReadNullTerminatedString() != ProfileManager.ProfileName)
-						{
-							return false;
-						}
-						Dictionary<int, AssetEntry> dictionary = new Dictionary<int, AssetEntry>();
-						creationDate = new DateTime(reader.ReadLong());
-						modifiedDate = new DateTime(reader.ReadLong());
-						gameVersion = reader.ReadUInt();
-						modSettings.Title = reader.ReadNullTerminatedString();
-						modSettings.Author = reader.ReadNullTerminatedString();
-						modSettings.Category = reader.ReadNullTerminatedString();
-						modSettings.Version = reader.ReadNullTerminatedString();
-						modSettings.Description = reader.ReadNullTerminatedString();
-						int num2 = reader.ReadInt();
-						if (num2 > 0)
-						{
-							modSettings.Icon = reader.ReadBytes(num2);
-						}
-						for (int i = 0; i < 4; i++)
-						{
-							num2 = reader.ReadInt();
-							if (num2 > 0)
-							{
-								modSettings.SetScreenshot(i, reader.ReadBytes(num2));
-							}
-						}
-						modSettings.ClearDirtyFlag();
-						int count = reader.ReadInt();
-						count = reader.ReadInt();
-						for (int j = 0; j < count; j++)
-						{
-							string name = reader.ReadNullTerminatedString();
-							string sbname = reader.ReadNullTerminatedString();
-							BundleType type = (BundleType)reader.ReadInt();
-							AssetManager.AddBundle(name, type, AssetManager.GetSuperBundleId(sbname));
-						}
-						count = reader.ReadInt();
-						for (int k = 0; k < count; k++)
-						{
-							EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-							ebxAssetEntry.Name = reader.ReadNullTerminatedString();
-							ebxAssetEntry.Guid = reader.ReadGuid();
-							AssetManager.AddEbx(ebxAssetEntry);
-						}
-						count = reader.ReadInt();
-						for (int l = 0; l < count; l++)
-						{
-							ResAssetEntry resAssetEntry = new ResAssetEntry();
-							resAssetEntry.Name = reader.ReadNullTerminatedString();
-							resAssetEntry.ResRid = reader.ReadULong();
-							resAssetEntry.ResType = reader.ReadUInt();
-							resAssetEntry.ResMeta = reader.ReadBytes(16);
-							AssetManager.AddRes(resAssetEntry);
-						}
-						count = reader.ReadInt();
-						for (int m = 0; m < count; m++)
-						{
-							ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-							chunkAssetEntry.Id = reader.ReadGuid();
-							chunkAssetEntry.H32 = reader.ReadInt();
-							//AssetManager.ForceChunkRemoval = true;
-							//AssetManager.AddChunk(chunkAssetEntry);
-							//AssetManager.ForceChunkRemoval = false;
-						}
-						count = reader.ReadInt();
-						EBXCount = count;
-						for (int n = 0; n < count; n++)
-						{
-							string ebxName = reader.ReadNullTerminatedString();
-							
-							List<AssetEntry> collection = LoadLinkedAssets(reader);
-							bool flag = reader.ReadBoolean();
-							bool isTransientModified = false;
-							string userData = "";
-							List<int> list = new List<int>();
-							byte[] ebxAssetBytes = null;
-							if (flag)
-							{
-								isTransientModified = reader.ReadBoolean();
-								if (num >= 12)
-								{
-									userData = reader.ReadNullTerminatedString();
-								}
-								int num4 = reader.ReadInt();
-								for (int num5 = 0; num5 < num4; num5++)
-								{
-									string name3 = reader.ReadNullTerminatedString();
-									int bundleId = AssetManager.GetBundleId(name3);
-									if (bundleId != -1)
-									{
-										list.Add(bundleId);
-									}
-								}
-								ebxAssetBytes = reader.ReadBytes(reader.ReadInt());
-							}
-							var readerPositionBeforeEbx = reader.Position;
-							var readerPositionAfterEbx = reader.Position + ebxAssetBytes.Length;
-                            EbxAssetEntry ebxEntry = AssetManager.GetEbxEntry(ebxName);
-							if (ebxEntry != null)
-							{
-								ebxEntry.LinkedAssets.AddRange(collection);
-								ebxEntry.AddBundles.AddRange(list);
-								if (flag)
-								{
-									ebxEntry.ModifiedEntry = new ModifiedAssetEntry();
-									ebxEntry.ModifiedEntry.IsTransientModified = isTransientModified;
-									ebxEntry.ModifiedEntry.UserData = userData;
-									ebxEntry.ModifiedEntry.Data = ebxAssetBytes;
-									//EbxReader ebxReader = null;
-
-									//if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.ProjectEbxWriter))
-									//{
-									//	ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
-									//		ProfilesLibrary.LoadedProfile.ProjectEbxReader,
-									//		new MemoryStream(ebxAssetBytes), false);
-									//}
-
-									//if(ebxReader == null)
-									//                           {
-									//                               if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
-									//                                   ebxReader = new EbxReaderV2(new MemoryStream(ebxAssetBytes), inPatched: false);
-									//                               else
-									//                                   ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
-									//                           }
-
-
-									//using (
-									//	ebxReader
-									//			)
-									//{
-									//if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
-									//	AssetManager.Instance.logger.Log($"[Project Load][EBX]({ebxEntry.Name})");
-
-									//try
-									//{
-									//	//tasks.Add(Task.Run(() =>
-									//	await Task.Run(() =>
-									//	{
-									//		try
-									//		{
-									//			EbxAsset ebxAsset = ebxReader.ReadAsset();
-									//			ebxEntry.ModifiedEntry.DataObject = ebxAsset;
-									//			if (ebxEntry.IsAdded)
-									//			{
-									//				ebxEntry.Type = ebxAsset.RootObject.GetType().Name;
-									//			}
-									//			ebxEntry.ModifiedEntry.DependentAssets.AddRange(ebxAsset.Dependencies);
-
-									//			int key = Fnv1.HashString(ebxEntry.Name);
-									//			if (!dictionary.ContainsKey(key))
-									//			{
-									//				dictionary.Add(key, ebxEntry);
-									//			}
-									//		}
-									//		catch
-									//		{
-									//			if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
-									//				AssetManager.Instance.logger.LogError($"[Project Log][EBX][ERROR]({ebxEntry.Name})");
-									//		}
-									//	}, cancellationToken)
-									//	.WaitAsync(new TimeSpan(0, 0, 15), cancellationToken);
-									//	//);
-									//                           }
-									//catch
-									//{
-									//	AssetManager.Instance.RevertAsset(ebxEntry);
-									//                           }
-									//finally
-									//{
-									//                               ebxReader.BaseStream.Close();
-									//	ebxReader.Dispose();
-									//	GC.Collect();
-									//	GC.WaitForPendingFinalizers();
-									//                           }
-									//}
-								}
-
-                            }
-							//reader.Position = readerPositionAfterEbx;
-							reader.Position = readerPositionBeforeEbx;
-
-                        }
-						count = reader.ReadInt();
-						RESCount = count;
-
-						for (int num6 = 0; num6 < count; num6++)
-						{
-							string text = reader.ReadNullTerminatedString();
-							List<AssetEntry> collection2 = LoadLinkedAssets(reader);
-							bool flag2 = reader.ReadBoolean();
-							Sha1 sha = Sha1.Zero;
-							long originalSize = 0L;
-							List<int> list2 = new List<int>();
-							byte[] resMeta = null;
-							byte[] array2 = null;
-							string userData2 = "";
-							if (flag2)
-							{
-								sha = reader.ReadSha1();
-								originalSize = reader.ReadLong();
-								int num7 = reader.ReadInt();
-								if (num7 > 0)
-								{
-									resMeta = reader.ReadBytes(num7);
-								}
-								if (num >= 12)
-								{
-									userData2 = reader.ReadNullTerminatedString();
-								}
-								num7 = reader.ReadInt();
-								for (int num8 = 0; num8 < num7; num8++)
-								{
-									string name4 = reader.ReadNullTerminatedString();
-									int bundleId2 = AssetManager.GetBundleId(name4);
-									if (bundleId2 != -1)
-									{
-										list2.Add(bundleId2);
-									}
-								}
-								array2 = reader.ReadBytes(reader.ReadInt());
-							}
-							ResAssetEntry resEntry = AssetManager.GetResEntry(text);
-							if (num < 11)
-							{
-								if (resEntry == null)
-								{
-									string name5 = text;
-									int num9 = text.LastIndexOf("shaderblocks");
-									if (num9 != -1)
-									{
-										name5 = text.Remove(num9);
-										name5 += "shaderblocks_variation/blocks";
-									}
-									else
-									{
-										num9 = text.LastIndexOf("_mesh_");
-										if (num9 != -1)
-										{
-											name5 = text.Remove(num9 + 5);
-											name5 += "_mesh/blocks";
-										}
-									}
-									bool flag3 = text.Contains("persistentblock");
-									ResAssetEntry resEntry2 = AssetManager.GetResEntry(name5);
-									//if (resEntry2 != null)
-									//{
-									//	ShaderBlockDepot resAs = AssetManager.GetResAs<ShaderBlockDepot>(resEntry2);
-									//	Resources.Old.ShaderBlockResource shaderBlockResource = null;
-									//	using (CasReader casReader = new CasReader(new MemoryStream(array2)))
-									//	{
-									//		using (NativeReader reader2 = new NativeReader(new MemoryStream(casReader.Read())))
-									//		{
-									//			shaderBlockResource = ((!flag3) ? ((Resources.Old.ShaderBlockResource)new Resources.Old.MeshParamDbBlock(reader2)) : ((Resources.Old.ShaderBlockResource)new Resources.Old.ShaderPersistentParamDbBlock(reader2)));
-									//		}
-									//	}
-									//	Resources.ShaderBlockResource newResource = shaderBlockResource.Convert();
-									//	if (!resAs.ReplaceResource(newResource))
-									//	{
-									//		Console.WriteLine(text);
-									//	}
-									//	AssetManager.ModifyRes(resEntry2.Name, resAs);
-									//	resEntry2.IsDirty = false;
-									//}
-								}
-								//else if (resEntry != null && resEntry.ResType == 3639990959u)
-								//{
-								//	ShaderBlockDepot shaderBlockDepot = new ShaderBlockDepot();
-								//	using (CasReader casReader2 = new CasReader(new MemoryStream(array2)))
-								//	{
-								//		using (NativeReader reader3 = new NativeReader(new MemoryStream(casReader2.Read())))
-								//		{
-								//			shaderBlockDepot.Read(reader3, AssetManager, resEntry, null);
-								//		}
-								//	}
-								//	for (int num10 = 0; num10 < shaderBlockDepot.ResourceCount; num10++)
-								//	{
-								//		Resources.ShaderBlockResource resource = shaderBlockDepot.GetResource(num10);
-								//		if (resource is Resources.ShaderPersistentParamDbBlock || resource is Resources.MeshParamDbBlock)
-								//		{
-								//			resource.IsModified = true;
-								//		}
-								//	}
-								//	//AssetManager.ModifyRes(resEntry.Name, shaderBlockDepot, array);
-								//	resEntry.IsDirty = false;
-								//	flag2 = false;
-								//}
-							}
-							if (resEntry == null)
-							{
-								continue;
-							}
-							resEntry.LinkedAssets.AddRange(collection2);
-							resEntry.AddBundles.AddRange(list2);
-							if (flag2)
-							{
-								resEntry.ModifiedEntry = new ModifiedAssetEntry();
-								resEntry.ModifiedEntry.Sha1 = sha;
-								resEntry.ModifiedEntry.OriginalSize = originalSize;
-								resEntry.ModifiedEntry.ResMeta = resMeta;
-								resEntry.ModifiedEntry.UserData = userData2;
-								if (sha == Sha1.Zero)
-								{
-									((ModifiedAssetEntry)resEntry.ModifiedEntry).DataObject = ModifiedResource.Read(array2);
-								}
-								else
-								{
-									resEntry.ModifiedEntry.Data = array2;
-								}
-							}
-							int key2 = Fnv1.HashString(resEntry.Name);
-							if (!dictionary.ContainsKey(key2))
-							{
-								dictionary.Add(key2, resEntry);
-							}
-						}
-						count = reader.ReadInt();
-						ChunkCount = count;
-
-						for (int iModifiedChunk = 0; iModifiedChunk < count; iModifiedChunk++)
-						{
-							Guid id = reader.ReadGuid();
-							Sha1 sha2 = reader.ReadSha1();
-							uint logicalOffset = reader.ReadUInt();
-							uint logicalSize = reader.ReadUInt();
-							uint rangeStart = reader.ReadUInt();
-							uint rangeEnd = reader.ReadUInt();
-							int firstMip = reader.ReadInt();
-							int h = reader.ReadInt();
-							bool addToChunkBundle = reader.ReadBoolean();
-							string userData3 = "";
-							if (num >= 12)
-							{
-								userData3 = reader.ReadNullTerminatedString();
-							}
-							List<int> list3 = new List<int>();
-							int num12 = reader.ReadInt();
-							for (int num13 = 0; num13 < num12; num13++)
-							{
-								string name6 = reader.ReadNullTerminatedString();
-								int bundleId3 = AssetManager.GetBundleId(name6);
-								if (bundleId3 != -1)
-								{
-									list3.Add(bundleId3);
-								}
-							}
-							byte[] data = reader.ReadBytes(reader.ReadInt());
-							ChunkAssetEntry chunkAssetEntry2 = AssetManager.GetChunkEntry(id);
-							if (chunkAssetEntry2 == null)
-							{
-								ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
-								chunkAssetEntry3.Id = id;
-								chunkAssetEntry3.H32 = h;
-								AssetManager.AddChunk(chunkAssetEntry3);
-								if (dictionary.ContainsKey(chunkAssetEntry3.H32))
-								{
-									foreach (int bundle in dictionary[chunkAssetEntry3.H32].Bundles)
-									{
-										chunkAssetEntry3.AddToBundle(bundle);
-									}
-								}
-								chunkAssetEntry2 = chunkAssetEntry3;
-							}
-							chunkAssetEntry2.AddBundles.AddRange(list3);
-							chunkAssetEntry2.ModifiedEntry = new ModifiedAssetEntry();
-							chunkAssetEntry2.ModifiedEntry.Sha1 = sha2;
-							chunkAssetEntry2.ModifiedEntry.LogicalOffset = logicalOffset;
-							chunkAssetEntry2.ModifiedEntry.LogicalSize = logicalSize;
-							chunkAssetEntry2.ModifiedEntry.RangeStart = rangeStart;
-							chunkAssetEntry2.ModifiedEntry.RangeEnd = rangeEnd;
-							chunkAssetEntry2.ModifiedEntry.FirstMip = firstMip;
-							chunkAssetEntry2.ModifiedEntry.H32 = h;
-							chunkAssetEntry2.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
-							chunkAssetEntry2.ModifiedEntry.UserData = userData3;
-							chunkAssetEntry2.ModifiedEntry.Data = data;
-						}
-
-						// ----------------------------------------------------------------------------------------------------
-						// LEGACY FILE HANDLING
-						//
-
-						// Count of Modified Legacy Files
-						var legacyFileManager = AssetManager.Instance.CustomAssetManagers["legacy"] as ChunkFileManager2022;
-						if (reader.Length > reader.Position)
-						{
-							count = reader.ReadInt();
-							LegacyCount = count;
-
-							if (legacyFileManager != null)
-							{
-								List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);
-								for (int iItem = 0; iItem < count; iItem++)
-								{
-									var rawFile = reader.ReadLengthPrefixedString();
-									if (legacyFileManager != null)
-									{
-										dynamic lfeD = JsonConvert.DeserializeObject<dynamic>(rawFile, new JsonSerializerSettings()
-										{
-											TypeNameHandling = TypeNameHandling.All
-										});
-										LegacyFileEntry lfe = new LegacyFileEntry(new ModifiedAssetEntry()
-										{
-											Data = lfeD.ModifiedEntry.Data
-										})
-										{
-											Name = lfeD.Name
-										};
-										legacyFileEntries.Add(lfe);
-									}
-								}
-								legacyFileManager.LoadEntriesModifiedFromProject(legacyFileEntries);
-							}
-						}
-
-						// Count of Added Legacy Files
-						if (reader.Length > reader.Position)
-						{
-							bool addedLegacyFiles = reader.ReadBoolean();
-							if (addedLegacyFiles)
-							{
-								count = reader.ReadInt();
-								LegacyCount += count;
-
-								if (legacyFileManager != null)
-								{
-									List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);
-									for (int iItem = 0; iItem < count; iItem++)
-									{
-										var rawFile = reader.ReadLengthPrefixedString();
-										if (legacyFileManager != null)
-										{
-											LegacyFileEntry lfe = JsonConvert.DeserializeObject<LegacyFileEntry>(rawFile);
-											legacyFileEntries.Add(lfe);
-										}
-									}
-									legacyFileManager.LoadEntriesAddedFromProject(legacyFileEntries);
-								}
-							}
-						}
-
-						if (reader.Length > reader.Position)
-						{
-							bool hasEmbeddedFiles = reader.ReadBoolean();
-							int embeddedFileCount = reader.ReadInt();
-							if (hasEmbeddedFiles)
-							{
-								AssetManager.Instance.EmbeddedFileEntries = new List<EmbeddedFileEntry>();
-								for (int iItem = 0; iItem < embeddedFileCount; iItem++)
-								{
-									var rawFile = reader.ReadLengthPrefixedString();
-									EmbeddedFileEntry efe = JsonConvert.DeserializeObject<EmbeddedFileEntry>(rawFile);
-									AssetManager.Instance.EmbeddedFileEntries.Add(efe);
-								}
-							}
-						}
-
-						//
-						//
-						// ----------------------------------------------------------------------------------------------------
-
-						// ------------------------
-						// Locale.ini mod
-						if (reader.Length > reader.Position)
-						{
-							var hasLocaleIniMod = reader.ReadBoolean();
-							if (hasLocaleIniMod)
-							{
-								var localeIsEncrypted = reader.ReadBoolean();
-								var localeiniSize = reader.ReadInt();
-								AssetManager.Instance.LocaleINIMod = new Frostbite.IO.LocaleINIMod(reader.ReadBytes(localeiniSize));
-							}
-						}
-
-						//await Task.WhenAll(tasks.ToArray());
-						Task.WaitAll(tasks.ToArray());
-						return true;
+				return false;
+			}
+			Dictionary<int, AssetEntry> dictionary = new Dictionary<int, AssetEntry>();
+			creationDate = new DateTime(reader.ReadLong());
+			modifiedDate = new DateTime(reader.ReadLong());
+			gameVersion = reader.ReadUInt();
+			modSettings.Title = reader.ReadNullTerminatedString();
+			modSettings.Author = reader.ReadNullTerminatedString();
+			modSettings.Category = reader.ReadNullTerminatedString();
+			modSettings.Version = reader.ReadNullTerminatedString();
+			modSettings.Description = reader.ReadNullTerminatedString();
+			int num2 = reader.ReadInt();
+			if (num2 > 0)
+			{
+				modSettings.Icon = reader.ReadBytes(num2);
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				num2 = reader.ReadInt();
+				if (num2 > 0)
+				{
+					modSettings.SetScreenshot(i, reader.ReadBytes(num2));
 				}
 			}
+			modSettings.ClearDirtyFlag();
+			int count = reader.ReadInt();
+			count = reader.ReadInt();
+			for (int j = 0; j < count; j++)
+			{
+				string name = reader.ReadNullTerminatedString();
+				string sbname = reader.ReadNullTerminatedString();
+				BundleType type = (BundleType)reader.ReadInt();
+				AssetManager.AddBundle(name, type, AssetManager.GetSuperBundleId(sbname));
+			}
+			count = reader.ReadInt();
+			for (int k = 0; k < count; k++)
+			{
+				EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+				ebxAssetEntry.Name = reader.ReadNullTerminatedString();
+				ebxAssetEntry.Guid = reader.ReadGuid();
+				AssetManager.AddEbx(ebxAssetEntry);
+			}
+			count = reader.ReadInt();
+			for (int l = 0; l < count; l++)
+			{
+				ResAssetEntry resAssetEntry = new ResAssetEntry();
+				resAssetEntry.Name = reader.ReadNullTerminatedString();
+				resAssetEntry.ResRid = reader.ReadULong();
+				resAssetEntry.ResType = reader.ReadUInt();
+				resAssetEntry.ResMeta = reader.ReadBytes(16);
+				AssetManager.AddRes(resAssetEntry);
+			}
+			count = reader.ReadInt();
+			for (int m = 0; m < count; m++)
+			{
+				ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+				chunkAssetEntry.Id = reader.ReadGuid();
+				chunkAssetEntry.H32 = reader.ReadInt();
+				//AssetManager.ForceChunkRemoval = true;
+				//AssetManager.AddChunk(chunkAssetEntry);
+				//AssetManager.ForceChunkRemoval = false;
+			}
+			count = reader.ReadInt();
+			EBXCount = count;
+			for (int n = 0; n < count; n++)
+			{
+				string ebxName = reader.ReadNullTerminatedString();
+
+				List<AssetEntry> collection = LoadLinkedAssets(reader);
+				bool flag = reader.ReadBoolean();
+				bool isTransientModified = false;
+				string userData = "";
+				List<int> list = new List<int>();
+				byte[] ebxAssetBytes = null;
+				if (flag)
+				{
+					isTransientModified = reader.ReadBoolean();
+					userData = reader.ReadNullTerminatedString();
+					int num4 = reader.ReadInt();
+					for (int num5 = 0; num5 < num4; num5++)
+					{
+						string name3 = reader.ReadNullTerminatedString();
+						int bundleId = AssetManager.GetBundleId(name3);
+						if (bundleId != -1)
+						{
+							list.Add(bundleId);
+						}
+					}
+					ebxAssetBytes = reader.ReadBytes(reader.ReadInt());
+				}
+				var readerPositionBeforeEbx = reader.Position;
+				var readerPositionAfterEbx = reader.Position + ebxAssetBytes.Length;
+				EbxAssetEntry ebxEntry = AssetManager.GetEbxEntry(ebxName);
+				if (ebxEntry != null)
+				{
+					ebxEntry.LinkedAssets.AddRange(collection);
+					ebxEntry.AddBundles.AddRange(list);
+					if (flag)
+					{
+						ebxEntry.ModifiedEntry = new ModifiedAssetEntry();
+						ebxEntry.ModifiedEntry.IsTransientModified = isTransientModified;
+						ebxEntry.ModifiedEntry.UserData = userData;
+						ebxEntry.ModifiedEntry.Data = ebxAssetBytes;
+
+						if (ProfileManager.IsFIFA21DataVersion())
+						{
+							EbxReader ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
+							EbxAsset ebxAsset = ebxReader.ReadAsset();
+							ebxEntry.ModifiedEntry.DataObject = ebxAsset;
+						}
+						//EbxReader ebxReader = null;
+
+						//if (!string.IsNullOrEmpty(ProfilesLibrary.LoadedProfile.ProjectEbxWriter))
+						//{
+						//	ebxReader = (EbxReader)AssetManager.Instance.LoadTypeByName(
+						//		ProfilesLibrary.LoadedProfile.ProjectEbxReader,
+						//		new MemoryStream(ebxAssetBytes), false);
+						//}
+
+						//if(ebxReader == null)
+						//                           {
+						//                               if (ProfilesLibrary.IsFIFA20DataVersion() && num == 9)
+						//                                   ebxReader = new EbxReaderV2(new MemoryStream(ebxAssetBytes), inPatched: false);
+						//                               else
+						//                                   ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
+						//                           }
+
+
+						//using (
+						//	ebxReader
+						//			)
+						//{
+						//if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
+						//	AssetManager.Instance.logger.Log($"[Project Load][EBX]({ebxEntry.Name})");
+
+						//try
+						//{
+						//	//tasks.Add(Task.Run(() =>
+						//	await Task.Run(() =>
+						//	{
+						//		try
+						//		{
+						//			EbxAsset ebxAsset = ebxReader.ReadAsset();
+						//			ebxEntry.ModifiedEntry.DataObject = ebxAsset;
+						//			if (ebxEntry.IsAdded)
+						//			{
+						//				ebxEntry.Type = ebxAsset.RootObject.GetType().Name;
+						//			}
+						//			ebxEntry.ModifiedEntry.DependentAssets.AddRange(ebxAsset.Dependencies);
+
+						//			int key = Fnv1.HashString(ebxEntry.Name);
+						//			if (!dictionary.ContainsKey(key))
+						//			{
+						//				dictionary.Add(key, ebxEntry);
+						//			}
+						//		}
+						//		catch
+						//		{
+						//			if (AssetManager.Instance != null && AssetManager.Instance.logger != null)
+						//				AssetManager.Instance.logger.LogError($"[Project Log][EBX][ERROR]({ebxEntry.Name})");
+						//		}
+						//	}, cancellationToken)
+						//	.WaitAsync(new TimeSpan(0, 0, 15), cancellationToken);
+						//	//);
+						//                           }
+						//catch
+						//{
+						//	AssetManager.Instance.RevertAsset(ebxEntry);
+						//                           }
+						//finally
+						//{
+						//                               ebxReader.BaseStream.Close();
+						//	ebxReader.Dispose();
+						//	GC.Collect();
+						//	GC.WaitForPendingFinalizers();
+						//                           }
+						//}
+					}
+
+				}
+				//reader.Position = readerPositionAfterEbx;
+				reader.Position = readerPositionBeforeEbx;
+
+			}
+			count = reader.ReadInt();
+			RESCount = count;
+
+			for (int num6 = 0; num6 < count; num6++)
+			{
+				string text = reader.ReadNullTerminatedString();
+				List<AssetEntry> collection2 = LoadLinkedAssets(reader);
+				bool flag2 = reader.ReadBoolean();
+				Sha1 sha = Sha1.Zero;
+				long originalSize = 0L;
+				List<int> list2 = new List<int>();
+				byte[] resMeta = null;
+				byte[] array2 = null;
+				string userData2 = "";
+				if (flag2)
+				{
+					sha = reader.ReadSha1();
+					originalSize = reader.ReadLong();
+					int num7 = reader.ReadInt();
+					if (num7 > 0)
+					{
+						resMeta = reader.ReadBytes(num7);
+					}
+					userData2 = reader.ReadNullTerminatedString();
+					num7 = reader.ReadInt();
+					for (int num8 = 0; num8 < num7; num8++)
+					{
+						string name4 = reader.ReadNullTerminatedString();
+						int bundleId2 = AssetManager.GetBundleId(name4);
+						if (bundleId2 != -1)
+						{
+							list2.Add(bundleId2);
+						}
+					}
+					array2 = reader.ReadBytes(reader.ReadInt());
+				}
+				ResAssetEntry resEntry = AssetManager.GetResEntry(text);
+				if (resEntry == null)
+				{
+					continue;
+				}
+				resEntry.LinkedAssets.AddRange(collection2);
+				resEntry.AddBundles.AddRange(list2);
+				if (flag2)
+				{
+					resEntry.ModifiedEntry = new ModifiedAssetEntry();
+					resEntry.ModifiedEntry.Sha1 = sha;
+					resEntry.ModifiedEntry.OriginalSize = originalSize;
+					resEntry.ModifiedEntry.ResMeta = resMeta;
+					resEntry.ModifiedEntry.UserData = userData2;
+					if (sha == Sha1.Zero)
+					{
+						((ModifiedAssetEntry)resEntry.ModifiedEntry).DataObject = ModifiedResource.Read(array2);
+					}
+					else
+					{
+						resEntry.ModifiedEntry.Data = array2;
+					}
+				}
+				int key2 = Fnv1.HashString(resEntry.Name);
+				if (!dictionary.ContainsKey(key2))
+				{
+					dictionary.Add(key2, resEntry);
+				}
+			}
+			count = reader.ReadInt();
+			ChunkCount = count;
+
+			for (int iModifiedChunk = 0; iModifiedChunk < count; iModifiedChunk++)
+			{
+				Guid id = reader.ReadGuid();
+				Sha1 sha2 = reader.ReadSha1();
+				uint logicalOffset = reader.ReadUInt();
+				uint logicalSize = reader.ReadUInt();
+				uint rangeStart = reader.ReadUInt();
+				uint rangeEnd = reader.ReadUInt();
+				int firstMip = reader.ReadInt();
+				int h = reader.ReadInt();
+				bool addToChunkBundle = reader.ReadBoolean();
+				string userData3 = "";
+				userData3 = reader.ReadNullTerminatedString();
+				List<int> list3 = new List<int>();
+				int num12 = reader.ReadInt();
+				for (int num13 = 0; num13 < num12; num13++)
+				{
+					string name6 = reader.ReadNullTerminatedString();
+					int bundleId3 = AssetManager.GetBundleId(name6);
+					if (bundleId3 != -1)
+					{
+						list3.Add(bundleId3);
+					}
+				}
+				byte[] data = reader.ReadBytes(reader.ReadInt());
+				ChunkAssetEntry chunkAssetEntry2 = AssetManager.GetChunkEntry(id);
+				if (chunkAssetEntry2 == null)
+				{
+					ChunkAssetEntry chunkAssetEntry3 = new ChunkAssetEntry();
+					chunkAssetEntry3.Id = id;
+					chunkAssetEntry3.H32 = h;
+					AssetManager.AddChunk(chunkAssetEntry3);
+					if (dictionary.ContainsKey(chunkAssetEntry3.H32))
+					{
+						foreach (int bundle in dictionary[chunkAssetEntry3.H32].Bundles)
+						{
+							chunkAssetEntry3.AddToBundle(bundle);
+						}
+					}
+					chunkAssetEntry2 = chunkAssetEntry3;
+				}
+				chunkAssetEntry2.AddBundles.AddRange(list3);
+				chunkAssetEntry2.ModifiedEntry = new ModifiedAssetEntry();
+				chunkAssetEntry2.ModifiedEntry.Sha1 = sha2;
+				chunkAssetEntry2.ModifiedEntry.LogicalOffset = logicalOffset;
+				chunkAssetEntry2.ModifiedEntry.LogicalSize = logicalSize;
+				chunkAssetEntry2.ModifiedEntry.RangeStart = rangeStart;
+				chunkAssetEntry2.ModifiedEntry.RangeEnd = rangeEnd;
+				chunkAssetEntry2.ModifiedEntry.FirstMip = firstMip;
+				chunkAssetEntry2.ModifiedEntry.H32 = h;
+				chunkAssetEntry2.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
+				chunkAssetEntry2.ModifiedEntry.UserData = userData3;
+				chunkAssetEntry2.ModifiedEntry.Data = data;
+			}
+
+			// ----------------------------------------------------------------------------------------------------
+			// LEGACY FILE HANDLING
+			//
+
+			// Count of Modified Legacy Files
+			var legacyFileManager = AssetManager.Instance.CustomAssetManagers["legacy"] as ChunkFileManager2022;
+			if (reader.Length > reader.Position)
+			{
+				count = reader.ReadInt();
+				LegacyCount = count;
+
+				if (legacyFileManager != null)
+				{
+					List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);
+					for (int iItem = 0; iItem < count; iItem++)
+					{
+						var rawFile = reader.ReadLengthPrefixedString();
+						if (legacyFileManager != null)
+						{
+							dynamic lfeD = JsonConvert.DeserializeObject<dynamic>(rawFile, new JsonSerializerSettings()
+							{
+								TypeNameHandling = TypeNameHandling.All
+							});
+							LegacyFileEntry lfe = new LegacyFileEntry(new ModifiedAssetEntry()
+							{
+								Data = lfeD.ModifiedEntry.Data
+							})
+							{
+								Name = lfeD.Name
+							};
+							legacyFileEntries.Add(lfe);
+						}
+					}
+					legacyFileManager.LoadEntriesModifiedFromProject(legacyFileEntries);
+				}
+			}
+
+			// Count of Added Legacy Files
+			if (reader.Length > reader.Position)
+			{
+				bool addedLegacyFiles = reader.ReadBoolean();
+				if (addedLegacyFiles)
+				{
+					count = reader.ReadInt();
+					LegacyCount += count;
+
+					if (legacyFileManager != null)
+					{
+						List<LegacyFileEntry> legacyFileEntries = new List<LegacyFileEntry>(count);
+						for (int iItem = 0; iItem < count; iItem++)
+						{
+							var rawFile = reader.ReadLengthPrefixedString();
+							if (legacyFileManager != null)
+							{
+								LegacyFileEntry lfe = JsonConvert.DeserializeObject<LegacyFileEntry>(rawFile);
+								legacyFileEntries.Add(lfe);
+							}
+						}
+						legacyFileManager.LoadEntriesAddedFromProject(legacyFileEntries);
+					}
+				}
+			}
+
+			if (reader.Length > reader.Position)
+			{
+				bool hasEmbeddedFiles = reader.ReadBoolean();
+				int embeddedFileCount = reader.ReadInt();
+				if (hasEmbeddedFiles)
+				{
+					AssetManager.Instance.EmbeddedFileEntries = new List<EmbeddedFileEntry>();
+					for (int iItem = 0; iItem < embeddedFileCount; iItem++)
+					{
+						var rawFile = reader.ReadLengthPrefixedString();
+						EmbeddedFileEntry efe = JsonConvert.DeserializeObject<EmbeddedFileEntry>(rawFile);
+						AssetManager.Instance.EmbeddedFileEntries.Add(efe);
+					}
+				}
+			}
+
+			//
+			//
+			// ----------------------------------------------------------------------------------------------------
+
+			// ------------------------
+			// Locale.ini mod
+			if (reader.Length > reader.Position)
+			{
+				var hasLocaleIniMod = reader.ReadBoolean();
+				if (hasLocaleIniMod)
+				{
+					var localeIsEncrypted = reader.ReadBoolean();
+					var localeiniSize = reader.ReadInt();
+					AssetManager.Instance.LocaleINIMod = new Frostbite.IO.LocaleINIMod(reader.ReadBytes(localeiniSize));
+				}
+			}
+
+			//await Task.WhenAll(tasks.ToArray());
+			Task.WaitAll(tasks.ToArray());
+			return true;
 		}
 
 	}

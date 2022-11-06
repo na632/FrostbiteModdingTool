@@ -197,10 +197,11 @@ namespace Frostbite.FileManagers
                 chunkAssetEntry.IsLegacy = true;
 
 				MemoryStream chunk = new MemoryStream();
-				GetChunkStreamForEbx(ebxEntry).CopyTo(chunk);
-				if (chunk != null)
+				var chunkStream = GetChunkStreamForEbx(ebxEntry);
+                if (chunkStream != null)
 				{
-					using (NativeReader nativeReader = new NativeReader(chunk))
+                    chunkStream.CopyTo(chunk);
+                    using (NativeReader nativeReader = new NativeReader(chunk))
 					{
 						//File.WriteAllBytes("_debug_legacy_" + ebxEntry.Name.Replace(@"/","_") + ".dat", chunk.ToArray());
 						nativeReader.Position = 0;

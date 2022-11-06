@@ -123,8 +123,8 @@ namespace Madden22Plugin.Cache
                     nativeWriter.Write(resEntry.SB_CAS_Size_Position);
                     nativeWriter.Write(resEntry.SB_Sha1_Position);
                     nativeWriter.Write(resEntry.SB_OriginalSize_Position);
-                    nativeWriter.Write(resEntry.ParentBundleOffset);
-                    nativeWriter.Write(resEntry.ParentBundleSize);
+                    //nativeWriter.Write(resEntry.ParentBundleOffset);
+                    //nativeWriter.Write(resEntry.ParentBundleSize);
                     //nativeWriter.WriteLengthPrefixedString(resEntry.Bundle);
 
                     nativeWriter.Write(resEntry.Bundles.Count);
@@ -208,8 +208,8 @@ namespace Madden22Plugin.Cache
 
             nativeWriter.Write(chunkEntry.SB_LogicalOffset_Position);
             nativeWriter.Write(chunkEntry.SB_LogicalSize_Position);
-            nativeWriter.Write(chunkEntry.ParentBundleOffset);
-            nativeWriter.Write(chunkEntry.ParentBundleSize);
+            //nativeWriter.Write(chunkEntry.ParentBundleOffset);
+            //nativeWriter.Write(chunkEntry.ParentBundleSize);
 
             nativeWriter.Write((!string.IsNullOrEmpty(chunkEntry.Bundle)));
             if (!string.IsNullOrEmpty(chunkEntry.Bundle))

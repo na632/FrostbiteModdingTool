@@ -33,13 +33,17 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 		private bool cacheMode;
         public AssetManager AssetManager;
 
+        public ChunkFileManager()
+        {
+			this.AssetManager = AssetManager.Instance;
+			Instance = this;
+        }
+
         public ChunkFileManager(AssetManager assetManager)
         {
             this.AssetManager = assetManager;
 			Instance = this;
         }
-
-        //public static AssetManager AssetManager { get; set; }
 
 		public virtual void Initialize(ILogger logger)
 		{
@@ -111,19 +115,20 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 			cachedChunks.Clear();
 		}
 
-		public IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly)
-		{
-			return legacyEntries.Values.Where(x => !modifiedOnly || x.IsModified);
-			//foreach (LegacyFileEntry value in legacyEntries.Values)
-			//{
-			//	if (!modifiedOnly || value.IsModified)
-			//	{
-			//		yield return value;
-			//	}
-			//}
-		}
+        public virtual IEnumerable<AssetEntry> EnumerateAssets(bool modifiedOnly)
+        {
+            if (legacyEntries.Count == 0)
+                Initialize(new NullLogger());
 
-		public AssetEntry GetAssetEntry(string key)
+            var lE = legacyEntries
+                .Select(x => (LegacyFileEntry)x.Value)
+                .Where(x =>
+                !modifiedOnly
+                || x.HasModifiedData);
+            return lE;
+        }
+
+        public AssetEntry GetAssetEntry(string key)
 		{
 			if (legacyEntries.ContainsKey(key))
 			{

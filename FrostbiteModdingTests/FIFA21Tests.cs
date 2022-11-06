@@ -22,6 +22,7 @@ using Frostbite.FileManagers;
 using FifaLibrary;
 using System.Data;
 using System.Collections.Generic;
+using Microsoft.Win32;
 
 namespace FrostbiteModdingTests
 {
@@ -31,8 +32,46 @@ namespace FrostbiteModdingTests
         private string prevText = string.Empty;
 
         public const string ModdingDirectory = @"G:\Work\FIFA Modding\";
-        public const string GamePath = @"F:\Origin Games\FIFA 21";
-        public const string GamePathEXE = @"F:\Origin Games\FIFA 21\FIFA21.exe";
+        public string GamePath
+        {
+            get
+            {
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 21"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir;
+                    }
+                }
+                return string.Empty;
+            }
+        }
+        public string GamePathEXE
+        {
+            get
+            {
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 21"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir + "FIFA21.exe";
+                    }
+                }
+                return string.Empty;
+            }
+        }
+
+        public string TestMeshesPath
+        {
+            get
+            {
+                return @"C:\Users\paula\Desktop\";
+            }
+        }
         public void Log(string text, params object[] vars)
         {
             if (prevText != text)
@@ -291,6 +330,8 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void ReadComplexGPFile()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
@@ -305,10 +346,7 @@ namespace FrostbiteModdingTests
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V10\Paulv2k4 FIFA 21 Gameplay Version 10 Alpha 3.fbproject");
-
-            if (File.Exists("test.fbmod"))
-                File.Delete("test.fbmod");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V9\Paulv2k4 FIFA 21 Gameplay Version 9 Alpha 19.fbproject");
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -434,8 +472,21 @@ namespace FrostbiteModdingTests
         }
 
         [TestMethod]
+        public void LoadLegacy()
+        {
+            var buildCache = new CacheManager();
+            buildCache.LoadData("FIFA21", GamePath, this, false, true);
+
+            var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
+            var ebxFile = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("file", StringComparison.OrdinalIgnoreCase));
+            var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("collector", StringComparison.OrdinalIgnoreCase));
+            var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+        }
+
+        [TestMethod]
         public void TestLegacyMod()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             projectManagement.Project.Load(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\expanded customization.fbproject");
@@ -454,11 +505,13 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestLegacyMod_CM()
         {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 5.fbproject");
             //projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 6.fbproject");
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\Paulv2k4 Career Realism Mod - V2 Alpha 12.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-21-Career-Mod\Paulv2k4 Career Realism Mod - V2.4.fbproject");
 
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());

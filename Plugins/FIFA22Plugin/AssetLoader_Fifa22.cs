@@ -97,11 +97,7 @@ namespace FIFA22Plugin
 						string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
 						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
 						{
-							TOCFile tocFile2 = new TOCFile();// new MemoryStream(File.ReadAllBytes(tocFileLocation)), true, true);
-							tocFile2.NativeFileLocation = tocFileRAW;
-							tocFile2.FileLocation = tocFileLocation;
-							using (var nr = new NativeReader(new MemoryStream(File.ReadAllBytes(tocFileLocation))))
-								tocFile2.Read(nr);
+							TOCFile tocFile2 = new TOCFile(tocFileRAW, true, true, false);// new MemoryStream(File.ReadAllBytes(tocFileLocation)), true, true);
                             tocFile2.Dispose();
                         }
 					}

@@ -1,4 +1,5 @@
-﻿using FrostySdk.FrostySdk.Managers;
+﻿using Frosty.Hash;
+using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -57,6 +58,17 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             assetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
             assetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
+            if(item.HasValue("SBFileLocation"))
+                assetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
+
+            if (item.HasValue("TOCFileLocation"))
+                assetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
+
+            if (item.HasValue("Bundle"))
+            {
+                assetEntry.Bundle = item.GetValue<string>("Bundle");
+                assetEntry.AddToBundle(Fnv1a.HashString(assetEntry.Bundle));
+            }
             return assetEntry;
         }
     }

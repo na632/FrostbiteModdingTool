@@ -70,15 +70,16 @@ namespace FIFA22Plugin
                 {
                     
                     // TOC File 
-                    TOCFile = new TOCFile(new FileStream(tocPath, FileMode.Open, FileAccess.Read));
-                    TOCFile.SuperBundleName = SBName;
-                    TOCFile.NativeFileLocation = nativePath;
-                    TOCFile.FileLocation = tocPath;
-                    TOCFile.DoLogging = DoLogging;
-                    TOCFile.ProcessData = ProcessData;
-                    var tObjs = TOCFile.Read(nativeReader);
-                    if (tObjs != null && tObjs.Count > 0 && !ProcessData)
-                        objs.AddRange(tObjs);
+                    TOCFile = new TOCFile(nativePath, true ,  true, false);
+                    //TOCFile.SuperBundleName = SBName;
+                    //TOCFile.NativeFileLocation = nativePath;
+                    //TOCFile.FileLocation = tocPath;
+                    //TOCFile.DoLogging = DoLogging;
+                    //TOCFile.ProcessData = ProcessData;
+                    //var tObjs = TOCFile.Read(nativeReader);
+                    //if (tObjs != null && tObjs.Count > 0 && !ProcessData)
+                    //    objs.AddRange(tObjs);
+                    objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
                     //return TOCFile.Read(nativeReader); // this will return to do the process thingy
                     return objs;
                 }

@@ -54,18 +54,18 @@ namespace FrostySdk.Managers
             set { listBundles = value; }
         }
 
-		public IEnumerable<string> BundleNames
-		{
-			get
-			{
-				List<string> bNames = new List<string>();
-				foreach (var i in Bundles)
-				{
-					bNames.Add(AssetManager.Instance.bundles[i].Name);
-				}
-				return bNames;
-			}
-		}
+		//public IEnumerable<string> BundleNames
+		//{
+		//	get
+		//	{
+		//		List<string> bNames = new List<string>();
+		//		foreach (var i in Bundles)
+		//		{
+		//			bNames.Add(AssetManager.Instance.bundles[i].Name);
+		//		}
+		//		return bNames;
+		//	}
+		//}
 
 
 		public List<int> AddBundles = new List<int>();
@@ -332,8 +332,8 @@ namespace FrostySdk.Managers
 		public int SB_Sha1_Position { get; set; }
 		public int SB_OriginalSize_Position { get; set; }
 
-		public int ParentBundleOffset { get; set; }
-		public int ParentBundleSize { get; set; }
+		//public int ParentBundleOffset { get; set; }
+		//public int ParentBundleSize { get; set; }
 
 
 		public bool IsLegacy = false;

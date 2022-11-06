@@ -82,65 +82,21 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 		public string SuperBundleName { get; set; }
 
-		public TOCFile()
-        {
-
-        }
-
 		/// <summary>
-		/// Reads the TOC data via the filepath provided
+		/// 
 		/// </summary>
-		/// <param name="filePath"></param>
-        public TOCFile(string filePath)
+		/// <param name="nativeFilePath"></param>
+		/// <param name="log"></param>
+		/// <param name="process"></param>
+        public TOCFile(string nativeFilePath, bool log = true, bool process = true, bool modDataPath = false)
         {
-			FileLocation = filePath;
-            DoLogging = true;
-			using (NativeReader reader = new NativeReader(new FileStream(filePath, FileMode.Open)))
-				Read(reader);
-        }
-
-        /// <summary>
-        /// Reads the TOC data via the filepath provided with optional logging and processing
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="log"></param>
-        /// <param name="process"></param>
-        public TOCFile(string filePath, bool log, bool process)
-        {
-            FileLocation = filePath;
+			NativeFileLocation = nativeFilePath;
+            FileLocation = FileSystem.Instance.ResolvePath(nativeFilePath, modDataPath);
             DoLogging = log;
 			ProcessData = process;
-            using (NativeReader reader = new NativeReader(new FileStream(filePath, FileMode.Open)))
+            using (NativeReader reader = new NativeReader(new FileStream(FileLocation, FileMode.Open)))
                 Read(reader);
         }
-
-		/// <summary>
-		/// This will read a stream but not process data or log
-		/// </summary>
-		/// <param name="stream"></param>
-        public TOCFile(Stream stream)
-        {
-			DoLogging = false;
-			ProcessData = false;
-
-            using (NativeReader reader = new NativeReader(stream))
-                Read(reader);
-        }
-
-        /// <summary>
-        /// Reads the TOC data via the stream provided with optional logging and processing
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="log"></param>
-        /// <param name="process"></param>
-        public TOCFile(Stream stream, bool log, bool process)
-        {
-			DoLogging = log;
-			ProcessData = process;
-            using (NativeReader reader = new NativeReader(stream))
-                Read(reader);
-        }
-       
 
         public class ContainerMetaData
         {
@@ -264,119 +220,119 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 					Bundles.Add(newBundleInfo);
 				}
 			}
+			
+			nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
+			
+			if (MetaData.ChunkCount > 0)
+			{
+				if (DoLogging && AssetManager.Instance != null)
+					AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
+
 				nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
-				//if (MetaData.ChunkFlagOffsetPosition != 0 && MetaData.ChunkFlagOffsetPosition != 32)
-				//{
-					if (MetaData.ChunkCount > 0)
+				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+				{
+					ListTocChunkFlags.Add(nativeReader.ReadInt(Endian.Big));
+				}
+				nativeReader.Position = actualInternalPos + MetaData.ChunkGuidOffset;
+
+				TocChunkGuids = new Guid[MetaData.ChunkCount];
+				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+				{
+					Guid tocChunkGuid = nativeReader.ReadGuidReverse();
+					int origIndex = nativeReader.ReadInt(Endian.Big);
+					ChunkIndexToChunkId.Add(origIndex, tocChunkGuid);
+
+					var actualIndex = origIndex & 0xFFFFFF;
+					var actualIndexDiv3 = actualIndex / 3;
+					TocChunkGuids[actualIndexDiv3] = tocChunkGuid;
+				}
+
+				nativeReader.Position = actualInternalPos + MetaData.ChunkEntryOffset;
+                for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+                //foreach(var itemChunk in ChunkIndexToChunkId)
+                {
+					DbObject dboChunk = new DbObject();
+
+					ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
+					chunkAssetEntry2.TOCFileLocation = this.NativeFileLocation;
+					chunkAssetEntry2.IsTocChunk = true;
+
+					var unk2 = nativeReader.ReadByte();
+					dboChunk.SetValue("patchPosition", (int)nativeReader.Position);
+					bool patch = nativeReader.ReadBoolean();
+					dboChunk.SetValue("catalogPosition", (int)nativeReader.Position);
+					byte catalog2 = nativeReader.ReadByte();
+					dboChunk.SetValue("casPosition", (int)nativeReader.Position);
+					byte cas2 = nativeReader.ReadByte();
+
+					chunkAssetEntry2.SB_CAS_Offset_Position = (int)nativeReader.Position;
+					dboChunk.SetValue("chunkOffsetPosition", (int)nativeReader.Position);
+					uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
+					dboChunk.SetValue("chunkSizePosition", (int)nativeReader.Position);
+					chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
+					uint chunkSize = nativeReader.ReadUInt(Endian.Big);
+
+					chunkAssetEntry2.Id = TocChunkGuids[chunkIndex];
+					var ActualTocChunkIndexId = CalculateChunkIndexFromListIndex(chunkIndex);
+					dboChunk.SetValue("TocChunkIndexId", ActualTocChunkIndexId);
+					dboChunk.SetValue("TocChunkFlag", ListTocChunkFlags[chunkIndex]);
+					dboChunk.SetValue("RealTocChunkGuidId", ChunkIndexToChunkId[ActualTocChunkIndexId]);
+
+					if (chunkAssetEntry2.Id == Guid.Empty) 
 					{
-						if (DoLogging && AssetManager.Instance != null)
-							AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
-
-						nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
-						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-						{
-							ListTocChunkFlags.Add(nativeReader.ReadInt(Endian.Big));
-						}
-						nativeReader.Position = actualInternalPos + MetaData.ChunkGuidOffset;
-
-						TocChunkGuids = new Guid[MetaData.ChunkCount];
-						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-						{
-							Guid tocChunkGuid = nativeReader.ReadGuidReverse();
-							int origIndex = nativeReader.ReadInt(Endian.Big);
-							ChunkIndexToChunkId.Add(origIndex, tocChunkGuid);
-
-							var actualIndex = origIndex & 0xFFFFFF;
-							var actualIndexDiv3 = actualIndex / 3;
-							TocChunkGuids[actualIndexDiv3] = tocChunkGuid;
-						}
-
-						nativeReader.Position = actualInternalPos + MetaData.ChunkEntryOffset;
-                        for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-                        //foreach(var itemChunk in ChunkIndexToChunkId)
-                        {
-							DbObject dboChunk = new DbObject();
-
-							ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
-							chunkAssetEntry2.TOCFileLocation = this.NativeFileLocation;
-							chunkAssetEntry2.IsTocChunk = true;
-
-							var unk2 = nativeReader.ReadByte();
-							dboChunk.SetValue("patchPosition", (int)nativeReader.Position);
-							bool patch = nativeReader.ReadBoolean();
-							dboChunk.SetValue("catalogPosition", (int)nativeReader.Position);
-							byte catalog2 = nativeReader.ReadByte();
-							dboChunk.SetValue("casPosition", (int)nativeReader.Position);
-							byte cas2 = nativeReader.ReadByte();
-
-							chunkAssetEntry2.SB_CAS_Offset_Position = (int)nativeReader.Position;
-							dboChunk.SetValue("chunkOffsetPosition", (int)nativeReader.Position);
-							uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
-							dboChunk.SetValue("chunkSizePosition", (int)nativeReader.Position);
-							chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
-							uint chunkSize = nativeReader.ReadUInt(Endian.Big);
-
-							chunkAssetEntry2.Id = TocChunkGuids[chunkIndex];
-							var ActualTocChunkIndexId = CalculateChunkIndexFromListIndex(chunkIndex);
-							dboChunk.SetValue("TocChunkIndexId", ActualTocChunkIndexId);
-							dboChunk.SetValue("TocChunkFlag", ListTocChunkFlags[chunkIndex]);
-							dboChunk.SetValue("RealTocChunkGuidId", ChunkIndexToChunkId[ActualTocChunkIndexId]);
-
-							if (chunkAssetEntry2.Id == Guid.Empty) 
-							{
-								throw new ArgumentException("");
-							}
-
-							// Generate a Sha1 since we dont have one.
-							chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
-
-							chunkAssetEntry2.LogicalOffset = chunkOffset;
-							chunkAssetEntry2.OriginalSize = (chunkAssetEntry2.LogicalOffset & 0xFFFF) | chunkSize;
-							chunkAssetEntry2.Size = chunkSize;
-							chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
-							chunkAssetEntry2.ExtraData = new AssetExtraData();
-							chunkAssetEntry2.ExtraData.Unk = unk2;
-							chunkAssetEntry2.ExtraData.Catalog = catalog2;
-							chunkAssetEntry2.ExtraData.Cas = cas2;
-							chunkAssetEntry2.ExtraData.IsPatch = patch;
-							chunkAssetEntry2.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog2, cas2, patch);
-							chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
-
-							TocChunks.Add(chunkAssetEntry2);
-
-							TocChunkInfo.Add(chunkAssetEntry2.Id, dboChunk);
-						}
-
-						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-						{
-							var chunkAssetEntry = TocChunks[chunkIndex];
-							if (AssetManager.Instance != null && ProcessData)
-							{
-								AssetManager.Instance.AddChunk(chunkAssetEntry);
-							}
-
-						}
+						throw new ArgumentException("");
 					}
 
-					Unk7Values = new int[MetaData.Unk7_Count];
-					nativeReader.Position = 556 + MetaData.Unk7_Offset;
-					for (int k = 0; k < MetaData.Unk7_Count; k++)
-					{
-                        Unk7Values[k] = (int)nativeReader.ReadUInt(Endian.Big);
-                    }
+					// Generate a Sha1 since we dont have one.
+					chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
 
-					Unk12Values = new int[MetaData.Unk12_Count];
-					nativeReader.Position = 556 + MetaData.Unk12_Offset;
-					for (int j = 0; j < MetaData.Unk12_Count; j++)
-					{
-                        Unk12Values[j] = (int)nativeReader.ReadUInt(Endian.Big);
-                    }
+					chunkAssetEntry2.LogicalOffset = chunkOffset;
+					chunkAssetEntry2.OriginalSize = (chunkAssetEntry2.LogicalOffset & 0xFFFF) | chunkSize;
+					chunkAssetEntry2.Size = chunkSize;
+					chunkAssetEntry2.Location = AssetDataLocation.CasNonIndexed;
+					chunkAssetEntry2.ExtraData = new AssetExtraData();
+					chunkAssetEntry2.ExtraData.Unk = unk2;
+					chunkAssetEntry2.ExtraData.Catalog = catalog2;
+					chunkAssetEntry2.ExtraData.Cas = cas2;
+					chunkAssetEntry2.ExtraData.IsPatch = patch;
+					chunkAssetEntry2.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog2, cas2, patch);
+					chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
 
-					CasBundlePosition = nativeReader.Position;
-					if (Bundles.Count > 0 && nativeReader.Position < nativeReader.Length)
+					TocChunks.Add(chunkAssetEntry2);
+
+					TocChunkInfo.Add(chunkAssetEntry2.Id, dboChunk);
+				}
+
+				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+				{
+					var chunkAssetEntry = TocChunks[chunkIndex];
+					if (AssetManager.Instance != null && ProcessData)
 					{
-						LoadCasBundles(nativeReader);
+						AssetManager.Instance.AddChunk(chunkAssetEntry);
 					}
+
+				}
+			}
+
+			Unk7Values = new int[MetaData.Unk7_Count];
+			nativeReader.Position = 556 + MetaData.Unk7_Offset;
+			for (int k = 0; k < MetaData.Unk7_Count; k++)
+			{
+                Unk7Values[k] = (int)nativeReader.ReadUInt(Endian.Big);
+            }
+
+			Unk12Values = new int[MetaData.Unk12_Count];
+			nativeReader.Position = 556 + MetaData.Unk12_Offset;
+			for (int j = 0; j < MetaData.Unk12_Count; j++)
+			{
+				Unk12Values[j] = (int)nativeReader.ReadUInt(Endian.Big);
+			}
+
+			CasBundlePosition = nativeReader.Position;
+			if (Bundles.Count > 0 && nativeReader.Position < nativeReader.Length)
+			{
+				LoadCasBundles(nativeReader);
+			}
 				//}
 			//}
 
@@ -515,8 +471,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 					foreach (var ctb in CASToBundles)
 					{
+						DbObject dbo = new DbObject(false);
 						CASDataLoader casDataLoader = new CASDataLoader(this);
-						var dbo = casDataLoader.Load(ctb.Key, ctb.Value);
+						dbo = casDataLoader.Load(ctb.Key, ctb.Value);
 						foreach(var d in dbo)
                         {
 							TOCObjects.Add(d);

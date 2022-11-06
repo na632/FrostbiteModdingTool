@@ -267,8 +267,6 @@ namespace FIFA23Plugin
                 buildCache.LoadData(ProfileManager.ProfileName, parent.GamePath, parent.Logger, false, true);
             }
 
-            parent.Logger.Log("Loading Cached Super Bundles.");
-
             if (!ModExecutor.UseModData && GameWasPatched)
             {
                 DeleteBakFiles(parent.GamePath);

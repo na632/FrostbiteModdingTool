@@ -438,7 +438,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
         }
 
-        public void ModifyTOCChunks(string directory = "native_patch")
+        public virtual void ModifyTOCChunks(string directory = "native_patch")
         {
             int sbIndex = -1;
             foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
@@ -459,15 +459,11 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     }
 
                     var pathToTOCFileRAW = $"{directory}/{tocFile}.toc";
-                    string location_toc_file = FileSystem.Instance.ResolvePath(pathToTOCFileRAW);
+                    //string location_toc_file = FileSystem.Instance.ResolvePath(pathToTOCFileRAW);
 
-                    var pathToTOCFile = ModExecutor.UseModData
-                        ? location_toc_file
-                        .Replace("Data", "ModData\\Data", StringComparison.OrdinalIgnoreCase)
-                        .Replace("Patch", "ModData\\Patch", StringComparison.OrdinalIgnoreCase)
-                        : location_toc_file;
+                    var pathToTOCFile = FileSystem.Instance.ResolvePath(pathToTOCFileRAW, ModExecutor.UseModData);
 
-                    using TOCFile tocFile2 = new TOCFile(new FileStream(location_toc_file, FileMode.Open), false, false);
+                    using TOCFile tocFile2 = new TOCFile(pathToTOCFileRAW, false, false, true);
 
                     // read the changed toc file in ModData
                     if (!tocFile2.TocChunks.Any())

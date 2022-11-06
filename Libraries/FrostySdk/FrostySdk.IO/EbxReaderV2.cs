@@ -189,7 +189,7 @@ namespace FrostySdk.IO
 			}
 			base.Position = stringsOffset + stringsLen;
 			isValid = true;
-
+#if DEBUG
 			if (RootType.Contains("gp_"))
 			{
 				InStream.Position = 0;
@@ -199,6 +199,7 @@ namespace FrostySdk.IO
 				fsDump.Dispose();
 				InStream.Position = stringsOffset + stringsLen;
 			}
+#endif
 		}
 
 		public override void InternalReadObjects()

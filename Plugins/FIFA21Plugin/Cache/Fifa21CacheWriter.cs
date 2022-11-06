@@ -27,19 +27,6 @@ namespace FIFA21Plugin.Cache
                 nativeWriter.Write(0uL); // chunk offsets
                 nativeWriter.Write(0uL); // name to position offets
 
-
-                //nativeWriter.Write(AssetManager.Instance.superBundles.Count);
-                //foreach (SuperBundleEntry superBundle in AssetManager.Instance.superBundles)
-                //{
-                //    nativeWriter.WriteNullTerminatedString(superBundle.Name);
-                //}
-                //nativeWriter.Write(AssetManager.Instance.bundles.Count);
-                //foreach (BundleEntry bundle in AssetManager.Instance.bundles)
-                //{
-                //    nativeWriter.WriteNullTerminatedString(bundle.Name);
-                //    nativeWriter.Write(bundle.SuperBundleId);
-                //}
-
                 Dictionary<string, long> EbxNameToPosition = new Dictionary<string, long>();
                 var ebxOffsetPosition = nativeWriter.Position;
                 nativeWriter.Write(AssetManager.Instance.EBX.Values.Count);
@@ -76,7 +63,7 @@ namespace FIFA21Plugin.Cache
 
                 var nameToPositionOffsets = nativeWriter.Position;
                 nativeWriter.Write(EbxNameToPosition.Count);
-                foreach(var kvp in EbxNameToPosition)
+                foreach (var kvp in EbxNameToPosition)
                 {
                     nativeWriter.WriteLengthPrefixedString(kvp.Key);
                     nativeWriter.Write(kvp.Value);
@@ -139,6 +126,10 @@ namespace FIFA21Plugin.Cache
             if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
                 nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
 
+            nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
+            if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
+                nativeWriter.WriteLengthPrefixedString(ebxEntry.SBFileLocation);
+
             nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
             nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
             nativeWriter.Write(ebxEntry.SB_Sha1_Position);
@@ -192,6 +183,10 @@ namespace FIFA21Plugin.Cache
             if (!string.IsNullOrEmpty(resEntry.CASFileLocation))
                 nativeWriter.WriteLengthPrefixedString(resEntry.CASFileLocation);
 
+            nativeWriter.Write(!string.IsNullOrEmpty(resEntry.SBFileLocation));
+            if (!string.IsNullOrEmpty(resEntry.SBFileLocation))
+                nativeWriter.WriteLengthPrefixedString(resEntry.SBFileLocation);
+
             nativeWriter.Write(resEntry.SB_CAS_Offset_Position);
             nativeWriter.Write(resEntry.SB_CAS_Size_Position);
             nativeWriter.Write(resEntry.SB_Sha1_Position);
@@ -241,18 +236,17 @@ namespace FIFA21Plugin.Cache
                 }
             }
 
-
-            nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.SBFileLocation));
-            if (!string.IsNullOrEmpty(chunkEntry.SBFileLocation))
-                nativeWriter.WriteLengthPrefixedString(chunkEntry.SBFileLocation);
             nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.TOCFileLocation));
             if (!string.IsNullOrEmpty(chunkEntry.TOCFileLocation))
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.TOCFileLocation);
 
-
             nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.CASFileLocation));
             if (!string.IsNullOrEmpty(chunkEntry.CASFileLocation))
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.CASFileLocation);
+
+            nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.SBFileLocation));
+            if (!string.IsNullOrEmpty(chunkEntry.SBFileLocation))
+                nativeWriter.WriteLengthPrefixedString(chunkEntry.SBFileLocation);
 
             nativeWriter.Write(chunkEntry.SB_CAS_Offset_Position);
             nativeWriter.Write(chunkEntry.SB_CAS_Size_Position);

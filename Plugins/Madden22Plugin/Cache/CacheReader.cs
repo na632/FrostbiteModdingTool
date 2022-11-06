@@ -145,8 +145,8 @@ namespace Madden22Plugin.Cache
 					resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
 					resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
 					resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-					resAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-					resAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+					//resAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
+					//resAssetEntry.ParentBundleSize = nativeReader.ReadInt();
 					//resAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
 
 
@@ -236,8 +236,8 @@ namespace Madden22Plugin.Cache
 
 				chunkAssetEntry.SB_LogicalOffset_Position = nativeReader.ReadUInt();
 				chunkAssetEntry.SB_LogicalSize_Position = nativeReader.ReadUInt();
-				chunkAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-				chunkAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+				//chunkAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
+				//chunkAssetEntry.ParentBundleSize = nativeReader.ReadInt();
 
 
 				if (nativeReader.ReadBoolean())

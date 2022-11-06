@@ -558,14 +558,14 @@ namespace FrostySdk.Managers
 					CustomAssetManagers.Add("legacy", cam);
 
 			}
-			else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsFIFA21DataVersion())
-			{
-				CustomAssetManagers.Add("legacy", new ChunkFileManager2022());
-			}
-			else
-			{
-				CustomAssetManagers.Add("legacy", new ChunkFileManager(this));
-			}
+			//else if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsFIFA21DataVersion())
+			//{
+			//	CustomAssetManagers.Add("legacy", new ChunkFileManager2022());
+			//}
+			//else
+			//{
+			//	CustomAssetManagers.Add("legacy", new ChunkFileManager(this));
+			//}
 			
         }
 
@@ -796,33 +796,33 @@ namespace FrostySdk.Managers
 						//}
 						//else
 						//{
-							if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
+						if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
+						{
+							if (EbxReaderType == null)
 							{
-								if (EbxReaderType == null)
-								{
-									ebxReader = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
-									EbxReaderType = ebxReader.GetType();
-								}
-							ebxStream.Position = 0;
-								ebxReader = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
-
-								try
-								{
-									EBX[ebx.Name].Type = ebxReader.RootType;
-									EBX[ebx.Name].Guid = ebxReader.FileGuid;
-								}
-								catch(Exception)
-								{
-
-								}
+								ebxReader = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
+								EbxReaderType = ebxReader.GetType();
 							}
-							else
+							ebxStream.Position = 0;
+							ebxReader = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
+
+							try
 							{
-								//EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
-								ebxReader = new EbxReaderV3(ebxStream, true);
 								EBX[ebx.Name].Type = ebxReader.RootType;
 								EBX[ebx.Name].Guid = ebxReader.FileGuid;
 							}
+							catch (Exception)
+							{
+
+							}
+						}
+						else
+						{
+							//EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
+							ebxReader = new EbxReaderV3(ebxStream, true);
+							EBX[ebx.Name].Type = ebxReader.RootType;
+							EBX[ebx.Name].Guid = ebxReader.FileGuid;
+						}
 						//}
 						return;
 					}
@@ -992,7 +992,13 @@ namespace FrostySdk.Managers
 				return;
 			}
 
-			if (entry is AssetEntry assetEntry)
+			if(entry is EbxAssetEntry || entry is LegacyFileEntry)
+			{
+                if (AssetManagerModified != null)
+                    AssetManagerModified(entry);
+            }
+
+            if (entry is AssetEntry assetEntry)
 			{
 
 				foreach (AssetEntry linkedAsset in assetEntry.LinkedAssets)
@@ -1038,16 +1044,15 @@ namespace FrostySdk.Managers
 
 		public void AddChunk(ChunkAssetEntry entry)
 		{
-            if (Chunks.ContainsKey(entry.Id))
-                Chunks.TryRemove(entry.Id, out _);
+			if (entry.Id.ToString() == "bdd11bcb-50fc-dd5f-4f85-8e7a45a0ba8f")
+			{
+			}
+                if (!Chunks.ContainsKey(entry.Id))
+			{
+				Chunks.TryAdd(entry.Id, entry);
+            }
 
-            Chunks.TryAdd(entry.Id, entry);
-
-			// ------------------------- SEPERATE LIST FOR BUNDLE ID ------------------------
-			//if (BundleChunks.ContainsKey((entry.Bundle, entry.Id)))
-			//	BundleChunks.TryRemove((entry.Bundle, entry.Id), out _);
-
-			//BundleChunks.TryAdd((entry.Bundle, entry.Id), entry);
+			Chunks[entry.Id] = entry;
 		}
 
 		//public Dictionary<Guid, List<ChunkAssetEntry>> ChunkListDuplicates = new Dictionary<Guid, List<ChunkAssetEntry>>();
@@ -2167,68 +2172,71 @@ namespace FrostySdk.Managers
 			{
 				foreach (DbObject item in sb.GetValue<DbObject>("ebx"))
 				{
-					if(item.GetValue<string>("name").Contains("gp_actor_movement_runtime", StringComparison.OrdinalIgnoreCase))
-                    {
+                    EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+                    ebxAssetEntry = (EbxAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, ebxAssetEntry);
+					AddEbx(ebxAssetEntry);
+					////if (item.GetValue<string>("name").Contains("gp_actor_movement_runtime", StringComparison.OrdinalIgnoreCase))
+					////{
 
-                    }
+					////}
 
-					EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion(ProfileManager.Game) ) ;
-                    //EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
-                    //               if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
-                    //{
-                    //	ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                    //	ebxAssetEntry.IsInline = item.HasValue("idata");
-                    //}
+					////EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion(ProfileManager.Game));
+					////EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
+					////if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+					////{
+					////	ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+					////	ebxAssetEntry.IsInline = item.HasValue("idata");
+					////}
 
-                    if (ebxAssetEntry.Size != item.GetValue<long>("size"))
-                    {
-                        ebxAssetEntry.Size = item.GetValue("size", 0L);
-                    }
+					////if (ebxAssetEntry.Size != item.GetValue<long>("size"))
+					////{
+					////	ebxAssetEntry.Size = item.GetValue("size", 0L);
+					////}
 
-                    //if (ebxAssetEntry.OriginalSize != item.GetValue<long>("originalSize"))
-                    //{
-                    //	ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                    //}
+					////if (ebxAssetEntry.OriginalSize != item.GetValue<long>("originalSize"))
+					////{
+					////	ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
+					////}
 
-                    //if (item.GetValue("cache", defaultValue: false) && ebxAssetEntry.Location != AssetDataLocation.Cache)
-                    //{
-                    //	helper.RemoveEbxData(ebxAssetEntry.Name);
-                    //}
+					////if (item.GetValue("cache", defaultValue: false) && ebxAssetEntry.Location != AssetDataLocation.Cache)
+					////{
+					////	helper.RemoveEbxData(ebxAssetEntry.Name);
+					////}
 
-                    if (item.HasValue("SBFileLocation"))
-                        ebxAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
+					////if (item.HasValue("SBFileLocation"))
+					////	ebxAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
 
-                    if (item.HasValue("TOCFileLocation"))
-                        ebxAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
+					////if (item.HasValue("TOCFileLocation"))
+					////	ebxAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
 
-                    if (item.HasValue("SB_CAS_Offset_Position"))
-                        ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
+					////if (item.HasValue("SB_CAS_Offset_Position"))
+					////	ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
 
-                    if (item.HasValue("SB_CAS_Size_Position"))
-                        ebxAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
+					////if (item.HasValue("SB_CAS_Size_Position"))
+					////	ebxAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
 
-                    if (item.HasValue("SB_OriginalSize_Position"))
-                        ebxAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
+					////if (item.HasValue("SB_OriginalSize_Position"))
+					////	ebxAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
 
-                    if (item.HasValue("SB_Sha1_Position"))
-                        ebxAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
+					////if (item.HasValue("SB_Sha1_Position"))
+					////	ebxAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
 
-                    //if(item.HasValue("ParentBundleOffset"))
-                    //	ebxAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
+					////if (item.HasValue("ParentBundleOffset"))
+					////	ebxAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
 
-                    //if (item.HasValue("ParentBundleSize"))
-                    //	ebxAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
+					////if (item.HasValue("ParentBundleSize"))
+					////	ebxAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
 
-                    ebxAssetEntry.Bundles.Add(bundleId);
+					////ebxAssetEntry.Bundles.Add(bundleId);
 
-					//if (item.HasValue("Bundle"))
-					//{
-					//	ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
-					//}
-					//else if (AssetManager.Instance.bundles.Count < bundleId)
-					//{
-					//	ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-					//}
+					////if (item.HasValue("Bundle"))
+					////{
+					////	ebxAssetEntry.Bundle = item.GetValue<string>("Bundle");
+					////}
+					////else if (AssetManager.Instance.bundles.Count < bundleId)
+					////{
+					////	ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+					////}
 				}
 			}
 		}
@@ -2319,74 +2327,11 @@ namespace FrostySdk.Managers
 			{
 				foreach (DbObject item in sb.GetValue<DbObject>("chunks"))
 				{
-                    ChunkAssetEntry chunkAssetEntry = AddChunk(item
-                        , ProfileManager.IsMadden21DataVersion(ProfileManager.Game) 
-						//|| ProfilesLibrary.IsFIFA21DataVersion()
-						//|| ProfilesLibrary.IsFIFA22DataVersion()
-						);
-
-     //               //if (item.GetValue("cache", defaultValue: false) && chunkAssetEntry.Location != AssetDataLocation.Cache)
-     //               //{
-     //               //	helper.RemoveChunkData(chunkAssetEntry.Id.ToString());
-     //               //}
-     //               if (chunkAssetEntry.Size == 0L)
-     //               {
-     //                   chunkAssetEntry.Size = item.GetValue("size", 0L);
-     //                   chunkAssetEntry.LogicalOffset = item.GetValue("logicalOffset", 0u);
-     //                   chunkAssetEntry.LogicalSize = item.GetValue("logicalSize", 0u);
-     //                   chunkAssetEntry.RangeStart = item.GetValue("rangeStart", 0u);
-     //                   chunkAssetEntry.RangeEnd = item.GetValue("rangeEnd", 0u);
-     //                   chunkAssetEntry.BundledSize = item.GetValue("bundledSize", 0u);
-     //                   chunkAssetEntry.IsInline = item.HasValue("idata");
-     //               }
-     //               if (item.HasValue("SBFileLocation"))
-     //               {
-     //                   chunkAssetEntry.SBFileLocation = item.GetValue<string>("SBFileLocation");
-     //               }
-
-     //               if (item.HasValue("TOCFileLocation"))
-     //               {
-     //                   chunkAssetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
-     //               }
-
-     //               if (item.HasValue("SB_CAS_Offset_Position"))
-     //               {
-     //                   chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue<int>("SB_CAS_Offset_Position");
-     //               }
-
-     //               if (item.HasValue("SB_CAS_Size_Position"))
-     //               {
-     //                   chunkAssetEntry.SB_CAS_Size_Position = item.GetValue<int>("SB_CAS_Size_Position");
-     //               }
-
-     //               if (item.HasValue("SB_OriginalSize_Position"))
-     //                   chunkAssetEntry.SB_OriginalSize_Position = item.GetValue<int>("SB_OriginalSize_Position");
-
-     //               if (item.HasValue("SB_Sha1_Position"))
-     //                   chunkAssetEntry.SB_Sha1_Position = item.GetValue<int>("SB_Sha1_Position");
-
-     //               //if (item.HasValue("ParentBundleOffset"))
-     //               //	chunkAssetEntry.ParentBundleOffset = item.GetValue<int>("ParentBundleOffset");
-
-     //               //if (item.HasValue("ParentBundleSize"))
-     //               //	chunkAssetEntry.ParentBundleSize = item.GetValue<int>("ParentBundleSize");
-
-     //               chunkAssetEntry.Bundles.AddRange(otherBundles);
-					//chunkAssetEntry.Bundles.Add(bundleId);
-					//chunkAssetEntry.Bundles = chunkAssetEntry.Bundles.Distinct().ToList();
-					////if (item.HasValue("Bundle") && !string.IsNullOrEmpty(item.GetValue<string>("Bundle")))
-					////{
-					////	chunkAssetEntry.Bundle = item.GetValue<string>("Bundle");
-					////}
-					////else if (AssetManager.Instance.bundles.Count < bundleId)
-					////{
-					////	chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
-					////}
-
-					//Chunks[chunkAssetEntry.Id] = chunkAssetEntry;
-
-				}
-			}
+                    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                    chunkAssetEntry = (ChunkAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, chunkAssetEntry);
+					AddChunk(chunkAssetEntry);
+                }
+            }
 		}
 
 		public DbObject ProcessTocChunks(string superBundleName, BinarySbDataHelper helper, bool isBase = false)
@@ -3132,11 +3077,11 @@ namespace FrostySdk.Managers
 						nativeWriter.WriteLengthPrefixedString(resEntry.DuplicatedFromName);
 
 					}
-					if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
-                    {
-                        nativeWriter.Write(resEntry.ParentBundleOffset);
-                        nativeWriter.Write(resEntry.ParentBundleSize);
-                    }
+					//if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
+     //               {
+     //                   nativeWriter.Write(resEntry.ParentBundleOffset);
+     //                   nativeWriter.Write(resEntry.ParentBundleSize);
+     //               }
 
                     nativeWriter.Write(resEntry.Bundles.Count);
                     foreach (int bundle3 in resEntry.Bundles)

@@ -43,9 +43,9 @@
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "lmod", "fbmod", "fifamod" ],
   // Will the Launcher support this Game?
-  "CanLaunchMods": true,
+  "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": true,
+  "CanEdit": false,
   "Banner": "",
   "EbxVersion": 4,
   "RequiresKey": true,
