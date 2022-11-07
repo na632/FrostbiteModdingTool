@@ -45,13 +45,23 @@ namespace SDKGenerator
 
             if (!string.IsNullOrEmpty(ProfileManager.SDKClassesFile))
             {
-                var classesTxtFilePath = AppContext.BaseDirectory + "/SdkGen/" + ProfileManager.SDKClassesFile;
-                using (FileStream stream = new FileStream(classesTxtFilePath, FileMode.Open))
+                var assembly = Assembly.GetExecutingAssembly();
+                var resourceName = assembly.GetManifestResourceNames().SingleOrDefault(x => x.EndsWith(ProfileManager.SDKClassesFile));
+                System.IO.Stream classesStream = null;
+                if (!string.IsNullOrEmpty(resourceName))
                 {
-                    if (stream != null)
-                    {
-                        classMetaList = TypeLibrary.LoadClassesSDK(stream);
-                    }
+                    classesStream = assembly.GetManifestResourceStream(resourceName);
+                }
+                else
+                {
+                    var classesTxtFilePath = AppContext.BaseDirectory + "/SdkGen/" + ProfileManager.SDKClassesFile;
+                    classesStream = new FileStream(classesTxtFilePath, FileMode.Open);
+                }
+                if(classesStream != null)
+                {
+                    using(classesStream)
+                        classMetaList = TypeLibrary.LoadClassesSDK(classesStream);
+
                 }
             }
             else
