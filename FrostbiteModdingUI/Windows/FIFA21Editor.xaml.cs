@@ -513,10 +513,12 @@ namespace FIFAModdingUI.Windows
                 var resultValue = saveFileDialog.ShowDialog();
                 if (resultValue.HasValue && resultValue.Value)
                 {
+                    loadingDialog.Update("Saving", "Saving to FIFAMod");
+
                     ProjectManagement.Project.WriteToFIFAMod(saveFileDialog.FileName, ProjectManagement.Project.ModSettings);
                     if(File.Exists(saveFileDialog.FileName))
                     {
-                        Log("Saved mod successfully to " + saveFileDialog.FileName);
+                        Log($"[{DateTime.Now.ToShortTimeString()}] Saved mod successfully to {saveFileDialog.FileName}");
                     }
                 }
 
@@ -524,6 +526,10 @@ namespace FIFAModdingUI.Windows
             catch (Exception SaveException)
             {
                 LogError(SaveException.ToString());
+            }
+            finally
+            {
+                loadingDialog.Update("", "");
             }
         }
 
@@ -613,14 +619,15 @@ namespace FIFAModdingUI.Windows
 
         private async Task<bool> SaveProjectWithDialog()
         {
+            loadingDialog.Update("Saving Project", "Sweeping up debris", 0);
             //loadingDialog.Show();
             await Task.Delay(100);
             // ---------------------------------------------------------
             // Remove chunks and actual unmodified files before writing
             ChunkFileManager2022.CleanUpChunks();
 
-            //loadingDialog.Close();
             loadingDialog.Update("", "");
+
 
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -630,7 +637,7 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
-                    loadingDialog.Update("Saving Project", "Saving project to file");
+                    loadingDialog.Update("Saving Project", "Saving project to file", 0);
                     //loadingDialog.Show();
                     await ProjectManagement.Project.SaveAsync(saveFileDialog.FileName, true);
 

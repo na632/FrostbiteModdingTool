@@ -22,12 +22,23 @@
   <Deterministic>false</Deterministic>
   <AssemblyName>FMT</AssemblyName>
   <RootNamespace>FMT</RootNamespace>
+	  <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 </PropertyGroup>
 
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+
+
+  <ItemGroup>
+    <None Remove="Resources\images\FIFA20Cover.jpg" />
+    <None Remove="Resources\images\FIFA21Cover.jpg" />
+    <None Remove="Resources\images\FIFA22Cover.jpg" />
+    <None Remove="Resources\images\FIFA23Cover.jpg" />
+    <None Remove="Resources\images\Madden21Cover.jpg" />
+    <None Remove="Resources\images\Madden22Cover.jpg" />
+  </ItemGroup>
 
 
 	<ItemGroup>
@@ -55,36 +66,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</Content>
-    <Content Include="Resources\images\FIFA20Cover.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-    <Content Include="Resources\images\FIFA21Cover.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-    <Content Include="Resources\images\Madden21Cover.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-    <Content Include="Resources\images\Madden22Cover.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</Content>
-    <Content Include="Resources\images\PAULV2K4MODDINGTOOL.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </Content>
-    <Content Include="Resources\images\PAULV2K4MODDINGTOOL2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\images\PAULV2K4MODDINGTOOL3.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\images\PAULV2K4MODDINGTOOL4.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA19.ini">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -108,6 +89,30 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="ini\_FIFA20_base.ini" />
+    <EmbeddedResource Include="Resources\images\FIFA20Cover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\images\FIFA21Cover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\images\FIFA22Cover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\images\FIFA23Cover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\images\Madden21Cover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\images\Madden22Cover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -215,18 +220,6 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </None>
-    <None Update="Resources\images\FIFA22Cover.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</None>
-    <None Update="Resources\images\FIFA23Cover.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</None>
-	<None Update="Resources\images\PAUL-TOOL-COVER.jpg">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</None>
     <None Update="SDK\BF4SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	<ExcludeFromSingleFile>true</ExcludeFromSingleFile>

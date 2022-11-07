@@ -103,10 +103,14 @@ namespace FrostySdk
 				superBundleName = Fnv1a.HashString(AssetManager.Instance.GetSuperBundle(entry.SuperBundleId).Name.ToLower());
 			}
 
-			public override void Write(NativeWriter writer)
-			{
-				base.Write(writer);
-				writer.WriteNullTerminatedString(name);
+            public override void Write(NativeWriter writer, uint writerVersion = 4)
+            {
+                base.Write(writer, writerVersion);
+				if (writerVersion >= 28u)
+					writer.WriteLengthPrefixedString(name);
+				else
+					writer.WriteNullTerminatedString(name);
+
 				writer.Write(superBundleName);
 			}
 		}
@@ -254,10 +258,10 @@ namespace FrostySdk
 				}
 			}
 
-			public override void Write(NativeWriter writer)
-			{
-				base.Write(writer);
-				writer.Write(resType);
+            public override void Write(NativeWriter writer, uint writerVersion = 4)
+            {
+                base.Write(writer, writerVersion);
+                writer.Write(resType);
 				writer.Write(resRid);
 				writer.Write(resMeta.Length);
 				writer.Write(resMeta);
@@ -320,10 +324,10 @@ namespace FrostySdk
 				}
 			}
 
-			public override void Write(NativeWriter writer)
-			{
-				base.Write(writer);
-				writer.Write(rangeStart);
+            public override void Write(NativeWriter writer, uint writerVersion = 4)
+            {
+                base.Write(writer, writerVersion);
+                writer.Write(rangeStart);
 				writer.Write(rangeEnd);
 				writer.Write(logicalOffset);
 				writer.Write(logicalSize);
@@ -344,10 +348,10 @@ namespace FrostySdk
 				resourceIndex = manifest.Add(entry.Name, entry.ModifiedEntry.Data);
 			}
 
-			public override void Write(NativeWriter writer)
-			{
-				base.Write(writer);
-				writer.Write(name);
+            public override void Write(NativeWriter writer, uint writerVersion = 4)
+            {
+                base.Write(writer, writerVersion);
+                writer.Write(name);
 			}
 		}
 
@@ -362,10 +366,10 @@ namespace FrostySdk
 				resourceIndex = manifest.Add(entry.Name, entry.Data);
 			}
 
-			public override void Write(NativeWriter writer)
-			{
-				base.Write(writer);
-				writer.Write(name);
+            public override void Write(NativeWriter writer, uint writerVersion = 4)
+            {
+                base.Write(writer, writerVersion);
+                writer.Write(name);
 			}
 		}
 

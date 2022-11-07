@@ -45,19 +45,20 @@ namespace FrostySdk.Frosty.FET
             }
             WriteUInt64LittleEndian(5498700893333637446uL);
             WriteUInt32LittleEndian(28u);
-            Write((byte)0);
+            Write((byte)0); // do checksum
             var positionOfPlaceholders = base.Position;
-            WriteInt64LittleEndian(0L);
-            WriteUInt64LittleEndian(0uL);
-            WriteUInt64LittleEndian(16045690984833335023uL);
-            WriteUInt32LittleEndian(3735928559u);
+            WriteInt64LittleEndian(0L); // End of Header Offset
+            WriteUInt64LittleEndian(0uL); // checksum
+            var positionOfDataOffset = base.Position;
+            WriteUInt64LittleEndian(0uL); // Data Offset
+            WriteUInt32LittleEndian(0u); // Data Count
             WriteLengthPrefixedString(gameName);
             WriteUInt32LittleEndian(fileSystem.Head);
             ModSettings modSettings = overrideSettings ?? project.ModSettings;
             WriteLengthPrefixedString(modSettings.Title);
             WriteLengthPrefixedString(modSettings.Author);
-            Write((byte)0);
-            Write(Convert.ToByte(0));
+            Write((byte)byte.MaxValue);
+            Write(Convert.ToByte(1));
             WriteLengthPrefixedString(string.Empty);
             WriteLengthPrefixedString(string.Empty);
             WriteLengthPrefixedString(modSettings.Version);
@@ -72,8 +73,9 @@ namespace FrostySdk.Frosty.FET
             WriteLengthPrefixedString(string.Empty);
             AddResource(new EmbeddedResource("Icon", modSettings.Icon, ResourceManifest));
             WriteUInt32LittleEndian((uint)0);
+            //Write7BitEncodedInt(0); // locale ini
             Write7BitEncodedInt(AssetManager.Instance.LocaleINIMod.HasUserData ? 1 : 0);
-            if(AssetManager.Instance.LocaleINIMod.HasUserData)
+            if (AssetManager.Instance.LocaleINIMod.HasUserData)
             {
                 WriteLengthPrefixedString("Locale.ini");
                 WriteLengthPrefixedString(Encoding.UTF8.GetString(AssetManager.Instance.LocaleINIMod.UserData));
@@ -112,7 +114,7 @@ namespace FrostySdk.Frosty.FET
             }
             foreach (ResAssetEntry item3 in assetManager.EnumerateRes(0u, modifiedOnly: true))
             {
-                if (item3.HasModifiedData && 0 == 0)
+                if (item3.HasModifiedData)
                 {
                     AddResource(new ResResource(item3, ResourceManifest));
                 }
@@ -124,10 +126,10 @@ namespace FrostySdk.Frosty.FET
                     AddResource(new ChunkResource(item4, ResourceManifest));
                 }
             }
-            foreach (LegacyFileEntry lfe in AssetManager.Instance.EnumerateCustomAssets("legacy", true))
-            {
-                AddResource(new FIFAEditorLegacyResource(lfe.Name, lfe.EbxAssetEntry != null ? lfe.EbxAssetEntry.Name : "", lfe.ModifiedEntry.Data, null, manifest));
-            }
+            //foreach (LegacyFileEntry lfe in AssetManager.Instance.EnumerateCustomAssets("legacy", true))
+            //{
+            //    AddResource(new FIFAEditorLegacyResource(lfe.Name, lfe.EbxAssetEntry != null ? lfe.EbxAssetEntry.Name : "", lfe.ModifiedEntry.Data, null, manifest));
+            //}
             //foreach (KeyValuePair<EbxAssetEntry, List<(string, LegacyFileEntry.ChunkCollectorInstance)>> kvp in legacyCollectorsToModifiedEntries)
             {
                 //dynamic rootObject = assetManager.GetEbx(kvp.Key).RootObject;
@@ -150,16 +152,18 @@ namespace FrostySdk.Frosty.FET
             WriteInt32LittleEndian(resources.Count);
             foreach (EditorModResource resource in resources)
             {
-                resource.Write(this);
+                resource.Write(this, 28u);
             }
-            long position = base.Position;
+            long dataOffset = base.Position;
+            uint dataCount = (uint)ResourceManifest.Count;
             ResourceManifest.Write(this);
             base.Position = positionOfPlaceholders;
             WriteInt64LittleEndian(positionOfEndOfHeader);
-            base.Position += 8L;
-            WriteInt64LittleEndian(position);
-            WriteInt32LittleEndian(ResourceManifest.Count);
-            GenerateChecksums();
+            //base.Position += 8L;
+            Position = positionOfDataOffset;
+            WriteInt64LittleEndian(dataOffset);
+            WriteUInt32LittleEndian(dataCount);
+            //GenerateChecksums();
         }
 
         private void GenerateChecksums()
@@ -197,9 +201,9 @@ namespace FrostySdk.Frosty.FET
                 //}
             }
 
-            public override void Write(NativeWriter writer)
+            public override void Write(NativeWriter writer, uint writerVersion = 4)
             {
-                base.Write(writer);
+                base.Write(writer, writerVersion);
                 writer.WriteInt32LittleEndian(0);
                 writer.WriteInt32LittleEndian(0);
                 writer.WriteInt32LittleEndian(0);

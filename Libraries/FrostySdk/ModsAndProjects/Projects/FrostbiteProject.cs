@@ -552,7 +552,7 @@ namespace FrostySdk
 			if (File.Exists(filename))
 				File.Delete(filename);
 			using (var fs = new FileStream(filename, FileMode.Create)) {
-				FIFAModWriter frostyModWriter = new FIFAModWriter(string.Empty, AssetManager, FileSystem
+				FIFAModWriter frostyModWriter = new FIFAModWriter(ProfileManager.LoadedProfile.Name, AssetManager, FileSystem
 					, fs
 					, overrideSettings);
 				frostyModWriter.WriteProject(this);

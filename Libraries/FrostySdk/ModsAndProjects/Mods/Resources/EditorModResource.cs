@@ -6,18 +6,27 @@ namespace FrostySdk
 {
 	public class EditorModResource : BaseModResource
 	{
-		public virtual void Write(NativeWriter writer)
+		public virtual void Write(NativeWriter writer, uint writerVersion = 4u)
 		{
 			WriteResourceType(writer, Type);
 			writer.Write(resourceIndex);
 			if (resourceIndex != -1)
 			{
-				writer.WriteNullTerminatedString(name);
+				if(writerVersion >= 28u)
+                    writer.WriteLengthPrefixedString(name);
+                else
+					writer.WriteNullTerminatedString(name);
+
 				writer.Write(sha1);
 				writer.Write(size);
 				writer.Write(flags);
 				writer.Write(handlerHash);
-				writer.WriteNullTerminatedString(userData);
+
+                if (writerVersion >= 28u)
+                    writer.WriteLengthPrefixedString(userData);
+                else
+                    writer.WriteNullTerminatedString(userData);
+
 				writer.Write(bundlesToModify.Count);
 				foreach (int item in bundlesToModify)
 				{
