@@ -117,7 +117,7 @@ namespace FMT
             Owner.Visibility = Visibility.Visible;
         }
 
-        private ObservableCollection<ModList.ModItem> ListOfMods = new ObservableCollection<ModList.ModItem>();
+        public ObservableCollection<ModList.ModItem> ListOfMods { get; set; } = new ObservableCollection<ModList.ModItem>();
 
         public bool EditorModIncluded { get; internal set; }
 
@@ -344,7 +344,7 @@ namespace FMT
                 }
 
                 //TabCont.SelectedIndex = 0;
-                bottomDocuments.SelectedContentIndex = 0;
+                //bottomDocuments.SelectedContentIndex = 0;
 
                 LoadingDialog.Update("Launching", "Setting up Legacy Mods");
 

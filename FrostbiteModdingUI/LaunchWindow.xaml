@@ -16,16 +16,40 @@
         VerticalContentAlignment="Stretch"
         ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Visible"
         >
-    <DockPanel Margin="5">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="10">
+    <Window.Resources>
+        <Style TargetType="{x:Type mah:MetroTabItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type mah:MetroTabItem}">
+                        <Grid Name="Panel">
+                            <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="10,2"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Panel" Property="Background" Value="#2233BB" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="Panel" Property="Background" Value="#232323" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition MaxHeight="45" Height="45"></RowDefinition>
+            <RowDefinition MaxHeight="20" Height="0"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition MaxHeight="20" Height="0"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
@@ -41,109 +65,161 @@
                     <Label Content="{DynamicResource textLaunchGame}" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
-            <!--<Button Grid.Column="1"  x:Name="btnLaunchOtherTool" Height="30"  Click="btnLaunchOtherTool_Click" Visibility="Collapsed" Background="Transparent" >
-                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="RocketLaunchOutline" VerticalAlignment="Center" />
-                    <Label Content="Install (*.lmod) in to other tool" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
-            <Button Grid.Column="2"  x:Name="btnOpenCEMWindow" Height="30"  Click="btnOpenCEMWindow_Click" Visibility="Collapsed" Background="Transparent" >
-                <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                    <MaterialDesign:PackIcon Kind="WindowOpen" VerticalAlignment="Center" />
-                    <Label Content="Open CEM Window (Temp. Disabled)" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>-->
         </Grid>
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"></ColumnDefinition>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <StackPanel Orientation="Horizontal">
-                    
-                </StackPanel>
-                <Label FontSize="14" FontWeight="Bold" Content="{DynamicResource textModList}"></Label>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="25"></RowDefinition>
-                        </Grid.RowDefinitions>
-                    <Button x:Name="btnUp" Click="up_click" Grid.Column="0" Padding="0">
-                        <StackPanel VerticalAlignment="Stretch" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ArrowUpCircleOutline" VerticalAlignment="Center" />
-                            <Label Content="Up" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                        <Button x:Name="btnDown" Click="down_click" Grid.Column="1" Padding="0">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="ArrowDownCircleOutline" VerticalAlignment="Center" />
-                            <Label Content="Down" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                        <Button x:Name="btnRemove" Click="btnRemove_Click" Grid.Column="2" Padding="0">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="RemoveCircleOutline" VerticalAlignment="Center" />
-                            <Label Content="{DynamicResource textRemove}" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                        <Button x:Name="btnAdd" Click="btnAdd_Click" Grid.Column="3" Padding="0">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
-                            <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
-                            <Label Content="{DynamicResource textImport}" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-                
-            </StackPanel>
-            
-        </Grid>
-        <DockingManager Grid.Row="3" VerticalContentAlignment="Stretch">
+        <Label x:Name="txtImportantMessage" Grid.Row="1"  HorizontalAlignment="Stretch" Background="OrangeRed">
+        </Label>
+        <DockingManager Grid.Row="2" VerticalContentAlignment="Stretch">
             <DockingManager.Theme>
                 <Vs2013DarkTheme></Vs2013DarkTheme>
             </DockingManager.Theme>
             <LayoutRoot>
                 <LayoutPanel Orientation="Vertical">
-                        <LayoutPanel DockMinHeight="150" Orientation="Horizontal">
-                            <LayoutAnchorablePane DockMinWidth="650" CanRepositionItems="False" x:Name="topLeftAnchor">
-                                <LayoutAnchorable Title="Mods" CanClose="False" CanHide="False">
-                                    <ListView x:Name="listMods" BorderThickness="1"
+                    <LayoutDocumentPane ShowHeader="False" DockMinWidth="650" DockHeight="500" CanRepositionItems="False" x:Name="topLeftAnchor">
+                        <LayoutDocument CanClose="False">
+                            <mah:MetroTabControl>
+                                <mah:MetroTabItem Header="Mods" Selector.IsSelected="True" IsSelected="True">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="60"></RowDefinition>
+                                            <RowDefinition Height="*"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3*"></ColumnDefinition>
+                                            <ColumnDefinition Width="2*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <Label FontSize="14" FontWeight="Bold" Content="{DynamicResource textModList}"></Label>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="25"></RowDefinition>
+                                                </Grid.RowDefinitions>
+                                                <Button x:Name="btnUp" Click="up_click" Grid.Column="0" Padding="0">
+                                                    <StackPanel VerticalAlignment="Stretch" Orientation="Horizontal">
+                                                        <MaterialDesign:PackIcon Kind="ArrowUpCircleOutline" VerticalAlignment="Center" />
+                                                        <Label Content="Up" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button x:Name="btnDown" Click="down_click" Grid.Column="1" Padding="0">
+                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                                        <MaterialDesign:PackIcon Kind="ArrowDownCircleOutline" VerticalAlignment="Center" />
+                                                        <Label Content="Down" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button x:Name="btnRemove" Click="btnRemove_Click" Grid.Column="2" Padding="0">
+                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                                        <MaterialDesign:PackIcon Kind="RemoveCircleOutline" VerticalAlignment="Center" />
+                                                        <Label Content="{DynamicResource textRemove}" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button x:Name="btnAdd" Click="btnAdd_Click" Grid.Column="3" Padding="0">
+                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                                        <MaterialDesign:PackIcon Kind="Import" VerticalAlignment="Center" />
+                                                        <Label Content="{DynamicResource textImport}" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </Grid>
+
+                                        </StackPanel>
+                                        <ListView x:Name="listMods" BorderThickness="0"
+                                                      ItemsSource="{Binding ListOfMods}"
                          SelectionChanged="listMods_SelectionChanged"
-                          VirtualizingStackPanel.IsVirtualizing="False"
+                          VirtualizingStackPanel.IsVirtualizing="False" Grid.Row="1"
                          >
-                                        <ListView.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <VirtualizingStackPanel>
-                                                </VirtualizingStackPanel>
-                                            </ItemsPanelTemplate>
-                                        </ListView.ItemsPanel>
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="1">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="30" MaxWidth="30"></ColumnDefinition>
-                                                        <ColumnDefinition></ColumnDefinition>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition></RowDefinition>
-                                                        <RowDefinition></RowDefinition>
-                                                    </Grid.RowDefinitions>
-                                                    <MaterialDesign:PackIcon Margin="5" Grid.Row="0" Grid.Column="0" Foreground="{Binding IconColor}"  Kind="{Binding MaterialDesignKindIcon}" VerticalAlignment="Center" />
-                                                    <TextBlock Grid.Row="0" Grid.Column="1" FontWeight="Bold" Text="{Binding}"  VerticalAlignment="Center"></TextBlock>
-                                                    <TextBlock FontSize="9" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path}"></TextBlock>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-                                    </ListView>
-                                </LayoutAnchorable>
-                            </LayoutAnchorablePane>
-                            <LayoutAnchorablePane x:Name="topRightAnchor" DockMinWidth="250" DockWidth="250" ScrollViewer.VerticalScrollBarVisibility="Visible">
-                                <LayoutAnchorable Title="Settings" CanClose="False" CanHide="False">
+                                            <ListView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <VirtualizingStackPanel>
+                                                    </VirtualizingStackPanel>
+                                                </ItemsPanelTemplate>
+                                            </ListView.ItemsPanel>
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="1">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="30" MaxWidth="30"></ColumnDefinition>
+                                                            <ColumnDefinition></ColumnDefinition>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition></RowDefinition>
+                                                            <RowDefinition></RowDefinition>
+                                                        </Grid.RowDefinitions>
+                                                        <MaterialDesign:PackIcon Margin="5" Grid.Row="0" Grid.Column="0" Foreground="{Binding IconColor}"  Kind="{Binding MaterialDesignKindIcon}" VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" FontWeight="Bold" Text="{Binding}"  VerticalAlignment="Center"></TextBlock>
+                                                        <TextBlock FontSize="9" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path}"></TextBlock>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                        <DockPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Top">
+                                            <ScrollViewer VerticalScrollBarVisibility="Visible">
+                                                <mah:MetroTabControl>
+                                                    <mah:MetroTabItem Header="Details">
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Stretch" CanVerticallyScroll="True">
+                                                            <TextBlock x:Name="txtModTitle" Text="{Binding SelectedFrostbiteMod.ModDetails.Title, Mode=OneWay}" FontSize="18"  Grid.Row="0">
+                                                            </TextBlock>
+                                                            <StackPanel Grid.Row="1">
+                                                                <TextBlock  FontSize="16" >Description</TextBlock>
+                                                                <TextBox IsReadOnly="True" x:Name="txtModDescription" MaxHeight="150" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow"
+                                 Text="{Binding SelectedFrostbiteMod.ModDetails.Description, Mode=OneWay}"   />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Row="2">
+                                                                <TextBlock  FontSize="16" >Version</TextBlock>
+                                                                <TextBox IsReadOnly="True" x:Name="txtModVersion"  Text="{Binding SelectedFrostbiteMod.ModDetails.Version, Mode=OneWay}"></TextBox>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Row="3">
+                                                                <TextBlock  FontSize="16" >Author / Creator</TextBlock>
+                                                                <TextBox IsReadOnly="True" x:Name="txtModAuthor"  Text="{Binding SelectedFrostbiteMod.ModDetails.Author, Mode=OneWay}"></TextBox>
+                                                            </StackPanel>
+
+                                                        </StackPanel>
+                                                    </mah:MetroTabItem>
+                                                    <mah:MetroTabItem Header="Files">
+                                                        <Grid VerticalAlignment="Stretch">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition></RowDefinition>
+                                                                <RowDefinition></RowDefinition>
+                                                            </Grid.RowDefinitions>
+                                                            <TextBlock FontWeight="Bold" Text="{Binding SelectedModListItem}"></TextBlock>
+                                                            <ListView Grid.Row="1" ItemsSource="{Binding SelectedModListItem.ModResources}" 
+                              VerticalContentAlignment="Stretch" VerticalAlignment="Stretch"
+                              >
+                                                                <ListView.View>
+                                                                    <GridView>
+                                                                        <GridViewColumn Width="auto" Header="Name">
+                                                                            <GridViewColumn.CellTemplate>
+                                                                                <DataTemplate>
+                                                                                    <TextBlock Text="{Binding Name}" />
+                                                                                </DataTemplate>
+                                                                            </GridViewColumn.CellTemplate>
+                                                                        </GridViewColumn>
+                                                                        <GridViewColumn Width="auto" Header="Size">
+                                                                            <GridViewColumn.CellTemplate>
+                                                                                <DataTemplate>
+                                                                                    <TextBlock Text="{Binding Size}" />
+                                                                                </DataTemplate>
+                                                                            </GridViewColumn.CellTemplate>
+                                                                        </GridViewColumn>
+                                                                    </GridView>
+                                                                </ListView.View>
+                                                            </ListView>
+                                                        </Grid>
+                                                    </mah:MetroTabItem>
+                                                </mah:MetroTabControl>
+
+                                            </ScrollViewer>
+
+                                        </DockPanel>
+
+                                    </Grid>
+
+                                </mah:MetroTabItem>
+                                <mah:MetroTabItem Header="Settings">
                                     <StackPanel Grid.Column="1" Margin="2">
 
                                         <Controls:ToggleSwitch x:Name="switchForceReinstallMods" Content="Force Reinstall Mods" ToolTip="Useful if you want to force the compiler to reinstall mods or fix a bug"  />
@@ -158,82 +234,22 @@
 
 
                                     </StackPanel>
-                                </LayoutAnchorable>
-                            </LayoutAnchorablePane>
-                        </LayoutPanel>
-                    <LayoutDocumentPane x:Name="bottomDocuments">
-                        <LayoutDocument x:Name="docLog" Title="Log" CanClose="False">
-                            <TextBox x:Name="txtLog" Height="200" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                </mah:MetroTabItem>
+                            </mah:MetroTabControl>
+
+                        </LayoutDocument>
+                    </LayoutDocumentPane>
+                    <LayoutDocumentPane DockHeight="125">
+                        <LayoutDocument Title="Log" CanClose="False" CanFloat="False" CanMove="False">
+                            <TextBox  x:Name="txtLog" MinHeight="100" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Visible">
 
                             </TextBox>
-                        </LayoutDocument>
-                        <LayoutDocument Title="Mod Details" CanClose="False">
-                            <Grid  x:Name="pnlModDescription" Margin="15">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition></RowDefinition>
-                                    <RowDefinition></RowDefinition>
-                                    <RowDefinition></RowDefinition>
-                                    <RowDefinition></RowDefinition>
-                                    <RowDefinition></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <TextBlock x:Name="txtModTitle" Text="{Binding SelectedFrostbiteMod.ModDetails.Title, Mode=OneWay}" FontSize="18"  Grid.Row="0">
-                                </TextBlock>
-                                <StackPanel Grid.Row="1">
-                                    <TextBlock  FontSize="16" >Description</TextBlock>
-                                    <TextBox IsReadOnly="True" x:Name="txtModDescription" MaxHeight="150" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="WrapWithOverflow"
-                                 Text="{Binding SelectedFrostbiteMod.ModDetails.Description, Mode=OneWay}"   />
-                                </StackPanel>
-                                <StackPanel Grid.Row="2">
-                                    <TextBlock  FontSize="16" >Version</TextBlock>
-                                    <TextBox IsReadOnly="True" x:Name="txtModVersion"  Text="{Binding SelectedFrostbiteMod.ModDetails.Version, Mode=OneWay}"></TextBox>
-                                </StackPanel>
-                                <StackPanel Grid.Row="3">
-                                    <TextBlock  FontSize="16" >Author / Creator</TextBlock>
-                                    <TextBox IsReadOnly="True" x:Name="txtModAuthor"  Text="{Binding SelectedFrostbiteMod.ModDetails.Author, Mode=OneWay}"></TextBox>
-                                </StackPanel>
-
-                            </Grid>
-                        </LayoutDocument>
-                        <LayoutDocument Title="Mod Files" CanClose="False">
-                            <Grid VerticalAlignment="Stretch">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition></RowDefinition>
-                                    <RowDefinition></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <TextBlock FontWeight="Bold" Text="{Binding SelectedModListItem}"></TextBlock>
-                                <ListView Grid.Row="1" ItemsSource="{Binding SelectedModListItem.ModResources}" 
-                              VerticalContentAlignment="Stretch" VerticalAlignment="Stretch"
-                               ScrollViewer.VerticalScrollBarVisibility="Visible"
-                              >
-                                    <ListView.View>
-                                        <GridView>
-                                            <GridViewColumn Width="auto" Header="Name">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Name}" />
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                            <GridViewColumn Width="auto" Header="Size">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Size}" />
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                        </GridView>
-                                    </ListView.View>
-                                </ListView>
-                            </Grid>
                         </LayoutDocument>
                     </LayoutDocumentPane>
                 </LayoutPanel>
             </LayoutRoot>
         </DockingManager>
-            <Label x:Name="txtImportantMessage" Grid.Row="4" HorizontalAlignment="Stretch" Background="OrangeRed">
-            </Label>
+        
     </Grid>
-    </DockPanel>
-
+    
 </mah:MetroWindow>
