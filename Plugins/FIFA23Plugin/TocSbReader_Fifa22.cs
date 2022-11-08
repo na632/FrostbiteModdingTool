@@ -1,4 +1,5 @@
 ﻿using FrostySdk;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json.Serialization;
@@ -55,6 +56,9 @@ namespace FIFA23Plugin
 
         public List<DbObject> Read(string tocPath, int sbIndex, string SBName, bool native_data = false, string nativePath = null)
         {
+            if (nativePath == null)
+                throw new ArgumentNullException("nativePath must be provided!");
+
             SBIndex = sbIndex;
 
             if (AssetManager == null)
@@ -65,22 +69,38 @@ namespace FIFA23Plugin
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 List<DbObject> objs = new List<DbObject>();
-                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
-                {
-                    
+                //using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
+                //{
+
                     // TOC File 
-                    TOCFile = new TOCFile(this);
-                    TOCFile.SuperBundleName = SBName;
-                    TOCFile.NativeFileLocation = nativePath;
-                    TOCFile.FileLocation = tocPath;
-                    TOCFile.DoLogging = DoLogging;
-                    TOCFile.ProcessData = ProcessData;
-                    var tObjs = TOCFile.Read(nativeReader);
-                    if (tObjs != null && tObjs.Count > 0 && !ProcessData)
-                        objs.AddRange(tObjs);
-                    //return TOCFile.Read(nativeReader); // this will return to do the process thingy
+                    //TOCFile = new TOCFile(this);
+                    //TOCFile.SuperBundleName = SBName;
+                    //TOCFile.NativeFileLocation = nativePath;
+                    //TOCFile.FileLocation = tocPath;
+                    //TOCFile.DoLogging = DoLogging;
+                    //TOCFile.ProcessData = ProcessData;
+                    //var tObjs = TOCFile.Read(nativeReader);
+                    //if (tObjs != null && tObjs.Count > 0 && !ProcessData)
+                    //    objs.AddRange(tObjs);
+                    ////return TOCFile.Read(nativeReader); // this will return to do the process thingy
+                    //return objs;
+
+                    TOCFile = new TOCFile(nativePath, DoLogging, ProcessData, false);
+                    if (TOCFile.TOCObjects != null && TOCFile.TOCObjects.Count > 0)
+                    {
+                        if (!ProcessData)
+                            objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
+                        else
+                        {
+                            foreach (var obj in TOCFile.Bundles)
+                            {
+                                AssetManager.Instance.AddBundle(obj.Name, BundleType.None, sbIndex);
+                            }
+                        }
+                    }
+
                     return objs;
-                }
+                //}
             }
 
             return null;

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static FrostySdk.Frostbite.PluginInterfaces.TOCFile;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -66,6 +67,22 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
     public class TOCFile : IDisposable
     {
+      
+        [Flags]
+        public enum TocFlags : byte
+        {
+            HasBaseBundles = 1,
+            HasBaseChunks = 2,
+            CompressedStrings = 4
+        }
+      
+        [Flags]
+        public enum AssetUsage : byte
+        {
+            NotUsedInGame,
+            UsedInGame
+        }
+
         public string FileLocation { get; set; }
         public string NativeFileLocation { get; set; }
 
@@ -108,13 +125,13 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			public int ChunkCount { get; set; }
 			public int ChunkEntryOffset { get; set; }
 			public int Unk1_Offset { get; set; }
-			public int Unk7_Offset { get; set; }
-			public int Unk8_Offset { get; set; }
+			public int NameOffset { get; set; }
+			public int DataOffset { get; set; }
 			public int Unk9_Count { get; set; }
-			public int Unk9_Offset { get; set; }
-			public int Unk7_Count { get; set; }
-			public int Unk12_Count { get; set; }
-			public int Unk12_Offset { get; set; }
+			public TocFlags TOCFlags { get; set; }
+			public int CompressedStringCount { get; set; }
+			public int CompressedStringSize { get; set; }
+			public int CompressedStringOffset { get; set; }
 
 			public int SizeOfUnkBlock { get; set; }
 
@@ -129,13 +146,16 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				ChunkCount = nativeReader.ReadInt(Endian.Big);  // 24
 				ChunkEntryOffset = nativeReader.ReadInt(Endian.Big); // 28
 				Unk1_Offset = nativeReader.ReadInt(Endian.Big); // 32
-				Unk7_Offset = nativeReader.ReadInt(Endian.Big); // 36
-				Unk8_Offset = nativeReader.ReadInt(Endian.Big); // 40
+				NameOffset = nativeReader.ReadInt(Endian.Big); // 36
+				DataOffset = nativeReader.ReadInt(Endian.Big); // 40
 				Unk9_Count = nativeReader.ReadInt(Endian.Big); // 44 // seems to be the same as bundles count
-				Unk9_Offset = nativeReader.ReadInt(Endian.Big); // 48
-				Unk7_Count = nativeReader.ReadInt(Endian.Big); // 52
-				Unk12_Count = nativeReader.ReadInt(Endian.Big); // 56
-				Unk12_Offset = nativeReader.ReadInt(Endian.Big); // 60
+				TOCFlags = (TocFlags)nativeReader.ReadInt(Endian.Big); // 48
+				if (TOCFlags.HasFlag(TocFlags.CompressedStrings))
+				{
+					CompressedStringCount = nativeReader.ReadInt(Endian.Big); // 52
+					CompressedStringSize = nativeReader.ReadInt(Endian.Big); // 56
+					CompressedStringOffset = nativeReader.ReadInt(Endian.Big); // 60
+				}
 
 				SizeOfUnkBlock = (BundleOffset - Magic) / 4;
 			}
@@ -150,23 +170,23 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				nativeWriter.Write(ChunkCount, Endian.Big);
 				nativeWriter.Write(ChunkEntryOffset, Endian.Big);
 				nativeWriter.Write(Unk1_Offset, Endian.Big);
-				nativeWriter.Write(Unk7_Offset, Endian.Big);
-				nativeWriter.Write(Unk8_Offset, Endian.Big);
+				nativeWriter.Write(NameOffset, Endian.Big);
+				nativeWriter.Write(DataOffset, Endian.Big);
 				nativeWriter.Write(Unk9_Count, Endian.Big);
-				nativeWriter.Write(Unk9_Offset, Endian.Big);
-				nativeWriter.Write(Unk7_Count, Endian.Big);
-				nativeWriter.Write(Unk12_Count, Endian.Big);
-				nativeWriter.Write(Unk12_Offset, Endian.Big);
+				nativeWriter.Write((int)TOCFlags, Endian.Big);
+				nativeWriter.Write(CompressedStringCount, Endian.Big);
+				nativeWriter.Write(CompressedStringSize, Endian.Big);
+				nativeWriter.Write(CompressedStringOffset, Endian.Big);
 			}
         }
 
-		public DbObject TOCObjects = new DbObject(false);
-		public int[] tocMetaData = new int[15];
+		public DbObject TOCObjects { get; } = new DbObject(false);
+		public int[] tocMetaData { get; } = new int[15];
 
-		public List<ChunkAssetEntry> TocChunks = new List<ChunkAssetEntry>();
-		public Dictionary<int, Guid> ChunkIndexToChunkId = new Dictionary<int, Guid>();
-		public List<int> BundleReferences = new List<int>();
-		long actualInternalPos = 556L;
+		public List<ChunkAssetEntry> TocChunks { get; } = new List<ChunkAssetEntry>();
+		public Dictionary<int, Guid> ChunkIndexToChunkId { get; } = new Dictionary<int, Guid>();
+		public List<int> BundleReferences { get; } = new List<int>();
+		long actualInternalPos { get; } = 556L;
 
 		private byte[] ToCVersion;
 		private byte[] ToCSig;
@@ -185,46 +205,55 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 			nativeReader.Position = 0;
 
-            ToCVersion = nativeReader.ReadBytes(8);
-            ToCSig = nativeReader.ReadBytes(256);
-            ToCXor = nativeReader.ReadBytes(289);
+			ToCVersion = nativeReader.ReadBytes(8);
+			ToCSig = nativeReader.ReadBytes(256);
+			ToCXor = nativeReader.ReadBytes(289);
 
 			nativeReader.Position = actualInternalPos;
 			var magic = nativeReader.ReadInt(Endian.Big);
 			if (magic != 0x3c)
 				throw new Exception("Magic is not the expected value of 0x3c");
 
-				nativeReader.Position -= 4;
+			nativeReader.Position -= 4;
 
-				MetaData.Read(nativeReader);
+			MetaData.Read(nativeReader);
+			if (MetaData.BundleCount == 0)
+				return TOCObjects.List.Select(o => (DbObject)o).ToList();
 
-			if (MetaData.BundleCount > 0 && MetaData.BundleCount != MetaData.BundleOffset)
+            ReadBundleData(nativeReader);
+            ReadChunkData(nativeReader);
+			ReadCompressedStringData(nativeReader);
+
+			CasBundlePosition = nativeReader.Position;
+			if (Bundles.Count > 0 && nativeReader.Position < nativeReader.Length)
 			{
-				for (int index = 0; index < MetaData.BundleCount; index++)
-				{
-					BundleReferences.Add((int)nativeReader.ReadUInt(Endian.Big));
-				}
-				nativeReader.Position = actualInternalPos + MetaData.BundleOffset;
-				for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.BundleCount; indexOfBundleCount++)
-				{
-					int unk1 = nativeReader.ReadInt(Endian.Big);
-					int size = nativeReader.ReadInt(Endian.Big);
-					long dataOffset = nativeReader.ReadLong(Endian.Big);
-					BaseBundleInfo newBundleInfo = new BaseBundleInfo
-					{
-						Unk = unk1,
-						Offset = dataOffset,
-						Size = size,
-						TocBundleIndex = indexOfBundleCount
-					};
-					Bundles.Add(newBundleInfo);
-				}
+				LoadCasBundles(nativeReader);
 			}
-			
+
+			return TOCObjects.List.Select(o => (DbObject)o).ToList();
+		}
+
+        void ReadCompressedStringData(NativeReader nativeReader)
+        {
+            CompressedStringNames = new int[MetaData.CompressedStringCount];
+            nativeReader.Position = 556 + MetaData.NameOffset;
+            for (int k = 0; k < MetaData.CompressedStringCount; k++)
+            {
+                CompressedStringNames[k] = (int)nativeReader.ReadUInt(Endian.Big);
+            }
+            CompressedStringTable = new int[MetaData.CompressedStringSize];
+            nativeReader.Position = 556 + MetaData.CompressedStringOffset;
+            for (int j = 0; j < MetaData.CompressedStringSize; j++)
+            {
+                CompressedStringTable[j] = (int)nativeReader.ReadUInt(Endian.Big);
+            }
+        }
+
+        private void ReadChunkData(NativeReader nativeReader)
+		{
 			nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
-			
 			if (MetaData.ChunkCount > 0)
-			{
+            {
 				if (DoLogging && AssetManager.Instance != null)
 					AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
 
@@ -248,9 +277,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				}
 
 				nativeReader.Position = actualInternalPos + MetaData.ChunkEntryOffset;
-                for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-                //foreach(var itemChunk in ChunkIndexToChunkId)
-                {
+				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
+				//foreach(var itemChunk in ChunkIndexToChunkId)
+				{
 					DbObject dboChunk = new DbObject();
 
 					ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
@@ -278,7 +307,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 					dboChunk.SetValue("TocChunkFlag", ListTocChunkFlags[chunkIndex]);
 					dboChunk.SetValue("RealTocChunkGuidId", ChunkIndexToChunkId[ActualTocChunkIndexId]);
 
-					if (chunkAssetEntry2.Id == Guid.Empty) 
+					if (chunkAssetEntry2.Id == Guid.Empty)
 					{
 						throw new ArgumentException("");
 					}
@@ -313,30 +342,34 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 				}
 			}
+		}
 
-			Unk7Values = new int[MetaData.Unk7_Count];
-			nativeReader.Position = 556 + MetaData.Unk7_Offset;
-			for (int k = 0; k < MetaData.Unk7_Count; k++)
+		private void ReadBundleData(NativeReader nativeReader)
+		{
+            nativeReader.Position = actualInternalPos + MetaData.BundleOffset;
+            if (MetaData.BundleCount > 0 && MetaData.BundleCount != MetaData.BundleOffset)
 			{
-                Unk7Values[k] = (int)nativeReader.ReadUInt(Endian.Big);
-            }
-
-			Unk12Values = new int[MetaData.Unk12_Count];
-			nativeReader.Position = 556 + MetaData.Unk12_Offset;
-			for (int j = 0; j < MetaData.Unk12_Count; j++)
-			{
-				Unk12Values[j] = (int)nativeReader.ReadUInt(Endian.Big);
+				for (int index = 0; index < MetaData.BundleCount; index++)
+				{
+					BundleReferences.Add((int)nativeReader.ReadUInt(Endian.Big));
+					
+				}
+				nativeReader.Position = actualInternalPos + MetaData.BundleOffset;
+				for (int indexOfBundleCount = 0; indexOfBundleCount < MetaData.BundleCount; indexOfBundleCount++)
+				{
+					int bundleNameOffset = nativeReader.ReadInt(Endian.Big);
+					int size = nativeReader.ReadInt(Endian.Big);
+					long dataOffset = nativeReader.ReadLong(Endian.Big);
+					BaseBundleInfo newBundleInfo = new BaseBundleInfo
+					{
+						BundleNameOffset = bundleNameOffset,
+						Offset = dataOffset,
+						Size = size,
+						TocBundleIndex = indexOfBundleCount
+					};
+					Bundles.Add(newBundleInfo);
+				}
 			}
-
-			CasBundlePosition = nativeReader.Position;
-			if (Bundles.Count > 0 && nativeReader.Position < nativeReader.Length)
-			{
-				LoadCasBundles(nativeReader);
-			}
-				//}
-			//}
-
-			return TOCObjects.List.Select(o => (DbObject)o).ToList();
 		}
 
 		public static int CalculateChunkIndexFromListIndex(int listIndex)
@@ -359,8 +392,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 		public long TocChunkPosition { get; set; }
 
 		public List<int> ListTocChunkFlags = new List<int>();
-		public int[] Unk7Values { get; set; }
-		public int[] Unk12Values { get; set; }
+		public int[] CompressedStringNames { get; set; }
+		public int[] CompressedStringTable { get; set; }
 
 		public void LoadCasBundles(NativeReader nativeReader)
 		{
@@ -517,7 +550,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			MetaData.BundleOffset = (int)writer.Position - (int)actualInternalPos;
 			foreach (var bundle in Bundles)
 			{
-				writer.Write((int)bundle.Unk, Endian.Big);
+				writer.Write((int)bundle.BundleNameOffset, Endian.Big);
 				writer.Write((int)bundle.Size, Endian.Big);
 				writer.Write((long)bundle.Offset, Endian.Big);
 			}
@@ -545,13 +578,13 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				writer.Write((uint)chunk.ExtraData.DataOffset, Endian.Big);
 				writer.Write((uint)chunk.Size, Endian.Big);
 			}
-            MetaData.Unk7_Offset = (int)writer.Position - (int)actualInternalPos;
-            foreach (int offset2Value in Unk7Values)
+            MetaData.NameOffset = (int)writer.Position - (int)actualInternalPos;
+            foreach (int offset2Value in CompressedStringNames)
 			{
 				writer.Write((int)offset2Value, Endian.Big);
 			}
-            MetaData.Unk12_Offset = (int)writer.Position - (int)actualInternalPos;
-            foreach (int offset12Value in Unk12Values)
+            MetaData.CompressedStringOffset = (int)writer.Position - (int)actualInternalPos;
+            foreach (int offset12Value in CompressedStringTable)
 			{
 				writer.Write((int)offset12Value, Endian.Big);
 			}
@@ -680,7 +713,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				if (TOCObjects.List != null)
 					TOCObjects.List.Clear();
 
-				TOCObjects = null;
+				//TOCObjects = null;
 			}
 
 			GC.Collect();

@@ -1,9 +1,13 @@
+using FrostbiteSdk;
 using FrostySdk.Interfaces;
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace FrostySdk.IO
@@ -682,7 +686,80 @@ namespace FrostySdk.IO
 			while (bytesRead < buffer.Length);
 		}
 
-		public Stream CreateViewStream(long offset, long size)
+		/// <summary>
+		/// Slow performance but supports Wildcards (i.e. ??)
+		/// </summary>
+		/// <param name="pattern"></param>
+		/// <returns></returns>
+        public unsafe IList<long> ScanAOB(string pattern)
+        {
+			if (pattern.StartsWith("?"))
+				throw new ArgumentException("pattern cannot start with a wildcard!");
+
+            List<long> offsets = new List<long>();
+            pattern = pattern.Replace(" ", "");
+            PatternType[] patternArray = new PatternType[pattern.Length / 2];
+            for (int i = 0; i < patternArray.Length; i++)
+            {
+                string a = pattern.Substring(i * 2, 2);
+                patternArray[i] = new PatternType
+                {
+                    isWildcard = (a == "??"),
+                    value = (byte)((a != "??") ? byte.Parse(pattern.Substring(i * 2, 2), NumberStyles.HexNumber) : 0)
+                };
+            }
+            bool flag = false;
+            long startPosition = Position;
+			do
+			{
+				var positionOfOffset = Position;
+				byte[] readBytes = ReadBytes(patternArray.Length);
+				bool match = false;
+				for (var i = 0; i < readBytes.Length; i++)
+				{
+					if (!patternArray[i].isWildcard && readBytes[i] == patternArray[i].value)
+					{
+						match = true;
+					}
+					else if (!patternArray[i].isWildcard)
+					{
+						match = false;
+						break;
+					}
+
+				}
+				if (match)
+					offsets.Add(positionOfOffset);
+
+				Position -= patternArray.Length;
+				Position += 1;
+			} while (Position + patternArray.Length < Length);
+            return offsets;
+        }
+
+		/// <summary>
+		/// Fast performance but does not support strings or wildcards, bytes only
+		/// </summary>
+		/// <param name="haystack"></param>
+		/// <param name="needle"></param>
+		/// <param name="startIndex"></param>
+		/// <param name="includeOverlapping"></param>
+		/// <returns></returns>
+        public IEnumerable<int> ScanAOB2(byte[] needle,
+    int startIndex = 0, bool includeOverlapping = false)
+        {
+			Position = 0;
+			var haystack = ReadBytes((int)Length);
+			int matchIndex = haystack.AsSpan(startIndex).IndexOf(needle);
+			while (matchIndex >= 0)
+			{
+				yield return startIndex + matchIndex;
+				startIndex += matchIndex + (includeOverlapping ? 1 : needle.Length);
+				matchIndex = haystack.AsSpan(startIndex).IndexOf(needle);
+			}
+        }
+
+        public Stream CreateViewStream(long offset, long size)
 		{
 			Position = offset;
 			var bytes = ReadBytes((int)size);

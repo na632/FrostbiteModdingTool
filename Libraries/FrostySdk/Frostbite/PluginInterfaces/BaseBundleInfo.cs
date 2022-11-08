@@ -21,7 +21,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public long TocOffset { get; set; }
 
         public int CasIndex { get; set; }
-        public int Unk { get; set; }
+        public int BundleNameOffset { get; set; }
 
         public int TocBundleIndex { get; set; }
 
