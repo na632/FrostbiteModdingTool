@@ -453,7 +453,7 @@ namespace FIFA23Plugin
                             {
                                 var timeStarted = DateTime.Now;
 
-                                dboOriginal2 = tocSbReader.Read(tocPath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, tocPath);
+                                dboOriginal2 = tocSbReader.Read(tocPath, 0, tocGroup.Key, nativePath: tocGroup.Key);
 
                                 SbToDbObject.Add(tocGroup.Key, new DbObject(dboOriginal2));
                                 Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
