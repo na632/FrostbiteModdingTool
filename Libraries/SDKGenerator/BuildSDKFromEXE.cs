@@ -18,25 +18,29 @@ namespace SdkGenerator
             if (exeData == null || exeData.Length == 0)
                 return false;
 
-            var pattern = new byte[] { 0x48, 0x89, 0x41, 0x08 };
+            var pattern = new byte[] { 0x48, 0x89 };
             //BoyerMoore moore = new BoyerMoore(exeData);
             //var list1 = moore.SearchAll(pattern, 0);
-            var list2 = IndexesOf(exeData, pattern);
+            //var list2 = IndexesOf(exeData, pattern);
+            //var firstOff = list2.FirstOrDefault();
 
+            // 128400896 // there is 48 89s above!!
 
+            // 129677992 // AttribSchema string
+            using (var nr = new NativeReader(new MemoryStream(exeData)))
+            {
+                var offsetList1 = nr.ScanAOB("48 39 ?? ?? ?? ?? ?? ?? ?? 48");
+                //var offsetList2 = nr.ScanAOB2(pattern);
+                //var offsetList = nr.ScanAOB("48 89");
+                var firstOff = offsetList1.FirstOrDefault();
+                nr.Position = firstOff + 3;
+                int num = nr.ReadInt();
+                nr.Position = firstOff + 3 + num + 4;
+                //var ty = nr.ReadLong();
+            }
             return true;
         }
 
-        public static IEnumerable<int> IndexesOf(byte[] haystack, byte[] needle,
-    int startIndex = 0, bool includeOverlapping = false)
-        {
-            int matchIndex = haystack.AsSpan(startIndex).IndexOf(needle);
-            while (matchIndex >= 0)
-            {
-                yield return startIndex + matchIndex;
-                startIndex += matchIndex + (includeOverlapping ? 1 : needle.Length);
-                matchIndex = haystack.AsSpan(startIndex).IndexOf(needle);
-            }
-        }
+        
     }
 }
