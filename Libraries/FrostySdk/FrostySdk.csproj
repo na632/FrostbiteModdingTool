@@ -8,7 +8,8 @@
 	  <Optimize>false</Optimize>
 
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+  </PropertyGroup>   
+  
 
 	<ItemGroup>
 		<SupportedPlatform Include="windows" />
@@ -61,18 +62,10 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <None Update="FrostbiteKeys\fifa20.key">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </None>
-	  <None Update="FrostbiteKeys\fifa21.key">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </None>
-	  <None Update="FrostbiteKeys\madden21.key">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </None>
+		<EmbeddedResource Include="FrostbiteKeys\the.key" />
+	</ItemGroup>
+	
+	<ItemGroup>
 	  <None Update="FrostbiteProfiles\BF4Profile.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

@@ -146,27 +146,6 @@ namespace FIFAModdingUI.Windows
 
                 if (ProfileManager.RequiresKey)
                 {
-                    byte[] array;
-
-                    //array = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
-                    // change this so it reads the easy version of the key
-                    // 0B0E04030409080C010708010E0B0B02﻿
-                    Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
-
-                    array = NativeReader.ReadInStream(new FileStream(System.IO.Path.Combine(AppContext.BaseDirectory, "FrostbiteKeys", "fifa20.key"), FileMode.Open, FileAccess.Read));
-                    byte[] array2 = new byte[16];
-                    Array.Copy(array, array2, 16);
-                    KeyManager.Instance.AddKey("Key1", array2);
-                    if (array.Length > 16)
-                    {
-                        array2 = new byte[16];
-                        Array.Copy(array, 16, array2, 0, 16);
-                        KeyManager.Instance.AddKey("Key2", array2);
-                        array2 = new byte[16384];
-                        Array.Copy(array, 32, array2, 0, 16384);
-                        KeyManager.Instance.AddKey("Key3", array2);
-                    }
-
                     var FileSystem = new FileSystem(GameInstanceSingleton.Instance.GAMERootPath);
 
                     bool patched = false;

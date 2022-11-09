@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using static FrostySdk.Frostbite.PluginInterfaces.TOCFile;
+using System.Reflection.Metadata.Ecma335;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -109,6 +110,13 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         {
 			NativeFileLocation = nativeFilePath;
             FileLocation = FileSystem.Instance.ResolvePath(nativeFilePath, modDataPath);
+
+			if (string.IsNullOrEmpty(FileLocation))
+			{
+				Debug.WriteLine("Unable to process " + nativeFilePath);
+				return;
+			}
+
             DoLogging = log;
 			ProcessData = process;
             using (NativeReader reader = new NativeReader(new FileStream(FileLocation, FileMode.Open)))
@@ -337,7 +345,20 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 					var chunkAssetEntry = TocChunks[chunkIndex];
 					if (AssetManager.Instance != null && ProcessData)
 					{
-						AssetManager.Instance.AddChunk(chunkAssetEntry);
+						if (AssetManager.Instance.Chunks.ContainsKey(chunkAssetEntry.Id))
+						{
+							var existingChunk = AssetManager.Instance.Chunks[chunkAssetEntry.Id];
+							if(existingChunk.IsTocChunk && !existingChunk.ExtraData.IsPatch && chunkAssetEntry.ExtraData.IsPatch)
+                                AssetManager.Instance.AddChunk(chunkAssetEntry);
+							else if(!existingChunk.IsTocChunk)
+							{
+								Debug.WriteLine($"Ignoring {chunkAssetEntry.Id} as it already exists in a patch folder or isn't a TOC Chunk originally");
+							}
+                        }
+                        else
+						{
+							AssetManager.Instance.AddChunk(chunkAssetEntry);
+						}
 					}
 
 				}
@@ -507,6 +528,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 						DbObject dbo = new DbObject(false);
 						CASDataLoader casDataLoader = new CASDataLoader(this);
 						dbo = casDataLoader.Load(ctb.Key, ctb.Value);
+						if (dbo == null)
+							continue;
 						foreach(var d in dbo)
                         {
 							TOCObjects.Add(d);

@@ -2,6 +2,8 @@ using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace FrostySdk.Managers
 {
@@ -43,27 +45,43 @@ namespace FrostySdk.Managers
 			if (Instance.keys.Count > 0)
 				return true;
 
-			var pathToKey = System.IO.Path.Combine(AppContext.BaseDirectory, "FrostbiteKeys", "fifa20.key");
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = assembly.GetManifestResourceNames().SingleOrDefault(x => x.EndsWith("the.key"));
+			if (string.IsNullOrEmpty(resourceName))
+				return false;
+			byte[] array = null;
+			var memStream = new MemoryStream();
+			var manStream = assembly.GetManifestResourceStream(resourceName);
+			if (manStream == null)
+				return false;
 
-            if (File.Exists(pathToKey))
+			manStream.CopyTo(memStream);
+			array = memStream.ToArray();
+			memStream.Close();
+            manStream.Close();
+            memStream.Dispose();
+            manStream.Dispose();
+
+            if (array == null)
+                return false;
+
+            if (array.Length == 0)
+                return false;
+
+            byte[] array2 = new byte[16];
+			Array.Copy(array, array2, 16);
+			KeyManager.Instance.AddKey("Key1", array2);
+			if (array.Length > 16)
 			{
-                byte[] array = NativeReader.ReadInStream(new FileStream(pathToKey, FileMode.Open, FileAccess.Read));
-                byte[] array2 = new byte[16];
-				Array.Copy(array, array2, 16);
-				string s = System.Text.Encoding.UTF8.GetString(array2, 0, array2.Length);
-				KeyManager.Instance.AddKey("Key1", array2);
-				if (array.Length > 16)
-				{
-					array2 = new byte[16];
-					Array.Copy(array, 16, array2, 0, 16);
-					KeyManager.Instance.AddKey("Key2", array2);
-					array2 = new byte[16384];
-					Array.Copy(array, 32, array2, 0, 16384);
-					KeyManager.Instance.AddKey("Key3", array2);
-				}
-				return true;
+				array2 = new byte[16];
+				Array.Copy(array, 16, array2, 0, 16);
+				KeyManager.Instance.AddKey("Key2", array2);
+				array2 = new byte[16384];
+				Array.Copy(array, 32, array2, 0, 16384);
+				KeyManager.Instance.AddKey("Key3", array2);
 			}
-			return false;
+
+			return true;
 		}
 	}
 }

@@ -2791,7 +2791,7 @@ namespace ModdingSupport
 
         public static bool UseACBypass { get; set; }
             = ProfileManager.IsFIFA23DataVersion()
-            && FileSystem.Instance.Head <= 1572210
+            //&& FileSystem.Instance.Head <= 1572210
             && ProfileManager.LoadedProfile.UseACBypass;
         //public bool UseACBypass { get; set; } = false;
 

@@ -158,38 +158,41 @@ namespace FrostySdk
 
 		public byte[] LoadKey()
 		{
-			if (KeyManager.Instance.HasKey("Key1"))
-				return KeyManager.Instance.GetKey("Key1");
+			KeyManager.ReadInKeys();
+			byte[] key = KeyManager.Instance.GetKey("Key1");
+			return key;
+			//if (KeyManager.Instance.HasKey("Key1"))
+			//	return KeyManager.Instance.GetKey("Key1");
 
-			if (ProfileManager.RequiresKey)
-			{
-				byte[] array;
+			//if (ProfileManager.RequiresKey)
+			//{
+			//	byte[] array;
 
-				Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
-				array = NativeReader.ReadInStream(new FileStream("FrostbiteKeys/fifa20.key", FileMode.Open, FileAccess.Read));
-				byte[] array2 = new byte[16];
-				Array.Copy(array, array2, 16);
-				KeyManager.Instance.AddKey("Key1", array2);
-				if (array.Length > 16)
-				{
-					array2 = new byte[16];
-					Array.Copy(array, 16, array2, 0, 16);
-					KeyManager.Instance.AddKey("Key2", array2);
-					array2 = new byte[16384];
-					Array.Copy(array, 32, array2, 0, 16384);
-					KeyManager.Instance.AddKey("Key3", array2);
-				}
-				byte[] key = KeyManager.Instance.GetKey("Key1");
-				return key;
-			}
-			return null;
+			//	Debug.WriteLine($"[DEBUG] LoadDataAsync::Reading the Key");
+			//	array = NativeReader.ReadInStream(new FileStream("FrostbiteKeys/fifa20.key", FileMode.Open, FileAccess.Read));
+			//	byte[] array2 = new byte[16];
+			//	Array.Copy(array, array2, 16);
+			//	KeyManager.Instance.AddKey("Key1", array2);
+			//	if (array.Length > 16)
+			//	{
+			//		array2 = new byte[16];
+			//		Array.Copy(array, 16, array2, 0, 16);
+			//		KeyManager.Instance.AddKey("Key2", array2);
+			//		array2 = new byte[16384];
+			//		Array.Copy(array, 32, array2, 0, 16384);
+			//		KeyManager.Instance.AddKey("Key3", array2);
+			//	}
+			//	byte[] key = KeyManager.Instance.GetKey("Key1");
+			//	return key;
+			//}
+			//return null;
 		}
 
-		/// <summary>
-		/// Needs to first 16 bytes of the key
-		/// </summary>
-		/// <param name="key"></param>
-		public void Initialize(byte[] key = null, bool patched = true)
+        /// <summary>
+        /// Needs to first 16 bytes of the key
+        /// </summary>
+        /// <param name="key"></param>
+        public void Initialize(byte[] key = null, bool patched = true)
 		{
 			ProcessLayouts();
 

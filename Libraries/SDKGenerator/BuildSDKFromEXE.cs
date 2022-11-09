@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using v2k4FIFAModdingCL;
 
 namespace SdkGenerator
 {
@@ -14,6 +15,11 @@ namespace SdkGenerator
     {
         public bool Build(string exeLocation)
         {
+            GameInstanceSingleton.InitializeSingleton(exeLocation, false, null, false);
+
+            //FrostySdk.IO.EbxSharedTypeDescriptorV2 std1 = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors.ebx", false);
+            //FrostySdk.IO.EbxSharedTypeDescriptorV2 std2 = new EbxSharedTypeDescriptorV2("SharedTypeDescriptors_patch.ebx", true);
+           
             byte[] exeData = File.ReadAllBytes(exeLocation);
             if (exeData == null || exeData.Length == 0)
                 return false;
@@ -29,12 +35,12 @@ namespace SdkGenerator
             // 129677992 // AttribSchema string
             using (var nr = new NativeReader(new MemoryStream(exeData)))
             {
-                var offsetList1 = nr.ScanAOB("48 39 ?? ?? ?? ?? ?? ?? ?? 48");
+                var offsetList1 = nr.ScanAOB("48 39 ?? ?? ?? ?? ?? ?? ?? 48 39");
                 //var offsetList2 = nr.ScanAOB2(pattern);
                 //var offsetList = nr.ScanAOB("48 89");
                 var firstOff = offsetList1.FirstOrDefault();
                 nr.Position = firstOff + 3;
-                int num = nr.ReadInt();
+                uint num = nr.ReadUInt();
                 nr.Position = firstOff + 3 + num + 4;
                 //var ty = nr.ReadLong();
             }

@@ -34,6 +34,12 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             Load(path, casBundles);
         }
 
+        /// <summary>
+        /// Loads all items of the CasBundle into the DbObject. Will return null if it cannot parse the path!
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="casBundles"></param>
+        /// <returns></returns>
         public DbObject Load(string path, List<CASBundle> casBundles)
         {
             DbObject dboAll = new DbObject(false);

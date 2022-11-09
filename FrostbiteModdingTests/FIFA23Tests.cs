@@ -852,6 +852,7 @@ namespace FrostbiteModdingTests
 
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, false, this);
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseACBypass = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>()
                 {

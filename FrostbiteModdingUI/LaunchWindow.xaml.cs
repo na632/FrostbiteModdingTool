@@ -748,13 +748,18 @@ namespace FMT
 
                 switchUseModData.IsEnabled = ProfileManager.LoadedProfile.CanUseModData;
 
+                switchCleanLegacyModDirectory.Visibility = ProfileManager.IsFIFA21DataVersion() ? Visibility.Visible : Visibility.Collapsed;
                 switchCleanLegacyModDirectory.IsOn = false;
                 switchCleanLegacyModDirectory.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
 
+                switchUseLegacyModSupport.Visibility = ProfileManager.IsFIFA21DataVersion() ? Visibility.Visible : Visibility.Collapsed;
                 switchUseLegacyModSupport.IsEnabled = GameInstanceSingleton.IsCompatibleWithLegacyMod();
                 switchUseLegacyModSupport.IsOn = false;
 
+                switchInstallEmbeddedFiles.Visibility = ProfileManager.IsFIFA21DataVersion() ? Visibility.Visible : Visibility.Collapsed;
                 switchInstallEmbeddedFiles.IsEnabled = ProfileManager.IsFIFA21DataVersion();
+
+                switchUseLiveEditor.Visibility = ProfileManager.IsFIFA21DataVersion() ? Visibility.Visible : Visibility.Collapsed;
                 switchUseLiveEditor.IsEnabled = ProfileManager.IsFIFA21DataVersion();
 
                 if (GameInstanceSingleton.IsCompatibleWithFbMod() || GameInstanceSingleton.IsCompatibleWithLegacyMod())

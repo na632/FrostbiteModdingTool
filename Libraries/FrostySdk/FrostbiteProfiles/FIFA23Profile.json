@@ -87,6 +87,6 @@
   "ForceUseModData": true,
   "SupportLowMemoryFootprint": true,
   "GameIdentifier": 16115019,
-  "UseACBypass": false
+  "UseACBypass": false // Can only be used with TU2 or below
 
 }
