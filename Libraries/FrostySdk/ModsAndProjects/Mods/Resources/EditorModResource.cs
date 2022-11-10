@@ -52,7 +52,7 @@ namespace FrostySdk
 		protected void AddBundle(string name, bool modify)
 		{
 			int result = 0;
-			int item = Fnv1.HashString(name.ToLower());
+			int item = Fnv1a.HashString(name.ToLower());
 			if (name.Length == 8 && int.TryParse(name, NumberStyles.HexNumber, null, out result))
 			{
 				item = result;

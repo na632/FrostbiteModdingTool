@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FIFAModdingUI.Windows"
-        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:Model="clr-namespace:FIFAModdingUI.Models" 
         mc:Ignorable="d"
          xmlns:localControls="clr-namespace:FIFAModdingUI.Pages.Common"
          xmlns:localPlayerControls="clr-namespace:FrostbiteModdingUI.Pages.Player"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         
@@ -33,31 +33,6 @@
         <DataTemplate DataType="{x:Type Model:FileItem}">
             <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
         </DataTemplate>
-
-        <!--<Style  TargetType="{x:Type mah:MetroTabItem}" >
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type mah:MetroTabItem}">
-                        <Label>T</Label>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="False">
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type mah:MetroTabItem}">
-                        <Label>E</Label>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>-->
 
         <Style TargetType="{x:Type mah:MetroTabItem}">
                 <Setter Property="Template">

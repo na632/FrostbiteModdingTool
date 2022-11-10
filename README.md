@@ -5,7 +5,7 @@
 ## Background (I = "Paulv2k4")
 The Frostbite Modding Tool (FMT) was born out of necessity when the "Frosty" tool development team decided not to continue after FIFA 20. Mainly due to the lead developer going to work for DICE.
 
-The original `code` for this tool was developed from using ILSpy to dump the badly decompiled "Frosty" `code` into a .NET 4.5 library. 
+The original `code` for this tool was developed from using ILSpy to dump the badly decompiled "Frosty" `code` into a .NET Framework 4.5 library. 
 This code was then cleaned up, fixed and converted into the `FrostySdk` library. However, all the "Frosty" User Interface was unusable!
 From this I was able to understand what was done to make "Frosty" load game files and compile mods back.
 
@@ -38,7 +38,7 @@ As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github
 - MADDEN 21
 
 # Solution explanation
-- All projects use C# .NET Core 6 and dependant on each other (i.e. if you attempt to build FrostbiteModdingUI, it will expect the other projects to exist in your file system)
+- All projects use C# .NET 7 and dependant on each other (i.e. if you attempt to build FrostbiteModdingUI, it will expect the other projects to exist in your file system)
 
 ## Folders explanation
 - FrostbiteModdingTests is the place for all the "tests" for the Libraries and User Interface
@@ -50,7 +50,7 @@ As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github
 - Use GitBash, Github Desktop or Visual Studio to clone the repository
 
 # Compiling and Debugging
-- .NET Core 6.+ is required
+- .NET 7.+ is required
 - Open the FrostbiteModdingUI.sln using Visual Studio 2022 (Community edition is fine)
 - Right click FrostbiteModdingUI project and select "Set as Startup Project"
 - Press F5 to Debug

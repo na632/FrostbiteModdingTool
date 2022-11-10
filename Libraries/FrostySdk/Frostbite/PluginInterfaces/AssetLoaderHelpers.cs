@@ -64,6 +64,14 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             if (item.HasValue("TOCFileLocation"))
                 assetEntry.TOCFileLocation = item.GetValue<string>("TOCFileLocation");
 
+            if (item.HasValue("Bundles"))
+            {
+                var bundles = item.GetValue<List<string>>("Bundles");
+                foreach (var bundle in bundles)
+                {
+                    assetEntry.AddToBundle(Fnv1a.HashString(bundle));
+                }
+            }
             if (item.HasValue("Bundle"))
             {
                 assetEntry.Bundle = item.GetValue<string>("Bundle");

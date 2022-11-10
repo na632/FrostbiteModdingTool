@@ -329,38 +329,10 @@ namespace FIFAModdingUI.Pages.Common
                 {
 					Utilities.SetPropertyValue(RootObject, item.PropertyName, item.PropertyValue);
                 }
-				FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, asset);
+
+				AssetManager.Instance.ModifyEbx(AssetEntry.Name, asset);
 			}
         }
-
-		//private List<ModdableProperty> _VanillaRootProps;
-
-		//public List<ModdableProperty> VanillaRootObjectProperties
-		//{
-		//	get
-		//	{
-		//		if (_VanillaRootProps == null)
-		//		{
-		//			_VanillaRootProps = new List<ModdableProperty>();
-
-		//			var vanillaEbx = AssetManager.Instance.GetEbx((EbxAssetEntry)AssetEntry, false);
-		//			if (vanillaEbx != null)
-		//			{
-		//				foreach (var p in vanillaEbx.RootObject.GetType().GetProperties())
-		//				{
-		//					var modprop = new ModdableProperty(vanillaEbx.RootObject, p, null, Modprop_PropertyChanged);
-		//					//var modprop = new ModdableProperty(p.Name, p.PropertyType.ToString(), p.GetValue(vanillaEbx.RootObject, null), Modprop_PropertyChanged);
-  //                          _VanillaRootProps.Add(modprop);
-		//				}
-		//				return _VanillaRootProps
-		//					.OrderBy(x => x.PropertyName == "BaseField")
-  //                          .OrderBy(x => x.PropertyName == "Name")
-  //                          .ThenBy(x => x.PropertyName).ToList();
-  //                  }
-		//		}
-		//		return _VanillaRootProps;
-		//	}
-		//}
 
 		private void Modprop_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -376,7 +348,7 @@ namespace FIFAModdingUI.Pages.Common
 		}
 
 		public void RevertAsset() {
-			FrostyProject.AssetManager.RevertAsset(AssetEntry);
+			AssetManager.Instance.RevertAsset(AssetEntry);
 			this.Visibility = Visibility.Collapsed;
 		}
 
@@ -388,7 +360,6 @@ namespace FIFAModdingUI.Pages.Common
 
 		//public EbxAsset Asset { get { return asset; } set { asset = value; if(PropertyChanged != null) PropertyChanged.Invoke(this, null); } }
 		public EbxAsset Asset { get { return asset; } set { asset = value; } }
-        public FrostbiteProject FrostyProject { get; protected set; }
 
 		[Obsolete("Incorrect usage of Editor Windows")]
 
@@ -428,7 +399,6 @@ namespace FIFAModdingUI.Pages.Common
 
 		public async Task<bool> LoadEbx(IAssetEntry inAssetEntry
 			, EbxAsset inAsset
-			, FrostbiteProject frostyProject
 			, IEditorWindow inEditorWindow)
         {
 			CurrentEditorInstance = this;
@@ -447,7 +417,6 @@ namespace FIFAModdingUI.Pages.Common
 			// intialise objs
 			AssetEntry = inAssetEntry;
 			Asset = inAsset;
-			FrostyProject = frostyProject;
 			EditorWindow = inEditorWindow;
 
 			bool success = true;
@@ -854,161 +823,6 @@ namespace FIFAModdingUI.Pages.Common
 			return true;
         }
 
-        public async Task AssetHasChanged(TextBox sender, string propName)
-		{
-			if (string.IsNullOrEmpty(sender.Text))
-				return;
-
-			try
-			{
-				string txtboxName = sender.Name;
-				if (!string.IsNullOrEmpty(txtboxName))
-				{
-					var rootProp = RootObjectProperties.Find(x => x.PropertyName == propName);
-					if (rootProp != null)
-					{
-						if (txtboxName.EndsWith("_NumberOfPoints"))
-                        {
-                            if (Utilities.HasProperty(rootProp.PropertyValue, "Internal"))
-                            {
-								var floatCurve = rootProp.PropertyValue.GetPropertyValue("Internal") as Object;
-								if (Utilities.HasProperty(floatCurve, "Points"))
-								{
-									var fcp = floatCurve.GetPropertyValue("Points");
-									var pntsType = fcp.GetType();
-
-									var Points = ((IList)floatCurve.GetPropertyValue("Points"));
-									if (Points != null) 
-									{
-										if (int.TryParse(sender.Text, out int numberOfNewPoints))
-										{
-											var lastPoint = Points[Points.Count - 1];
-
-											if (numberOfNewPoints <= 0)
-											{
-												Points.Clear();
-												Points.Insert(0, lastPoint);
-											}
-											else
-                                            {
-												if(numberOfNewPoints < Points.Count)
-                                                {
-													for (var iPoint = 0; iPoint < numberOfNewPoints; iPoint++)
-													{
-														Points.RemoveAt(Points.Count - 1);
-													}
-												}
-												else
-                                                {
-													for(var iPoint = Points.Count; iPoint < numberOfNewPoints; iPoint++)
-                                                    {
-														Points.Insert(Points.Count - 1, Points[Points.Count - 1]);
-													}
-												}
-                                            }
-										}
-                                        Utilities.SetPropertyValue<IList>(floatCurve, "Points", Points);
-
-										await SaveToRootObject(true);
-										//LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
-									}
-								}
-                            }
-                        }
-						//else if (!txtboxName.StartsWith("_") && !txtboxName.StartsWith("ATTR_") && txtboxName.Contains("_"))
-						else if (!txtboxName.StartsWith("_") && txtboxName.Contains("_"))
-						{
-							// format should be 
-							// PROPNAME _ ITEM
-							// PROPNAME _ POINTS _ INDEX _ (X OR Y)
-							// PROPNAME _ POINTS _ INDEX _ (VALUE)
-							var splitPropName = txtboxName.Split('_');
-							if (splitPropName.Length > 3 && !string.IsNullOrEmpty(sender.Text))
-							{
-								if (splitPropName[splitPropName.Length - 1] == "X" || splitPropName[splitPropName.Length - 1] == "Y")
-								{
-									var index = int.Parse(splitPropName[splitPropName.Length - 2]);
-
-									var FloatCurve = rootProp.PropertyValue.GetPropertyValue("Internal");
-									var fcPoint = ((IList)FloatCurve.GetPropertyValue("Points"))[index];
-
-									if (splitPropName[splitPropName.Length - 1] == "X")
-									{
-										fcPoint.GetProperty("X").SetValue(fcPoint, float.Parse(sender.Text));
-									}
-									else
-									{
-										fcPoint.GetProperty("Y").SetValue(fcPoint, float.Parse(sender.Text));
-                                    }
-
-                                    await SaveToRootObject();
-
-
-								}
-								else if(int.TryParse(splitPropName[splitPropName.Length - 2], out int index))
-								{
-									var List = rootProp.PropertyValue as List<Single>;
-									List[index] = System.Single.Parse(sender.Text);
-									var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
-									newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, List));
-									RootObjectProperties = newlist;
-								}
-								else
-                                {
-									var replacementitem3 = rootProp.PropertyValue;
-									replacementitem3 = System.Single.Parse(sender.Text);
-									var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
-									newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
-									RootObjectProperties = newlist;
-								}
-							}
-							else if (splitPropName.Length > 1)// && splitPropName[3] == "VALUE")
-							{
-								var replacementitem3 = rootProp.PropertyValue;
-								if(rootProp.PropertyType == "System.Int32")
-									replacementitem3 = System.Int32.Parse(sender.Text);
-								else
-									replacementitem3 = System.Single.Parse(sender.Text);
-
-								var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
-								newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
-								RootObjectProperties = newlist;
-							}
-						}
-						else if (propName.StartsWith("ATTR_"))
-						{
-							var splitPropName = txtboxName.Split('_');
-							if (splitPropName.Length == 2)
-							{
-								var replacementitem3 = rootProp.PropertyValue;
-								replacementitem3 = System.Single.Parse(sender.Text);
-								var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
-								newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
-								RootObjectProperties = newlist;
-							}
-						}
-						else
-						{
-							var replacementitem3 = rootProp.PropertyValue;
-							replacementitem3 = System.Single.Parse(sender.Text);
-							var newlist = RootObjectProperties.Where(x => x.PropertyName != rootProp.PropertyName).ToList();
-							newlist.Add(new ModdableProperty(rootProp.PropertyName, rootProp.PropertyType, replacementitem3));
-							RootObjectProperties = newlist;
-						}
-
-					}
-				}
-
-			}
-            catch(Exception e)
-            {
-				Debug.WriteLine(e.ToString());
-            }
-
-			if (EditorWindow != null)
-				EditorWindow.UpdateAllBrowsers();
-		}
-
         public async Task SaveToRootObject(bool forceReload = false)
         {
 			LoadingDialog loadingDialog = null;
@@ -1022,9 +836,12 @@ namespace FIFAModdingUI.Pages.Common
 			{
 				try
 				{
-					FrostyProject.AssetManager.ModifyEbx(AssetEntry.Name, Asset);
+					AssetManager.Instance.ModifyEbx(AssetEntry.Name, Asset);
                 }
-                catch { }
+                catch(Exception ex) 
+				{
+					AssetManager.Instance.LogError($"Unable to modify EBX {AssetEntry.Name}");
+				}
 				//FrostyProject.Save("GameplayProject.fbproject", true);
 			});
 
@@ -1047,7 +864,7 @@ namespace FIFAModdingUI.Pages.Common
 
 			if (forceReload)
 			{
-				await LoadEbx(AssetEntry, Asset, FrostyProject, EditorWindow);
+				await LoadEbx(AssetEntry, Asset, EditorWindow);
 			}
 			//await CreateEditor(RootObjectProperties.OrderBy(x => x.PropertyName), TreeView1);
 

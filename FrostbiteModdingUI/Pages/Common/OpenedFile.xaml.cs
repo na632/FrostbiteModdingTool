@@ -319,7 +319,7 @@ namespace FMT.Pages.Common
                     this.ModelViewer.DataContext = ModelViewerModel;
                     this.ModelDockingManager.Visibility = Visibility.Visible;
 
-                    await ModelViewerEBX.LoadEbx(ebxEntry, SelectedEbxAsset, ProjectManagement.Instance.Project, MainEditorWindow);
+                    await ModelViewerEBX.LoadEbx(ebxEntry, SelectedEbxAsset, MainEditorWindow);
 
                     Dispatcher.Invoke(() =>
                     {
@@ -345,7 +345,7 @@ namespace FMT.Pages.Common
                         MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
                         //EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-                            var successful = await EBXViewer.LoadEbx(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+                            var successful = await EBXViewer.LoadEbx(ebxEntry, ebx, MainEditorWindow);
                         Dispatcher.Invoke(() =>
                         {
                             EBXViewer.Visibility = Visibility.Visible;
@@ -389,7 +389,7 @@ namespace FMT.Pages.Common
         {
             MainEditorWindow.Log("Loading EBX " + entry.Filename);
             var ebx = entry.GetAsset();
-            var successful = EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+            var successful = EBXViewer.LoadEbx(entry, ebx, MainEditorWindow);
             EBXViewer.Visibility = Visibility.Visible;
         }
 
@@ -509,7 +509,7 @@ namespace FMT.Pages.Common
 
                                 // Update the Viewers
                                 //EBXViewer = new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-                                await EBXViewer.LoadEbx(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+                                await EBXViewer.LoadEbx(SelectedEntry, ebx, MainEditorWindow);
 
                             }
                         }

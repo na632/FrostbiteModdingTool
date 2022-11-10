@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using static FrostySdk.Frostbite.PluginInterfaces.TOCFile;
 using System.Reflection.Metadata.Ecma335;
+using Frosty.Hash;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
@@ -100,12 +101,15 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 		public string SuperBundleName { get; set; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="nativeFilePath"></param>
-		/// <param name="log"></param>
-		/// <param name="process"></param>
+        public string ChunkDataBundleName { get { return $"{NativeFileLocation}-TOC"; } }
+        public int ChunkDataBundleId { get { return Fnv1a.HashString(ChunkDataBundleName); } }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nativeFilePath"></param>
+        /// <param name="log"></param>
+        /// <param name="process"></param>
         public TOCFile(string nativeFilePath, bool log = true, bool process = true, bool modDataPath = false)
         {
 			NativeFileLocation = nativeFilePath;
@@ -235,7 +239,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			CasBundlePosition = nativeReader.Position;
 			if (Bundles.Count > 0 && nativeReader.Position < nativeReader.Length)
 			{
-				LoadCasBundles(nativeReader);
+                ReadCasBundles(nativeReader);
 			}
 
 			return TOCObjects.List.Select(o => (DbObject)o).ToList();
@@ -262,10 +266,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
 			if (MetaData.ChunkCount > 0)
             {
-				if (DoLogging && AssetManager.Instance != null)
-					AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
-
-				nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
+                nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
 				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 				{
 					ListTocChunkFlags.Add(nativeReader.ReadInt(Endian.Big));
@@ -334,36 +335,53 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 					chunkAssetEntry2.ExtraData.IsPatch = patch;
 					chunkAssetEntry2.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog2, cas2, patch);
 					chunkAssetEntry2.ExtraData.DataOffset = chunkOffset;
+					chunkAssetEntry2.Bundles.Add(ChunkDataBundleId);
 
 					TocChunks.Add(chunkAssetEntry2);
 
 					TocChunkInfo.Add(chunkAssetEntry2.Id, dboChunk);
 				}
 
+				var numberOfChunksBefore = AssetManager.Instance.Chunks.Count;
+
 				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-				{
+                {
 					var chunkAssetEntry = TocChunks[chunkIndex];
 					if (AssetManager.Instance != null && ProcessData)
 					{
-						if (AssetManager.Instance.Chunks.ContainsKey(chunkAssetEntry.Id))
+
+                        if (AssetManager.Instance.Chunks.ContainsKey(chunkAssetEntry.Id))
 						{
-							var existingChunk = AssetManager.Instance.Chunks[chunkAssetEntry.Id];
-							if(existingChunk.IsTocChunk && !existingChunk.ExtraData.IsPatch && chunkAssetEntry.ExtraData.IsPatch)
-                                AssetManager.Instance.AddChunk(chunkAssetEntry);
-							else if(!existingChunk.IsTocChunk)
+							var existingChunk = (ChunkAssetEntry)AssetManager.Instance.Chunks[chunkAssetEntry.Id].Clone();
+							if (existingChunk.IsTocChunk && !existingChunk.ExtraData.IsPatch && chunkAssetEntry.ExtraData.IsPatch)
 							{
-								Debug.WriteLine($"Ignoring {chunkAssetEntry.Id} as it already exists in a patch folder or isn't a TOC Chunk originally");
+								AssetManager.Instance.Chunks[chunkAssetEntry.Id] = chunkAssetEntry;
+							}
+							else if (!existingChunk.IsTocChunk)
+							{
+								foreach(var bundle in chunkAssetEntry.Bundles)
+									existingChunk.Bundles.Add(bundle);
+
+                                //Debug.WriteLine($"Ignoring {chunkAssetEntry.Id} as it already exists in a patch folder or isn't a TOC Chunk originally");
 							}
                         }
                         else
 						{
 							AssetManager.Instance.AddChunk(chunkAssetEntry);
 						}
-					}
 
-				}
-			}
-		}
+                        
+                    }
+
+                }
+
+                var numberOfChunksAdded = AssetManager.Instance.Chunks.Count - numberOfChunksBefore;
+
+                if (DoLogging && AssetManager.Instance != null)
+                    AssetManager.Instance.logger.Log($"{NativeFileLocation} Added {numberOfChunksAdded} TOC Chunks");
+
+            }
+        }
 
 		private void ReadBundleData(NativeReader nativeReader)
 		{
@@ -416,7 +434,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 		public int[] CompressedStringNames { get; set; }
 		public int[] CompressedStringTable { get; set; }
 
-		public void LoadCasBundles(NativeReader nativeReader)
+		public void ReadCasBundles(NativeReader nativeReader)
 		{
 			_ = nativeReader.Position;
 			if (nativeReader.Position < nativeReader.Length)

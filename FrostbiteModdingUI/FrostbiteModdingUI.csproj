@@ -3,7 +3,7 @@
 
   <PropertyGroup>
 	  <OutputType>WinExe</OutputType>
-	  <TargetFramework>net6.0-windows</TargetFramework>
+	  <TargetFramework>net7.0-windows</TargetFramework>
 	  <!--<Nullable>enable</Nullable>-->
 	  <UseWPF>true</UseWPF>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -13,7 +13,7 @@
     
     <PublishReadyToRun>false</PublishReadyToRun>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
-    <Company>Paulv2k4 / V</Company>
+    <Company>Paulv2k4 / V / Paulov</Company>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>paulv2k4.ico</ApplicationIcon>
    
@@ -312,6 +312,9 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Windows\DefaultEditor.xaml.cs">
+      <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 

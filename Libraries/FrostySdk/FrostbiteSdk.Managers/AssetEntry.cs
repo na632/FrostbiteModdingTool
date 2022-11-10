@@ -68,9 +68,9 @@ namespace FrostySdk.Managers
 		//}
 
 
-		public List<int> AddBundles = new List<int>();
+		public List<int> AddBundles { get; } = new List<int>();
 
-		public List<int> RemBundles = new List<int>();
+		public List<int> RemBundles { get; } = new List<int>();
 
 		//private IModifiedAssetEntry modifiedAsset;
 		//public virtual IModifiedAssetEntry ModifiedEntry { get; set; }
@@ -369,20 +369,21 @@ namespace FrostySdk.Managers
 			IsDirty = true;
 		}
 
-		public bool AddToBundles(IEnumerable<int> bundles)
-		{
-			bool result = false;
-			foreach (int bundle in bundles)
-			{
-				if (!Bundles.Contains(bundle) && !AddBundles.Contains(bundle))
-				{
-					AddBundles.Add(bundle);
-					IsDirty = true;
-					result = true;
-				}
-			}
-			return result;
-		}
+		//public bool AddToBundles(IEnumerable<int> bundles)
+		//{
+		//	bool result = false;
+		//	foreach (int bundle in bundles)
+		//	{
+		//		if (!Bundles.Contains(bundle) && !AddBundles.Contains(bundle))
+		//		{
+  //                  Bundles.Add(bundle);
+		//			AddBundles.Add(bundle);
+  //                  IsDirty = true;
+		//			result = true;
+		//		}
+		//	}
+		//	return result;
+		//}
 
 		public IEnumerable<int> EnumerateBundles(bool addedOnly = false)
 		{

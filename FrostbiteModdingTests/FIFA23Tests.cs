@@ -77,7 +77,7 @@ namespace FrostbiteModdingTests
         {
             if (prevText != text)
             {
-                Debug.WriteLine("[LOGGER] [DEBUG] " + text);
+                Debug.WriteLine($"[LOGGER][DEBUG][{DateTime.Now.ToShortTimeString()}] {text}");
                 prevText = text;
             }
         }
@@ -86,7 +86,7 @@ namespace FrostbiteModdingTests
         {
             if (prevText != text)
             {
-                Debug.WriteLine("[LOGGER] [ERROR] " + text);
+                Debug.WriteLine($"[LOGGER][ERROR][{DateTime.Now.ToShortTimeString()}] {text}");
                 prevText = text;
             }
         }
@@ -95,7 +95,7 @@ namespace FrostbiteModdingTests
         {
             if (prevText != text)
             {
-                Debug.WriteLine("[LOGGER] [WARNING] " + text);
+                Debug.WriteLine($"[LOGGER][WARN][{DateTime.Now.ToShortTimeString()}] {text}");
                 prevText = text;
             }
         }
@@ -109,7 +109,11 @@ namespace FrostbiteModdingTests
                 .OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
             var cem = new CEMCore2("FIFA23");
 
+            Stopwatch sw1 = new Stopwatch();
+            sw1.Start();
             var stats = cem.GetPlayerStatsAsync().Result;
+            sw1.Stop();
+            Debug.WriteLine($"Time taken to get stats : {sw1.Elapsed}");
             var statsDoncaster = cem.GetPlayerStatsAsync(142).Result;
         }
 

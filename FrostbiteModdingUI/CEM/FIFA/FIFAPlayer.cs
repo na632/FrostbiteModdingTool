@@ -272,49 +272,49 @@ Selfish = 1,
         /// Custom Additions
         /// 
 
-        public DateTime DateJoined
-        {
-            get
-            {
-                return CEMUtilities.FIFACoreDateTime.AddDays(playerjointeamdate);
-            }
-        }
+        public DateTime DateJoined;
+        //{
+        //    get
+        //    {
+        //        //return CEMUtilities.FIFACoreDateTime.AddDays(playerjointeamdate);
+        //    }
+        //}
 
-        public DateTime DateOfBirth
-        {
-            get
-            {
-                return CEMUtilities.FIFACoreDateTime.AddDays(birthdate);
-            }
-        }
+        public DateTime DateOfBirth;
+        //{
+        //    get
+        //    {
+        //        //return CEMUtilities.FIFACoreDateTime.AddDays(birthdate);
+        //    }
+        //}
 
-        public int TimeAtClubInYears
-        {
-            get
-            {
-                var gameDate = CEMCore.CEMCoreInstance.CoreHack.GameDate;
-                if (gameDate.HasValue)
-                {
-                    int TimeAtClubInYears = Convert.ToInt32(Math.Ceiling((gameDate - DateJoined).Value.TotalDays / 365));
-                    return TimeAtClubInYears > 0 ? TimeAtClubInYears : 1;
-                }
-                return 1;
-            }
-        }
+        public int TimeAtClubInYears;
+        //{
+        //    get
+        //    {
+        //        var gameDate = CEMCore.CEMCoreInstance.CoreHack.GameDate;
+        //        if (gameDate.HasValue)
+        //        {
+        //            int TimeAtClubInYears = Convert.ToInt32(Math.Ceiling((gameDate - DateJoined).Value.TotalDays / 365));
+        //            return TimeAtClubInYears > 0 ? TimeAtClubInYears : 1;
+        //        }
+        //        return 1;
+        //    }
+        //}
 
-        public int AgeInYears
-        {
-            get
-            {
-                var gameDate = CEMCore.CEMCoreInstance.CoreHack.GameDate;
-                if (gameDate.HasValue)
-                {
-                    int TimeAtClubInYears = Convert.ToInt32(Math.Ceiling((gameDate - this.DateOfBirth).Value.TotalDays / 365));
-                    return TimeAtClubInYears > 0 ? TimeAtClubInYears : 1;
-                }
-                return 18;
-            }
-        }
+        public int AgeInYears;
+        //{
+        //    get
+        //    {
+        //        var gameDate = CEMCore.CEMCoreInstance.CoreHack.GameDate;
+        //        if (gameDate.HasValue)
+        //        {
+        //            int TimeAtClubInYears = Convert.ToInt32(Math.Ceiling((gameDate - this.DateOfBirth).Value.TotalDays / 365));
+        //            return TimeAtClubInYears > 0 ? TimeAtClubInYears : 1;
+        //        }
+        //        return 18;
+        //    }
+        //}
 
         public int GetPlayerGrowth()
         {

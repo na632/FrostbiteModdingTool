@@ -1,17 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	  <!--<TargetFramework>netcoreapp3.1</TargetFramework>-->
-	  <TargetFramework>net6.0-windows</TargetFramework>
-    <PlatformTarget>x64</PlatformTarget>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
-  </ItemGroup>
-
+	<PropertyGroup>
+		<TargetFramework>net7.0-windows</TargetFramework>
+		<PlatformTarget>x64</PlatformTarget>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Libraries\FrostySdk\FrostySdk.csproj" />

@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">   
   <PropertyGroup>
-	<TargetFramework>net6.0-windows</TargetFramework>
+	<TargetFramework>net7.0-windows</TargetFramework>
 	<PackageId>FMTSDK</PackageId>
-	<Authors>paulv2k4</Authors>
-	<Company>paulv2k4</Company>
+	<Authors>Paulv2k4 / V / Paulov</Authors>
+	<Company>Paulv2k4 / V / Paulov</Company>
 	  <Optimize>false</Optimize>
 
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

@@ -1047,12 +1047,14 @@ namespace FrostySdk.Managers
 			if (entry.Id.ToString() == "bdd11bcb-50fc-dd5f-4f85-8e7a45a0ba8f")
 			{
 			}
-                if (!Chunks.ContainsKey(entry.Id))
+
+            if (!Chunks.ContainsKey(entry.Id))
 			{
 				Chunks.TryAdd(entry.Id, entry);
             }
 
 			Chunks[entry.Id] = entry;
+
 		}
 
 		//public Dictionary<Guid, List<ChunkAssetEntry>> ChunkListDuplicates = new Dictionary<Guid, List<ChunkAssetEntry>>();
@@ -3403,15 +3405,18 @@ namespace FrostySdk.Managers
 
 		public void Log(string text, params object[] vars)
 		{
+			Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}] {text}");
 		}
 
 		public void LogWarning(string text, params object[] vars)
 		{
-		}
+            Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][WARNING] {text}");
+        }
 
-		public void LogError(string text, params object[] vars)
+        public void LogError(string text, params object[] vars)
 		{
-		}
-	}
+            Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][ERROR] {text}");
+        }
+    }
 }
 #pragma warning restore SYSLIB0021 // Type or member is obsolete

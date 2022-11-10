@@ -4,6 +4,7 @@ using FrostySdk.Managers;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,17 +24,17 @@ namespace FrostbiteModdingUI.Windows
     /// </summary>
     public partial class FrostbiteModEmbeddedFiles : Window
     {
-        public IEnumerable<EmbeddedFileEntry> EmbeddedFiles
-        {
-            get
-            {
-                return new ExtendedObservableCollection<EmbeddedFileEntry>().AddRange(
-                    AssetManager.Instance.EmbeddedFileEntries
-                    .Where(x=> x != null)
-                    .OrderBy(x=>x.Name)
-                    );
-            }
-        }
+        //public IEnumerable<EmbeddedFileEntry> EmbeddedFiles
+        //{
+        //    get
+        //    {
+        //        return new ObservableCollection<EmbeddedFileEntry>().AddRange(
+        //            AssetManager.Instance.EmbeddedFileEntries
+        //            .Where(x=> x != null)
+        //            .OrderBy(x=>x.Name)
+        //            );
+        //    }
+        //}
 
         private EmbeddedFileEntry embeddedFileEntry;
 

@@ -51,7 +51,7 @@ namespace FMT
 
         public ModListProfile Profile { get; set; }
 
-        private CEMWindow CEMWindow;
+        //private CEMWindow CEMWindow;
 
         private LoadingDialog LoadingDialog { get; } = new LoadingDialog();
 
@@ -895,13 +895,13 @@ namespace FMT
 
         private void btnOpenCEMWindow_Click(object sender, RoutedEventArgs e)
         {
-            if(CEMWindow != null)
-            {
-                CEMWindow.Close();
-                CEMWindow = null;
-            }
-            CEMWindow = new CEMWindow();
-            CEMWindow.ShowDialog();
+            //if(CEMWindow != null)
+            //{
+            //    CEMWindow.Close();
+            //    CEMWindow = null;
+            //}
+            //CEMWindow = new CEMWindow();
+            //CEMWindow.ShowDialog();
         }
 
         private void switchUseModData_Toggled(object sender, RoutedEventArgs e)

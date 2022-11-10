@@ -5,7 +5,6 @@
 using System.Runtime.InteropServices;
 // optional namespace, only for vectors
 using System.Numerics;
-using v2k4FIFAModdingCL.MemHack.Core;
 using Memory;
 using System.Diagnostics;
 using System;
@@ -181,8 +180,8 @@ public class FIFAPlayerStat
 			////if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
 			//	ingamedate = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value;
 
-			if (CEMCore2.CEMCoreInstance != null && CareerDB1.FIFAUser != null && CareerDB1.FIFAUser.seasoncount > 0)
-				ingamedate = ingamedate.AddYears(CareerDB1.FIFAUser.seasoncount - 1);
+			//if (CEMCore2.CEMCoreInstance != null && CareerDB1.FIFAUser != null && CareerDB1.FIFAUser.seasoncount > 0)
+			//	ingamedate = ingamedate.AddYears(CareerDB1.FIFAUser.seasoncount - 1);
 
 			//else
 			//{
@@ -214,12 +213,12 @@ public class FIFAPlayerStat
 		{
 
 			calenderYear = 2019;
-			if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
-				//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
-				calenderYear = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value.Year;
+			//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null && CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().HasValue)
+			//	//if (CEMCore.CEMCoreInstance != null && CEMCore.CEMCoreInstance.CoreHack != null)
+			//	calenderYear = CEMCore.CEMCoreInstance.CoreHack.GetInGameDate().Value.Year;
 
-			if (CEMCore2.CEMCoreInstance != null && CareerDB1.FIFAUser != null && CareerDB1.FIFAUser.seasoncount > 0)
-				calenderYear = 2019 + CareerDB1.FIFAUser.seasoncount - 1;
+			//if (CEMCore2.CEMCoreInstance != null && CareerDB1.FIFAUser != null && CareerDB1.FIFAUser.seasoncount > 0)
+			//	calenderYear = 2019 + CareerDB1.FIFAUser.seasoncount - 1;
 
 
 			return calenderYear; 
@@ -383,103 +382,103 @@ public class FIFAPlayerStat
 	private static Dictionary<int, List<long>> PlayerIdToAddresses;
 
 					   //FF 12 00 00 00 8E 15 03 00 ?? ?? ?? ?? ?? ?? ??
-	public static IEnumerable<FIFAPlayerStat> GetPlayerStats(int PlayerId, int TeamId, int? CompId = null)
-    {
-		//if (PlayerIdToAddresses == null)
-		//	PlayerIdToAddresses = new Dictionary<int, List<long>>();
+	//public static IEnumerable<FIFAPlayerStat> GetPlayerStats(int PlayerId, int TeamId, int? CompId = null)
+ //   {
+	//	//if (PlayerIdToAddresses == null)
+	//	//	PlayerIdToAddresses = new Dictionary<int, List<long>>();
 
 		
-			List<long> addresses;
+	//		List<long> addresses;
 
-			//if (!PlayerIdToAddresses.ContainsKey(PlayerId))
-			//{
-				var tidX8 = TeamId.ToString("X8");
-				tidX8 = tidX8.Substring(6, 2) + " " + tidX8.Substring(4, 2) + " " + tidX8.Substring(2, 2) + " " + tidX8.Substring(0, 2);
+	//		//if (!PlayerIdToAddresses.ContainsKey(PlayerId))
+	//		//{
+	//			var tidX8 = TeamId.ToString("X8");
+	//			tidX8 = tidX8.Substring(6, 2) + " " + tidX8.Substring(4, 2) + " " + tidX8.Substring(2, 2) + " " + tidX8.Substring(0, 2);
 
-				//if (tidX8.Length >= 4) 
-				//{
-				//	tidX8 = ReverseString(TeamId.ToString("X4"));
-				//}
-				//else
-				//	tidX8 = TeamId.ToString("X2");
-				var pidX8 = PlayerId.ToString("X8");
-				pidX8 = pidX8.Substring(6, 2) + " " + pidX8.Substring(4, 2) + " " + pidX8.Substring(2, 2) + " " + pidX8.Substring(0, 2);
-				//var addr = CoreHack.AOBScan("FF " + tidX8 + " 00 00 00 " + pidX8 + " ?? ?? ?? ?? ?? ?? ??", "PLAYER_STAT");
-				//var addr = CoreHack.AOBScan("FF " + tidX8 + " 00 00 00 8E 15 03 00", "PLAYER_STAT");
+	//			//if (tidX8.Length >= 4) 
+	//			//{
+	//			//	tidX8 = ReverseString(TeamId.ToString("X4"));
+	//			//}
+	//			//else
+	//			//	tidX8 = TeamId.ToString("X2");
+	//			var pidX8 = PlayerId.ToString("X8");
+	//			pidX8 = pidX8.Substring(6, 2) + " " + pidX8.Substring(4, 2) + " " + pidX8.Substring(2, 2) + " " + pidX8.Substring(0, 2);
+	//			//var addr = CoreHack.AOBScan("FF " + tidX8 + " 00 00 00 " + pidX8 + " ?? ?? ?? ?? ?? ?? ??", "PLAYER_STAT");
+	//			//var addr = CoreHack.AOBScan("FF " + tidX8 + " 00 00 00 8E 15 03 00", "PLAYER_STAT");
 
-				//"A8 07 00 00 03 B8 03 00 ? ? ? 00"
-				//var aob = "{teamid} {playerid} ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? {teamid}";
-				//var aob = "{teamid} {playerid} ? ? ? 00";
-				var aob = "{teamid} {playerid} ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? FF";
-				// 83 07 00 00 D9 E8 03 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? FF
+	//			//"A8 07 00 00 03 B8 03 00 ? ? ? 00"
+	//			//var aob = "{teamid} {playerid} ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? {teamid}";
+	//			//var aob = "{teamid} {playerid} ? ? ? 00";
+	//			var aob = "{teamid} {playerid} ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? FF";
+	//			// 83 07 00 00 D9 E8 03 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? FF
 
-				if (CompId.HasValue)
-				{
-					var cidX8 = CompId.Value.ToString("X2");
+	//			if (CompId.HasValue)
+	//			{
+	//				var cidX8 = CompId.Value.ToString("X2");
 
-					//var aob = cidX8 + " " + tidX8 + " 00 00 00 " + pidX8;
-					aob = aob.Replace("{teamid}", tidX8);
-					aob = aob.Replace("{playerid}", pidX8);
-					Debug.WriteLine("DEBUG. " + aob);
+	//				//var aob = cidX8 + " " + tidX8 + " 00 00 00 " + pidX8;
+	//				aob = aob.Replace("{teamid}", tidX8);
+	//				aob = aob.Replace("{playerid}", pidX8);
+	//				Debug.WriteLine("DEBUG. " + aob);
 
-					addresses = CoreHack.AOBScanList(aob, "PLAYER_STAT");
-				}
-				else
-				{
-					//var aob = "?? " + tidX8 + " 00 00 00 " + pidX8;
-					aob = aob.Replace("{teamid}", tidX8);
-					aob = aob.Replace("{playerid}", pidX8);
-					Debug.WriteLine("DEBUG. " + aob);
+	//				addresses = CoreHack.AOBScanList(aob, "PLAYER_STAT");
+	//			}
+	//			else
+	//			{
+	//				//var aob = "?? " + tidX8 + " 00 00 00 " + pidX8;
+	//				aob = aob.Replace("{teamid}", tidX8);
+	//				aob = aob.Replace("{playerid}", pidX8);
+	//				Debug.WriteLine("DEBUG. " + aob);
 
-					addresses = CoreHack.AOBScanList(aob, "PLAYER_STAT");
-				}
-			//}
-			//else
-   //         {
-			//	addresses = PlayerIdToAddresses[PlayerId];
-			//}
+	//				addresses = CoreHack.AOBScanList(aob, "PLAYER_STAT");
+	//			}
+	//		//}
+	//		//else
+ //  //         {
+	//		//	addresses = PlayerIdToAddresses[PlayerId];
+	//		//}
 
-			if (addresses.Count > 0)
-			{
-				foreach (var addr in addresses)
-				{
-					yield return ConvertAddressToStats(addr);
-				}
-			}
-	}
+	//		if (addresses.Count > 0)
+	//		{
+	//			foreach (var addr in addresses)
+	//			{
+	//				yield return ConvertAddressToStats(addr);
+	//			}
+	//		}
+	//}
 
 	/// <summary>
 	/// Works pretty quick but can be unreliable
 	/// </summary>
 	/// <param name="TeamId"></param>
 	/// <returns></returns>
-	public static IEnumerable<FIFAPlayerStat> GetTeamPlayerStats(int TeamId)
-    {
-		List<long> addresses;
+	//public static IEnumerable<FIFAPlayerStat> GetTeamPlayerStats(int TeamId)
+ //   {
+	//	List<long> addresses;
 
-		var tidX8 = TeamId.ToString("X8");
-		tidX8 = tidX8.Substring(6, 2) + " " + tidX8.Substring(4, 2) + " " + tidX8.Substring(2, 2) + " " + tidX8.Substring(0, 2);
+	//	var tidX8 = TeamId.ToString("X8");
+	//	tidX8 = tidX8.Substring(6, 2) + " " + tidX8.Substring(4, 2) + " " + tidX8.Substring(2, 2) + " " + tidX8.Substring(0, 2);
 
-		// missing league games
-		//var aob = "{teamid} ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? 00 ? ? ? 00 ? ? FF ?";
-		var aob = "{teamid} ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? 00 ? ? ? ? ? ? FF";
-		aob = aob.Replace("{teamid}", tidX8);
+	//	// missing league games
+	//	//var aob = "{teamid} ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? 00 ? ? ? 00 ? ? FF ?";
+	//	var aob = "{teamid} ? ? ? 00 ? ? ? ? ? ? ? ? ? ? ? ? ? 00 ? ? ? ? ? 00 ? ? ? ? ? ? FF";
+	//	aob = aob.Replace("{teamid}", tidX8);
 
-		addresses = CoreHack.AOBScanList(aob, "TEAM_PLAYER_STATS_" + TeamId.ToString());
-		if (addresses.Count > 9)
-		{
-			Debug.WriteLine("Scanned " + aob + " and found " + addresses.Count + " addresses");
-            addresses = addresses.Skip(9).ToList();
-            //addresses = addresses.ToList();
+	//	addresses = CoreHack.AOBScanList(aob, "TEAM_PLAYER_STATS_" + TeamId.ToString());
+	//	if (addresses.Count > 9)
+	//	{
+	//		Debug.WriteLine("Scanned " + aob + " and found " + addresses.Count + " addresses");
+ //           addresses = addresses.Skip(9).ToList();
+ //           //addresses = addresses.ToList();
 
-            foreach (var addr in addresses)
-            {
-                yield return ConvertAddressToStats(addr);
-            }
-        }
+ //           foreach (var addr in addresses)
+ //           {
+ //               yield return ConvertAddressToStats(addr);
+ //           }
+ //       }
 
-		//yield return null;
-	}
+	//	//yield return null;
+	//}
 
 
 	/// <summary>
@@ -487,19 +486,19 @@ public class FIFAPlayerStat
 	/// </summary>
 	/// <param name="TeamId"></param>
 	/// <returns></returns>
-	public static IEnumerable<FIFAPlayerStat> GetTeamPlayerStatsByCareerSave(int TeamId)
-	{
-		var Team = FIFATeam.GetFIFATeams().FirstOrDefault(z => z.teamid == TeamId);
-		var ListOfStats = new List<FIFAPlayerStat>(1000);
-		foreach(var p in Team.GetPlayers())
-        {
-			foreach(var ps in GetPlayerStats(p.playerid, TeamId))
-            {
-				yield return ps;
-            }
+	//public static IEnumerable<FIFAPlayerStat> GetTeamPlayerStatsByCareerSave(int TeamId)
+	//{
+	//	var Team = FIFATeam.GetFIFATeams().FirstOrDefault(z => z.teamid == TeamId);
+	//	var ListOfStats = new List<FIFAPlayerStat>(1000);
+	//	foreach(var p in Team.GetPlayers())
+ //       {
+	//		foreach(var ps in GetPlayerStats(p.playerid, TeamId))
+ //           {
+	//			yield return ps;
+ //           }
 
-		}
-	}
+	//	}
+	//}
 
 	public static FIFAPlayerStat ConvertBytesToStats(byte[] bytes)
 	{
@@ -600,86 +599,86 @@ public class FIFAPlayerStat
 		}
 	}
 
-	public static FIFAPlayerStat ConvertAddressToStats(long addr)
-    {
-		//Debug.WriteLine("GetPlayerStat::Resolved Address::" + addr.ToString("X8"));
-		var app = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x12).ToString("X8")));
-		if (app > 0)
-		{
-			FIFAPlayerStat playerStat = new FIFAPlayerStat()
-			{
-				TeamId = CoreHack.MemLib.readInt(CoreHack.ResolveOffset(addr, 0x0).ToString("X8")),
-				PlayerId = CoreHack.MemLib.readInt(CoreHack.ResolveOffset(addr, 0x4).ToString("X8")),
-				Competition = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x8).ToString("X8"))),
-				ID = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x9).ToString("X8"))),
-				MinutesPlayed = BitConverter.ToInt16(CoreHack.MemLib.readBytes(CoreHack.ResolveOffset(addr, 0xA).ToString("X8"),2)),
-				Rating = BitConverter.ToInt16(CoreHack.MemLib.readBytes(CoreHack.ResolveOffset(addr, 0xC).ToString("X8"),2)),
-				Goals = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0xE).ToString("X8"))),
-				Appereances = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x12).ToString("X8"))),
-				Assists = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x13).ToString("X8"))),
-				CleanSheets = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x17).ToString("X8"))),
-			};
+	//public static FIFAPlayerStat ConvertAddressToStats(long addr)
+ //   {
+	//	//Debug.WriteLine("GetPlayerStat::Resolved Address::" + addr.ToString("X8"));
+	//	var app = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x12).ToString("X8")));
+	//	if (app > 0)
+	//	{
+	//		FIFAPlayerStat playerStat = new FIFAPlayerStat()
+	//		{
+	//			TeamId = CoreHack.MemLib.readInt(CoreHack.ResolveOffset(addr, 0x0).ToString("X8")),
+	//			PlayerId = CoreHack.MemLib.readInt(CoreHack.ResolveOffset(addr, 0x4).ToString("X8")),
+	//			Competition = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x8).ToString("X8"))),
+	//			ID = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x9).ToString("X8"))),
+	//			MinutesPlayed = BitConverter.ToInt16(CoreHack.MemLib.readBytes(CoreHack.ResolveOffset(addr, 0xA).ToString("X8"),2)),
+	//			Rating = BitConverter.ToInt16(CoreHack.MemLib.readBytes(CoreHack.ResolveOffset(addr, 0xC).ToString("X8"),2)),
+	//			Goals = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0xE).ToString("X8"))),
+	//			Appereances = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x12).ToString("X8"))),
+	//			Assists = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x13).ToString("X8"))),
+	//			CleanSheets = Convert.ToByte(CoreHack.MemLib.readByte(CoreHack.ResolveOffset(addr, 0x17).ToString("X8"))),
+	//		};
 
-			if (playerStat.PlayerId > 0)
-			{
+	//		if (playerStat.PlayerId > 0)
+	//		{
 
-				var savedplayerstats = FIFAPlayerStat.Load();
-				var indexofstat = savedplayerstats.FindIndex(x => x.PlayerId == playerStat.PlayerId && x.SeasonYear == playerStat.SeasonYear && x.CompName == playerStat.CompName);
+	//			var savedplayerstats = FIFAPlayerStat.Load();
+	//			var indexofstat = savedplayerstats.FindIndex(x => x.PlayerId == playerStat.PlayerId && x.SeasonYear == playerStat.SeasonYear && x.CompName == playerStat.CompName);
 
-				//playerStat.SeasonYear = new CoreHack().GameDate.Value;
+	//			//playerStat.SeasonYear = new CoreHack().GameDate.Value;
 
-				if (indexofstat == -1)
-					savedplayerstats.Add(playerStat);
-				else
-					savedplayerstats[indexofstat] = playerStat;
+	//			if (indexofstat == -1)
+	//				savedplayerstats.Add(playerStat);
+	//			else
+	//				savedplayerstats[indexofstat] = playerStat;
 
-				Save(savedplayerstats);
+	//			Save(savedplayerstats);
 
-				return playerStat;
-			}
-		}
-		return null;
-	}
+	//			return playerStat;
+	//		}
+	//	}
+	//	return null;
+	//}
 
-	public static IEnumerable<FIFAPlayerStat> GetPlayerSeasonalStats(int PlayerId, int TeamId, int? CompId = null)
-	{
-		// Force a load of the latest stats to update the seasonals
-		GetPlayerStats(PlayerId, TeamId);
+	//public static IEnumerable<FIFAPlayerStat> GetPlayerSeasonalStats(int PlayerId, int TeamId, int? CompId = null)
+	//{
+	//	// Force a load of the latest stats to update the seasonals
+	//	GetPlayerStats(PlayerId, TeamId);
 
-		var seasonalStats = Load();
-		seasonalStats = seasonalStats.Where(x => x.PlayerId == PlayerId).ToList();
+	//	var seasonalStats = Load();
+	//	seasonalStats = seasonalStats.Where(x => x.PlayerId == PlayerId).ToList();
 
-		//return seasonalStats.Select(x => new { x.SeasonYear }).ToList();
+	//	//return seasonalStats.Select(x => new { x.SeasonYear }).ToList();
 
-		var results = (from a in seasonalStats
-					   group a by a.SeasonYear into g
-					   orderby g.Key
-					   select new FIFAPlayerStat() { SeasonYear = g.Key.HasValue ? g.Key : null, Appereances = Convert.ToByte(g.Sum(x => x.Appereances)), Goals = g.Sum(x => x.Goals), Assists = Convert.ToByte(g.Sum(x => x.Assists)), CleanSheets = Convert.ToByte(g.Sum(x => x.CleanSheets)), AverageRating = Math.Round(g.Average(x => x.AverageRating), 2) }
-					  ).ToList();
-		return results;
-	}
+	//	var results = (from a in seasonalStats
+	//				   group a by a.SeasonYear into g
+	//				   orderby g.Key
+	//				   select new FIFAPlayerStat() { SeasonYear = g.Key.HasValue ? g.Key : null, Appereances = Convert.ToByte(g.Sum(x => x.Appereances)), Goals = g.Sum(x => x.Goals), Assists = Convert.ToByte(g.Sum(x => x.Assists)), CleanSheets = Convert.ToByte(g.Sum(x => x.CleanSheets)), AverageRating = Math.Round(g.Average(x => x.AverageRating), 2) }
+	//				  ).ToList();
+	//	return results;
+	//}
 	
 
 
-	public static string CEMPlayerStatsDirectory
-	{
-		get
-		{
-			return CEMCore.CEMMyDocumentsDbSaveDirectory;
+	//public static string CEMPlayerStatsDirectory
+	//{
+	//	get
+	//	{
+	//		return CEMCore.CEMMyDocumentsDbSaveDirectory;
 
-		}
-	}
+	//	}
+	//}
 
 	public static string CEMPlayerStatsSaveFile
 	{
 		get
 		{
-			if (CEMCore.CEMCoreInstance == null)
-			{
+			//if (CEMCore.CEMCoreInstance == null)
+			//{
 				return "PlayerStats.json";
-			}
-			else
-				return CEMCore.CEMMyDocumentsDbSaveDirectory + "\\PlayerStats.json";
+			//}
+			//else
+			//	return CEMCore.CEMMyDocumentsDbSaveDirectory + "\\PlayerStats.json";
 		}
 	}
 

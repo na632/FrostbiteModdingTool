@@ -235,8 +235,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
         protected Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
         {
-            // Handle Legacy first to generate modified chunks
-            ProcessLegacyMods();
+
             // ------ End of handling Legacy files ---------
 
             Dictionary<string, List<ModdedFile>> casToMods = new Dictionary<string, List<ModdedFile>>();
@@ -256,11 +255,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 if (originalEntry.ExtraData == null || string.IsNullOrEmpty(originalEntry.ExtraData.CasPath))
                     continue;
 
-                if (mod.Value is ChunkAssetEntry chunkAssetEntry)
-                {
-
-                }
-
                 var casPath = originalEntry.ExtraData.CasPath;
                 if (!casToMods.ContainsKey(casPath))
                     casToMods.Add(casPath, new List<ModdedFile>());
@@ -268,6 +262,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 casToMods[casPath].Add(new ModdedFile(mod.Value.Sha1, mod.Value.Name, false, mod.Value, originalEntry));
 
             }
+
+            ProcessLegacyMods();
 
             return casToMods;
         }
@@ -443,7 +439,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             int sbIndex = -1;
             foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
             {
-                foreach (string sbKey in catalogInfo.SuperBundles.Keys)
+                foreach (
+                    string sbKey in catalogInfo.SuperBundles.Keys
+                    .Where(x => x.Contains("globals", StringComparison.OrdinalIgnoreCase))
+                    )
                 {
                     sbIndex++;
                     string tocFile = sbKey;
@@ -453,10 +452,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     }
 
                     // Only handle Legacy stuff right now
-                    if (!tocFile.Contains("globals", StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
+                    //if (!tocFile.Contains("globals", StringComparison.OrdinalIgnoreCase))
+                    //{
+                    //    continue;
+                    //}
 
                     var pathToTOCFileRAW = $"{directory}/{tocFile}.toc";
                     //string location_toc_file = FileSystem.Instance.ResolvePath(pathToTOCFileRAW);
@@ -467,6 +466,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
                     // read the changed toc file in ModData
                     if (!tocFile2.TocChunks.Any())
+                        continue;
+
+                    if (!ModExecuter.ModifiedChunks.Any(x => x.Value.Bundles.Contains(tocFile2.ChunkDataBundleId)))
                         continue;
 
                     var patch = true;

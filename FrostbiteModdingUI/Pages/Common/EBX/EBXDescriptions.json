@@ -206,6 +206,10 @@
 			"TypeName": "AttribSchema_gp_kickerror_passshotcontexteffect",
 			"Properties": [
 				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_Attribute_ReduceRate",
+					"Description": "How much we scale the difficulty as a function of attribute"
+				},
+				{
 					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_BackHeel_Modifier",
 					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
 				},
@@ -218,7 +222,19 @@
 					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
 				},
 				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_InsideFootTop_Modifier",
+					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
+				},
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_Laces_Modifier",
+					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
+				},
+				{
 					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_OutsideFoot_Modifier",
+					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
+				},
+				{
+					"PropertyName": "PASSSHOT_CONTEXTEFFECT_TouchPart_Toe_Modifier",
 					"Description": "Modifier on the final difficulty of each miss type for this touch part, 1.0f will have no change.\r\n\r\n0 = MISS_TYPE_UPPER_HIT\r\n1 = MISS_TYPE_LOWER_HIT\r\n2 = MISS_TYPE_LEFT_SIDE_HIT\r\n3 = MISS_TYPE_RIGHT_SIDE_HIT,\r\n4 = MISS_TYPE_LEFT_DIRECTION_MISS,\r\n5 = MISS_TYPE_RIGHT_DIRECTION_MISS,\r\n6 = MISS_TYPE_OVER_HIT,\r\n7 = MISS_TYPE_UNDER_HIT"
 				},
 				{

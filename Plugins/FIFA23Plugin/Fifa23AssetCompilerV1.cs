@@ -272,10 +272,17 @@ namespace FIFA23Plugin
                 DeleteBakFiles(parent.GamePath);
             }
 
-            parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
 
+            parent.Logger.Log("Retreiving list of Modified CAS Files.");
             var dictOfModsToCas = GetModdedCasFiles();
-            if (dictOfModsToCas != null && dictOfModsToCas.Count > 0)
+
+            //ProcessLegacyMods();
+            parent.Logger.Log("Modifying TOC Chunks.");
+            ModifyTOCChunks();
+
+            if (dictOfModsToCas == null || dictOfModsToCas.Count == 0)
+                return true;
+
             {
                 if (ErrorCounts.Count > 0)
                 {
@@ -613,7 +620,6 @@ namespace FIFA23Plugin
             }
 
 
-            ModifyTOCChunks();
 
 
             return true;

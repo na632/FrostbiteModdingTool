@@ -26,7 +26,7 @@ namespace CareerExpansionMod.CEM.FIFA
 
             var pnames = new List<FIFAPlayerName>();
 
-            var dlllocation = CEMCore.GetApplicationDirectory();
+            var dlllocation = AppContext.BaseDirectory;
             
             var fulllocation = dlllocation + "\\CEM\\Data\\playernames.csv";
             if(GameInstanceSingleton.Instance.GAMEVERSION == "FIFA21")

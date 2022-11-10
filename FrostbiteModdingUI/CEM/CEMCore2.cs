@@ -223,7 +223,7 @@ namespace FrostbiteModdingUI.CEM
                     return CareerFile;
                 }
             }
-            return null;
+            //return null;
         }
 
         private static CareerFile careerFile;
@@ -244,7 +244,19 @@ namespace FrostbiteModdingUI.CEM
         }
 
 
-        public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync(int? teamId = null)
+        public MemoryStream GetCopyOfCareerFile() 
+        {
+            MemoryStream msCurrentfile = new MemoryStream();
+            using (var fsCurrentFile = new FileStream(CareerFile.Current.OriginalFileName, FileMode.Open))
+            {
+                fsCurrentFile.CopyTo(msCurrentfile);
+                msCurrentfile.Position = 0;
+            }
+            return msCurrentfile;
+        }
+
+
+    public async Task<List<FIFAPlayerStat>> GetPlayerStatsAsync(int? teamId = null)
         {
             return await Task.Run(() => { return GetPlayerStats(teamId); });
         }
@@ -292,8 +304,9 @@ namespace FrostbiteModdingUI.CEM
                     var playerIdByte = BitConverter.GetBytes(player.playerid).ToArray();
                     searchByte.AddRange(playerIdByte);
 
-                    BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
-                    var found2 = boyerMoore2.SearchAll(rBytes);
+                    //BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
+                    //var found2 = boyerMoore2.SearchAll(rBytes);
+                    var found2 = nr.ScanAOB2(searchByte.ToArray());
                     //var found2 = ByteSearchList(rBytes, searchByte.ToArray());
                     foreach (var pos in found2)
                     {
@@ -345,46 +358,59 @@ namespace FrostbiteModdingUI.CEM
         public List<FIFAPlayerStat> UserTeamPlayerStats = new List<FIFAPlayerStat>(30000);
 
 
+        public int? GetUserFinancesOffset()
+        {
+            using (var nr = new NativeReader(GetCopyOfCareerFile()))
+            {
+                var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
+                var position = nr.ScanAOB2(searchByte);
+                return position.FirstOrDefault();
+            }
+        }
+
         public async Task<Finances> GetUserFinances()
         {
-            userFinances = new Finances();
-            //using (NativeReader nr = new NativeReader(CurrentCareerFile.DbStream))
-            //{
-            //    var rBytes = nr.ReadToEnd();
-            //    var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
-            //    BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
-            //    var found2 = boyerMoore2.Search(rBytes);
-            //    nr.Position = found2;
-            //    var nameOfUserFinances = nr.ReadNullTerminatedString();
-            //    userFinances.ClubWorth = nr.ReadLong();
-            //    userFinances.StartingBudget = nr.ReadInt();
-            //    nr.Position += 16;
-            //    userFinances.TransferBudget = nr.ReadInt();
-            //}
-            return userFinances;
+            var userFinanceOffset = GetUserFinancesOffset();
+            return await Task.Run(() => {
+                userFinances = new Finances();
+                //using (NativeReader nr = new NativeReader(CurrentCareerFile.DbStream))
+                //{
+                //    var rBytes = nr.ReadToEnd();
+                //    var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
+                //    BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
+                //    var found2 = boyerMoore2.Search(rBytes);
+                //    nr.Position = found2;
+                //    var nameOfUserFinances = nr.ReadNullTerminatedString();
+                //    userFinances.ClubWorth = nr.ReadLong();
+                //    userFinances.StartingBudget = nr.ReadInt();
+                //    nr.Position += 16;
+                //    userFinances.TransferBudget = nr.ReadInt();
+                //}
+                return userFinances;
+            });
         }
 
         public void UpdateUserFinancesInFile()
         {
-            var userFinanceLocation = 0;
+            //var userFinanceLocation = 0;
             //using (NativeReader nr = new NativeReader(CurrentCareerFile.DbStream))
             //{
             //    var rBytes = nr.ReadToEnd();
             //    var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
             //    BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
             //    userFinanceLocation = boyerMoore2.Search(rBytes);
-                
-            //}
 
-            //using (NativeWriter nw = new NativeWriter(CurrentCareerFile.DbStream))
-            //{
-            //    nw.Position = userFinanceLocation;
-            //    nw.Position += 6;
-            //    nw.Position += 8;
-            //    nw.Write(userFinances.StartingBudget);
-            //    nw.Position += 16;
-            //    nw.Write(userFinances.TransferBudget);
-            //}
+                //}
+
+                //using (NativeWriter nw = new NativeWriter(CurrentCareerFile.DbStream))
+                //{
+                //    nw.Position = userFinanceLocation;
+                //    nw.Position += 6;
+                //    nw.Position += 8;
+                //    nw.Write(userFinances.StartingBudget);
+                //    nw.Position += 16;
+                //    nw.Write(userFinances.TransferBudget);
+                //}
         }
 
         public IEnumerable<FileInfo> CareerFileInfos

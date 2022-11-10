@@ -61,7 +61,7 @@ namespace FMT
 
             // --------------------------------------------------------------
             // Run the Powershell DLL
-            UnblockAllDLL();
+            //UnblockAllDLL();
 
             // --------------------------------------------------------------
             // Discord Startup
@@ -129,25 +129,25 @@ namespace FMT
         //    await Task.Delay(100);
         //}
 
-        private async void UnblockAllDLL()
-        {
-            var loc = AppContext.BaseDirectory;
-            var psCommmand = $"dir \"{loc}\" -Recurse|Unblock-File";
-            var psCommandBytes = System.Text.Encoding.Unicode.GetBytes(psCommmand);
-            var psCommandBase64 = Convert.ToBase64String(psCommandBytes);
+        //private async void UnblockAllDLL()
+        //{
+        //    var loc = AppContext.BaseDirectory;
+        //    var psCommmand = $"dir \"{loc}\" -Recurse|Unblock-File";
+        //    var psCommandBytes = System.Text.Encoding.Unicode.GetBytes(psCommmand);
+        //    var psCommandBase64 = Convert.ToBase64String(psCommandBytes);
 
-            var startInfo = new ProcessStartInfo()
-            {
-                FileName = "powershell.exe",
-                Arguments = $"-NoProfile -ExecutionPolicy unrestricted -WindowStyle hidden -EncodedCommand {psCommandBase64}",
-                UseShellExecute = true
-            };
-            startInfo.Verb = "runAs";
-            Process.Start(startInfo);
+        //    var startInfo = new ProcessStartInfo()
+        //    {
+        //        FileName = "powershell.exe",
+        //        Arguments = $"-NoProfile -ExecutionPolicy unrestricted -WindowStyle hidden -EncodedCommand {psCommandBase64}",
+        //        UseShellExecute = true
+        //    };
+        //    startInfo.Verb = "runAs";
+        //    Process.Start(startInfo);
 
-            await Task.Delay(9000);
+        //    await Task.Delay(9000);
 
-        }
+        //}
 
         protected override void OnExit(ExitEventArgs e)
         {

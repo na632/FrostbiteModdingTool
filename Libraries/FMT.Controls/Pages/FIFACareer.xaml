@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="FMT.Controls.Pages.FIFACareer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FMT.Controls.Pages"
+               xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+
+        <Style TargetType="{x:Type mah:MetroTabItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type mah:MetroTabItem}">
+                        <Grid Name="Panel">
+                            <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="10,2"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Panel" Property="Background" Value="#2233BB" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="Panel" Property="Background" Value="#232323" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+    </UserControl.Resources>
+    <mah:MetroAnimatedTabControl DockPanel.Dock="Top" Margin="0,0,0,0" x:Name="MainViewer" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" 
+                                        >
+        <mah:MetroTabItem x:Name="tabDatabase" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+            <mah:MetroTabItem.Header>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                    <Label Content="Database"></Label>
+                </StackPanel>
+            </mah:MetroTabItem.Header>
+        </mah:MetroTabItem>
+        <mah:MetroTabItem x:Name="tabStats" Selector.IsSelected="True" Visibility="Visible" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch">
+            <mah:MetroTabItem.Header>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                    <Label Content="Stats"></Label>
+                </StackPanel>
+            </mah:MetroTabItem.Header>
+            <local:FIFACareerStats></local:FIFACareerStats>
+        </mah:MetroTabItem>
+    </mah:MetroAnimatedTabControl>
+</UserControl>

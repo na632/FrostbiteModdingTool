@@ -76,7 +76,7 @@ namespace FrostbiteModdingTests
         {
             if (prevText != text)
             {
-                Debug.WriteLine("[LOGGER] [DEBUG] " + text);
+                Debug.WriteLine($"[LOGGER][DEBUG][{DateTime.Now.ToShortTimeString()}] {text}");
                 prevText = text;
             }
         }
@@ -85,7 +85,7 @@ namespace FrostbiteModdingTests
         {
             if (prevText != text)
             {
-                Debug.WriteLine("[LOGGER] [ERROR] " + text);
+                Debug.WriteLine($"[LOGGER][ERROR][{DateTime.Now.ToShortTimeString()}] {text}");
                 prevText = text;
             }
         }
@@ -94,7 +94,7 @@ namespace FrostbiteModdingTests
         {
             if (prevText != text)
             {
-                Debug.WriteLine("[LOGGER] [WARNING] " + text);
+                Debug.WriteLine($"[LOGGER][WARN][{DateTime.Now.ToShortTimeString()}] {text}");
                 prevText = text;
             }
         }

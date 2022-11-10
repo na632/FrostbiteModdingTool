@@ -301,27 +301,21 @@ namespace FrostySdk
 				//flags |= (byte)(entry.ModifiedEntry.AddToChunkBundle ? 2 : 0);
 				if (entry.ModifiedEntry.AddToChunkBundle)
 				{
-					//if (ProfilesLibrary.MustAddChunks || entry.IsAdded)
-					//{
-					//	AddBundle("chunks", modify: false);
-					//}
-					//else
-					//{
+					if (ProfileManager.MustAddChunks || entry.IsAdded)
+						AddBundle("chunks", modify: false);
+					else
 						AddBundle("chunks", modify: true);
-					//}
 				}
+
 				foreach (int bundle in entry.Bundles)
 				{
-					BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
-					if(bundleEntry != null)
-						AddBundle(!string.IsNullOrEmpty(bundleEntry.Name) ? bundleEntry.Name : bundle.ToString(), modify: true);
+					bundlesToModify.Add(bundle);
 				}
 				foreach (int bundle in entry.EnumerateBundles(addedOnly: true))
 				{
-					BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
-					if(bundleEntry != null)
-						AddBundle(!string.IsNullOrEmpty(bundleEntry.Name) ? bundleEntry.Name : bundle.ToString(), modify: false);
-				}
+					bundlesToAdd.Add(bundle);
+
+                }
 			}
 
             public override void Write(NativeWriter writer, uint writerVersion = 4)
