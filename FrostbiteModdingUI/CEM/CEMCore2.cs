@@ -358,34 +358,49 @@ namespace FrostbiteModdingUI.CEM
         public List<FIFAPlayerStat> UserTeamPlayerStats = new List<FIFAPlayerStat>(30000);
 
 
-        public int? GetUserFinancesOffset()
+        public int? GetFinancesOffset(int? teamId = null)
         {
+            if (teamId == null) {
+                var fifaUser = CareerDB1.FIFAUser;
+                teamId = fifaUser.clubteamid;
+            }
             using (var nr = new NativeReader(GetCopyOfCareerFile()))
             {
-                var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
-                var position = nr.ScanAOB2(searchByte);
+                List<byte> searchByte = new List<byte>();
+                searchByte.Add(0x00); // 00 at the start? 
+                searchByte.AddRange(BitConverter.GetBytes(0)); // 00 00 00 00
+                searchByte.AddRange(BitConverter.GetBytes(teamId.Value)); // team id converted to bytes
+                searchByte.Add(0xFF); // FF at the end? 
+                var position = nr.ScanAOB2(searchByte.ToArray());
                 return position.FirstOrDefault();
             }
         }
 
-        public async Task<Finances> GetUserFinances()
+        public async Task<Finances> GetFinances(int? teamId = null)
         {
-            var userFinanceOffset = GetUserFinancesOffset();
+            var userFinanceOffset = GetFinancesOffset(teamId);
+            if (!userFinanceOffset.HasValue)
+                return null;
+
             return await Task.Run(() => {
                 userFinances = new Finances();
-                //using (NativeReader nr = new NativeReader(CurrentCareerFile.DbStream))
-                //{
-                //    var rBytes = nr.ReadToEnd();
-                //    var searchByte = ASCIIEncoding.ASCII.GetBytes("ubp01");
-                //    BoyerMoore boyerMoore2 = new BoyerMoore(searchByte.ToArray());
-                //    var found2 = boyerMoore2.Search(rBytes);
-                //    nr.Position = found2;
-                //    var nameOfUserFinances = nr.ReadNullTerminatedString();
-                //    userFinances.ClubWorth = nr.ReadLong();
-                //    userFinances.StartingBudget = nr.ReadInt();
-                //    nr.Position += 16;
-                //    userFinances.TransferBudget = nr.ReadInt();
-                //}
+                using (NativeReader nr = new NativeReader(GetCopyOfCareerFile()))
+                {
+                    nr.Position = userFinanceOffset.Value;
+                    var unk1 = nr.ReadByte(); // unk 0
+                    var unk2 = nr.ReadInt(); // unk 0
+                    var tid = nr.ReadInt(); // team id
+                    var ff = nr.ReadByte(); // -1
+                    nr.Position -= 1;
+                    nr.Position -= 4;
+                    nr.Position -= 32;
+                    userFinances.TransferBudget = nr.ReadInt();
+                    //var nameOfUserFinances = nr.ReadNullTerminatedString();
+                    //userFinances.ClubWorth = nr.ReadLong();
+                    //userFinances.StartingBudget = nr.ReadInt();
+                    //nr.Position += 16;
+                    //userFinances.TransferBudget = nr.ReadInt();
+                }
                 return userFinances;
             });
         }

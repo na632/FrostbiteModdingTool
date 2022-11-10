@@ -52,13 +52,6 @@ namespace FMT
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
 
-
-            // _clientApp = PublicClientApplicationBuilder.Create(ClientId)
-            // .WithAuthority(AzureCloudInstance.AzurePublic, "b72a5240-b495-45c8-8c18-fdad4089216e")
-            // .WithRedirectUri("com.FIFAModding.Editor://oauth/redirect")
-            // .Build();
-
-
             // --------------------------------------------------------------
             // Run the Powershell DLL
             //UnblockAllDLL();

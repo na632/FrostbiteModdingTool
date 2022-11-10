@@ -123,7 +123,7 @@ namespace FrostbiteModdingTests
 
             Stopwatch sw1 = new Stopwatch();
             sw1.Start();
-            var finances = cem.GetUserFinances().Result;
+            var finances = cem.GetFinances().Result;
             sw1.Stop();
             Debug.WriteLine($"Time taken to get finances : {sw1.Elapsed}");
         }
