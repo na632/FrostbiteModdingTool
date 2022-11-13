@@ -87,37 +87,8 @@ namespace FrostySdk
 			if (handle != null)
 				return;
 
-			//if ((ProfilesLibrary.DataVersion != 20170321
-			//	&& ProfilesLibrary.DataVersion != 20160927
-			//	&& ProfilesLibrary.DataVersion != 20170929
-			//	&& ProfilesLibrary.DataVersion != 20171117
-			//	&& ProfilesLibrary.DataVersion != 20180807
-			//	&& ProfilesLibrary.DataVersion != 20180914
-			//	&& ProfilesLibrary.DataVersion != 20180628
-			//	&& !ProfilesLibrary.IsFIFA20DataVersion()
-			//	//&& ProfilesLibrary.DataVersion != 20200831
-			//	&& !ProfilesLibrary.IsMadden21DataVersion()
-			//	&& !ProfilesLibrary.IsFIFA21DataVersion())
-			//	|| Compress != null)
-			//{
-			//	return;
-			//}
 			string parentDirectory = Utilities.ApplicationDirectory + "thirdparty/";
-			//string lib = "libzstd.1.1.5.dll";
-			//if (ProfilesLibrary.DataVersion == 20180914 
-			//	|| ProfilesLibrary.IsFIFA20DataVersion()
-			//	//|| ProfilesLibrary.IsMadden21DataVersion()
-			//	//|| ProfilesLibrary.IsFIFA21DataVersion()
-			//	)
-			//{
-			//	lib = "libzstd.1.3.4.dll";
-			//}
-   //         else if (ProfilesLibrary.IsFIFA21DataVersion()
-			//	|| ProfilesLibrary.IsMadden21DataVersion()
-			//	)
-			//{
-                string lib = "libzstd.1.5.0.dll";
-            //}
+            string lib = "libzstd.1.5.0.dll";
             handle = new LoadLibraryHandle(parentDirectory + lib);
 			if (handle == IntPtr.Zero)
 			{
@@ -138,8 +109,6 @@ namespace FrostySdk
 					|| ProfileManager.IsFIFA20DataVersion() // FIFA 20
 					|| ProfileManager.IsFIFA21DataVersion() // FIFA 21
 					|| ProfileManager.IsFIFA22DataVersion() // FIFA 22
-					|| ProfileManager.IsFIFA23DataVersion() // FIFA 23
-
 					)
 				{
 					DecompressUsingDict = Marshal.GetDelegateForFunctionPointer<DecompressUsingDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_decompress_usingDDict"));
