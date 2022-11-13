@@ -3318,7 +3318,7 @@ namespace ModdingSupport
         {
             get
             {
-                return ApplicationDirectory + "\\" + "LastLaunchedMods.json";
+                return fs.BasePath + "\\" + "FMT.LastLaunchedMods.json";
             }
         }
 
@@ -3326,7 +3326,7 @@ namespace ModdingSupport
         {
             get
             {
-                return ApplicationDirectory + "\\" + "LastPatchedVersion.json";
+                return fs.BasePath + "\\" + "FMT.LastPatchedVersion.json";
             }
         }
 
@@ -3489,13 +3489,13 @@ namespace ModdingSupport
             FileInfo fIGameExe = new FileInfo(GameEXEPath);
             FileInfo fiFifaConfig = new FileInfo(Path.Combine(AppContext.BaseDirectory, "thirdparty", "fifaconfig.exe"));
 
-            if (ProfileManager.IsFIFA21DataVersion()
-                || ProfileManager.IsFIFA22DataVersion()
-                //|| ProfilesLibrary.IsFIFA23DataVersion()
-                )
-            {
-                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
-            }
+            //if (ProfileManager.IsFIFA21DataVersion()
+            //    || ProfileManager.IsFIFA22DataVersion()
+            //    //|| ProfilesLibrary.IsFIFA23DataVersion()
+            //    )
+            //{
+            //    CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
+            //}
 
             CopyFileIfRequired(fs.BasePath + "user.cfg", modPath + "user.cfg");
             if ((ProfileManager.IsFIFADataVersion()
@@ -3661,17 +3661,19 @@ namespace ModdingSupport
                 File.Delete(FileSystem.Instance.BasePath + "\\dxgi.dll");
 
             // --------------------------------------------------------------
+            // Cryptbase.dll no longer used ------------------------------
+            if (File.Exists(fs.BasePath + "CryptBase.dll"))
+                File.Delete(fs.BasePath + "CryptBase.dll");
+
+            // --------------------------------------------------------------
             // 
             if (UseACBypass)
             {
                 ConfigureInstallerDataXml(true);
-                CopyFileIfRequired("ThirdParty/CryptBase.dll", fs.BasePath + "CryptBase.dll");
             }
             else
             {
                 ConfigureInstallerDataXml(false);
-                if (File.Exists(fs.BasePath + "CryptBase.dll"))
-                    File.Delete(fs.BasePath + "CryptBase.dll");
             }
         }
 
