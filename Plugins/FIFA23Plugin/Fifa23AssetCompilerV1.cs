@@ -276,6 +276,10 @@ namespace FIFA23Plugin
             parent.Logger.Log("Retreiving list of Modified CAS Files.");
             var dictOfModsToCas = GetModdedCasFiles();
 
+            // Force delete of Live Tuning Updates
+            if (dictOfModsToCas.Any(x => x.Value.Any(y => y.NamePath.Contains("gp_", StringComparison.OrdinalIgnoreCase))))
+                parent.DeleteLiveUpdates = true;
+
             //ProcessLegacyMods();
             parent.Logger.Log("Modifying TOC Chunks.");
             ModifyTOCChunks();
@@ -283,7 +287,6 @@ namespace FIFA23Plugin
             if (dictOfModsToCas == null || dictOfModsToCas.Count == 0)
                 return true;
 
-            {
                 if (ErrorCounts.Count > 0)
                 {
                     if (ErrorCounts[ModType.EBX] > 0)
@@ -617,7 +620,6 @@ namespace FIFA23Plugin
 
                 Task.WaitAll(tasks.ToArray());
 
-            }
 
 
 

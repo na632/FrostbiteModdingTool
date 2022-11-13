@@ -3335,7 +3335,7 @@ namespace ModdingSupport
 
         public bool GameWasPatched { get; set; }
 
-        public bool DeleteLiveUpdates { get; set; } = false;
+        public bool DeleteLiveUpdates { get; set; } = true;
 
         public bool LowMemoryMode { get; set; } = false;
 
@@ -3477,6 +3477,10 @@ namespace ModdingSupport
             archiveData.Clear();
 
             RunFIFA23Setup();
+
+            // Delete the Live Updates
+            RunDeleteLiveUpdates();
+
 
             //RunSetupFIFAConfig();
             //RunPowershellToUnblockDLLAtLocation(fs.BasePath);
@@ -3741,8 +3745,10 @@ namespace ModdingSupport
                     }
                 }
 
-                Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfileManager.DisplayName), recursive: true);
-                //Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfilesLibrary.DisplayName, "onlinecache0"), recursive: true);
+                var pathToFIFATempCacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfileManager.DisplayName);
+                if (Directory.Exists(pathToFIFATempCacheFolder))
+                    Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfileManager.DisplayName), recursive: true);
+                
                 Logger.Log("Successfully deleted the Live Updates folder.");
             }
             catch (Exception ex)
