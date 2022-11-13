@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFA21Plugin", "Plugins\FIF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{52ADB5EA-5FE5-46E2-B81B-4DA1E6DF8235}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrostbiteModdingTests", "FrostbiteModdingTests\FrostbiteModdingTests.csproj", "{96BD215A-E54C-4DAE-B7CF-CD42BF4110C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrostbiteModdingTests", "Tests\FrostbiteModdingTests\FrostbiteModdingTests.csproj", "{96BD215A-E54C-4DAE-B7CF-CD42BF4110C0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{21C84AAA-5D2A-44B9-89E3-06CADDB9B7A5} = {21C84AAA-5D2A-44B9-89E3-06CADDB9B7A5}
 		{2739CC07-99D8-41B5-A113-DB6E9A606ED1} = {2739CC07-99D8-41B5-A113-DB6E9A606ED1}
@@ -61,11 +61,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FifaLibrary", "Libraries\FifaLibrary\FifaLibrary.csproj", "{1DC3F41F-1FC1-4772-858F-0412E950DD29}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFACareerDBTests", "FIFACareerDBTests\FIFACareerDBTests.csproj", "{8042F6F5-9649-4CA4-B3B6-342FDB30AB8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFACareerDBTests", "Tests\FIFACareerDBTests\FIFACareerDBTests.csproj", "{8042F6F5-9649-4CA4-B3B6-342FDB30AB8E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FMT.FifaLibrary2", "Libraries\FMT.FifaLibrary2\FMT.FifaLibrary2.csproj", "{27B35F21-17DC-4D40-AE05-4DB1732C88F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMT.FileTools", "FMT.FileTools\FMT.FileTools.csproj", "{7ABCFA92-9540-4E45-A16B-D58AED37B75D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMT.FileTools", "Libraries\FMT.FileTools\FMT.FileTools.csproj", "{7ABCFA92-9540-4E45-A16B-D58AED37B75D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
