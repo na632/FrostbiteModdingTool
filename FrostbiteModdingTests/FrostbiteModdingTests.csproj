@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <Folder Include="FrostbiteProfiles\" />
+    <Folder Include="TestCareerSaveFiles\" />
     <Folder Include="ThirdParty\" />
   </ItemGroup>
 
