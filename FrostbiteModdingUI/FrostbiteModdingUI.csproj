@@ -59,29 +59,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</Content>
-    <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA19.ini">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ini\AIObjectiveSystem_FIFA20.ini" />
-    <EmbeddedResource Include="ini\AnimationGameplay.ini">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ini\ATTRIBUTE_WEIGHTS.ini">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ini\ContextEffect_FIFA19.ini">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ini\Goalkeeping.ini">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ini\UnlockBootsAndCelebrations.ini">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ini\_FIFA19_base.ini">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ini\_FIFA20_base.ini" />
   </ItemGroup>
 
   <ItemGroup>
@@ -111,10 +88,6 @@
     <PackageReference Include="System.Management" Version="4.7.0" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
     <PackageReference Include="WPFHexaEditor" Version="2.1.7" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="ini\ContextEffect_FIFA20.ini" />
   </ItemGroup>
 
   <ItemGroup>
@@ -173,11 +146,7 @@
     <None Update="Mods\DO_NOT_DELETE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Plugins\FIFA20Plugin.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	
-    </None>
+    
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -249,26 +218,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\ThreeD\" />
     <Folder Include="NewFolder\" />
     <Folder Include="Pages\Common\Property\" />
     <Folder Include="Pages\Gameplay\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Properties\PublishProfiles\" />
-    <Folder Include="Util\" />
     <Folder Include="Windows\Editors\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\net6.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+	  <None Include="..\Plugins\FIFA20Plugin\bin\Debug\net7.0-windows\FIFA20Plugin.dll" Link="Plugins\FIFA20Plugin.dll">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+    <None Include="..\Plugins\FIFA21Plugin\bin\Debug\net7.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
-    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\net6.0-windows\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
+    <None Include="..\Plugins\FIFA22Plugin\bin\Debug\net7.0-windows\FIFA22Plugin.dll" Link="Plugins\FIFA22Plugin.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</None>
-	  <None Include="..\Plugins\FIFA23Plugin\bin\Debug\net6.0-windows\FIFA23Plugin.dll" Link="Plugins\FIFA23Plugin.dll">
+	  <None Include="..\Plugins\FIFA23Plugin\bin\Debug\net7.0-windows\FIFA23Plugin.dll" Link="Plugins\FIFA23Plugin.dll">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
