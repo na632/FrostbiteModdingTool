@@ -150,9 +150,18 @@ namespace FrostySdk
 
         private static ModuleBuilder moduleBuilder { get; set; }
 
+		/// <summary>
+		/// The Profile SDK Assembly
+		/// </summary>
         public static Assembly ExistingAssembly { get; set; }
 
-		public static List<TypeBuilder> constructingTypes { get; } = new List<TypeBuilder>();
+		/// <summary>
+		/// The Profile SDK Assembly
+		/// </summary>
+		public static Assembly ProfileAssembly => ExistingAssembly;
+
+
+        public static List<TypeBuilder> constructingTypes { get; } = new List<TypeBuilder>();
 
 		public static List<ConstructorBuilder> constructors { get; } = new List<ConstructorBuilder>();
 

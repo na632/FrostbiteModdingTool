@@ -56,6 +56,9 @@ namespace FIFA22Plugin
 
         public List<DbObject> Read(string tocPath, int sbIndex, string SBName, bool native_data = false, string nativePath = null)
         {
+            if (nativePath == null)
+                throw new ArgumentNullException("nativePath must be provided!");
+
             SBIndex = sbIndex;
 
             if (AssetManager == null)
@@ -66,23 +69,30 @@ namespace FIFA22Plugin
 
                 Debug.WriteLine($"[DEBUG] Loading TOC File: {tocPath}");
                 List<DbObject> objs = new List<DbObject>();
-                using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read)))
-                {
-                    
-                    // TOC File 
-                    TOCFile = new TOCFile(nativePath, true ,  true, false);
-                    //TOCFile.SuperBundleName = SBName;
-                    //TOCFile.NativeFileLocation = nativePath;
-                    //TOCFile.FileLocation = tocPath;
-                    //TOCFile.DoLogging = DoLogging;
-                    //TOCFile.ProcessData = ProcessData;
-                    //var tObjs = TOCFile.Read(nativeReader);
-                    //if (tObjs != null && tObjs.Count > 0 && !ProcessData)
-                    //    objs.AddRange(tObjs);
-                    objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
-                    //return TOCFile.Read(nativeReader); // this will return to do the process thingy
-                    return objs;
+              
+                    TOCFile = new TOCFile(nativePath, DoLogging, ProcessData, false);
+                    if (TOCFile.TOCObjects != null && TOCFile.TOCObjects.Count > 0)
+                    {
+                        if (!ProcessData)
+                            objs.AddRange(TOCFile.TOCObjects.List.Select(x => ((DbObject)x)));
+                        else
+                        {
+                            foreach (var obj in TOCFile.Bundles)
+                            {
+                                AssetManager.Instance.AddBundle(obj.Name, BundleType.None, sbIndex);
+                            }
+                        }
+
+#if DEBUG
+                    var firstEntry = AssetManager.Instance.EBX.First();
+                    //AssetManager.Instance.AddEbx();
+                    var e = AssetManager.Instance.GetEbx(firstEntry.Value);
+#endif
                 }
+
+
+
+                return objs;
             }
 
             return null;

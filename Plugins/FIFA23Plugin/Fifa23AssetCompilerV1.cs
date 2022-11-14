@@ -455,7 +455,7 @@ namespace FIFA23Plugin
                             throw new Exception($"WRONG SB PATH GIVEN! {tocPath}");
                         }
 
-                        using (var tocSbReader = new TocSbReader_Fifa22(false, false))
+                        using (var tocSbReader = new TocSbReader_Fifa23(false, false))
                         {
                             DbObject dboOriginal = null;
                             List<DbObject> dboOriginal2 = null;
@@ -652,7 +652,7 @@ namespace FIFA23Plugin
 
                     var tocFileRAW = $"{directory}/{tocFile}.toc";
                     string location_toc_file = parent.fs.ResolvePath(tocFileRAW);
-                    using TocSbReader_Fifa22 tocSb = new TocSbReader_Fifa22();
+                    using TocSbReader_Fifa23 tocSb = new TocSbReader_Fifa23();
                     tocSb.DoLogging = false;
                     tocSb.ProcessData = false;
 

@@ -38,10 +38,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             if (!SBHeaderInformation.SuccessfullyRead)
                 return null;
 
-            dbObject.AddValue("totalCount", SBHeaderInformation.totalCount);
-            dbObject.AddValue("ebxCount", SBHeaderInformation.ebxCount);
-            dbObject.AddValue("resCount", SBHeaderInformation.resCount);
-            dbObject.AddValue("chunkCount", SBHeaderInformation.chunkCount);
+            //dbObject.AddValue("totalCount", SBHeaderInformation.totalCount);
+            //dbObject.AddValue("ebxCount", SBHeaderInformation.ebxCount);
+            //dbObject.AddValue("resCount", SBHeaderInformation.resCount);
+            //dbObject.AddValue("chunkCount", SBHeaderInformation.chunkCount);
 
             //
             for (int i = 0; i < SBHeaderInformation.totalCount; i++)
@@ -49,15 +49,15 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 Sha1Positions.Add(binarySbReader2.Position + baseBundleOffset);
                 Sha1.Add(binarySbReader2.ReadSha1());
             }
-            dbObject.AddValue("sha1s", Sha1);
+            //dbObject.AddValue("sha1s", Sha1);
 
             dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
             dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
             dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
-            dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
-            dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
-            dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
-            dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
+            //dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
+            //dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
+            //dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
+            //dbObject.AddValue("metaSize", (int)(SBHeaderInformation.metaSize));
 
             if (SBHeaderInformation.chunkCount != 0)
             {

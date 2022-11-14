@@ -59,6 +59,7 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\CSIL\CSIL.csproj" />
+	  <ProjectReference Include="..\FMT.FileTools\FMT.FileTools.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

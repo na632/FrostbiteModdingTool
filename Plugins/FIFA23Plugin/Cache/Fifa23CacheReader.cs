@@ -127,11 +127,11 @@ namespace FIFA23Plugin.Cache
 						resAssetEntry.Bundles.Add(nativeReader.ReadInt());
 					}
 
-					AssetManager.Instance.RES.Add(resAssetEntry.Name, resAssetEntry);
+					AssetManager.Instance.RES.TryAdd(resAssetEntry.Name, resAssetEntry);
 					if (resAssetEntry.ResRid != 0L)
 					{
 						if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
-							AssetManager.Instance.resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+							AssetManager.Instance.resRidList.TryAdd(resAssetEntry.ResRid, resAssetEntry);
 					}
 
 				}

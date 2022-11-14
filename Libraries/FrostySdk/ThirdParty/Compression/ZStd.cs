@@ -116,7 +116,20 @@ namespace FrostySdk
 					FreeDigestedDict = Marshal.GetDelegateForFunctionPointer<FreeDigestedDictFunc>(Kernel32.GetProcAddress(handle, "ZSTD_freeDDict"));
 				}
 			}
-		}
+
+            if ((ProfileManager.DataVersion == 20170929
+                || ProfileManager.DataVersion == 20180914
+                || ProfileManager.IsFIFADataVersion()
+                || ProfileManager.IsFIFA21DataVersion()
+                || ProfileManager.IsFIFA22DataVersion() // FIFA 22
+                )
+                && FileSystem.Instance.HasFileInMemoryFs("Dictionaries/ebx.dict")
+                )
+            {
+                var ebxDict = FileSystem.Instance.GetFileFromMemoryFs("Dictionaries/ebx.dict");
+                ZStd.SetDictionary(ebxDict);
+            }
+        }
 
 		internal static void SetDictionary(byte[] data)
 		{

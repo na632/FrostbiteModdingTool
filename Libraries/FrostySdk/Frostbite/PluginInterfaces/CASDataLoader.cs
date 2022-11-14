@@ -2,6 +2,7 @@
 using FrostySdk;
 using FrostySdk.Deobfuscators;
 using FrostySdk.Frostbite.PluginInterfaces;
+using FrostySdk.FrostySdk.IO.Readers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -56,7 +57,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 {
                     if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
                         AssetManager.Instance.logger.Log($"{path} [{Math.Round(((double)index / casBundles.Count) * 100).ToString()}%]");
-                    
+
+                    AssetManager.Instance.Bundles.Add(new BundleEntry() { });
+
                     index++;
 
                     // go back 4 from the magic
@@ -170,51 +173,37 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
                             if (AssociatedTOCFile.ProcessData)
                             {
-
-
-                                foreach (DbObject item in EbxObjectList)
+                                foreach (DbObject item in EbxObjectList.List)
                                 {
                                     EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
                                     ebxAssetEntry = (EbxAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, ebxAssetEntry);
-                                    //ebxAssetEntry.Name = item.GetValue<string>("name");
-                                    //ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                                    //ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
-                                    //ebxAssetEntry.Size = item.GetValue("size", 0L);
-                                    //ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                                    //ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                                    //ebxAssetEntry.ExtraData = new AssetExtraData();
-                                    //ebxAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-
-                                    //int cas = item.GetValue("cas", 0);
-                                    //int catalog = item.GetValue("catalog", 0);
-                                    //bool patch = item.GetValue("patch", false);
-                                    //ebxAssetEntry.ExtraData.Cas = (ushort)cas;
-                                    //ebxAssetEntry.ExtraData.Catalog = (ushort)catalog;
-                                    //ebxAssetEntry.ExtraData.IsPatch = patch;
-                                    //ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
-
-                                    //ebxAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                                    //ebxAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                                    //ebxAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                                    //ebxAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
-
-                                    //ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
-                                    //ebxAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
-
-                                    //if (AssociatedTOCFile.ProcessData)
-                                    //{
-                                    //    if (AssetManager.Instance.EBX.ContainsKey(ebxAssetEntry.Name.ToLower()))
-                                    //    {
-                                    //        var originalEbx = AssetManager.Instance.EBX[ebxAssetEntry.Name.ToLower()];
-                                    //        ebxAssetEntry.TOCFileLocations = originalEbx.TOCFileLocations;
-                                    //        ebxAssetEntry.TOCFileLocations.Add(AssociatedTOCFile.NativeFileLocation);
-                                    //    }
 
                                     ebxAssetEntry.CASFileLocation = NativeFileLocation;
                                     ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
-                                    AssetManager.Instance.AddEbx(ebxAssetEntry);
+                                    //if(TypeLibrary.ProfileAssembly != null)
+                                    //{
+                                    //    if(string.IsNullOrEmpty(ebxAssetEntry.Type))
+                                    //    {
+                                    //        if(ebxAssetEntry.ExtraData.CasPath == NativeFileLocation)
+                                    //        {
+                                    //            nr_cas.Position = ebxAssetEntry.ExtraData.DataOffset;
+
+                                    //            using (var vs = new MemoryStream(new CasReader(new MemoryStream(nr_cas.ReadBytes((int)ebxAssetEntry.Size))).Read()))
+                                    //            {
+                                    //                var ebxObject = AssetManager.Instance.GetEbxAssetFromStream(vs);
+                                    //                ebxAssetEntry.Type = ebxObject.RootObject.GetType().Name.ToString();
+                                    //                if (ebxAssetEntry.Type.Contains("ChunkFile", StringComparison.OrdinalIgnoreCase))
+                                    //                {
+
+                                    //                }
+                                    //            }
+                                    //        }
+                                    //    }
                                     //}
+
+                                    if (AssociatedTOCFile.ProcessData)
+                                        AssetManager.Instance.AddEbx(ebxAssetEntry);
                                 }
 
                                 var iRes = 0;
@@ -223,43 +212,12 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                     ResAssetEntry resAssetEntry = new ResAssetEntry();
                                     resAssetEntry = (ResAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, resAssetEntry);
 
-                                    //resAssetEntry.Name = item.GetValue<string>("name");
-                                    //resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                                    //resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
-                                    //resAssetEntry.Size = item.GetValue("size", 0L);
-                                    //resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                                    //resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                                    //resAssetEntry.ExtraData = new AssetExtraData();
-                                    //resAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-
-                                    //int cas = item.GetValue("cas", 0);
-                                    //int catalog = item.GetValue("catalog", 0);
-                                    //bool patch = item.GetValue("patch", false);
-                                    //resAssetEntry.ExtraData.Cas = (ushort)cas;
-                                    //resAssetEntry.ExtraData.Catalog = (ushort)catalog;
-                                    //resAssetEntry.ExtraData.IsPatch = patch;
-                                    //resAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
-
-                                    //resAssetEntry.ResRid = item.GetValue<ulong>("resRid", 0ul);
-                                    //resAssetEntry.ResType = item.GetValue<uint>("resType", 0);
-                                    //resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta", null);
-
-                                    //resAssetEntry.CASFileLocation = NativeFileLocation;
-                                    //resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
-                                    ////resAssetEntry.TOCFileLocations = new HashSet<string>();
-
-                                    //resAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                                    //resAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                                    //resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                                    //resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
-
                                     resAssetEntry.CASFileLocation = NativeFileLocation;
                                     resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
                                     resAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
                                     if (AssociatedTOCFile.ProcessData)
                                         AssetManager.Instance.AddRes(resAssetEntry);
-
 
                                     iRes++;
                                 }
@@ -269,32 +227,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                 {
                                     ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
                                     chunkAssetEntry = (ChunkAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, chunkAssetEntry);
-                                    //chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-
-                                    //chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
-                                    //chunkAssetEntry.Size = item.GetValue("size", 0L);
-                                    //chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
-                                    //chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-                                    //chunkAssetEntry.ExtraData = new AssetExtraData();
-                                    //chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-
-                                    //int cas = item.GetValue("cas", 0);
-                                    //int catalog = item.GetValue("catalog", 0);
-                                    //bool patch = item.GetValue("patch", false);
-                                    //chunkAssetEntry.ExtraData.Cas = (ushort)cas;
-                                    //chunkAssetEntry.ExtraData.Catalog = (ushort)catalog;
-                                    //chunkAssetEntry.ExtraData.IsPatch = patch;
-                                    //chunkAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(catalog, cas, patch);
-
-                                    //chunkAssetEntry.Id = item.GetValue<Guid>("id");
-                                    //chunkAssetEntry.LogicalOffset = item.GetValue<uint>("logicalOffset");
-                                    //chunkAssetEntry.LogicalSize = item.GetValue<uint>("logicalSize");
-
-                                   
-                                    //chunkAssetEntry.SB_OriginalSize_Position = item.GetValue("SB_OriginalSize_Position", 0);
-                                    //chunkAssetEntry.SB_CAS_Offset_Position = item.GetValue("SB_CAS_Offset_Position", 0);
-                                    //chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
-                                    //chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
                                     chunkAssetEntry.CASFileLocation = NativeFileLocation;
                                     chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;

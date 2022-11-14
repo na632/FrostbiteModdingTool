@@ -4,7 +4,6 @@
   "DataVersion": 20210922,
   "CacheName": "fifa22",
   "Deobfuscator": "NullDeobfuscator",
-  "KeyFile": "fifa21.key",
   "AssetLoader": "AssetLoader_Fifa22",
   "AssetCompiler": "Fifa22AssetCompilerV1",
   //"AssetCompiler": "Fifa22AssetCompiler",
@@ -16,14 +15,14 @@
   // EBX Reader (Overriding the base Reader)
   "EBXReader": "EbxReader22B",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": "EbxWriter2022",
+  "EBXWriter": "EbxWriter2023",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
 
-  "ProjectEbxWriter": "EbxWriter2022",
-  "ProjectEbxReader": "EbxReader2022",
+  "ProjectEbxWriter": "EbxWriter2023",
+  "ProjectEbxReader": "EbxReader22B",
 
 
   "Sources": [
@@ -73,13 +72,13 @@
   "CanExportMeshes": true,
   // GeometryDeclarationDesc stream count
   "GDDMaxStreams": 16,
-  "CompressedFormatEBX": "Zstd",
+  "CompressedFormatEBX": "Oodle",
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
   //"CompressedFormatLegacy": "Oodle",
   "CompressedFormatLegacy": "Oodle",
   //"CompressedFormatLegacy": "None",
-  "LegacyFileManager": "ChunkFileManager2022",
+  "LegacyFileManager": "LFM_Fifa22",
   "CanUseModData": true,
   "ForceUseModData": true,
   "GameIdentifier": 196837

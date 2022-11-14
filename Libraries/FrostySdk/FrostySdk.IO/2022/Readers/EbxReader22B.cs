@@ -200,7 +200,16 @@ namespace FrostySdk.IO._2022.Readers
 			uint chunkName = base.ReadUInt32LittleEndian();
 			if (chunkName != 5784133 && chunkName != 1398293061)
 			{
-				throw new InvalidDataException("Incorrectly formatted RIFF detected.");
+#if DEBUG
+                Position = 0;
+				if (File.Exists($"ebx.BadRIFF.read.22.dat"))
+					File.Delete($"ebx.BadRIFF.read.22.dat");
+                var fsDump = new FileStream($"ebx.BadRIFF.read.22.dat", FileMode.OpenOrCreate);
+                base.stream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+#endif
+                throw new InvalidDataException("Incorrectly formatted RIFF detected.");
 			}
 			chunkName = base.ReadUInt32LittleEndian();
 			if (chunkName != 1146634821)

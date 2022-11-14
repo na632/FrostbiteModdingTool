@@ -12,71 +12,22 @@ using System.Text;
 
 namespace FrostySdk.IO
 {
-	public class NativeReader : IDisposable
+    public class NativeReader : FMT.FileTools.NativeReader, IDisposable
 	{
-		protected Stream stream;
-
 		protected IDeobfuscator deobfuscator;
 
-		protected byte[] buffer;
-
-		protected char[] charBuffer;
-
-		protected long streamLength;
-
-		protected Encoding wideDecoder;
-
-		public Stream BaseStream => stream;
-
-		public virtual long Position
+		public NativeReader(string filePath) : base(filePath)
 		{
-			get
-			{
-				if (stream == null)
-				{
-					return 0L;
-				}
-				return stream.Position;
-			}
-			set
-			{
-				if (deobfuscator == null || !deobfuscator.AdjustPosition(this, value))
-				{
-					if (stream == null)
-						return;
-
-					stream.Position = value;
-				}
-			}
+			
 		}
 
-		public virtual long Length => streamLength;
-
-		public int ErrorCount { get; } = 0;
-
-		public NativeReader(string filePath)
+		public NativeReader(Stream inStream) : base(inStream)
 		{
-			stream = new FileStream(filePath, FileMode.Open);
-			wideDecoder = new UnicodeEncoding();
-			buffer = new byte[20];
-			charBuffer = new char[2];
+		
 		}
 
-		public NativeReader(Stream inStream)
-		{
-			stream = inStream;
-			if (stream != null)
-			{
-				streamLength = stream.Length;
-			}
-			wideDecoder = new UnicodeEncoding();
-			buffer = new byte[20];
-			charBuffer = new char[2];
-		}
-
-		public NativeReader(Stream inStream, IDeobfuscator inDeobfuscator)
-			: this(inStream)
-		{
+		public NativeReader(Stream inStream, IDeobfuscator inDeobfuscator) : this(inStream)
+        {
 			deobfuscator = inDeobfuscator;
 			if (deobfuscator != null && stream != null)
 			{
@@ -128,49 +79,9 @@ namespace FrostySdk.IO
 			}
 		}
 
-		public NativeReader(byte[] data)
+        public NativeReader(byte[] data) : base(data)
         {
-			stream = new MemoryStream(data);
         }
-
-		public NativeReader Skip(int numberOfBytesToSkip)
-        {
-			BaseStream.Position += numberOfBytesToSkip;
-			return this;
-        }
-
-		public static byte[] ReadInStream(Stream inStream)
-		{
-			using (NativeReader nativeReader = new NativeReader(inStream))
-			{
-				return nativeReader.ReadToEnd();
-			}
-		}
-
-		public char ReadWideChar()
-		{
-			FillBuffer(2);
-			wideDecoder.GetChars(buffer, 0, 2, charBuffer, 0);
-			return charBuffer[0];
-		}
-
-		public bool ReadBoolean()
-		{
-			var readByte = ReadByte();
-            return readByte == 1;
-		}
-
-		public byte ReadByte()
-		{
-			FillBuffer(1);
-			return buffer[0];
-		}
-
-		public sbyte ReadSByte()
-		{
-			FillBuffer(1);
-			return (sbyte)buffer[0];
-		}
 
 		public short ReadShort(Endian inEndian = Endian.Little)
 		{
@@ -275,17 +186,6 @@ namespace FrostySdk.IO
 
 		public ulong ReadULong(Endian inEndian = Endian.Little)
 		{
-			//Span<byte> span = stackalloc byte[8];
-			//ReadIntoSpan(span);
-			//return inEndian == Endian.Little ? BinaryPrimitives.ReadUInt64LittleEndian(span) : BinaryPrimitives.ReadUInt64BigEndian(span);
-
-			//FillBuffer(8);
-			//if (inEndian == Endian.Little)
-			//{
-			//    return ((ulong)(uint)(buffer[4] | (buffer[5] << 8) | (buffer[6] << 16) | (buffer[7] << 24)) << 32) | (uint)(buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24));
-			//}
-			//return ((ulong)(uint)(buffer[3] | (buffer[2] << 8) | (buffer[1] << 16) | (buffer[0] << 24)) << 32) | (uint)(buffer[7] | (buffer[6] << 8) | (buffer[5] << 16) | (buffer[4] << 24));
-
 			FillBuffer(8);
 			if (inEndian == Endian.Little)
 				return BitConverter.ToUInt64(buffer.Take(8).ToArray());
@@ -306,17 +206,6 @@ namespace FrostySdk.IO
 		public unsafe float ReadFloat(Endian inEndian = Endian.Little)
 		{
 			FillBuffer(4);
-			//if (inEndian == Endian.Big)
-			//{
-			//	uint num = 0u;
-			//	num = (uint)((inEndian != 0) ? (buffer[3] | (buffer[2] << 8) | (buffer[1] << 16) | (buffer[0] << 24)) : (buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24)));
-			//	return *(float*)(&num);
-			//}
-			//else
-			//         {
-			//	float myFloat = System.BitConverter.ToSingle(buffer.Take(4).ToArray(), 0);
-			//	return myFloat;
-			//}
 
 			var int32bytes = BitConverter.ToInt32(buffer.Take(4).ToArray());
 			var reInt32Bytes = BinaryPrimitives.ReverseEndianness(int32bytes);
@@ -331,10 +220,6 @@ namespace FrostySdk.IO
 
 		public unsafe float ReadSingleLittleEndian()
 		{
-			//Span<byte> span = stackalloc byte[4];
-			//ReadIntoSpan(span);
-			//return BitConverter.ToSingle(span);
-
 			return ReadFloat();
 		}
 

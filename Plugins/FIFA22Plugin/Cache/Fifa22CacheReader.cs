@@ -38,38 +38,7 @@ namespace FIFA22Plugin.Cache
                 ChunkDataOffset = nativeReader.ReadULong();
                 NameToPositionOffset = nativeReader.ReadULong();
                 int count = 0;
-                //int count = nativeReader.ReadInt();
-                //if (ProfilesLibrary.DataVersion == 20171117 || ProfilesLibrary.DataVersion == 20180628)
-                //{
-                //	AssetManager.Instance.superBundles.Add(new SuperBundleEntry
-                //	{
-                //		Name = "<none>"
-                //	});
-                //}
-                //else
-                //{
-                //	for (int i = 0; i < count; i++)
-                //	{
-                //		SuperBundleEntry superBundleEntry = new SuperBundleEntry();
-                //		superBundleEntry.Name = nativeReader.ReadNullTerminatedString();
-                //		AssetManager.Instance.superBundles.Add(superBundleEntry);
-                //	}
-                //}
-                //count = nativeReader.ReadInt();
-                ////if (!ProfilesLibrary.IsFIFA21DataVersion() && count == 0)
-                ////{
-                ////	return false;
-                ////}
-                //for (int j = 0; j < count; j++)
-                //{
-                //	BundleEntry bundleEntry = new BundleEntry();
-                //	bundleEntry.Name = nativeReader.ReadNullTerminatedString();
-                //	bundleEntry.SuperBundleId = nativeReader.ReadInt();
-                //	if (!flag)
-                //	{
-                //		AssetManager.Instance.bundles.Add(bundleEntry);
-                //	}
-                //}
+
                 count = nativeReader.ReadInt();
                 for (int k = 0; k < count; k++)
                 {
@@ -90,21 +59,7 @@ namespace FIFA22Plugin.Cache
                         ebxAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
                         ebxAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
                         ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-                        //                  ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-                        //if (ebxAssetEntry.ExtraData.CasPath.Contains("native_patch")) 
-                        //{
-                        //	if (!ebxAssetEntry.ExtraData.IsPatch)
-                        //	{
-
-                        //	}
-                        //}
                     }
-
-                    //var numTFL = nativeReader.ReadInt();
-                    //for (int iTFL = 0; iTFL < numTFL; iTFL++)
-                    //{
-                    //	ebxAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
-                    //}
 
                     if (nativeReader.ReadBoolean())
                         ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
@@ -115,18 +70,6 @@ namespace FIFA22Plugin.Cache
                     ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
                     ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
                     ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-
-                    //int num2 = nativeReader.ReadInt();
-                    //for (int l = 0; l < num2; l++)
-                    //{
-                    //	ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
-                    //}
-                    //var num2 = nativeReader.ReadInt();
-                    //for (int m = 0; m < num2; m++)
-                    //{
-                    //    ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-                    //}
 
                     if (patched)
                     {
@@ -159,7 +102,6 @@ namespace FIFA22Plugin.Cache
                         resAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
                         resAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
                         resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-                        //resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
                     }
 
                     var numTFL = nativeReader.ReadInt();
@@ -185,11 +127,11 @@ namespace FIFA22Plugin.Cache
                         resAssetEntry.Bundles.Add(nativeReader.ReadInt());
                     }
 
-                    AssetManager.Instance.RES.Add(resAssetEntry.Name, resAssetEntry);
+                    AssetManager.Instance.RES.TryAdd(resAssetEntry.Name, resAssetEntry);
                     if (resAssetEntry.ResRid != 0L)
                     {
                         if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
-                            AssetManager.Instance.resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+                            AssetManager.Instance.resRidList.TryAdd(resAssetEntry.ResRid, resAssetEntry);
                     }
 
                 }

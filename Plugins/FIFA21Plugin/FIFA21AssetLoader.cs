@@ -178,9 +178,9 @@ namespace FIFA21Plugin
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			LoadData(parent, helper);
 			LoadPatch(parent, helper);
-		}
+			LoadData(parent, helper);
+        }
 
 		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
 		{

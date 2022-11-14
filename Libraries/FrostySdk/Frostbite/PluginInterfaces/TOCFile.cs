@@ -162,7 +162,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				DataOffset = nativeReader.ReadInt(Endian.Big); // 40
 				Unk9_Count = nativeReader.ReadInt(Endian.Big); // 44 // seems to be the same as bundles count
 				TOCFlags = (TocFlags)nativeReader.ReadInt(Endian.Big); // 48
-				if (TOCFlags.HasFlag(TocFlags.CompressedStrings))
+				//if (TOCFlags.HasFlag(TocFlags.CompressedStrings))
 				{
 					CompressedStringCount = nativeReader.ReadInt(Endian.Big); // 52
 					CompressedStringSize = nativeReader.ReadInt(Endian.Big); // 56
@@ -287,7 +287,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 				nativeReader.Position = actualInternalPos + MetaData.ChunkEntryOffset;
 				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
-				//foreach(var itemChunk in ChunkIndexToChunkId)
 				{
 					DbObject dboChunk = new DbObject();
 
@@ -321,8 +320,13 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 						throw new ArgumentException("");
 					}
 
-					// Generate a Sha1 since we dont have one.
-					chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
+                    if (chunkAssetEntry2.Id.ToString() == "76c53a5f-b788-f470-9013-fd2ebc74843f")
+                    {
+
+                    }
+
+                    // Generate a Sha1 since we dont have one.
+                    chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
 
 					chunkAssetEntry2.LogicalOffset = chunkOffset;
 					chunkAssetEntry2.OriginalSize = (chunkAssetEntry2.LogicalOffset & 0xFFFF) | chunkSize;
@@ -349,28 +353,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 					var chunkAssetEntry = TocChunks[chunkIndex];
 					if (AssetManager.Instance != null && ProcessData)
 					{
-
-                        if (AssetManager.Instance.Chunks.ContainsKey(chunkAssetEntry.Id))
-						{
-							var existingChunk = (ChunkAssetEntry)AssetManager.Instance.Chunks[chunkAssetEntry.Id].Clone();
-							if (existingChunk.IsTocChunk && !existingChunk.ExtraData.IsPatch && chunkAssetEntry.ExtraData.IsPatch)
-							{
-								AssetManager.Instance.Chunks[chunkAssetEntry.Id] = chunkAssetEntry;
-							}
-							else if (!existingChunk.IsTocChunk)
-							{
-								foreach(var bundle in chunkAssetEntry.Bundles)
-									existingChunk.Bundles.Add(bundle);
-
-                                //Debug.WriteLine($"Ignoring {chunkAssetEntry.Id} as it already exists in a patch folder or isn't a TOC Chunk originally");
-							}
-                        }
-                        else
-						{
-							AssetManager.Instance.AddChunk(chunkAssetEntry);
-						}
-
-                        
+						AssetManager.Instance.AddChunk(chunkAssetEntry);
                     }
 
                 }
@@ -552,8 +535,11 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                         {
 							TOCObjects.Add(d);
 						}
-					}
-				}
+
+
+
+                    }
+                }
 			}
 		}
 

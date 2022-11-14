@@ -84,6 +84,13 @@ namespace FrostySdk.IO
 			}
 			bool unobfuscateCode = ((compressType >> 7) & 1) != 0;
 			bool unobfuscate = unobfuscateCode && ProfileManager.DataVersion == 20180914;
+			//switch (compressTypeBig)
+			//{
+			//	case 3952:
+			//		if (AssociatedAssetEntry != null) AssociatedAssetEntry.OriginalCompressionType = CompressionType.Oodle;
+			//		return result = DecompressOodle(LastCompressedBufferSize, originalSize, unobfuscate);
+			//}
+
 			var sw = (ushort)(compressType & 0x7F);
 			switch (sw)
 			{
@@ -149,6 +156,7 @@ namespace FrostySdk.IO
 		private byte[] DecompressBlockZStd(int bufferSize, int decompressedSize, bool useDictionary, bool unobfuscate)
 		{
 			ZStd.Bind();
+
 
 			byte[] array = ReadBytes(bufferSize);
 			if (unobfuscate)

@@ -20,7 +20,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public byte Unk { get; set; }
         public byte Catalog { get; set; }
         public byte Cas { get; set; }
-        public bool Patch { get; internal set; }
+        public bool Patch { get; set; }
 
         //
         // ---------------------------------------
@@ -29,7 +29,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public int FlagsOffset { get; set; }
 
         public uint BundleOffset { get; set; }
-        public uint BundleSize { get; internal set; }
+        public uint BundleSize { get; set; }
 
         public List<uint> Sizes = new List<uint>();
 
@@ -50,8 +50,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
         }
 
-        public int EntriesCount { get; internal set; }
-        public int EntriesOffset { get; internal set; }
+        public int EntriesCount { get; set; }
+        public int EntriesOffset { get; set; }
 
         /// <summary>
         /// 

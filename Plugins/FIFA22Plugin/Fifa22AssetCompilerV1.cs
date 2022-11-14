@@ -21,6 +21,8 @@ namespace FIFA22Plugin
 {
 
     /// <summary>
+    /// FIFA 23 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
+    /// Linked to FIFA21BundleAction
     /// </summary>
     public class Fifa22AssetCompilerV1 : BaseAssetCompiler, IAssetCompiler
     {
@@ -36,7 +38,7 @@ namespace FIFA22Plugin
             base.Compile(fs, logger, modExecuter);
 
             DateTime dtStarted = DateTime.Now;
-            if (!ProfileManager.IsFIFA22DataVersion())
+            if (!ProfileManager.IsFIFA23DataVersion())
             {
                 logger.Log("[ERROR] Wrong compiler used for Game");
                 return false;
@@ -265,18 +267,26 @@ namespace FIFA22Plugin
                 buildCache.LoadData(ProfileManager.ProfileName, parent.GamePath, parent.Logger, false, true);
             }
 
-            parent.Logger.Log("Loading Cached Super Bundles.");
-
             if (!ModExecutor.UseModData && GameWasPatched)
             {
                 DeleteBakFiles(parent.GamePath);
             }
 
-            parent.Logger.Log("Finished loading files. Enumerating modified bundles.");
 
+            parent.Logger.Log("Retreiving list of Modified CAS Files.");
             var dictOfModsToCas = GetModdedCasFiles();
-            if (dictOfModsToCas != null && dictOfModsToCas.Count > 0)
-            {
+
+            // Force delete of Live Tuning Updates
+            if (dictOfModsToCas.Any(x => x.Value.Any(y => y.NamePath.Contains("gp_", StringComparison.OrdinalIgnoreCase))))
+                parent.DeleteLiveUpdates = true;
+
+            //ProcessLegacyMods();
+            parent.Logger.Log("Modifying TOC Chunks.");
+            ModifyTOCChunks();
+
+            if (dictOfModsToCas == null || dictOfModsToCas.Count == 0)
+                return true;
+
                 if (ErrorCounts.Count > 0)
                 {
                     if (ErrorCounts[ModType.EBX] > 0)
@@ -402,6 +412,9 @@ namespace FIFA22Plugin
                                 }
                             }
 
+                            if (string.IsNullOrEmpty(originalEntry.TOCFileLocation))
+                                continue;
+
                             EntriesToNewPosition.Add(originalEntry, (positionOfData, data.Length, origSize, modItem.Sha1));
                         }
 
@@ -450,7 +463,7 @@ namespace FIFA22Plugin
                             {
                                 var timeStarted = DateTime.Now;
 
-                                dboOriginal2 = tocSbReader.Read(tocPath.Replace(".sb", ".toc", StringComparison.OrdinalIgnoreCase), 0, tocPath);
+                                dboOriginal2 = tocSbReader.Read(tocPath, 0, tocGroup.Key, nativePath: tocGroup.Key);
 
                                 SbToDbObject.Add(tocGroup.Key, new DbObject(dboOriginal2));
                                 Debug.WriteLine("Time Taken to Read SB: " + (DateTime.Now - timeStarted).ToString());
@@ -607,10 +620,8 @@ namespace FIFA22Plugin
 
                 Task.WaitAll(tasks.ToArray());
 
-            }
 
 
-            ModifyTOCChunks();
 
 
             return true;

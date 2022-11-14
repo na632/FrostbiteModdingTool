@@ -174,6 +174,9 @@ namespace FIFAModdingUI.Pages.Common
 							);
 					}
 
+                    assets = assets.Where(x => !x.Name.Contains("-False-", StringComparison.OrdinalIgnoreCase));
+                    assets = assets.Where(x => !x.Name.Contains("FMTOther", StringComparison.OrdinalIgnoreCase));
+
 					assets = assets.Where(x =>
 						(
 						onlymodified == true
