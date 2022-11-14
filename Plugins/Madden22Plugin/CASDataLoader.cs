@@ -166,7 +166,7 @@ namespace Madden22Plugin
                                     EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
                                     ebxAssetEntry.Name = item.GetValue<string>("name");
                                     ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                                    ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
+                                    ebxAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(ebxAssetEntry.Sha1);
                                     ebxAssetEntry.Size = item.GetValue("size", 0L);
                                     ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                                     ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
@@ -196,7 +196,7 @@ namespace Madden22Plugin
                                     ResAssetEntry resAssetEntry = new ResAssetEntry();
                                     resAssetEntry.Name = item.GetValue<string>("name");
                                     resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-                                    resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
+                                    resAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(resAssetEntry.Sha1);
                                     resAssetEntry.Size = item.GetValue("size", 0L);
                                     resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                                     resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
@@ -232,7 +232,7 @@ namespace Madden22Plugin
                                     ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
                                     chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
 
-                                    chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
+                                    chunkAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
                                     chunkAssetEntry.Size = item.GetValue("size", 0L);
                                     chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
                                     chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;

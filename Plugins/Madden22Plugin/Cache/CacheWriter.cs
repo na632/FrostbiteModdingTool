@@ -25,8 +25,8 @@ namespace Madden22Plugin.Cache
                 {
                     nativeWriter.WriteNullTerminatedString(superBundle.Name);
                 }
-                nativeWriter.Write(AssetManager.Instance.bundles.Count);
-                foreach (BundleEntry bundle in AssetManager.Instance.bundles)
+                nativeWriter.Write(AssetManager.Instance.Bundles.Count);
+                foreach (BundleEntry bundle in AssetManager.Instance.Bundles)
                 {
                     nativeWriter.WriteNullTerminatedString(bundle.Name);
                     nativeWriter.Write(bundle.SuperBundleId);

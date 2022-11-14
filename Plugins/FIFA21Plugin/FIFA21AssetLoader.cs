@@ -91,9 +91,9 @@ namespace FIFA21Plugin
 							{
 								foreach (DbObject @object in dbObjects.Where(x => x != null))
 								{
-									parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
-									parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
-									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+									parent.ProcessBundleEbx(@object, parent.Bundles.Count - 1, helper);
+									parent.ProcessBundleRes(@object, parent.Bundles.Count - 1, helper);
+									parent.ProcessBundleChunks(@object, parent.Bundles.Count - 1, helper);
 								}
 							}
 						}
@@ -159,9 +159,9 @@ namespace FIFA21Plugin
 
 								foreach (DbObject @object in dbObjects.Where(x => x != null))
 								{
-									parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
-									parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
-									parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
+									parent.ProcessBundleEbx(@object, parent.Bundles.Count - 1, helper);
+									parent.ProcessBundleRes(@object, parent.Bundles.Count - 1, helper);
+									parent.ProcessBundleChunks(@object, parent.Bundles.Count - 1, helper);
 								}
 
 							}

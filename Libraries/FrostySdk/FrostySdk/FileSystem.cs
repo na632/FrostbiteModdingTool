@@ -4,6 +4,7 @@ using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.ThirdParty;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -20,13 +21,13 @@ namespace FrostySdk
 {
 	public class FileSystem
 	{
-		private List<string> paths = new List<string>();
+		private List<string> paths { get; } = new List<string>();
 
-		private List<string> superBundles = new List<string>();
+		private List<string> superBundles { get; } = new List<string>();
 
-		private List<string> splitSuperBundles = new List<string>();
+		private List<string> splitSuperBundles { get; } = new List<string>();
 
-		private List<Catalog> catalogs = new List<Catalog>();
+		private List<Catalog> catalogs { get; } = new List<Catalog>();
 
 		public Dictionary<string, byte[]> memoryFs { get; set; } = new Dictionary<string, byte[]>();
 
@@ -34,7 +35,7 @@ namespace FrostySdk
 
 		public Dictionary<string, byte[]> MemoryFileSystemModifiedItems { get; set; } = new Dictionary<string, byte[]>();
 
-		private List<string> casFiles = new List<string>();
+		private List<string> casFiles { get; } = new List<string>();
 
 		private string basePath;
 
@@ -51,9 +52,9 @@ namespace FrostySdk
 		/// </summary>
 		public ulong SystemIteration;
 
-		private List<ManifestBundleInfo> manifestBundles = new List<ManifestBundleInfo>();
+		private List<ManifestBundleInfo> manifestBundles { get; } = new List<ManifestBundleInfo>();
 
-		private List<ManifestChunkInfo> manifestChunks = new List<ManifestChunkInfo>();
+		private List<ManifestChunkInfo> manifestChunks { get; } = new List<ManifestChunkInfo>();
 
 		public int SuperBundleCount => superBundles.Count;
 
@@ -200,7 +201,10 @@ namespace FrostySdk
 				key = LoadKey();
 
 			ReadInitfs(key, patched);
-		}
+
+            ZStd.Bind();
+            Oodle.Bind(BasePath);
+        }
 
 		public IDeobfuscator CreateDeobfuscator()
 		{

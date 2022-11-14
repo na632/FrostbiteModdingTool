@@ -84,7 +84,7 @@ namespace FIFA21Plugin
                                 Name = AssociatedTOCFile.NativeFileLocation + "-" + BundleEntry.PersistedIndexCount,
                                 PersistedIndex = BundleEntry.PersistedIndexCount
                             };
-                            AssetManager.Instance.bundles.Add(bundleEntry);
+                            AssetManager.Instance.Bundles.Add(bundleEntry);
                             BundleEntry.PersistedIndexCount++;
                             BaseBundleInfo.BundleItemIndex++;
                         }
@@ -175,7 +175,7 @@ namespace FIFA21Plugin
                             if (AssociatedTOCFile.ProcessData)
                             {
 
-                                var bundleId = AssetManager.Instance.bundles.Count - 1;
+                                var bundleId = AssetManager.Instance.Bundles.Count - 1;
 
                                 foreach (DbObject item in EbxObjectList)
                                 {
@@ -243,7 +243,7 @@ namespace FIFA21Plugin
                                     //resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
                                     //resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-                                    resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+                                    resAssetEntry.Bundle = AssetManager.Instance.Bundles[bundleId].Name;
                                     resAssetEntry.Bundles.Add(bundleId);
 
                                     resAssetEntry.CASFileLocation = NativeFileLocation;

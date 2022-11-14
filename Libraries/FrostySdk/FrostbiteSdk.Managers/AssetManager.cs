@@ -315,7 +315,7 @@ namespace FrostySdk.Managers
 												Name = text2,
 												SuperBundleId = num
 											};
-											parent.bundles.Add(item);
+											parent.Bundles.Add(item);
 											BinarySbReader binarySbReader = null;
 											if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
 												binarySbReader = new BinarySbReaderV2(memoryStream, 0L, parent.fs.CreateDeobfuscator());
@@ -371,9 +371,9 @@ namespace FrostySdk.Managers
 													offset += value3;
 													currentSize -= value3;
 												}
-												parent.ProcessBundleEbx(dbObject, parent.bundles.Count - 1, helper);
-												parent.ProcessBundleRes(dbObject, parent.bundles.Count - 1, helper);
-												parent.ProcessBundleChunks(dbObject, parent.bundles.Count - 1, helper);
+												parent.ProcessBundleEbx(dbObject, parent.Bundles.Count - 1, helper);
+												parent.ProcessBundleRes(dbObject, parent.Bundles.Count - 1, helper);
+												parent.ProcessBundleChunks(dbObject, parent.Bundles.Count - 1, helper);
 											}
 										}
 									}
@@ -428,16 +428,16 @@ namespace FrostySdk.Managers
 
 		public FileSystem FileSystem => fs;
 
-		public ResourceManager rm = ResourceManager.Instance;
+		//public ResourceManager rm = ResourceManager.Instance;
 
-        public ResourceManager ResourceManager => rm;
+  //      public ResourceManager ResourceManager => rm;
 
 
 		public ILogger logger;
 
 		public List<SuperBundleEntry> superBundles = new List<SuperBundleEntry>(500);
 
-		public List<BundleEntry> bundles = new List<BundleEntry>(999999);
+		public List<BundleEntry> Bundles { get; } = new List<BundleEntry>(350000);
 
         public ConcurrentDictionary<string, AssetEntry> Assets { get; } = new ConcurrentDictionary<string, AssetEntry>(4, 350000, StringComparer.OrdinalIgnoreCase);
 
@@ -479,10 +479,9 @@ namespace FrostySdk.Managers
             logger = inLogger;
         }
 
-        public AssetManager(in FileSystem inFs, in ResourceManager inRm)
+        public AssetManager(in FileSystem inFs)
 		{
 			fs = inFs;
-			rm = inRm;
 
             Instance = this;
 
@@ -517,8 +516,8 @@ namespace FrostySdk.Managers
                 //{
                 //	cam.Value.Reset();
                 //}
-                bundles.Clear();
-				bundles = null;
+                Bundles.Clear();
+				//Bundles = null;
 				EBX.Clear();
 				//EBX = null;
 				RES.Clear();
@@ -529,7 +528,7 @@ namespace FrostySdk.Managers
 				//Chunks = null;
 
 				TypeLibrary.ExistingAssembly = null;
-				ResourceManager.Dispose();
+				//ResourceManager.Dispose();
 				Instance = null;
 			}
 		}
@@ -852,7 +851,7 @@ namespace FrostySdk.Managers
 			if (AllSdkAssemblyTypes == null)
 				AllSdkAssemblyTypes = TypeLibrary.ExistingAssembly.GetTypes().ToList();
 
-			ResourceManager.UseLastCasPath = true;
+			//ResourceManager.UseLastCasPath = true;
 
 			var ebxListValues = EBX.Values.ToList();
             //if (ProfilesLibrary.IsMadden21DataVersion()
@@ -883,7 +882,7 @@ namespace FrostySdk.Managers
 
             //}
 
-			ResourceManager.UseLastCasPath = false;
+			AssetManager.UseLastCasPath = false;
 
 		}
 
@@ -1088,17 +1087,17 @@ namespace FrostySdk.Managers
 
 		public BundleEntry AddBundle(string name, BundleType type, int sbIndex)
 		{
-			int num = bundles.FindIndex((BundleEntry be) => be.Name == name);
+			int num = Bundles.FindIndex((BundleEntry be) => be.Name == name);
 			if (num != -1)
 			{
-				return bundles[num];
+				return Bundles[num];
 			}
 			BundleEntry bundleEntry = new BundleEntry();
 			bundleEntry.Name = name;
 			bundleEntry.SuperBundleId = sbIndex;
 			bundleEntry.Type = type;
 			bundleEntry.Added = true;
-			bundles.Add(bundleEntry);
+			Bundles.Add(bundleEntry);
 			return bundleEntry;
 		}
 
@@ -1626,7 +1625,7 @@ namespace FrostySdk.Managers
 
 		public IEnumerable<BundleEntry> EnumerateBundles(BundleType type = BundleType.None, bool modifiedOnly = false)
 		{
-			foreach (BundleEntry bundle in bundles)
+			foreach (BundleEntry bundle in Bundles)
 			{
 				if ((type == BundleType.None || bundle.Type == type) && (!modifiedOnly || bundle.Added))
 				{
@@ -1637,7 +1636,7 @@ namespace FrostySdk.Managers
 
 		public IEnumerable<EbxAssetEntry> EnumerateEbx(BundleEntry bentry)
 		{
-			int num = bundles.IndexOf(bentry);
+			int num = Bundles.IndexOf(bentry);
 			return EnumerateEbx("", false, false, true, num);
 		}
 
@@ -1647,9 +1646,9 @@ namespace FrostySdk.Managers
 			if (bundleSubPath != "")
 			{
 				bundleSubPath = bundleSubPath.ToLower();
-				for (int i = 0; i < bundles.Count; i++)
+				for (int i = 0; i < Bundles.Count; i++)
 				{
-					if (bundles[i].Name.Equals(bundleSubPath) || bundles[i].Name.StartsWith(bundleSubPath + "/"))
+					if (Bundles[i].Name.Equals(bundleSubPath) || Bundles[i].Name.StartsWith(bundleSubPath + "/"))
 					{
 						list.Add(i);
 					}
@@ -1699,7 +1698,7 @@ namespace FrostySdk.Managers
 
 		public IEnumerable<ResAssetEntry> EnumerateRes(BundleEntry bentry)
 		{
-			int num = bundles.IndexOf(bentry);
+			int num = Bundles.IndexOf(bentry);
 			if (num != -1)
 			{
 				foreach (ResAssetEntry item in EnumerateRes(0u, false, num))
@@ -1715,9 +1714,9 @@ namespace FrostySdk.Managers
 			if (bundleSubPath != "")
 			{
 				bundleSubPath = bundleSubPath.ToLower();
-				for (int i = 0; i < bundles.Count; i++)
+				for (int i = 0; i < Bundles.Count; i++)
 				{
-					if (bundles[i].Name.Equals(bundleSubPath) || bundles[i].Name.StartsWith(bundleSubPath + "/"))
+					if (Bundles[i].Name.Equals(bundleSubPath) || Bundles[i].Name.StartsWith(bundleSubPath + "/"))
 					{
 						list.Add(i);
 					}
@@ -1762,7 +1761,7 @@ namespace FrostySdk.Managers
 
 		public IEnumerable<ChunkAssetEntry> EnumerateChunks(BundleEntry bentry)
 		{
-			int bindex = bundles.IndexOf(bentry);
+			int bindex = Bundles.IndexOf(bentry);
 			if (bindex != -1)
 			{
 				foreach (ChunkAssetEntry value in Chunks.Values.OrderBy(x => x.ExtraData != null ? x.ExtraData.CasPath : string.Empty))
@@ -1818,21 +1817,21 @@ namespace FrostySdk.Managers
 
 		public int GetBundleId(BundleEntry bentry)
 		{
-			return bundles.FindIndex((BundleEntry be) => be.Name.Equals(bentry.Name));
+			return Bundles.FindIndex((BundleEntry be) => be.Name.Equals(bentry.Name));
 		}
 
 		public int GetBundleId(string name)
 		{
-			return bundles.FindIndex((BundleEntry be) => be.Name.Equals(name));
+			return Bundles.FindIndex((BundleEntry be) => be.Name.Equals(name));
 		}
 
 		public BundleEntry GetBundleEntry(int bundleId)
 		{
-			if (bundleId >= bundles.Count)
+			if (bundleId >= Bundles.Count)
 			{
 				return null;
 			}
-			return bundles[bundleId];
+			return Bundles[bundleId];
 		}
 
 		public AssetEntry GetCustomAssetEntry(string type, string key)
@@ -2138,7 +2137,12 @@ namespace FrostySdk.Managers
 			return ((MemoryStream)GetAsset(entry)).ToArray();
 		}
 
-		private Stream GetAsset(AssetEntry entry, bool getModified = true)
+        public Sha1 GetBaseSha1(Sha1 sha1)
+        {
+            return sha1;
+        }
+
+        private Stream GetAsset(AssetEntry entry, bool getModified = true)
 		{
 			if(entry == null)
             {
@@ -2147,28 +2151,143 @@ namespace FrostySdk.Managers
 
 			if (entry.ModifiedEntry != null && entry.ModifiedEntry.Data != null && getModified)
 			{
-				return rm.GetResourceData(entry.ModifiedEntry.Data);
+				return GetResourceData(entry.ModifiedEntry.Data);
 			}
 			switch (entry.Location)
 			{
-			case AssetDataLocation.Cas:
-				if (entry.ExtraData == null)
-				{
-					return rm.GetResourceData(entry.Sha1);
-				}
-				return rm.GetResourceData(entry.ExtraData.BaseSha1, entry.ExtraData.DeltaSha1);
-			case AssetDataLocation.SuperBundle:
-				return rm.GetResourceData((entry.ExtraData.IsPatch ? "native_patch/" : "native_data/") + superBundles[entry.ExtraData.SuperBundleId].Name + ".sb", entry.ExtraData.DataOffset, entry.Size);
-			case AssetDataLocation.Cache:
-				return rm.GetResourceData(entry.ExtraData.DataOffset, entry.Size);
+			//case AssetDataLocation.Cas:
+			//	if (entry.ExtraData == null)
+			//	{
+			//		return rm.GetResourceData(entry.Sha1);
+			//	}
+			//	return rm.GetResourceData(entry.ExtraData.BaseSha1, entry.ExtraData.DeltaSha1);
+			//case AssetDataLocation.SuperBundle:
+			//	return rm.GetResourceData((entry.ExtraData.IsPatch ? "native_patch/" : "native_data/") + superBundles[entry.ExtraData.SuperBundleId].Name + ".sb", entry.ExtraData.DataOffset, entry.Size);
+			//case AssetDataLocation.Cache:
+			//	return rm.GetResourceData(entry.ExtraData.DataOffset, entry.Size);
 			case AssetDataLocation.CasNonIndexed:
-				return rm.GetResourceData(entry.ExtraData.CasPath, entry.ExtraData.DataOffset, entry.Size, entry);
+				return GetResourceData(entry.ExtraData.CasPath, entry.ExtraData.DataOffset, entry.Size, entry);
 			default:
 				return null;
 			}
 		}
 
-		public void ProcessBundleEbx(DbObject sb, int bundleId, BinarySbDataHelper helper)
+        public Stream GetResourceData(byte[] buffer)
+        {
+            byte[] array = null;
+            using (MemoryStream inBaseStream = new MemoryStream(buffer))
+            {
+                using (CasReader casReader = new CasReader(inBaseStream))
+                {
+                    array = casReader.Read();
+                }
+            }
+            if (array == null)
+            {
+                return null;
+            }
+            return new MemoryStream(array);
+        }
+
+        public static string LastCasPath;
+        public static MemoryStream LastCasPathInMemory;
+        public static bool UseLastCasPath = false;
+
+        public MemoryStream GetResourceData(string superBundleName, long offset, long size, AssetEntry entry = null)
+        {
+            if (UseLastCasPath)
+                return GetResourceDataUseLastCas(superBundleName, offset, size);
+
+            superBundleName = superBundleName.Replace("/cs/", "/");
+
+            try
+            {
+                var path = fs.ResolvePath($"{superBundleName}");
+                if (!string.IsNullOrEmpty(path))
+                {
+
+                    using (var f = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    {
+                        using (var nr = new NativeReader(f))
+                        {
+                            byte[] array = null;
+                            using (CasReader casReader = new CasReader(nr.CreateViewStream(offset, size)))
+                            {
+                                casReader.AssociatedAssetEntry = entry;
+                                array = casReader.Read();
+                            }
+                            if (array == null)
+                            {
+                                return null;
+                            }
+                            return new MemoryStream(array);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("[DEBUG] [ERROR] " + e.Message);
+            }
+            return null;
+        }
+
+        public MemoryStream GetResourceDataUseLastCas(string superBundleName, long offset, long size)
+        {
+            superBundleName = superBundleName.Replace("/cs/", "/");
+
+            try
+            {
+                var path = fs.ResolvePath($"{superBundleName}");
+                if (LastCasPath != path && LastCasPathInMemory != null)
+                {
+                    LastCasPathInMemory.Close();
+                    LastCasPathInMemory.Dispose();
+                    LastCasPathInMemory = null;
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
+
+                LastCasPath = path;
+                if (!string.IsNullOrEmpty(LastCasPath))
+                {
+                    if (LastCasPathInMemory == null)
+                    {
+                        using (var f = new FileStream(LastCasPath, FileMode.Open, FileAccess.Read))
+                        {
+                            using (NativeReader reader = new NativeReader(f))
+                            {
+                                LastCasPathInMemory = new MemoryStream(reader.ReadToEnd());
+                                LastCasPathInMemory.Position = 0;
+                            }
+                        }
+                    }
+                    //using (var f = new FileStream(LastCasPath, FileMode.Open, FileAccess.Read))
+                    //{
+                    NativeReader mR = new NativeReader(LastCasPathInMemory);
+                    {
+                        byte[] array = null;
+                        using (CasReader casReader = new CasReader(mR.CreateViewStream(offset, size)))
+                        {
+                            array = casReader.Read();
+                        }
+                        if (array == null)
+                        {
+                            return null;
+                        }
+                        return new MemoryStream(array);
+                    }
+                    //}
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("[DEBUG] [ERROR] " + e.Message);
+            }
+            return null;
+        }
+
+        public void ProcessBundleEbx(DbObject sb, int bundleId, BinarySbDataHelper helper)
 		{
 			if (sb.GetValue<DbObject>("ebx") != null)
 			{
@@ -2391,211 +2510,211 @@ namespace FrostySdk.Managers
 			return dbObject;
 		}
 
-		public EbxAssetEntry AddEbx(DbObject ebx, bool returnExisting = false)
-		{
-			EbxAssetEntry originalEbx = null;
-			string text = ebx.GetValue<string>("name").ToLower();
-			if (EBX.ContainsKey(text))
-			{
-				if(returnExisting)
-					return EBX[text];
-				else
-					EBX.TryRemove(text, out originalEbx);
-			}
-			EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-			ebxAssetEntry.Name = text;
-			ebxAssetEntry.Sha1 = ebx.GetValue<Sha1>("sha1");
-			ebxAssetEntry.BaseSha1 = rm.GetBaseSha1(ebxAssetEntry.Sha1);
-			ebxAssetEntry.Size = ebx.GetValue("size", 0L);
-			ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
-			ebxAssetEntry.IsInline = ebx.HasValue("idata");
-			ebxAssetEntry.Location = AssetDataLocation.Cas;
-			if (ebx.HasValue("cas"))
-			{
-				ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-				ebxAssetEntry.ExtraData = new AssetExtraData();
-				ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
-				ebxAssetEntry.ExtraData.Cas = ebx.HasValue("cas") ? ebx.GetValue<ushort>("cas") : null;
-				ebxAssetEntry.ExtraData.Catalog = ebx.HasValue("catalog") ? ebx.GetValue<ushort>("catalog") : null;
-                ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
-				ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.GetValue("patch", false));
-            }
-			else if (ebx.GetValue("sb", defaultValue: false))
-			{
-				ebxAssetEntry.Location = AssetDataLocation.SuperBundle;
-				ebxAssetEntry.ExtraData = new AssetExtraData();
-				ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
-				ebxAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
-			}
+		//public EbxAssetEntry AddEbx(DbObject ebx, bool returnExisting = false)
+		//{
+		//	EbxAssetEntry originalEbx = null;
+		//	string text = ebx.GetValue<string>("name").ToLower();
+		//	if (EBX.ContainsKey(text))
+		//	{
+		//		if(returnExisting)
+		//			return EBX[text];
+		//		else
+		//			EBX.TryRemove(text, out originalEbx);
+		//	}
+		//	EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+		//	ebxAssetEntry.Name = text;
+		//	ebxAssetEntry.Sha1 = ebx.GetValue<Sha1>("sha1");
+		//	ebxAssetEntry.BaseSha1 = GetBaseSha1(ebxAssetEntry.Sha1);
+		//	ebxAssetEntry.Size = ebx.GetValue("size", 0L);
+		//	ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
+		//	ebxAssetEntry.IsInline = ebx.HasValue("idata");
+		//	ebxAssetEntry.Location = AssetDataLocation.Cas;
+		//	if (ebx.HasValue("cas"))
+		//	{
+		//		ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+		//		ebxAssetEntry.ExtraData = new AssetExtraData();
+		//		ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
+		//		ebxAssetEntry.ExtraData.Cas = ebx.HasValue("cas") ? ebx.GetValue<ushort>("cas") : null;
+		//		ebxAssetEntry.ExtraData.Catalog = ebx.HasValue("catalog") ? ebx.GetValue<ushort>("catalog") : null;
+  //              ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
+		//		ebxAssetEntry.ExtraData.CasPath = FileSystem.Instance.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.GetValue("patch", false));
+  //          }
+		//	else if (ebx.GetValue("sb", defaultValue: false))
+		//	{
+		//		ebxAssetEntry.Location = AssetDataLocation.SuperBundle;
+		//		ebxAssetEntry.ExtraData = new AssetExtraData();
+		//		ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
+		//		ebxAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+		//	}
 
-			if(ebx.HasValue("SBFileLocation"))
-				ebxAssetEntry.SBFileLocation = ebx.GetValue<string>("SBFileLocation");
-			if(ebx.HasValue("TOCFileLocation"))
-				ebxAssetEntry.TOCFileLocation = ebx.GetValue<string>("TOCFileLocation");
-			if(ebx.HasValue("SB_CAS_Offset_Position"))
-				ebxAssetEntry.SB_CAS_Offset_Position = ebx.GetValue<int>("SB_CAS_Offset_Position");
-			if (ebx.HasValue("SB_CAS_Size_Position"))
-				ebxAssetEntry.SB_CAS_Size_Position = ebx.GetValue<int>("SB_CAS_Size_Position");
-			if(ebx.HasValue("SB_OriginalSize_Position"))
-				ebxAssetEntry.SB_OriginalSize_Position = ebx.GetValue<int>("SB_OriginalSize_Position");
-			if(ebx.HasValue("SB_Sha1_Position"))
-				ebxAssetEntry.SB_Sha1_Position = ebx.GetValue<int>("SB_Sha1_Position");
+		//	if(ebx.HasValue("SBFileLocation"))
+		//		ebxAssetEntry.SBFileLocation = ebx.GetValue<string>("SBFileLocation");
+		//	if(ebx.HasValue("TOCFileLocation"))
+		//		ebxAssetEntry.TOCFileLocation = ebx.GetValue<string>("TOCFileLocation");
+		//	if(ebx.HasValue("SB_CAS_Offset_Position"))
+		//		ebxAssetEntry.SB_CAS_Offset_Position = ebx.GetValue<int>("SB_CAS_Offset_Position");
+		//	if (ebx.HasValue("SB_CAS_Size_Position"))
+		//		ebxAssetEntry.SB_CAS_Size_Position = ebx.GetValue<int>("SB_CAS_Size_Position");
+		//	if(ebx.HasValue("SB_OriginalSize_Position"))
+		//		ebxAssetEntry.SB_OriginalSize_Position = ebx.GetValue<int>("SB_OriginalSize_Position");
+		//	if(ebx.HasValue("SB_Sha1_Position"))
+		//		ebxAssetEntry.SB_Sha1_Position = ebx.GetValue<int>("SB_Sha1_Position");
 
-			if(originalEbx != null)
-            {
-				ebxAssetEntry.Bundles.AddRange(originalEbx.Bundles);
-				ebxAssetEntry.Bundles.Add(bundles.Count - 1);
-            }
+		//	if(originalEbx != null)
+  //          {
+		//		ebxAssetEntry.Bundles.AddRange(originalEbx.Bundles);
+		//		ebxAssetEntry.Bundles.Add(Bundles.Count - 1);
+  //          }
 
-			EBX.TryAdd(text, ebxAssetEntry);
-			return ebxAssetEntry;
-		}
+		//	EBX.TryAdd(text, ebxAssetEntry);
+		//	return ebxAssetEntry;
+		//}
 
-		public ResAssetEntry AddRes(DbObject res, bool returnExisting = false)
-		{
-			string value = res.GetValue<string>("name");
-			if (RES.ContainsKey(value))
-			{
-				if(returnExisting)
-					return RES[value];
+		//public ResAssetEntry AddRes(DbObject res, bool returnExisting = false)
+		//{
+		//	string value = res.GetValue<string>("name");
+		//	if (RES.ContainsKey(value))
+		//	{
+		//		if(returnExisting)
+		//			return RES[value];
 
-				RES.Remove(value);
-				//return resList[value];
-			}
-			ResAssetEntry resAssetEntry = new ResAssetEntry();
-			resAssetEntry.Name = value;
-			resAssetEntry.Sha1 = res.GetValue<Sha1>("sha1");
-			resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
-			resAssetEntry.Size = res.GetValue("size", 0L);
-			resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
-			var rrid = res.GetValue<string>("resRid");
-			//if (rrid < 0) rrid *= -1;
-			resAssetEntry.ResRid = Convert.ToUInt64(rrid);
-			resAssetEntry.ResType = (uint)res.GetValue("resType", 0L);
-			resAssetEntry.ResMeta = res.GetValue<byte[]>("resMeta");
-			resAssetEntry.IsInline = res.HasValue("idata");
-			resAssetEntry.Location = AssetDataLocation.Cas;
-			if (res.HasValue("cas"))
-			{
-				resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-				resAssetEntry.ExtraData = new AssetExtraData();
-				resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
-                resAssetEntry.ExtraData.Cas = res.HasValue("cas") ? res.GetValue<ushort>("cas") : null;
-                resAssetEntry.ExtraData.Catalog = res.HasValue("catalog") ? res.GetValue<ushort>("catalog") : null;
-                resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
-                resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? fs.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : fs.GetFilePath(res.GetValue("cas", 0)));
-			}
-			else if (res.GetValue("sb", defaultValue: false))
-			{
-				resAssetEntry.Location = AssetDataLocation.SuperBundle;
-				resAssetEntry.ExtraData = new AssetExtraData();
-				resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
-				resAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
-			}
-			else if (res.GetValue("cache", defaultValue: false))
-			{
-				resAssetEntry.Location = AssetDataLocation.Cache;
-				resAssetEntry.ExtraData = new AssetExtraData();
-				//resAssetEntry.ExtraData.DataOffset = 3735928559L;
-			}
-			else if (res.GetValue("casPatchType", 0) == 2)
-			{
-				resAssetEntry.ExtraData = new AssetExtraData();
-				resAssetEntry.ExtraData.BaseSha1 = res.GetValue<Sha1>("baseSha1");
-				resAssetEntry.ExtraData.DeltaSha1 = res.GetValue<Sha1>("deltaSha1");
-			}
+		//		RES.Remove(value);
+		//		//return resList[value];
+		//	}
+		//	ResAssetEntry resAssetEntry = new ResAssetEntry();
+		//	resAssetEntry.Name = value;
+		//	resAssetEntry.Sha1 = res.GetValue<Sha1>("sha1");
+		//	resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
+		//	resAssetEntry.Size = res.GetValue("size", 0L);
+		//	resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
+		//	var rrid = res.GetValue<string>("resRid");
+		//	//if (rrid < 0) rrid *= -1;
+		//	resAssetEntry.ResRid = Convert.ToUInt64(rrid);
+		//	resAssetEntry.ResType = (uint)res.GetValue("resType", 0L);
+		//	resAssetEntry.ResMeta = res.GetValue<byte[]>("resMeta");
+		//	resAssetEntry.IsInline = res.HasValue("idata");
+		//	resAssetEntry.Location = AssetDataLocation.Cas;
+		//	if (res.HasValue("cas"))
+		//	{
+		//		resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+		//		resAssetEntry.ExtraData = new AssetExtraData();
+		//		resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
+  //              resAssetEntry.ExtraData.Cas = res.HasValue("cas") ? res.GetValue<ushort>("cas") : null;
+  //              resAssetEntry.ExtraData.Catalog = res.HasValue("catalog") ? res.GetValue<ushort>("catalog") : null;
+  //              resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
+  //              resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? fs.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : fs.GetFilePath(res.GetValue("cas", 0)));
+		//	}
+		//	else if (res.GetValue("sb", defaultValue: false))
+		//	{
+		//		resAssetEntry.Location = AssetDataLocation.SuperBundle;
+		//		resAssetEntry.ExtraData = new AssetExtraData();
+		//		resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
+		//		resAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+		//	}
+		//	else if (res.GetValue("cache", defaultValue: false))
+		//	{
+		//		resAssetEntry.Location = AssetDataLocation.Cache;
+		//		resAssetEntry.ExtraData = new AssetExtraData();
+		//		//resAssetEntry.ExtraData.DataOffset = 3735928559L;
+		//	}
+		//	else if (res.GetValue("casPatchType", 0) == 2)
+		//	{
+		//		resAssetEntry.ExtraData = new AssetExtraData();
+		//		resAssetEntry.ExtraData.BaseSha1 = res.GetValue<Sha1>("baseSha1");
+		//		resAssetEntry.ExtraData.DeltaSha1 = res.GetValue<Sha1>("deltaSha1");
+		//	}
 
-			resAssetEntry.SBFileLocation = res.GetValue<string>("SBFileLocation");
-			resAssetEntry.TOCFileLocation = res.GetValue<string>("TOCFileLocation");
-			resAssetEntry.SB_CAS_Offset_Position = res.GetValue<int>("SB_CAS_Offset_Position");
-			resAssetEntry.SB_CAS_Size_Position = res.GetValue<int>("SB_CAS_Size_Position");
-			resAssetEntry.SB_OriginalSize_Position = res.GetValue<int>("SB_OriginalSize_Position");
-			resAssetEntry.SB_Sha1_Position = res.GetValue<int>("SB_Sha1_Position");
+		//	resAssetEntry.SBFileLocation = res.GetValue<string>("SBFileLocation");
+		//	resAssetEntry.TOCFileLocation = res.GetValue<string>("TOCFileLocation");
+		//	resAssetEntry.SB_CAS_Offset_Position = res.GetValue<int>("SB_CAS_Offset_Position");
+		//	resAssetEntry.SB_CAS_Size_Position = res.GetValue<int>("SB_CAS_Size_Position");
+		//	resAssetEntry.SB_OriginalSize_Position = res.GetValue<int>("SB_OriginalSize_Position");
+		//	resAssetEntry.SB_Sha1_Position = res.GetValue<int>("SB_Sha1_Position");
 
-			RES.Add(value, resAssetEntry);
-			if (resAssetEntry.ResRid != 0L)
-			{
-				if (resRidList.ContainsKey(resAssetEntry.ResRid))
-					resRidList.Remove(resAssetEntry.ResRid);
+		//	RES.Add(value, resAssetEntry);
+		//	if (resAssetEntry.ResRid != 0L)
+		//	{
+		//		if (resRidList.ContainsKey(resAssetEntry.ResRid))
+		//			resRidList.Remove(resAssetEntry.ResRid);
 
-				resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-			}
-			return resAssetEntry;
-		}
+		//		resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+		//	}
+		//	return resAssetEntry;
+		//}
 
-		public ChunkAssetEntry AddChunk(DbObject chunk, bool returnExisting = false)
-		{
-			Guid value = chunk.GetValue<Guid>("id");
-			if(value.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
-            {
+		//public ChunkAssetEntry AddChunk(DbObject chunk, bool returnExisting = false)
+		//{
+		//	Guid value = chunk.GetValue<Guid>("id");
+		//	if(value.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
+  //          {
 
-            }
+  //          }
 
-			ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-			if (Chunks.ContainsKey(value))
-			{
-				chunkAssetEntry = Chunks[value];
-				chunkAssetEntry.IsTocChunk = false;
-			}
+		//	ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+		//	if (Chunks.ContainsKey(value))
+		//	{
+		//		chunkAssetEntry = Chunks[value];
+		//		chunkAssetEntry.IsTocChunk = false;
+		//	}
 
-			chunkAssetEntry.Id = value;
-			chunkAssetEntry.Sha1 = chunk.GetValue<Sha1>("sha1");
-			chunkAssetEntry.Size = chunk.GetValue("size", 0L);
-			chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
-			chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);
-			chunkAssetEntry.RangeStart = chunk.GetValue("rangeStart", 0u);
-			chunkAssetEntry.RangeEnd = chunk.GetValue("rangeEnd", 0u);
-			chunkAssetEntry.BundledSize = chunk.GetValue("bundledSize", 0u);
-			chunkAssetEntry.IsInline = chunk.HasValue("idata");
-			chunkAssetEntry.Location = AssetDataLocation.Cas;
-			if (chunk.HasValue("cas"))
-			{
-				chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
-				chunkAssetEntry.ExtraData = new AssetExtraData();
-				chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
-				chunkAssetEntry.ExtraData.Cas = (ushort)chunk.GetValue("cas", 0);
-				chunkAssetEntry.ExtraData.Catalog = (ushort)chunk.GetValue("catalog", 0);
-				chunkAssetEntry.ExtraData.IsPatch = chunk.GetValue("patch", false);
-				if(string.IsNullOrEmpty(chunkAssetEntry.ExtraData.CasPath))
-					chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? fs.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.GetValue("patch", false)) : fs.GetFilePath(chunk.GetValue("cas", 0)));
+		//	chunkAssetEntry.Id = value;
+		//	chunkAssetEntry.Sha1 = chunk.GetValue<Sha1>("sha1");
+		//	chunkAssetEntry.Size = chunk.GetValue("size", 0L);
+		//	chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
+		//	chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);
+		//	chunkAssetEntry.RangeStart = chunk.GetValue("rangeStart", 0u);
+		//	chunkAssetEntry.RangeEnd = chunk.GetValue("rangeEnd", 0u);
+		//	chunkAssetEntry.BundledSize = chunk.GetValue("bundledSize", 0u);
+		//	chunkAssetEntry.IsInline = chunk.HasValue("idata");
+		//	chunkAssetEntry.Location = AssetDataLocation.Cas;
+		//	if (chunk.HasValue("cas"))
+		//	{
+		//		chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
+		//		chunkAssetEntry.ExtraData = new AssetExtraData();
+		//		chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
+		//		chunkAssetEntry.ExtraData.Cas = (ushort)chunk.GetValue("cas", 0);
+		//		chunkAssetEntry.ExtraData.Catalog = (ushort)chunk.GetValue("catalog", 0);
+		//		chunkAssetEntry.ExtraData.IsPatch = chunk.GetValue("patch", false);
+		//		if(string.IsNullOrEmpty(chunkAssetEntry.ExtraData.CasPath))
+		//			chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? fs.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.GetValue("patch", false)) : fs.GetFilePath(chunk.GetValue("cas", 0)));
 
-			}
+		//	}
 
-			else if (chunk.GetValue("sb", defaultValue: false))
-			{
-				chunkAssetEntry.Location = AssetDataLocation.SuperBundle;
-				chunkAssetEntry.ExtraData = new AssetExtraData();
-				chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
-				chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
-			}
-			else if (chunk.GetValue("cache", defaultValue: false))
-			{
-				chunkAssetEntry.Location = AssetDataLocation.Cache;
-				chunkAssetEntry.ExtraData = new AssetExtraData();
-			}
+		//	else if (chunk.GetValue("sb", defaultValue: false))
+		//	{
+		//		chunkAssetEntry.Location = AssetDataLocation.SuperBundle;
+		//		chunkAssetEntry.ExtraData = new AssetExtraData();
+		//		chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
+		//		chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+		//	}
+		//	else if (chunk.GetValue("cache", defaultValue: false))
+		//	{
+		//		chunkAssetEntry.Location = AssetDataLocation.Cache;
+		//		chunkAssetEntry.ExtraData = new AssetExtraData();
+		//	}
 
 
-			var tocfL = chunk.GetValue<string>("TOCFileLocation");
-			chunkAssetEntry.TOCFileLocation = tocfL;
-			chunkAssetEntry.TOCFileLocations.Add(tocfL);
+		//	var tocfL = chunk.GetValue<string>("TOCFileLocation");
+		//	chunkAssetEntry.TOCFileLocation = tocfL;
+		//	chunkAssetEntry.TOCFileLocations.Add(tocfL);
 
-			var sbfl = chunk.GetValue<string>("SBFileLocation");
-            if (!string.IsNullOrEmpty(sbfl))
-            {
-				chunkAssetEntry.SBFileLocation = sbfl;
-				chunkAssetEntry.SBFileLocations.Add(tocfL);
-			}
+		//	var sbfl = chunk.GetValue<string>("SBFileLocation");
+  //          if (!string.IsNullOrEmpty(sbfl))
+  //          {
+		//		chunkAssetEntry.SBFileLocation = sbfl;
+		//		chunkAssetEntry.SBFileLocations.Add(tocfL);
+		//	}
 
-			chunkAssetEntry.SB_CAS_Offset_Position = chunk.GetValue<int>("SB_CAS_Offset_Position");
-			chunkAssetEntry.SB_CAS_Size_Position = chunk.GetValue<int>("SB_CAS_Size_Position");
-			chunkAssetEntry.SB_OriginalSize_Position = chunk.GetValue<int>("SB_OriginalSize_Position");
-			chunkAssetEntry.SB_Sha1_Position = chunk.GetValue<int>("SB_Sha1_Position");
-			chunkAssetEntry.CASFileLocation = chunk.GetValue<string>("CASFileLocation");
+		//	chunkAssetEntry.SB_CAS_Offset_Position = chunk.GetValue<int>("SB_CAS_Offset_Position");
+		//	chunkAssetEntry.SB_CAS_Size_Position = chunk.GetValue<int>("SB_CAS_Size_Position");
+		//	chunkAssetEntry.SB_OriginalSize_Position = chunk.GetValue<int>("SB_OriginalSize_Position");
+		//	chunkAssetEntry.SB_Sha1_Position = chunk.GetValue<int>("SB_Sha1_Position");
+		//	chunkAssetEntry.CASFileLocation = chunk.GetValue<string>("CASFileLocation");
 
-			AddChunk(chunkAssetEntry);
+		//	AddChunk(chunkAssetEntry);
 
-			return chunkAssetEntry;
-		}
+		//	return chunkAssetEntry;
+		//}
 
 		public void SendManagerCommand(string type, string command, params object[] value)
 		{
@@ -2631,8 +2750,10 @@ namespace FrostySdk.Managers
 
 		private bool CacheRead(out List<EbxAssetEntry> prePatchCache)
 		{
+			AssetManager.Instance = this;
+
 			prePatchCache = null;
-			if (!File.Exists(fs.CacheName + ".cache"))
+            if (!File.Exists(fs.CacheName + ".cache"))
 			{
 				return false;
 			}
@@ -2641,308 +2762,307 @@ namespace FrostySdk.Managers
 			if (!string.IsNullOrEmpty(ProfileManager.CacheReader))
 			{
 				var resultFromPlugin = ((ICacheReader)LoadTypeFromPlugin(ProfileManager.CacheReader)).Read();
-				AssetManager.Instance = this;
 				return resultFromPlugin;
 			}
 
+			return false;
+   //         bool flag = false;
+			////using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
+			//using (NativeReader nativeReader = new NativeReader(CacheDecompress()))
+			//{
+			//	if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
+			//		return false;
 
-            bool flag = false;
-			//using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
-			using (NativeReader nativeReader = new NativeReader(CacheDecompress()))
-			{
-				if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
-					return false;
+			//	var cacheHead = nativeReader.ReadULong();
+			//	if (cacheHead != fs.SystemIteration)
+			//	{
+			//		flag = true;
+			//		prePatchCache = new List<EbxAssetEntry>();
+			//		//CacheUpdate = true;
+			//	}
+			//	int count = nativeReader.ReadInt();
+			//	if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
+			//	{
+			//		superBundles.Add(new SuperBundleEntry
+			//		{
+			//			Name = "<none>"
+			//		});
+			//	}
+			//	else
+			//	{
+			//		for (int i = 0; i < count; i++)
+			//		{
+			//			SuperBundleEntry superBundleEntry = new SuperBundleEntry();
+			//			superBundleEntry.Name = nativeReader.ReadNullTerminatedString();
+			//			superBundles.Add(superBundleEntry);
+			//		}
+			//	}
+			//	count = nativeReader.ReadInt();
+			//	if (!ProfileManager.IsFIFA21DataVersion() && count == 0)
+			//	{
+			//		return false;
+			//	}
+			//	for (int j = 0; j < count; j++)
+			//	{
+			//		BundleEntry bundleEntry = new BundleEntry();
+			//		bundleEntry.Name = nativeReader.ReadNullTerminatedString();
+			//		bundleEntry.SuperBundleId = nativeReader.ReadInt();
+			//		if (!flag)
+			//		{
+			//			Bundles.Add(bundleEntry);
+			//		}
+			//	}
+			//	count = nativeReader.ReadInt();
+			//	//EBX = new ConcurrentDictionary<string, EbxAssetEntry>(1, count + 100);
+			//	EBX.Clear();
+			//	for (int k = 0; k < count; k++)
+			//	{
+			//		EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+			//		ebxAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
+			//		ebxAssetEntry.Sha1 = nativeReader.ReadSha1();
+			//		ebxAssetEntry.BaseSha1 = rm.GetBaseSha1(ebxAssetEntry.Sha1);
+			//		ebxAssetEntry.Size = nativeReader.ReadLong();
+			//		ebxAssetEntry.OriginalSize = nativeReader.ReadLong();
+			//		ebxAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
+			//		ebxAssetEntry.IsInline = nativeReader.ReadBoolean();
+			//		ebxAssetEntry.Type = nativeReader.ReadLengthPrefixedString();
+			//		ebxAssetEntry.Guid = nativeReader.ReadGuid();
+			//		if (nativeReader.ReadBoolean())
+			//		{
+			//			ebxAssetEntry.ExtraData = new AssetExtraData();
+			//			ebxAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
+			//			ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
+			//			ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
+			//			ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
+			//			ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+			//			ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+			//		}
+			//		int bundleCount = nativeReader.ReadInt();
+			//		for (int l = 0; l < bundleCount; l++)
+			//		{
+			//			ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
+			//		}
+			//		//bundleCount = nativeReader.ReadInt();
+			//		//for (int m = 0; m < bundleCount; m++)
+			//		//{
+			//		//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
+			//		//}
+			//		if (ProfileManager.IsFIFA21DataVersion())
+			//		{
+			//			if (nativeReader.ReadBoolean())
+			//				ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+			//			if (nativeReader.ReadBoolean())
+			//				ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+			//			if (nativeReader.ReadBoolean())
+			//				ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-				var cacheHead = nativeReader.ReadULong();
-				if (cacheHead != fs.SystemIteration)
-				{
-					flag = true;
-					prePatchCache = new List<EbxAssetEntry>();
-					//CacheUpdate = true;
-				}
-				int count = nativeReader.ReadInt();
-				if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
-				{
-					superBundles.Add(new SuperBundleEntry
-					{
-						Name = "<none>"
-					});
-				}
-				else
-				{
-					for (int i = 0; i < count; i++)
-					{
-						SuperBundleEntry superBundleEntry = new SuperBundleEntry();
-						superBundleEntry.Name = nativeReader.ReadNullTerminatedString();
-						superBundles.Add(superBundleEntry);
-					}
-				}
-				count = nativeReader.ReadInt();
-				if (!ProfileManager.IsFIFA21DataVersion() && count == 0)
-				{
-					return false;
-				}
-				for (int j = 0; j < count; j++)
-				{
-					BundleEntry bundleEntry = new BundleEntry();
-					bundleEntry.Name = nativeReader.ReadNullTerminatedString();
-					bundleEntry.SuperBundleId = nativeReader.ReadInt();
-					if (!flag)
-					{
-						bundles.Add(bundleEntry);
-					}
-				}
-				count = nativeReader.ReadInt();
-				//EBX = new ConcurrentDictionary<string, EbxAssetEntry>(1, count + 100);
-				EBX.Clear();
-				for (int k = 0; k < count; k++)
-				{
-					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-					ebxAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
-					ebxAssetEntry.Sha1 = nativeReader.ReadSha1();
-					ebxAssetEntry.BaseSha1 = rm.GetBaseSha1(ebxAssetEntry.Sha1);
-					ebxAssetEntry.Size = nativeReader.ReadLong();
-					ebxAssetEntry.OriginalSize = nativeReader.ReadLong();
-					ebxAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-					ebxAssetEntry.IsInline = nativeReader.ReadBoolean();
-					ebxAssetEntry.Type = nativeReader.ReadLengthPrefixedString();
-					ebxAssetEntry.Guid = nativeReader.ReadGuid();
-					if (nativeReader.ReadBoolean())
-					{
-						ebxAssetEntry.ExtraData = new AssetExtraData();
-						ebxAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
-						ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-						ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-					}
-					int bundleCount = nativeReader.ReadInt();
-					for (int l = 0; l < bundleCount; l++)
-					{
-						ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
-					}
-					//bundleCount = nativeReader.ReadInt();
-					//for (int m = 0; m < bundleCount; m++)
-					//{
-					//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-					//}
-					if (ProfileManager.IsFIFA21DataVersion())
-					{
-						if (nativeReader.ReadBoolean())
-							ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-						if (nativeReader.ReadBoolean())
-							ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+			//			ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+			//			ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+			//			ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+			//			ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
 
-						ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-						ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-						ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-						ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+			//			ebxAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
 
-						ebxAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
+			//		}
+			//		//               if (ProfilesLibrary.IsMadden21DataVersion())
+			//		//               {
+			//		//	ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
+			//		//	ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
+			//		//}
+			//		if (flag)
+			//		{
+			//			prePatchCache.Add(ebxAssetEntry);
+			//		}
+			//		else
+			//		{
+			//			EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
+			//		}
+			//	}
+			//	count = nativeReader.ReadInt();
+			//	for (int n = 0; n < count; n++)
+			//	{
+   //                 //ResAssetEntry resAssetEntry = JsonConvert.DeserializeObject<ResAssetEntry>(nativeReader.ReadLengthPrefixedString());
+   //                 //RES.Add(resAssetEntry.Name, resAssetEntry);
+   //                 //               if (resAssetEntry.ResRid != 0L)
+   //                 //               {
+   //                 //                   if (!resRidList.ContainsKey(resAssetEntry.ResRid))
+   //                 //                       resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+   //                 //               }
 
-					}
-					//               if (ProfilesLibrary.IsMadden21DataVersion())
-					//               {
-					//	ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-					//	ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-					//}
-					if (flag)
-					{
-						prePatchCache.Add(ebxAssetEntry);
-					}
-					else
-					{
-						EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
-					}
-				}
-				count = nativeReader.ReadInt();
-				for (int n = 0; n < count; n++)
-				{
-                    //ResAssetEntry resAssetEntry = JsonConvert.DeserializeObject<ResAssetEntry>(nativeReader.ReadLengthPrefixedString());
-                    //RES.Add(resAssetEntry.Name, resAssetEntry);
-                    //               if (resAssetEntry.ResRid != 0L)
-                    //               {
-                    //                   if (!resRidList.ContainsKey(resAssetEntry.ResRid))
-                    //                       resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-                    //               }
+   //                 ResAssetEntry resAssetEntry = new ResAssetEntry();
+   //                 resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
+   //                 resAssetEntry.Sha1 = nativeReader.ReadSha1();
+   //                 resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
+   //                 resAssetEntry.Size = nativeReader.ReadLong();
+   //                 resAssetEntry.OriginalSize = nativeReader.ReadLong();
+   //                 resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
+   //                 resAssetEntry.IsInline = nativeReader.ReadBoolean();
+   //                 resAssetEntry.ResRid = nativeReader.ReadULong();
+   //                 resAssetEntry.ResType = nativeReader.ReadUInt();
+   //                 resAssetEntry.ResMeta = nativeReader.ReadBytes(nativeReader.ReadInt());
+   //                 if (nativeReader.ReadBoolean())
+   //                 {
+   //                     resAssetEntry.ExtraData = new AssetExtraData();
+   //                     resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
+   //                     resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
+   //                     resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
+   //                     resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
+   //                     resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+   //                     resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+   //                 }
+   //                 if (ProfileManager.IsFIFA21DataVersion() || ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
+   //                 {
+   //                     if (nativeReader.ReadBoolean())
+   //                         resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+   //                     if (nativeReader.ReadBoolean())
+   //                         resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+   //                     if (nativeReader.ReadBoolean())
+   //                         resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
-                    ResAssetEntry resAssetEntry = new ResAssetEntry();
-                    resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
-                    resAssetEntry.Sha1 = nativeReader.ReadSha1();
-                    resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
-                    resAssetEntry.Size = nativeReader.ReadLong();
-                    resAssetEntry.OriginalSize = nativeReader.ReadLong();
-                    resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-                    resAssetEntry.IsInline = nativeReader.ReadBoolean();
-                    resAssetEntry.ResRid = nativeReader.ReadULong();
-                    resAssetEntry.ResType = nativeReader.ReadUInt();
-                    resAssetEntry.ResMeta = nativeReader.ReadBytes(nativeReader.ReadInt());
-                    if (nativeReader.ReadBoolean())
-                    {
-                        resAssetEntry.ExtraData = new AssetExtraData();
-                        resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-                        resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
-                        resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-                        resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-                        resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-                        resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-                    }
-                    if (ProfileManager.IsFIFA21DataVersion() || ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
-                    {
-                        if (nativeReader.ReadBoolean())
-                            resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-                        if (nativeReader.ReadBoolean())
-                            resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-                        if (nativeReader.ReadBoolean())
-                            resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+   //                     resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+   //                     resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+   //                     resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+   //                     resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
 
-                        resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-                        resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-                        resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-                        resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+			//			resAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
+   //                 }
 
-						resAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
-                    }
+   //                 int num3 = nativeReader.ReadInt();
+   //                 for (int num4 = 0; num4 < num3; num4++)
+   //                 {
+   //                     resAssetEntry.Bundles.Add(nativeReader.ReadInt());
+   //                 }
 
-                    int num3 = nativeReader.ReadInt();
-                    for (int num4 = 0; num4 < num3; num4++)
-                    {
-                        resAssetEntry.Bundles.Add(nativeReader.ReadInt());
-                    }
+   //                 if (!flag || (CacheUpdate && resAssetEntry.ExtraData.CasPath.Contains("native_data", StringComparison.OrdinalIgnoreCase)))
+   //                 {
+   //                     RES.Add(resAssetEntry.Name, resAssetEntry);
+   //                     if (resAssetEntry.ResRid != 0L)
+   //                     {
+   //                         if (!resRidList.ContainsKey(resAssetEntry.ResRid))
+   //                             resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+   //                     }
+   //                 }
+   //             }
+			//	count = nativeReader.ReadInt();
+			//	for (int num5 = 0; num5 < count; num5++)
+			//	{
+			//		ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+			//		if (!flag)
+			//		{
+			//			if (Chunks.ContainsKey(chunkAssetEntry.Id))
+			//			{
+			//				//chunkList.Remove(chunkAssetEntry.Id);
+			//				Chunks.TryRemove(chunkAssetEntry.Id, out _);
+			//			}
+			//			//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
+			//			Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
+			//			var entryAfter = Chunks[chunkAssetEntry.Id];
+			//			//if(chunkAssetEntry.Id.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
+			//			//                  {
 
-                    if (!flag || (CacheUpdate && resAssetEntry.ExtraData.CasPath.Contains("native_data", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        RES.Add(resAssetEntry.Name, resAssetEntry);
-                        if (resAssetEntry.ResRid != 0L)
-                        {
-                            if (!resRidList.ContainsKey(resAssetEntry.ResRid))
-                                resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-                        }
-                    }
-                }
-				count = nativeReader.ReadInt();
-				for (int num5 = 0; num5 < count; num5++)
-				{
-					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-					if (!flag)
-					{
-						if (Chunks.ContainsKey(chunkAssetEntry.Id))
-						{
-							//chunkList.Remove(chunkAssetEntry.Id);
-							Chunks.TryRemove(chunkAssetEntry.Id, out _);
-						}
-						//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-						Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
-						var entryAfter = Chunks[chunkAssetEntry.Id];
-						//if(chunkAssetEntry.Id.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
-						//                  {
+			//			//                  }
 
-						//                  }
+			//			if (chunkAssetEntry.Id.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")
+			//			{
 
-						if (chunkAssetEntry.Id.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")
-						{
+			//			}
 
-						}
+			//			//{7ba5f499-d244-0c9b-cadd-1a351fec88cb}
+			//			if (chunkAssetEntry.Id.ToString() == "7ba5f499-d244-0c9b-cadd-1a351fec88cb")
+			//			{
 
-						//{7ba5f499-d244-0c9b-cadd-1a351fec88cb}
-						if (chunkAssetEntry.Id.ToString() == "7ba5f499-d244-0c9b-cadd-1a351fec88cb")
-						{
+			//			}
 
-						}
+			//			if (chunkAssetEntry.Id.ToString() == "2912b9ae-d22c-ac5a-9ff8-f81cf792c23d")
+			//			{
 
-						if (chunkAssetEntry.Id.ToString() == "2912b9ae-d22c-ac5a-9ff8-f81cf792c23d")
-						{
+			//			}
+			//		}
+			//	}
 
-						}
-					}
-				}
+			//	//var ChunkListDupCount = nativeReader.ReadInt();
+			//	//for (int cnklistindex = 0; cnklistindex < ChunkListDupCount; cnklistindex++)
+			//	//{
+			//	//	var chunkDupGuid = nativeReader.ReadGuid();
+			//	//	var chunkDupCount = nativeReader.ReadInt();
 
-				//var ChunkListDupCount = nativeReader.ReadInt();
-				//for (int cnklistindex = 0; cnklistindex < ChunkListDupCount; cnklistindex++)
-				//{
-				//	var chunkDupGuid = nativeReader.ReadGuid();
-				//	var chunkDupCount = nativeReader.ReadInt();
+			//	//	var lstOfChunks = new List<ChunkAssetEntry>();
+			//	//	for (var chunkDupValueIndex = 0; chunkDupValueIndex < chunkDupCount; chunkDupValueIndex++)
+			//	//	{
+			//	//		lstOfChunks.Add(ReadChunkFromCache(nativeReader));
+			//	//	}
+			//	//	ChunkListDuplicates.Add(chunkDupGuid, lstOfChunks);
 
-				//	var lstOfChunks = new List<ChunkAssetEntry>();
-				//	for (var chunkDupValueIndex = 0; chunkDupValueIndex < chunkDupCount; chunkDupValueIndex++)
-				//	{
-				//		lstOfChunks.Add(ReadChunkFromCache(nativeReader));
-				//	}
-				//	ChunkListDuplicates.Add(chunkDupGuid, lstOfChunks);
+			//	//}
+			//}
 
-				//}
-			}
-
-			AssetManager.Instance = this;
-			return !flag;
+			//AssetManager.Instance = this;
+			//return !flag;
 		}
 
-        private ChunkAssetEntry ReadChunkFromCache(NativeReader nativeReader)
-        {
-            //ChunkAssetEntry chunkAssetEntry = JsonConvert.DeserializeObject<ChunkAssetEntry>(nativeReader.ReadLengthPrefixedString());
-            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-            chunkAssetEntry.Id = nativeReader.ReadGuid();
-            chunkAssetEntry.Sha1 = nativeReader.ReadSha1();
-            chunkAssetEntry.BaseSha1 = rm.GetBaseSha1(chunkAssetEntry.Sha1);
-            chunkAssetEntry.Size = nativeReader.ReadLong();
-            chunkAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-            chunkAssetEntry.IsInline = nativeReader.ReadBoolean();
-            chunkAssetEntry.BundledSize = nativeReader.ReadUInt();
-            chunkAssetEntry.RangeStart = nativeReader.ReadUInt();
-            chunkAssetEntry.RangeEnd = nativeReader.ReadUInt();
-            chunkAssetEntry.LogicalOffset = nativeReader.ReadUInt();
-            chunkAssetEntry.LogicalSize = nativeReader.ReadUInt();
-            chunkAssetEntry.H32 = nativeReader.ReadInt();
-            chunkAssetEntry.FirstMip = nativeReader.ReadInt();
-            if (nativeReader.ReadBoolean())
-            {
-                chunkAssetEntry.ExtraData = new AssetExtraData();
-                chunkAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-                chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
-                chunkAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-                chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-                chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-                chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-            }
+		//private ChunkAssetEntry ReadChunkFromCache(NativeReader nativeReader)
+		//{
+		//	ChunkAssetEntry chunkAssetEntry = JsonConvert.DeserializeObject<ChunkAssetEntry>(nativeReader.ReadLengthPrefixedString());
+		//	ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+		//	chunkAssetEntry.Id = nativeReader.ReadGuid();
+		//	chunkAssetEntry.Sha1 = nativeReader.ReadSha1();
+		//	chunkAssetEntry.BaseSha1 = rm.GetBaseSha1(chunkAssetEntry.Sha1);
+		//	chunkAssetEntry.Size = nativeReader.ReadLong();
+		//	chunkAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
+		//	chunkAssetEntry.IsInline = nativeReader.ReadBoolean();
+		//	chunkAssetEntry.BundledSize = nativeReader.ReadUInt();
+		//	chunkAssetEntry.RangeStart = nativeReader.ReadUInt();
+		//	chunkAssetEntry.RangeEnd = nativeReader.ReadUInt();
+		//	chunkAssetEntry.LogicalOffset = nativeReader.ReadUInt();
+		//	chunkAssetEntry.LogicalSize = nativeReader.ReadUInt();
+		//	chunkAssetEntry.H32 = nativeReader.ReadInt();
+		//	chunkAssetEntry.FirstMip = nativeReader.ReadInt();
+		//	if (nativeReader.ReadBoolean())
+		//	{
+		//		chunkAssetEntry.ExtraData = new AssetExtraData();
+		//		chunkAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
+		//		chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
+		//		chunkAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
+		//		chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
+		//		chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+		//		chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
+		//	}
 
-            if (ProfileManager.IsFIFA21DataVersion() )
-            {
-                if (nativeReader.ReadBoolean())
-                    chunkAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-                if (nativeReader.ReadBoolean())
-                    chunkAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-                if (nativeReader.ReadBoolean())
-                    chunkAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
-
-
-                chunkAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-                chunkAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-                chunkAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-                chunkAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-                chunkAssetEntry.SB_LogicalOffset_Position = nativeReader.ReadUInt();
-                chunkAssetEntry.SB_LogicalSize_Position = nativeReader.ReadUInt();
-
-				chunkAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
-
-			}
+		//	if (ProfileManager.IsFIFA21DataVersion())
+		//	{
+		//		if (nativeReader.ReadBoolean())
+		//			chunkAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
+		//		if (nativeReader.ReadBoolean())
+		//			chunkAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+		//		if (nativeReader.ReadBoolean())
+		//			chunkAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
 
 
-			int chunkBundleCount = nativeReader.ReadInt();
-            for (int chunkIndez = 0; chunkIndez < chunkBundleCount; chunkIndez++)
-            {
-                chunkAssetEntry.Bundles.Add(nativeReader.ReadInt());
-            }
+		//		chunkAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+		//		chunkAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+		//		chunkAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+		//		chunkAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
 
-            return chunkAssetEntry;
-        }
+		//		chunkAssetEntry.SB_LogicalOffset_Position = nativeReader.ReadUInt();
+		//		chunkAssetEntry.SB_LogicalSize_Position = nativeReader.ReadUInt();
+
+		//		chunkAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
+
+		//	}
+
+
+		//	int chunkBundleCount = nativeReader.ReadInt();
+		//	for (int chunkIndez = 0; chunkIndez < chunkBundleCount; chunkIndez++)
+		//	{
+		//		chunkAssetEntry.Bundles.Add(nativeReader.ReadInt());
+		//	}
+
+		//	return chunkAssetEntry;
+		//}
 
 
 
-        private void CacheWrite()
+		private void CacheWrite()
         {
             if (!string.IsNullOrEmpty(ProfileManager.CacheWriter))
             {
@@ -2968,8 +3088,8 @@ namespace FrostySdk.Managers
                         nativeWriter.WriteNullTerminatedString(superBundle.Name);
                     }
                 }
-                nativeWriter.Write(bundles.Count);
-                foreach (BundleEntry bundle in bundles)
+                nativeWriter.Write(Bundles.Count);
+                foreach (BundleEntry bundle in Bundles)
                 {
                     nativeWriter.WriteNullTerminatedString(bundle.Name);
                     nativeWriter.Write(bundle.SuperBundleId);

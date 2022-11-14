@@ -91,10 +91,6 @@
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
 	  </None>
-	  <None Update="FrostbiteProfiles\FIFA20_demoProfile.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  </None>
 	  <None Update="FrostbiteProfiles\FIFA23Profile.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

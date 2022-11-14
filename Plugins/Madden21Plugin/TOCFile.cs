@@ -223,7 +223,7 @@ namespace Madden21Plugin
                             };
 
                             if (parent != null)
-                                parent.bundles.Add(bundle);
+                                parent.Bundles.Add(bundle);
                             //TocBundles.Add(bundle, bundleEntryBundles);
 
                             //BundleIndexToBundles.Add(j, bundleEntryBundles);
@@ -404,7 +404,7 @@ namespace Madden21Plugin
 					ebxAssetEntry.ExtraData.DataOffset = (uint)ebx.GetValue("offset", 0L);
 					ebxAssetEntry.ExtraData.CasPath = (ebx.HasValue("catalog") ? AssetManager.Instance.fs.GetFilePath(ebx.GetValue("catalog", 0), ebx.GetValue("cas", 0), ebx.HasValue("patch")) : AssetManager.Instance.fs.GetFilePath(ebx.GetValue("cas", 0)));
 					ebxAssetEntry.ExtraData.IsPatch = ebx.HasValue("patch") ? ebx.GetValue<bool>("patch") : false;
-					ebxAssetEntry.Bundles.Add(parent.bundles.Count - 1);
+					ebxAssetEntry.Bundles.Add(parent.Bundles.Count - 1);
 
 					if (AssetManager.Instance.EBX.ContainsKey(ebxName))
 						AssetManager.Instance.EBX[ebxName] = ebxAssetEntry;
@@ -436,7 +436,7 @@ namespace Madden21Plugin
 
 					resAssetEntry.Name = resName;
 					resAssetEntry.Sha1 = res.GetValue<Sha1>("sha1");
-					resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
+					resAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(resAssetEntry.Sha1);
 					resAssetEntry.Size = res.GetValue("size", 0L);
 					resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
 					var rrid = res.GetValue<string>("resRid");
@@ -450,7 +450,7 @@ namespace Madden21Plugin
 					resAssetEntry.ExtraData.DataOffset = (uint)res.GetValue("offset", 0L);
 					resAssetEntry.ExtraData.CasPath = (res.HasValue("catalog") ? FileSystem.Instance.GetFilePath(res.GetValue("catalog", 0), res.GetValue("cas", 0), res.HasValue("patch")) : FileSystem.Instance.GetFilePath(res.GetValue("cas", 0)));
 					resAssetEntry.ExtraData.IsPatch = res.HasValue("patch") ? res.GetValue<bool>("patch") : false;
-					resAssetEntry.Bundles.Add(parent.bundles.Count - 1);
+					resAssetEntry.Bundles.Add(parent.Bundles.Count - 1);
 
 					if (AssetManager.Instance.RES.ContainsKey(resName))
 						AssetManager.Instance.RES[resName] = resAssetEntry;
@@ -507,7 +507,7 @@ namespace Madden21Plugin
 					chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? FileSystem.Instance.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.HasValue("patch")) : FileSystem.Instance.GetFilePath(chunk.GetValue("cas", 0)));
 					chunkAssetEntry.ExtraData.IsPatch = chunk.HasValue("patch") ? chunk.GetValue<bool>("patch") : false;
 					chunkAssetEntry.ExtraData.SuperBundleId = AssetManager.Instance.superBundles.Count - 1;
-					chunkAssetEntry.Bundles.Add(parent.bundles.Count - 1);
+					chunkAssetEntry.Bundles.Add(parent.Bundles.Count - 1);
 
 					//if (AssetManager.Instance.Chunks.ContainsKey(chunkName))
 					//	AssetManager.Instance.Chunks[chunkName] = chunkAssetEntry;

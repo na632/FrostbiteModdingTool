@@ -21,8 +21,6 @@ namespace SdkGenerator
     {
         public readonly static AssetManager AssetManager = AssetManager.Instance;
 
-        public static ResourceManager ResourceManager;
-
         public static FileSystem FileSystem;
 
         public static EbxAssetEntry SelectedAsset;

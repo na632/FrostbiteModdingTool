@@ -134,7 +134,7 @@ namespace FIFA21Plugin
                 }
 
                 if (AssetManager.Instance != null && ParentReader.ProcessData)
-                    AssetManager.Instance.bundles.Add(bundleEntry);
+                    AssetManager.Instance.Bundles.Add(bundleEntry);
 
                 BundleEntry.PersistedIndexCount++;
 

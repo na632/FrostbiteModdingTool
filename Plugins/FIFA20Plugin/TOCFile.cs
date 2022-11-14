@@ -206,7 +206,7 @@ namespace FIFA20Plugin
 							var sbName = item.Name.Substring(item.Name.LastIndexOf('/') + 1, item.Name.Length - item.Name.LastIndexOf('/') - 1);
 							//System.Diagnostics.Debug.WriteLine("[DEBUG] BundleEntry " + n);
 
-							parent.bundles.Add(item);
+							parent.Bundles.Add(item);
 							TocBundles.Add(item, bundleEntryBundles);
 
 							//foreach(var b in TocBundles)

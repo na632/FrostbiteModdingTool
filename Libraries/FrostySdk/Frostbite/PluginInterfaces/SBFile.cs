@@ -121,7 +121,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 }
 
                 if (AssetManager.Instance != null && ProcessData)
-                    AssetManager.Instance.bundles.Add(bundleEntry);
+                    AssetManager.Instance.Bundles.Add(bundleEntry);
 
                 BundleEntry.PersistedIndexCount++;
 

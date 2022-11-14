@@ -3,6 +3,7 @@ using Frosty.Hash;
 using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -220,10 +221,20 @@ namespace FrostySdk
 			return dir;
 		}
 
+		public static IEnumerable<string> RegistryGames
+		{
+			get
+			{
+				var eaSportsSubKeys = Registry.LocalMachine.OpenSubKey($"Software\\EA Sports\\").GetSubKeyNames();
+				return eaSportsSubKeys;
+            }
+		}
+
 		public static IEnumerable<Profile> EditorProfiles 
 		{ 
 			get 
 			{
+
 				var profiles = Directory.EnumerateFiles(
 						ApplicationDirectory
 						, "*profile.json").ToList();

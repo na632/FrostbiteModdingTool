@@ -36,10 +36,10 @@ namespace FrostySdk.Frostbite
 				AssetManager.Instance = null;
 			}
 
-			if(ResourceManager.Instance != null)
-			{
-				ResourceManager.Instance.Dispose();
-			}
+			//if(ResourceManager.Instance != null)
+			//{
+			//	ResourceManager.Instance.Dispose();
+			//}
 
             var result = LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
 			return result;
@@ -73,7 +73,7 @@ namespace FrostySdk.Frostbite
 
 						logger.Log("Loaded Type Library SDK");
 						new FileSystem(GameLocation);
-						new ResourceManager(logger);
+						//new ResourceManager(logger);
 						logger.Log("Initialised File & Resource System");
 						new AssetManager(logger);
 						AssetManager.Instance.RegisterLegacyAssetManager();

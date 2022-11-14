@@ -37,7 +37,7 @@ namespace FIFA21Plugin
 
             ebxAssetEntry.Name = item.GetValue<string>("name");
             ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-            ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
+            ebxAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(ebxAssetEntry.Sha1);
             ebxAssetEntry.Size = item.GetValue("size", 0L);
             ebxAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
             ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
@@ -59,8 +59,8 @@ namespace FIFA21Plugin
             if(item.HasValue("Type"))
                 ebxAssetEntry.Type = item.GetValue("Type", string.Empty);
 
-            var bundleId = AssetManager.Instance.bundles.Count - 1;
-            ebxAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+            var bundleId = AssetManager.Instance.Bundles.Count - 1;
+            ebxAssetEntry.Bundle = AssetManager.Instance.Bundles[bundleId].Name;
             ebxAssetEntry.Bundles.Add(bundleId);
 
             AssetManager.Instance.AddEbx(ebxAssetEntry);
@@ -86,7 +86,7 @@ namespace FIFA21Plugin
 
             resAssetEntry.Name = item.GetValue<string>("name");
             resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
-            resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
+            resAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(resAssetEntry.Sha1);
             resAssetEntry.Size = item.GetValue("size", 0L);
             resAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
             resAssetEntry.Location = AssetDataLocation.CasNonIndexed;
@@ -110,8 +110,8 @@ namespace FIFA21Plugin
             resAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
             resAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-            var bundleId = AssetManager.Instance.bundles.Count - 1;
-            resAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+            var bundleId = AssetManager.Instance.Bundles.Count - 1;
+            resAssetEntry.Bundle = AssetManager.Instance.Bundles[bundleId].Name;
             resAssetEntry.Bundles.Add(bundleId);
 
              AssetManager.Instance.AddRes(resAssetEntry);
@@ -135,7 +135,7 @@ namespace FIFA21Plugin
 
             chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
 
-            chunkAssetEntry.BaseSha1 = ResourceManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
+            chunkAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
             chunkAssetEntry.Size = item.GetValue("size", 0L);
             chunkAssetEntry.OriginalSize = item.GetValue("originalSize", 0L);
             chunkAssetEntry.Location = AssetDataLocation.CasNonIndexed;
@@ -159,8 +159,8 @@ namespace FIFA21Plugin
             chunkAssetEntry.SB_CAS_Size_Position = item.GetValue("SB_CAS_Size_Position", 0);
             chunkAssetEntry.SB_Sha1_Position = item.GetValue("SB_Sha1_Position", 0);
 
-            var bundleId = AssetManager.Instance.bundles.Count - 1;
-            chunkAssetEntry.Bundle = AssetManager.Instance.bundles[bundleId].Name;
+            var bundleId = AssetManager.Instance.Bundles.Count - 1;
+            chunkAssetEntry.Bundle = AssetManager.Instance.Bundles[bundleId].Name;
             chunkAssetEntry.Bundles.Add(bundleId);
 
             AssetManager.Instance.AddChunk(chunkAssetEntry);

@@ -76,7 +76,7 @@ namespace FIFA22Plugin.Cache
                     EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
                     ebxAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
                     ebxAssetEntry.Sha1 = nativeReader.ReadSha1();
-                    ebxAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(ebxAssetEntry.Sha1);
+                    ebxAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(ebxAssetEntry.Sha1);
                     ebxAssetEntry.Size = nativeReader.ReadLong();
                     ebxAssetEntry.OriginalSize = nativeReader.ReadLong();
                     ebxAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
@@ -144,7 +144,7 @@ namespace FIFA22Plugin.Cache
                     ResAssetEntry resAssetEntry = new ResAssetEntry();
                     resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
                     resAssetEntry.Sha1 = nativeReader.ReadSha1();
-                    resAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(resAssetEntry.Sha1);
+                    resAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(resAssetEntry.Sha1);
                     resAssetEntry.Size = nativeReader.ReadLong();
                     resAssetEntry.OriginalSize = nativeReader.ReadLong();
                     resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
@@ -221,7 +221,7 @@ namespace FIFA22Plugin.Cache
             ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
             chunkAssetEntry.Id = nativeReader.ReadGuid();
             chunkAssetEntry.Sha1 = nativeReader.ReadSha1();
-            chunkAssetEntry.BaseSha1 = AssetManager.Instance.rm.GetBaseSha1(chunkAssetEntry.Sha1);
+            chunkAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(chunkAssetEntry.Sha1);
             chunkAssetEntry.Size = nativeReader.ReadLong();
             chunkAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
             chunkAssetEntry.IsInline = nativeReader.ReadBoolean();
