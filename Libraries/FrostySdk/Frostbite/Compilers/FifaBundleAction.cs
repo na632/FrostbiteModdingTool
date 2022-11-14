@@ -14,7 +14,9 @@ using static ModdingSupport.ModExecutor;
 
 namespace FrostySdk.Frostbite.Compilers
 {
-
+    /// <summary>
+    /// Used by FIFA 17 and above
+    /// </summary>
     public class FifaBundleAction
     {
         private class BundleFileEntry
