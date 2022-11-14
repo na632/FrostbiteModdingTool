@@ -24,9 +24,10 @@ It is however requested that you send a quick message if you wish to sell this c
 - Jaycensolo - Jay has been a great help in testing almost everything this Tool does
 - Somers - Made an enormous mod for FIFA 21 and really put this tool to the test
 - [Aranaktu](https://github.com/xAranaktu) - This man is a legend
-- [Frosty Tool](https://frostytoolsuite.com/) development team. All the `original code` for `FrostySdk`,`SDK Generator` and `Modding` came decompilation of their Toolsuite using ILSpy in 2019. 
+- [Frosty Tool](https://github.com/CadeEvs/FrostyToolsuite) development team. All the `original code` for `FrostySdk`,`SDK Generator` and `Modding` came decompilation of their Toolsuite using ILSpy in 2019. 
 As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github.com/CadeEvs/FrostyToolsuite)
 - [FIFA Editor Tool](https://www.fifaeditortool.com/) development team. Used for research into how to properly handle Meshes for FIFA 21. 
+- EA Sports & DICE - Without their suite of games, this tool and the addiction to modding them wouldnt exist. Many thanks to all those who develop it and Frostbite!
 
 # Supported Games
 ## 100% supported
