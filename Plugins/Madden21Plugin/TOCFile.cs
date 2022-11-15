@@ -458,9 +458,9 @@ namespace Madden21Plugin
 						AssetManager.Instance.RES.TryAdd(resName, resAssetEntry);
 
 					if (AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
-						AssetManager.Instance.resRidList.Remove(resAssetEntry.ResRid);
+						AssetManager.Instance.resRidList.TryRemove(resAssetEntry.ResRid);
 
-					AssetManager.Instance.resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
+					AssetManager.Instance.resRidList.TryAdd(resAssetEntry.ResRid, resAssetEntry);
 
 				}
 				foreach (DbObject chunk in dbObject.GetValue<DbObject>("chunks"))

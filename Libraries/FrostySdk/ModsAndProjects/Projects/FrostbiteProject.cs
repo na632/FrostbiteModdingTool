@@ -100,24 +100,37 @@ namespace FrostySdk
 			modSettings.ClearDirtyFlag();
 		}
 
-		public bool Load(string inFilename)
+		public bool Load(in string inFilename)
 		{
 			ModifiedAssetEntries = null;
 
 			filename = inFilename;
-			using (NativeReader nativeReader = new NativeReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read)))
-			{
-				if (nativeReader.ReadULong() == 98218709832262L)
-				{
-					return InternalLoad(nativeReader).Result;
-				}
-			}
-			//return LegacyLoad(inFilename);
-
-			return false;
+			//using (NativeReader nativeReader = new NativeReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read)))
+			//{
+			//	if (nativeReader.ReadULong() == 98218709832262L)
+			//	{
+			//		return InternalLoad(nativeReader).Result;
+			//	}
+			//}
+			return Load(new FileStream(inFilename, FileMode.Open, FileAccess.Read));
 		}
 
-		public async Task<bool> LoadAsync(string inFilename, CancellationToken cancellationToken = default(CancellationToken))
+        public bool Load(in Stream inStream)
+        {
+            ModifiedAssetEntries = null;
+
+            using (NativeReader nativeReader = new NativeReader(inStream))
+            {
+                //if (nativeReader.ReadULong() == 98218709832262L)
+                //{
+                    return InternalLoad(nativeReader).Result;
+                //}
+            }
+
+            //return false;
+        }
+
+        public async Task<bool> LoadAsync(string inFilename, CancellationToken cancellationToken = default(CancellationToken))
         {
 			if (!File.Exists(inFilename))
 				return false;
@@ -131,10 +144,10 @@ namespace FrostySdk
             filename = inFilename;
             using (NativeReader nativeReader = new NativeReader(new FileStream(inFilename, FileMode.Open, FileAccess.Read)))
             {
-                if (nativeReader.ReadULong() == 98218709832262L)
-                {
+                //if (nativeReader.ReadULong() == 98218709832262L)
+                //{
                     return await InternalLoad(nativeReader, cancellationToken);
-                }
+                //}
             }
 
 			return false;
@@ -689,9 +702,14 @@ namespace FrostySdk
 		public int ChunkCount;
 		public int LegacyCount;
 
-		private async Task<bool> InternalLoad(NativeReader reader, CancellationToken cancellationToken = default(CancellationToken))
+		private async Task<bool> InternalLoad(IO.NativeReader reader, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			List<Task> tasks = new List<Task>();
+			if (reader.ReadULong() != 98218709832262L)
+				return false;
+
+			cancellationToken.ThrowIfCancellationRequested();
+
+            List<Task> tasks = new List<Task>();
 			ProjectFormatVersion = reader.ReadUInt();
 			if (ProjectFormatVersion <= 11u)
 				return false;
@@ -712,17 +730,17 @@ namespace FrostySdk
 			modSettings.Category = reader.ReadNullTerminatedString();
 			modSettings.Version = reader.ReadNullTerminatedString();
 			modSettings.Description = reader.ReadNullTerminatedString();
-			int num2 = reader.ReadInt();
-			if (num2 > 0)
+			int iconAndSSLength = reader.ReadInt();
+			if (iconAndSSLength > 0)
 			{
-				modSettings.Icon = reader.ReadBytes(num2);
+				modSettings.Icon = reader.ReadBytes(iconAndSSLength);
 			}
 			for (int i = 0; i < 4; i++)
 			{
-				num2 = reader.ReadInt();
-				if (num2 > 0)
+				iconAndSSLength = reader.ReadInt();
+				if (iconAndSSLength > 0)
 				{
-					modSettings.SetScreenshot(i, reader.ReadBytes(num2));
+					modSettings.SetScreenshot(i, reader.ReadBytes(iconAndSSLength));
 				}
 			}
 			modSettings.ClearDirtyFlag();

@@ -38,7 +38,7 @@ namespace FIFA22Plugin
             base.Compile(fs, logger, modExecuter);
 
             DateTime dtStarted = DateTime.Now;
-            if (!ProfileManager.IsFIFA23DataVersion())
+            if (!ProfileManager.IsFIFA22DataVersion())
             {
                 logger.Log("[ERROR] Wrong compiler used for Game");
                 return false;

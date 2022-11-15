@@ -56,16 +56,7 @@ namespace FrostbiteModdingTests
         {
             get
             {
-
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\EA Sports\\FIFA 23"))
-                {
-                    if (key != null)
-                    {
-                        string installDir = key.GetValue("Install Dir").ToString();
-                        return installDir + GameEXE;
-                    }
-                }
-                return string.Empty;
+                return Path.Combine(GamePath, GameEXE);
             }
         }
 
@@ -93,6 +84,20 @@ namespace FrostbiteModdingTests
             {
                 Debug.WriteLine("[LOGGER] [WARNING] " + text);
                 prevText = text;
+            }
+        }
+
+        private Dictionary<string, Stream> _testProjects;
+
+        internal Dictionary<string, Stream> TestProjects
+        {
+            get
+            {
+                if (_testProjects != null)
+                    return _testProjects;
+
+                _testProjects = FMT.FileTools.EmbeddedResourceHelper.GetEmbeddedResourcesByName(new string[] { "FIFA22.", ".fbproject" });
+                return _testProjects;
             }
         }
 
@@ -284,20 +289,6 @@ namespace FrostbiteModdingTests
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             projectManagement.Project.Load(@"G:\Work\FIFA Modding\GraphicMod\FIFA 22\test kit project.fbproject");
 
-            //var name = "content/character/kit/kit_0/arsenal_1/home_0_0/jersey_1_0_0_color";
-            //var ebxEntry = AssetManager.Instance.GetEbxEntry(name);
-            //var resEntry = AssetManager.Instance.GetResEntry(name);
-            //if (resEntry != null)
-            //{
-            //    Texture texture = new Texture(resEntry);
-            //    TextureImporter textureImporter = new TextureImporter();
-
-            //    if (ebxEntry != null)
-            //    {
-            //        textureImporter.Import(@"G:\Work\FIFA Modding\GraphicMod\FIFA 21\Kits\Chelsea\Home\jersey_5_0_0_color.png", ebxEntry, ref texture);
-            //    }
-            //}
-
             var testR = "test-" + new Random().Next().ToString() + ".fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
@@ -309,6 +300,30 @@ namespace FrostbiteModdingTests
                     testR
                 }.ToArray()).Wait();
 
+        }
+
+        [TestMethod]
+        public void LoadUltraSlowGameplayMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(TestProjects.Single(x=>x.Key.EndsWith("FIFA22.UltraSlowExampleTest.fbproject")).Value);
+            var testR = "test.fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+        }
+
+        [TestMethod]
+        public void LoadAndLaunchUltraSlowGameplayMod()
+        {
+            LoadUltraSlowGameplayMod();
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
         }
 
         [TestMethod]

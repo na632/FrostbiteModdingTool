@@ -1111,7 +1111,11 @@ namespace ModdingSupport
 
                 if (pluginCompiler != null)
                 {
-                    ((IAssetCompiler)pluginCompiler).Compile(fs, logger, this);
+                    if(!((IAssetCompiler)pluginCompiler).Compile(fs, logger, this))
+                    {
+                        Logger.LogError("An error occurred within the Plugin Compiler. Stopping.");
+                        return false;
+                    }
                 }
                 else
                 {
@@ -1465,25 +1469,6 @@ namespace ModdingSupport
                 }
                 CopyFileIfRequired("thirdparty/fifaconfig.exe", fs.BasePath + "\\FIFASetup\\fifaconfig.exe");
             }
-            else if (ProfileManager.IsFIFA23DataVersion())
-            {
-                //var origPath = Path.Combine(fs.BasePath, ProfilesLibrary.ProfileName + "_orig.exe");
-                //var fiOriginal = new FileInfo(origPath);
-                //// if original exists but Game EXE has been patched
-                //if (GameWasPatched && fiOriginal.Exists
-                //    || (
-                //    fiOriginal.Exists
-                //    && fIGameExe.Length != fiFifaConfig.Length
-                //    && fIGameExe.LastWriteTime > fiOriginal.LastWriteTime))
-                //{
-                //    fiOriginal.Delete();
-                //}
-                //else if (!fiOriginal.Exists)
-                //{
-                //    fIGameExe.MoveTo(fIGameExe.FullName.Replace(".exe", "_orig.exe"));
-                //    CopyFileIfRequired(fiFifaConfig.FullName, GameEXEPath);
-                //}
-            }
             else if (new FileInfo(fifaconfigexe_origlocation).Exists)
             {
                 File.Delete(fifaconfigexelocation); // delete the addon
@@ -1516,57 +1501,22 @@ namespace ModdingSupport
             }
             else if (UseModData)
             {
-                
-                //if (ProfilesLibrary.IsFIFA23DataVersion())
-                //{
-                    if (EADesktopIsInstalled)
-                    {
-                        Logger.Log("Launching EADesktop. Please set the Advanced Launch Option to -dataPath ModData and launch the game through the App.");
+                if (EADesktopIsInstalled)
+                {
+                    Logger.Log("Launching EADesktop. Please set the Advanced Launch Option to -dataPath ModData and launch the game through the App.");
 
-                        RunEADesktop();
-                        LaunchedViaEADesktop = true;
-
-                        //https://answers.ea.com/t5/Bug-Reports-Technical-Issues/How-I-add-command-line-in-game-launch-option-like-in-old-version/m-p/11032763/highlight/true#M4972
-
-
-
-                        // Other Alternative Route
-                        //Logger.Log("[INSTALLED] You have installed your mods, please Start the Game via EA Desktop!");
-                        //Logger.Log("[NOTE] To run mods, you must have -dataPath ModData in your Advanced Launch Options.");
-                        //Logger.Log("[NOTE] Open EA Desktop, click My Collections, click the 3-dots, type -dataPath ModData in under Advanced Launch Options.");
-                        //Logger.Log("[NOTE] This launcher will wait for you =)");
-
-
-                        //var cmdParams = Uri.EscapeDataString(arguments);
-                        //var cmdParams = Uri.EscapeDataString("-dataPath ModData"); // arguments;
-                        //                                                           //Process.Start(new ProcessStartInfo($"origin2://game/launch/?offerIds={ProfilesLibrary.LoadedProfile.GameIdentifier}&cmdParams=-dataPath%20%22ModData%22")
-                        //Process.Start(new ProcessStartInfo($"origin2://game/launch/?offerIds={ProfilesLibrary.LoadedProfile.GameIdentifier}" +
-                        //    $"&cmdParams={cmdParams}")
-                        //{
-                        //    WorkingDirectory = fs.BasePath,
-                        //    UseShellExecute = true,
-                        //    Arguments = arguments,
-                        //});
-                    }
+                    RunEADesktop();
+                    LaunchedViaEADesktop = true;
+                }
+                else
+                {
+                    if (!foundMods)
+                        Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe");
                     else
-                    {
-                        if (!foundMods)
-                            Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe");
-                        else
-                            Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe (with Frostbite Mods in ModData)");
+                        Logger.Log("Launching game: " + fs.BasePath + ProfileManager.ProfileName + ".exe (with Frostbite Mods in ModData)");
 
-                        ExecuteProcess(GameEXEPath, arguments);
-                    }
-                //}
-                //else
-                //{
-                //    if (!foundMods)
-                //        Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe");
-                //    else
-                //        Logger.Log("Launching game: " + fs.BasePath + ProfilesLibrary.ProfileName + ".exe (with Frostbite Mods in ModData)");
-
-                //    ExecuteProcess(GameEXEPath, arguments);
-                //}
+                    ExecuteProcess(GameEXEPath, arguments);
+                }
             }
             else
             {

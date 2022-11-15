@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="FbProjects\FIFA22\FIFA22.UltraSlowExampleTest.fbproject" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\FIFA19Profile.json" Link="FrostbiteProfiles\FIFA19Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -34,6 +38,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\Madden23Profile.json" Link="FrostbiteProfiles\Madden23Profile.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="FbProjects\FIFA22\FIFA22.UltraSlowExampleTest.fbproject" />
   </ItemGroup>
 
   <ItemGroup>
