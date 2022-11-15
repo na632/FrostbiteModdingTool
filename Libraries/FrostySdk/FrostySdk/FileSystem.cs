@@ -602,10 +602,10 @@ namespace FrostySdk
 					}
 				}
 
-				using (DbWriter dbWriter = new DbWriter(new FileStream("decrypted_initfs_" + (patched ? "patch" : "data"), FileMode.Create), inWriteHeader: true))
-				{
-					dbWriter.Write(dbObject);
-				}
+				//using (DbWriter dbWriter = new DbWriter(new FileStream("decrypted_initfs_" + (patched ? "patch" : "data"), FileMode.Create), inWriteHeader: true))
+				//{
+				//	dbWriter.Write(dbObject);
+				//}
 
 
 			}
@@ -730,8 +730,8 @@ namespace FrostySdk
 				{
 					if (!item.GetValue("testDLC", defaultValue: false))
 					{
-						bool value2 = item.GetValue("alwaysInstalled", defaultValue: false);
-						string text = "win32/" + item.GetValue<string>("name");
+						bool alwaysInstalled = item.GetValue("alwaysInstalled", defaultValue: false);
+						string name = "win32/" + item.GetValue<string>("name");
 						//if (
 						//	(ProfilesLibrary.DataVersion != 20180628 
 						//		|| !(text == "win32/installation/default")) 
@@ -750,8 +750,8 @@ namespace FrostySdk
 							{
 								catalogInfo = new Catalog();
 								catalogInfo.Id = item.GetValue<Guid>("id");
-								catalogInfo.Name = text;
-								catalogInfo.AlwaysInstalled = value2;
+								catalogInfo.Name = name;
+								catalogInfo.AlwaysInstalled = alwaysInstalled;
 
 								if (item.HasValue("PersistentIndex"))
 								{
@@ -777,18 +777,18 @@ namespace FrostySdk
 									casFiles[value3] = text3;
 								}
 							}
-                            //if (item.HasValue("splitSuperBundles"))
-                            //{
-                            //    foreach (DbObject tocsbBundle in item.GetValue<DbObject>("splitSuperBundles"))
-                            //    {
-                            //        string sbKey = tocsbBundle.GetValue<string>("superBundle").ToLower();
-                            //        if (!catalogInfo.SuperBundles.ContainsKey(sbKey))
-                            //        {
-                            //            catalogInfo.SuperBundles.Add(sbKey, value: true);
-                            //        }
-                            //    }
-                            //}
-                            if (item.HasValue("splitTocs"))
+							if (item.HasValue("splitSuperBundles"))
+							{
+								foreach (DbObject tocsbBundle in item.GetValue<DbObject>("splitSuperBundles"))
+								{
+									string sbKey = tocsbBundle.GetValue<string>("superBundle").ToLower();
+									if (!catalogInfo.SuperBundles.ContainsKey(sbKey))
+									{
+										catalogInfo.SuperBundles.Add(sbKey, value: true);
+									}
+								}
+							}
+							if (item.HasValue("splitTocs"))
 							{
 								foreach (DbObject item5 in item.GetValue<DbObject>("splitTocs"))
 								{

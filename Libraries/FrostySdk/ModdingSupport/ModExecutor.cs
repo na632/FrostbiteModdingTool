@@ -1610,12 +1610,12 @@ namespace ModdingSupport
             // Installing ---------------------------------------------------
             if (install)
             {
-                secondNode.InnerXml = secondNode.InnerXml.Replace("]EAAntiCheat.GameServiceLauncher", "]FIFA23", StringComparison.OrdinalIgnoreCase);
+                secondNode.InnerXml = secondNode.InnerXml.Replace("]EAAntiCheat.GameServiceLauncher.exe", "]FIFA23.exe", StringComparison.OrdinalIgnoreCase);
             }
             // Uninstalling -------------------------------------------------
             else
             {
-                secondNode.InnerXml = secondNode.InnerXml.Replace("]FIFA23.exe", "]EAAntiCheat.GameServiceLauncher", StringComparison.OrdinalIgnoreCase);
+                secondNode.InnerXml = secondNode.InnerXml.Replace("]FIFA23.exe", "]EAAntiCheat.GameServiceLauncher.exe", StringComparison.OrdinalIgnoreCase);
             }
             // Save to file -------------------------------------------------
             using (FileStream fs = new FileStream(installerXmlPath, FileMode.Open, FileAccess.Write))

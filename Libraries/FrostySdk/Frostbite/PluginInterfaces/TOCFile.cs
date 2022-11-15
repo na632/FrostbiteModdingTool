@@ -14,58 +14,10 @@ using System.Text;
 using static FrostySdk.Frostbite.PluginInterfaces.TOCFile;
 using System.Reflection.Metadata.Ecma335;
 using Frosty.Hash;
+using static PInvoke.Kernel32;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {
-
-	public class BundleEntryInfo
-    {
-		/// <summary>
-		/// Is it a EBX, RES or Chunk
-		/// </summary>
-		public string Type { get; set; }
-		public Guid? ChunkGuid { get; set; }
-		public Sha1? Sha { get; set; }
-		public string Name { get; set; }
-		public long Offset { get; set; }
-		public long Size { get; set; }
-		public int Flag { get; set; }
-		public long StringOffset { get; set; }
-		public int Index { get; set; }
-        public int CasIndex { get; internal set; }
-        public int Offset2 { get; internal set; }
-        public int OriginalSize { get; internal set; }
-
-        public override string ToString()
-        {
-			var builtString = string.Empty;
-
-			if (!string.IsNullOrEmpty(Type))
-			{
-				builtString += Type;
-			}
-
-			if (!string.IsNullOrEmpty(Name))
-            {
-				builtString += " " + Name;
-            }
-			
-			if (Sha.HasValue)
-			{
-				builtString += " " + Sha.Value.ToString();
-			}
-
-
-			if (!string.IsNullOrEmpty(builtString))
-			{
-				builtString = base.ToString();
-			}
-
-			return builtString;
-
-
-		}
-    }
 
     public class TOCFile : IDisposable
     {
@@ -92,14 +44,14 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 		public bool ProcessData = true;
 
-		//public int[] ArrayOfInitialHeaderData = new int[12];
+        public int SuperBundleIndex { get; }
 
-		public ContainerMetaData MetaData = new ContainerMetaData();
+        //public int[] ArrayOfInitialHeaderData = new int[12];
+
+        public ContainerMetaData MetaData = new ContainerMetaData();
 		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
 
 		public Guid[] TocChunkGuids { get; set; }
-
-		public string SuperBundleName { get; set; }
 
         public string ChunkDataBundleName { get { return $"{NativeFileLocation}-TOC"; } }
         public int ChunkDataBundleId { get { return Fnv1a.HashString(ChunkDataBundleName); } }
@@ -110,7 +62,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         /// <param name="nativeFilePath"></param>
         /// <param name="log"></param>
         /// <param name="process"></param>
-        public TOCFile(string nativeFilePath, bool log = true, bool process = true, bool modDataPath = false)
+        public TOCFile(string nativeFilePath, bool log = true, bool process = true, bool modDataPath = false, int sbIndex = -1)
         {
 			NativeFileLocation = nativeFilePath;
             FileLocation = FileSystem.Instance.ResolvePath(nativeFilePath, modDataPath);
@@ -123,6 +75,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
             DoLogging = log;
 			ProcessData = process;
+			SuperBundleIndex = sbIndex;
             using (NativeReader reader = new NativeReader(new FileStream(FileLocation, FileMode.Open)))
                 Read(reader);
         }
@@ -259,6 +212,22 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             {
                 CompressedStringTable[j] = (int)nativeReader.ReadUInt(Endian.Big);
             }
+            CompressedStringHandler stringHandler = new CompressedStringHandler(CompressedStringTable, CompressedStringNames);
+            foreach (var bundle in Bundles)
+            {
+				var bundleName = (stringHandler?.ReadCompressedString(bundle.BundleNameOffset) ?? string.Empty);
+				if (!string.IsNullOrEmpty(bundleName))
+				{
+					bundle.Name = bundleName;
+                    AssetManager.Instance.Bundles.Add(new BundleEntry()
+                    {
+                        Type = bundleName.Contains("sublevel", StringComparison.OrdinalIgnoreCase) ? BundleType.SubLevel : BundleType.None,
+                        PersistedIndex = AssetManager.Instance.Bundles.Count,
+						Name = bundleName,
+						SuperBundleId = SuperBundleIndex
+                    });
+                }
+            }
         }
 
         private void ReadChunkData(NativeReader nativeReader)
@@ -390,6 +359,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 						TocBundleIndex = indexOfBundleCount
 					};
 					Bundles.Add(newBundleInfo);
+					
 				}
 			}
 		}
@@ -748,6 +718,122 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 		}
     }
+
+
+    public class BundleEntryInfo
+    {
+        /// <summary>
+        /// Is it a EBX, RES or Chunk
+        /// </summary>
+        public string Type { get; set; }
+        public Guid? ChunkGuid { get; set; }
+        public Sha1? Sha { get; set; }
+        public string Name { get; set; }
+        public long Offset { get; set; }
+        public long Size { get; set; }
+        public int Flag { get; set; }
+        public long StringOffset { get; set; }
+        public int Index { get; set; }
+        public int CasIndex { get; internal set; }
+        public int Offset2 { get; internal set; }
+        public int OriginalSize { get; internal set; }
+
+        public override string ToString()
+        {
+            var builtString = string.Empty;
+
+            if (!string.IsNullOrEmpty(Type))
+            {
+                builtString += Type;
+            }
+
+            if (!string.IsNullOrEmpty(Name))
+            {
+                builtString += " " + Name;
+            }
+
+            if (Sha.HasValue)
+            {
+                builtString += " " + Sha.Value.ToString();
+            }
+
+
+            if (!string.IsNullOrEmpty(builtString))
+            {
+                builtString = base.ToString();
+            }
+
+            return builtString;
+
+
+        }
+    }
+
+
+    internal class CompressedStringHandler
+    {
+        private readonly int[] table;
+
+        private readonly int[] data;
+
+        public CompressedStringHandler(int[] table, int[] data)
+        {
+            this.table = table ?? throw new ArgumentNullException("table");
+            this.data = data ?? throw new ArgumentNullException("data");
+        }
+
+        public static uint[] ReadCompressedData(NativeReader reader, int count, Endian endian = Endian.Little)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader");
+            }
+            uint[] data = new uint[count];
+            for (int i = 0; i < count; i++)
+            {
+                data[i] = reader.ReadUInt(endian);
+            }
+            return data;
+        }
+
+        public static int[] ReadHuffmanTable(NativeReader reader, int count, Endian endian = Endian.Little)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader");
+            }
+            int[] table = new int[count];
+            for (int i = 0; i < count; i++)
+            {
+                table[i] = reader.ReadInt(endian);
+            }
+            return table;
+        }
+
+        public string ReadCompressedString(int bitIndex)
+        {
+            StringBuilder sb = new StringBuilder();
+            while (true)
+            {
+                int val = table.Length / 2 - 1;
+                do
+                {
+                    uint index = (uint)(int)(data[bitIndex / 32] >> bitIndex % 32) & 1u;
+                    val = table[val * 2 + index];
+                    bitIndex++;
+                }
+                while (val >= 0);
+                char character = (char)(-1 - val);
+                if (character == '\0')
+                {
+                    break;
+                }
+                sb.Append(character);
+            }
+            return sb.ToString();
+        }
+    }
+
 
 
 }

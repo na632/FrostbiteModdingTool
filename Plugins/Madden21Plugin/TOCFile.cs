@@ -458,7 +458,7 @@ namespace Madden21Plugin
 						AssetManager.Instance.RES.TryAdd(resName, resAssetEntry);
 
 					if (AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
-						AssetManager.Instance.resRidList.TryRemove(resAssetEntry.ResRid);
+						AssetManager.Instance.resRidList.TryRemove(resAssetEntry.ResRid, out _);
 
 					AssetManager.Instance.resRidList.TryAdd(resAssetEntry.ResRid, resAssetEntry);
 

@@ -32,7 +32,9 @@ namespace FrostySdk.FrostySdk.IO
 		/// <summary>
 		/// Only used for Indexing. Otherwise redundant.
 		/// </summary>
-		private readonly List<EbxClass> classTypes = new List<EbxClass>();
+		//private  List<EbxClass> classTypes { get; set; } = new List<EbxClass>();
+
+		private int ClassTypeCount = 0;
 
 		private readonly List<Guid> classGuids = new List<Guid>();
 
@@ -978,8 +980,9 @@ namespace FrostySdk.FrostySdk.IO
 		{
 			Guid classGuid = classType.GetCustomAttribute<GuidAttribute>()!.Guid;
 			classGuids.Add(classGuid);
-			EbxClass @class = GetClass(classType);
-			classTypes.Add(@class);
+			//EbxClass @class = GetClass(classType);
+			//classTypes.Add(@class);
+			ClassTypeCount++;
 			Span<byte> typeInfoGuidBytes = stackalloc byte[16];
 			var typeInfo = classType.GetCustomAttributes<TypeInfoGuidAttribute>().LastOrDefault();
 			//GetTypeInfoGuid(@class).TryWriteBytes(typeInfoGuidBytes);
@@ -989,7 +992,8 @@ namespace FrostySdk.FrostySdk.IO
             typeInfoSignatures.Add(BinaryPrimitives.ReadUInt32LittleEndian(span[12..]));
 			AddTypeName(name);
 			typesToProcess.Add(classType);
-			return classTypes.Count - 1;
+			//return classTypes.Count - 1;
+			return ClassTypeCount - 1;
 			//return typesToProcess.Count - 1;
 		}
 

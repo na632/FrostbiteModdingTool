@@ -84,18 +84,14 @@ namespace FIFA23Plugin
 							});
 							sbIndex = parent.superBundles.Count - 1;
 						}
-
-						if (sbName.Contains("careermodestorysba", StringComparison.OrdinalIgnoreCase))
-							continue;
 						
 						parent.logger.Log($"Loading data ({sbName})");
-						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
-						if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
-						{
-							tocFile = sbName;
-						}
-						List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
-						List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
+						//string tocFile = sbName.Replace("win32", catalogInfoItem.Name);
+						//if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
+						//{
+						//	tocFile = sbName;
+						//}
+						string tocFile = sbName;
 						var tocFileRAW = $"{folder}{tocFile}.toc";
 						string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
 						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
