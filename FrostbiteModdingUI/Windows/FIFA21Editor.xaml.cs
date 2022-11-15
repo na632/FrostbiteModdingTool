@@ -232,7 +232,8 @@ namespace FIFAModdingUI.Windows
         public async Task InitialiseOfSelectedGame(string filePath)
         {
             DisableEditor();
-            loadingDialog.Update("Loading Game Files", "");
+            //loadingDialog.Update("Loading Game Files", "");
+            borderLoading.Visibility = Visibility.Visible;
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
             if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
@@ -246,7 +247,7 @@ namespace FIFAModdingUI.Windows
             lstProjectFiles.Items.Clear();
             lstProjectFiles.ItemsSource = null;
 
-            loadingDialog.Update("Loading Game Files", "");
+            //loadingDialog.Update("Loading Game Files", "");
 
             await Task.Run(
                 () =>
@@ -279,7 +280,8 @@ namespace FIFAModdingUI.Windows
             });
 
             //loadingDialog.Close();
-            loadingDialog.Update("", "");
+            //loadingDialog.Update("", "");
+            borderLoading.Visibility = Visibility.Collapsed;
 
 
             DiscordInterop.DiscordRpcClient.UpdateDetails("In Editor [" + GameInstanceSingleton.Instance.GAMEVERSION + "]");
@@ -619,7 +621,8 @@ namespace FIFAModdingUI.Windows
 
         private async Task<bool> SaveProjectWithDialog()
         {
-            loadingDialog.Update("Saving Project", "Sweeping up debris", 0);
+            //loadingDialog.Update("Saving Project", "Sweeping up debris", 0);
+            borderLoading.Visibility = Visibility.Visible;
             //loadingDialog.Show();
             await Task.Delay(100);
             // ---------------------------------------------------------
@@ -637,7 +640,7 @@ namespace FIFAModdingUI.Windows
             {
                 if (!string.IsNullOrEmpty(saveFileDialog.FileName))
                 {
-                    loadingDialog.Update("Saving Project", "Saving project to file", 0);
+                    //loadingDialog.Update("Saving Project", "Saving project to file", 0);
                     //loadingDialog.Show();
                     await ProjectManagement.Project.SaveAsync(saveFileDialog.FileName, true);
 
@@ -657,7 +660,8 @@ namespace FIFAModdingUI.Windows
 
                 }
             }
-            loadingDialog.Update("", "");
+            //loadingDialog.Update("", "");
+            borderLoading.Visibility = Visibility.Collapsed;
 
             //loadingDialog.Close();
             //loadingDialog = null;
