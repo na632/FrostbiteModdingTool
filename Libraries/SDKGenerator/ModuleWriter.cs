@@ -1,6 +1,4 @@
 using FrostySdk;
-using FrostySdk.Attributes;
-using FrostySdk.Ebx;
 using FrostySdk.IO;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,6 +9,8 @@ using System.IO;
 //using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 using System.Linq;
 using System.Text;
+using FrostySdk.Attributes;
+using FrostySdk.Ebx;
 
 namespace SdkGenerator
 {
@@ -188,36 +188,11 @@ namespace SdkGenerator
 
 		public void WriteFromTempCS(uint version)
         {
-			//var results = new Microsoft.CSharp.CSharpCodeProvider().CompileAssemblyFromFile(new CompilerParameters
-			//{
-			//	GenerateExecutable = false,
-			//	OutputAssembly = filename,
-			//	ReferencedAssemblies =
-			//	{
-			//		"mscorlib.dll",
-			//		"FrostbiteSdk.dll",
-			//		"FrostySdk.dll"
-			//	},
-			//	CompilerOptions = "-define:DV_" + ProfilesLibrary.DataVersion
-			//}, "temp.cs");
-
-			//Debug.WriteLine("All errors");
-			//foreach (var i in results.Errors)
-			//{
-			//	Debug.WriteLine(i);
-			//}
-			//Debug.WriteLine("All output");
-			//foreach (var i in results.Output)
-			//{
-			//	Debug.WriteLine(i);
-			//}
-
 			var codeString = SourceText.From(File.ReadAllText("temp.cs"));
 			var options = CSharpParseOptions.Default
 				.WithLanguageVersion(LanguageVersion.LatestMajor);
 
 			var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, options);
-
 
 			var dotnetcore_directory = Directory.GetParent(typeof(object).Assembly.Location);
 
@@ -232,15 +207,8 @@ namespace SdkGenerator
                     MetadataReference.CreateFromFile(objectAssemblyLocation),
 					MetadataReference.CreateFromFile(dotnetcore_directory + @"\netstandard.dll"),
 					MetadataReference.CreateFromFile(dotnetcore_directory + @"\System.Runtime.dll"),
-                    MetadataReference.CreateFromFile("FrostySdk.dll"),
+					MetadataReference.CreateFromFile("FrostySdk.dll"),
 			};
-
-   //         var references = new List<MetadataReference>();
-			//foreach(var dotnetcoredll in dotnetcore_files)
-   //         {
-			//	references.Add(MetadataReference.CreateFromFile(dotnetcoredll));
-			//}
-			//references.Add(MetadataReference.CreateFromFile("FrostySdk.dll"));
 
 			if (File.Exists("EbxClasses.dll"))
 				File.Delete("EbxClasses.dll");
@@ -353,7 +321,7 @@ namespace SdkGenerator
 					stringBuilder.AppendLine("[" + typeof(IsReadOnlyAttribute).Name + "]");
 					stringBuilder.AppendLine("[" + typeof(DisplayNameAttribute).Name + "(\"Guid\")]");
 					stringBuilder.AppendLine("[" + typeof(CategoryAttribute).Name + "(\"Annotations\")]");
-					stringBuilder.AppendLine("[" + typeof(EditorAttribute).Name + "(\"Struct\")]");
+					//stringBuilder.AppendLine("[" + typeof(EditorAttribute).Name + "(\"Struct\")]");
 					stringBuilder.AppendLine("[" + typeof(EbxFieldMetaAttribute).Name + "(24918, 1, null, false, 0)]");
 					stringBuilder.AppendLine("[" + typeof(FieldIndexAttribute).Name + "(-1)]");
 					stringBuilder.AppendLine("public AssetClassGuid __InstanceGuid { get { return __Guid; } }");
@@ -669,10 +637,10 @@ namespace SdkGenerator
                 {
                     stringBuilder.AppendLine("// [" + typeof(DescriptionAttribute) + "(\"" + value.GetValue<string>("description") + "\")]");
                 }
-                if (value.HasValue("editor"))
-				{
-					stringBuilder.AppendLine("[" + typeof(EditorAttribute).Name + "(\"" + value.GetValue<string>("editor") + "\")]");
-				}
+    //            if (value.HasValue("editor"))
+				//{
+				//	//stringBuilder.AppendLine("[" + typeof(EditorAttribute).Name + "(\"" + value.GetValue<string>("editor") + "\")]");
+				//}
 				if (value.HasValue("readOnly"))
 				{
 					stringBuilder.AppendLine("[" + typeof(IsReadOnlyAttribute).Name + "]");
