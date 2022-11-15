@@ -12,7 +12,6 @@
              xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:propertygrid="http://propertytools.org/wpf"
-             xmlns:frostbite="clr-namespace:FrostySdk.Ebx;assembly=FrostySdk"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
     <DockingManager >
@@ -187,7 +186,10 @@
                                                                                 <MenuItem Header="Export Folder"
                                                                      x:Name="btnExportFolder" Tag="{Binding}"
                                                                               Click="btnExportFolder_Click" />
-                                                                            </ContextMenu>
+                                                            <MenuItem Header="Revert"
+                                                                     x:Name="btnRevert" Tag="{Binding}"
+                                                                              Click="btnRevert_Click" />
+                                                        </ContextMenu>
                                                                         </TextBlock.ContextMenu>
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock">

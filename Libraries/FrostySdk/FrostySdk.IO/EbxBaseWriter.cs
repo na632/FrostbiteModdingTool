@@ -1,8 +1,11 @@
 using FrostySdk.Ebx;
 using FrostySdk.FrostySdk.IO;
+using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace FrostySdk.IO
 {
@@ -117,5 +120,38 @@ namespace FrostySdk.IO
 			}
 			return num;
 		}
+
+		public static EbxBaseWriter GetEbxWriter()
+		{
+            EbxBaseWriter ebxBaseWriter = null;
+            if (string.IsNullOrEmpty(ProfileManager.EBXWriter))
+                throw new Exception("No EBX Writer provided for Game Profile");
+
+            return ebxBaseWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXWriter
+                , new MemoryStream(), EbxWriteFlags.None, false);
+        }
+
+		public static byte[] GetEbxArrayDecompressed(EbxAssetEntry entry)
+		{
+			byte[] decompressedArray = null;
+            if (!Task.Run(() =>
+            {
+				var ebxBaseWriter = GetEbxWriter();   
+
+                using (ebxBaseWriter)
+                {
+                    var newAsset = ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject as EbxAsset;
+                    newAsset.ParentEntry = entry;
+                    ebxBaseWriter.WriteAsset(newAsset);
+
+                    decompressedArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
+                }
+            }).Wait(TimeSpan.FromSeconds(6)))
+            {
+                AssetManager.Instance.LogError($"{entry.Name} failed to write!");
+                return null;
+            }
+			return decompressedArray;
+        }
 	}
 }

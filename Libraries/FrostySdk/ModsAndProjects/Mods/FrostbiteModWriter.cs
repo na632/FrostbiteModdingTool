@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using static PInvoke.Kernel32;
 
 namespace FrostySdk
@@ -162,24 +163,10 @@ namespace FrostySdk
 				{
 					// -------------------------------------
 					// get via ebx writer
-					EbxBaseWriter ebxBaseWriter = null;
-					if (string.IsNullOrEmpty(ProfileManager.EBXWriter))
-						throw new Exception("No EBX Writer provided for Game Profile");
-
-					ebxBaseWriter = (EbxBaseWriter)AssetManager.Instance.LoadTypeByName(ProfileManager.EBXWriter
-						, new MemoryStream(), EbxWriteFlags.None, false);
-
-					using (ebxBaseWriter)
-					{
-						var newAsset = ((ModifiedAssetEntry)entry.ModifiedEntry).DataObject as EbxAsset;
-						newAsset.ParentEntry = entry;
-						ebxBaseWriter.WriteAsset(newAsset);
-
-						decompressedArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
-					}
-					//
-					// -------------------------------------
-				}
+					decompressedArray = EbxBaseWriter.GetEbxArrayDecompressed(entry);
+                    //
+                    // -------------------------------------
+                }
 
                 if (decompressedArray == null || decompressedArray.Length == 0)
 					return;

@@ -902,32 +902,32 @@ namespace FIFAModdingUI.Pages.Common
 
         
 
-        private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-		{
-            IAssetEntry entry = (IAssetEntry)((TextBlock)sender).Tag;
+  //      private void AssetEntry_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+		//{
+  //          IAssetEntry entry = (IAssetEntry)((TextBlock)sender).Tag;
 
-            if (entry is EbxAssetEntry ebxAssetEntry)
-                OpenAsset(ebxAssetEntry);
-            else if (entry is LegacyFileEntry legacyFileEntry)
-                OpenAsset(legacyFileEntry);
-            else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
-                OpenAsset(ltuEntry);
-        }
+  //          if (entry is EbxAssetEntry ebxAssetEntry)
+  //              OpenAsset(ebxAssetEntry);
+  //          else if (entry is LegacyFileEntry legacyFileEntry)
+  //              OpenAsset(legacyFileEntry);
+  //          else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+  //              OpenAsset(ltuEntry);
+  //      }
 
-		private void AssetEntry_KeyUp(object sender, KeyEventArgs e)
-		{
-			if (e.Key == Key.Enter || e.Key == Key.Return)
-			{
-				IAssetEntry entry = (IAssetEntry)((TextBlock)sender).Tag;
+		//private void AssetEntry_KeyUp(object sender, KeyEventArgs e)
+		//{
+		//	if (e.Key == Key.Enter || e.Key == Key.Return)
+		//	{
+		//		IAssetEntry entry = (IAssetEntry)((TextBlock)sender).Tag;
 
-                if (entry is EbxAssetEntry ebxAssetEntry)
-					OpenAsset(ebxAssetEntry);
-				else if (entry is LegacyFileEntry legacyFileEntry)
-					OpenAsset(legacyFileEntry);
-				else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
-					OpenAsset(ltuEntry);
-            }
-        }
+  //              if (entry is EbxAssetEntry ebxAssetEntry)
+		//			OpenAsset(ebxAssetEntry);
+		//		else if (entry is LegacyFileEntry legacyFileEntry)
+		//			OpenAsset(legacyFileEntry);
+		//		else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+		//			OpenAsset(ltuEntry);
+  //          }
+  //      }
 
 		MainViewModel ModelViewerModel;
 
@@ -1383,37 +1383,53 @@ namespace FIFAModdingUI.Pages.Common
 
         private void btnRevert_Click(object sender, RoutedEventArgs e)
         {
-			//if (SelectedEntry != null)
-			//{
-			//	if (EBXViewer != null && EBXViewer.Visibility == Visibility.Visible)
-			//	{
-			//		EBXViewer.RevertAsset();
-			//	}
-			//	else 
-			//	{
-			//		AssetManager.Instance.RevertAsset(SelectedEntry);
-			//	}
-			//}
-			//else if (SelectedLegacyEntry != null)
-   //         {
-			//	AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
-			//	if(SelectedLegacyEntry.Type == "DDS")
-   //             {
-			//		//BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
-			//		BuildTextureViewerFromStream((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
-   //             }
-   //         }
+			try
+			{
+                var labelTag = ((MenuItem)sender).Tag as AssetPath;
+                if (labelTag == null)
+                    return;
 
-			//if(MainEditorWindow != null)
-			//	MainEditorWindow.UpdateAllBrowsers();
+                var assetEntry = labelTag.Asset as IAssetEntry;
+                if (assetEntry == null)
+                    return;
 
-			//OpenAsset(SelectedEntry);
+				AssetManager.Instance.RevertAsset(assetEntry);
+            }
+			catch(Exception ex)
+			{
+				AssetManager.Instance.LogError(ex.ToString());
+			}
+            //if (SelectedEntry != null)
+            //{
+            //	if (EBXViewer != null && EBXViewer.Visibility == Visibility.Visible)
+            //	{
+            //		EBXViewer.RevertAsset();
+            //	}
+            //	else 
+            //	{
+            //		AssetManager.Instance.RevertAsset(SelectedEntry);
+            //	}
+            //}
+            //else if (SelectedLegacyEntry != null)
+            //         {
+            //	AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
+            //	if(SelectedLegacyEntry.Type == "DDS")
+            //             {
+            //		//BuildTextureViewerFromStream(AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry), SelectedLegacyEntry);
+            //		BuildTextureViewerFromStream((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
+            //             }
+            //         }
 
-			//UpdateAssetListView();
+            //if(MainEditorWindow != null)
+            //	MainEditorWindow.UpdateAllBrowsers();
 
-		}
+            //OpenAsset(SelectedEntry);
 
-		private void txtFilter_TextChanged(object sender, TextChangedEventArgs e)
+            //UpdateAssetListView();
+
+        }
+
+        private void txtFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
 			//Update();
         }
