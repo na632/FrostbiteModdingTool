@@ -1,4 +1,5 @@
 using Frostbite.FileManagers;
+using FrostbiteSdk;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
 using FrostySdk.Frosty.FET;
@@ -302,40 +303,12 @@ namespace FrostySdk
                 nativeWriter.Write(modifiedEbxAssets.Count());
 				num = 0;
 				foreach (EbxAssetEntry modifiedEbx in modifiedEbxAssets)
-				{
-					byte[] decompressedArrayOfModified = null; 
-					if (modifiedEbx.IsDirectlyModified)
-                    {
-						decompressedArrayOfModified = EbxBaseWriter.GetEbxArrayDecompressed(modifiedEbx);
-                        if (decompressedArrayOfModified == null || decompressedArrayOfModified.Length == 0)
-							modifiedEbx.ModifiedEntry = null;
-                    }
-
-                    nativeWriter.WriteNullTerminatedString(modifiedEbx.Name);
-					SaveLinkedAssets(modifiedEbx, nativeWriter);
-                    nativeWriter.Write(modifiedEbx.IsDirectlyModified);
-
-                    if (modifiedEbx.IsDirectlyModified)
-					{
-                        nativeWriter.Write(modifiedEbx.ModifiedEntry.IsTransientModified);
-						nativeWriter.WriteNullTerminatedString(modifiedEbx.ModifiedEntry.UserData);
-						nativeWriter.Write(modifiedEbx.AddBundles.Count);
-						foreach (int addBundle in modifiedEbx.AddBundles)
-						{
-							nativeWriter.WriteNullTerminatedString(AssetManager.GetBundleEntry(addBundle).Name);
-						}
-
-						//asset.ParentEntry = modifiedEbx;
-						nativeWriter.Write(decompressedArrayOfModified.Length);
-						nativeWriter.Write(decompressedArrayOfModified);
-						if (updateDirtyState)
-						{
-							modifiedEbx.IsDirty = false;
-						}
-					}
-					num++;
-				}
-				nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
+                {
+                    SaveModifedEbxV23(nativeWriter, modifiedEbx);
+                    WriteModifedEbxV24(nativeWriter, modifiedEbx);
+                    num++;
+                }
+                nativeWriter.BaseStream.Position = nativeWriter.BaseStream.Length;
 				position = nativeWriter.BaseStream.Position;
                 var modifiedResAssets = AssetManager.EnumerateRes(0u, modifiedOnly: true);
                 nativeWriter.Write(modifiedResAssets.Count());
@@ -483,7 +456,92 @@ namespace FrostySdk
 			return true;
 		}
 
-		public ModSettings GetModSettings()
+        /// <summary>
+        /// Writes using the EbxWriter method to create a byte array to save to the file. Will only write if Current Format Version is 24.
+        /// </summary>
+        /// <param name="nativeWriter"></param>
+        /// <param name="modifiedEbx"></param>
+        private void SaveModifedEbxV23(NativeWriter nativeWriter, EbxAssetEntry modifiedEbx)
+        {
+			if (CurrentFormatVersion > 23)
+				return;
+
+            byte[] decompressedArrayOfModified = null;
+            if (modifiedEbx.IsDirectlyModified)
+            {
+                decompressedArrayOfModified = EbxBaseWriter.GetEbxArrayDecompressed(modifiedEbx);
+                if (decompressedArrayOfModified == null || decompressedArrayOfModified.Length == 0)
+                    modifiedEbx.ModifiedEntry = null;
+            }
+
+            nativeWriter.WriteNullTerminatedString(modifiedEbx.Name);
+            SaveLinkedAssets(modifiedEbx, nativeWriter);
+            nativeWriter.Write(modifiedEbx.IsDirectlyModified);
+
+            if (modifiedEbx.IsDirectlyModified)
+            {
+                nativeWriter.Write(modifiedEbx.ModifiedEntry.IsTransientModified);
+                nativeWriter.WriteNullTerminatedString(modifiedEbx.ModifiedEntry.UserData);
+                nativeWriter.Write(modifiedEbx.AddBundles.Count);
+                foreach (int addBundle in modifiedEbx.AddBundles)
+                {
+                    nativeWriter.WriteNullTerminatedString(AssetManager.GetBundleEntry(addBundle).Name);
+                }
+
+                nativeWriter.Write(decompressedArrayOfModified.Length);
+                nativeWriter.Write(decompressedArrayOfModified);
+                modifiedEbx.IsDirty = false;
+            }
+        }
+
+		/// <summary>
+		/// Writes into Serialized JSON Objects. Will only write if Current Format Version is 24.
+		/// </summary>
+		/// <param name="nativeWriter"></param>
+		/// <param name="modifiedEbx"></param>
+		private void WriteModifedEbxV24(NativeWriter nativeWriter, EbxAssetEntry modifiedEbx)
+		{
+            if (CurrentFormatVersion <= 23)
+                return;
+
+            var ebx = AssetManager.Instance.GetEbx(modifiedEbx);
+			if (ebx == null || ebx.RootObject == null)
+			{
+				modifiedEbx.ModifiedEntry = null;
+			}
+
+			nativeWriter.WriteLengthPrefixedString(modifiedEbx.Name);
+			SaveLinkedAssets(modifiedEbx, nativeWriter);
+			nativeWriter.Write(modifiedEbx.IsDirectlyModified);
+
+			if (modifiedEbx.IsDirectlyModified)
+			{
+				nativeWriter.Write(modifiedEbx.ModifiedEntry.IsTransientModified);
+				nativeWriter.WriteLengthPrefixedString(modifiedEbx.ModifiedEntry.UserData);
+				nativeWriter.Write(modifiedEbx.AddBundles.Count);
+				foreach (int addBundle in modifiedEbx.AddBundles)
+				{
+					nativeWriter.WriteLengthPrefixedString(AssetManager.GetBundleEntry(addBundle).Name);
+				}
+
+				var ebxRootObject = ebx.RootObject;
+				foreach (var prop in ebxRootObject.GetProperties())
+				{
+                    nativeWriter.WriteLengthPrefixedString(prop.Name);
+					var propValue = prop.GetValue(ebxRootObject);
+                    nativeWriter.WriteLengthPrefixedString(JsonConvert.SerializeObject(propValue));
+                }
+
+				modifiedEbx.IsDirty = false;
+			}
+		}
+
+		private void ReadModifiedEbxV24(NativeReader reader, EbxAssetEntry modifiedEbx)
+		{
+
+		}
+
+        public ModSettings GetModSettings()
 		{
 			return modSettings;
 		}
@@ -504,54 +562,40 @@ namespace FrostySdk
 			using NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
 			nwFinal.Write(projectbytes);
 
-			//MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
-			//         //ZipFile pZip = new ZipFile();
-			//         //pZip.AddEntry("mE", projectbytes);
-			//         //pZip.Save(zipStream);
-
-			//if (File.Exists(filename))
-			//	File.Delete(filename);
-
-			//zipStream.Position = 0;
-			//         NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-			//         nwFinal.Write((ushort)2);
-			//         nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
-			//         nwFinal.Close();
-			//         nwFinal.Dispose();
 		}
 
-		private void WriteToModZstd(string filename, ModSettings overrideSettings, byte[] projectbytes)
-		{
-			MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
+		//private void WriteToModZstd(string filename, ModSettings overrideSettings, byte[] projectbytes)
+		//{
+		//	MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
 
-			if (File.Exists(filename))
-				File.Delete(filename);
+		//	if (File.Exists(filename))
+		//		File.Delete(filename);
 
-			zipStream.Position = 0;
-			NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-			nwFinal.Write((ushort)2);
-			nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
-			nwFinal.Close();
-			nwFinal.Dispose();
+		//	zipStream.Position = 0;
+		//	NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+		//	nwFinal.Write((ushort)2);
+		//	nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+		//	nwFinal.Close();
+		//	nwFinal.Dispose();
 
-		}
-		private void WriteToModZip(string filename, ModSettings overrideSettings, byte[] projectbytes)
-        {
-			MemoryStream zipStream = new MemoryStream();
-			ZipFile pZip = new ZipFile();
-			pZip.AddEntry("mE", projectbytes);
-			pZip.Save(zipStream);
+		//}
+		//private void WriteToModZip(string filename, ModSettings overrideSettings, byte[] projectbytes)
+  //      {
+		//	MemoryStream zipStream = new MemoryStream();
+		//	ZipFile pZip = new ZipFile();
+		//	pZip.AddEntry("mE", projectbytes);
+		//	pZip.Save(zipStream);
 
-			if (File.Exists(filename))
-				File.Delete(filename);
+		//	if (File.Exists(filename))
+		//		File.Delete(filename);
 
-			zipStream.Position = 0;
-			NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-			nwFinal.Write((ushort)1);
-			nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
-			nwFinal.Close();
-			nwFinal.Dispose();
-		}
+		//	zipStream.Position = 0;
+		//	NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
+		//	nwFinal.Write((ushort)1);
+		//	nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
+		//	nwFinal.Close();
+		//	nwFinal.Dispose();
+		//}
 
 		public void WriteToFIFAMod(string filename, ModSettings overrideSettings)
 		{
@@ -704,9 +748,12 @@ namespace FrostySdk
 
             List<Task> tasks = new List<Task>();
 			ProjectFormatVersion = reader.ReadUInt();
+
+			// We dont support stupidly old Frosty Editor projects
 			if (ProjectFormatVersion <= 11u)
 				return false;
 
+			// Automatically convert projects to new Format Version
 			if (ProfileManager.Game > ProfileManager.EGame.FIFA21 && ProjectFormatVersion == 12u)
 				ProjectFormatVersion = 23u;
 
@@ -777,60 +824,11 @@ namespace FrostySdk
 			count = reader.ReadInt();
 			EBXCount = count;
 			for (int n = 0; n < count; n++)
-			{
-				string ebxName = reader.ReadNullTerminatedString();
+            {
+                ReadModifiedEbxV23(reader);
 
-				List<AssetEntry> collection = LoadLinkedAssets(reader);
-				bool flag = reader.ReadBoolean();
-				bool isTransientModified = false;
-				string userData = "";
-				List<int> list = new List<int>();
-				byte[] ebxAssetBytes = null;
-				if (flag)
-				{
-					isTransientModified = reader.ReadBoolean();
-					userData = reader.ReadNullTerminatedString();
-					int num4 = reader.ReadInt();
-					for (int num5 = 0; num5 < num4; num5++)
-					{
-						string name3 = reader.ReadNullTerminatedString();
-						int bundleId = AssetManager.GetBundleId(name3);
-						if (bundleId != -1)
-						{
-							list.Add(bundleId);
-						}
-					}
-					ebxAssetBytes = reader.ReadBytes(reader.ReadInt());
-				}
-				var readerPositionBeforeEbx = reader.Position;
-				var readerPositionAfterEbx = reader.Position + (ebxAssetBytes != null ? ebxAssetBytes.Length : 0);
-				EbxAssetEntry ebxEntry = AssetManager.GetEbxEntry(ebxName);
-				if (ebxEntry != null)
-				{
-					ebxEntry.LinkedAssets.AddRange(collection);
-					ebxEntry.AddBundles.AddRange(list);
-					if (flag)
-					{
-						ebxEntry.ModifiedEntry = new ModifiedAssetEntry();
-						ebxEntry.ModifiedEntry.IsTransientModified = isTransientModified;
-						ebxEntry.ModifiedEntry.UserData = userData;
-						ebxEntry.ModifiedEntry.Data = ebxAssetBytes;
-
-						if (ProfileManager.IsFIFA21DataVersion())
-						{
-							EbxReader ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
-							EbxAsset ebxAsset = ebxReader.ReadAsset();
-							ebxEntry.ModifiedEntry.DataObject = ebxAsset;
-						}
-						
-					}
-
-				}
-				//reader.Position = readerPositionAfterEbx;
-				reader.Position = readerPositionBeforeEbx;
-
-			}
-			count = reader.ReadInt();
+            }
+            count = reader.ReadInt();
 			RESCount = count;
 
 			for (int num6 = 0; num6 < count; num6++)
@@ -1054,7 +1052,62 @@ namespace FrostySdk
 			return true;
 		}
 
-	}
+        private void ReadModifiedEbxV23(NativeReader reader)
+        {
+			if (ProjectFormatVersion > 23u)
+				return;
+
+            string ebxName = reader.ReadNullTerminatedString();
+
+            List<AssetEntry> collection = LoadLinkedAssets(reader);
+            bool flag = reader.ReadBoolean();
+            bool isTransientModified = false;
+            string userData = "";
+            List<int> list = new List<int>();
+            byte[] ebxAssetBytes = null;
+            if (flag)
+            {
+                isTransientModified = reader.ReadBoolean();
+                userData = reader.ReadNullTerminatedString();
+                int num4 = reader.ReadInt();
+                for (int num5 = 0; num5 < num4; num5++)
+                {
+                    string name3 = reader.ReadNullTerminatedString();
+                    int bundleId = AssetManager.GetBundleId(name3);
+                    if (bundleId != -1)
+                    {
+                        list.Add(bundleId);
+                    }
+                }
+                ebxAssetBytes = reader.ReadBytes(reader.ReadInt());
+            }
+            var readerPositionBeforeEbx = reader.Position;
+            var readerPositionAfterEbx = reader.Position + (ebxAssetBytes != null ? ebxAssetBytes.Length : 0);
+            EbxAssetEntry ebxEntry = AssetManager.GetEbxEntry(ebxName);
+            if (ebxEntry != null)
+            {
+                ebxEntry.LinkedAssets.AddRange(collection);
+                ebxEntry.AddBundles.AddRange(list);
+                if (flag)
+                {
+                    ebxEntry.ModifiedEntry = new ModifiedAssetEntry();
+                    ebxEntry.ModifiedEntry.IsTransientModified = isTransientModified;
+                    ebxEntry.ModifiedEntry.UserData = userData;
+                    ebxEntry.ModifiedEntry.Data = ebxAssetBytes;
+
+                    if (ProfileManager.IsFIFA21DataVersion())
+                    {
+                        EbxReader ebxReader = new EbxReader(new MemoryStream(ebxAssetBytes));
+                        EbxAsset ebxAsset = ebxReader.ReadAsset();
+                        ebxEntry.ModifiedEntry.DataObject = ebxAsset;
+                    }
+
+                }
+
+            }
+            reader.Position = readerPositionBeforeEbx;
+        }
+    }
 
 	public class ModSettings
 	{
