@@ -147,8 +147,6 @@ namespace FMT.Mods
                         break;
                     default:
                         return null;
-                    //default:
-                    //    throw new ArgumentOutOfRangeException("Unknown Mod Type Given");
                 }
 
                 FrostbiteMods.Add(Path, frostbiteMod);

@@ -33,11 +33,9 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
-using static System.Net.Mime.MediaTypeNames;
 
 //namespace FIFAModdingUI
 namespace FMT
@@ -52,8 +50,6 @@ namespace FMT
         public ModListProfile Profile { get; set; }
 
         //private CEMWindow CEMWindow;
-
-        private LoadingDialog LoadingDialog { get; } = new LoadingDialog();
 
         public LaunchWindow(Window owner)
         {
@@ -332,7 +328,7 @@ namespace FMT
                 //
                 GameInstanceSingleton.Logger = this;
 
-                LoadingDialog.Update("Launching", "Saving launcher settings");
+                loadingDialog.Update("Launching", "Saving launcher settings");
 
                 if (launcherOptions != null)
                 {
@@ -346,11 +342,11 @@ namespace FMT
                 //TabCont.SelectedIndex = 0;
                 //bottomDocuments.SelectedContentIndex = 0;
 
-                LoadingDialog.Update("Launching", "Setting up Legacy Mods");
+                loadingDialog.Update("Launching", "Setting up Legacy Mods");
 
                 DoLegacyModSetup();
 
-                LoadingDialog.Update("Launching", "Copying locale.ini");
+                loadingDialog.Update("Launching", "Copying locale.ini");
                 // -------------------------------------------------------------------------
                 // Ensure the latest locale.ini is installing into the ModData
                 if (ProfileManager.IsFIFA21DataVersion() 
@@ -378,8 +374,8 @@ namespace FMT
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        LoadingDialog.Update("", "");
-                        LoadingDialog.Visibility = Visibility.Collapsed;
+                        loadingDialog.Update("", "");
+                        loadingDialog.Visibility = Visibility.Collapsed;
                     });
                     MessageBoxResult modDataResult = MessageBox.Show("You are NOT using a ModData folder. " + Environment.NewLine +
                         "This is very risky and shouldn't be used unless all other options don't work! " + Environment.NewLine +
@@ -422,7 +418,7 @@ namespace FMT
                     var launchSuccess = false;
                     try
                     {
-                        LoadingDialog.Update("Launching", "Compiling mods");
+                        loadingDialog.Update("Launching", "Compiling mods");
 
                         var launchTask = LaunchGame.LaunchAsync(
                             GameInstanceSingleton.Instance.GAMERootPath
@@ -434,7 +430,7 @@ namespace FMT
                             , useSymbolicLink
                             , useModData);
                         launchSuccess = await launchTask;
-                        LoadingDialog.Update(string.Empty, string.Empty);
+                        loadingDialog.Update(string.Empty, string.Empty);
 
                         //App.AppInsightClient.TrackRequest("Launcher Window - " + WindowTitle + " - Game Launched", launchStartTime,
                         //    TimeSpan.FromMilliseconds((DateTime.Now - launchStartTime).Milliseconds), "200", true);
@@ -580,7 +576,7 @@ namespace FMT
                         });
                     }
 
-                    LoadingDialog.Update(string.Empty, string.Empty);
+                    loadingDialog.Update(string.Empty, string.Empty);
 
                     //});
                     await Task.Delay(1000);
@@ -596,7 +592,7 @@ namespace FMT
 
                 });
 
-                LoadingDialog.Update(string.Empty, string.Empty);
+                loadingDialog.Update(string.Empty, string.Empty);
 
             }
         }
@@ -652,24 +648,65 @@ namespace FMT
                 var filePath = dialog.FileName;
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    var mL = new Mods.ModList(Profile);
-                    try
+                    
+                    // If a zip file, extract them first
+                    if (new FileInfo(filePath).Extension.Contains("zip", StringComparison.OrdinalIgnoreCase))
                     {
-                        var mli = new ModList.ModItem(filePath);
-                        var fbMod = mli.GetFrostbiteMod();
-                        mL.ModListItems.Add(mli);
-                        mL.Save();
-                        GetListOfModsAndOrderThem();
+                        try
+                        {
+                            var temporaryModsDirectory = Path.Combine(AppContext.BaseDirectory, Profile.DirectoryLocation, "TmpMods");
+                            if (!Directory.Exists(temporaryModsDirectory))
+                                Directory.CreateDirectory(temporaryModsDirectory);
+
+                            ZipFile.ExtractToDirectory(filePath, temporaryModsDirectory, true);
+                            foreach(var zippedFile in Directory.GetFiles(temporaryModsDirectory))
+                            {
+                                if (!ImportModFromPath(zippedFile))
+                                {
+                                    LogError($"Unable to import {zippedFile} from zip file.");
+                                }
+                            }
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            LogError(ex.ToString());
+                            return;
+                        }
                     }
-                    catch (Exception ex)
+                    
+
+                    // If a mod, import as normal
+                    if(!ImportModFromPath(filePath))
                     {
-                        LogError(ex.ToString());
+                        LogError($"Unable to import {filePath}.");
                     }
                     switchForceReinstallMods.IsEnabled = false;
                     switchForceReinstallMods.IsOn = true;
                 }
             }
 
+        }
+
+        private bool ImportModFromPath(string filePath)
+        {
+            bool result = false;
+            var mL = new Mods.ModList(Profile);
+            try
+            {
+                var mli = new ModList.ModItem(filePath);
+                var fbMod = mli.GetFrostbiteMod();
+                mL.ModListItems.Add(mli);
+                mL.Save();
+                GetListOfModsAndOrderThem();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                LogError(ex.ToString());
+                result = false;
+            }
+            return result;
         }
 
         private void btnCloseModdingTool_Click(object sender, RoutedEventArgs e)
@@ -798,9 +835,9 @@ namespace FMT
 
         public void Log(string text, params object[] vars)
         {
-            if(LoadingDialog != null && LoadingDialog.Visibility == Visibility.Visible)
+            if(loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
             {
-                LoadingDialog.Update("Loading", text);
+                loadingDialog.Update("Loading", text);
             }
             LogAsync(text);
         }

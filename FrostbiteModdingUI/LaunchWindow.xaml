@@ -8,6 +8,8 @@
                       xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
         mc:Ignorable="d"
+        xmlns:FMTControlsControls="clr-namespace:FMT.Controls.Controls;assembly=FMT.Controls"
+                 
         Title="{Binding WindowTitle}"
         
         ResizeMode="CanResizeWithGrip"
@@ -49,6 +51,9 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition MaxHeight="20" Height="0"></RowDefinition>
         </Grid.RowDefinitions>
+        <FMTControlsControls:LoadingDialog x:Name="loadingDialog" Grid.RowSpan="3" Panel.ZIndex="999" Visibility="Collapsed">
+
+        </FMTControlsControls:LoadingDialog>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition></ColumnDefinition>
