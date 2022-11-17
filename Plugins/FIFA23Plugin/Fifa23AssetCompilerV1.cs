@@ -2,6 +2,7 @@
 using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.Compilers;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;

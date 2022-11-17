@@ -2,6 +2,7 @@
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
+using FrostySdk.Frostbite.Compilers;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;

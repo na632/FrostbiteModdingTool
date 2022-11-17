@@ -914,9 +914,9 @@ namespace FrostbiteModdingTests
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
-                    //@"C:\Users\paula\Downloads\FIFAMod\FIFAModding Legacy.fifamod"
+                    @"G:\Work\FIFA Modding\GraphicMod\FIFA 23\FIFER Licensing Mod TU4.fifamod"
                     //@"C:\Users\paula\Downloads\eSIM AIO Mod 1.0 - TU#2.fifamod"
-                    @"C:\Users\paula\Downloads\Darwin_Nunez_23.fifamod"
+                    //@"C:\Users\paula\Downloads\Darwin_Nunez_23.fifamod"
 
 
                 }.ToArray()).Wait();

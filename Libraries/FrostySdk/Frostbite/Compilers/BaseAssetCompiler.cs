@@ -1,4 +1,6 @@
 ﻿using Frostbite.FileManagers;
+using Frosty.Hash;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -11,9 +13,9 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
-using static FrostySdk.Frostbite.PluginInterfaces.BaseAssetCompiler;
+using static FrostySdk.Frostbite.Compilers.BaseAssetCompiler;
 
-namespace FrostySdk.Frostbite.PluginInterfaces
+namespace FrostySdk.Frostbite.Compilers
 {
     public abstract class BaseAssetCompiler : IAssetCompiler
     {
@@ -99,7 +101,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                         continue;
                     }
 
-                    if(targetFile.Length != file.Length)
+                    if (targetFile.Length != file.Length)
                     {
                         filesToCopy.Add((file, targetFile));
                         continue;
@@ -121,7 +123,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
             //var index = 1;
             logger.Log($"Data Setup - Copying {sourceDir}");
-            foreach(var ftc in filesToCopy)
+            foreach (var ftc in filesToCopy)
             {
                 ftc.Item1.CopyTo(ftc.Item2.FullName, true);
                 //logger.Log($"Data Setup - Copied ({index}/{filesToCopy.Count}) - {ftc.Item1.FullName}");
@@ -145,7 +147,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             CopyDirectory(from_datafolderpath, to_datafolderpath, true, logger);
             //Directory.CreateDirectory(to_datafolderpath);
 
-            
+
             //var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
             //var dataFileCount = dataFiles.Count();
             //var indexOfDataFile = 0;
@@ -291,14 +293,14 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     {
                         if (ModExecuter.ModifiedChunks.ContainsKey(modLegChunk.Id))
                             ModExecuter.ModifiedChunks.Remove(modLegChunk.Id);
-                        
+
                         ModExecuter.ModifiedChunks.Add(modLegChunk.Id, modLegChunk);
                         countLegacyChunksModified++;
                     }
 
                     foreach (var chunk in modifiedLegacyChunks)
                     {
-                        if(ModExecuter.archiveData.ContainsKey(chunk.ModifiedEntry.Sha1))
+                        if (ModExecuter.archiveData.ContainsKey(chunk.ModifiedEntry.Sha1))
                             ModExecuter.archiveData.Remove(chunk.ModifiedEntry.Sha1);
 
                         ModExecuter.archiveData.Add(chunk.ModifiedEntry.Sha1, new ArchiveInfo() { Data = chunk.ModifiedEntry.Data });
@@ -468,7 +470,11 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     if (!tocFile2.TocChunks.Any())
                         continue;
 
-                    if (!ModExecuter.ModifiedChunks.Any(x => x.Value.Bundles.Contains(tocFile2.ChunkDataBundleId)))
+                    if (!ModExecuter.ModifiedChunks.Any(x => 
+                        x.Value.Bundles.Contains(tocFile2.ChunkDataBundleId)
+                        || x.Value.Bundles.Contains(Fnv1a.HashString("TocChunks"))
+                        )
+                        )
                         continue;
 
                     var patch = true;
@@ -502,15 +508,14 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                 {
                                     var chunkIndex = tocFile2.TocChunks.FindIndex(x => x.Id == modChunk.Key
                                         && modChunk.Value.ModifiedEntry != null
-                                        && (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle));
+                                        //&& (modChunk.Value.ModifiedEntry.AddToTOCChunks || modChunk.Value.ModifiedEntry.AddToChunkBundle)
+                                        );
                                     if (chunkIndex != -1)
                                     {
                                         //var data = parent.archiveData[modChunk.Value.Sha1].Data;
                                         byte[] data = null;
                                         if (ModExecuter.archiveData.ContainsKey(modChunk.Value.ModifiedEntry.Sha1))
                                             data = ModExecuter.archiveData[modChunk.Value.ModifiedEntry.Sha1].Data;
-                                        //else if (ModExecuter.archiveData.ContainsKey(modChunk.Value.Sha1))
-                                        //    data = ModExecuter.archiveData[modChunk.Value.Sha1].Data;
 
                                         if (data == null)
                                             continue;
@@ -603,7 +608,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 NamePath = inNamePath;
 
                 ModType = ModType.EBX;
-                if(inOrigEntry is EbxAssetEntry)
+                if (inOrigEntry is EbxAssetEntry)
                     ModType = ModType.EBX;
                 else if (inOrigEntry is ResAssetEntry)
                     ModType = ModType.RES;
@@ -651,6 +656,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
     }
 
-    
+
 
 }
