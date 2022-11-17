@@ -80,7 +80,16 @@ namespace FrostySdk.Frosty.FET
                 WriteLengthPrefixedString("Locale.ini");
                 WriteLengthPrefixedString(Encoding.UTF8.GetString(AssetManager.Instance.LocaleINIMod.UserData));
             }
-            Write7BitEncodedInt(0); // init fs
+            //Write7BitEncodedInt(0); // init fs
+            Write7BitEncodedInt(AssetManager.Instance.LocaleINIMod.HasUserData ? 1 : 0); // init fs
+            if (AssetManager.Instance.LocaleINIMod.HasUserData)
+            {
+                WriteLengthPrefixedString("Locale.ini");
+                Write7BitEncodedInt(AssetManager.Instance.LocaleINIMod.HasUserData ? 1 : 0); // locale.ini
+                WriteLengthPrefixedString("data/locale.ini");
+                Write7BitEncodedInt(AssetManager.Instance.LocaleINIMod.UserData.Length);
+                Write(AssetManager.Instance.LocaleINIMod.UserData);
+            }
             Write7BitEncodedInt(0); // player lua
             Write7BitEncodedInt(0); // player kit lua
             //WritePlayerLuaMods(this, project.PlayerLuaMod);
