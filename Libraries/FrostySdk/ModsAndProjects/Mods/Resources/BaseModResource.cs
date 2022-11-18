@@ -1,4 +1,5 @@
 using FrostySdk;
+using FrostySdk.FrostySdk.Managers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System.Collections.Generic;
@@ -184,19 +185,34 @@ namespace FrostySdk
 		
 		//}
 
-		public virtual void FillAssetEntry(object entry)
-		{
-			AssetEntry obj = (AssetEntry)entry;
-			obj.Name = name;
-			obj.Sha1 = sha1;
-			obj.OriginalSize = size;
-			obj.IsInline = ShouldInline;
+		//public virtual void FillAssetEntry(object entry)
+		//{
+		//	AssetEntry obj = (AssetEntry)entry;
+		//	obj.Name = name;
+		//	obj.Sha1 = sha1;
+		//	obj.OriginalSize = size;
+		//	obj.IsInline = ShouldInline;
+  //          if (!string.IsNullOrEmpty(userData))
+  //          {
+		//		if(obj.ModifiedEntry == null) obj.ModifiedEntry = new ModifiedAssetEntry();
+
+		//		obj.ModifiedEntry.UserData = userData;
+  //          }
+		//}
+
+        public virtual void FillAssetEntry(IAssetEntry entry)
+        {
+            AssetEntry obj = (AssetEntry)entry;
+            obj.Name = name;
+            obj.Sha1 = sha1;
+            obj.OriginalSize = size;
+            obj.IsInline = ShouldInline;
             if (!string.IsNullOrEmpty(userData))
             {
-				if(obj.ModifiedEntry == null) obj.ModifiedEntry = new ModifiedAssetEntry();
+                if (obj.ModifiedEntry == null) obj.ModifiedEntry = new ModifiedAssetEntry();
 
-				obj.ModifiedEntry.UserData = userData;
+                obj.ModifiedEntry.UserData = userData;
             }
-		}
-	}
+        }
+    }
 }

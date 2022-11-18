@@ -1020,7 +1020,7 @@ namespace FrostySdk
 				int embeddedFileCount = reader.ReadInt();
 				if (hasEmbeddedFiles)
 				{
-					AssetManager.Instance.EmbeddedFileEntries = new List<EmbeddedFileEntry>();
+					AssetManager.Instance.EmbeddedFileEntries.Clear();
 					for (int iItem = 0; iItem < embeddedFileCount; iItem++)
 					{
 						var rawFile = reader.ReadLengthPrefixedString();

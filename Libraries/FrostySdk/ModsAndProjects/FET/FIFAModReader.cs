@@ -14,6 +14,7 @@ using System.Linq;
 using FrostySdk.IO._2022.Readers;
 using System.Collections.Generic;
 using static FrostySdk.FIFAModReader;
+using FrostySdk.FrostySdk.Managers;
 
 namespace FrostySdk
 {
@@ -34,7 +35,7 @@ namespace FrostySdk
 				superBundleName = reader.ReadInt32LittleEndian();
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				BundleEntry obj = (BundleEntry)entry;
 				obj.Name = name;
@@ -88,7 +89,7 @@ namespace FrostySdk
 				resMeta = reader.ReadBytes(reader.ReadInt32LittleEndian());
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				base.FillAssetEntry(entry);
 				ResAssetEntry obj = (ResAssetEntry)entry;
@@ -125,7 +126,7 @@ namespace FrostySdk
 				firstMip = reader.ReadInt32LittleEndian();
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				base.FillAssetEntry(entry);
 				ChunkAssetEntry chunkAssetEntry = (ChunkAssetEntry)entry;

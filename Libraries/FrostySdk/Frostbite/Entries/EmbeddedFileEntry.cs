@@ -20,6 +20,8 @@ namespace FrostbiteSdk.FrostbiteSdk.Managers
 
         public byte[] Data { get; set; }
 
+        public bool IsAppended { get; set; }
+
         public override bool Equals(object obj)
         {
             if(obj is EmbeddedFileEntry other)

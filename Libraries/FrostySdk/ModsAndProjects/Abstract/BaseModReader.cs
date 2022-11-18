@@ -1,5 +1,6 @@
 ﻿using FrostbiteSdk.FrostbiteSdk.Managers;
 using FrostySdk;
+using FrostySdk.FrostySdk.Managers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.ModsAndProjects.Mods;
@@ -63,7 +64,7 @@ namespace FrostbiteSdk.Frosty.Abstract
 				resMeta = reader.ReadBytes(reader.ReadInt32LittleEndian());
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				base.FillAssetEntry(entry);
 				ResAssetEntry obj = (ResAssetEntry)entry;
@@ -108,7 +109,7 @@ namespace FrostbiteSdk.Frosty.Abstract
 				firstMip = reader.ReadInt32LittleEndian();
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				base.FillAssetEntry(entry);
 				ChunkAssetEntry chunkAssetEntry = (ChunkAssetEntry)entry;
@@ -129,8 +130,6 @@ namespace FrostbiteSdk.Frosty.Abstract
 
 		public class LegacyFileResource : BaseModResource
 		{
-			private string name;
-
 			public override ModResourceType Type => ModResourceType.Legacy;
 
 			public override void Read(NativeReader reader, uint modVersion = 6u)
@@ -139,7 +138,7 @@ namespace FrostbiteSdk.Frosty.Abstract
 				name = reader.ReadLengthPrefixedString();
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				base.FillAssetEntry(entry);
 				LegacyFileEntry legAssetEntry = (LegacyFileEntry)entry;
@@ -149,24 +148,29 @@ namespace FrostbiteSdk.Frosty.Abstract
 
 		public class EmbeddedFileResource : BaseModResource
 		{
-			private string name;
+			private bool isAppended;
 
 			private string exportedLocation;
 
-			public override ModResourceType Type => ModResourceType.EmbeddedFile;
+            public override ModResourceType Type => ModResourceType.EmbeddedFile;
 
 			public override void Read(NativeReader reader, uint modVersion = 6u)
 			{
 				base.Read(reader);
 				name = reader.ReadLengthPrefixedString();
+				if(modVersion == 23u)
+				{
+
+				}
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				base.FillAssetEntry(entry);
 				EmbeddedFileEntry assetEntry = (EmbeddedFileEntry)entry;
 				assetEntry.Name = name;
 				assetEntry.ExportedRelativePath = exportedLocation;
+				assetEntry.IsAppended = isAppended;
 			}
 		}
 	}

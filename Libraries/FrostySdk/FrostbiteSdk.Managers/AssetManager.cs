@@ -453,7 +453,7 @@ namespace FrostySdk.Managers
 
 		public Dictionary<string, ICustomAssetManager> CustomAssetManagers { get; } = new Dictionary<string, ICustomAssetManager>(1);
 
-		public List<EmbeddedFileEntry> EmbeddedFileEntries = new List<EmbeddedFileEntry>();
+		public List<EmbeddedFileEntry> EmbeddedFileEntries { get; } = new List<EmbeddedFileEntry>();
 
 		public LocaleINIMod LocaleINIMod;
 
@@ -954,7 +954,7 @@ namespace FrostySdk.Managers
 					RevertAsset(item4, dataOnly: false, suppressOnModify: false);
 				}
 			}
-			EmbeddedFileEntries = new List<EmbeddedFileEntry>();
+			EmbeddedFileEntries.Clear();// = new List<EmbeddedFileEntry>();
 
 			ChunkFileManager2022.CleanUpChunks(true);
 			LocaleINIMod = new LocaleINIMod();

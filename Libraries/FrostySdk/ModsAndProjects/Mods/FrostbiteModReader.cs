@@ -1,6 +1,7 @@
 using FrostbiteSdk.Frosty.Abstract;
 using FrostySdk;
 using FrostySdk.Attributes;
+using FrostySdk.FrostySdk.Managers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.ModsAndProjects.Mods;
@@ -27,7 +28,7 @@ namespace FrostbiteSdk
 				superBundleName = reader.ReadInt32LittleEndian();
 			}
 
-			public override void FillAssetEntry(object entry)
+			public override void FillAssetEntry(IAssetEntry entry)
 			{
 				BundleEntry obj = (BundleEntry)entry;
 				obj.Name = name;
