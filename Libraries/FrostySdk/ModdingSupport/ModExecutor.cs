@@ -1026,35 +1026,82 @@ namespace ModdingSupport
                                 archiveData[resEntry.Sha1].Data = resourceData;
 
                                 break;
+                            case ModResourceType.Chunk:
+                                Guid guid = new Guid(resource.Name);
+                                if (ModifiedChunks.ContainsKey(guid))
+                                {
+                                    ModifiedChunks.Remove(guid);
+                                }
+                                ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                                resource.FillAssetEntry(chunkAssetEntry);
+                                chunkAssetEntry.Size = resourceData.Length;
+
+                                // -------------------------------------------------------------------------
+                                // If this is a legacy file here, it likely means its a *.fifamod
+                                // Ignore this chunk and send to the Legacy Mod system
+                                if (resource.IsLegacyFile)
+                                {
+                                    if (resource.LegacyFullName.Contains("CFC") || resource.LegacyFullName.Contains("Collector"))
+                                        continue;
+
+                                    LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
+                                    legacyAssetEntry.Name = resource.LegacyFullName;
+                                    legacyAssetEntry.Sha1 = resource.Sha1;
+                                    var decompressedChunk = new CasReader(new MemoryStream(resourceData)).Read();
+                                    legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = decompressedChunk };
+                                    legacyAssetEntry.Size = decompressedChunk.Length;
+
+                                    if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
+                                        modifiedLegacy.Add(legacyAssetEntry.Name, legacyAssetEntry);
+                                    else
+                                        modifiedLegacy[legacyAssetEntry.Name] = legacyAssetEntry;
+                                }
+                                else
+                                {
+                                    ModifiedChunks.Add(guid, chunkAssetEntry);
+                                    if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
+                                    {
+                                        archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
+                                        {
+                                            Data = resourceData,
+                                        });
+                                    }
+                                    else
+                                    {
+                                        archiveData[chunkAssetEntry.Sha1].Data = resourceData;
+                                    }
+                                }
+                                break;
                         }
 
                         
-                        if (resource.Type == ModResourceType.Chunk)
-                        {
-                            Guid guid = new Guid(resource.Name);
-                            if (ModifiedChunks.ContainsKey(guid))
-                            {
-                                ModifiedChunks.Remove(guid);
-                            }
-                            ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                            resource.FillAssetEntry(chunkAssetEntry);
-                            chunkAssetEntry.Size = resourceData.Length;
+                        //if (resource.Type == ModResourceType.Chunk)
+                        //{
+                        //    Guid guid = new Guid(resource.Name);
+                        //    if (ModifiedChunks.ContainsKey(guid))
+                        //    {
+                        //        ModifiedChunks.Remove(guid);
+                        //    }
+                        //    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                        //    resource.FillAssetEntry(chunkAssetEntry);
+                        //    chunkAssetEntry.Size = resourceData.Length;
 
-                            ModifiedChunks.Add(guid, chunkAssetEntry);
-                            if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
-                            {
-                                archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
-                                {
-                                    Data = resourceData,
-                                });
-                            }
-                            else
-                            {
-                                archiveData[chunkAssetEntry.Sha1].Data = resourceData;
-                            }
-                        }
+                        //    ModifiedChunks.Add(guid, chunkAssetEntry);
+                        //    if (!archiveData.ContainsKey(chunkAssetEntry.Sha1))
+                        //    {
+                        //        archiveData.TryAdd(chunkAssetEntry.Sha1, new ArchiveInfo
+                        //        {
+                        //            Data = resourceData,
+                        //        });
+                        //    }
+                        //    else
+                        //    {
+                        //        archiveData[chunkAssetEntry.Sha1].Data = resourceData;
+                        //    }
+                        //}
 
-                        else if (resource.Type == ModResourceType.Legacy)
+                        //else 
+                        if (resource.Type == ModResourceType.Legacy)
                         {
                             LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
                             resource.FillAssetEntry(legacyAssetEntry);
