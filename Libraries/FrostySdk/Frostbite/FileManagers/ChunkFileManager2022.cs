@@ -665,7 +665,10 @@ namespace Frostbite.FileManagers
 				{
                     
                     // Easily handle Singular Chunk
-                    if (gItem.Value.Count == 1 && !ModifiedChunks.Any(y => y.Id == gItem.Key))// && chunkBatch.ChunkGroupsInBatch[gItem.Value.First().ChunkId].Count == 1)
+                    if (gItem.Value.Count == 1 
+						&& !ModifiedChunks.Any(y => y.Id == gItem.Key)
+                        && chunkBatch.ChunkGroupsInBatch[gItem.Value.First().ChunkId].Count == 1
+                        )
 					{
 						var chunkEntryClone = AssetManager.Instance.GetChunkEntry(gItem.Key).Clone<ChunkAssetEntry>();
 						var legacyItem = gItem.Value.First();
