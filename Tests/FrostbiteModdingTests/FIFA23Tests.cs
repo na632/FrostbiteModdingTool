@@ -69,7 +69,7 @@ namespace FrostbiteModdingTests
         {
             get
             {
-                return @"C:\Users\paula\Desktop\";
+                return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
         }
 
