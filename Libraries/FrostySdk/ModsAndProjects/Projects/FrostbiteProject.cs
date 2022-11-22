@@ -798,7 +798,7 @@ namespace FrostySdk
 			{
 				EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
 				ebxAssetEntry.Name = reader.ReadNullTerminatedString();
-				ebxAssetEntry.Guid = reader.ReadGuid();
+				ebxAssetEntry.Id = reader.ReadGuid();
 				AssetManager.AddEbx(ebxAssetEntry);
 			}
 			count = reader.ReadInt();

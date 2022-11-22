@@ -839,41 +839,44 @@ namespace ModdingSupport
 
                 foreach (var f in allModPaths.Select(x=> new FileInfo(x)))
                 {
-                    if (f.Extension.Contains("zip", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var z = f.FullName;
+                    // -------------------------------------------------------------------------------------------------
+                    // TODO: Remove
+                    // 23.16 - This is now handled by the Launch Window, which extracts mods to a temp file to load in.
+                    //if (f.Extension.Contains("zip", StringComparison.OrdinalIgnoreCase))
+                    //{
+                    //    var z = f.FullName;
 
-                        Logger.Log("Loading mods from " + z);
+                    //    Logger.Log("Loading mods from " + z);
 
-                        using (FileStream fsModZipped = new FileStream(z, FileMode.Open))
-                        //FileStream fsModZipped = new FileStream(z, FileMode.Open);
-                        {
-                            ZipArchive zipArchive = new ZipArchive(fsModZipped);
-                            foreach (var zaentr in zipArchive.Entries
-                                .Where(x =>
-                                x.FullName.Contains(".fbmod", StringComparison.OrdinalIgnoreCase)
-                                || x.FullName.Contains(".fifamod", StringComparison.OrdinalIgnoreCase)))
-                            {
-                                Logger.Log("Loading mod " + zaentr.Name);
-                                FrostyModsFound = true;
-                                MemoryStream memoryStream = new MemoryStream();
-                                if (zaentr.Length > 1024 * 1024 || zaentr.Name.Contains(".fifamod"))
-                                {
-                                    if (!Directory.Exists(ApplicationDirectory + "TempMods"))
-                                        Directory.CreateDirectory(ApplicationDirectory + "TempMods");
-                                    zaentr.ExtractToFile(ApplicationDirectory + "TempMods/" + zaentr.Name);
-                                    GatherFrostbiteMods(ApplicationDirectory + "TempMods/" + zaentr.Name, ref FrostyModsFound, ref frostyMods);
-                                }
-                                else
-                                {
-                                    zaentr.Open().CopyTo(memoryStream);
-                                    frostyMods.TryAdd(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
-                                }
-                            }
-                        }
-                    }
-                    else
-                        GatherFrostbiteMods(rootPath + f, ref FrostyModsFound, ref frostyMods);
+                    //    using (FileStream fsModZipped = new FileStream(z, FileMode.Open))
+                    //    //FileStream fsModZipped = new FileStream(z, FileMode.Open);
+                    //    {
+                    //        ZipArchive zipArchive = new ZipArchive(fsModZipped);
+                    //        foreach (var zaentr in zipArchive.Entries
+                    //            .Where(x =>
+                    //            x.FullName.Contains(".fbmod", StringComparison.OrdinalIgnoreCase)
+                    //            || x.FullName.Contains(".fifamod", StringComparison.OrdinalIgnoreCase)))
+                    //        {
+                    //            Logger.Log("Loading mod " + zaentr.Name);
+                    //            FrostyModsFound = true;
+                    //            MemoryStream memoryStream = new MemoryStream();
+                    //            if (zaentr.Length > 1024 * 1024 || zaentr.Name.Contains(".fifamod"))
+                    //            {
+                    //                if (!Directory.Exists(ApplicationDirectory + "TempMods"))
+                    //                    Directory.CreateDirectory(ApplicationDirectory + "TempMods");
+                    //                zaentr.ExtractToFile(ApplicationDirectory + "TempMods/" + zaentr.Name);
+                    //                GatherFrostbiteMods(ApplicationDirectory + "TempMods/" + zaentr.Name, ref FrostyModsFound, ref frostyMods);
+                    //            }
+                    //            else
+                    //            {
+                    //                zaentr.Open().CopyTo(memoryStream);
+                    //                frostyMods.TryAdd(new MemoryStream(memoryStream.ToArray()), new FrostbiteMod(new MemoryStream(memoryStream.ToArray())));
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    //else
+                        ReadFrostbiteMods(rootPath + f, ref FrostyModsFound, ref frostyMods);
                 }
 
                 foreach (KeyValuePair<Stream, IFrostbiteMod> kvpMods in frostyMods)
@@ -919,7 +922,7 @@ namespace ModdingSupport
                                 )
                                 File.Move(exportedFilePath, exportedFileBackupPath);
 
-                            File.WriteAllBytes(exportedFilePath, resourceData);
+                            await File.WriteAllBytesAsync(exportedFilePath, resourceData);
 
                         }
                         //
@@ -1039,16 +1042,35 @@ namespace ModdingSupport
                                 // -------------------------------------------------------------------------
                                 // If this is a legacy file here, it likely means its a *.fifamod
                                 // Ignore this chunk and send to the Legacy Mod system
-                                if (resource.IsLegacyFile)
+                                if (resource.IsLegacyFile && frostbiteMod is FIFAMod)
                                 {
-                                    if (resource.LegacyFullName.Contains("CFC") || resource.LegacyFullName.Contains("Collector"))
+                                    // -------------------------------------------------------------------------------------
+                                    // Remove the Chunk File Collector changes. This is done ourselves via the Legacy System
+                                    if (resource.LegacyFullName.Contains("CFC", StringComparison.OrdinalIgnoreCase)
+                                        || resource.LegacyFullName.Contains("Collector", StringComparison.OrdinalIgnoreCase)
+                                        //||
+                                        //    // -------------------------------------------------------------------------
+                                        //    // 
+                                        //    ProfileManager.CheckIsFIFA(ProfileManager.Game)
+                                        //    && 
+                                        //    (
+                                        //        resource.LegacyFullName.Contains("player.lua", StringComparison.OrdinalIgnoreCase)
+                                        //        || resource.LegacyFullName.Contains("player_kit.lua", StringComparison.OrdinalIgnoreCase)
+                                        //    )
+                                        )
                                         continue;
 
+                                    // -------------------------------------------------------------------------
+                                    // Create the Legacy Files from the Compressed Chunks
                                     LegacyFileEntry legacyAssetEntry = new LegacyFileEntry();
                                     legacyAssetEntry.Name = resource.LegacyFullName;
                                     legacyAssetEntry.Sha1 = resource.Sha1;
+                                    // -------------------------------------------------------------------------
+                                    // Decompress the Chunks back to their normal format
                                     var decompressedChunk = new CasReader(new MemoryStream(resourceData)).Read();
                                     legacyAssetEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry() { Data = decompressedChunk };
+                                    // -------------------------------------------------------------------------
+                                    // Actual Size is the Decompressed Size
                                     legacyAssetEntry.Size = decompressedChunk.Length;
 
                                     if (!modifiedLegacy.ContainsKey(legacyAssetEntry.Name))
@@ -1274,39 +1296,30 @@ namespace ModdingSupport
             return FrostyModsFound;
         }
 
-
-        //private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref ConcurrentDictionary<Stream, IFrostbiteMod> frostyMods)
-        private void GatherFrostbiteMods(string modPath, ref bool FrostyModsFound, ref Dictionary<Stream, IFrostbiteMod> frostyMods)
+        /// <summary>
+        /// Constructs the IFrostbiteMod into the Dictionary
+        /// </summary>
+        /// <param name="modPath"></param>
+        /// <param name="FrostyModsFound"></param>
+        /// <param name="frostbiteMods"></param>
+        private void ReadFrostbiteMods(string modPath, ref bool FrostyModsFound, ref Dictionary<Stream, IFrostbiteMod> frostbiteMods)
         {
             FileInfo fileInfo = new FileInfo(modPath);
             Stream fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read);
 
             Stream modStream = null;
-            Stream ms = new MemoryStream();
-            var maxMemorySize = 512 * 1024 * 1024;
-            //if (fs.Length < maxMemorySize)
-            //{
-            //    fs.CopyTo(ms);
-            //    modStream = ms;
-            //}
-            //else
-            //{
-                modStream = fs;
-            //}
+            modStream = fs;
+
             Logger.Log("Loading mod " + fileInfo.Name);
             if (modPath.Contains(".fbmod", StringComparison.OrdinalIgnoreCase))
             {
                 FrostyModsFound = true;
-                //frostyMods.TryAdd(ms, new FrostbiteMod(fs));
-                //frostyMods.TryAdd(modStream, new FrostbiteMod(fs));
-                frostyMods.Add(modStream, new FrostbiteMod(fs));
+                frostbiteMods.Add(modStream, new FrostbiteMod(fs));
             }
             if (modPath.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
             {
                 FrostyModsFound = true;
-                //frostyMods.TryAdd(ms, new FIFAMod(string.Empty, fileInfo.FullName));
-                //frostyMods.TryAdd(modStream, new FIFAMod(string.Empty, fileInfo.FullName));
-                frostyMods.Add(modStream, new FIFAMod(string.Empty, fileInfo.FullName));
+                frostbiteMods.Add(modStream, new FIFAMod(string.Empty, fileInfo.FullName));
             }
         }
 
@@ -1316,7 +1329,8 @@ namespace ModdingSupport
         {
             get
             {
-                return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                //return System.IO.Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                return AppContext.BaseDirectory;
             }
         }
 

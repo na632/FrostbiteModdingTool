@@ -14,7 +14,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
     {
         public static AssetEntry ConvertDbObjectToAssetEntry(DbObject item, AssetEntry assetEntry)
         {
-            assetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+            assetEntry.Sha1 = new Sha1(item.GetValue<byte[]>("sha1"));
 
             assetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(assetEntry.Sha1);
             assetEntry.Size = item.GetValue("size", 0L);
@@ -33,19 +33,19 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
             assetEntry.Id = item.GetValue<Guid>("id", Guid.Empty);
 
-            if (assetEntry is EbxAssetEntry)
+            if (assetEntry is EbxAssetEntry || (item.HasValue("Type") && item.HasValue("name")))
             {
                 ((EbxAssetEntry)assetEntry).Name = item.GetValue("name", string.Empty);
                 ((EbxAssetEntry)assetEntry).Type = item.GetValue("Type", string.Empty);
             }
-            else if (assetEntry is ResAssetEntry)
+            else if (assetEntry is ResAssetEntry || item.HasValue("resRid"))
             {
                 ((ResAssetEntry)assetEntry).Name = item.GetValue("name", string.Empty);
                 ((ResAssetEntry)assetEntry).ResRid = item.GetValue<ulong>("resRid", 0ul);
                 ((ResAssetEntry)assetEntry).ResType = item.GetValue<uint>("resType", 0);
                 ((ResAssetEntry)assetEntry).ResMeta = item.GetValue<byte[]>("resMeta", null);
             }
-            else if (assetEntry is ChunkAssetEntry)
+            else if (assetEntry is ChunkAssetEntry || item.HasValue("logicalOffset"))
             {
                 ((ChunkAssetEntry)assetEntry).LogicalOffset = item.GetValue<uint>("logicalOffset");
                 ((ChunkAssetEntry)assetEntry).LogicalSize = item.GetValue<uint>("logicalSize");
@@ -76,6 +76,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             {
                 assetEntry.Bundle = item.GetValue<string>("Bundle");
                 assetEntry.AddToBundle(Fnv1a.HashString(assetEntry.Bundle));
+                assetEntry.Bundles.Add(Fnv1a.HashString(assetEntry.Bundle));
             }
             return assetEntry;
         }

@@ -67,10 +67,9 @@ namespace FIFA23Plugin.Cache
                     WriteChunkEntry(nativeWriter, chunkEntry);
                 }
 
-                nativeWriter.Write(AssetManager.Instance.BundleChunks.Count);
-                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.BundleChunks.Values)
+                nativeWriter.Write(AssetManager.Instance.SuperBundleChunks.Count);
+                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.SuperBundleChunks.Values)
                 {
-                    nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
                     WriteChunkEntry(nativeWriter, chunkEntry);
                 }
 
@@ -144,11 +143,11 @@ namespace FIFA23Plugin.Cache
             nativeWriter.Write(ebxEntry.SB_Sha1_Position);
             nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
 
-            //nativeWriter.Write(ebxEntry.Bundles.Count);
-            //foreach (int bundle2 in ebxEntry.Bundles)
-            //{
-            //    nativeWriter.Write(bundle2);
-            //}
+            nativeWriter.Write(ebxEntry.Bundles.Count);
+            foreach (int bundle2 in ebxEntry.Bundles)
+            {
+                nativeWriter.Write(bundle2);
+            }
             //nativeWriter.Write(ebxEntry.DependentAssets.Count);
             //foreach (Guid item in ebxEntry.EnumerateDependencies())
             //{

@@ -70,7 +70,7 @@ namespace FIFA21Plugin.Cache
 
                     if (patched)
                     {
-                        ebxAssetEntry.Guid = guid;
+                        ebxAssetEntry.Id = guid;
 
                     }
                     else

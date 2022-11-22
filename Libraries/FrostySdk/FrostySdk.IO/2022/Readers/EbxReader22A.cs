@@ -17,7 +17,7 @@ namespace FrostySdk.IO._2022.Readers
 {
 	public class EbxReader22A : EbxReader
 	{
-		private List<EbxClass> classTypes = new List<EbxClass>();
+		protected List<EbxClass> classTypes { get; set; } = new List<EbxClass>();
 
         internal const int EbxExternalReferenceMask = 1;
 
@@ -25,7 +25,7 @@ namespace FrostySdk.IO._2022.Readers
 
         //internal static EbxSharedTypeDescriptorV2 patchStd { get; private set; }
 
-        public readonly List<Guid> classGuids = new List<Guid>();
+        public List<Guid> classGuids { get; } = new List<Guid>();
 
         //private readonly List<Guid> typeInfoGuids = new List<Guid>();
 
@@ -37,11 +37,11 @@ namespace FrostySdk.IO._2022.Readers
 
         public long arrayOffset;
 
-        public List<uint> importOffsets;
+		public List<uint> importOffsets { get; set; } = new List<uint>();
 
-        public List<uint> dataContainerOffsets;
+		public List<uint> dataContainerOffsets { get; set; } = new List<uint>();
 
-        public override string RootType
+		public override string RootType
         {
             get
             {

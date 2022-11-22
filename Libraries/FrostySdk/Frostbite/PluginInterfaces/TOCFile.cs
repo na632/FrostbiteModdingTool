@@ -48,8 +48,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
         //public int[] ArrayOfInitialHeaderData = new int[12];
 
-        public ContainerMetaData MetaData = new ContainerMetaData();
-		public List<BaseBundleInfo> Bundles = new List<BaseBundleInfo>();
+        public ContainerMetaData MetaData { get; } = new ContainerMetaData();
+		public List<BaseBundleInfo> Bundles { get; } = new List<BaseBundleInfo>();
+		public List<BundleEntry> BundleEntries { get; } = new List<BundleEntry>();
 
 		public Guid[] TocChunkGuids { get; set; }
 
@@ -57,25 +58,34 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public int ChunkDataBundleId { get { return Fnv1a.HashString(ChunkDataBundleName); } }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nativeFilePath"></param>
-        /// <param name="log"></param>
-        /// <param name="process"></param>
-        public TOCFile(string nativeFilePath, bool log = true, bool process = true, bool modDataPath = false, int sbIndex = -1)
+		/// Reads the TOC file and process any data within it (Chunks) and its Bundles (In Cas files)
+		/// </summary>
+		/// <param name="nativeFilePath"></param>
+		/// <param name="log"></param>
+		/// <param name="process"></param>
+		/// <param name="modDataPath"></param>
+		/// <param name="sbIndex"></param>
+		/// <param name="headerOnly">If true then do not read/process Cas Bundles</param>
+        public TOCFile(string nativeFilePath, bool log = true, bool process = true, bool modDataPath = false, int sbIndex = -1, bool headerOnly = false)
         {
 			NativeFileLocation = nativeFilePath;
             FileLocation = FileSystem.Instance.ResolvePath(nativeFilePath, modDataPath);
 
 			if (string.IsNullOrEmpty(FileLocation))
 			{
-				Debug.WriteLine("Unable to process " + nativeFilePath);
+				//Debug.WriteLine("Unable to process " + nativeFilePath);
 				return;
 			}
 
             DoLogging = log;
 			ProcessData = process;
 			SuperBundleIndex = sbIndex;
+
+			if(headerOnly)
+			{
+				ShouldReadCASBundles = false;
+			}
+
             using (NativeReader reader = new NativeReader(new FileStream(FileLocation, FileMode.Open)))
                 Read(reader);
         }
@@ -156,16 +166,19 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 		private byte[] ToCVersion;
 		private byte[] ToCSig;
 		private byte[] ToCXor;
-        //private byte[] InitialHeaderData;
+		//private byte[] InitialHeaderData;
 
-		public Dictionary<Guid, DbObject> TocChunkInfo = new Dictionary<Guid, DbObject>();
+		//public Dictionary<Guid, DbObject> TocChunkInfo { get; } = new Dictionary<Guid, DbObject>();
+		public Dictionary<Guid, uint> TocChunkPatchPositions { get; } = new Dictionary<Guid, uint>();
+
+		public bool ShouldReadCASBundles { get; set; } = true;
 
 		public List<DbObject> Read(in NativeReader nativeReader)
 		{
 			TocChunks.Clear();
 			ChunkIndexToChunkId.Clear();
-			TocChunkInfo.Clear();
-			BundleReferences.Clear();
+			TocChunkPatchPositions.Clear();
+            BundleReferences.Clear();
 			Bundles.Clear();
 
 			nativeReader.Position = 0;
@@ -190,7 +203,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			ReadCompressedStringData(nativeReader);
 
 			CasBundlePosition = nativeReader.Position;
-			if (Bundles.Count > 0 && nativeReader.Position < nativeReader.Length)
+			if (ShouldReadCASBundles && Bundles.Count > 0 && nativeReader.Position < nativeReader.Length)
 			{
                 ReadCasBundles(nativeReader);
 			}
@@ -219,13 +232,15 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				if (!string.IsNullOrEmpty(bundleName))
 				{
 					bundle.Name = bundleName;
-                    AssetManager.Instance.Bundles.Add(new BundleEntry()
-                    {
-                        Type = bundleName.Contains("sublevel", StringComparison.OrdinalIgnoreCase) ? BundleType.SubLevel : BundleType.None,
-                        PersistedIndex = AssetManager.Instance.Bundles.Count,
+					var bE = new BundleEntry()
+					{
+						Type = bundleName.Contains("sublevel", StringComparison.OrdinalIgnoreCase) ? BundleType.SubLevel : BundleType.None,
+						PersistedIndex = AssetManager.Instance.Bundles.Count,
 						Name = bundleName,
 						SuperBundleId = SuperBundleIndex
-                    });
+					};
+					BundleEntries.Add(bE);
+                    AssetManager.Instance.Bundles.Add(bE);
                 }
             }
         }
@@ -257,32 +272,34 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				nativeReader.Position = actualInternalPos + MetaData.ChunkEntryOffset;
 				for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
 				{
-					DbObject dboChunk = new DbObject();
+					//DbObject dboChunk = new DbObject();
 
 					ChunkAssetEntry chunkAssetEntry2 = new ChunkAssetEntry();
 					chunkAssetEntry2.TOCFileLocation = this.NativeFileLocation;
 					chunkAssetEntry2.IsTocChunk = true;
 
 					var unk2 = nativeReader.ReadByte();
-					dboChunk.SetValue("patchPosition", (int)nativeReader.Position);
+					uint patchPosition = (uint)(int)nativeReader.Position;
+                    //dboChunk.SetValue("patchPosition", (int)nativeReader.Position);
 					bool patch = nativeReader.ReadBoolean();
-					dboChunk.SetValue("catalogPosition", (int)nativeReader.Position);
+					//dboChunk.SetValue("catalogPosition", (int)nativeReader.Position);
 					byte catalog2 = nativeReader.ReadByte();
-					dboChunk.SetValue("casPosition", (int)nativeReader.Position);
+					//dboChunk.SetValue("casPosition", (int)nativeReader.Position);
 					byte cas2 = nativeReader.ReadByte();
 
 					chunkAssetEntry2.SB_CAS_Offset_Position = (int)nativeReader.Position;
-					dboChunk.SetValue("chunkOffsetPosition", (int)nativeReader.Position);
+					//dboChunk.SetValue("chunkOffsetPosition", (int)nativeReader.Position);
 					uint chunkOffset = nativeReader.ReadUInt(Endian.Big);
-					dboChunk.SetValue("chunkSizePosition", (int)nativeReader.Position);
+					//dboChunk.SetValue("chunkSizePosition", (int)nativeReader.Position);
 					chunkAssetEntry2.SB_CAS_Size_Position = (int)nativeReader.Position;
 					uint chunkSize = nativeReader.ReadUInt(Endian.Big);
 
 					chunkAssetEntry2.Id = TocChunkGuids[chunkIndex];
 					var ActualTocChunkIndexId = CalculateChunkIndexFromListIndex(chunkIndex);
-					dboChunk.SetValue("TocChunkIndexId", ActualTocChunkIndexId);
-					dboChunk.SetValue("TocChunkFlag", ListTocChunkFlags[chunkIndex]);
-					dboChunk.SetValue("RealTocChunkGuidId", ChunkIndexToChunkId[ActualTocChunkIndexId]);
+					//dboChunk.SetValue("TocChunkIndexId", ActualTocChunkIndexId);
+					//dboChunk.SetValue("TocChunkFlag", ListTocChunkFlags[chunkIndex]);
+					//dboChunk.SetValue("RealTocChunkGuidId", ChunkIndexToChunkId[ActualTocChunkIndexId]);
+					TocChunkPatchPositions.Add(chunkAssetEntry2.Id, patchPosition);
 
 					if (chunkAssetEntry2.Id == Guid.Empty)
 					{
@@ -312,7 +329,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 					TocChunks.Add(chunkAssetEntry2);
 
-					TocChunkInfo.Add(chunkAssetEntry2.Id, dboChunk);
+					//TocChunkInfo.Add(chunkAssetEntry2.Id, dboChunk);
 				}
 
 				var numberOfChunksBefore = AssetManager.Instance.Chunks.Count;
@@ -399,6 +416,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				for (int i = 0; i < MetaData.BundleCount; i++)
 				{
 					CASBundle bundle = new CASBundle();
+					bundle.BaseEntry = BundleEntries[i];
 
 					long startPosition = nativeReader.Position;
 					bundle.unk1 = nativeReader.ReadInt(Endian.Big);
@@ -690,6 +708,12 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			return (unk << 24) | ((isPatch ? 1 : 0) << 16) | (catalog << 8) | cas;
 		}
 
+		~TOCFile() 
+		{ 
+		
+		
+		}
+
         public void Dispose()
         {
 			if(CASToBundles != null && CASToBundles.Count > 0)
@@ -700,8 +724,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			if (Bundles != null && Bundles.Count > 0)
 				Bundles.Clear();
 
-			Bundles = null;
-
 			if(TOCObjects != null)
             {
 				if(TOCObjects.Dictionary != null)
@@ -710,11 +732,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				if (TOCObjects.List != null)
 					TOCObjects.List.Clear();
 
-				//TOCObjects = null;
 			}
 
-			GC.Collect();
-			GC.WaitForPendingFinalizers();
+			//GC.Collect();
+			//GC.WaitForPendingFinalizers();
 
 		}
     }

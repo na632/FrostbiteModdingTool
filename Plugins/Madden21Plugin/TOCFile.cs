@@ -506,7 +506,7 @@ namespace Madden21Plugin
 					chunkAssetEntry.ExtraData.DataOffset = (uint)chunk.GetValue("offset", 0L);
 					chunkAssetEntry.ExtraData.CasPath = (chunk.HasValue("catalog") ? FileSystem.Instance.GetFilePath(chunk.GetValue("catalog", 0), chunk.GetValue("cas", 0), chunk.HasValue("patch")) : FileSystem.Instance.GetFilePath(chunk.GetValue("cas", 0)));
 					chunkAssetEntry.ExtraData.IsPatch = chunk.HasValue("patch") ? chunk.GetValue<bool>("patch") : false;
-					chunkAssetEntry.ExtraData.SuperBundleId = AssetManager.Instance.superBundles.Count - 1;
+					//chunkAssetEntry.ExtraData.SuperBundleId = AssetManager.Instance.superBundles.Count - 1;
 					chunkAssetEntry.Bundles.Add(parent.Bundles.Count - 1);
 
 					//if (AssetManager.Instance.Chunks.ContainsKey(chunkName))

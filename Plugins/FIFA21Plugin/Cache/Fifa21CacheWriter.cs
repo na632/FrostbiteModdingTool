@@ -54,8 +54,8 @@ namespace FIFA21Plugin.Cache
                     WriteChunkEntry(nativeWriter, chunkEntry);
                 }
 
-                nativeWriter.Write(AssetManager.Instance.BundleChunks.Count);
-                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.BundleChunks.Values)
+                nativeWriter.Write(AssetManager.Instance.SuperBundleChunks.Count);
+                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.SuperBundleChunks.Values)
                 {
                     nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
                     WriteChunkEntry(nativeWriter, chunkEntry);

@@ -10,7 +10,7 @@ namespace FrostySdk.Managers
         {
         }
 
-        public Guid? Guid { get; set; }
+		public Guid? Guid => Id;
 
 		//public List<Guid> DependentAssets { get; } = new List<Guid>();
 

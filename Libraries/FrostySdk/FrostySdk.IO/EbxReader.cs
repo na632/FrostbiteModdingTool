@@ -28,25 +28,25 @@ namespace FrostySdk.IO
 			return reader;
 		}
 
-		public List<EbxField> fieldTypes = new List<EbxField>();
+		public List<EbxField> fieldTypes { get; } = new List<EbxField>();
 
-		private List<EbxClass> classTypes = new List<EbxClass>();
+		private List<EbxClass> classTypes { get; } = new List<EbxClass>();
 
-		public List<EbxInstance> instances = new List<EbxInstance>();
+		public List<EbxInstance> instances { get; } = new List<EbxInstance>();
 
-		public List<EbxArray> arrays = new List<EbxArray>();
+		public List<EbxArray> arrays { get; } = new List<EbxArray>();
 
-		public List<EbxImportReference> imports = new List<EbxImportReference>();
+		public List<EbxImportReference> imports { get; } = new List<EbxImportReference>();
 
-		public List<Guid> dependencies = new List<Guid>();
+		public List<Guid> dependencies { get; } = new List<Guid>();
 
-		public List<object> objects = new List<object>();
+		public List<object> objects { get; } = new List<object>();
 
-		public List<int> refCounts = new List<int>();
+		public List<int> refCounts { get; } = new List<int>();
 
-		protected List<BoxedValueRef> boxedValueRefs = new List<BoxedValueRef>();
+		protected List<BoxedValueRef> boxedValueRefs { get; } = new List<BoxedValueRef>();
 
-		public List<EbxBoxedValue> boxedValues = new List<EbxBoxedValue>();
+		public List<EbxBoxedValue> boxedValues { get; } = new List<EbxBoxedValue>();
 
 
 		public Guid fileGuid;
@@ -118,6 +118,11 @@ namespace FrostySdk.IO
 
 		public virtual void InitialRead(Stream InStream, bool inPatched)
 		{
+			if (stream != InStream)
+			{
+				stream = InStream;
+				stream.Position = 0;
+			}
 			magic = (EbxVersion)ReadUInt();
 			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
 			{

@@ -58,7 +58,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
                         AssetManager.Instance.logger.Log($"{path} [{Math.Round(((double)index / casBundles.Count) * 100).ToString()}%]");
 
-                    AssetManager.Instance.Bundles.Add(new BundleEntry() { });
+                    //AssetManager.Instance.Bundles.Add(new BundleEntry() { });
+
 
                     index++;
 
@@ -105,6 +106,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                             {
                                 var ebxobjectinlist = EbxObjectList[i] as DbObject;
 
+                                ebxobjectinlist.SetValue("ebx", true);
                                 ebxobjectinlist.SetValue("offset", casBundle.Offsets[i]);
                                 ebxobjectinlist.SetValue("size", casBundle.Sizes[i]);
 
@@ -120,6 +122,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                 ebxobjectinlist.SetValue("patch", casBundle.TOCPatch[i]);
 
                                 ebxobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
+                                ebxobjectinlist.SetValue("Bundle", casBundle.BaseEntry.Name);
 
                             }
                             for (var i = 0; i < resCount; i++)
@@ -127,6 +130,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                 var resobjectinlist = ResObjectList[i] as DbObject;
 
 
+                                resobjectinlist.SetValue("res", true);
                                 resobjectinlist.SetValue("offset", casBundle.Offsets[ebxCount + i]);
                                 resobjectinlist.SetValue("size", casBundle.Sizes[ebxCount + i]);
 
@@ -142,6 +146,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                 resobjectinlist.SetValue("patch", casBundle.TOCPatch[ebxCount + i]);
 
                                 resobjectinlist.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
+                                resobjectinlist.SetValue("Bundle", casBundle.BaseEntry.Name);
 
                             }
 
@@ -149,6 +154,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                             {
                                 var chunkObjectInList = ChunkObjectList[i] as DbObject;
 
+                                chunkObjectInList.SetValue("chunk", true);
                                 chunkObjectInList.SetValue("offset", casBundle.Offsets[ebxCount + resCount + i]);
                                 chunkObjectInList.SetValue("size", casBundle.Sizes[ebxCount + resCount + i]);
 
@@ -166,6 +172,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                 chunkObjectInList.SetValue("patch", casBundle.TOCPatch[ebxCount + resCount + i]);
 
                                 chunkObjectInList.SetValue("BundleIndex", BaseBundleInfo.BundleItemIndex);
+                                chunkObjectInList.SetValue("Bundle", casBundle.BaseEntry.Name);
 
                             }
 
@@ -173,54 +180,56 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
                             if (AssociatedTOCFile.ProcessData)
                             {
-                                foreach (DbObject item in EbxObjectList.List)
+                                foreach (DbObject item in 
+                                    EbxObjectList.List
+                                    .Union(ResObjectList.List))
                                 {
-                                    EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-                                    ebxAssetEntry = (EbxAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, ebxAssetEntry);
+                                    //EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+                                    //ebxAssetEntry = (EbxAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, ebxAssetEntry);
 
-                                    ebxAssetEntry.CASFileLocation = NativeFileLocation;
-                                    ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                    //ebxAssetEntry.CASFileLocation = NativeFileLocation;
+                                    //ebxAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
-                                    //if(TypeLibrary.ProfileAssembly != null)
-                                    //{
-                                    //    if(string.IsNullOrEmpty(ebxAssetEntry.Type))
-                                    //    {
-                                    //        if(ebxAssetEntry.ExtraData.CasPath == NativeFileLocation)
-                                    //        {
-                                    //            nr_cas.Position = ebxAssetEntry.ExtraData.DataOffset;
+                                    //if (AssociatedTOCFile.ProcessData)
+                                    //    AssetManager.Instance.AddEbx(ebxAssetEntry);
 
-                                    //            using (var vs = new MemoryStream(new CasReader(new MemoryStream(nr_cas.ReadBytes((int)ebxAssetEntry.Size))).Read()))
-                                    //            {
-                                    //                var ebxObject = AssetManager.Instance.GetEbxAssetFromStream(vs);
-                                    //                ebxAssetEntry.Type = ebxObject.RootObject.GetType().Name.ToString();
-                                    //                if (ebxAssetEntry.Type.Contains("ChunkFile", StringComparison.OrdinalIgnoreCase))
-                                    //                {
+                                    AssetEntry asset = null;
+                                    if (item.HasValue("ebx"))
+                                        asset = new EbxAssetEntry();
+                                    else if (item.HasValue("res"))
+                                        asset = new ResAssetEntry();
+                                    else if (item.HasValue("chunk"))
+                                        asset = new ChunkAssetEntry();
 
-                                    //                }
-                                    //            }
-                                    //        }
-                                    //    }
-                                    //}
-
+                                    asset = AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, asset);
+                                    asset.CASFileLocation = NativeFileLocation;
+                                    asset.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
                                     if (AssociatedTOCFile.ProcessData)
-                                        AssetManager.Instance.AddEbx(ebxAssetEntry);
+                                    {
+                                        if(asset is EbxAssetEntry ebxAssetEntry)
+                                            AssetManager.Instance.AddEbx(ebxAssetEntry);
+                                        else if (asset is ResAssetEntry resAssetEntry)
+                                            AssetManager.Instance.AddRes(resAssetEntry);
+                                        else if (asset is ChunkAssetEntry chunkAssetEntry)
+                                            AssetManager.Instance.AddChunk(chunkAssetEntry);
+                                    }
                                 }
 
-                                var iRes = 0;
-                                foreach (DbObject item in ResObjectList)
-                                {
-                                    ResAssetEntry resAssetEntry = new ResAssetEntry();
-                                    resAssetEntry = (ResAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, resAssetEntry);
+                                //var iRes = 0;
+                                //foreach (DbObject item in ResObjectList)
+                                //{
+                                //    ResAssetEntry resAssetEntry = new ResAssetEntry();
+                                //    resAssetEntry = (ResAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, resAssetEntry);
 
-                                    resAssetEntry.CASFileLocation = NativeFileLocation;
-                                    resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                //    resAssetEntry.CASFileLocation = NativeFileLocation;
+                                //    resAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
-                                    resAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
-                                    if (AssociatedTOCFile.ProcessData)
-                                        AssetManager.Instance.AddRes(resAssetEntry);
+                                //    resAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
+                                //    if (AssociatedTOCFile.ProcessData)
+                                //        AssetManager.Instance.AddRes(resAssetEntry);
 
-                                    iRes++;
-                                }
+                                //    iRes++;
+                                //}
 
                                 var iChunk = 0;
                                 foreach (DbObject item in ChunkObjectList)

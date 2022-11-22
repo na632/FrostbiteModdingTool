@@ -11,13 +11,13 @@ namespace FMT.FileTools
 {
 	public partial class NativeReader : IDisposable
 	{
-		protected Stream stream;
+		protected Stream stream { get; set; }
 
-		protected byte[] buffer;
+		protected byte[] buffer { get; private set; }
 
-		protected char[] charBuffer;
+        protected char[] charBuffer { get; private set; }
 
-		protected long streamLength;
+        protected long streamLength;
 
 		protected Encoding wideDecoder;
 
@@ -50,24 +50,27 @@ namespace FMT.FileTools
 		{
 			stream = new FileStream(filePath, FileMode.Open);
 			wideDecoder = new UnicodeEncoding();
-			buffer = new byte[20];
-			charBuffer = new char[2];
+			buffer = new byte[1024];
+			//buffer = new byte[20];
+            //charBuffer = new char[2];
 		}
 
 		public NativeReader(Stream inStream)
 		{
+			
 			stream = inStream;
 			if (stream != null)
 			{
 				streamLength = stream.Length;
 			}
 			wideDecoder = new UnicodeEncoding();
-			buffer = new byte[20];
-			charBuffer = new char[2];
-		}
+            buffer = new byte[1024];
+            //buffer = new byte[20];
+            //charBuffer = new char[2];
+        }
 
-		
-		public NativeReader(byte[] data)
+
+        public NativeReader(byte[] data)
         {
 			stream = new MemoryStream(data);
         }
@@ -432,19 +435,47 @@ namespace FMT.FileTools
 		public string ReadNullTerminatedString(bool reverse = false)
 		{
 			var startPosition = Position;
-			var size = 0;
+#if DEBUG
+			Position = startPosition; // useful for debugging
+
+#endif
+
+			//var b = new Span<byte>(new byte[1024]) ;
+			//stream.Read(b);
+			//var b2 = new ReadOnlySpan<byte>(b.ToArray());
+			//         b.Clear();
+			//b = null;
+			//         var indexOfNull = b2.IndexOf(new byte[] { 0x0 });
+			//if (indexOfNull == -1)
+			//	return null;
+
+			//var b3 = b2.Slice(0, indexOfNull);
+
+			//         var result = Encoding.UTF8.GetString(b3.ToArray());
+			//Position = startPosition + indexOfNull + 1;
+
+			//b2 = null;
+			//b3 = null;
+
+			//         return result;
+			//var startPosition = Position;
+			//var size = 0;
 			StringBuilder stringBuilder = new StringBuilder();
 			while (true)
 			{
-				char c = (char)ReadBytes(1).First();
-				//char c = (char)ReadByte();
-				if (c == '\0')
+				var b = ReadBytes(1);
+				if (b[0] == 0x0)
 				{
 					break;
 				}
-				stringBuilder.Append(c);
+				//char c = (char)ReadBytes(1).First();
+				//if (c == '\0')
+				//{
+				//    break;
+				//}
+				stringBuilder.Append((char)b[0]);
 
-				if(stringBuilder.Length > 10000)
+				if (stringBuilder.Length > 10000)
 					throw new Exception("Can't find a text in this byte array");
 			}
 
@@ -453,53 +484,26 @@ namespace FMT.FileTools
 
 		public string ReadSizedString(int strLen)
 		{
-			//byte[] bytes = ReadBytes(strLen);
-			//return Encoding.UTF8.GetString(bytes);
+            //FillBuffer(strLen);
+            //var ssBuffer = new byte[strLen];
+            //stream.Read(new Span<byte>(ssBuffer));
+            //         //ReadOnlySpan<byte> b = new ReadOnlySpan<byte>(buffer.Take(strLen).ToArray());
+            //         ReadOnlySpan<byte> b = new ReadOnlySpan<byte>(ssBuffer.Take(strLen).ToArray());
+            //if(b.EndsWith(new byte[] { 0x0 }))
+            //	b = b.Slice(0, strLen - 1);
+            //         var result = Encoding.UTF8.GetString(b);
+            //         return result;
 
-			//if (wideDecoder == Encoding.UTF8)
-			//{
-			//    StringBuilder stringBuilder = new StringBuilder();
-			//    for (int i = 0; i < strLen * 2; i++)
-			//    {
-			//        char c = (char)ReadByte();
-			//        if (c != 0)
-			//        {
-			//            stringBuilder.Append(c);
-			//        }
-			//    }
-			//    return stringBuilder.ToString();
-			//}
-			//else
-			//{
-			StringBuilder stringBuilder = new StringBuilder();
-			for (int i = 0; i < strLen; i++)
-			{
-				char c = (char)ReadByte();
-				if (c != 0)
-				{
-					stringBuilder.Append(c);
-				}
-			}
-			return stringBuilder.ToString();
-			//}
+            var ssBuffer = new byte[strLen];
+			stream.Read(ssBuffer, 0, strLen);
+			ReadOnlySpan<byte> b = new ReadOnlySpan<byte>(ssBuffer);
+			if (b.EndsWith(new byte[] { 0x0 }))
+				b = b.Slice(0, strLen - 1);
+			var result = Encoding.UTF8.GetString(b);
+			b = null;
+            return result;
 
-			//byte[] rentedBuffer = ArrayPool<byte>.Shared.Rent(strLen);
-			//Span<byte> span = new Span<byte>(rentedBuffer, 0, strLen);
-			//Span<byte> buffer = span;
-			//try
-			//{
-			//	ReadIntoSpan(buffer);
-			//	return wideDecoder.GetString(buffer);
-			//}
-			//finally
-			//{
-			//	if (rentedBuffer != null)
-			//	{
-			//		ArrayPool<byte>.Shared.Return(rentedBuffer);
-			//	}
-			//}
-
-		}
+        }
 
 		public string ReadLine()
 		{
@@ -537,7 +541,6 @@ namespace FMT.FileTools
 			int byteCount = Read7BitEncodedInt();
 			if (byteCount == 0)
 			{
-				//return string.Empty;
 				return null;
 			}
 			return ReadSizedString(byteCount);
@@ -588,7 +591,9 @@ namespace FMT.FileTools
 
 		public virtual int Read(byte[] inBuffer, int offset, int numBytes)
 		{
-			int result = stream.Read(inBuffer, offset, numBytes);
+			Span<byte> rosBuffer = new Span<byte>(inBuffer);
+			//int result = stream.Read(inBuffer, offset, numBytes);
+			int result = stream.Read(rosBuffer);
 			return result;
 		}
 
@@ -708,9 +713,24 @@ namespace FMT.FileTools
 				throw new Exception("Cannot fill Buffer!");
 			}
 
-			stream.Read(buffer, 0, numBytes);
-		}
+			numBytes = stream.Length < Position + numBytes
+				? (int)stream.Length - (int)Position
+				: numBytes;
 
+			//numBytes = numBytes < 0 ? 0 : numBytes;
+
+			try 
+			{
+				stream.Read(
+					buffer
+					, 0
+					, numBytes);
+			}
+			catch(Exception ex) 
+			{
+
+			}
+		}
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)

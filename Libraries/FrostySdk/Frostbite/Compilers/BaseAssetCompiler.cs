@@ -523,7 +523,7 @@ namespace FrostySdk.Frostbite.Compilers
                                         var chunkGuid = tocFile2.TocChunkGuids[chunkIndex];
 
                                         var chunk = tocFile2.TocChunks[chunkIndex];
-                                        DbObject dboChunk = tocFile2.TocChunkInfo[modChunk.Key];
+                                        //DbObject dboChunk = tocFile2.TocChunkInfo[modChunk.Key];
 
                                         nw_cas.Position = nw_cas.Length;
                                         var newPosition = nw_cas.Position;
@@ -537,7 +537,7 @@ namespace FrostySdk.Frostbite.Compilers
                                             IsPatch = patch,
                                         };
 
-                                        nw_toc.Position = dboChunk.GetValue<long>("patchPosition");
+                                        nw_toc.Position = tocFile2.TocChunkPatchPositions[chunkGuid];// dboChunk.GetValue<long>("patchPosition");
                                         nw_toc.Write(Convert.ToByte(patch ? 1 : 0));
                                         nw_toc.Write(Convert.ToByte(catalog));
                                         nw_toc.Write(Convert.ToByte(newCas));

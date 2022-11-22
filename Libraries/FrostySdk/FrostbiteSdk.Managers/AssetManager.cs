@@ -1,4 +1,3 @@
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
 using FrostbiteSdk;
 using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
@@ -445,9 +444,7 @@ namespace FrostySdk.Managers
 
         public ConcurrentDictionary<Guid, ChunkAssetEntry> Chunks { get; } = new ConcurrentDictionary<Guid, ChunkAssetEntry>(4, 350000);
 
-        public ConcurrentDictionary<(string, Guid), ChunkAssetEntry> BundleChunks { get; } = new ConcurrentDictionary<(string, Guid), ChunkAssetEntry>(4, 350000);
-
-        //public ConcurrentDictionary<Guid, EbxAssetEntry> ebxGuidList = new ConcurrentDictionary<Guid, EbxAssetEntry>();
+        public ConcurrentDictionary<int, ChunkAssetEntry> SuperBundleChunks { get; } = new ConcurrentDictionary<int, ChunkAssetEntry>(4, 350000);
 
         public ConcurrentDictionary<ulong, ResAssetEntry> resRidList { get; } = new ConcurrentDictionary<ulong, ResAssetEntry>(4, 350000);
 
@@ -752,6 +749,8 @@ namespace FrostySdk.Managers
 
 
 		public Type EbxReaderType { get; set; }
+		public EbxReader EbxReaderInstance { get; set; }
+
         public void UpdateEbxListItem(EbxAssetEntry ebx)
         {
 			
@@ -759,49 +758,26 @@ namespace FrostySdk.Managers
 
 			if (string.IsNullOrEmpty(ebx.Type))
 			{
-				//var t = AllSdkAssemblyTypes.FirstOrDefault(x => x.Name.ToLower().Contains(ebx.Filename.Replace("_runtime", "")));
-				//if (t != null)
-				//{
-				//	var splitString = t.ToString().Split('.');
-				//	// Expects final class name
-				//	ebxList[ebx.Name].Type = splitString[splitString.Length - 1];
-				//	return;
-				//}
-				//else
-				//{
-				//var e = GetEbx(ebx);
-				//var root = e.RootObject;
-				//ebxList[ebx.Name].Type = root.GetType().Name;
-				//if (string.IsNullOrEmpty(ebxList[ebx.Name].Type))
-				//{
 				using (Stream ebxStream = GetEbxStream(ebx))
 				{
 					if (ebxStream != null && ebxStream.Length > 0)
 					{
-						EbxReader ebxReader = null;
-						//EbxReader_F21 ebxReader = new EbxReader_F21(ebxStream, true, ebx.Filename);
-						//if (ProfilesLibrary.IsFIFA19DataVersion())
-						//{
-						//	ebxReader = new EbxReader(ebxStream, true);
-						//	EBX[ebx.Name].Type = ebxReader.RootType;
-						//	EBX[ebx.Name].Guid = ebxReader.FileGuid;
-						//}
-						//else
-						//{
+						
 						if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
 						{
-							if (EbxReaderType == null)
+							if (EbxReaderType == null || EbxReaderInstance == null)
 							{
-								ebxReader = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
-								EbxReaderType = ebxReader.GetType();
+                                EbxReaderInstance = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
+								EbxReaderType = EbxReaderInstance.GetType();
 							}
 							ebxStream.Position = 0;
-							ebxReader = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
-
+							//EbxReaderInstance = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
+							//EbxReaderInstance.Position = 0;
 							try
 							{
-								EBX[ebx.Name].Type = ebxReader.RootType;
-								EBX[ebx.Name].Guid = ebxReader.FileGuid;
+								EbxReaderInstance.InitialRead(ebxStream, false);
+                                EBX[ebx.Name].Type = EbxReaderInstance.RootType;
+								EBX[ebx.Name].Id = EbxReaderInstance.FileGuid;
 							}
 							catch (Exception)
 							{
@@ -810,20 +786,15 @@ namespace FrostySdk.Managers
 						}
 						else
 						{
-							//EbxReaderV2 ebxReader = new EbxReaderV2(ebxStream, true);
-							ebxReader = new EbxReaderV3(ebxStream, true);
-							EBX[ebx.Name].Type = ebxReader.RootType;
-							EBX[ebx.Name].Guid = ebxReader.FileGuid;
+							throw new ArgumentNullException("EbxReader is not set against the Profile.");
+							//ebxReader = new EbxReaderV3(ebxStream, true);
+							//EBX[ebx.Name].Type = ebxReader.RootType;
+							//EBX[ebx.Name].Id = ebxReader.FileGuid;
 						}
-						//}
 						return;
 					}
 				}
-
-				//}
-                    //}
             }
-
 
             if (string.IsNullOrEmpty(ebx.Type))
             {
@@ -1106,6 +1077,7 @@ namespace FrostySdk.Managers
 			{
 
 			}
+
             if (!Chunks.TryAdd(entry.Id, entry))
             {
                 // If it already exists, then add bundles to the entry
@@ -1118,6 +1090,24 @@ namespace FrostySdk.Managers
                 if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
                     Chunks[entry.Id] = entry;
             }
+
+			if (entry.IsTocChunk)
+			{
+				var hashedId = Fnv1a.HashString(entry.Id.ToString());
+
+                if (!SuperBundleChunks.TryAdd(hashedId, entry))
+				{
+                    // If it already exists, then add bundles to the entry
+                    var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
+
+                    foreach (var bundle in existingChunk.Bundles)
+                        entry.Bundles.Add(bundle);
+
+                    // Always overwrite if the new item is a patch version
+                    if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
+                        SuperBundleChunks[hashedId] = entry;
+                }
+			}
 
         }
 
@@ -1188,54 +1178,24 @@ namespace FrostySdk.Managers
 			return chunkAssetEntry.Id;
 		}
 
-		public bool ModifyChunk((string bundleName, Guid chunkId) chunk
-			, byte[] buffer
-			, Texture texture = null
-			, CompressionType compressionOverride = CompressionType.Default)
-		{
-			if (!BundleChunks.ContainsKey(chunk))
-			{
-				return false;
-			}
-			ChunkAssetEntry chunkAssetEntry = BundleChunks[chunk];
-			
-			if (compressionOverride == CompressionType.Default)
-			{
-				compressionOverride = ProfileManager.GetCompressionType(ProfileManager.CompTypeArea.Chunks);
-			}
-
-			if (chunkAssetEntry.ModifiedEntry == null)
-			{
-				chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
-			}
-			chunkAssetEntry.ModifiedEntry.Data = ((texture != null) ? Utils.CompressTexture(buffer, texture, compressionOverride) : Utils.CompressFile(buffer, null, ResourceType.Invalid, compressionOverride));
-			chunkAssetEntry.ModifiedEntry.Sha1 = GenerateSha1(chunkAssetEntry.ModifiedEntry.Data);
-			chunkAssetEntry.ModifiedEntry.LogicalSize = (uint)buffer.Length;
-			if (texture != null)
-			{
-				chunkAssetEntry.ModifiedEntry.LogicalOffset = texture.LogicalOffset;
-				chunkAssetEntry.ModifiedEntry.LogicalSize = texture.LogicalSize;
-				chunkAssetEntry.ModifiedEntry.RangeStart = texture.RangeStart;
-				chunkAssetEntry.ModifiedEntry.RangeEnd = (uint)chunkAssetEntry.ModifiedEntry.Data.Length;
-				chunkAssetEntry.ModifiedEntry.FirstMip = texture.FirstMip;
-			}
-			chunkAssetEntry.IsDirty = true;
-			return true;
-		}
-
 		public bool ModifyChunk(Guid chunkId
 			, byte[] buffer
 			, Texture texture = null
 			, CompressionType compressionOverride = CompressionType.Default
 			, bool addToChunkBundle = false)
 		{
-			if (!Chunks.ContainsKey(chunkId))
+			if (!Chunks.ContainsKey(chunkId) && !SuperBundleChunks.ContainsKey(Fnv1a.HashString(chunkId.ToString())))
 			{
 				return false;
 			}
-			ChunkAssetEntry chunkAssetEntry = Chunks[chunkId];
-			return ModifyChunk(chunkAssetEntry, buffer, texture, compressionOverride, addToChunkBundle);
 
+			if (Chunks.ContainsKey(chunkId))
+			{
+				ChunkAssetEntry chunkAssetEntry = Chunks[chunkId];
+				return ModifyChunk(chunkAssetEntry, buffer, texture, compressionOverride, addToChunkBundle);
+			}
+
+			throw new NotImplementedException("SuperBundleChunks has not been implemented!");
         }
 
         public bool ModifyChunk(
@@ -1787,10 +1747,12 @@ namespace FrostySdk.Managers
 
 		public BundleEntry GetBundleEntry(int bundleId)
 		{
-			if (bundleId >= Bundles.Count)
-			{
+			if (Bundles.Count == 0)
 				return null;
-			}
+
+			if (bundleId >= Bundles.Count)
+				return null;
+
 			return Bundles[bundleId];
 		}
 
@@ -1829,8 +1791,8 @@ namespace FrostySdk.Managers
 		public EbxAssetEntry GetEbxEntry(ReadOnlySpan<char> name)
 		{
 			// Old school, search by string
-			if(EBX.ContainsKey(name.ToString()))
-                return EBX[name.ToString()];
+			if (EBX.TryGetValue(name.ToString(), out var ent))// ContainsKey(name.ToString()))
+				return ent;// EBX[name.ToString()];
 
 			// Search by string but with the typed name (for Assets searching)
 			if (EBX.ContainsKey($"[{typeof(EbxAssetEntry).Name}]({name.ToString()})"))
@@ -2082,10 +2044,10 @@ namespace FrostySdk.Managers
 		//	}
 		//}
 
-		public Stream GetChunk(Guid id)
-		{
-			return GetAsset(GetChunkEntry(id));
-		}
+		//public Stream GetChunk(Guid id)
+		//{
+		//	return GetAsset(GetChunkEntry(id));
+		//}
 
 		public Stream GetChunk(ChunkAssetEntry entry)
 		{
@@ -2456,7 +2418,7 @@ namespace FrostySdk.Managers
 						chunkAssetEntry.Size = item.GetValue("size", 0L);
 						chunkAssetEntry.ExtraData = new AssetExtraData();
 						chunkAssetEntry.ExtraData.DataOffset = (uint)item.GetValue("offset", 0L);
-						chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
+						//chunkAssetEntry.ExtraData.SuperBundleId = superBundles.Count - 1;
 						chunkAssetEntry.ExtraData.IsPatch = superBundleName.StartsWith("native_patch");
 					}
 
@@ -3070,10 +3032,10 @@ namespace FrostySdk.Managers
                     nativeWriter.Write(ebxEntry.ExtraData != null);
                     if (ebxEntry.ExtraData != null)
                     {
-                        nativeWriter.Write(ebxEntry.ExtraData.BaseSha1);
-                        nativeWriter.Write(ebxEntry.ExtraData.DeltaSha1);
+                        //nativeWriter.Write(ebxEntry.ExtraData.BaseSha1);
+                        //nativeWriter.Write(ebxEntry.ExtraData.DeltaSha1);
                         nativeWriter.Write(ebxEntry.ExtraData.DataOffset);
-                        nativeWriter.Write(ebxEntry.ExtraData.SuperBundleId);
+                        //nativeWriter.Write(ebxEntry.ExtraData.SuperBundleId);
                         nativeWriter.Write(ebxEntry.ExtraData.IsPatch);
                         nativeWriter.WriteLengthPrefixedString(ebxEntry.ExtraData.CasPath);
                     }
@@ -3131,10 +3093,10 @@ namespace FrostySdk.Managers
                     nativeWriter.Write(resEntry.ExtraData != null);
                     if (resEntry.ExtraData != null)
                     {
-                        nativeWriter.Write(resEntry.ExtraData.BaseSha1);
-                        nativeWriter.Write(resEntry.ExtraData.DeltaSha1);
+                        //nativeWriter.Write(resEntry.ExtraData.BaseSha1);
+                        //nativeWriter.Write(resEntry.ExtraData.DeltaSha1);
                         nativeWriter.Write(resEntry.ExtraData.DataOffset);
-                        nativeWriter.Write(resEntry.ExtraData.SuperBundleId);
+                        //nativeWriter.Write(resEntry.ExtraData.SuperBundleId);
                         nativeWriter.Write(resEntry.ExtraData.IsPatch);
                         nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
                     }
@@ -3399,10 +3361,10 @@ namespace FrostySdk.Managers
             nativeWriter.Write(chunkEntry.ExtraData != null);
             if (chunkEntry.ExtraData != null)
             {
-                nativeWriter.Write(chunkEntry.ExtraData.BaseSha1);
-                nativeWriter.Write(chunkEntry.ExtraData.DeltaSha1);
+                //nativeWriter.Write(chunkEntry.ExtraData.BaseSha1);
+                //nativeWriter.Write(chunkEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(chunkEntry.ExtraData.DataOffset);
-                nativeWriter.Write(chunkEntry.ExtraData.SuperBundleId);
+                //nativeWriter.Write(chunkEntry.ExtraData.SuperBundleId);
                 nativeWriter.Write(chunkEntry.ExtraData.IsPatch);
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.ExtraData.CasPath);
             }
@@ -3455,10 +3417,12 @@ namespace FrostySdk.Managers
 
 		public Sha1 GenerateSha1(byte[] buffer)
 		{
-			using (SHA1Managed sHA1Managed = new SHA1Managed())
-			{
-				return new Sha1(sHA1Managed.ComputeHash(buffer));
-			}
+			using(var sha1instance = SHA1.Create())
+				return new Sha1(sha1instance.ComputeHash(buffer));
+			//using (SHA1Managed sHA1Managed = new SHA1Managed())
+			//{
+			//	return new Sha1(sHA1Managed.ComputeHash(buffer));
+			//}
 		}
 
 		public Guid GenerateChunkId(AssetEntry ae)

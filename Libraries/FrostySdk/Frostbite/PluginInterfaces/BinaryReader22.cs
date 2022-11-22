@@ -16,8 +16,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         //public int SBInformationHeaderLength = 36;
         public int SBInformationHeaderLength = 32;
 
-        List<long> Sha1Positions = new List<long>();
-        List<Sha1> Sha1 = new List<Sha1>();
+        List<long> Sha1Positions { get; } = new List<long>();
+        List<byte[]> Sha1 { get; } = new List<byte[]>();
 
         public long StartOfBundleOffset = 0;
 
@@ -47,13 +47,14 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             for (int i = 0; i < SBHeaderInformation.totalCount; i++)
             {
                 Sha1Positions.Add(binarySbReader2.Position + baseBundleOffset);
-                Sha1.Add(binarySbReader2.ReadSha1());
+                //Sha1.Add(binarySbReader2.ReadSha1());
+                Sha1.Add(binarySbReader2.ReadBytes(20));
             }
             //dbObject.AddValue("sha1s", Sha1);
 
-            dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
-            dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
-            dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, Sha1, binarySbReader2, baseBundleOffset)));
+            dbObject.AddValue("ebx", new DbObject(ReadEbx(SBHeaderInformation, binarySbReader2, baseBundleOffset)));
+            dbObject.AddValue("res", new DbObject(ReadRes(SBHeaderInformation, binarySbReader2, baseBundleOffset)));
+            dbObject.AddValue("chunks", new DbObject(ReadChunks(SBHeaderInformation, binarySbReader2, baseBundleOffset)));
             //dbObject.AddValue("dataOffset", (int)(SBHeaderInformation.size));
             //dbObject.AddValue("stringsOffset", (int)(SBHeaderInformation.stringOffset));
             //dbObject.AddValue("metaOffset", (int)(SBHeaderInformation.metaOffset));
@@ -82,7 +83,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 
 
-        private List<object> ReadEbx(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
+        private List<object> ReadEbx(SBHeaderInformation information, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
             for (int i = 0; i < information.ebxCount; i++)
@@ -99,7 +100,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 var name = reader.ReadNullTerminatedString();
 
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[i]);
-                dbObject.AddValue("sha1", sha1[i]);
+                dbObject.AddValue("sha1", Sha1[i]);
               
                 dbObject.AddValue("name", name);
                 dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
@@ -109,7 +110,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
             return list;
         }
-        private List<object> ReadRes(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
+        private List<object> ReadRes(SBHeaderInformation information, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
             int shaCount = (int)information.ebxCount;
@@ -127,7 +128,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 dbObject.AddValue("SB_StringOffsetPosition", reader.Position + baseBundleOffset);
                 var name = reader.ReadNullTerminatedString();
 
-                dbObject.AddValue("sha1", sha1[shaCount + i]);
+                dbObject.AddValue("sha1", Sha1[shaCount + i]);
                 //dbObject.AddValue("SB_Sha1_Position", Sha1Positions[information.ebxCount + i]);
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[shaCount + i]);
 
@@ -162,7 +163,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
             return list;
         }
-        private List<object> ReadChunks(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
+        private List<object> ReadChunks(SBHeaderInformation information, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
             int shaCount = (int)(information.ebxCount + information.resCount);
@@ -178,7 +179,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 long chunkOriginalSize = (logicalOffset & 0xFFFF) | chunkLogicalSize;
                 dbObject.AddValue("id", guid);
                 dbObject.AddValue("SB_Sha1_Position", Sha1Positions[information.ebxCount + information.resCount + i]);
-                dbObject.AddValue("sha1", sha1[shaCount + i]);
+                dbObject.AddValue("sha1", Sha1[shaCount + i]);
                 dbObject.AddValue("logicalOffset", logicalOffset);
                 dbObject.AddValue("logicalSize", chunkLogicalSize);
                 dbObject.AddValue("originalSize", chunkOriginalSize);

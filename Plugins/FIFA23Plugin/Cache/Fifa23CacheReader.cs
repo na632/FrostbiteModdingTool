@@ -71,15 +71,12 @@ namespace FIFA23Plugin.Cache
                     ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
                     ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
 
-                    if (patched)
-					{
-						ebxAssetEntry.Guid = guid;
-
-					}
-					else
-					{
-						AssetManager.Instance.EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
-					}
+                    int bundleCount = nativeReader.ReadInt();
+                    for (int bundleIndex = 0; bundleIndex < bundleCount; bundleIndex++)
+                    {
+                        ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
+                    }
+                    AssetManager.Instance.AddEbx(ebxAssetEntry);
 				}
 				count = nativeReader.ReadInt();
 				for (int n = 0; n < count; n++)
@@ -138,23 +135,22 @@ namespace FIFA23Plugin.Cache
 
 				// ------------------------------------------------------------------------
 				// Chunks
-				count = nativeReader.ReadInt();
-				for (int num5 = 0; num5 < count; num5++)
+				var chunkCount = nativeReader.ReadInt();
+				for (int chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
 				{
 					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
 					AssetManager.Instance.AddChunk(chunkAssetEntry);
 				}
 
-				// ------------------------------------------------------------------------
-				// Chunks in Bundles
-				//count = nativeReader.ReadInt();
-				//for (int num5 = 0; num5 < count; num5++)
-				//{
-				//	var bundle = nativeReader.ReadLengthPrefixedString();
-				//	ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-				//	AssetManager.Instance.BundleChunks.TryAdd((chunkAssetEntry.Bundle, chunkAssetEntry.Id), chunkAssetEntry);
-				//}
-			}
+                // ------------------------------------------------------------------------
+                // Chunks in Bundles
+                var sbChunkCount = nativeReader.ReadInt();
+                for (int chunkIndex = 0; chunkIndex < sbChunkCount; chunkIndex++)
+                {
+                    ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+                    AssetManager.Instance.AddChunk(chunkAssetEntry);
+                }
+            }
 			return !patched;
 		}
 

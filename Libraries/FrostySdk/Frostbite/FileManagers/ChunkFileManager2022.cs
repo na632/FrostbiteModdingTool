@@ -698,14 +698,14 @@ namespace Frostbite.FileManagers
                                 .Where(x => !ModifiedChunks.Any(y => y.Id == x.Key))
                                 .Where(x => x.Value.Count == 1)
                                 .First();
-                        //batchGuid = groupOfLegacyFilesWithOnlyOne.Key;
                         foreach (var gItem2 in gItem.Value)
 						{
-                            groupOfLegacyFilesWithOnlyOne = chunkBatch.ChunkGroupsInBatch
-                                .Where(x => !ModifiedChunks.Any(y => y.Id == x.Key))
-                                .Where(x => x.Value.Count == 1)
-                                .First();
-                            batchGuid = groupOfLegacyFilesWithOnlyOne.Key;
+							// This is vital in this current implementation. It will batch into separate existing files.
+							groupOfLegacyFilesWithOnlyOne = chunkBatch.ChunkGroupsInBatch
+								.Where(x => !ModifiedChunks.Any(y => y.Id == x.Key))
+								.Where(x => x.Value.Count == 1)
+								.First();
+							batchGuid = groupOfLegacyFilesWithOnlyOne.Key;
                             gItem2.ModifiedEntry.ChunkId = batchGuid;
 
 

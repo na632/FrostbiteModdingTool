@@ -80,10 +80,10 @@ namespace Madden21Plugin.Cache
 					if (nativeReader.ReadBoolean())
 					{
 						ebxAssetEntry.ExtraData = new AssetExtraData();
-						ebxAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
+						//ebxAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
+						//ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
+						//ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
 						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
 						ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 					}
@@ -112,16 +112,18 @@ namespace Madden21Plugin.Cache
 					//ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
 					//ebxAssetEntry.Bundle = nativeReader.ReadLengthPrefixedString();
 
-					if (flag)
-					{
-						ebxAssetEntry.Guid = guid;
+					//if (flag)
+					//{
+					//	ebxAssetEntry.Guid = guid;
 
-					}
-					else
-					{
-						AssetManager.Instance.EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
-					}
-				}
+					//}
+					//else
+					//{
+					//	AssetManager.Instance.EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
+					//}
+					AssetManager.Instance.AddEbx(ebxAssetEntry);
+
+                }
 				count = nativeReader.ReadInt();
 				for (int n = 0; n < count; n++)
 				{
@@ -139,10 +141,10 @@ namespace Madden21Plugin.Cache
 					if (nativeReader.ReadBoolean())
 					{
 						resAssetEntry.ExtraData = new AssetExtraData();
-						resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-						resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
+						//resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
+						//resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 						resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
+						//resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
 						resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
 						resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 					}
@@ -190,13 +192,13 @@ namespace Madden21Plugin.Cache
 
 				// ------------------------------------------------------------------------
 				// Chunks in Bundles
-				count = nativeReader.ReadInt();
-				for (int num5 = 0; num5 < count; num5++)
-				{
-					var bundle = nativeReader.ReadLengthPrefixedString();
-					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-					AssetManager.Instance.BundleChunks.TryAdd((chunkAssetEntry.Bundle, chunkAssetEntry.Id), chunkAssetEntry);
-				}
+				//count = nativeReader.ReadInt();
+				//for (int num5 = 0; num5 < count; num5++)
+				//{
+				//	var bundle = nativeReader.ReadLengthPrefixedString();
+				//	ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+				//	AssetManager.Instance.SuperBundleChunks.TryAdd((chunkAssetEntry.Bundle, chunkAssetEntry.Id), chunkAssetEntry);
+				//}
 			}
 			return !flag;
 		}
@@ -220,10 +222,10 @@ namespace Madden21Plugin.Cache
 			if (nativeReader.ReadBoolean())
 			{
 				chunkAssetEntry.ExtraData = new AssetExtraData();
-				chunkAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-				chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
+				//chunkAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
+				//chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
 				chunkAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-				chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
+				//chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
 				chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
 				chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
 			}

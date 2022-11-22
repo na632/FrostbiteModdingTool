@@ -768,6 +768,12 @@ namespace FrostySdk
 			}
 			return Encoding.UTF8.GetString(array);
 		}
-	}
+
+        public static bool CheckIsFIFA(EGame game)
+        {
+			var result = game.ToString().StartsWith("FIFA", StringComparison.OrdinalIgnoreCase);
+			return result;
+        }
+    }
 
 }

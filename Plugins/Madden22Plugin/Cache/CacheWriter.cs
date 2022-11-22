@@ -45,10 +45,10 @@ namespace Madden22Plugin.Cache
                     nativeWriter.Write(ebxEntry.ExtraData != null);
                     if (ebxEntry.ExtraData != null)
                     {
-                        nativeWriter.Write(ebxEntry.ExtraData.BaseSha1);
-                        nativeWriter.Write(ebxEntry.ExtraData.DeltaSha1);
+                        //nativeWriter.Write(ebxEntry.ExtraData.BaseSha1);
+                        //nativeWriter.Write(ebxEntry.ExtraData.DeltaSha1);
                         nativeWriter.Write(ebxEntry.ExtraData.DataOffset);
-                        nativeWriter.Write(ebxEntry.ExtraData.SuperBundleId);
+                        //nativeWriter.Write(ebxEntry.ExtraData.SuperBundleId);
                         nativeWriter.Write(ebxEntry.ExtraData.IsPatch);
                         nativeWriter.WriteLengthPrefixedString(ebxEntry.ExtraData.CasPath);
                     }
@@ -101,10 +101,10 @@ namespace Madden22Plugin.Cache
                     nativeWriter.Write(resEntry.ExtraData != null);
                     if (resEntry.ExtraData != null)
                     {
-                        nativeWriter.Write(resEntry.ExtraData.BaseSha1);
-                        nativeWriter.Write(resEntry.ExtraData.DeltaSha1);
+                        //nativeWriter.Write(resEntry.ExtraData.BaseSha1);
+                        //nativeWriter.Write(resEntry.ExtraData.DeltaSha1);
                         nativeWriter.Write(resEntry.ExtraData.DataOffset);
-                        nativeWriter.Write(resEntry.ExtraData.SuperBundleId);
+                        //nativeWriter.Write(resEntry.ExtraData.SuperBundleId);
                         nativeWriter.Write(resEntry.ExtraData.IsPatch);
                         nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
                     }
@@ -142,8 +142,8 @@ namespace Madden22Plugin.Cache
                     WriteChunkEntry(nativeWriter, chunkEntry);
                 }
 
-                nativeWriter.Write(AssetManager.Instance.BundleChunks.Count);
-                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.BundleChunks.Values)
+                nativeWriter.Write(AssetManager.Instance.SuperBundleChunks.Count);
+                foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.SuperBundleChunks.Values)
                 {
                     nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
                     WriteChunkEntry(nativeWriter, chunkEntry);
@@ -179,10 +179,10 @@ namespace Madden22Plugin.Cache
             nativeWriter.Write(chunkEntry.ExtraData != null);
             if (chunkEntry.ExtraData != null)
             {
-                nativeWriter.Write(chunkEntry.ExtraData.BaseSha1);
-                nativeWriter.Write(chunkEntry.ExtraData.DeltaSha1);
+                //nativeWriter.Write(chunkEntry.ExtraData.BaseSha1);
+                //nativeWriter.Write(chunkEntry.ExtraData.DeltaSha1);
                 nativeWriter.Write(chunkEntry.ExtraData.DataOffset);
-                nativeWriter.Write(chunkEntry.ExtraData.SuperBundleId);
+                //nativeWriter.Write(chunkEntry.ExtraData.SuperBundleId);
                 nativeWriter.Write(chunkEntry.ExtraData.IsPatch);
                 nativeWriter.WriteLengthPrefixedString(chunkEntry.ExtraData.CasPath);
             }

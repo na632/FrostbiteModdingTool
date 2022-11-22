@@ -73,7 +73,7 @@ namespace FIFA22Plugin.Cache
 
                     if (patched)
                     {
-                        ebxAssetEntry.Guid = guid;
+                        ebxAssetEntry.Id = guid;
 
                     }
                     else

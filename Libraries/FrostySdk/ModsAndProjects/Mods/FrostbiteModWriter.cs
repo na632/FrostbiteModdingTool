@@ -200,13 +200,15 @@ namespace FrostySdk
 				foreach (int bundle in entry.Bundles)
 				{
 					BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
-					AddBundle(bundleEntry.Name, modify: true);
+					if(bundleEntry != null)
+						AddBundle(bundleEntry.Name, modify: true);
 				}
 				foreach (int item in entry.EnumerateBundles(addedOnly: true))
 				{
 					BundleEntry bundleEntry2 = AssetManager.Instance.GetBundleEntry(item);
-					AddBundle(bundleEntry2.Name, modify: false);
-				}
+					if(bundleEntry2 != null)
+						AddBundle(bundleEntry2.Name, modify: false);
+                }
 			}
 		}
 

@@ -74,135 +74,135 @@ namespace FrostySdk.IO
 		public EbxReaderV2(Stream InStream, bool inPatched)
 			: base(InStream, passthru: true)
 		{
-			InitialiseStd();
-			//if (std == null)
-			//{
-			//	std = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors.ebx", patch: false);
-			//	if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_patch.ebx"))
-			//	{
-			//		patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_patch.ebx", patch: true);
-			//	}
-			//	if (FileSystem.Instance.HasFileInMemoryFs("SharedTypeDescriptors_Patch.ebx"))
-			//	{
-			//		patchStd = new EbxSharedTypeDescriptors(FileSystem.Instance, "SharedTypeDescriptors_Patch.ebx", patch: true);
-			//	}
-			//}
-			patched = inPatched;
-			magic = (EbxVersion)ReadUInt32LittleEndian();
-			if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
-			{
-				return;
-			}
-			stringsOffset = ReadUInt32LittleEndian();
-			stringsAndDataLen = ReadUInt32LittleEndian();
-			guidCount = ReadUInt32LittleEndian();
-			instanceCount = ReadUInt16LittleEndian();
-			exportedCount = ReadUInt16LittleEndian();
-			uniqueClassCount = ReadUInt16LittleEndian();
-			classTypeCount = ReadUInt16LittleEndian();
-			fieldTypeCount = ReadUInt16LittleEndian();
-			typeNamesLen = ReadUInt16LittleEndian();
-			stringsLen = ReadUInt32LittleEndian();
-			arrayCount = ReadUInt32LittleEndian();
-			dataLen = ReadUInt32LittleEndian();
-			arraysOffset = stringsOffset + stringsLen + dataLen;
-			fileGuid = ReadGuid();
-			boxedValuesCount = ReadUInt32LittleEndian();
-			boxedValuesOffset = ReadUInt32LittleEndian();
-			boxedValuesOffset += stringsOffset + stringsLen;
-			for (int num = 0; num < guidCount; num++)
-			{
-				EbxImportReference ebxImportReference = new EbxImportReference
-				{
-					FileGuid = ReadGuid(),
-					ClassGuid = ReadGuid()
-				};
-				imports.Add(ebxImportReference);
-				if (!dependencies.Contains(ebxImportReference.FileGuid))
-				{
-					dependencies.Add(ebxImportReference.FileGuid);
-				}
-			}
-			Dictionary<int, string> dictionary = new Dictionary<int, string>();
-			long position = base.Position;
-			while (base.Position - position < typeNamesLen)
-			{
-				string text = ReadNullTerminatedString();
-				int key = HashString(text);
-				dictionary.TryAdd(key, text);
-			}
-			for (int i = 0; i < fieldTypeCount; i++)
-			{
-				EbxField item = default(EbxField);
-				int key2 = ReadInt32LittleEndian();
-				item.Type = ((magic == EbxVersion.Version2) ? ReadUInt16LittleEndian() : ((ushort)(ReadUInt16LittleEndian() >> 1)));
-				item.ClassRef = ReadUInt16LittleEndian();
-				item.DataOffset = ReadUInt32LittleEndian();
-				item.SecondOffset = ReadUInt32LittleEndian();
-				item.Name = dictionary[key2];
-				fieldTypes.Add(item);
-			}
-			for (int j = 0; j < classTypeCount; j++)
-			{
-				Guid item2 = ReadGuid();
-				classGuids.Add(item2);
-			}
-			ushort num2 = exportedCount;
-			for (int k = 0; k < instanceCount; k++)
-			{
-				EbxInstance item3 = new EbxInstance
-				{
-					ClassRef = ReadUInt16LittleEndian(),
-					Count = ReadUInt16LittleEndian()
-				};
-				if (num2 != 0)
-				{
-					item3.IsExported = true;
-					num2 = (ushort)(num2 - 1);
-				}
-				instances.Add(item3);
-			}
-			while (base.Position % 16 != 0L)
-			{
-				base.Position++;
-			}
-			for (int num3 = 0; num3 < arrayCount; num3++)
-			{
-				EbxArray item4 = new EbxArray
-				{
-					Offset = ReadUInt32LittleEndian(),
-					Count = ReadUInt32LittleEndian(),
-					ClassRef = ReadInt32LittleEndian()
-				};
-				arrays.Add(item4);
-			}
-			Pad(16);
-			for (int l = 0; l < boxedValuesCount; l++)
-			{
-				EbxBoxedValue item5 = new EbxBoxedValue
-				{
-					Offset = ReadUInt32LittleEndian(),
-					ClassRef = ReadUInt16LittleEndian(),
-					Type = ReadUInt16LittleEndian()
-				};
-				boxedValues.Add(item5);
-			}
-			base.Position = stringsOffset + stringsLen;
-			isValid = true;
-#if DEBUG
-			if (RootType.Contains("gp_"))
-			{
-				InStream.Position = 0;
-				var fsDump = new FileStream($"ebx.{RootType}.read.dat", FileMode.OpenOrCreate);
-				InStream.CopyTo(fsDump);
-				fsDump.Close();
-				fsDump.Dispose();
-				InStream.Position = stringsOffset + stringsLen;
-			}
-#endif
+			InitialRead(InStream, inPatched);
 		}
 
-		public override void InternalReadObjects()
+        public override void InitialRead(Stream InStream, bool inPatched)
+        {
+            if (stream != InStream)
+            {
+                stream = InStream;
+                stream.Position = 0;
+            }
+            Position = 0;
+            InitialiseStd();
+
+            patched = inPatched;
+            magic = (EbxVersion)ReadUInt32LittleEndian();
+            if (magic != EbxVersion.Version2 && magic != EbxVersion.Version4)
+            {
+                return;
+            }
+            stringsOffset = ReadUInt32LittleEndian();
+            stringsAndDataLen = ReadUInt32LittleEndian();
+            guidCount = ReadUInt32LittleEndian();
+            instanceCount = ReadUInt16LittleEndian();
+            exportedCount = ReadUInt16LittleEndian();
+            uniqueClassCount = ReadUInt16LittleEndian();
+            classTypeCount = ReadUInt16LittleEndian();
+            fieldTypeCount = ReadUInt16LittleEndian();
+            typeNamesLen = ReadUInt16LittleEndian();
+            stringsLen = ReadUInt32LittleEndian();
+            arrayCount = ReadUInt32LittleEndian();
+            dataLen = ReadUInt32LittleEndian();
+            arraysOffset = stringsOffset + stringsLen + dataLen;
+            fileGuid = ReadGuid();
+            boxedValuesCount = ReadUInt32LittleEndian();
+            boxedValuesOffset = ReadUInt32LittleEndian();
+            boxedValuesOffset += stringsOffset + stringsLen;
+            for (int num = 0; num < guidCount; num++)
+            {
+                EbxImportReference ebxImportReference = new EbxImportReference
+                {
+                    FileGuid = ReadGuid(),
+                    ClassGuid = ReadGuid()
+                };
+                imports.Add(ebxImportReference);
+                if (!dependencies.Contains(ebxImportReference.FileGuid))
+                {
+                    dependencies.Add(ebxImportReference.FileGuid);
+                }
+            }
+            Dictionary<int, string> dictionary = new Dictionary<int, string>();
+            long position = base.Position;
+            while (base.Position - position < typeNamesLen)
+            {
+                string text = ReadNullTerminatedString();
+                int key = HashString(text);
+                dictionary.TryAdd(key, text);
+            }
+            for (int i = 0; i < fieldTypeCount; i++)
+            {
+                EbxField item = default(EbxField);
+                int key2 = ReadInt32LittleEndian();
+                item.Type = ((magic == EbxVersion.Version2) ? ReadUInt16LittleEndian() : ((ushort)(ReadUInt16LittleEndian() >> 1)));
+                item.ClassRef = ReadUInt16LittleEndian();
+                item.DataOffset = ReadUInt32LittleEndian();
+                item.SecondOffset = ReadUInt32LittleEndian();
+                item.Name = dictionary[key2];
+                fieldTypes.Add(item);
+            }
+            for (int j = 0; j < classTypeCount; j++)
+            {
+                Guid item2 = ReadGuid();
+                classGuids.Add(item2);
+            }
+            ushort num2 = exportedCount;
+            for (int k = 0; k < instanceCount; k++)
+            {
+                EbxInstance item3 = new EbxInstance
+                {
+                    ClassRef = ReadUInt16LittleEndian(),
+                    Count = ReadUInt16LittleEndian()
+                };
+                if (num2 != 0)
+                {
+                    item3.IsExported = true;
+                    num2 = (ushort)(num2 - 1);
+                }
+                instances.Add(item3);
+            }
+            while (base.Position % 16 != 0L)
+            {
+                base.Position++;
+            }
+            for (int num3 = 0; num3 < arrayCount; num3++)
+            {
+                EbxArray item4 = new EbxArray
+                {
+                    Offset = ReadUInt32LittleEndian(),
+                    Count = ReadUInt32LittleEndian(),
+                    ClassRef = ReadInt32LittleEndian()
+                };
+                arrays.Add(item4);
+            }
+            Pad(16);
+            for (int l = 0; l < boxedValuesCount; l++)
+            {
+                EbxBoxedValue item5 = new EbxBoxedValue
+                {
+                    Offset = ReadUInt32LittleEndian(),
+                    ClassRef = ReadUInt16LittleEndian(),
+                    Type = ReadUInt16LittleEndian()
+                };
+                boxedValues.Add(item5);
+            }
+            base.Position = stringsOffset + stringsLen;
+            isValid = true;
+#if DEBUG
+            if (RootType.Contains("gp_"))
+            {
+                InStream.Position = 0;
+                var fsDump = new FileStream($"ebx.{RootType}.read.dat", FileMode.OpenOrCreate);
+                InStream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                InStream.Position = stringsOffset + stringsLen;
+            }
+#endif
+        }
+
+        public override void InternalReadObjects()
 		{
 			foreach (EbxInstance ebxInstance in instances)
 			{

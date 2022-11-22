@@ -16,7 +16,7 @@ namespace FrostbiteSdk.Frosty.Abstract
 	public abstract class BaseModReader : NativeReader, IModReader
 	{
 		public BaseModReader(Stream stream)
-			: base(stream, skipObfuscation: false)
+			: base(stream)
 		{
 		}
 

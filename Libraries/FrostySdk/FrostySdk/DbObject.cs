@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace FrostySdk
 {
@@ -162,9 +163,14 @@ namespace FrostySdk
 			}
 		}
 
-		public bool HasValue(string name)
+        public bool HasValue(string name)
+        {
+            return hash.ContainsKey(name);
+        }
+
+        public bool HasValue(ReadOnlySpan<byte> name)
 		{
-			return hash.ContainsKey(name);
+			return hash.ContainsKey(Encoding.UTF8.GetString(name));
 		}
 
 		public IEnumerator GetEnumerator()
