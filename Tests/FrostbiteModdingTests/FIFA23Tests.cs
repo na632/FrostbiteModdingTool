@@ -728,7 +728,8 @@ namespace FrostbiteModdingTests
             //var project = projectManagement.StartNewProject();
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
-            var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
+            //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
+            var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("haircap_201942_0_0_mesh")).FirstOrDefault();
             if (skinnedMeshEntry != null)
             {
                 var skinnedMeshEbx = AssetManager.Instance.GetEbx(skinnedMeshEntry);

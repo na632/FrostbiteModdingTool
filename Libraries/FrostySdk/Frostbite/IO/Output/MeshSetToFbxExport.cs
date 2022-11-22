@@ -334,8 +334,8 @@ namespace FrostySdk.Frostbite.IO.Output
 			List<FbxCluster> list = new List<FbxCluster>();
 			for (int i = 0; i < section.VertexCount; i++)
 			{
-				ushort[] array = new ushort[8];
-				float[] array2 = new float[8];
+				ushort[] boneIndicy = new ushort[8];
+				float[] boneWeight = new float[8];
 				int num = 0;
 				GeometryDeclarationDesc.Stream[] streams = section.GeometryDeclDesc[0].Streams;
 				for (int j = 0; j < streams.Length; j++)
@@ -357,49 +357,49 @@ namespace FrostySdk.Frostbite.IO.Output
 							{
 								if (element.Format == VertexElementFormat.Byte4 || element.Format == VertexElementFormat.Byte4N || element.Format == VertexElementFormat.UByte4 || element.Format == VertexElementFormat.UByte4N)
 								{
-									array[3] = reader.ReadByte();
-									array[2] = reader.ReadByte();
-									array[1] = reader.ReadByte();
-									array[0] = reader.ReadByte();
+									boneIndicy[3] = reader.ReadByte();
+									boneIndicy[2] = reader.ReadByte();
+									boneIndicy[1] = reader.ReadByte();
+									boneIndicy[0] = reader.ReadByte();
 								}
 								else if (element.Format == VertexElementFormat.UShort4 || element.Format == VertexElementFormat.UShort4N)
 								{
-									array[3] = reader.ReadUShort();
-									array[2] = reader.ReadUShort();
-									array[1] = reader.ReadUShort();
-									array[0] = reader.ReadUShort();
+									boneIndicy[3] = reader.ReadUShort();
+									boneIndicy[2] = reader.ReadUShort();
+									boneIndicy[1] = reader.ReadUShort();
+									boneIndicy[0] = reader.ReadUShort();
 								}
 							}
 							else if (element.Usage == VertexElementUsage.BoneIndices2)
 							{
 								if (element.Format == VertexElementFormat.Byte4 || element.Format == VertexElementFormat.Byte4N || element.Format == VertexElementFormat.UByte4 || element.Format == VertexElementFormat.UByte4N)
 								{
-									array[7] = reader.ReadByte();
-									array[6] = reader.ReadByte();
-									array[5] = reader.ReadByte();
-									array[4] = reader.ReadByte();
+									boneIndicy[7] = reader.ReadByte();
+									boneIndicy[6] = reader.ReadByte();
+									boneIndicy[5] = reader.ReadByte();
+									boneIndicy[4] = reader.ReadByte();
 								}
 								else if (element.Format == VertexElementFormat.UShort4 || element.Format == VertexElementFormat.UShort4N)
 								{
-									array[7] = reader.ReadUShort();
-									array[6] = reader.ReadUShort();
-									array[5] = reader.ReadUShort();
-									array[4] = reader.ReadUShort();
+									boneIndicy[7] = reader.ReadUShort();
+									boneIndicy[6] = reader.ReadUShort();
+									boneIndicy[5] = reader.ReadUShort();
+									boneIndicy[4] = reader.ReadUShort();
 								}
 							}
 							else if (element.Usage == VertexElementUsage.BoneWeights)
 							{
-								array2[3] = (float)(int)reader.ReadByte() / 255f;
-								array2[2] = (float)(int)reader.ReadByte() / 255f;
-								array2[1] = (float)(int)reader.ReadByte() / 255f;
-								array2[0] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[3] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[2] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[1] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[0] = (float)(int)reader.ReadByte() / 255f;
 							}
 							else if (element.Usage == VertexElementUsage.BoneWeights2)
 							{
-								array2[7] = (float)(int)reader.ReadByte() / 255f;
-								array2[6] = (float)(int)reader.ReadByte() / 255f;
-								array2[5] = (float)(int)reader.ReadByte() / 255f;
-								array2[4] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[7] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[6] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[5] = (float)(int)reader.ReadByte() / 255f;
+								boneWeight[4] = (float)(int)reader.ReadByte() / 255f;
 							}
 						}
 						num2 += element.Size;
@@ -408,32 +408,40 @@ namespace FrostySdk.Frostbite.IO.Output
 				}
 				if (meshType == MeshType.MeshType_Composite)
 				{
-					array2[0] = 1f;
+					boneWeight[0] = 1f;
 				}
 				for (int l = 0; l < 8; l++)
 				{
-					if (array2[l] > 0f)
+					if (boneWeight[l] > 0f)
 					{
-						int num3 = array[l];
-						num3 = boneList[num3];
-						if (((uint)num3 & 0x8000u) != 0)
+						int indIndex = boneIndicy[l];
+						// This is a hack, just for hair caps in FIFA 23
+						if (boneList.Count - 1 < indIndex)
 						{
-							num3 = num3 - 32768 + boneCount;
+							// This is a hack
+							boneWeight[0] = 1f;
+							boneWeight[l] = 0f;
+							continue;
 						}
-						while (num3 >= list.Count)
+						indIndex = boneList[indIndex];
+						if (((uint)indIndex & 0x8000u) != 0)
+						{
+							indIndex = indIndex - 32768 + boneCount;
+						}
+						while (indIndex >= list.Count)
 						{
 							list.Add(null);
 						}
-						if (list[num3] == null)
+						if (list[indIndex] == null)
 						{
-							list[num3] = new FbxCluster(scene, "");
-							list[num3].SetLink(boneNodes[num3]);
-							list[num3].SetLinkMode(FbxCluster.ELinkMode.eTotalOne);
-							FbxAMatrix transformLinkMatrix = boneNodes[num3].EvaluateGlobalTransform();
-							list[num3].SetTransformLinkMatrix(transformLinkMatrix);
-							fbxSkin.AddCluster(list[num3]);
+							list[indIndex] = new FbxCluster(scene, "");
+							list[indIndex].SetLink(boneNodes[indIndex]);
+							list[indIndex].SetLinkMode(FbxCluster.ELinkMode.eTotalOne);
+							FbxAMatrix transformLinkMatrix = boneNodes[indIndex].EvaluateGlobalTransform();
+							list[indIndex].SetTransformLinkMatrix(transformLinkMatrix);
+							fbxSkin.AddCluster(list[indIndex]);
 						}
-						list[num3].AddControlPointIndex(i, array2[l]);
+						list[indIndex].AddControlPointIndex(i, boneWeight[l]);
 					}
 				}
 			}
