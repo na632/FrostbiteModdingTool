@@ -336,7 +336,7 @@ namespace FrostySdk.Frostbite.IO.Output
 			{
 				ushort[] boneIndicy = new ushort[8];
 				float[] boneWeight = new float[8];
-				int num = 0;
+				int totalStride = 0;
 				GeometryDeclarationDesc.Stream[] streams = section.GeometryDeclDesc[0].Streams;
 				for (int j = 0; j < streams.Length; j++)
 				{
@@ -345,14 +345,14 @@ namespace FrostySdk.Frostbite.IO.Output
 					{
 						continue;
 					}
-					int num2 = 0;
+					int currentStride = 0;
 					GeometryDeclarationDesc.Element[] elements = section.GeometryDeclDesc[0].Elements;
 					for (int k = 0; k < elements.Length; k++)
 					{
 						GeometryDeclarationDesc.Element element = elements[k];
-						if (num2 >= num && num2 < num + stream.VertexStride && (element.Usage == VertexElementUsage.BoneIndices || element.Usage == VertexElementUsage.BoneIndices2 || element.Usage == VertexElementUsage.BoneWeights || element.Usage == VertexElementUsage.BoneWeights2))
+						if (currentStride >= totalStride && currentStride < totalStride + stream.VertexStride && (element.Usage == VertexElementUsage.BoneIndices || element.Usage == VertexElementUsage.BoneIndices2 || element.Usage == VertexElementUsage.BoneWeights || element.Usage == VertexElementUsage.BoneWeights2))
 						{
-							reader.Position = section.VertexOffset + num * section.VertexCount + i * stream.VertexStride + (num2 - num);
+							reader.Position = section.VertexOffset + totalStride * section.VertexCount + i * stream.VertexStride + (currentStride - totalStride);
 							if (element.Usage == VertexElementUsage.BoneIndices)
 							{
 								if (element.Format == VertexElementFormat.Byte4 || element.Format == VertexElementFormat.Byte4N || element.Format == VertexElementFormat.UByte4 || element.Format == VertexElementFormat.UByte4N)
@@ -402,9 +402,9 @@ namespace FrostySdk.Frostbite.IO.Output
 								boneWeight[4] = (float)(int)reader.ReadByte() / 255f;
 							}
 						}
-						num2 += element.Size;
+						currentStride += element.Size;
 					}
-					num += stream.VertexStride;
+					totalStride += stream.VertexStride;
 				}
 				if (meshType == MeshType.MeshType_Composite)
 				{
@@ -419,8 +419,8 @@ namespace FrostySdk.Frostbite.IO.Output
 						if (boneList.Count - 1 < indIndex)
 						{
 							// This is a hack
-							boneWeight[0] = 1f;
-							boneWeight[l] = 0f;
+							//boneWeight[0] = 1f;
+							//boneWeight[l] = 0f;
 							continue;
 						}
 						indIndex = boneList[indIndex];
