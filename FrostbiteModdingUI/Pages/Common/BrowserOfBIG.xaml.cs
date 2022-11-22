@@ -7,12 +7,14 @@ using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.Resources;
 using Microsoft.Win32;
 using SharpDX.Toolkit.Graphics;
 using System;
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -53,15 +55,43 @@ namespace FMT.Pages.Common
 
 			public uint Offset { get; set; }
 
-			public uint Size { get; set; }
+			private uint size;
 
-			public byte[] Data { get; set; }
+			public uint Size
+			{
+				get { return ModifiedEntry != null ? (uint)ModifiedEntry.Data.Length : size; }
+				set { size = value; }
+			}
+
+
+			private byte[] data;
+
+			public byte[] Data
+			{
+				get { return ModifiedEntry != null ? ModifiedEntry.Data : data; }
+				set { data = value; }
+			}
+
 
 			public string Type { get; set; }
 
-			public bool IsModified { get; set; }
+			public bool IsModified => ModifiedEntry != null;
 
-			public BigFileEntry(string inName, uint inOffset, uint inSize, byte[] inData, string inType = "MISC")
+			public class ModifiedBigFileEntry
+			{
+                public byte[] Data { get; set; }
+
+				public int Size => Data.Length;
+
+				public ModifiedBigFileEntry(byte[] inData)
+				{
+					Data = inData;
+                }
+            }
+
+			public ModifiedBigFileEntry ModifiedEntry { get; set; }
+
+            public BigFileEntry(string inName, uint inOffset, uint inSize, byte[] inData, string inType = "MISC")
 			{
 				Name = inName;
 				Offset = inOffset;
@@ -123,10 +153,6 @@ namespace FMT.Pages.Common
 				}
 				finally
 				{
-					//if (compressedFlag)
-					//{
-					//	ArrayPool<byte>.Shared.Return(data);
-					//}
 				}
 				nativeReader.Position = position;
 				list.Add(new BigFileEntry(text, offset, size, decompressedData, inType));
@@ -322,9 +348,20 @@ namespace FMT.Pages.Common
 
 		private void Revert_Click(object sender, RoutedEventArgs e)
 		{
-		}
+            BigFileEntry entry = lb.SelectedItem as BigFileEntry;
+            if (entry == null)
+            {
+                return;
+            }
 
-		private async Task ExportAsync(BigFileEntry entry, string file)
+			entry.ModifiedEntry = null;
+            AssetManager.Instance.Log($"{entry.Name} has been reverted");
+
+            bigBrowserDocumentsPane.Children.Clear();
+
+        }
+
+        private async Task ExportAsync(BigFileEntry entry, string file)
 		{
 			if (entry == null)
 			{
@@ -357,17 +394,16 @@ namespace FMT.Pages.Common
 					, removeAlpha: false);
 
 					await File.WriteAllBytesAsync(file, imageBytes);
-
 				}
 			}
 			else
 			{
 				await File.WriteAllBytesAsync(file, entry.Data).ConfigureAwait(continueOnCapturedContext: false);
 			}
+            AssetManager.Instance.Log($"{entry.Name} has been exported to {file}");
+        }
 
-		}
-
-		private async Task ExportAsync(IEnumerable<BigFileEntry> entries, string path, bool hierarchicalExport)
+        private async Task ExportAsync(IEnumerable<BigFileEntry> entries, string path, bool hierarchicalExport)
 		{
 			if (entries == null)
 			{
@@ -396,31 +432,52 @@ namespace FMT.Pages.Common
 				throw new ArgumentNullException("file");
 			}
 			string extension = System.IO.Path.GetExtension(file)!.ToLowerInvariant();
-				byte[] data = await File.ReadAllBytesAsync(file);
-				if (entry.Type == "DDS")
+			byte[] data = await File.ReadAllBytesAsync(file);
+			if (entry.Type == "DDS")
+			{
+				await Task.Run(()=>
 				{
-					await Task.Run(()=>
+					if (extension != ".dds")
 					{
-						if (extension != ".dds")
-						{
-							ImageEngineImage originalImage = new ImageEngineImage(entry.Data);
+						ImageEngineImage originalImage = new ImageEngineImage(entry.Data);
 
-							ImageEngineImage imageEngineImage = new ImageEngineImage(file);
+						ImageEngineImage imageEngineImage = new ImageEngineImage(file);
 
-							data = imageEngineImage.Save(
-								new ImageFormats.ImageEngineFormatDetails(
-									originalImage.Format
-									, originalImage.FormatDetails.DX10Format)
-								, MipHandling.KeepTopOnly
-								, removeAlpha: false);
-						}
-					});
-				}
-				entry.Data = data;
-				entry.Size = (uint)data.Length;
-			entry.IsModified = true;
-				Reconstruct(AssetEntry);
-		}
+      //                  TextureUtils.TextureImportOptions options = default(TextureUtils.TextureImportOptions);
+						//options.type = TextureType.TT_2d;
+      //                  options.format = TextureUtils.ToShaderFormat("BC3A_UNORM", false);
+						//options.generateMipmaps = false;
+      //                  options.mipmapsFilter = 0;
+      //                  options.resizeTexture = true;
+      //                  options.resizeFilter = 0;
+						//options.resizeHeight = originalImage.Height;
+      //                  options.resizeWidth = originalImage.Width;
+                        
+						//TextureUtils.BlobData pOutData = default(TextureUtils.BlobData);
+      //                  TextureUtils.ConvertImageToDDS(data, data.Length, TextureUtils.ImageFormat.PNG, options, ref pOutData);
+
+						//data = pOutData.Data;
+						data = imageEngineImage.Save(
+							new ImageFormats.ImageEngineFormatDetails(
+								originalImage.Format
+								, CSharpImageLibrary.Headers.DDS_Header.DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB)
+							, MipHandling.Default
+							, removeAlpha: false);
+					}
+				});
+			}
+
+			//entry.Data = data;
+			//entry.Size = (uint)data.Length;
+			//entry.IsModified = true;
+
+			entry.ModifiedEntry = new BigFileEntry.ModifiedBigFileEntry(data);
+            AssetManager.Instance.Log($"{file} has been imported into {entry.Name}");
+            Reconstruct(AssetEntry);
+
+			bigBrowserDocumentsPane.Children.Clear();
+
+        }
 
 		private void Reconstruct(AssetEntry assetEntry)
 		{
@@ -513,7 +570,9 @@ namespace FMT.Pages.Common
 			nativeWriter2.WritePadding(64);
 			nativeWriter2.WriteBytes(array);
 			AssetManager.Instance.ModifyLegacyAsset(assetEntry.Name, ((MemoryStream)nativeWriter2.BaseStream).ToArray(), false);
-		}
+			AssetManager.Instance.Log($"{AssetEntry.Name} has been Reconstructed");
+
+        }
 
 		private void ReconstructAST(AssetEntry assetEntry, IEnumerable<BigFileEntry> entries)
 		{
@@ -781,9 +840,10 @@ namespace FMT.Pages.Common
 			var hexEditor = sender as WpfHexaEditor.HexEditor;
 			if(hexEditor != null)
             {
-				bigFileEntry.Data = hexEditor.GetAllBytes(true);
-				bigFileEntry.Size = (uint)bigFileEntry.Data.Length;
-				bigFileEntry.IsModified = true;
+				//bigFileEntry.Data = hexEditor.GetAllBytes(true);
+				//bigFileEntry.Size = (uint)bigFileEntry.Data.Length;
+				//bigFileEntry.IsModified = true;
+				bigFileEntry.ModifiedEntry = new BigFileEntry.ModifiedBigFileEntry(hexEditor.GetAllBytes(true));
 				Reconstruct(AssetEntry);
 				if (ParentBrowser != null)
 				{
