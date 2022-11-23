@@ -47,7 +47,7 @@ namespace FrostbiteSdk
         public string Filename { get; set; }
         public IEnumerable<BaseModResource> Resources { get; set; }
 
-		public FrostbiteMod(string inFilename)
+		public FrostbiteMod(in string inFilename)
 		{
 			FileInfo fileInfo = new FileInfo(inFilename);
 			Filename = fileInfo.Name;
@@ -58,8 +58,9 @@ namespace FrostbiteSdk
 			}
 		}
 
-		public FrostbiteMod(Stream stream)
+		public FrostbiteMod(in Stream stream, in string inFilename)
 		{
+            path = inFilename;
 			ReadFromStream(stream);
 		}
 
@@ -97,28 +98,34 @@ namespace FrostbiteSdk
 			}
 
 			// Read internal Bytes
-			var innerStream = new MemoryStream(ModBytes);
-			using (FrostbiteModReader frostyModReader = new FrostbiteModReader(innerStream))
+			using (var innerStream = new MemoryStream(ModBytes))
 			{
-				if (frostyModReader.IsValid)
+				using (FrostbiteModReader frostyModReader = new FrostbiteModReader(innerStream))
 				{
-					bNewFormat = true;
-					Game = frostyModReader.Game;
-					gameVersion = frostyModReader.GameVersion;
-					ModDetails = frostyModReader.ReadModDetails();
-					Resources = frostyModReader.ReadResources();
-					ModDetails.SetIcon(frostyModReader.GetResourceData(Resources.First()));
-					for (int i = 0; i < 4; i++)
+					if (frostyModReader.IsValid)
 					{
-						byte[] resourceData = frostyModReader.GetResourceData(Resources.ElementAt(i + 1));
-						if (resourceData != null)
+						bNewFormat = true;
+						Game = frostyModReader.Game;
+						gameVersion = frostyModReader.GameVersion;
+						ModDetails = frostyModReader.ReadModDetails();
+						Resources = frostyModReader.ReadResources();
+						ModDetails.SetIcon(frostyModReader.GetResourceData(Resources.First()));
+						for (int i = 0; i < 4; i++)
 						{
-							ModDetails.AddScreenshot(resourceData);
+							byte[] resourceData = frostyModReader.GetResourceData(Resources.ElementAt(i + 1));
+							if (resourceData != null)
+							{
+								ModDetails.AddScreenshot(resourceData);
+							}
 						}
 					}
 				}
 			}
-		}
+			ModBytes = null;
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+
+        }
 
 		public byte[] GetResourceData(BaseModResource resource)
 		{

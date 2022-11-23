@@ -45,23 +45,23 @@ namespace FrostbiteModdingUI.Windows
 
         private void btnAddToBundle_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            var result = openFileDialog.ShowDialog();
-            if (result.HasValue && result.Value) 
-            {
-                var fi = new FileInfo(openFileDialog.FileName);
-                if (fi.Extension.Contains("fifamod", StringComparison.OrdinalIgnoreCase))
-                {
-                    Bundle.Mods.Add(new FIFAMod(new FileStream(fi.FullName, FileMode.Open)));
-                }
-                if (fi.Extension.Contains("fbmod", StringComparison.OrdinalIgnoreCase))
-                {
-                    Bundle.Mods.Add(new FrostbiteMod(new FileStream(fi.FullName, FileMode.Open)));
-                }
-            }
+            //OpenFileDialog openFileDialog = new OpenFileDialog();
+            //var result = openFileDialog.ShowDialog();
+            //if (result.HasValue && result.Value) 
+            //{
+            //    var fi = new FileInfo(openFileDialog.FileName);
+            //    if (fi.Extension.Contains("fifamod", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        Bundle.Mods.Add(new FIFAMod(new FileStream(fi.FullName, FileMode.Open)));
+            //    }
+            //    if (fi.Extension.Contains("fbmod", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        Bundle.Mods.Add(new FrostbiteMod(new FileStream(fi.FullName, FileMode.Open)));
+            //    }
+            //}
 
-            DataContext = null;
-            DataContext = Bundle;
+            //DataContext = null;
+            //DataContext = Bundle;
         }
 
         private void btnRemoveFromBundle_Click(object sender, RoutedEventArgs e)

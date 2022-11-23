@@ -1314,7 +1314,7 @@ namespace ModdingSupport
             if (modPath.Contains(".fbmod", StringComparison.OrdinalIgnoreCase))
             {
                 FrostyModsFound = true;
-                frostbiteMods.Add(modStream, new FrostbiteMod(fs));
+                frostbiteMods.Add(modStream, new FrostbiteMod(fs, fileInfo.FullName));
             }
             if (modPath.Contains(".fifamod", StringComparison.OrdinalIgnoreCase))
             {
