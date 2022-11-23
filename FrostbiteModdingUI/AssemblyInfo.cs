@@ -6,12 +6,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FIFA Modding Tool")]
-[assembly: AssemblyDescription("FIFA Modding Tool")]
+[assembly: AssemblyTitle("Frostbite Modding Tool")]
+[assembly: AssemblyDescription("Frostbite Modding Tool")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("The FMT Team")]
-[assembly: AssemblyProduct("FIFA Modding Tool")]
-[assembly: AssemblyCopyright("Copyright © FMT 2021")]
+[assembly: AssemblyCompany("Paulov/Paulv2k4")]
+[assembly: AssemblyProduct("Frostbite Modding Tool")]
+[assembly: AssemblyCopyright("Copyright © FMT 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -41,5 +41,5 @@ using System.Windows;
 // Revision
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("23.16.*")]
+[assembly: AssemblyVersion("23.17.*")]
 
