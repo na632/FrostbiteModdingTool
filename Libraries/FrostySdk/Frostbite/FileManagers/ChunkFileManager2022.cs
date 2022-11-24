@@ -20,7 +20,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace Frostbite.FileManagers
 {
-	public class ChunkFileManager2022 : IChunkFileManager, ICustomAssetManager
+	public class ChunkFileManager2022 : IChunkFileManager, ICustomAssetManager, IDisposable
 	{
 		protected ILogger Logger { get; set; }
 
@@ -32,9 +32,9 @@ namespace Frostbite.FileManagers
 
         public List<LegacyFileEntry> OriginalLegacyEntries { get; } = new List<LegacyFileEntry>();
 
-		public Dictionary<string, LegacyFileEntry> LegacyEntries { get; } = new Dictionary<string, LegacyFileEntry>();
+		public Dictionary<string, LegacyFileEntry> LegacyEntries { get; private set; } = new Dictionary<string, LegacyFileEntry>();
 
-		public List<ChunkAssetEntry> ModifiedChunks { get; } = new List<ChunkAssetEntry>();
+		public List<ChunkAssetEntry> ModifiedChunks { get; private set; } = new List<ChunkAssetEntry>();
 
 		protected Dictionary<Guid, List<LegacyFileEntry>> LegacyChunksToParent = new Dictionary<Guid, List<LegacyFileEntry>>();
 
@@ -161,7 +161,7 @@ namespace Frostbite.FileManagers
 		/// <summary>
 		/// Chunk Batches are the entire batch of chunks and locations of the chunks. Each is an EBX
 		/// </summary>
-		public List<ChunkBatch> ChunkBatches { get; } = new List<ChunkBatch>();
+		public List<ChunkBatch> ChunkBatches { get; private set; } = new List<ChunkBatch>();
 
 
         public ChunkFileManager2022()
@@ -590,8 +590,9 @@ namespace Frostbite.FileManagers
 		}
 
 		long? testDO;
+        private bool disposedValue;
 
-		public virtual Stream GetAsset(AssetEntry entry)
+        public virtual Stream GetAsset(AssetEntry entry)
 		{
             if (LegacyEntries.Count == 0)
                 Initialize(Logger == null ? new NullLogger() : Logger);
@@ -1283,7 +1284,41 @@ namespace Frostbite.FileManagers
 			//	LegacyEntries = null;
 			//}
         }
-	}
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+					// TODO: dispose managed state (managed objects)
+					LegacyEntries.Clear();
+					LegacyEntries = null;
+					ChunkBatches.Clear();
+					ChunkBatches = null;
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+				ChunkFileManager.Instance = null;
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~ChunkFileManager2022()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        void IDisposable.Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+    }
 
 
 }

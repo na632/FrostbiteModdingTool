@@ -38,8 +38,17 @@ namespace FIFA23Plugin.Cache
 				ChunkDataOffset = nativeReader.ReadULong();
 				NameToPositionOffset = nativeReader.ReadULong();
 				int count = 0;
-				
-				count = nativeReader.ReadInt();
+				// bundle count
+                count = nativeReader.ReadInt();
+				for (int k = 0; k < count; k++)
+				{
+					BundleEntry bE = new BundleEntry();
+					bE.Name = nativeReader.ReadLengthPrefixedString();
+					bE.SuperBundleId = nativeReader.ReadInt();
+					AssetManager.Instance.Bundles.Add(bE);
+                }
+
+                count = nativeReader.ReadInt();
 				for (int k = 0; k < count; k++)
 				{
 					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();

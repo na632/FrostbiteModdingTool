@@ -333,41 +333,28 @@ namespace FrostySdk.Frostbite.Compilers
 
         private void WriteEbxChangesToSuperBundle(DbObject origEbxDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
         {
-            //DbObject origEbxDbo = null;
-            //foreach (DbObject dbInBundle in origEbxBundles)
-            //{
-            //    origEbxDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-            //    if (origEbxDbo != null)
-            //        break;
-            //}
+            if (origEbxDbo == null)
+                throw new ArgumentNullException(nameof(origEbxDbo));
 
-            if (origEbxDbo != null)
+            var originalSizeOfData = assetBundle.Value.Item3;
+
+            if (origEbxDbo.HasValue("SB_OriginalSize_Position"))
             {
-                var originalSizeOfData = assetBundle.Value.Item3;
+                writer.Position = origEbxDbo.GetValue<long>("SB_OriginalSize_Position");
+                writer.Write((uint)originalSizeOfData, Endian.Little);
+            }
 
-                if (origEbxDbo.HasValue("SB_OriginalSize_Position"))
-                {
-                    writer.Position = origEbxDbo.GetValue<long>("SB_OriginalSize_Position");
-                    writer.Write((uint)originalSizeOfData, Endian.Little);
-                }
-
-                if (origEbxDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
-                {
-                    writer.Position = origEbxDbo.GetValue<long>("SB_Sha1_Position");
-                    writer.Write(assetBundle.Value.Item4);
-                }
+            if (origEbxDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            {
+                writer.Position = origEbxDbo.GetValue<long>("SB_Sha1_Position");
+                writer.Write(assetBundle.Value.Item4);
             }
         }
 
         private void WriteResChangesToSuperBundle(DbObject origResDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
         {
-            //DbObject origResDbo = null;
-            //foreach (DbObject dbInBundle in origResBundles)
-            //{
-            //    origResDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["name"].ToString() == assetBundle.Key.Name);
-            //    if (origResDbo != null)
-            //        break;
-            //}
+            if (origResDbo == null)
+                throw new ArgumentNullException(nameof(origResDbo));
 
             if (origResDbo != null
                 && ModExecuter.modifiedRes.ContainsKey(assetBundle.Key.Name)
@@ -402,22 +389,17 @@ namespace FrostySdk.Frostbite.Compilers
 
         private void WriteChunkChangesToSuperBundle(DbObject origChunkDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
         {
-            //DbObject origChunkDbo = null;
-            //foreach (DbObject dbInBundle in origChunkBundles)
-            //{
-            //    origChunkDbo = (DbObject)dbInBundle.List.FirstOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
-            //    if (origChunkDbo != null)
-            //        break;
-            //}
+            if (origChunkDbo == null)
+                throw new ArgumentNullException(nameof(origChunkDbo));
 
-            if (Guid.TryParse(assetBundle.Key.Name, out Guid bndleId))
+            if (Guid.TryParse(assetBundle.Key.Name, out Guid id))
             {
                 if (origChunkDbo != null
-                    && ModExecuter.ModifiedChunks.ContainsKey(bndleId)
+                    && ModExecuter.ModifiedChunks.ContainsKey(id)
                     )
                 {
                     writer.BaseStream.Position = origChunkDbo.GetValue<int>("SB_LogicalOffset_Position");
-                    writer.Write(ModExecuter.ModifiedChunks[bndleId].LogicalOffset);
+                    writer.Write(ModExecuter.ModifiedChunks[id].LogicalOffset);
                 }
             }
 
@@ -464,7 +446,7 @@ namespace FrostySdk.Frostbite.Compilers
 
                     var pathToTOCFile = FileSystem.Instance.ResolvePath(pathToTOCFileRAW, ModExecutor.UseModData);
 
-                    using TOCFile tocFile2 = new TOCFile(pathToTOCFileRAW, false, false, true);
+                    using TOCFile tocFile2 = new TOCFile(pathToTOCFileRAW, false, false, true, sbIndex, true);
 
                     // read the changed toc file in ModData
                     if (!tocFile2.TocChunks.Any())
@@ -551,22 +533,22 @@ namespace FrostySdk.Frostbite.Compilers
                                 }
 
                                 // Added / Duplicate chunk -- Does nothing at the moment
-                                if (modChunk.Value.ExtraData == null && tocFile == "win32/globalsfull")
-                                {
-                                    var data = ModExecuter.archiveData[modChunk.Value.Sha1].Data;
-                                    nw_cas.Position = nw_cas.Length;
-                                    var newPosition = nw_cas.Position;
-                                    //nw_cas.WriteBytes(data);
-                                    modChunk.Value.Size = data.Length;
-                                    modChunk.Value.ExtraData = new AssetExtraData()
-                                    {
-                                        DataOffset = (uint)newPosition,
-                                        Cas = newCas,
-                                        Catalog = catalog,
-                                        IsPatch = patch,
-                                    };
-                                    //tocSb.TOCFile.TocChunks.Add(modChunk.Value);
-                                }
+                                //if (modChunk.Value.ExtraData == null && tocFile == "win32/globalsfull")
+                                //{
+                                //    var data = ModExecuter.archiveData[modChunk.Value.Sha1].Data;
+                                //    nw_cas.Position = nw_cas.Length;
+                                //    var newPosition = nw_cas.Position;
+                                //    //nw_cas.WriteBytes(data);
+                                //    modChunk.Value.Size = data.Length;
+                                //    modChunk.Value.ExtraData = new AssetExtraData()
+                                //    {
+                                //        DataOffset = (uint)newPosition,
+                                //        Cas = newCas,
+                                //        Catalog = catalog,
+                                //        IsPatch = patch,
+                                //    };
+                                //    //tocSb.TOCFile.TocChunks.Add(modChunk.Value);
+                                //}
                             }
                         }
                     }

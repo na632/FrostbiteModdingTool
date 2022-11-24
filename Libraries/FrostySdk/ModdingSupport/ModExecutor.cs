@@ -1495,12 +1495,12 @@ namespace ModdingSupport
             //- -----------------------
             // Clear out the memory of archive data after compilation and before launching the game
             archiveData.Clear();
+            GC.Collect();
 
             RunFIFA23Setup();
 
             // Delete the Live Updates
             RunDeleteLiveUpdates();
-
 
             //RunSetupFIFAConfig();
             //RunPowershellToUnblockDLLAtLocation(fs.BasePath);
@@ -1601,6 +1601,7 @@ namespace ModdingSupport
             //    ((IAssetCompiler)pluginCompiler).Cleanup(fs, logger, this);
             //}
 
+            GC.Collect();
             return true;
         }
 

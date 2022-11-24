@@ -380,8 +380,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
         public void Dispose()
         {
-            if (AssociatedTOCFile != null)
-                AssociatedTOCFile.Dispose();
+            //if (AssociatedTOCFile != null)
+            //    AssociatedTOCFile.Dispose();
 
             AssociatedTOCFile = null;
         }

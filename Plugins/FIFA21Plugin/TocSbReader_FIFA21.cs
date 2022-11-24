@@ -57,8 +57,8 @@ namespace FIFA21Plugin
 
         public void Dispose()
         {
-            if (TOCFile != null)
-                TOCFile.Dispose();
+            //if (TOCFile != null)
+            //    TOCFile.Dispose();
 
             TOCFile = null;
         }

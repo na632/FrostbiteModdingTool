@@ -33,12 +33,12 @@ namespace FIFA23Plugin.Cache
                 //{
                 //    nativeWriter.WriteNullTerminatedString(superBundle.Name);
                 //}
-                //nativeWriter.Write(AssetManager.Instance.bundles.Count);
-                //foreach (BundleEntry bundle in AssetManager.Instance.bundles)
-                //{
-                //    nativeWriter.WriteNullTerminatedString(bundle.Name);
-                //    nativeWriter.Write(bundle.SuperBundleId);
-                //}
+                nativeWriter.Write(AssetManager.Instance.Bundles.Count);
+                foreach (BundleEntry bundle in AssetManager.Instance.Bundles)
+                {
+                    nativeWriter.WriteLengthPrefixedString(bundle.Name);
+                    nativeWriter.Write(bundle.SuperBundleId);
+                }
 
                 Dictionary<string, long> EbxNameToPosition = new Dictionary<string, long>();
                 var ebxOffsetPosition = nativeWriter.Position;

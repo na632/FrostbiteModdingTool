@@ -444,9 +444,9 @@ namespace FrostySdk.Managers
 
         public ConcurrentDictionary<Guid, ChunkAssetEntry> Chunks { get; } = new ConcurrentDictionary<Guid, ChunkAssetEntry>(4, 350000);
 
-        public ConcurrentDictionary<int, ChunkAssetEntry> SuperBundleChunks { get; } = new ConcurrentDictionary<int, ChunkAssetEntry>(4, 350000);
+        public ConcurrentDictionary<int, ChunkAssetEntry> SuperBundleChunks { get; } = new ConcurrentDictionary<int, ChunkAssetEntry>();
 
-        public ConcurrentDictionary<ulong, ResAssetEntry> resRidList { get; } = new ConcurrentDictionary<ulong, ResAssetEntry>(4, 350000);
+        public ConcurrentDictionary<ulong, ResAssetEntry> resRidList { get; } = new ConcurrentDictionary<ulong, ResAssetEntry>();
 
 		public Dictionary<string, ICustomAssetManager> CustomAssetManagers { get; } = new Dictionary<string, ICustomAssetManager>(1);
 
@@ -502,6 +502,7 @@ namespace FrostySdk.Managers
 			if (disposing)
 			{
 				CustomAssetManagers.Clear();
+				ChunkFileManager.Instance = null;
                 //foreach (var cam in CustomAssetManagers)
                 //{
                 //	cam.Value.Reset();
@@ -1750,10 +1751,17 @@ namespace FrostySdk.Managers
 			if (Bundles.Count == 0)
 				return null;
 
+			var bundleIndex = (Bundles.FindIndex(x => bundleId == Fnv1a.HashString(x.Name)));
+			if (bundleIndex != -1)
+				bundleId = bundleIndex;
+
 			if (bundleId >= Bundles.Count)
 				return null;
 
-			return Bundles[bundleId];
+            if (bundleId < 0)
+                return null;
+
+            return Bundles[bundleId];
 		}
 
 		public AssetEntry GetCustomAssetEntry(string type, string key)

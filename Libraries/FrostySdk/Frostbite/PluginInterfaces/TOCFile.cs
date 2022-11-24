@@ -155,7 +155,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			}
         }
 
-		public DbObject TOCObjects { get; } = new DbObject(false);
+		public DbObject TOCObjects { get; private set; } = new DbObject(false);
 		public int[] tocMetaData { get; } = new int[15];
 
 		public List<ChunkAssetEntry> TocChunks { get; } = new List<ChunkAssetEntry>();
@@ -240,7 +240,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 						SuperBundleId = SuperBundleIndex
 					};
 					BundleEntries.Add(bE);
-                    AssetManager.Instance.Bundles.Add(bE);
+					if(ProcessData)
+						AssetManager.Instance.Bundles.Add(bE);
                 }
             }
         }
@@ -401,7 +402,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 		public long TocChunkPosition { get; set; }
 
 		public List<int> ListTocChunkFlags = new List<int>();
-		public int[] CompressedStringNames { get; set; }
+        private bool disposedValue;
+
+        public int[] CompressedStringNames { get; set; }
 		public int[] CompressedStringTable { get; set; }
 
 		public void ReadCasBundles(NativeReader nativeReader)
@@ -708,40 +711,53 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			return (unk << 24) | ((isPatch ? 1 : 0) << 16) | (catalog << 8) | cas;
 		}
 
-		~TOCFile() 
-		{ 
-		
-		
-		}
-
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-			if(CASToBundles != null && CASToBundles.Count > 0)
-				CASToBundles.Clear();
-
-			CASToBundles = null;
-
-			if (Bundles != null && Bundles.Count > 0)
-				Bundles.Clear();
-
-			if(TOCObjects != null)
+            if (!disposedValue)
             {
-				if(TOCObjects.Dictionary != null)
-					TOCObjects.Dictionary.Clear();
+				if (disposing)
+				{
+					// TODO: dispose managed state (managed objects)
+					if (CASToBundles != null && CASToBundles.Count > 0)
+						CASToBundles.Clear();
 
-				if (TOCObjects.List != null)
-					TOCObjects.List.Clear();
+					CASToBundles = null;
 
-			}
+					if (Bundles != null && Bundles.Count > 0)
+						Bundles.Clear();
 
-			//GC.Collect();
-			//GC.WaitForPendingFinalizers();
+					if (TOCObjects != null)
+					{
+						if (TOCObjects.Dictionary != null)
+							TOCObjects.Dictionary.Clear();
 
-		}
+						if (TOCObjects.List != null)
+							TOCObjects.List.Clear();
+					}
+				}
+
+				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
+				// TODO: set large fields to null
+
+				FileLocation = null;
+				NativeFileLocation = null;
+				TOCObjects = null;
+
+                disposedValue = true;
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
     }
 
 
-    public class BundleEntryInfo
+    public struct BundleEntryInfo
     {
         /// <summary>
         /// Is it a EBX, RES or Chunk

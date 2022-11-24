@@ -470,6 +470,7 @@ namespace FIFAModdingUI.Windows
         private void btnProjectWriteToMod_Click(object sender, RoutedEventArgs e)
         {
             DisableEditor();
+            txtLog.Text = string.Empty;
             //// ---------------------------------------------------------
             //// Remove chunks and actual unmodified files before writing
             //LegacyFileManager_FMTV2.CleanUpChunks();
