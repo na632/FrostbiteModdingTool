@@ -12,15 +12,29 @@ namespace FrostbiteSdk
 {
 	public class FrostbiteMod : IFrostbiteMod
 	{
-        public static ulong Magic = 72155812747760198uL;
-        public static ulong Magic2 = Convert.ToUInt64(Fnv1.HashString("Paulv2k4FMT"));
+		public static ulong MagicFrosty => 72155812747760198uL;
+		public static ulong Magic2 => Convert.ToUInt64(Fnv1a.HashString("FMT"));
 
-		//public static uint Version = 3u;
-		//public static uint Version = 4u;
-		//public static uint Version = 5u; // Version 5 includes Embedded File Entries
-		public static uint Version = 6u; // Version 6 includes Duplicate / Added entries
+        //public static uint Version = 3u;
+        //public static uint Version = 4u;
+        //public static uint Version = 5u; // Version 5 includes Embedded File Entries
+        //public static uint Version = 6u; // Version 6 includes Duplicate / Added entries
+        public static uint[] HashVersions => new uint[]
+		{
+			0, 
+			1, 
+			2, 
+			3, 
+			4, 
+			5, 
+			6, 
+			(uint)Fnv1a.HashString("FBMod7")
+        };
+        public static uint CurrentVersion => HashVersions.Last(); 
 
-		private string path;
+
+
+        private string path;
 
 
 		private int gameVersion;

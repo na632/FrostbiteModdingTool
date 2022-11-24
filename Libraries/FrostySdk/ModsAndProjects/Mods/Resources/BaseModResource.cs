@@ -1,8 +1,10 @@
+using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FrostySdk
 {
@@ -140,7 +142,7 @@ namespace FrostySdk
 
         public string ReadString(NativeReader reader, uint modVersion)
         {
-            if (modVersion < 27)
+            if (modVersion < 27 || modVersion == FrostbiteMod.CurrentVersion || modVersion == FrostbiteMod.HashVersions[7])
             {
                 return reader.ReadNullTerminatedString();
             }
@@ -152,17 +154,12 @@ namespace FrostySdk
 			resourceIndex = reader.ReadInt();
 			if (resourceIndex != -1)
 			{
-				//name = reader.ReadNullTerminatedString();
 				name = ReadString(reader, modVersion);	
 				sha1 = reader.ReadSha1();
 				size = reader.ReadLong();
 				flags = reader.ReadByte();
 				handlerHash = reader.ReadInt();
-				userData = "";
-				//if ((reader as FrostyModReader).Version >= 3)
-				//{
-					userData = ReadString(reader, modVersion);
-                //}
+                userData = ReadString(reader, modVersion);
                 int num = reader.ReadInt();
 				for (int i = 0; i < num; i++)
 				{
@@ -213,6 +210,10 @@ namespace FrostySdk
 
                 obj.ModifiedEntry.UserData = userData;
             }
+			if(AddedBundles != null && AddedBundles.Any())
+				obj.Bundles.AddRange(AddedBundles);
+            if (ModifiedBundles != null && ModifiedBundles.Any())
+                obj.Bundles.AddRange(ModifiedBundles); 
         }
     }
 }

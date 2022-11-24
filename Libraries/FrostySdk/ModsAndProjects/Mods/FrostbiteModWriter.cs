@@ -298,12 +298,17 @@ namespace FrostySdk
 
 				foreach (int bundle in entry.Bundles)
 				{
-					bundlesToModify.Add(bundle);
-				}
+					//bundlesToModify.Add(bundle);
+                    BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
+                    if (bundleEntry != null)
+                        AddBundle(bundleEntry.Name, modify: true);
+                }
 				foreach (int bundle in entry.EnumerateBundles(addedOnly: true))
 				{
-					bundlesToAdd.Add(bundle);
-
+                    //bundlesToAdd.Add(bundle);
+                    BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
+                    if (bundleEntry != null)
+                        AddBundle(bundleEntry.Name, modify: false);
                 }
 			}
 
@@ -372,8 +377,8 @@ namespace FrostySdk
 
 		public virtual void WriteProject(FrostbiteProject project)
 		{
-			Write(FrostbiteMod.Magic);
-			Write(FrostbiteMod.Version);
+			Write(FrostbiteMod.Magic2);
+			Write(FrostbiteMod.CurrentVersion);
 			Write(16045690984833335023uL);
 			Write(3735928559u);
 			Write(ProfileManager.ProfileName);
@@ -383,11 +388,11 @@ namespace FrostySdk
 			{
 				modSettings = project.ModSettings;
 			}
-			WriteNullTerminatedString(modSettings.Title);
-			WriteNullTerminatedString(modSettings.Author);
-			WriteNullTerminatedString(modSettings.Category);
-			WriteNullTerminatedString(modSettings.Version);
-			WriteNullTerminatedString(modSettings.Description);
+			WriteLengthPrefixedString(modSettings.Title);
+            WriteLengthPrefixedString(modSettings.Author);
+            WriteLengthPrefixedString(modSettings.Category);
+            WriteLengthPrefixedString(modSettings.Version);
+            WriteLengthPrefixedString(modSettings.Description);
 
 			// -----------------------------------------------------
 			// Embedded Files

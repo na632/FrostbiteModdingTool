@@ -46,10 +46,12 @@ namespace FrostbiteSdk
 		{
 			//var viewableBytes = new NativeReader(inStream).ReadToEnd();
 			//inStream.Position = 0;
-			if (ReadULong() != FrostbiteMod.Magic)
+			var magic = ReadULong();
+            if (magic != FrostbiteMod.MagicFrosty && magic != FrostbiteMod.Magic2)
 			{
+                IsValid = false;
 				return;
-			}
+            }
             Version = ReadUInt();
 			//if (version <= FrostbiteMod.Version)
 			{
@@ -75,7 +77,13 @@ namespace FrostbiteSdk
 
 		public FrostbiteModDetails ReadModDetails()
 		{
-			if (Version >= 5)
+            if (Version == FrostbiteMod.CurrentVersion
+				|| Version == FrostbiteMod.HashVersions[7]
+                )
+            {
+                return new FrostbiteModDetails(ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadInt());
+            }
+            else if (Version == 5)
             {
 				return new FrostbiteModDetails(ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadInt());
 			}
@@ -112,7 +120,7 @@ namespace FrostbiteSdk
 					array[i] = new EmbeddedFileResource();
 					break;
 				}
-				array[i].Read(this);
+				array[i].Read(this, Version);
 			}
 			return array;
 		}
