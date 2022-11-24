@@ -1,36 +1,38 @@
 {
-  "Name": "MADDEN22",
-  "DisplayName": "MADDEN 22",
-  "DataVersion": 20210812,
-  "CacheName": "MADDEN22",
+  "Name": "MADDEN23",
+  "DisplayName": "Madden NFL 23",
+  "DataVersion": 20220819,
+  "CacheName": "MADDEN23",
   "Deobfuscator": "NullDeobfuscator",
   "KeyFile": "FIFA21.key",
   // If NULL it will try and find the plugin with the "Name" above
   "PluginName": null,
   // Your game's file system reader
-  //"AssetLoader": "Madden22AssetLoader",
-  "AssetLoader": "AssetLoader_Madden22",
+  "AssetLoader": "AssetLoaderMadden23",
   // Your game's file system compiler / ModData builder
-  "AssetCompiler": "",
+  "AssetCompiler": "AssetCompilerMadden23",
   // Your WPF Main Editor Form
-  "EditorScreen": "Madden22Editor",
+  "EditorScreen": "DefaultEditor",
   // Texture Importer (Overriding the base Importer)
-  "TextureImporter": "",
+  "TextureImporter": "TextureImporterMadden23",
   // Texture Exporter (Overriding the base Exporter)
   "TextureExporter": "",
   // EBX Reader (Overriding the base Reader)
-  "EBXReader": "EBXReader2022",
+  "EBXReader": "EbxReader22B",
   // EBX Writer (Overriding the base Writer)
-  "EBXWriter": null,
+  "EBXWriter": "EbxWriter2023",
   // EBX Importer (Overriding the base Importer)
   "EBXImporter": null,
   // EBX Exporter (Overriding the base Exporter)
   "EBXExporter": null,
 
+  "ProjectEbxWriter": "EbxWriter2023",
+  "ProjectEbxReader": "EbxReader22B",
+
   // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
-  "CacheWriter": "CacheWriter",
+  "CacheWriter": "CacheWriterMadden23",
   // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
-  "CacheReader": "CacheReader",
+  "CacheReader": "CacheReaderMadden23",
 
   "Sources": [
     {
@@ -45,11 +47,11 @@
   // --------------------------------------------------------
   // SDK Generating Info
   //
-  "SDKFilename": "MADDEN22SDK",
+  "SDKFilename": "MADDEN23SDK",
   "SDKFirstTypeInfo": null,
-  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? 75 18 48 8b 43 10",
-  "SDKClassesFile": "M22.Classes.txt",
-  "SDKGeneratorClassInfoType": "SdkGenerator.Madden22.ClassInfo",
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? ?? ?? 48 8b 43 10",
+  "SDKClassesFile": "FIFA23.Classes.txt",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Madden23.ClassInfo",
   "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
   //
   // --------------------------------------------------------
@@ -60,7 +62,7 @@
   // Can the Launcher support this Game?
   "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
   "EbxVersion": 4,
   "RequiresKey": true,
   "MustAddChunks": false,
@@ -74,6 +76,6 @@
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "LZ4",
-  "LegacyFileManager": "LegacyFileManager_FMTV2"
+  "LegacyFileManager": "ChunkFileManager2022"
 
 }

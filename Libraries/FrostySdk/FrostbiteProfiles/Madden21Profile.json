@@ -1,6 +1,6 @@
 {
   "Name": "MADDEN21",
-  "DisplayName": "MADDEN 21",
+  "DisplayName": "Madden NFL 21",
   "DataVersion": 20200831,
   "CacheName": "madden21",
   "Deobfuscator": "NullDeobfuscator",
@@ -74,6 +74,6 @@
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "LZ4",
-  "LegacyFileManager": "LegacyFileManager_FMTV2"
+  "LegacyFileManager": "ChunkFileManager2022"
 
 }
