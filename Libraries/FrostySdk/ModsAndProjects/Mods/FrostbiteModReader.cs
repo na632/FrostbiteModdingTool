@@ -83,7 +83,7 @@ namespace FrostbiteSdk
             {
                 return new FrostbiteModDetails(ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadLengthPrefixedString(), ReadInt());
             }
-            else if (Version == 5)
+            else if (Version >= 5)
             {
 				return new FrostbiteModDetails(ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadNullTerminatedString(), ReadInt());
 			}
@@ -120,7 +120,8 @@ namespace FrostbiteSdk
 					array[i] = new EmbeddedFileResource();
 					break;
 				}
-				array[i].Read(this, Version);
+				if (array[i] != null)
+					array[i].Read(this, Version);
 			}
 			return array;
 		}
