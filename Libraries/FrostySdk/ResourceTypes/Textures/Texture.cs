@@ -1,6 +1,7 @@
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -40,7 +41,7 @@ namespace FrostySdk.Resources
 
         public uint chunkSize;
 
-        public uint[] unknown3 = new uint[4];
+        //public uint[] unknown3 = new uint[4];
 
         public uint assetNameHash;
 
@@ -55,6 +56,8 @@ namespace FrostySdk.Resources
         public uint rangeStart;
 
         public uint rangeEnd;
+
+		public List<byte[]> unknownBytes = new List<byte[]>();
 
         public uint FirstMipOffset
 		{
@@ -225,7 +228,7 @@ namespace FrostySdk.Resources
 			}
 		}
 
-		public uint[] Unknown3 => unknown3;
+		//public uint[] Unknown3 => unknown3;
 
 		public Guid ChunkId
 		{
@@ -364,7 +367,7 @@ namespace FrostySdk.Resources
 			using (NativeReader nativeReader = new NativeReader(ResStream))
 			{
 				ResStream.Position = 0;
-
+#if DEBUG
 				if (!Directory.Exists("Debugging"))
 					Directory.CreateDirectory("Debugging");
 
@@ -379,59 +382,133 @@ namespace FrostySdk.Resources
 					ResStream.CopyTo(fileStream);
 				}
 				ResStream.Position = 0;
-
-				mipOffsets[0] = nativeReader.ReadUInt();
-				mipOffsets[1] = nativeReader.ReadUInt();
-				type = (TextureType)nativeReader.ReadUInt();
-				pixelFormat = nativeReader.ReadInt();
-				unknown1 = nativeReader.ReadUInt();
-				flags = (TextureFlags)nativeReader.ReadUShort();
-				width = nativeReader.ReadUShort();
-				height = nativeReader.ReadUShort();
-				depth = nativeReader.ReadUShort();
-				sliceCount = nativeReader.ReadUShort();
-				mipCount = nativeReader.ReadByte();
-				firstMip = nativeReader.ReadByte();
-                if (ProfileManager.IsFIFA23DataVersion())
-                {
-					unknown4 = nativeReader.ReadInt();
-                }
-				chunkId = nativeReader.ReadGuid();
-				for (int i = 0; i < 15; i++)
-				{
-					mipSizes[i] = nativeReader.ReadUInt();
-				}
-				chunkSize = nativeReader.ReadUInt();
-				assetNameHash = nativeReader.ReadUInt();
-
-				if(!ProfileManager.IsFIFA23DataVersion())
-					unknown2 = nativeReader.ReadUInt();
-
-				//textureGroup = nativeReader.ReadSizedString(16);
-				textureGroup = nativeReader.ReadNullTerminatedString();
-				if (AssetManager.Instance.logger != null)
-					AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
-
-				ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
-				//if (ChunkEntry == null)
-				//{
-				//	var n = resAssetEntry.BundleNames.Select(x => x.Split('/')[x.Split('/').Length - 1]);
-				//	ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId, n.First());
-				//	var ChunkEntry2 = AssetManager.Instance.GetChunkEntry(chunkId, n.Last());
-
-				//	var cbEntry = AssetManager.Instance.BundleChunks.First(x => x.Key.Item2 == chunkId);
-				//}
-				data = AssetManager.Instance.GetChunk(ChunkEntry);
+#endif
+				ReadInStream(nativeReader);
+				
 			}
 		}
 
-		public byte[] Write()
+		private void ReadInStream(NativeReader nativeReader)
+		{
+			if(ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA23))
+			{
+				ReadInStreamFIFA23(nativeReader);
+				return;
+			}
+            if (ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+            {
+                ReadInStreamMadden23(nativeReader);
+                return;
+            }
+            mipOffsets[0] = nativeReader.ReadUInt();
+            mipOffsets[1] = nativeReader.ReadUInt();
+            type = (TextureType)nativeReader.ReadUInt();
+            pixelFormat = nativeReader.ReadInt();
+            unknown1 = nativeReader.ReadUInt();
+            flags = (TextureFlags)nativeReader.ReadUShort();
+            width = nativeReader.ReadUShort();
+            height = nativeReader.ReadUShort();
+            depth = nativeReader.ReadUShort();
+            sliceCount = nativeReader.ReadUShort();
+            mipCount = nativeReader.ReadByte();
+            firstMip = nativeReader.ReadByte();
+            chunkId = nativeReader.ReadGuid();
+            for (int i = 0; i < 15; i++)
+            {
+                mipSizes[i] = nativeReader.ReadUInt();
+            }
+            chunkSize = nativeReader.ReadUInt();
+            assetNameHash = nativeReader.ReadUInt();
+
+			TextureGroup = nativeReader.ReadSizedString(16);
+
+            if (AssetManager.Instance.logger != null)
+				AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+
+            ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
+            data = AssetManager.Instance.GetChunk(ChunkEntry);
+        }
+
+        private void ReadInStreamMadden23(NativeReader nativeReader)
+        {
+            mipOffsets[0] = nativeReader.ReadUInt();
+            mipOffsets[1] = nativeReader.ReadUInt();
+            type = (TextureType)nativeReader.ReadUInt();
+            pixelFormat = nativeReader.ReadInt();
+            unknown1 = nativeReader.ReadUInt();
+            flags = (TextureFlags)nativeReader.ReadUShort();
+            width = nativeReader.ReadUShort();
+            height = nativeReader.ReadUShort();
+            depth = nativeReader.ReadUShort();
+            sliceCount = nativeReader.ReadUShort();
+            mipCount = nativeReader.ReadByte();
+            firstMip = nativeReader.ReadByte();
+            chunkId = nativeReader.ReadGuid();
+            for (int i = 0; i < 15; i++)
+            {
+                mipSizes[i] = nativeReader.ReadUInt();
+            }
+            chunkSize = nativeReader.ReadUInt();
+            assetNameHash = nativeReader.ReadUInt();
+            unknownBytes.Add(nativeReader.ReadBytes(4));
+            TextureGroup = nativeReader.ReadSizedString(16);
+
+            if (AssetManager.Instance.logger != null)
+                AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+
+            ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
+            data = AssetManager.Instance.GetChunk(ChunkEntry);
+        }
+
+
+        private void ReadInStreamFIFA23(NativeReader nativeReader)
+        {
+            mipOffsets[0] = nativeReader.ReadUInt();
+            mipOffsets[1] = nativeReader.ReadUInt();
+            type = (TextureType)nativeReader.ReadUInt();
+            pixelFormat = nativeReader.ReadInt();
+            unknown1 = nativeReader.ReadUInt();
+            flags = (TextureFlags)nativeReader.ReadUShort();
+            width = nativeReader.ReadUShort();
+            height = nativeReader.ReadUShort();
+            depth = nativeReader.ReadUShort();
+            sliceCount = nativeReader.ReadUShort();
+            mipCount = nativeReader.ReadByte();
+            firstMip = nativeReader.ReadByte();
+			unknownBytes.Add(nativeReader.ReadBytes(4));
+            chunkId = nativeReader.ReadGuid();
+            for (int i = 0; i < 15; i++)
+            {
+                mipSizes[i] = nativeReader.ReadUInt();
+            }
+            chunkSize = nativeReader.ReadUInt();
+            assetNameHash = nativeReader.ReadUInt();
+			TextureGroup = nativeReader.ReadSizedString(16);
+            unknownBytes.Add(nativeReader.ReadBytes(8));
+
+            if (AssetManager.Instance.logger != null)
+                AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+
+            ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
+            data = AssetManager.Instance.GetChunk(ChunkEntry);
+        }
+
+        public byte[] Write()
         {
 			return ToBytes();
         }
 
         public byte[] ToBytes()
         {
+            if (ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA23))
+			{
+                return Texture.ToBytesFIFA23(this);
+            }
+            if (ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+			{
+                return ToBytesMadden23();
+            }
+
             MemoryStream memoryStream = new MemoryStream();
             using (NativeWriter nativeWriter = new NativeWriter(memoryStream))
             {
@@ -459,25 +536,7 @@ namespace FrostySdk.Resources
                     nativeWriter.Write(mipSizes[i]);
                 }
                 nativeWriter.Write(chunkSize);
-                if (ProfileManager.DataVersion == 20170321)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        nativeWriter.Write(unknown3[j]);
-                    }
-                }
-                if (ProfileManager.DataVersion == 20170929
-                    || ProfileManager.DataVersion == 20180807
-
-                    )
-                {
-                    nativeWriter.Write(unknown3[0]);
-                }
                 nativeWriter.Write(assetNameHash);
-                if (ProfileManager.DataVersion == 20150223)
-                {
-                    nativeWriter.Write(unknown3[0]);
-                }
                 if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
                 {
                     nativeWriter.Write(unknown2);
@@ -485,13 +544,104 @@ namespace FrostySdk.Resources
                 }
                 else
                 {
+                    if (ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN22)
+						|| ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+                    {
+                        nativeWriter.WriteUInt32LittleEndian(unknown2);
+                    }
                     nativeWriter.WriteFixedSizedString(textureGroup, 16);
                 }
-                if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
-                {
-                    nativeWriter.Write(unknown3[0]);
-                }
             }
+            return memoryStream.ToArray();
+        }
+
+        public static byte[] ToBytesFIFA23(Texture texture)
+        {
+            byte[] finalArray = null;
+            using (var nw = new NativeWriter(new MemoryStream()))
+            {
+                //mipOffsets[0] = nativeReader.ReadUInt();
+                nw.Write((uint)texture.mipOffsets[0]);
+                //mipOffsets[1] = nativeReader.ReadUInt();
+                nw.Write((uint)texture.mipOffsets[1]);
+                //type = (TextureType)nativeReader.ReadUInt();
+                nw.Write((uint)texture.Type);
+                //pixelFormat = nativeReader.ReadInt();
+                nw.Write((int)texture.pixelFormat);
+
+                //unknown1 = nativeReader.ReadUInt();
+                nw.Write((uint)texture.unknown1);
+                //}
+                //flags = (TextureFlags)nativeReader.ReadUShort();
+                nw.Write((ushort)texture.flags);
+                //width = nativeReader.ReadUShort();
+                nw.Write((ushort)texture.width);
+                //height = nativeReader.ReadUShort();
+                nw.Write((ushort)texture.height);
+                //depth = nativeReader.ReadUShort();
+                nw.Write((ushort)texture.depth);
+                //sliceCount = nativeReader.ReadUShort();
+                nw.Write((ushort)texture.sliceCount);
+                //mipCount = nativeReader.ReadByte();
+                nw.Write((byte)texture.mipCount);
+                //firstMip = nativeReader.ReadByte();
+                nw.Write((byte)texture.firstMip);
+                //if (ProfilesLibrary.IsFIFA23DataVersion())
+                //{
+                //unknown4 = nativeReader.ReadInt();
+                nw.Write((int)texture.unknown4);
+                //}
+                //chunkId = nativeReader.ReadGuid();
+                nw.Write(texture.chunkId);
+                for (int i = 0; i < 15; i++)
+                {
+                    //mipSizes[i] = nativeReader.ReadUInt();
+                    nw.Write((uint)texture.mipSizes[i]);
+                }
+                //chunkSize = nativeReader.ReadUInt();
+                nw.Write((uint)texture.chunkSize);
+                //assetNameHash = nativeReader.ReadUInt();
+                nw.Write((uint)texture.assetNameHash);
+                //textureGroup = nativeReader.ReadSizedString(16);
+                nw.WriteFixedSizedString(texture.textureGroup, 16);
+
+                finalArray = ((MemoryStream)nw.BaseStream).ToArray();
+            }
+            return finalArray;
+        }
+
+        public byte[] ToBytesMadden23()
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            using (NativeWriter nativeWriter = new NativeWriter(memoryStream))
+            {
+                nativeWriter.Write(mipOffsets[0]);
+                nativeWriter.Write(mipOffsets[1]);
+                nativeWriter.Write((uint)type);
+                nativeWriter.Write(pixelFormat);
+                nativeWriter.Write(unknown1);
+                nativeWriter.Write((ushort)flags);
+                nativeWriter.Write(width);
+                nativeWriter.Write(height);
+                nativeWriter.Write(depth);
+                nativeWriter.Write(sliceCount);
+                nativeWriter.Write(mipCount);
+                nativeWriter.Write(firstMip);
+                nativeWriter.Write(chunkId);
+                for (int i = 0; i < 15; i++)
+                {
+                    nativeWriter.Write(mipSizes[i]);
+                }
+                nativeWriter.Write(chunkSize);
+                nativeWriter.Write(assetNameHash);
+                nativeWriter.Write(unknownBytes[0]);
+                nativeWriter.WriteFixedSizedString(textureGroup, 16);
+            }
+
+#if DEBUG
+			File.WriteAllBytes("Debugging\\Other\\_TextureImport_Madden23.dat", memoryStream.ToArray());
+#endif
+
             return memoryStream.ToArray();
         }
 
@@ -505,10 +655,10 @@ namespace FrostySdk.Resources
 			sliceCount = inDepth;
 			unknown1 = 0u;
 			flags = (TextureFlags)0;
-			unknown3[0] = uint.MaxValue;
-			unknown3[1] = uint.MaxValue;
-			unknown3[2] = uint.MaxValue;
-			unknown3[3] = uint.MaxValue;
+			//unknown3[0] = uint.MaxValue;
+			//unknown3[1] = uint.MaxValue;
+			//unknown3[2] = uint.MaxValue;
+			//unknown3[3] = uint.MaxValue;
 		}
 
 		~Texture()

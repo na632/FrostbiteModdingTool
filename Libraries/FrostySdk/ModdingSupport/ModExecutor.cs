@@ -1548,9 +1548,9 @@ namespace ModdingSupport
             var dataModulesPathArgument = "-dataModulesPath ModData";
             var noConfigArgument = "-noconfig";
             var arguments = dataPathArgument
-                + " " + fifaNonRetailArgument
-                + " " + dataModulesPathArgument
-                + " " + noConfigArgument
+                //+ " " + fifaNonRetailArgument
+                //+ " " + dataModulesPathArgument
+                //+ " " + noConfigArgument
                 ;
 
 
@@ -1716,9 +1716,11 @@ namespace ModdingSupport
 
                 var pathToFIFATempCacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfileManager.DisplayName);
                 if (Directory.Exists(pathToFIFATempCacheFolder))
+                {
                     Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", ProfileManager.DisplayName), recursive: true);
-                
-                Logger.Log("Successfully deleted the Live Updates folder.");
+
+                    Logger.Log("Successfully deleted the Live Updates folder.");
+                }
             }
             catch (Exception ex)
             {

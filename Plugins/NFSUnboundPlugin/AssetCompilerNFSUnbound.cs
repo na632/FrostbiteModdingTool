@@ -20,14 +20,10 @@ using System.Threading.Tasks;
 using System.Windows.Markup;
 using System.Windows.Xps.Serialization;
 
-namespace FIFA23Plugin
+namespace Madden23Plugin
 {
 
-    /// <summary>
-    /// FIFA 23 Asset Compiler. Solid and works. Uses .cache file to determine what needs editing
-    /// Linked to FIFA21BundleAction
-    /// </summary>
-    public class Fifa23AssetCompilerV1 : BaseAssetCompiler, IAssetCompiler
+    public class AssetCompilerMadden23 : BaseAssetCompiler, IAssetCompiler
     {
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken

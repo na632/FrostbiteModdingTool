@@ -397,8 +397,6 @@ namespace FMT.Pages.Common
         {
             var importStartTime = DateTime.Now;
 
-            LoadingDialog loadingDialog = new LoadingDialog();
-            loadingDialog.Show();
             try
             {
 
@@ -429,10 +427,6 @@ namespace FMT.Pages.Common
                             }
                             else
                             {
-                                if (loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
-                                {
-                                    loadingDialog.Close();
-                                }
                                 return;
                             }
                         }
@@ -554,7 +548,6 @@ namespace FMT.Pages.Common
 
                                 try
                                 {
-                                    await loadingDialog.UpdateAsync("Importing Mesh", "");
                                     FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
                                     importer.ImportFBX(openFileDialog.FileName, meshSet, skinnedMeshEbx, (EbxAssetEntry)SelectedEntry
                                         , new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
@@ -626,10 +619,6 @@ namespace FMT.Pages.Common
                 MainEditorWindow.UpdateAllBrowsers();
             }
 
-            if (loadingDialog != null && loadingDialog.Visibility == Visibility.Visible)
-            {
-                loadingDialog.Close();
-            }
         }
 
         private async void btnExport_Click(object sender, RoutedEventArgs e)

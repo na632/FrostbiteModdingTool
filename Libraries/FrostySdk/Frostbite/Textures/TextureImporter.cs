@@ -27,7 +27,7 @@ namespace Frostbite.Textures
 		public bool Import(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
 		{
 			bool run = false;
-			if (ProfileManager.TextureImporter == null)
+			if (string.IsNullOrEmpty(ProfileManager.TextureImporter))
             {
 				DoImport(path, assetEntry, ref textureAsset);
 				run = true;
@@ -537,10 +537,10 @@ namespace Frostbite.Textures
 							Texture t = ((texture.Flags & TextureFlags.OnDemandLoaded) != 0 || texture.Type != 0) ? null : texture;
 							assetManager.ModifyChunk(textureAsset.ChunkId, array8, t);
 						}
-						for (int num5 = 0; num5 < 4; num5++)
-						{
-							texture.Unknown3[num5] = textureAsset.Unknown3[num5];
-						}
+						//for (int num5 = 0; num5 < 4; num5++)
+						//{
+						//	texture.Unknown3[num5] = textureAsset.Unknown3[num5];
+						//}
 						texture.SetData(textureAsset.ChunkId, assetManager);
 						texture.AssetNameHash = (uint)Fnv1.HashString(resEntry.Name);
 						texture.ChunkEntry = chunkEntry;
@@ -672,10 +672,10 @@ namespace Frostbite.Textures
 						}
 						array = memoryStream2.ToArray();
 					}
-					for (int l = 0; l < 4; l++)
-					{
-						texture.Unknown3[l] = 0u;
-					}
+					//for (int l = 0; l < 4; l++)
+					//{
+					//	texture.Unknown3[l] = 0u;
+					//}
 					texture.SetData(array);
 					texture.AssetNameHash = 0u;
 					return texture;

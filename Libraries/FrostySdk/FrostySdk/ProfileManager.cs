@@ -426,17 +426,14 @@ namespace FrostySdk
 			MADDEN20 = 20190729,
 			MADDEN21 = 20200831,
 			MADDEN22 = 20210812,
-			MADDEN23 = 20220812,
-		}
+			MADDEN23 = 20220819,
 
-        public static bool IsGameVersion()
+			NFSUnbound = 20221124,
+        }
+
+        public static bool IsGameVersion(EGame game)
         {
-
-            bool isFIFA = false;
-
-            isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA23);
-
-            return isFIFA;
+            return ProfileManager.DataVersion == (int)game;
         }
 
         public static bool IsFIFADataVersion()

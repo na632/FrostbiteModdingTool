@@ -1020,21 +1020,25 @@ namespace FrostySdk.Managers
 				// If it already exists, then add bundles to the entry
 				var existingEbxEntry = (EbxAssetEntry)AssetManager.Instance.EBX[entry.Name].Clone();
 
-				foreach (var bundle in existingEbxEntry.Bundles)
-					entry.Bundles.Add(bundle);
+                foreach (var bundle in entry.Bundles.Where(x => !existingEbxEntry.Bundles.Contains(x)))
+                    existingEbxEntry.Bundles.Add(bundle);
+
+                foreach (var bundle in existingEbxEntry.Bundles.Where(x => !entry.Bundles.Contains(x)))
+                    entry.Bundles.Add(bundle);
 
 				// Always overwrite if the new item is a patch version
 				if (!existingEbxEntry.ExtraData.IsPatch && entry.ExtraData.IsPatch)
 					EBX[entry.Name] = entry;
 
-				if (ProfileManager.IsFIFA22DataVersion())
-				{
-					// Add it anyway and link to the other one?
-					entry.Name = $"{entry.Name}-FMTOther-{entry.ExtraData.IsPatch.ToString()}-{entry.ExtraData.Cas}-{entry.ExtraData.Catalog}";
+				//if (ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA22) 
+				//	|| ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+				//{
+				//	// Add it anyway and link to the other one?
+				//	entry.Name = $"{entry.Name}-FMTOther-{entry.ExtraData.IsPatch.ToString()}-{entry.ExtraData.Cas}-{entry.ExtraData.Catalog}";
 
-					if (EBX.TryAdd(entry.Name, entry))
-						existingEbxEntry.LinkAsset(entry);
-				}
+				//	if (EBX.TryAdd(entry.Name, entry))
+				//		existingEbxEntry.LinkAsset(entry);
+				//}
 			}
             return result;
 		}
@@ -1074,7 +1078,7 @@ namespace FrostySdk.Managers
         /// <returns></returns>
         public void AddChunk(ChunkAssetEntry entry)
         {
-			if(entry.Id.ToString() == "76c53a5f-b788-f470-9013-fd2ebc74843f")
+			if(entry.Id.ToString() == "765d6c42-fb4a-3aa6-7d93-de76cd015a8d")
 			{
 
 			}
@@ -1084,7 +1088,10 @@ namespace FrostySdk.Managers
                 // If it already exists, then add bundles to the entry
                 var existingChunk = (ChunkAssetEntry)Chunks[entry.Id].Clone();
 
-                foreach (var bundle in existingChunk.Bundles)
+                foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
+                    existingChunk.Bundles.Add(bundle);
+
+                foreach (var bundle in existingChunk.Bundles.Where(x => !entry.Bundles.Contains(x)))
                     entry.Bundles.Add(bundle);
 
                 // Always overwrite if the new item is a patch version
@@ -1092,23 +1099,23 @@ namespace FrostySdk.Managers
                     Chunks[entry.Id] = entry;
             }
 
-			if (entry.IsTocChunk)
-			{
-				var hashedId = Fnv1a.HashString(entry.Id.ToString());
+			//if (entry.IsTocChunk)
+			//{
+			//	var hashedId = Fnv1a.HashString(entry.Id.ToString());
 
-                if (!SuperBundleChunks.TryAdd(hashedId, entry))
-				{
-                    // If it already exists, then add bundles to the entry
-                    var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
+   //             if (!SuperBundleChunks.TryAdd(hashedId, entry))
+			//	{
+   //                 // If it already exists, then add bundles to the entry
+   //                 var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
 
-                    foreach (var bundle in existingChunk.Bundles)
-                        entry.Bundles.Add(bundle);
+   //                 foreach (var bundle in existingChunk.Bundles)
+   //                     entry.Bundles.Add(bundle);
 
-                    // Always overwrite if the new item is a patch version
-                    if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
-                        SuperBundleChunks[hashedId] = entry;
-                }
-			}
+   //                 // Always overwrite if the new item is a patch version
+   //                 if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
+   //                     SuperBundleChunks[hashedId] = entry;
+   //             }
+			//}
 
         }
 

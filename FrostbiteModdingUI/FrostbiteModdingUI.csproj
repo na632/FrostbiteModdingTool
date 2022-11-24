@@ -215,6 +215,9 @@
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
 	  </None>
+	  <None Update="SDK\MADDEN23SDK.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -242,6 +245,9 @@
 	  <None Include="..\Plugins\FIFA23Plugin\bin\Debug\net7.0-windows\FIFA23Plugin.dll" Link="Plugins\FIFA23Plugin.dll">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
+	  <None Include="..\Plugins\Madden23Plugin\bin\Debug\net7.0-windows\Madden23Plugin.dll" Link="Plugins\Madden23Plugin.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>
   <ItemGroup>

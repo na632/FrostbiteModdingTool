@@ -231,21 +231,21 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                                 //    iRes++;
                                 //}
 
-                                var iChunk = 0;
-                                foreach (DbObject item in ChunkObjectList)
-                                {
-                                    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-                                    chunkAssetEntry = (ChunkAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, chunkAssetEntry);
+                                //var iChunk = 0;
+                                //foreach (DbObject item in ChunkObjectList)
+                                //{
+                                //    ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
+                                //    chunkAssetEntry = (ChunkAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, chunkAssetEntry);
 
-                                    chunkAssetEntry.CASFileLocation = NativeFileLocation;
-                                    chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                                //    chunkAssetEntry.CASFileLocation = NativeFileLocation;
+                                //    chunkAssetEntry.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
 
-                                    chunkAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
-                                    if (AssociatedTOCFile.ProcessData)
-                                        AssetManager.Instance.AddChunk(chunkAssetEntry);
+                                //    chunkAssetEntry.Bundles.Add(BaseBundleInfo.BundleItemIndex);
+                                //    if (AssociatedTOCFile.ProcessData)
+                                //        AssetManager.Instance.AddChunk(chunkAssetEntry);
 
-                                    iChunk++;
-                                }
+                                //    iChunk++;
+                                //}
                             }
                         }
 
