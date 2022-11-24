@@ -3,7 +3,7 @@ using System;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 
-namespace SdkGenerator.Madden23
+namespace SdkGenerator.NFSUnbound
 {
 	public class FieldInfo : IFieldInfo
 	{

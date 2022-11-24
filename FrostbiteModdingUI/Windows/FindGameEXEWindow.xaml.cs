@@ -44,6 +44,15 @@ namespace FrostbiteModdingUI.Windows
                         return installDir + $"{ProfileManager.ProfileName}.exe";
                     }
                 }
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey($"Software\\EA Games\\{ProfileManager.DisplayName}"))
+                {
+                    if (key != null)
+                    {
+                        string installDir = key.GetValue("Install Dir").ToString();
+                        return installDir + $"{ProfileManager.ProfileName}.exe";
+                    }
+                }
                 return string.Empty;
             }
         }

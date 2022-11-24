@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Madden23Plugin.Textures
+namespace NFSUnboundPlugin.Textures
 {
-	public class TextureImporterMadden23 : ITextureImporter
+	public class TextureImporterNFSUnbound : ITextureImporter
 	{
 		public void DoImport(string path, EbxAssetEntry assetEntry, ref Texture textureAsset)
 		{

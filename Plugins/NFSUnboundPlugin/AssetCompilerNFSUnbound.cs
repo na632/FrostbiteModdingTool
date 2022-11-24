@@ -20,10 +20,10 @@ using System.Threading.Tasks;
 using System.Windows.Markup;
 using System.Windows.Xps.Serialization;
 
-namespace Madden23Plugin
+namespace NFSUnboundPlugin
 {
 
-    public class AssetCompilerMadden23 : BaseAssetCompiler, IAssetCompiler
+    public class AssetCompilerNFSUnbound : BaseAssetCompiler, IAssetCompiler
     {
         /// <summary>
         /// This is run AFTER the compilation of the fbmod into resource files ready for the Actions to TOC/SB/CAS to be taken

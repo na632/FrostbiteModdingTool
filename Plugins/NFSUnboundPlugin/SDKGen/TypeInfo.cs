@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System;
 using FrostySdk;
 
-namespace SdkGenerator.Madden23
+namespace SdkGenerator.NFSUnbound
 {
 	public class TypeInfo : ITypeInfo
 	{

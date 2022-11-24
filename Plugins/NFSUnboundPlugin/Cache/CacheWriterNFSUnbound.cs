@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Madden23Plugin.Cache
+namespace NFSUnboundPlugin.Cache
 {
-    public class CacheWriterMadden23 : ICacheWriter
+    public class CacheWriterNFSUnbound : ICacheWriter
     {
         public void Write()
         {

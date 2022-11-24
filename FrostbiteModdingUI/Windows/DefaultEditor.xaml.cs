@@ -268,6 +268,8 @@ namespace FrostbiteModdingUI.Windows
                     this.DataContext = this;
                     this.UpdateLayout();
 
+                    btnLaunchEditor.IsEnabled = ProfileManager.LoadedProfile.CanLaunchMods;
+
                 });
 
                 loadingDialog.Update("", "");

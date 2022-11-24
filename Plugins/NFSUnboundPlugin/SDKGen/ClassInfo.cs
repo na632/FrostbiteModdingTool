@@ -2,7 +2,7 @@ using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 using System;
 
-namespace SdkGenerator.Madden23
+namespace SdkGenerator.NFSUnbound
 {
 	public class ClassInfo : IClassInfo
 	{

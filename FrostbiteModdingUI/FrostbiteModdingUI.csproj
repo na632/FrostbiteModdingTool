@@ -215,6 +215,9 @@
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
 	  </None>
+	  <None Update="SDK\NeedForSpeedUnboundSDK.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="SDK\MADDEN23SDK.dll">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
@@ -247,6 +250,9 @@
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
 	  <None Include="..\Plugins\Madden23Plugin\bin\Debug\net7.0-windows\Madden23Plugin.dll" Link="Plugins\Madden23Plugin.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="..\Plugins\NFSUnboundPlugin\bin\Debug\net7.0-windows\NeedForSpeedUnboundPlugin.dll" Link="Plugins\NeedForSpeedUnboundPlugin.dll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>

@@ -11,6 +11,7 @@ using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.FrostySdk.IO;
 using FrostySdk.Managers;
+using static PInvoke.BCrypt.BCRYPT_ALGORITHM_IDENTIFIER;
 
 namespace FrostySdk.IO._2022.Readers
 {
@@ -404,32 +405,35 @@ namespace FrostySdk.IO._2022.Readers
             {
 				var ebxInstance2 = base.instances[i];
                 Type objType = TypeLibrary.GetType(this.classGuids[ebxInstance2.ClassRef]);
+				var align = objType.GetCustomAttribute<EbxClassMetaAttribute>().Alignment;
+				var size = objType.GetCustomAttribute<EbxClassMetaAttribute>().Size;
 
                 for (int j = 0; j < ebxInstance2.Count; j++)
 				{
 					dynamic obj = base.objects[i];
-                    EbxClass @class = this.GetClass(objType);
-					base.Pad(@class.Alignment);
+					EbxClass @class = this.GetClass(objType);
+					//base.Pad(@class.Alignment);
 					Guid inGuid = Guid.Empty;
 					if (ebxInstance2.IsExported)
 					{
 						inGuid = base.ReadGuid();
 					}
 					long classPosition = base.Position;
-					//if (base.magic == EbxVersion.Riff)
+					base.ReadInt32LittleEndian();
+					base.Position += 12L;
+					//if (@class.Alignment != 4)
 					//{
-						base.ReadInt32LittleEndian();
-						base.Position += 12L;
+					//	base.Position += 8L;
 					//}
-					if (@class.Alignment != 4)
-					{
+					if (align != 4)
 						base.Position += 8L;
-					}
 					obj.SetInstanceGuid(new AssetClassGuid(inGuid, num2++));
-					long startOffset = ((base.magic == EbxVersion.Riff) ? (base.Position - 24) : (base.Position - 8));
+					long startOffset = (base.Position - 24);
+					//this.ReadClass(@class, obj, startOffset);
+					//base.Position = classPosition + @class.Size;
 					this.ReadClass(@class, obj, startOffset);
-					base.Position = classPosition + @class.Size;
-				}
+					base.Position = classPosition + size;
+                }
 			}
 		}
 
@@ -438,7 +442,7 @@ namespace FrostySdk.IO._2022.Readers
 			EbxClass? ebxClass = null;
 			var nameHashAttribute = objType.GetCustomAttribute<HashAttribute>();
 			var ebxclassmeta = objType.GetCustomAttribute<EbxClassMetaAttribute>();
-			if (nameHashAttribute != null && ebxclassmeta != null)
+			if (nameHashAttribute != null && ebxclassmeta != null && EbxReader22B.patchStd != null)
 			{
 				var nHClass = EbxReader22B.patchStd.Classes
 						  .Union(EbxReader22B.std.Classes).FirstOrDefault(x => x.HasValue && x.Value.NameHash == nameHashAttribute.Hash);
@@ -462,7 +466,7 @@ namespace FrostySdk.IO._2022.Readers
 			//		break;
 			//	}
 			//}
-			return ebxClass.Value;
+			return ebxClass.HasValue ? ebxClass.Value : default(EbxClass);
 		}
 
 		public override PropertyInfo GetProperty(Type objType, EbxField field)

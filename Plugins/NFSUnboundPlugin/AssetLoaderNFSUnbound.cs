@@ -12,10 +12,10 @@ using System.Security.Cryptography;
 using System.Text;
 using static FrostySdk.Managers.AssetManager;
 
-namespace Madden23Plugin
+namespace NFSUnboundPlugin
 {
 
-	public class AssetLoaderMadden23 : IAssetLoader
+	public class AssetLoaderNFSUnbound : IAssetLoader
 	{
 		public List<DbObject> AllDbObjects = new List<DbObject>();
 		internal struct BundleFileInfo

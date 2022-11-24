@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Madden23Plugin.Cache
+namespace NFSUnboundPlugin.Cache
 {
-	public class CacheReaderMadden23 : ICacheReader
+	public class CacheReaderNFSUnbound : ICacheReader
 	{
 		public ulong EbxDataOffset { get; set; }
 		public ulong ResDataOffset { get; set; }

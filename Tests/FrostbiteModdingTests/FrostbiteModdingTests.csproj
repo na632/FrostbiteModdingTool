@@ -78,6 +78,9 @@
     <None Include="..\..\Plugins\Madden23Plugin\bin\Debug\net7.0-windows\Madden23Plugin.dll" Link="Plugins\Madden23Plugin.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\Plugins\NFSUnboundPlugin\bin\Debug\net7.0-windows\NeedForSpeedUnboundPlugin.dll" Link="Plugins\NeedForSpeedUnboundPlugin.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
