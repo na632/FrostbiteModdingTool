@@ -124,7 +124,7 @@ namespace FrostbiteModdingUI.Windows
             }
         }
 
-        LoadingDialog loadingDialog = new LoadingDialog();
+        //LoadingDialog loadingDialog = new LoadingDialog();
 
         private async void DefaultEditor_Loaded(object sender, RoutedEventArgs e)
         {
@@ -1002,46 +1002,40 @@ namespace FrostbiteModdingUI.Windows
             textureBrowser.UpdateAssetListView();
         }
 
-        public void UpdateAllBrowsersFull()
+        public async void UpdateAllBrowsersFull()
         {
-             var dataBrowserData = ProjectManagement.Project.AssetManager
-                                   .EnumerateEbx()
-                                   .Where(x => !x.Path.ToLower().Contains("character/kit")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+            var dataBrowserData = ProjectManagement.Project.AssetManager
+                                   .EnumerateEbx().OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
 
-            // Kit Browser
-            var kitList = ProjectManagement.Project.AssetManager
-                               .EnumerateEbx()
-                               .Where(x => x.Path.ToLower().Contains("character/kit"))
-                               .OrderBy(x => x.Path)
-                               .Select(x => (IAssetEntry)x);
+            var camTextureAssets = new List<IAssetEntry>();
+            foreach(var cam in AssetManager.Instance.CustomAssetManagers)
+            {
+                var camName = cam.Key;
+                var camAssets = cam.Value.EnumerateAssets(false).OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                camTextureAssets.AddRange(camAssets.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
 
-            var gpBrowserData = ProjectManagement.Project.AssetManager
-                                  .EnumerateEbx()
-                                  .Where(x => x.Path.Contains("fifa/attribulator", StringComparison.OrdinalIgnoreCase))
-                                  .OrderBy(x => x.Path)
-                                  .Select(x => (IAssetEntry)x).ToList();
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    MetroTabItem camMetroTabItem = new MetroTabItem();
+                    camMetroTabItem.Header = camName.Substring(0,1).ToUpper() + camName.Substring(1);
 
-            var legacyFiles = ProjectManagement.Project.AssetManager.EnumerateCustomAssets("legacy").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
+                    Browser camBrowser = new Browser();
+                    camBrowser.Name = camName;
+                    camBrowser.AllAssetEntries = camAssets;
+                    camMetroTabItem.Content = camBrowser;
+
+                    MainViewer.Items.Add(camMetroTabItem);
+                });
+            }
 
             List<IAssetEntry> textureAssets = ProjectManagement.Project.AssetManager
                                 .EnumerateEbx("TextureAsset").OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();
-            textureAssets.AddRange(legacyFiles.Where(x => x.Name.Contains(".DDS", StringComparison.OrdinalIgnoreCase)));
 
-
-            var faceList = ProjectManagement.Project.AssetManager
-                                  .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/player")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
-            faceList = faceList.OrderBy(x => x.Name).ToList();
-
-            var bootList = ProjectManagement.Project.AssetManager
-                                 .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
-            bootList = bootList.OrderBy(x => x.Name);
-
-            Dispatcher.InvokeAsync(() =>
+            await Dispatcher.InvokeAsync(() =>
             {
                 dataBrowser.AllAssetEntries = dataBrowserData;
                 
                 textureBrowser.AllAssetEntries = textureAssets;
-               
             });
 
             UpdateAllBrowsers();
@@ -1084,7 +1078,7 @@ namespace FrostbiteModdingUI.Windows
         private async void btnProjectMerge_Click(object sender, RoutedEventArgs e)
         {
             loadingDialog.Update("Loading Project", "");
-            loadingDialog.Show();
+            //loadingDialog.Show();
             await Task.Delay(100);
             
             OpenFileDialog openFileDialog = new OpenFileDialog();

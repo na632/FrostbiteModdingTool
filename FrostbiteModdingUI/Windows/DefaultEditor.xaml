@@ -12,7 +12,7 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:MaterialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:materialDesignColors="clr-namespace:MaterialDesignColors;assembly=MaterialDesignColors"
-        
+        xmlns:FMTControlsControls="clr-namespace:FMT.Controls.Controls;assembly=FMT.Controls"
         xmlns:FMTControlsPages="clr-namespace:FMT.Controls.Pages;assembly=FMT.Controls"
         xmlns:FMTControlsWindows="clr-namespace:FMT.Controls.Windows;assembly=FMT.Controls"
         
@@ -66,6 +66,9 @@
             <RowDefinition MaxHeight="20" Height="0"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
+        <FMTControlsControls:LoadingDialog x:Name="loadingDialog" Grid.RowSpan="3" Panel.ZIndex="999">
+
+        </FMTControlsControls:LoadingDialog>
         <Grid x:Name="TopMenu" DockPanel.Dock="Top" Grid.Row="0" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
                 <Menu DockPanel.Dock="Top" HorizontalContentAlignment="Center">
