@@ -1,8 +1,66 @@
 ﻿{
 	"Descriptions": [
 		{
+			"TypeName": "FloatCurvePoint",
+			"Properties": [
+				{
+					"PropertyName": "X",
+					"Description": "The plot on the X axis (must be above MinX and below MaxX)"
+				},
+				{
+					"PropertyName": "Y",
+					"Description": "The plot on the Y axis (must be above MinX and below MaxX)"
+				}
+			]
+		},
+		{
+			"TypeName": "FloatCurve",
+			"Properties": [
+				{
+					"PropertyName": "MinX",
+					"Description": "The minimum plot on the X axis"
+				},
+				{
+					"PropertyName": "MaxX",
+					"Description": "The maximum plot on the X axis"
+				},
+				{
+					"PropertyName": "MinY",
+					"Description": "The minimum plot on the Y axis"
+				},
+				{
+					"PropertyName": "MaxY",
+					"Description": "The maximum plot on the Y axis"
+				}
+			]
+		},
+		{
 			"TypeName": "AttribSchema_gp_actor_movement",
 			"Properties": [
+				{
+					"PropertyName": "AnimationPlaybackTimeRatioBlocks",
+					"Description": "The speed ratio (higher is slower) of the default animation by ability"
+				},
+				{
+					"PropertyName": "AnimationPlaybackTimeRatioDribbling",
+					"Description": "The speed ratio (higher is slower) of the default animation by ability"
+				},
+				{
+					"PropertyName": "AnimationPlaybackTimeRatioDribblingPP",
+					"Description": "The speed ratio (higher is slower) of the default animation by ability"
+				},
+				{
+					"PropertyName": "AnimationPlaybackTimeRatioPassing",
+					"Description": "The speed ratio (higher is slower) of the default animation by ability"
+				},
+				{
+					"PropertyName": "AnimationPlaybackTimeRatioShooting",
+					"Description": "The speed ratio (higher is slower) of the default animation by ability"
+				},
+				{
+					"PropertyName": "ATTR_AnimationPlaybackTimeRatioScaleByHeight",
+					"Description": "The speed ratio (higher is slower) of the default animation by ability. X = Height in Feet, Y = Ratio"
+				},
 				{
 					"PropertyName": "ATTR_DribbleJogSpeedModifier",
 					"Description": "Modifies base dribble jog speed based on attributes"
