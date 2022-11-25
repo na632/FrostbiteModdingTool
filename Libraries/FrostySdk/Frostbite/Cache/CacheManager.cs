@@ -1,5 +1,6 @@
 ﻿using Frosty.Hash;
 using FrostySdk;
+using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -8,9 +9,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using v2k4FIFAModdingCL;
 
 namespace FrostySdk.Frostbite
 {
@@ -36,56 +39,16 @@ namespace FrostySdk.Frostbite
 				AssetManager.Instance = null;
 			}
 
-			//if(ResourceManager.Instance != null)
-			//{
-			//	ResourceManager.Instance.Dispose();
-			//}
-
             var result = LoadDataAsync(GameVersion, GameLocation, logger, forceDeleteOfOld, loadSDK).Result;
 			return result;
 		}
 
-		public async Task<bool> LoadDataAsync(string GameVersion, string GameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
+		public async Task<bool> LoadDataAsync(string GameVersion, string gameLocation, ILogger logger = null, bool forceDeleteOfOld = false, bool loadSDK = false)
 		{
-			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({GameVersion},{GameLocation})");
+			Debug.WriteLine($"[DEBUG] BuildCache::LoadDataAsync({GameVersion},{gameLocation})");
 			if (ProfileManager.Initialize(GameVersion))
 			{
-				if (File.Exists(ProfileManager.CacheName + ".cache") && forceDeleteOfOld)
-					File.Delete(ProfileManager.CacheName + ".cache");
-
-				if (File.Exists(ProfileManager.CacheName + ".CachingSBData.cache") && forceDeleteOfOld)
-					File.Delete(ProfileManager.CacheName + ".CachingSBData.cache");
-
-
-				return await Task.Run(() => {
-
-					if (ProfileManager.RequiresKey)
-					{
-						KeyManager.ReadInKeys();
-					}
-
-					Debug.WriteLine($"[DEBUG] LoadDataAsync::Initialising Type Library");
-
-					if (TypeLibrary.Initialize(loadSDK))
-					{
-						if (logger == null)
-							logger = this;
-
-						logger.Log("Loaded Type Library SDK");
-						new FileSystem(GameLocation);
-						//new ResourceManager(logger);
-						logger.Log("Initialised File & Resource System");
-						new AssetManager(logger);
-						AssetManager.Instance.RegisterLegacyAssetManager();
-                        AssetManager.Instance.SetLogger(logger);
-                        AssetManager.Instance.Initialize(additionalStartup: true);
-
-						logger.Log("Initialised Asset Manager");
-
-						return true;
-					}
-					return false;
-				});
+				return await Task.Run(() => Load(gameLocation, logger, loadSDK, forceDeleteOfOld));
 			}
 			else
             {
@@ -94,6 +57,40 @@ namespace FrostySdk.Frostbite
 			}
 			return false;
 		}
+
+		public bool Load(ReadOnlySpan<char> gameLocation, ILogger logger, bool loadSDK, bool forceDeleteOfOld)
+		{
+            if (ProfileManager.RequiresKey)
+            {
+                KeyManager.ReadInKeys();
+            }
+
+            Debug.WriteLine($"[DEBUG] LoadDataAsync::Initialising Type Library");
+
+            if (TypeLibrary.Initialize(loadSDK))
+            {
+                if (logger == null)
+                    logger = this;
+
+                logger.Log("Loaded Type Library SDK");
+                new FileSystem(new string(gameLocation));
+
+                if (File.Exists(CachePath) && forceDeleteOfOld)
+                    File.Delete(CachePath);
+
+                logger.Log("Initialised File & Resource System");
+                new AssetManager(logger);
+                AssetManager.Instance.RegisterLegacyAssetManager();
+                //AssetManager.Instance.SetLogger(logger);
+                AssetManager.Instance.Initialize(additionalStartup: true);
+
+                logger.Log("Initialised Asset Manager");
+
+                return true;
+            }
+            return false;
+
+        }
 
 
 		public static bool HasEbx(string name)
@@ -121,7 +118,7 @@ namespace FrostySdk.Frostbite
             return entry;
         }
 
-        protected IEnumerable<EbxAssetEntry> EnumerateEbx(string name, string type, bool modifiedOnly, bool includeLinked)
+        protected async ValueTask<IEnumerable<EbxAssetEntry>> EnumerateEbx(string name, string type, bool modifiedOnly, bool includeLinked)
         {
             using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
             {
@@ -161,5 +158,126 @@ namespace FrostySdk.Frostbite
         public void LogWarning(string text, params object[] vars)
         {
         }
+        public static string ApplicationDirectory
+        {
+            get
+            {
+                return AppContext.BaseDirectory + "\\";
+            }
+        }
+
+        public static string CacheDirectoryPath => Path.Combine(ApplicationDirectory, "_GameCaches");
+        public static string CachePath
+        {
+            get
+            {
+                return $"{CacheDirectoryPath}\\{FileSystem.Instance.CacheName}.cache";
+            }
+        }
+
+        public static MemoryStream CacheDecompress()
+        {
+            Directory.CreateDirectory(CacheDirectoryPath);
+
+            // Decompress the Cache File into a Memory Stream
+            using (Ionic.Zip.ZipFile zipCache = Ionic.Zip.ZipFile.Read(CachePath))
+            {
+                Ionic.Zip.ZipEntry zipCacheEntry = zipCache.Entries.First();
+                var msCache = new MemoryStream();
+                zipCacheEntry.Extract(msCache);
+                msCache.Seek(0, SeekOrigin.Begin);
+                return msCache;
+            }
+        }
+
+        public static async Task<MemoryStream> CacheDecompressAsync()
+        {
+            return await Task.FromResult(CacheDecompress());
+        }
+
+        public static bool CacheCompress(MemoryStream msCache)
+        {
+            Directory.CreateDirectory(CacheDirectoryPath);
+
+            msCache.Seek(0, SeekOrigin.Begin);
+            // Compress the Cache File into a Memory Stream
+            Ionic.Zip.ZipFile zipCache = new Ionic.Zip.ZipFile(CachePath);
+            if (zipCache.ContainsEntry("cacheEntry"))
+                zipCache.RemoveEntry("cacheEntry");
+            zipCache.AddEntry("cacheEntry", msCache);
+            zipCache.Save();
+            return File.Exists(CachePath);
+        }
+
+        public static async Task<bool> CacheCompressAsync(MemoryStream msCache)
+        {
+            return await Task.FromResult(CacheCompress(msCache));
+        }
+
+        public static bool CacheRead(out List<EbxAssetEntry> prePatchCache)
+        {
+            prePatchCache = null;
+            if (!File.Exists(CachePath))
+            {
+                AssetManager.Instance.WriteToLog($"Did not find {CachePath}.");
+                return false;
+            }
+            AssetManager.Instance.WriteToLog($"Loading data ({FileSystem.Instance.CacheName}.cache)");
+
+            if (!string.IsNullOrEmpty(ProfileManager.CacheReader))
+            {
+                var resultFromPlugin = ((ICacheReader)AssetManager.Instance.LoadTypeFromPlugin(ProfileManager.CacheReader)).Read();
+                return resultFromPlugin;
+            }
+
+            return false;
+        }
+
+        public static void CacheWrite()
+        {
+            if (!string.IsNullOrEmpty(ProfileManager.CacheWriter))
+            {
+                ((ICacheWriter)AssetManager.Instance.LoadTypeFromPlugin(ProfileManager.CacheWriter)).Write();
+                return;
+            }
+
+            throw new NotImplementedException("Cannot find a CacheWriter for the specified game. Assign one in your Game Profile.");
+        }
+
+        public static bool DoesCacheNeedsRebuilding()
+        {
+            if (!GameInstanceSingleton.Instance.INITIALIZED)
+                throw new ArgumentNullException("Game has not been selected");
+
+            if (ProfileManager.RequiresKey)
+            {
+                KeyManager.ReadInKeys();
+            }
+
+            if (ProfileManager.Initialize(GameInstanceSingleton.Instance.GAMEVERSION))
+            {
+                new FileSystem(new string(GameInstanceSingleton.Instance.GAMERootPath));
+                if (!File.Exists(CachePath))
+                {
+                    return true;
+                }
+                using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
+                {
+                    if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
+                    {
+                        return true;
+                    }
+                    var cacheHead = nativeReader.ReadULong();
+                    if (cacheHead != FileSystem.Instance.SystemIteration)
+                    {
+                        return true;
+                    }
+                }
+
+            }
+
+            return false;
+        }
+
     }
 }

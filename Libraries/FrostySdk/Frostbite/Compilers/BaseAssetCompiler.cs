@@ -706,36 +706,39 @@ namespace FrostySdk.Frostbite.Compilers
             //
             var editedBundles = EntriesToNewPosition.SelectMany(x => x.Key.Bundles).Distinct();
             var groupedByTOCSB = new Dictionary<string, List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>>();
+            groupedByTOCSB = EntriesToNewPosition
+                .GroupBy(x => x.Key.TOCFileLocation)
+                .ToDictionary(x => x.Key, x => x.ToList());
             int sbIndex = -1;
-            foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
-            {
-                foreach (
-                    string sbKey in catalogInfo.SuperBundles.Keys
-                    )
-                {
-                    sbIndex++;
-                    string tocFileKey = sbKey;
-                    if (catalogInfo.SuperBundles[sbKey])
-                    {
-                        tocFileKey = sbKey.Replace("win32", catalogInfo.Name);
-                    }
+            //foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
+            //{
+            //    foreach (
+            //        string sbKey in catalogInfo.SuperBundles.Keys
+            //        )
+            //    {
+            //        sbIndex++;
+            //        string tocFileKey = sbKey;
+            //        if (catalogInfo.SuperBundles[sbKey])
+            //        {
+            //            tocFileKey = sbKey.Replace("win32", catalogInfo.Name);
+            //        }
 
-                    var nativePathToTOCFile = $"{directory}/{tocFileKey}.toc";
-                    var actualPathToTOCFile = FileSystem.Instance.ResolvePath(nativePathToTOCFile, ModExecutor.UseModData);
-                    using TOCFile tocFile = new TOCFile(nativePathToTOCFile, false, false, true, sbIndex, true);
+            //        var nativePathToTOCFile = $"{directory}/{tocFileKey}.toc";
+            //        var actualPathToTOCFile = FileSystem.Instance.ResolvePath(nativePathToTOCFile, ModExecutor.UseModData);
+            //        using TOCFile tocFile = new TOCFile(nativePathToTOCFile, false, false, true, sbIndex, true);
 
-                    var hashedEntries = tocFile.BundleEntries.Select(x => Fnv1a.HashString(x.Name));
-                    if (hashedEntries.Any(x => editedBundles.Contains(x)))
-                    {
-                        if (!groupedByTOCSB.ContainsKey(nativePathToTOCFile))
-                            groupedByTOCSB.Add(nativePathToTOCFile, new List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>());
+            //        var hashedEntries = tocFile.BundleEntries.Select(x => Fnv1a.HashString(x.Name));
+            //        if (hashedEntries.Any(x => editedBundles.Contains(x)))
+            //        {
+            //            if (!groupedByTOCSB.ContainsKey(nativePathToTOCFile))
+            //                groupedByTOCSB.Add(nativePathToTOCFile, new List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>());
 
-                        var editedBundleEntries = EntriesToNewPosition.Where(x => x.Key.Bundles.Any(y => hashedEntries.Contains(y))).ToArray();
-                        foreach (var item in editedBundleEntries)
-                            groupedByTOCSB[nativePathToTOCFile].Add(item);
-                    }
-                }
-            }
+            //            var editedBundleEntries = EntriesToNewPosition.Where(x => x.Key.Bundles.Any(y => hashedEntries.Contains(y))).ToArray();
+            //            foreach (var item in editedBundleEntries)
+            //                groupedByTOCSB[nativePathToTOCFile].Add(item);
+            //        }
+            //    }
+            //}
 
             List<Task> tasks = new List<Task>();
 

@@ -296,20 +296,20 @@ namespace FrostySdk
 						AddBundle("chunks", modify: true);
 				}
 
-				//foreach (int bundle in entry.Bundles)
-				//{
-				//	//bundlesToModify.Add(bundle);
-    //                BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
-    //                if (bundleEntry != null)
-    //                    AddBundle(bundleEntry.Name, modify: true);
-    //            }
-				//foreach (int bundle in entry.EnumerateBundles(addedOnly: true))
-				//{
-    //                //bundlesToAdd.Add(bundle);
-    //                BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
-    //                if (bundleEntry != null)
-    //                    AddBundle(bundleEntry.Name, modify: false);
-    //            }
+				foreach (int bundle in entry.Bundles)
+				{
+					//bundlesToModify.Add(bundle);
+					BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
+					if (bundleEntry != null)
+						AddBundle(bundleEntry.Name, modify: true);
+				}
+				foreach (int bundle in entry.EnumerateBundles(addedOnly: true))
+				{
+					//bundlesToAdd.Add(bundle);
+					BundleEntry bundleEntry = AssetManager.Instance.GetBundleEntry(bundle);
+					if (bundleEntry != null)
+						AddBundle(bundleEntry.Name, modify: false);
+				}
 			}
 
             public override void Write(NativeWriter writer, uint writerVersion = 4)

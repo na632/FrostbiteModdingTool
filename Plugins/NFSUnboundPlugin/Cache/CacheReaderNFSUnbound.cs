@@ -157,6 +157,7 @@ namespace NFSUnboundPlugin.Cache
                 for (int chunkIndex = 0; chunkIndex < sbChunkCount; chunkIndex++)
                 {
                     ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+					chunkAssetEntry.IsTocChunk = true;	
                     AssetManager.Instance.AddChunk(chunkAssetEntry);
                 }
             }

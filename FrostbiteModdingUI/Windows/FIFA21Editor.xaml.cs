@@ -14,6 +14,7 @@ using FrostbiteSdk;
 using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Ebx;
+using FrostySdk.Frostbite;
 using FrostySdk.Frosty.FET;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
@@ -233,7 +234,7 @@ namespace FIFAModdingUI.Windows
             loadingDialog.Update("Loading Game Files", "");
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
-            if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
+            if (CacheManager.DoesCacheNeedsRebuilding())
             {
                 loadingDialog.Update("", "");
                 buildSDKAndCacheWindow.ShowDialog();
@@ -1125,7 +1126,7 @@ namespace FIFAModdingUI.Windows
 
         }
 
-        public void UpdateAllBrowsers()
+        public async Task UpdateAllBrowsers()
         {
             
             dataBrowser.UpdateAssetListView();
@@ -1136,7 +1137,7 @@ namespace FIFAModdingUI.Windows
             bootsBrowser.UpdateAssetListView();
         }
 
-        public void UpdateAllBrowsersFull()
+        public async Task UpdateAllBrowsersFull()
         {
              var dataBrowserData = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx()

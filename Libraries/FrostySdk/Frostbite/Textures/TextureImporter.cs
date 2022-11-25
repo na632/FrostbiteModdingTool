@@ -4,6 +4,7 @@ using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using Microsoft.Win32;
 using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
@@ -123,7 +124,28 @@ namespace Frostbite.Textures
 		}
 
 
-		public virtual TextureUtils.DDSHeader GetDDSHeaderFromBytes(byte[] bytes)
+		public bool ImportFromPathIntoRes(string path, string resName)
+		{
+            var resEntry = AssetManager.Instance.GetResEntry(resName);
+            if (resEntry != null)
+            {
+                Texture texture = new Texture(resEntry);
+                EbxAssetEntry ebxAssetEntry = AssetManager.Instance.GetEbxEntry(resName);
+
+                if (ebxAssetEntry != null)
+				{
+					return (!this.Import(path, ebxAssetEntry, ref texture));
+                }
+            }
+			return false;
+        }
+
+        public async Task<bool> ImportFromPathIntoResAsync(string path, string resName)
+        {
+            return await Task.FromResult(ImportFromPathIntoRes(path, resName));	
+        }
+
+        public virtual TextureUtils.DDSHeader GetDDSHeaderFromBytes(byte[] bytes)
 		{
 			NativeReader nativeReader = new NativeReader(new MemoryStream(bytes));
 			TextureUtils.DDSHeader dDSHeader = new TextureUtils.DDSHeader();

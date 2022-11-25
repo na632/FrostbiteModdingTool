@@ -85,7 +85,7 @@ namespace Madden22Plugin
 							sbIndex = parent.superBundles.Count - 1;
 						}
 						
-						parent.logger.Log($"Loading data ({sbName})");
+						parent.Logger.Log($"Loading data ({sbName})");
 						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
 						if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
 						{

@@ -422,8 +422,8 @@ namespace FrostySdk.Resources
 
 			TextureGroup = nativeReader.ReadSizedString(16);
 
-            if (AssetManager.Instance.logger != null)
-				AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+            if (AssetManager.Instance.Logger != null)
+				AssetManager.Instance.Logger.Log($"Texture: Loading ChunkId: {chunkId}");
 
             ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
             data = AssetManager.Instance.GetChunk(ChunkEntry);
@@ -453,8 +453,8 @@ namespace FrostySdk.Resources
             unknownBytes.Add(nativeReader.ReadBytes(4));
             TextureGroup = nativeReader.ReadSizedString(16);
 
-            if (AssetManager.Instance.logger != null)
-                AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+            if (AssetManager.Instance.Logger != null)
+                AssetManager.Instance.Logger.Log($"Texture: Loading ChunkId: {chunkId}");
 
             ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
             data = AssetManager.Instance.GetChunk(ChunkEntry);
@@ -486,8 +486,8 @@ namespace FrostySdk.Resources
 			TextureGroup = nativeReader.ReadSizedString(16);
             unknownBytes.Add(nativeReader.ReadBytes(8));
 
-            if (AssetManager.Instance.logger != null)
-                AssetManager.Instance.logger.Log($"Texture: Loading ChunkId: {chunkId}");
+            if (AssetManager.Instance.Logger != null)
+                AssetManager.Instance.Logger.Log($"Texture: Loading ChunkId: {chunkId}");
 
             ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
             data = AssetManager.Instance.GetChunk(ChunkEntry);

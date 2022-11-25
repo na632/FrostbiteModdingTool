@@ -89,8 +89,8 @@ namespace Madden23Plugin.Textures
 				ChunkAssetEntry chunkEntry = AssetManager.Instance.GetChunkEntry(textureAsset.ChunkId);
 				byte[] textureArray = new byte[nativeReader.Length - nativeReader.Position];
 				nativeReader.Read(textureArray, 0, (int)(nativeReader.Length - nativeReader.Position));
-				//AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray, textureAsset);
-				//AssetManager.Instance.ModifyRes(resRid, textureAsset.ToBytesMadden23());
+				AssetManager.Instance.ModifyChunk(textureAsset.ChunkId, textureArray, textureAsset);
+				AssetManager.Instance.ModifyRes(resRid, textureAsset.ToBytesMadden23());
 				AssetManager.Instance.ModifyEbx(assetEntry.Name, ebxAsset);
 				resEntry.LinkAsset(chunkEntry);
 				assetEntry.LinkAsset(resEntry);

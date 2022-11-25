@@ -36,6 +36,7 @@ using System.Windows.Media.Imaging;
 using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
+using FrostySdk.Frostbite;
 
 //namespace FIFAModdingUI
 namespace FMT
@@ -91,7 +92,7 @@ namespace FMT
             //}
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
-            if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
+            if (CacheManager.DoesCacheNeedsRebuilding())
             {
                 buildSDKAndCacheWindow.ShowDialog();
             }

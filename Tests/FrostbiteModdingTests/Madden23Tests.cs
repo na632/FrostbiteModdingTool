@@ -1,4 +1,5 @@
-﻿using FrostySdk.Frostbite;
+﻿using Frostbite.Textures;
+using FrostySdk.Frostbite;
 using FrostySdk.Managers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
@@ -9,7 +10,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FrostbiteModdingTests
 {
@@ -128,5 +132,30 @@ namespace FrostbiteModdingTests
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
 
+        [TestMethod]
+        public void SplashscreenLoadAndRunMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, false);
+            ProjectManagement project = new ProjectManagement(GamePathEXE);
+            project.Project.Load("G:\\Work\\Madden Modding\\Splashscreen.fbproject");
+        }
+
+        [TestMethod]
+        public void SplashscreenImportIntoProjectModAndRun()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, false);
+            ProjectManagement project = new ProjectManagement(GamePathEXE);
+            TextureImporter textureImporter = new TextureImporter();
+            textureImporter.ImportFromPathIntoRes("G:\\Work\\Madden Modding\\splashscreen.png", "content/ui/splashscreen/splashscreen");
+            project.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            ModdingSupport.ModExecutor.UseModData = false;
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+        }
     }
 }

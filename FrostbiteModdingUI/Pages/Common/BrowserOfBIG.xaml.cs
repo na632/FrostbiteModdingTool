@@ -345,7 +345,7 @@ namespace FMT.Pages.Common
             }
 
 			entry.ModifiedEntry = null;
-            AssetManager.Instance.Log($"{entry.Name} has been reverted");
+            AssetManager.Instance.Logger.Log($"{entry.Name} has been reverted");
 
             bigBrowserDocumentsPane.Children.Clear();
 
@@ -390,7 +390,7 @@ namespace FMT.Pages.Common
 			{
 				await File.WriteAllBytesAsync(file, entry.Data).ConfigureAwait(continueOnCapturedContext: false);
 			}
-            AssetManager.Instance.Log($"{entry.Name} has been exported to {file}");
+            AssetManager.Instance.Logger.Log($"{entry.Name} has been exported to {file}");
         }
 
         private async Task ExportAsync(IEnumerable<BigFileEntry> entries, string path, bool hierarchicalExport)
@@ -462,7 +462,7 @@ namespace FMT.Pages.Common
 			//entry.IsModified = true;
 
 			entry.ModifiedEntry = new BigFileEntry.ModifiedBigFileEntry(data);
-            AssetManager.Instance.Log($"{file} has been imported into {entry.Name}");
+            AssetManager.Instance.Logger.Log($"{file} has been imported into {entry.Name}");
             Reconstruct(AssetEntry);
 
 			bigBrowserDocumentsPane.Children.Clear();
@@ -560,7 +560,7 @@ namespace FMT.Pages.Common
 			nativeWriter2.WritePadding(64);
 			nativeWriter2.WriteBytes(array);
 			AssetManager.Instance.ModifyLegacyAsset(assetEntry.Name, ((MemoryStream)nativeWriter2.BaseStream).ToArray(), false);
-			AssetManager.Instance.Log($"{AssetEntry.Name} has been Reconstructed");
+            AssetManager.Instance.Logger.Log($"{AssetEntry.Name} has been Reconstructed");
 
         }
 

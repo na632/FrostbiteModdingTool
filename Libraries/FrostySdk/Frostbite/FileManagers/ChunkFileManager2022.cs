@@ -1110,7 +1110,7 @@ namespace Frostbite.FileManagers
 					lfe.ModifiedEntry = null;
 					resetEntryCount++;
 				}
-				AssetManager.Instance.logger.Log($"Reset {resetEntryCount} legacy files");
+				AssetManager.Instance.Logger.Log($"Reset {resetEntryCount} legacy files");
 			}
 		}
 

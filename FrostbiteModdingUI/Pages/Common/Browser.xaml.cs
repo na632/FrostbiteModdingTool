@@ -58,6 +58,7 @@ using FrostbiteSdk;
 using System.Drawing.Drawing2D;
 using FMT.Pages.Common;
 using Microsoft.Identity.Client;
+using FMT.Controls.Controls;
 
 namespace FIFAModdingUI.Pages.Common
 {
@@ -150,11 +151,10 @@ namespace FIFAModdingUI.Pages.Common
 
         #endregion
 
-        public async Task<IEnumerable<IAssetEntry>> GetFilteredAssetEntries()
+        public async Task<IEnumerable<IAssetEntry>> GetFilteredAssetEntriesAsync()
 		{
 			var onlymodified = false;
 			var filterText = "";
-
 
             Dispatcher.Invoke(() =>
 			{
@@ -162,33 +162,36 @@ namespace FIFAModdingUI.Pages.Common
 				filterText = txtFilter.Text;
             });
 
-			return await Task.Run(() =>
+			return await Task.FromResult(GetFilteredAssets(filterText, onlymodified));
+
+        }
+
+		private IEnumerable<IAssetEntry> GetFilteredAssets(ReadOnlySpan<char> filterSpan, bool onlymodified)
+		{
+            var assets = allAssets;
+			if (assets == null)
+				return null;
+
+			if (!filterSpan.IsEmpty)
 			{
-				var assets = allAssets;
-				if (assets != null)
-				{
-					if (!string.IsNullOrEmpty(filterText))
-					{
-						assets = assets.Where(x =>
-							x.Name.Contains(filterText, StringComparison.OrdinalIgnoreCase)
-							);
-					}
+				var filterText = new string(filterSpan.ToArray());
+				assets = assets.Where(x =>
+					x.Name.Contains(filterText, StringComparison.OrdinalIgnoreCase)
+					);
+			}
 
-                    assets = assets.Where(x => !x.Name.Contains("-False-", StringComparison.OrdinalIgnoreCase));
-                    assets = assets.Where(x => !x.Name.Contains("FMTOther", StringComparison.OrdinalIgnoreCase));
+			assets = assets.Where(x => !x.Name.Contains("-False-", StringComparison.OrdinalIgnoreCase));
+			assets = assets.Where(x => !x.Name.Contains("FMTOther", StringComparison.OrdinalIgnoreCase));
 
-					assets = assets.Where(x =>
-						(
-						onlymodified == true
-						&& x.IsModified
-						)
-						|| onlymodified == false
-						);
+			assets = assets.Where(x =>
+				(
+				onlymodified == true
+				&& x.IsModified
+				)
+				|| onlymodified == false
+				);
 
-				}
-				return assets;
-			});
-
+            return assets;
         }
 
 		public List<string> CurrentAssets { get; set; }
@@ -218,7 +221,7 @@ namespace FIFAModdingUI.Pages.Common
 			//if (AssetPath == null)
                 AssetPath = new AssetPath("", "", null, true);
 
-            var assets = await GetFilteredAssetEntries();
+            var assets = await GetFilteredAssetEntriesAsync();
 
 			await Task.Run(() =>
 			{
@@ -705,8 +708,6 @@ namespace FIFAModdingUI.Pages.Common
 							var dialogAnswer = saveFileDialog.ShowDialog();
 							if (dialogAnswer.HasValue && dialogAnswer.Value)
 							{
-								LoadingDialog loadingDialog = new LoadingDialog("Exporting", $"Exporting {SelectedEntry.Filename} to Json");
-								loadingDialog.Show();
 								var obj = await Task.Run(() => {
 									return AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry).RootObject;
 								});
@@ -715,8 +716,6 @@ namespace FIFAModdingUI.Pages.Common
 								});
 								await File.WriteAllTextAsync(saveFileDialog.FileName, serialisedObj);
 								MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
-								loadingDialog.Close();
-								loadingDialog = null;
 							}
 						}
 						else if(useJsonResult == MessageBoxResult.No)
@@ -1063,7 +1062,7 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		private async void OpenAsset(IAssetEntry entry)
+		private async Task OpenAsset(IAssetEntry entry)
 		{
 			ResetViewers();
 			if (entry is EbxAssetEntry ebxEntry)
@@ -1397,7 +1396,7 @@ namespace FIFAModdingUI.Pages.Common
             }
 			catch(Exception ex)
 			{
-				AssetManager.Instance.LogError(ex.ToString());
+				//AssetManager.Instance.LogError(ex.ToString());
 			}
             //if (SelectedEntry != null)
             //{
@@ -1537,8 +1536,8 @@ namespace FIFAModdingUI.Pages.Common
 			if (parent != null)
 			{
 				var assetPath = parent.Tag as AssetPath;
-				LoadingDialog loadingDialog = new LoadingDialog($"Importing into {assetPath.FullPath}", "Import Started");
-
+				//LoadingDialog loadingDialog = new LoadingDialog($"Importing into {assetPath.FullPath}", "Import Started");
+				
 				FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
 				folderBrowserDialog.AllowMultiSelect = false;
 				if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1546,13 +1545,11 @@ namespace FIFAModdingUI.Pages.Common
 					string folder = folderBrowserDialog.SelectedFolder;
 					var filesGathered = Directory.GetFiles(folder, "*.*", SearchOption.TopDirectoryOnly);
 					var filesImportAttempted = 0;
-					loadingDialog.SetProgressBarMaximum(filesGathered.Length);
-					loadingDialog.Show();
+					
 
 					foreach (string fileName in filesGathered)
 					{
 						filesImportAttempted++;
-						await loadingDialog.UpdateAsync(filesImportAttempted);
 
 						FileInfo fi = new FileInfo(fileName);
 						if (fi.Extension.Contains(".png"))
@@ -1631,8 +1628,6 @@ namespace FIFAModdingUI.Pages.Common
 							}
 						}
 					}
-
-					loadingDialog.Close();
 
 					if (importedSomething)
 					{

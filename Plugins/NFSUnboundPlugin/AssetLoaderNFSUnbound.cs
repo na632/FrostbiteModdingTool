@@ -85,7 +85,7 @@ namespace NFSUnboundPlugin
 							sbIndex = parent.superBundles.Count - 1;
 						}
 						
-						parent.logger.Log($"Loading data ({sbName})");
+						parent.Logger.Log($"Loading data ({sbName})");
 						//string tocFile = sbName.Replace("win32", catalogInfoItem.Name);
 						//if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
 						//{

@@ -53,7 +53,7 @@ namespace Madden22Plugin
                 foreach (CASBundle casBundle in casBundles.Where(x=>x.TotalSize > 0))
                 {
                     if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
-                        AssetManager.Instance.logger.Log($"Completed {Math.Round(((double)index / casBundles.Count)*100).ToString()} in {path}");
+                        AssetManager.Instance.Logger.Log($"Completed {Math.Round(((double)index / casBundles.Count)*100).ToString()} in {path}");
                     
                     index++;
 

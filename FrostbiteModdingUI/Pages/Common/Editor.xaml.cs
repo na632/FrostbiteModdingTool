@@ -141,7 +141,7 @@ namespace FIFAModdingUI.Pages.Common
                 {
 
                 }
-                return "";
+                return null;
             }
 
 			public bool IsReadOnly
@@ -522,6 +522,9 @@ namespace FIFAModdingUI.Pages.Common
 
         public bool CreateEditor(ModdableProperty d, TreeViewItem treeViewItem, TreeView treeView = null)
 		{
+			if(treeViewItem.ToolTip == null)
+				treeViewItem.ToolTip = d.PropertyDescription;
+
             Control control = GetMatchingTypedControl(d);
             if (control != null)
             {
@@ -714,7 +717,7 @@ namespace FIFAModdingUI.Pages.Common
                 var Internal = p.PropertyValue.GetPropertyValue("Internal");
                 if (Internal != null && Utilities.HasProperty(Internal, "Points"))
                 {
-					var props = Utilities.GetProperties(Internal);
+					//var props = Utilities.GetProperties(Internal);
 					var interalsMP = ModdableProperty.GetModdableProperties(Internal, Modprop_PropertyChanged).ToList();
 
 					//propTreeViewParent.Header = p.PropertyName;
@@ -825,13 +828,6 @@ namespace FIFAModdingUI.Pages.Common
 
         public async Task SaveToRootObject(bool forceReload = false)
         {
-			LoadingDialog loadingDialog = null;
-			//await Dispatcher.InvokeAsync(() =>
-			//{
-			//	loadingDialog = new LoadingDialog("Saving hotspot", "Saving hotspot");
-			//	loadingDialog.Show();
-			//});
-
 			await Task.Run(() =>
 			{
 				try
@@ -840,7 +836,7 @@ namespace FIFAModdingUI.Pages.Common
                 }
                 catch(Exception ex) 
 				{
-					AssetManager.Instance.LogError($"Unable to modify EBX {AssetEntry.Name}");
+					//AssetManager.Instance.LogError($"Unable to modify EBX {AssetEntry.Name}");
 				}
 				//FrostyProject.Save("GameplayProject.fbproject", true);
 			});
@@ -855,11 +851,7 @@ namespace FIFAModdingUI.Pages.Common
 
             await Dispatcher.InvokeAsync(() =>
 			{
-				if (loadingDialog != null)
-				{
-					loadingDialog.Close();
-					loadingDialog = null;
-				}
+				
 			});
 
 			if (forceReload)

@@ -25,7 +25,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 	public interface ICacheWriter
     {
-		public void Write();
+		void Write();
 		void WriteEbxEntry(NativeWriter nativeWriter, EbxAssetEntry ebxEntry);
 		void WriteResEntry(NativeWriter nativeWriter, ResAssetEntry resEntry);
 		void WriteChunkEntry(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry);

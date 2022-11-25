@@ -348,7 +348,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 var numberOfChunksAdded = AssetManager.Instance.Chunks.Count - numberOfChunksBefore;
 
                 if (DoLogging && AssetManager.Instance != null)
-                    AssetManager.Instance.logger.Log($"{NativeFileLocation} Added {numberOfChunksAdded} TOC Chunks");
+                    AssetManager.Instance.Logger.Log($"{NativeFileLocation} Added {numberOfChunksAdded} TOC Chunks");
 
             }
         }
@@ -414,7 +414,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 			{
 
 				if (AssetManager.Instance != null && DoLogging)
-					AssetManager.Instance.logger.Log("Searching for CAS Data from " + FileLocation);
+					AssetManager.Instance.Logger.Log("Searching for CAS Data from " + FileLocation);
 
 				for (int i = 0; i < MetaData.BundleCount; i++)
 				{
@@ -493,7 +493,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 				if (CasBundles.Count > 0)
 				{
 					if (AssetManager.Instance != null && DoLogging)
-						AssetManager.Instance.logger.Log($"Found {CasBundles.Count} bundles for CasFiles");
+						AssetManager.Instance.Logger.Log($"Found {CasBundles.Count} bundles for CasFiles");
 
 					foreach (var bundle in CasBundles)
 					{

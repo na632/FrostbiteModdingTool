@@ -133,7 +133,7 @@ namespace Madden21Plugin
                         if (lastLogTime.AddSeconds(15) < DateTime.Now)
                         {
                             var percentDone = Math.Round((double)j / (double)numberOfBundles * 100.0);
-                            parent.logger.Log($"{NativePath} Progress: {percentDone}");
+                            parent.Logger.Log($"{NativePath} Progress: {percentDone}");
                             lastLogTime = DateTime.Now;
                         }
 

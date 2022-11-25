@@ -134,7 +134,7 @@ namespace FIFA20Plugin
 						{
 							if (lastLogTime.AddSeconds(15) < DateTime.Now)
 							{
-								parent.logger.Log($"{NativePath} Progress: {Math.Round((double)j / (double)numberOfBundles * 100.0)}");
+								parent.Logger.Log($"{NativePath} Progress: {Math.Round((double)j / (double)numberOfBundles * 100.0)}");
 								lastLogTime = DateTime.Now;
 							}
 

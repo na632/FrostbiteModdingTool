@@ -27,6 +27,8 @@ using CSharpImageLibrary;
 using System.Collections;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Frostbite;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace FrostySdk.Managers
 {
@@ -140,7 +142,7 @@ namespace FrostySdk.Managers
 	}
 
 
-	public class AssetManager : ILoggable, IDisposable, ILogger
+	public class AssetManager : IDisposable
 	{
 		private static AssetManager _Instance;
         public static AssetManager Instance 
@@ -268,7 +270,7 @@ namespace FrostySdk.Managers
 											if (lastLogTime.AddSeconds(15) < DateTime.Now)
 											{
 												var percentDone = Math.Round((double)j / (double)numberOfBundles * 100.0);
-												parent.logger.Log($"{arg} Progress: {percentDone}");
+												parent.Logger.Log($"{arg} Progress: {percentDone}");
 												lastLogTime = DateTime.Now;
 											}
 
@@ -427,12 +429,7 @@ namespace FrostySdk.Managers
 
 		public FileSystem FileSystem => fs;
 
-		//public ResourceManager rm = ResourceManager.Instance;
-
-  //      public ResourceManager ResourceManager => rm;
-
-
-		public ILogger logger;
+		public ILogger Logger { get; private set; }
 
 		public List<SuperBundleEntry> superBundles { get; } = new List<SuperBundleEntry>(500);
 
@@ -466,7 +463,7 @@ namespace FrostySdk.Managers
 
         public AssetManager(in ILogger inLogger) : this()
         {
-            logger = inLogger;
+            Logger = inLogger;
         }
 
         public AssetManager(in FileSystem inFs)
@@ -647,18 +644,18 @@ namespace FrostySdk.Managers
 
 		public void Initialize(bool additionalStartup = true, AssetManagerImportResult result = null)
 		{
-			if (logger == null)
-				logger = this;
+			if (Logger == null)
+				Logger = new NullLogger();
 
 			DateTime dtAtStart = DateTime.Now;
 
             if (!ProfileManager.LoadedProfile.CanUseModData)
             {
-                logger.Log($"[WARNING] {ProfileManager.LoadedProfile.DisplayName} ModData is not supported. Making backups of your files!");
+                Logger.Log($"[WARNING] {ProfileManager.LoadedProfile.DisplayName} ModData is not supported. Making backups of your files!");
                 FileSystem.MakeGameDataBackup(FileSystem.BasePath);
             }
 
-            logger.Log("Initialising Plugins");
+            Logger.Log("Initialising Plugins");
 			if(!InitialisePlugins() && !ProfileManager.DoesNotUsePlugin)
             {
 				throw new Exception("Plugins could not be initialised!");
@@ -666,7 +663,7 @@ namespace FrostySdk.Managers
 			TypeLibrary.Initialize(additionalStartup || TypeLibrary.RequestLoadSDK);
 			if (TypeLibrary.RequestLoadSDK && File.Exists("SDK/" + ProfileManager.SDKFilename + ".dll"))
 			{
-				logger.Log($"Plugins and SDK {"SDK/" + ProfileManager.SDKFilename + ".dll"} Initialised");
+				Logger.Log($"Plugins and SDK {"SDK/" + ProfileManager.SDKFilename + ".dll"} Initialised");
 			}
 
 
@@ -677,7 +674,7 @@ namespace FrostySdk.Managers
             List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
             if (!CacheRead(out prePatchCache))
             {
-                logger.Log($"Cache Needs to Built/Updated");
+                Logger.Log($"Cache Needs to Built/Updated");
 
                 BinarySbDataHelper binarySbDataHelper = new BinarySbDataHelper(this);
                 if (ProfileManager.AssetLoader != null)
@@ -699,7 +696,7 @@ namespace FrostySdk.Managers
 			//}
 			
 			TimeSpan timeSpan = DateTime.Now - dtAtStart;
-			logger.Log($"Loading complete {timeSpan.ToString(@"mm\:ss")}");
+			Logger.Log($"Loading complete {timeSpan.ToString(@"mm\:ss")}");
 
 			if(AssetManagerInitialised != null)
             {
@@ -716,16 +713,6 @@ namespace FrostySdk.Managers
 		public static event AssetManagerModifiedHandler AssetManagerInitialised;
 
 		public static event AssetManagerModifiedHandler AssetManagerModified;
-
-		public void SetLogger(ILogger inLogger)
-		{
-			logger = inLogger;
-		}
-
-		public void ClearLogger()
-		{
-			logger = null;
-		}
 
 
 		private List<Type> AllSdkAssemblyTypes { get; set; }
@@ -1078,11 +1065,6 @@ namespace FrostySdk.Managers
         /// <returns></returns>
         public void AddChunk(ChunkAssetEntry entry)
         {
-			if(entry.Id.ToString() == "765d6c42-fb4a-3aa6-7d93-de76cd015a8d")
-			{
-
-			}
-
             if (!Chunks.TryAdd(entry.Id, entry))
             {
                 // If it already exists, then add bundles to the entry
@@ -1099,25 +1081,28 @@ namespace FrostySdk.Managers
                     Chunks[entry.Id] = entry;
             }
 
-			//if (entry.IsTocChunk)
-			//{
-			//	var hashedId = Fnv1a.HashString(entry.Id.ToString());
+			if (entry.IsTocChunk)
+			{
+				var hashedId = Fnv1a.HashString(entry.Id.ToString());
 
-   //             if (!SuperBundleChunks.TryAdd(hashedId, entry))
-			//	{
-   //                 // If it already exists, then add bundles to the entry
-   //                 var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
+				if (!SuperBundleChunks.TryAdd(hashedId, entry))
+				{
+					// If it already exists, then add bundles to the entry
+					var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
 
-   //                 foreach (var bundle in existingChunk.Bundles)
-   //                     entry.Bundles.Add(bundle);
+                    foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
+                        existingChunk.Bundles.Add(bundle);
 
-   //                 // Always overwrite if the new item is a patch version
-   //                 if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
-   //                     SuperBundleChunks[hashedId] = entry;
-   //             }
-			//}
+                    foreach (var bundle in existingChunk.Bundles)
+						entry.Bundles.Add(bundle);
 
-        }
+					// Always overwrite if the new item is a patch version
+					if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
+						SuperBundleChunks[hashedId] = entry;
+				}
+			}
+
+		}
 
         public BundleEntry AddBundle(string name, BundleType type, int sbIndex)
 		{
@@ -1562,12 +1547,6 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public IEnumerable<EbxAssetEntry> EnumerateEbx(BundleEntry bentry)
-		{
-			int num = Bundles.IndexOf(bentry);
-			return EnumerateEbx("", false, false, true, num);
-		}
-
 		public IEnumerable<EbxAssetEntry> EnumerateEbx(string type = "", bool modifiedOnly = false, bool includeLinked = false, bool includeHidden = true, string bundleSubPath = "")
 		{
 			List<int> list = new List<int>();
@@ -1588,43 +1567,50 @@ namespace FrostySdk.Managers
 
 		protected IEnumerable<EbxAssetEntry> EnumerateEbx(string type, bool modifiedOnly, bool includeLinked, bool includeHidden, params int[] bundles)
 		{
-			foreach (EbxAssetEntry value in EBX.Values)
+			//foreach (EbxAssetEntry value in EBX.Values)
+			//{
+			//	if (
+			//		(!modifiedOnly 
+			//		|| (
+			//			value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified)
+			//			)
+			//		) 
+			//		&& (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
+			//	{
+			//		yield return value;
+			//	}
+			//}
+
+#if DEBUG
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+#endif
+			Span<EbxAssetEntry> ebxAssetEntries = CollectionsMarshal.AsSpan(EBX.Values.ToList());
+			EbxAssetEntry[] assetEntriesArray = new EbxAssetEntry[ebxAssetEntries.Length];
+			for (var i = 0; i < ebxAssetEntries.Length; i++)
 			{
+				var value = ebxAssetEntries[i];
 				if (
-					(!modifiedOnly 
+					(!modifiedOnly
 					|| (
 						value.IsModified && (!value.IsIndirectlyModified || includeLinked || value.IsDirectlyModified)
 						)
-					) 
+					)
 					&& (!(type != "") || (value.Type != null && TypeLibrary.IsSubClassOf(value.Type, type))))
 				{
-					//if (bundles.Length != 0)
-					//{
-					//	bool flag = false;
-					//	foreach (int item in bundles)
-					//	{
-					//		if (value.Bundles.Contains(item))
-					//		{
-					//			flag = true;
-					//			break;
-					//		}
-					//		if (value.AddBundles.Contains(item))
-					//		{
-					//			flag = true;
-					//			break;
-					//		}
-					//	}
-					//	if (!flag)
-					//	{
-					//		continue;
-					//	}
-					//}
-					yield return value;
+					assetEntriesArray[i] = value;
 				}
 			}
+#if DEBUG
+			sw.Stop();
+			Debug.WriteLine($"EnumerateEbx:Span:{sw.Elapsed}");
+#endif
+			return assetEntriesArray.Where(x => x != null);
+
+
 		}
 
-		public IEnumerable<ResAssetEntry> EnumerateRes(BundleEntry bentry)
+        public IEnumerable<ResAssetEntry> EnumerateRes(BundleEntry bentry)
 		{
 			int num = Bundles.IndexOf(bentry);
 			if (num != -1)
@@ -1794,15 +1780,6 @@ namespace FrostySdk.Managers
 			return (T)GetCustomAssetEntry(type, key);
 		}
 
-		//public EbxAssetEntry GetEbxEntry(Guid ebxGuid)
-		//{
-		//	if (!ebxGuidList.ContainsKey(ebxGuid))
-		//	{
-		//		return null;
-		//	}
-		//	return ebxGuidList[ebxGuid];
-		//}
-
 		public EbxAssetEntry GetEbxEntry(ReadOnlySpan<char> name)
 		{
 			// Old school, search by string
@@ -1833,28 +1810,13 @@ namespace FrostySdk.Managers
 
 		public ResAssetEntry GetResEntry(ulong resRid)
 		{
-			//if (!resRidList.ContainsKey(resRid))
-			//{
-			//	return null;
-			//}
-			//return resRidList[resRid];
 			return RES.Values.FirstOrDefault(x => x.ResRid == resRid);
-
         }
 
 		public ResAssetEntry GetResEntry(string name)
 		{
 			var loweredString = name.ToString().ToLower();
-            //if (string.IsNullOrEmpty(name))
-            //	return null;
-
-            //name = name.ToLower();
-            //if (!RES.ContainsKey(name))
-            //{
-            //	return null;
-            //}
-            //return RES[name];
-
+            
             // Old school, search by string
             if (RES.ContainsKey(loweredString))
                 return RES[loweredString];
@@ -1870,48 +1832,22 @@ namespace FrostySdk.Managers
 			return null;
         }
 
-		//public ChunkAssetEntry GetChunkEntry(Guid id, string bundle)
-		//{
-		//	if (!BundleChunks.ContainsKey((bundle, id)))
-		//	{
-		//		//if (GetChunkEntry(id) != null)
-		//		//	return GetChunkEntry(id);
-
-		//		return null;
-		//	}
-		//	var entry = BundleChunks[(bundle, id)];
-		//	return entry;
-		//}
-
 		public ChunkAssetEntry GetChunkEntry(Guid id)
 		{
-			if (!Chunks.ContainsKey(id))
-			{
-				return null;
-			}
-			var entry = Chunks[id];
-			return entry;
+            if (SuperBundleChunks.TryGetValue(Fnv1a.HashString(id.ToString()), out var sbChunkEntry))
+                return sbChunkEntry;
+
+            if (Chunks.TryGetValue(id, out var entry))
+				return entry;
+
+			return null;
 		}
 
-		public Stream GetCompressedChunk(ChunkAssetEntry entry)
-		{
-			throw new NotImplementedException("Not finished!!");
-			//if (entry == null)
-			//{
-			//	throw new ArgumentNullException("entry");
-			//}
-			//return GetAsset(entry, decompress: false);
-		}
-
-		//public List<ChunkAssetEntry> GetChunkEntries(Guid id)
-		//{
-		//	var allChunks = ChunkListDuplicates.Where(x => x.Key == id).SelectMany(x => x.Value).ToList();
-		//	//if(chunkList.ContainsKey(id))
-		//	//	allChunks.Add(chunkList[id]);
-		//	return allChunks;
-
-				
-		//}
+        public async ValueTask<ChunkAssetEntry> GetChunkEntryAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken))
+        {
+			cancellationToken.ThrowIfCancellationRequested();
+			return await Task.FromResult(GetChunkEntry(id));
+        }
 
 		public Stream GetCustomAsset(string type, AssetEntry entry)
 		{
@@ -1924,9 +1860,7 @@ namespace FrostySdk.Managers
 
 		public async Task<MemoryStream> GetCustomAssetAsync(string type, AssetEntry entry)
         {
-			return await Task.Run(() => {
-				return GetCustomAsset(type, entry) as MemoryStream;
-			});
+			return await Task.FromResult(GetCustomAsset(type, entry) as MemoryStream);
         }
 
 		public EbxAsset GetEbx(EbxAssetEntry entry, bool getModified = true)
@@ -2661,522 +2595,30 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public static MemoryStream CacheDecompress()
+        public static MemoryStream CacheDecompress()
         {
-			// Decompress the Cache File into a Memory Stream
-			using (Ionic.Zip.ZipFile zipCache = Ionic.Zip.ZipFile.Read(ApplicationDirectory + FileSystem.Instance.CacheName + ".cache"))
-			{
-				Ionic.Zip.ZipEntry zipCacheEntry = zipCache.Entries.First();
-				var msCache = new MemoryStream();
-				zipCacheEntry.Extract(msCache);
-				msCache.Seek(0, SeekOrigin.Begin);
-				return msCache;
-			}
+            return CacheManager.CacheDecompress();
 		}
 
-		public static void CacheCompress(MemoryStream msCache)
+        public static async Task<MemoryStream> CacheDecompressAsync()
+        {
+			return await CacheManager.CacheDecompressAsync();
+        }
+
+        public static bool CacheCompress(MemoryStream msCache)
 		{
-			msCache.Seek(0, SeekOrigin.Begin);
-			// Compress the Cache File into a Memory Stream
-			Ionic.Zip.ZipFile zipCache = new Ionic.Zip.ZipFile(ApplicationDirectory + FileSystem.Instance.CacheName + ".cache");
-			if (zipCache.ContainsEntry("cacheEntry"))
-				zipCache.RemoveEntry("cacheEntry");
-			zipCache.AddEntry("cacheEntry", msCache);
-			zipCache.Save();
+			return CacheManager.CacheCompress(msCache);
 		}
 
-		private bool CacheRead(out List<EbxAssetEntry> prePatchCache)
+        public bool CacheRead(out List<EbxAssetEntry> prePatchCache)
 		{
-			AssetManager.Instance = this;
-
 			prePatchCache = null;
-            if (!File.Exists(fs.CacheName + ".cache"))
-			{
-				return false;
-			}
-			WriteToLog("Loading data (" + fs.CacheName + ".cache)");
+			return CacheManager.CacheRead(out prePatchCache);
+        }
 
-			if (!string.IsNullOrEmpty(ProfileManager.CacheReader))
-			{
-				var resultFromPlugin = ((ICacheReader)LoadTypeFromPlugin(ProfileManager.CacheReader)).Read();
-				return resultFromPlugin;
-			}
-
-			return false;
-   //         bool flag = false;
-			////using (NativeReader nativeReader = new NativeReader(new FileStream(fs.CacheName + ".cache", FileMode.Open, FileAccess.Read)))
-			//using (NativeReader nativeReader = new NativeReader(CacheDecompress()))
-			//{
-			//	if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
-			//		return false;
-
-			//	var cacheHead = nativeReader.ReadULong();
-			//	if (cacheHead != fs.SystemIteration)
-			//	{
-			//		flag = true;
-			//		prePatchCache = new List<EbxAssetEntry>();
-			//		//CacheUpdate = true;
-			//	}
-			//	int count = nativeReader.ReadInt();
-			//	if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
-			//	{
-			//		superBundles.Add(new SuperBundleEntry
-			//		{
-			//			Name = "<none>"
-			//		});
-			//	}
-			//	else
-			//	{
-			//		for (int i = 0; i < count; i++)
-			//		{
-			//			SuperBundleEntry superBundleEntry = new SuperBundleEntry();
-			//			superBundleEntry.Name = nativeReader.ReadNullTerminatedString();
-			//			superBundles.Add(superBundleEntry);
-			//		}
-			//	}
-			//	count = nativeReader.ReadInt();
-			//	if (!ProfileManager.IsFIFA21DataVersion() && count == 0)
-			//	{
-			//		return false;
-			//	}
-			//	for (int j = 0; j < count; j++)
-			//	{
-			//		BundleEntry bundleEntry = new BundleEntry();
-			//		bundleEntry.Name = nativeReader.ReadNullTerminatedString();
-			//		bundleEntry.SuperBundleId = nativeReader.ReadInt();
-			//		if (!flag)
-			//		{
-			//			Bundles.Add(bundleEntry);
-			//		}
-			//	}
-			//	count = nativeReader.ReadInt();
-			//	//EBX = new ConcurrentDictionary<string, EbxAssetEntry>(1, count + 100);
-			//	EBX.Clear();
-			//	for (int k = 0; k < count; k++)
-			//	{
-			//		EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-			//		ebxAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
-			//		ebxAssetEntry.Sha1 = nativeReader.ReadSha1();
-			//		ebxAssetEntry.BaseSha1 = rm.GetBaseSha1(ebxAssetEntry.Sha1);
-			//		ebxAssetEntry.Size = nativeReader.ReadLong();
-			//		ebxAssetEntry.OriginalSize = nativeReader.ReadLong();
-			//		ebxAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-			//		ebxAssetEntry.IsInline = nativeReader.ReadBoolean();
-			//		ebxAssetEntry.Type = nativeReader.ReadLengthPrefixedString();
-			//		ebxAssetEntry.Guid = nativeReader.ReadGuid();
-			//		if (nativeReader.ReadBoolean())
-			//		{
-			//			ebxAssetEntry.ExtraData = new AssetExtraData();
-			//			ebxAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-			//			ebxAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
-			//			ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-			//			ebxAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-			//			ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-			//			ebxAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-			//		}
-			//		int bundleCount = nativeReader.ReadInt();
-			//		for (int l = 0; l < bundleCount; l++)
-			//		{
-			//			ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
-			//		}
-			//		//bundleCount = nativeReader.ReadInt();
-			//		//for (int m = 0; m < bundleCount; m++)
-			//		//{
-			//		//	ebxAssetEntry.DependentAssets.Add(nativeReader.ReadGuid());
-			//		//}
-			//		if (ProfileManager.IsFIFA21DataVersion())
-			//		{
-			//			if (nativeReader.ReadBoolean())
-			//				ebxAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-			//			if (nativeReader.ReadBoolean())
-			//				ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-			//			if (nativeReader.ReadBoolean())
-			//				ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
-
-			//			ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-			//			ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-			//			ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-			//			ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-			//			ebxAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
-
-			//		}
-			//		//               if (ProfilesLibrary.IsMadden21DataVersion())
-			//		//               {
-			//		//	ebxAssetEntry.ParentBundleOffset = nativeReader.ReadInt();
-			//		//	ebxAssetEntry.ParentBundleSize = nativeReader.ReadInt();
-			//		//}
-			//		if (flag)
-			//		{
-			//			prePatchCache.Add(ebxAssetEntry);
-			//		}
-			//		else
-			//		{
-			//			EBX.TryAdd(ebxAssetEntry.Name, ebxAssetEntry);
-			//		}
-			//	}
-			//	count = nativeReader.ReadInt();
-			//	for (int n = 0; n < count; n++)
-			//	{
-   //                 //ResAssetEntry resAssetEntry = JsonConvert.DeserializeObject<ResAssetEntry>(nativeReader.ReadLengthPrefixedString());
-   //                 //RES.Add(resAssetEntry.Name, resAssetEntry);
-   //                 //               if (resAssetEntry.ResRid != 0L)
-   //                 //               {
-   //                 //                   if (!resRidList.ContainsKey(resAssetEntry.ResRid))
-   //                 //                       resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-   //                 //               }
-
-   //                 ResAssetEntry resAssetEntry = new ResAssetEntry();
-   //                 resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
-   //                 resAssetEntry.Sha1 = nativeReader.ReadSha1();
-   //                 resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
-   //                 resAssetEntry.Size = nativeReader.ReadLong();
-   //                 resAssetEntry.OriginalSize = nativeReader.ReadLong();
-   //                 resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-   //                 resAssetEntry.IsInline = nativeReader.ReadBoolean();
-   //                 resAssetEntry.ResRid = nativeReader.ReadULong();
-   //                 resAssetEntry.ResType = nativeReader.ReadUInt();
-   //                 resAssetEntry.ResMeta = nativeReader.ReadBytes(nativeReader.ReadInt());
-   //                 if (nativeReader.ReadBoolean())
-   //                 {
-   //                     resAssetEntry.ExtraData = new AssetExtraData();
-   //                     resAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-   //                     resAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
-   //                     resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-   //                     resAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-   //                     resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-   //                     resAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-   //                 }
-   //                 if (ProfileManager.IsFIFA21DataVersion() || ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
-   //                 {
-   //                     if (nativeReader.ReadBoolean())
-   //                         resAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-   //                     if (nativeReader.ReadBoolean())
-   //                         resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-   //                     if (nativeReader.ReadBoolean())
-   //                         resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
-
-   //                     resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-   //                     resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-   //                     resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-   //                     resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-			//			resAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
-   //                 }
-
-   //                 int num3 = nativeReader.ReadInt();
-   //                 for (int num4 = 0; num4 < num3; num4++)
-   //                 {
-   //                     resAssetEntry.Bundles.Add(nativeReader.ReadInt());
-   //                 }
-
-   //                 if (!flag || (CacheUpdate && resAssetEntry.ExtraData.CasPath.Contains("native_data", StringComparison.OrdinalIgnoreCase)))
-   //                 {
-   //                     RES.Add(resAssetEntry.Name, resAssetEntry);
-   //                     if (resAssetEntry.ResRid != 0L)
-   //                     {
-   //                         if (!resRidList.ContainsKey(resAssetEntry.ResRid))
-   //                             resRidList.Add(resAssetEntry.ResRid, resAssetEntry);
-   //                     }
-   //                 }
-   //             }
-			//	count = nativeReader.ReadInt();
-			//	for (int num5 = 0; num5 < count; num5++)
-			//	{
-			//		ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-			//		if (!flag)
-			//		{
-			//			if (Chunks.ContainsKey(chunkAssetEntry.Id))
-			//			{
-			//				//chunkList.Remove(chunkAssetEntry.Id);
-			//				Chunks.TryRemove(chunkAssetEntry.Id, out _);
-			//			}
-			//			//chunkList.Add(chunkAssetEntry.Id, chunkAssetEntry);
-			//			Chunks.TryAdd(chunkAssetEntry.Id, chunkAssetEntry);
-			//			var entryAfter = Chunks[chunkAssetEntry.Id];
-			//			//if(chunkAssetEntry.Id.ToString() == "3e0a186b-c286-1dff-455b-7eb097c3e8f9")
-			//			//                  {
-
-			//			//                  }
-
-			//			if (chunkAssetEntry.Id.ToString() == "dbb8c69e-38fa-eeff-3dd5-cebb88ca6df9")
-			//			{
-
-			//			}
-
-			//			//{7ba5f499-d244-0c9b-cadd-1a351fec88cb}
-			//			if (chunkAssetEntry.Id.ToString() == "7ba5f499-d244-0c9b-cadd-1a351fec88cb")
-			//			{
-
-			//			}
-
-			//			if (chunkAssetEntry.Id.ToString() == "2912b9ae-d22c-ac5a-9ff8-f81cf792c23d")
-			//			{
-
-			//			}
-			//		}
-			//	}
-
-			//	//var ChunkListDupCount = nativeReader.ReadInt();
-			//	//for (int cnklistindex = 0; cnklistindex < ChunkListDupCount; cnklistindex++)
-			//	//{
-			//	//	var chunkDupGuid = nativeReader.ReadGuid();
-			//	//	var chunkDupCount = nativeReader.ReadInt();
-
-			//	//	var lstOfChunks = new List<ChunkAssetEntry>();
-			//	//	for (var chunkDupValueIndex = 0; chunkDupValueIndex < chunkDupCount; chunkDupValueIndex++)
-			//	//	{
-			//	//		lstOfChunks.Add(ReadChunkFromCache(nativeReader));
-			//	//	}
-			//	//	ChunkListDuplicates.Add(chunkDupGuid, lstOfChunks);
-
-			//	//}
-			//}
-
-			//AssetManager.Instance = this;
-			//return !flag;
-		}
-
-		//private ChunkAssetEntry ReadChunkFromCache(NativeReader nativeReader)
-		//{
-		//	ChunkAssetEntry chunkAssetEntry = JsonConvert.DeserializeObject<ChunkAssetEntry>(nativeReader.ReadLengthPrefixedString());
-		//	ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
-		//	chunkAssetEntry.Id = nativeReader.ReadGuid();
-		//	chunkAssetEntry.Sha1 = nativeReader.ReadSha1();
-		//	chunkAssetEntry.BaseSha1 = rm.GetBaseSha1(chunkAssetEntry.Sha1);
-		//	chunkAssetEntry.Size = nativeReader.ReadLong();
-		//	chunkAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-		//	chunkAssetEntry.IsInline = nativeReader.ReadBoolean();
-		//	chunkAssetEntry.BundledSize = nativeReader.ReadUInt();
-		//	chunkAssetEntry.RangeStart = nativeReader.ReadUInt();
-		//	chunkAssetEntry.RangeEnd = nativeReader.ReadUInt();
-		//	chunkAssetEntry.LogicalOffset = nativeReader.ReadUInt();
-		//	chunkAssetEntry.LogicalSize = nativeReader.ReadUInt();
-		//	chunkAssetEntry.H32 = nativeReader.ReadInt();
-		//	chunkAssetEntry.FirstMip = nativeReader.ReadInt();
-		//	if (nativeReader.ReadBoolean())
-		//	{
-		//		chunkAssetEntry.ExtraData = new AssetExtraData();
-		//		chunkAssetEntry.ExtraData.BaseSha1 = nativeReader.ReadSha1();
-		//		chunkAssetEntry.ExtraData.DeltaSha1 = nativeReader.ReadSha1();
-		//		chunkAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-		//		chunkAssetEntry.ExtraData.SuperBundleId = nativeReader.ReadInt();
-		//		chunkAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-		//		chunkAssetEntry.ExtraData.CasPath = nativeReader.ReadLengthPrefixedString();
-		//	}
-
-		//	if (ProfileManager.IsFIFA21DataVersion())
-		//	{
-		//		if (nativeReader.ReadBoolean())
-		//			chunkAssetEntry.SBFileLocation = nativeReader.ReadLengthPrefixedString();
-		//		if (nativeReader.ReadBoolean())
-		//			chunkAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-		//		if (nativeReader.ReadBoolean())
-		//			chunkAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
-
-
-		//		chunkAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-		//		chunkAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-		//		chunkAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-		//		chunkAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-		//		chunkAssetEntry.SB_LogicalOffset_Position = nativeReader.ReadUInt();
-		//		chunkAssetEntry.SB_LogicalSize_Position = nativeReader.ReadUInt();
-
-		//		chunkAssetEntry.DuplicatedFromName = nativeReader.ReadLengthPrefixedString();
-
-		//	}
-
-
-		//	int chunkBundleCount = nativeReader.ReadInt();
-		//	for (int chunkIndez = 0; chunkIndez < chunkBundleCount; chunkIndez++)
-		//	{
-		//		chunkAssetEntry.Bundles.Add(nativeReader.ReadInt());
-		//	}
-
-		//	return chunkAssetEntry;
-		//}
-
-
-
-		private void CacheWrite()
+		public void CacheWrite()
         {
-            if (!string.IsNullOrEmpty(ProfileManager.CacheWriter))
-            {
-                ((ICacheWriter)LoadTypeFromPlugin(ProfileManager.CacheWriter)).Write();
-                return;
-            }
-
-            var msCache = new MemoryStream();
-            //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(fs.CacheName + ".cache", FileMode.Create)))
-            using (NativeWriter nativeWriter = new NativeWriter(msCache, leaveOpen: true))
-            {
-                nativeWriter.WriteLengthPrefixedString(ProfileManager.ProfileName);
-                nativeWriter.Write(fs.SystemIteration);
-                if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20180628)
-                {
-                    nativeWriter.Write(0);
-                }
-                else
-                {
-                    nativeWriter.Write(superBundles.Count);
-                    foreach (SuperBundleEntry superBundle in superBundles)
-                    {
-                        nativeWriter.WriteNullTerminatedString(superBundle.Name);
-                    }
-                }
-                nativeWriter.Write(Bundles.Count);
-                foreach (BundleEntry bundle in Bundles)
-                {
-                    nativeWriter.WriteNullTerminatedString(bundle.Name);
-                    nativeWriter.Write(bundle.SuperBundleId);
-                }
-                nativeWriter.Write(EBX.Values.Count);
-                foreach (EbxAssetEntry ebxEntry in EBX.Values)
-                {
-                    //var ebxJson = JsonConvert.SerializeObject(ebxEntry);
-                    //nativeWriter.WriteLengthPrefixedString(ebxJson);
-                    nativeWriter.WriteSizedString(ebxEntry.Name);
-                    nativeWriter.Write(ebxEntry.Sha1);
-                    nativeWriter.Write(ebxEntry.Size);
-                    nativeWriter.Write(ebxEntry.OriginalSize);
-                    nativeWriter.Write((int)ebxEntry.Location);
-                    nativeWriter.Write(ebxEntry.IsInline);
-                    nativeWriter.WriteLengthPrefixedString((ebxEntry.Type != null) ? ebxEntry.Type : "");
-                    nativeWriter.Write(ebxEntry.Guid.Value);
-                    nativeWriter.Write(ebxEntry.ExtraData != null);
-                    if (ebxEntry.ExtraData != null)
-                    {
-                        //nativeWriter.Write(ebxEntry.ExtraData.BaseSha1);
-                        //nativeWriter.Write(ebxEntry.ExtraData.DeltaSha1);
-                        nativeWriter.Write(ebxEntry.ExtraData.DataOffset);
-                        //nativeWriter.Write(ebxEntry.ExtraData.SuperBundleId);
-                        nativeWriter.Write(ebxEntry.ExtraData.IsPatch);
-                        nativeWriter.WriteLengthPrefixedString(ebxEntry.ExtraData.CasPath);
-                    }
-                    nativeWriter.Write(ebxEntry.Bundles.Count);
-                    foreach (int bundle2 in ebxEntry.Bundles)
-                    {
-                        nativeWriter.Write(bundle2);
-                    }
-                    //nativeWriter.Write(ebxEntry.DependentAssets.Count);
-                    //foreach (Guid item in ebxEntry.EnumerateDependencies())
-                    //{
-                    //    nativeWriter.Write(item);
-                    //}
-
-                    if (ProfileManager.IsFIFA21DataVersion())
-                    {
-                        nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.SBFileLocation));
-                        if (!string.IsNullOrEmpty(ebxEntry.SBFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(ebxEntry.SBFileLocation);
-                        nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.TOCFileLocation));
-                        if (!string.IsNullOrEmpty(ebxEntry.TOCFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(ebxEntry.TOCFileLocation);
-
-                        nativeWriter.Write(!string.IsNullOrEmpty(ebxEntry.CASFileLocation));
-                        if (!string.IsNullOrEmpty(ebxEntry.CASFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(ebxEntry.CASFileLocation);
-
-                        nativeWriter.Write(ebxEntry.SB_CAS_Offset_Position);
-                        nativeWriter.Write(ebxEntry.SB_CAS_Size_Position);
-                        nativeWriter.Write(ebxEntry.SB_Sha1_Position);
-                        nativeWriter.Write(ebxEntry.SB_OriginalSize_Position);
-
-						nativeWriter.WriteLengthPrefixedString(ebxEntry.DuplicatedFromName);
-
-					}
-
-                }
-
-                nativeWriter.Write(RES.Values.Count);
-                foreach (ResAssetEntry resEntry in RES.Values)
-                {
-                    //var resJson = JsonConvert.SerializeObject(resEntry);
-                    //nativeWriter.WriteLengthPrefixedString(resJson);
-
-                    nativeWriter.WriteLengthPrefixedString(resEntry.Name);
-                    nativeWriter.Write(resEntry.Sha1);
-                    nativeWriter.Write(resEntry.Size);
-                    nativeWriter.Write(resEntry.OriginalSize);
-                    nativeWriter.Write((int)resEntry.Location);
-                    nativeWriter.Write(resEntry.IsInline);
-                    nativeWriter.Write(resEntry.ResRid);
-                    nativeWriter.Write(resEntry.ResType);
-                    nativeWriter.Write(resEntry.ResMeta.Length);
-                    nativeWriter.Write(resEntry.ResMeta);
-                    nativeWriter.Write(resEntry.ExtraData != null);
-                    if (resEntry.ExtraData != null)
-                    {
-                        //nativeWriter.Write(resEntry.ExtraData.BaseSha1);
-                        //nativeWriter.Write(resEntry.ExtraData.DeltaSha1);
-                        nativeWriter.Write(resEntry.ExtraData.DataOffset);
-                        //nativeWriter.Write(resEntry.ExtraData.SuperBundleId);
-                        nativeWriter.Write(resEntry.ExtraData.IsPatch);
-                        nativeWriter.WriteLengthPrefixedString(resEntry.ExtraData.CasPath);
-                    }
-                    if (ProfileManager.IsFIFA21DataVersion())
-                    {
-                        nativeWriter.Write(!string.IsNullOrEmpty(resEntry.SBFileLocation));
-                        if (!string.IsNullOrEmpty(resEntry.SBFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(resEntry.SBFileLocation);
-                        nativeWriter.Write(!string.IsNullOrEmpty(resEntry.TOCFileLocation));
-                        if (!string.IsNullOrEmpty(resEntry.TOCFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(resEntry.TOCFileLocation);
-
-                        nativeWriter.Write(!string.IsNullOrEmpty(resEntry.CASFileLocation));
-                        if (!string.IsNullOrEmpty(resEntry.CASFileLocation))
-                            nativeWriter.WriteLengthPrefixedString(resEntry.CASFileLocation);
-
-                        nativeWriter.Write(resEntry.SB_CAS_Offset_Position);
-                        nativeWriter.Write(resEntry.SB_CAS_Size_Position);
-                        nativeWriter.Write(resEntry.SB_Sha1_Position);
-                        nativeWriter.Write(resEntry.SB_OriginalSize_Position);
-
-						nativeWriter.WriteLengthPrefixedString(resEntry.DuplicatedFromName);
-
-					}
-					//if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game))
-     //               {
-     //                   nativeWriter.Write(resEntry.ParentBundleOffset);
-     //                   nativeWriter.Write(resEntry.ParentBundleSize);
-     //               }
-
-                    nativeWriter.Write(resEntry.Bundles.Count);
-                    foreach (int bundle3 in resEntry.Bundles)
-                    {
-                        nativeWriter.Write(bundle3);
-                    }
-                }
-                nativeWriter.Write(Chunks.Count);
-                foreach (ChunkAssetEntry chunkEntry in Chunks.Values)
-                {
-                    WriteChunkToCache(nativeWriter, chunkEntry);
-
-                }
-                //nativeWriter.Write(ChunkListDuplicates.Count);
-                //foreach (var grp in ChunkListDuplicates)
-                //{
-                //    nativeWriter.Write(grp.Key);
-                //    nativeWriter.Write(grp.Value.Count);
-                //    foreach (var chunkEntry in grp.Value)
-                //    {
-                //        WriteChunkToCache(nativeWriter, chunkEntry);
-                //    }
-                //}
-            }
-
-            //using (NativeWriter nativeWriter = new NativeWriter(new FileStream(ApplicationDirectory + fs.CacheName + ".cache", FileMode.Create)))
-            //         {
-            //	nativeWriter.WriteBytes(msCache.ToArray());
-            //	nativeWriter.Flush();
-            //         }
-
-            CacheCompress(msCache);
-
-            msCache.Close();
-            msCache.Dispose();
-
+			CacheManager.CacheWrite();
         }
 
 		public bool DoLegacyImageImport(MemoryStream stream, LegacyFileEntry lfe)
@@ -3357,76 +2799,16 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		private static void WriteChunkToCache(NativeWriter nativeWriter, ChunkAssetEntry chunkEntry)
-        {
-            //var chunkJson = JsonConvert.SerializeObject(chunkEntry);
-            //nativeWriter.WriteLengthPrefixedString(chunkJson);
-            nativeWriter.Write(chunkEntry.Id);
-            nativeWriter.Write(chunkEntry.Sha1);
-            nativeWriter.Write(chunkEntry.Size);
-            nativeWriter.Write((int)chunkEntry.Location);
-            nativeWriter.Write(chunkEntry.IsInline);
-            nativeWriter.Write(chunkEntry.BundledSize);
-            nativeWriter.Write(chunkEntry.RangeStart);
-            nativeWriter.Write(chunkEntry.RangeEnd);
-            nativeWriter.Write(chunkEntry.LogicalOffset);
-            nativeWriter.Write(chunkEntry.LogicalSize);
-            nativeWriter.Write(chunkEntry.H32);
-            nativeWriter.Write(chunkEntry.FirstMip);
-            nativeWriter.Write(chunkEntry.ExtraData != null);
-            if (chunkEntry.ExtraData != null)
-            {
-                //nativeWriter.Write(chunkEntry.ExtraData.BaseSha1);
-                //nativeWriter.Write(chunkEntry.ExtraData.DeltaSha1);
-                nativeWriter.Write(chunkEntry.ExtraData.DataOffset);
-                //nativeWriter.Write(chunkEntry.ExtraData.SuperBundleId);
-                nativeWriter.Write(chunkEntry.ExtraData.IsPatch);
-                nativeWriter.WriteLengthPrefixedString(chunkEntry.ExtraData.CasPath);
-            }
-           
-            if (ProfileManager.IsFIFA21DataVersion())
-            {
-                nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.SBFileLocation));
-                if (!string.IsNullOrEmpty(chunkEntry.SBFileLocation))
-                    nativeWriter.WriteLengthPrefixedString(chunkEntry.SBFileLocation);
-
-                nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.TOCFileLocation));
-                if (!string.IsNullOrEmpty(chunkEntry.TOCFileLocation))
-                    nativeWriter.WriteLengthPrefixedString(chunkEntry.TOCFileLocation);
-
-                nativeWriter.Write(!string.IsNullOrEmpty(chunkEntry.CASFileLocation));
-                if (!string.IsNullOrEmpty(chunkEntry.CASFileLocation))
-                    nativeWriter.WriteLengthPrefixedString(chunkEntry.CASFileLocation);
-
-                nativeWriter.Write(chunkEntry.SB_CAS_Offset_Position);
-                nativeWriter.Write(chunkEntry.SB_CAS_Size_Position);
-                nativeWriter.Write(chunkEntry.SB_Sha1_Position);
-                nativeWriter.Write(chunkEntry.SB_OriginalSize_Position);
-
-                nativeWriter.Write(chunkEntry.SB_LogicalOffset_Position);
-                nativeWriter.Write(chunkEntry.SB_LogicalSize_Position);
-
-				nativeWriter.WriteLengthPrefixedString(chunkEntry.DuplicatedFromName);
-
-			}
-
-            nativeWriter.Write(chunkEntry.Bundles.Count);
-            foreach (int bundle in chunkEntry.Bundles)
-            {
-                nativeWriter.Write(bundle);
-            }
-        }
-
         private string lastLogMessage = null;
-		private void WriteToLog(string text, params object[] vars)
+		public void WriteToLog(string text, params object[] vars)
 		{
-			if (logger != null)
+			if (Logger != null)
 			{
 				if (lastLogMessage == text)
 					return;
 
 				lastLogMessage = text;
-				logger.Log(text, vars);
+				Logger.Log(text, vars);
 			}
 		}
 
@@ -3462,20 +2844,20 @@ namespace FrostySdk.Managers
 			return guid;
 		}
 
-		public void Log(string text, params object[] vars)
-		{
-			Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}] {text}");
-		}
+		//public void Log(string text, params object[] vars)
+		//{
+		//	Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}] {text}");
+		//}
 
-		public void LogWarning(string text, params object[] vars)
-		{
-            Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][WARNING] {text}");
-        }
+		//public void LogWarning(string text, params object[] vars)
+		//{
+  //          Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][WARNING] {text}");
+  //      }
 
-        public void LogError(string text, params object[] vars)
-		{
-            Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][ERROR] {text}");
-        }
+  //      public void LogError(string text, params object[] vars)
+		//{
+  //          Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][ERROR] {text}");
+  //      }
     }
 }
 #pragma warning restore SYSLIB0021 // Type or member is obsolete

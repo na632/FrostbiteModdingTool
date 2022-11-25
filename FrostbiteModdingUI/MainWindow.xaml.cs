@@ -113,13 +113,6 @@ namespace FMT
             this.Visibility = Visibility.Hidden;
         }
 
-        private void btnMadden21Editor_Click(object sender, RoutedEventArgs e)
-        {
-            App.MainEditorWindow = new Madden21Editor(this);
-            App.MainEditorWindow.Show();
-            this.Visibility = Visibility.Hidden;
-        }
-
         private void btnLauncher_Click(object sender, RoutedEventArgs e)
         {
             var lw = new LaunchWindow(this);
@@ -135,32 +128,6 @@ namespace FMT
             {
 
             }
-        }
-
-        private void btnBF4Editor_Click(object sender, RoutedEventArgs e)
-        {
-            App.MainEditorWindow = new BF4Editor(this);
-            App.MainEditorWindow.Show();
-            this.Visibility = Visibility.Hidden;
-        }
-
-        private void lstProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //if (lstProfiles.SelectedItem != null)
-            //{
-            //    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-            //    {
-            //        var t = a.GetTypes().FirstOrDefault(x => x.Name.Contains(((Profile)lstProfiles.SelectedItem).EditorScreen, StringComparison.OrdinalIgnoreCase));
-            //        if (t != null)
-            //        {
-            //            App.MainEditorWindow = (Window)Activator.CreateInstance(t, this);
-            //            App.MainEditorWindow.Show();
-            //            lstProfiles.SelectedItem = null;
-            //            this.Visibility = Visibility.Hidden;
-            //            return;
-            //        }
-            //    }
-            //}
         }
 
         private void cbLanguageSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)

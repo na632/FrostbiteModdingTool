@@ -13,7 +13,7 @@
   // Your game's file system compiler / ModData builder
   "AssetCompiler": "",
   // Your WPF Main Editor Form
-  "EditorScreen": "Madden22Editor",
+  "EditorScreen": "DefaultEditor",
   // Texture Importer (Overriding the base Importer)
   "TextureImporter": "",
   // Texture Exporter (Overriding the base Exporter)

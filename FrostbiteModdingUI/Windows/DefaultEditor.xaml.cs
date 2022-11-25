@@ -15,6 +15,7 @@ using FrostbiteSdk;
 using FrostbiteSdk.Frostbite.FileManagers;
 using FrostySdk;
 using FrostySdk.Ebx;
+using FrostySdk.Frostbite;
 using FrostySdk.Frosty.FET;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
@@ -238,7 +239,7 @@ namespace FrostbiteModdingUI.Windows
             loadingDialog.Update("Loading Game Files", "");
 
             BuildSDKAndCache buildSDKAndCacheWindow = new BuildSDKAndCache();
-            if (buildSDKAndCacheWindow.DoesCacheNeedsRebuilding())
+            if (CacheManager.DoesCacheNeedsRebuilding())
             {
                 loadingDialog.Update("", "");
                 buildSDKAndCacheWindow.ShowDialog();
@@ -998,13 +999,13 @@ namespace FrostbiteModdingUI.Windows
 
         }
 
-        public void UpdateAllBrowsers()
+        public async Task UpdateAllBrowsers()
         {
             dataBrowser.UpdateAssetListView();
             textureBrowser.UpdateAssetListView();
         }
 
-        public async void UpdateAllBrowsersFull()
+        public async Task UpdateAllBrowsersFull()
         {
             var dataBrowserData = ProjectManagement.Project.AssetManager
                                    .EnumerateEbx().OrderBy(x => x.Path).Select(x => (IAssetEntry)x).ToList();

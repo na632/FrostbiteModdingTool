@@ -112,7 +112,7 @@ namespace FIFA21Plugin
                 {
                     var percentDone = Math.Round(((double)index / AssociatedTOCFile.Bundles.Count) * 100).ToString();
                     if (AssetManager.Instance != null)
-                        AssetManager.Instance.logger.Log($"Loading data from {FileLocation} {percentDone}%");
+                        AssetManager.Instance.Logger.Log($"Loading data from {FileLocation} {percentDone}%");
                 }
 
                 DbObject dbObject = new DbObject(new Dictionary<string, object>());

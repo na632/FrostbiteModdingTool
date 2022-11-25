@@ -56,7 +56,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 foreach (CASBundle casBundle in casBundles.Where(x=>x.TotalSize > 0))
                 {
                     if(AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
-                        AssetManager.Instance.logger.Log($"{path} [{Math.Round(((double)index / casBundles.Count) * 100).ToString()}%]");
+                        AssetManager.Instance.Logger.Log($"{path} [{Math.Round(((double)index / casBundles.Count) * 100).ToString()}%]");
 
                     //AssetManager.Instance.Bundles.Add(new BundleEntry() { });
 
@@ -87,7 +87,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                         if(binaryReader.BinaryRead(0, ref binaryObject, nr_cas, false) == null)
                         {
                             if (AssetManager.Instance != null && AssociatedTOCFile != null && AssociatedTOCFile.DoLogging)
-                                AssetManager.Instance.logger.LogError("Unable to find data in " + casBundle.ToString());
+                                AssetManager.Instance.Logger.LogError("Unable to find data in " + casBundle.ToString());
                             
                             continue;
                         }
@@ -182,7 +182,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                             {
                                 foreach (DbObject item in 
                                     EbxObjectList.List
-                                    .Union(ResObjectList.List))
+                                    .Union(ResObjectList.List)
+                                    .Union(ChunkObjectList.List)
+                                    )
                                 {
                                     //EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
                                     //ebxAssetEntry = (EbxAssetEntry)AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, ebxAssetEntry);

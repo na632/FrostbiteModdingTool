@@ -145,7 +145,7 @@ namespace Madden21Plugin
 						});
 						sbIndex = parent.superBundles.Count - 1;
 					}
-					parent.logger.Log($"Loading data ({sbName})");
+					parent.Logger.Log($"Loading data ({sbName})");
 
 					parent.superBundles.Add(new SuperBundleEntry
 					{

@@ -85,7 +85,7 @@ namespace Madden23Plugin
 							sbIndex = parent.superBundles.Count - 1;
 						}
 						
-						parent.logger.Log($"Loading data ({sbName})");
+						parent.Logger.Log($"Loading data ({sbName})");
 						//string tocFile = sbName.Replace("win32", catalogInfoItem.Name);
 						//if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
 						//{
@@ -114,8 +114,9 @@ namespace Madden23Plugin
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			LoadData(parent, helper);
-			LoadPatch(parent, helper);
+            LoadPatch(parent, helper);
+
+            LoadData(parent, helper);
         }
 
         static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)

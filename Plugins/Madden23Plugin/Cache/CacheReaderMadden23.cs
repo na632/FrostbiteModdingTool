@@ -157,6 +157,7 @@ namespace Madden23Plugin.Cache
                 for (int chunkIndex = 0; chunkIndex < sbChunkCount; chunkIndex++)
                 {
                     ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+					chunkAssetEntry.IsTocChunk = true;
                     AssetManager.Instance.AddChunk(chunkAssetEntry);
                 }
             }

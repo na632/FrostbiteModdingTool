@@ -148,7 +148,7 @@ namespace FrostySdk.IO
                 }
             }).Wait(TimeSpan.FromSeconds(6)))
             {
-                AssetManager.Instance.LogError($"{entry.Name} failed to write!");
+                //AssetManager.Instance.LogError($"{entry.Name} failed to write!");
                 return null;
             }
 			return decompressedArray;

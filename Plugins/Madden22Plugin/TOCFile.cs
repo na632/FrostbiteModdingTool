@@ -222,7 +222,7 @@ namespace Madden22Plugin
 					if (MetaData.ChunkCount > 0)
 					{
 						if (DoLogging && AssetManager.Instance != null)
-							AssetManager.Instance.logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
+							AssetManager.Instance.Logger.Log($"Found {MetaData.ChunkCount} TOC Chunks");
 
 						nativeReader.Position = actualInternalPos + MetaData.ChunkFlagOffsetPosition;
 						for (int chunkIndex = 0; chunkIndex < MetaData.ChunkCount; chunkIndex++)
@@ -364,7 +364,7 @@ namespace Madden22Plugin
 			{
 
 				if (AssetManager.Instance != null && DoLogging)
-					AssetManager.Instance.logger.Log("Searching for CAS Data from " + FileLocation);
+					AssetManager.Instance.Logger.Log("Searching for CAS Data from " + FileLocation);
 
 				for (int i = 0; i < MetaData.BundleCount; i++)
 				{
@@ -442,7 +442,7 @@ namespace Madden22Plugin
 				if (CasBundles.Count > 0)
 				{
 					if (AssetManager.Instance != null && DoLogging)
-						AssetManager.Instance.logger.Log($"Found {CasBundles.Count} bundles for CasFiles");
+						AssetManager.Instance.Logger.Log($"Found {CasBundles.Count} bundles for CasFiles");
 
 					foreach (var bundle in CasBundles)
 					{

@@ -773,8 +773,7 @@ namespace FMT.Pages.Common
                                 var dialogAnswer = saveFileDialog.ShowDialog();
                                 if (dialogAnswer.HasValue && dialogAnswer.Value)
                                 {
-                                    LoadingDialog loadingDialog = new LoadingDialog("Exporting", $"Exporting {SelectedEntry.Filename} to Json");
-                                    loadingDialog.Show();
+                                    
                                     var obj = await Task.Run(() =>
                                     {
                                         return AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry).RootObject;
@@ -785,8 +784,7 @@ namespace FMT.Pages.Common
                                     });
                                     await File.WriteAllTextAsync(saveFileDialog.FileName, serialisedObj);
                                     MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
-                                    loadingDialog.Close();
-                                    loadingDialog = null;
+                                   
                                 }
                             }
                             else if (useJsonResult == MessageBoxResult.No)
