@@ -266,10 +266,14 @@ namespace FrostbiteModdingTests
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
             projectManagement.StartNewProject();
 
+            
             var ebxEntry = AssetManager.Instance.GetEbxEntry("fifa/attribulator/gameplay/groups/gp_actor/gp_actor_movement_runtime");
             Assert.IsNotNull(ebxEntry);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             var complexAsset = AssetManager.Instance.GetEbx(ebxEntry);
-
+            sw.Stop();
+            Debug.WriteLine($"{sw.Elapsed}");
         }
 
         [TestMethod]

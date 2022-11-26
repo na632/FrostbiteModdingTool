@@ -55,9 +55,13 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	
     </Content>
-    <Content Include="Pages\Common\EBX\EBXDescriptions.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    <Content Include="Models\EBX\Descriptions\FIFA\Gameplay\EBXDescriptions.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="Models\Locale\FIFA\Gameplay\AIObjective_All.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	</Content>
   </ItemGroup>
 

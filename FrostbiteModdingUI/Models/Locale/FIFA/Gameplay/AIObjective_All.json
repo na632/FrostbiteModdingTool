@@ -1,0 +1,16 @@
+﻿{
+  "Descriptions": [
+    {
+      "Properties": [
+        {
+          "PropertyName": "X",
+          "Description": "The plot on the X axis (must be above MinX and below MaxX)"
+        },
+        {
+          "PropertyName": "Y",
+          "Description": "The plot on the Y axis (must be above MinX and below MaxX)"
+        }
+      ]
+    }
+  ]
+}

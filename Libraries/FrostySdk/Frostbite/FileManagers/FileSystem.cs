@@ -685,9 +685,9 @@ namespace FrostySdk
 			{
 				dataLayoutTOC = dbReader.ReadDbObject();
 			}
-			foreach (DbObject item2 in dataLayoutTOC.GetValue<DbObject>("superBundles"))
+			foreach (DbObject dboSuperBundle in dataLayoutTOC.GetValue<DbObject>("superBundles"))
 			{
-				superBundles.Add(item2.GetValue<string>("name").ToLower());
+				superBundles.Add(dboSuperBundle.GetValue<string>("name").ToLower());
 			}
 			
 			if (patchPath != "")
