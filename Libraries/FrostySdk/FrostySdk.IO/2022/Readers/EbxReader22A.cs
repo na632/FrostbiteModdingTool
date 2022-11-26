@@ -159,16 +159,18 @@ namespace FrostySdk.IO._2022.Readers
 
             var allFields = EbxReader22B.std.Fields;
 			List<EbxField> classFields = EbxReader22B.std.ClassFields.ContainsKey(classType) ? EbxReader22B.std.ClassFields[classType] : null;
-            if (classType.SecondSize >= 1)
+            if (classType.SecondSize >= 1 && EbxReader22B.patchStd != null)
             {
                 classFields = EbxReader22B.patchStd.ClassFields[classType];
 				allFields = allFields.Union(EbxReader22B.patchStd.Fields).ToList();
             }
 
-			EbxField field;
-			var nameHashFields = classFields.Where(x => x.NameHash == nameHash);
-			field = nameHashFields.FirstOrDefault(x => (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
-
+			EbxField field = default(EbxField);
+            if (classFields != null)
+			{
+				var nameHashFields = classFields.Where(x => x.NameHash == nameHash);
+				field = nameHashFields.FirstOrDefault(x => (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
+			}
 			if (field.Equals(default(EbxField)))
                 field = allFields.FirstOrDefault(x => x.NameHash == nameHash && (x.DebugType == fieldType || (ebxfieldmeta.IsArray && x.DebugType == ebxfieldmeta.ArrayType)));
 
@@ -285,35 +287,12 @@ namespace FrostySdk.IO._2022.Readers
                     ReadClass(GetClass(classType, field.ClassRef), obj, startOffset);
                     continue;
                 }
-                //if (debugType == EbxFieldType.ResourceRef
-                //    || debugType == EbxFieldType.TypeRef
-                //    || debugType == EbxFieldType.FileRef
-                //    || debugType == EbxFieldType.BoxedValueRef
-                //    || debugType == EbxFieldType.UInt64
-                //    || debugType == EbxFieldType.Int64
-                //    || debugType == EbxFieldType.Float64)
-                //{
-                //    base.Pad(8);
-                //}
-                //else
-                //{
-                //    if (debugType == EbxFieldType.Array
-                //        || debugType == EbxFieldType.Pointer
-                //        )
-                //    {
-                //        base.Pad(4);
-                //    }
-                //}
+               
                 base.Position = property.Value.Offset + startOffset;
-				//if(debugType == EbxFieldType.Guid)
-				//{
-				//	base.Pad(16);
-				//}
+				
                 if (debugType == EbxFieldType.Array)
                 {
-     //               if (type.Name.Contains("SkeletonAsset"))
-     //                   ReadArray(obj, property.Key, classType, isReferenceAttribute);
-					//else
+    
 						ReadArray(obj, property.Key, classType, field, isReferenceAttribute);
 
                     continue;
@@ -321,15 +300,11 @@ namespace FrostySdk.IO._2022.Readers
 				object value = null;
                 try
                 {
-                    value = ReadField(classType, debugType, field.ClassRef, false);
-					//if(debugType == EbxFieldType.Guid)
-					//{
-					//	if (value.ToString().StartsWith("0000"))
-					//	{
+					value = ReadField(classType, debugType, field.ClassRef, false);
+					//value = ReadProperty(property.Key, debugType, classType.Size);
 
-					//	}
-					//}
-                    property.Key.SetValue(obj, value);
+
+					property.Key.SetValue(obj, value);
                 }
                 catch (Exception ex)
                 {
@@ -423,28 +398,29 @@ namespace FrostySdk.IO._2022.Readers
 
 		protected virtual void ReadArray(object obj, PropertyInfo property, EbxClass classType, EbxField field, bool isReference)
 		{
-			EbxClass @class = this.GetClass(classType, field.ClassRef);
-			int index = base.ReadInt32LittleEndian();
-			EbxArray ebxArray = this.arrays[index];
-			long position = base.Position;
-			base.Position = this.arraysOffset + ebxArray.Offset;
-			for (int i = 0; i < ebxArray.Count; i++)
-			{
-				EbxField field2 = this.GetField(@class, @class.FieldIndex);
-				object obj2 = this.ReadField(@class, field2.DebugType, field2.ClassRef, isReference);
-				if (property != null)
-				{
-					try
-					{
-						property.GetValue(obj).GetType().GetMethod("Add")
-							.Invoke(property.GetValue(obj), new object[1] { obj2 });
-					}
-					catch (Exception)
-					{
-					}
-				}
-			}
-			base.Position = position;
+			throw new NotImplementedException("Original 22A is not used. Or it shouldnt be!");
+			//EbxClass @class = this.GetClass(classType, field.ClassRef);
+			//int index = base.ReadInt32LittleEndian();
+			//EbxArray ebxArray = this.arrays[index];
+			//long position = base.Position;
+			//base.Position = this.arraysOffset + ebxArray.Offset;
+			//for (int i = 0; i < ebxArray.Count; i++)
+			//{
+			//	EbxField field2 = this.GetField(@class, @class.FieldIndex);
+			//	object obj2 = this.ReadField(@class, field2.DebugType, field2.ClassRef, isReference);
+			//	if (property != null)
+			//	{
+			//		try
+			//		{
+			//			property.GetValue(obj).GetType().GetMethod("Add")
+			//				.Invoke(property.GetValue(obj), new object[1] { obj2 });
+			//		}
+			//		catch (Exception)
+			//		{
+			//		}
+			//	}
+			//}
+			//base.Position = position;
 		}
 
 		protected bool IsFieldInClassAnArray(EbxClass @class, EbxField field)
@@ -454,7 +430,99 @@ namespace FrostySdk.IO._2022.Readers
 				//|| field.DebugType22 == EbxFieldType22.ArrayOfStructs;
 		}
 
-		public override PropertyInfo GetProperty(Type objType, EbxField field)
+
+        public object ReadProperty(PropertyInfo property, EbxFieldType fieldType, int classSize)
+        {
+            if (buffer == null || BaseStream == null)
+                return null;
+
+            switch (fieldType)
+            {
+                case EbxFieldType.Boolean:
+                    return base.ReadByte() > 0;
+                case EbxFieldType.Int8:
+                    return (sbyte)base.ReadByte();
+                case EbxFieldType.UInt8:
+                    return base.ReadByte();
+                case EbxFieldType.Int16:
+                    return base.ReadInt16LittleEndian();
+                case EbxFieldType.UInt16:
+                    return base.ReadUInt16LittleEndian();
+                case EbxFieldType.Int32:
+                    return base.ReadInt32LittleEndian();
+                case EbxFieldType.UInt32:
+                    return base.ReadUInt32LittleEndian();
+                case EbxFieldType.Int64:
+                    return base.ReadInt64LittleEndian();
+                case EbxFieldType.UInt64:
+                    return base.ReadUInt64LittleEndian();
+                case EbxFieldType.Float32:
+                    return base.ReadSingleLittleEndian();
+                case EbxFieldType.Float64:
+                    return base.ReadDoubleLittleEndian();
+                case EbxFieldType.Guid:
+                    return base.ReadGuid();
+                case EbxFieldType.ResourceRef:
+                    return this.ReadResourceRef();
+                case EbxFieldType.Sha1:
+                    return base.ReadSha1();
+                case EbxFieldType.String:
+                    return base.ReadSizedString(32);
+                case EbxFieldType.CString:
+                    return this.ReadCString(base.ReadUInt32LittleEndian());
+                case EbxFieldType.FileRef:
+                    return this.ReadFileRef();
+                case EbxFieldType.TypeRef:
+                    return this.ReadTypeRef();
+                case EbxFieldType.BoxedValueRef:
+                    return this.ReadBoxedValueRef();
+                case EbxFieldType.Struct:
+                    {
+                        var positionBeforeRead = base.Position;
+                        //EbxClass @class = GetClass(parentClass, fieldClassRef);
+                        //base.Pad(@class.Alignment);
+                        //object obj = CreateObject(@class);
+                        //this.ReadClass(@class, obj, base.Position);
+                        base.Position = positionBeforeRead + classSize;
+                        //return obj;
+                        return null;
+                    }
+                case EbxFieldType.Enum:
+                    return base.ReadInt32LittleEndian();
+                case EbxFieldType.Pointer:
+                    {
+                        int num = base.ReadInt32LittleEndian();
+                        if (num == 0)
+                        {
+                            return default(PointerRef);
+                        }
+                        if ((num & 1) == 1)
+                        {
+                            return new PointerRef(base.imports[num >> 1]);
+                        }
+                        long offset = base.Position - 4 + num - this.payloadPosition;
+                        int dc = this.dataContainerOffsets.IndexOf((uint)offset);
+                        if (dc == -1)
+                        {
+                            return default(PointerRef);
+                        }
+                        return new PointerRef(objects[dc]);
+                    }
+                case EbxFieldType.DbObject:
+                    throw new InvalidDataException("DbObject");
+                case EbxFieldType.Inherited:
+                    {
+                        return null;
+                    }
+                default:
+                    {
+                        throw new InvalidDataException("Unknown Field Type");
+                    }
+            }
+        }
+
+
+        public override PropertyInfo GetProperty(Type objType, EbxField field)
 		{
 			return objType.GetProperty(field.Name);
 		}

@@ -741,9 +741,9 @@ namespace FrostySdk.IO._2022.Readers
 			return base.ReadField(parentClass, fieldType, fieldClassRef, dontRefCount);
 		}
 
-		
 
-		protected override void ReadArray(object obj, PropertyInfo property, EbxClass classType, EbxField field, bool isReference)
+
+        protected override void ReadArray(object obj, PropertyInfo property, EbxClass classType, EbxField field, bool isReference)
 		{
             //EbxClass @class = this.GetClass(classType, field.ClassRef);
 
