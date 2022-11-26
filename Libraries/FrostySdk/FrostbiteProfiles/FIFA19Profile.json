@@ -30,7 +30,7 @@
   "IgnoredResTypes": [],
   "TextureImporter": null,
   "TextureExporter": null,
-  "EditorScreen": "FIFA21Editor",
+  "EditorScreen": "DefaultEditor",
   "EBXReader": "EbxReader",
   "EBXWriter": "EbxWriter",
   "CacheWriter": null,
