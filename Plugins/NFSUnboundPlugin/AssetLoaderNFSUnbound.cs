@@ -14,7 +14,6 @@ using static FrostySdk.Managers.AssetManager;
 
 namespace NFSUnboundPlugin
 {
-
 	public class AssetLoaderNFSUnbound : IAssetLoader
 	{
 		public List<DbObject> AllDbObjects = new List<DbObject>();
@@ -34,78 +33,45 @@ namespace NFSUnboundPlugin
 			}
 		}
 
-		//public class BaseBundleInfo
-		//{
-		//	public static int BundleItemIndex = 0;
-
-		//	public string Name { get; set; }
-
-		//	public long Offset { get; set; }
-
-		//	public long TOCSizePosition { get; set; }
-
-		//	public long Size { get; set; }
-
-		//	public long TocOffset { get; set; }
-
-		//	public int CasIndex { get; internal set; }
-		//	public int Unk { get; internal set; }
-
-		//	public int TocBundleIndex { get; set; }
-
-		//	public override string ToString()
-  //          {
-		//		return $"Offset:{Offset}-Size:{Size}-Index:{TocBundleIndex}";
-		//	}
-
-  //      }
-
-		public void LoadData(AssetManager parent, BinarySbDataHelper helper, string folder = "native_data/")
+		public void LoadData(AssetManager assetManager, BinarySbDataHelper helper, string folder = "native_data/")
 		{
-			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
-			{
-				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos().OrderBy(x=> x.PersistentIndex.HasValue ? x.PersistentIndex : 0))
-				{
-					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
-					{
-						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-						int sbIndex = -1;
-						if (superBundleEntry != null)
-						{
-							sbIndex = parent.superBundles.IndexOf(superBundleEntry);
-						}
-						else
-						{
-							parent.superBundles.Add(new SuperBundleEntry
-							{
-								Name = sbName
-								,
-								CatalogInfo = catalogInfoItem
-							});
-							sbIndex = parent.superBundles.Count - 1;
-						}
-						
-						parent.Logger.Log($"Loading data ({sbName})");
-						//string tocFile = sbName.Replace("win32", catalogInfoItem.Name);
-						//if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
-						//{
-						//	tocFile = sbName;
-						//}
-						string nativeTocFilePath = sbName;
-						var tocFileRAW = $"{folder}{nativeTocFilePath}.toc";
-						string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
-						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
-						{
-							//TocSbReader_Fifa23 tocSbReader = new TocSbReader_Fifa23();
-							//// TOCFile CasDataLoader automatically proceses data
-							//tocSbReader.Read(tocFileLocation, sbIndex, sbName, true, tocFileRAW);
-							using TOCFile tocFile = new TOCFile(tocFileRAW, true, true, false, sbIndex, false);
+			if (assetManager == null || assetManager.fs.SuperBundles.Count() == 0)
+				return;
 
-						}
-					}
-				}
-			}
-		}
+			int sbIndex = -1;
+
+			//foreach (Catalog catalogInfoItem in assetManager.fs.EnumerateCatalogInfos().OrderBy(x=> x.PersistentIndex.HasValue ? x.PersistentIndex : 0))
+			//{
+			//	foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
+			//	{
+			//		SuperBundleEntry superBundleEntry = assetManager.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
+			//		int sbIndex = -1;
+			//		if (superBundleEntry != null)
+			//		{
+			//			sbIndex = assetManager.superBundles.IndexOf(superBundleEntry);
+			//		}
+			//		else
+			//		{
+			//			assetManager.superBundles.Add(new SuperBundleEntry
+			//			{
+			//				Name = sbName
+			//				,
+			//				CatalogInfo = catalogInfoItem
+			//			});
+			//			sbIndex = assetManager.superBundles.Count - 1;
+			//		}
+			foreach (var sbName in assetManager.fs.SuperBundles)
+			{
+				var tocFileRAW = $"{folder}{sbName}.toc";
+				string tocFileLocation = assetManager.fs.ResolvePath(tocFileRAW);
+                if (string.IsNullOrEmpty(tocFileLocation) || !File.Exists(tocFileLocation))
+					continue;
+
+				assetManager.Logger.Log($"Loading data ({tocFileRAW})");
+				using TOCFile tocFile = new TOCFile(tocFileRAW, true, true, false, sbIndex, false);
+                sbIndex++;
+            }
+        }
 
 		public void LoadPatch(AssetManager parent, BinarySbDataHelper helper)
 		{
@@ -114,7 +80,7 @@ namespace NFSUnboundPlugin
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			LoadPatch(parent, helper);
+			//LoadPatch(parent, helper);
 			LoadData(parent, helper);
         }
 
