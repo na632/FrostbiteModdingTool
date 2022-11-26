@@ -35,10 +35,16 @@ As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github
 - FIFA 20
 - FIFA 21
 - FIFA 22
-- FIFA 23
 
-### 50-75% supported
+### 99% supported
+- FIFA 23 (Hair / Hair Cap Mesh export is not working as expected)
+
+### 50% supported
 - MADDEN 21
+- MADDEN 23 (Read only)
+
+### 1% supported
+- NFS Unbound (Nothing works but it loads Data in Cache)
 
 ## Solution explanation
 - All projects use C# .NET 7 and dependant on each other (i.e. if you attempt to build FrostbiteModdingUI, it will expect the other projects to exist in your file system)
