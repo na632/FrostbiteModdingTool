@@ -135,7 +135,7 @@ namespace FIFA23Plugin
                 return true;
 
             bool result = WriteNewDataChangesToSuperBundles(entriesToNewPosition);
-            result = WriteNewDataChangesToSuperBundles(entriesToNewPosition, "native_data");
+            //result = WriteNewDataChangesToSuperBundles(entriesToNewPosition, "native_data");
             return result;
 
         }
