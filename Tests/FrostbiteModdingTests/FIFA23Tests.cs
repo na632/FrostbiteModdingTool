@@ -732,13 +732,17 @@ namespace FrostbiteModdingTests
             //var project = projectManagement.StartNewProject();
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx("SkinnedMeshAsset").Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
-            //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
-            var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("haircap_201942_0_0_mesh")).FirstOrDefault();
-            if (skinnedMeshEntry != null)
-            {
+            var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("head_201942_0_0_mesh")).FirstOrDefault();
+            //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("haircap_201942_0_0_mesh")).FirstOrDefault();
+            //var skinnedMeshEntry = AssetManager.Instance.EnumerateEbx().Where(x => x.Name.ToLower().Contains("hair_201942_0_0_mesh")).FirstOrDefault();
+            Assert.IsNotNull(skinnedMeshEntry);
+            
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
                 var skinnedMeshEbx = AssetManager.Instance.GetEbx(skinnedMeshEntry);
-                if (skinnedMeshEbx != null)
-                {
+                Assert.IsNotNull(skinnedMeshEbx);
+
                     var resentry = AssetManager.Instance.GetResEntry(skinnedMeshEntry.Name);
                     var res = AssetManager.Instance.GetRes(resentry);
 
@@ -746,8 +750,9 @@ namespace FrostbiteModdingTests
                     MeshSet meshSet = exporter1.LoadMeshSet(skinnedMeshEntry);
 
                     exporter1.Export(AssetManager.Instance, skinnedMeshEbx.RootObject, Path.Combine(TestMeshesPath, "test.fbx"), "FBX_2012", "Meters", true, "content/character/rig/skeleton/player/skeleton_player", "fbx", meshSet);
-                }
-            }
+
+                sw.Stop();
+                Debug.WriteLine($"{sw.Elapsed}");
         }
 
         [TestMethod]
@@ -919,10 +924,10 @@ namespace FrostbiteModdingTests
             frostyModExecutor.ForceRebuildOfMods = true;
             frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
                 new System.Collections.Generic.List<string>() {
-                    //@"G:\Work\FIFA Modding\GraphicMod\FIFA 23\FIFER Licensing Mod TU4.fifamod"
+                    @"G:\Work\FIFA Modding\GraphicMod\FIFA 23\FIFER Licensing Mod V2.fifamod"
                     //@"C:\Users\paula\Downloads\eSIM AIO Mod 1.0 - TU#2.fifamod"
                     //@"C:\Users\paula\Downloads\Darwin_Nunez_23.fifamod"
-                    @"C:\Users\paula\Downloads\[FIFA23] Anthem Jackets 22-23 by panda v1.0 TU4.fifamod"
+                    //@"C:\Users\paula\Downloads\[FIFA23] Anthem Jackets 22-23 by panda v1.0 TU4.fifamod"
 
 
                 }.ToArray()).Wait();

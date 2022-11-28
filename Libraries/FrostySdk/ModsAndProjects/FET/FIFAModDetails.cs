@@ -15,25 +15,25 @@ public class FIFAModDetails : FrostbiteModDetails
 
 	//private ImageSource icon;
 
-	public string Title
-	{
-		get;
-	}
+	//public string Title
+	//{
+	//	get;
+	//}
 
-	public string Author
-	{
-		get;
-	}
+	//public string Author
+	//{
+	//	get;
+	//}
 
-	public string Version
-	{
-		get;
-	}
+	//public string Version
+	//{
+	//	get;
+	//}
 
-	public string Description
-	{
-		get;
-	}
+	//public string Description
+	//{
+	//	get;
+	//}
 
 	public string MainCategoryString
 	{
@@ -87,17 +87,17 @@ public class FIFAModDetails : FrostbiteModDetails
 		set;
 	}
 
-	public string Category
-	{
-		get
-		{
-			if (!(category != string.Empty))
-			{
-				return "Misc";
-			}
-			return category;
-		}
-	}
+	//public string Category
+	//{
+	//	get
+	//	{
+	//		if (!(category != string.Empty))
+	//		{
+	//			return "Misc";
+	//		}
+	//		return category;
+	//	}
+	//}
 
 	public string SecondCustomCategory
 	{
@@ -197,16 +197,16 @@ public class FIFAModDetails : FrostbiteModDetails
 		SecondCustomCategory = secondCustomCategory;
 	}
 
-	public void SetIcon(byte[] buffer)
-	{
-		//icon = LoadImage(buffer);
-	}
+	//public void SetIcon(byte[] buffer)
+	//{
+	//	//icon = LoadImage(buffer);
+	//}
 
-	public void AddScreenshot(byte[] buffer)
-	{
-		//ImageSource item = LoadImage(buffer);
-		//Screenshots.Add(item);
-	}
+	//public void AddScreenshot(byte[] buffer)
+	//{
+	//	//ImageSource item = LoadImage(buffer);
+	//	//Screenshots.Add(item);
+	//}
 
 	public override int GetHashCode()
 	{

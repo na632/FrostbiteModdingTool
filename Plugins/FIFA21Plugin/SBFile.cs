@@ -110,7 +110,7 @@ namespace FIFA21Plugin
 
                 if (DoLogging)
                 {
-                    var percentDone = Math.Round(((double)index / AssociatedTOCFile.Bundles.Count) * 100).ToString();
+                    var percentDone = Math.Round(((double)index / AssociatedTOCFile.Bundles.Count()) * 100).ToString();
                     if (AssetManager.Instance != null)
                         AssetManager.Instance.Logger.Log($"Loading data from {FileLocation} {percentDone}%");
                 }

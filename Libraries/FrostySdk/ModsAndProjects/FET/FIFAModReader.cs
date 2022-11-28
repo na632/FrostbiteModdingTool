@@ -99,7 +99,7 @@ namespace FrostySdk
 			}
 		}
 
-		private class ChunkResource : BaseModResource
+		private new class ChunkResource : BaseModResource
 		{
 			private uint rangeStart;
 

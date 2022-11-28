@@ -25,6 +25,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
         public int TocBundleIndex { get; set; }
 
+        public int BundleReference { get; set; }
+
         public override string ToString()
         {
             return $"Offset:{Offset}-Size:{Size}-Index:{TocBundleIndex}";

@@ -22,6 +22,8 @@ namespace FrostySdk.Managers
 
 		public static int PersistedIndexCount;
 
+		public int BundleReference { get; set; }
+
         public override string ToString()
         {
 			if (!string.IsNullOrEmpty(Name)) return Name;

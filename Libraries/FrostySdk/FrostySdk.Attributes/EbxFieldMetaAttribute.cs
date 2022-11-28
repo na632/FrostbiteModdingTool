@@ -1,10 +1,13 @@
 using FrostySdk.IO;
 using System;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace FrostySdk.Attributes
 {
 	[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-	public class EbxFieldMetaAttribute : Attribute
+	public partial class EbxFieldMetaAttribute : Attribute
 	{
 		public EbxFieldType Type => (EbxFieldType)((uint)(Flags >> 4) & 0x1Fu);
 
@@ -55,6 +58,7 @@ namespace FrostySdk.Attributes
 			if (baseType != "")
 			{
 				BaseType = TypeLibrary.GetType(baseType);
+				//BaseType = GetType(baseType);
 			}
 			Flags = (ushort)((uint)type << 4);
 			if (arrayType != 0)
@@ -63,5 +67,19 @@ namespace FrostySdk.Attributes
 				ArrayFlags = (ushort)((uint)arrayType << 4);
 			}
 		}
-	}
+
+        public static Type GetType(string name)
+        {
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var t = a.GetTypes().FirstOrDefault(x => x.Name == name);
+                if (t != null)
+                {
+					return t;
+                }
+            }
+
+			return null;
+        }
+    }
 }
