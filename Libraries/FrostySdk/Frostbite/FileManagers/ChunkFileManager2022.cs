@@ -196,11 +196,9 @@ namespace Frostbite.FileManagers
 
                 chunkAssetEntry.IsLegacy = true;
 
-				MemoryStream chunk = new MemoryStream();
-				var chunkStream = GetChunkStreamForEbx(ebxEntry);
-                if (chunkStream != null)
+				MemoryStream chunk = GetChunkStreamForEbx(ebxEntry) as MemoryStream;
+                if (chunk != null)
 				{
-                    chunkStream.CopyTo(chunk);
                     using (NativeReader nativeReader = new NativeReader(chunk))
 					{
 						//File.WriteAllBytes("_debug_legacy_" + ebxEntry.Name.Replace(@"/","_") + ".dat", chunk.ToArray());
@@ -524,6 +522,13 @@ namespace Frostbite.FileManagers
 				{
 					dynamic val = rootObject.Manifest;
 					chunkAssetEntry = AssetManager.Instance.GetChunkEntry(val.ChunkId);
+					if(chunkAssetEntry == null)
+					{
+						var cId = ((Guid)rootObject.ParentChunkFileCollector.External.ClassGuid).ToString();
+						var fId = ((Guid)rootObject.ParentChunkFileCollector.External.FileGuid).ToString();
+						var parentEntry = AssetManager.Instance.GetEbxEntry(Guid.Parse(fId));
+						var parentEntry2 = AssetManager.Instance.GetEbxEntry(Guid.Parse(cId));
+                    }
 				}
 			}
 		}
