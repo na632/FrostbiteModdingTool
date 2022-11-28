@@ -70,7 +70,6 @@ namespace FIFA22Plugin.Cache
                 nativeWriter.Write(AssetManager.Instance.SuperBundleChunks.Count);
                 foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.SuperBundleChunks.Values)
                 {
-                    nativeWriter.WriteLengthPrefixedString(chunkEntry.Bundle);
                     WriteChunkEntry(nativeWriter, chunkEntry);
                 }
 

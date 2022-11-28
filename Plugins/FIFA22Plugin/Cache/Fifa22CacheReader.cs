@@ -147,13 +147,13 @@ namespace FIFA22Plugin.Cache
 
                 // ------------------------------------------------------------------------
                 // Chunks in Bundles
-                //count = nativeReader.ReadInt();
-                //for (int num5 = 0; num5 < count; num5++)
-                //{
-                //	var bundle = nativeReader.ReadLengthPrefixedString();
-                //	ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
-                //	AssetManager.Instance.BundleChunks.TryAdd((chunkAssetEntry.Bundle, chunkAssetEntry.Id), chunkAssetEntry);
-                //}
+                var sbChunkCount = nativeReader.ReadInt();
+                for (int chunkIndex = 0; chunkIndex < sbChunkCount; chunkIndex++)
+                {
+                    ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
+                    chunkAssetEntry.IsTocChunk = true;
+                    AssetManager.Instance.AddChunk(chunkAssetEntry);
+                }
             }
             return !patched;
         }
