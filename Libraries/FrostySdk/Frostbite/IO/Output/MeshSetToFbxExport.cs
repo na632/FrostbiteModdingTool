@@ -250,20 +250,23 @@ namespace FrostySdk.Frostbite.IO.Output
 						boneList.Add(num);
 					}
 				}
-				if (ProfileManager.DataVersion == 20160927
-					|| ProfileManager.DataVersion == 20170929
-					|| ProfileManager.DataVersion == 20180807
-					|| ProfileManager.DataVersion == 20180914
-					|| ProfileManager.DataVersion == 20180628
-					|| ProfileManager.IsFIFA20DataVersion()
-					|| ProfileManager.IsFIFA21DataVersion()
-					|| ProfileManager.IsFIFA22DataVersion()
-					)
+
+				// Find Out Why? : For some reason, the bone indexes require repacking?
+				//if (ProfileManager.DataVersion == 20160927
+				//	|| ProfileManager.DataVersion == 20170929
+				//	|| ProfileManager.DataVersion == 20180807
+				//	|| ProfileManager.DataVersion == 20180914
+				//	|| ProfileManager.DataVersion == 20180628
+				//	|| ProfileManager.IsFIFA20DataVersion()
+				//	|| ProfileManager.IsFIFA21DataVersion()
+				//	|| ProfileManager.IsFIFA22DataVersion()
+				//	|| ProfileManager.IsFIFA23DataVersion()
+    //                )
 				{
 					boneList.Clear();
-					for (ushort num2 = 0; num2 < boneNodes.Count; num2 = (ushort)(num2 + 1))
+					for (ushort boneIndex = 0; boneIndex < boneNodes.Count; boneIndex = (ushort)(boneIndex + 1))
 					{
-						boneList.Add(num2);
+						boneList.Add(boneIndex);
 					}
 				}
 				FBXCreateSkin(scene, section, fbxNode2, boneNodes, boneList, lod.Type, reader);
@@ -416,13 +419,13 @@ namespace FrostySdk.Frostbite.IO.Output
 					{
 						int indIndex = boneIndicy[l];
 						// This is a hack, just for hair caps in FIFA 23
-						if (boneList.Count - 1 < indIndex)
-						{
-							// This is a hack
-							//boneWeight[0] = 1f;
-							//boneWeight[l] = 0f;
-							continue;
-						}
+						//if (boneList.Count - 1 < indIndex)
+						//{
+						//	// This is a hack
+						//	//boneWeight[0] = 1f;
+						//	//boneWeight[l] = 0f;
+						//	continue;
+						//}
 						indIndex = boneList[indIndex];
 						if (((uint)indIndex & 0x8000u) != 0)
 						{
@@ -834,7 +837,7 @@ namespace FrostySdk.Frostbite.IO.Output
 		public MeshSet LoadMeshSet(AssetManager assetManager, string resName)
 		{
 			//MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(((dynamic)rootObject).Name)));
-			MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(resName)));
+			MeshSet meshSet = new MeshSet(assetManager.GetRes(assetManager.GetResEntry(resName)), ProfileManager.Game, assetManager.GetResEntry(resName));
 			return meshSet;
 		}
 
