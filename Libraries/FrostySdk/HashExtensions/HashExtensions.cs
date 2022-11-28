@@ -11,7 +11,8 @@ namespace Frosty.Hash
     {
         public static int HashString(string s)
         {
-            return (int)HashDepot.Fnv1.Hash32(Encoding.UTF8.GetBytes(s));
+            //return (int)HashDepot.Fnv1.Hash32(Encoding.UTF8.GetBytes(s));
+            return (int)HashDepot.Fnv1a.Hash32(Encoding.UTF8.GetBytes(s));
         }
     }
 
