@@ -19,4 +19,48 @@ namespace FrostySdk.Resources
         IsMeshFront = 0x10000000u,
         IsDataAvailable = 0x20000000u
     }
+
+    [Flags]
+    public enum MeshSetLayoutFlags : ulong
+    {
+        StreamingEnable = 1uL,
+        HalfResRenderEnable = 2uL,
+        StreamInstancingEnable = 4uL,
+        MovableParts = 8uL,
+        DrawProcessEnable = 0x10uL,
+        StreamingEnableAlways = 0x20uL,
+        DeformationEnable = 0x40uL,
+        UseLastLodForShadow = 0x100uL,
+        CastShadowLowEnable = 0x200uL,
+        CastShadowMediumEnable = 0x400uL,
+        CastShadowHighEnable = 0x800uL,
+        CastShadowUltraEnable = 0x1000uL,
+        CastDynamicReflectionLowEnable = 0x2000uL,
+        CastDynamicReflectionMediumEnable = 0x4000uL,
+        CastDynamicReflectionHighEnable = 0x8000uL,
+        CastDynamicReflectionUltraEnable = 0x10000uL,
+        CastPlanarReflectionLowEnable = 0x20000uL,
+        CastPlanarReflectionMediumEnable = 0x40000uL,
+        CastPlanarReflectionHighEnable = 0x80000uL,
+        CastPlanarReflectionUltraEnable = 0x100000uL,
+        CastStaticReflectionLowEnable = 0x200000uL,
+        CastStaticReflectionMediumEnable = 0x400000uL,
+        CastStaticReflectionHighEnable = 0x800000uL,
+        CastStaticReflectionUltraEnable = 0x1000000uL,
+        SubsetSortingEnable = 0x4000000uL,
+        LodFadeEnable = 0x8000000uL,
+        ProjectedDecalsEnable = 0x10000000uL,
+        ClothEnable = 0x20000000uL,
+        ZPassEnable = 0x40000000uL,
+        CastDistantShadowCache = 0x80000000uL,
+        CastPlanarShadowLowEnable = 0x100000000uL,
+        CastPlanarShadowMediumEnable = 0x200000000uL,
+        CastPlanarShadowHighEnable = 0x400000000uL,
+        CastPlanarShadowUltraEnable = 0x800000000uL,
+        CastShadowInBakedLowEnable = 0x1000000000uL,
+        CastShadowInBakedMediumEnable = 0x2000000000uL,
+        CastShadowInBakedHighEnable = 0x4000000000uL,
+        CastShadowInBakedUltraEnable = 0x8000000000uL,
+        ForwardDepthPassEnable = 0x10000000000uL
+    }
 }

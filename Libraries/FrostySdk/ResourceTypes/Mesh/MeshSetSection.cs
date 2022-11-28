@@ -164,8 +164,8 @@ namespace FrostySdk.Resources
             {
                 BoneList.Add(reader.ReadUInt16LittleEndian());
             }
-            reader.Position = namePosition;
-            Name = reader.ReadNullTerminatedString();
+            //reader.Position = namePosition;
+            Name = reader.ReadNullTerminatedString(false, offset: namePosition);
             reader.Position = position3;
         }
 

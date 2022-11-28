@@ -110,21 +110,30 @@ namespace FrostySdk.Resources
 		{
 			Type = (MeshType)reader.ReadUInt32LittleEndian();
 			maxInstances = reader.ReadUInt32LittleEndian();
-			uint num = reader.ReadUInt32LittleEndian();
-			var unk1 = reader.ReadInt64LittleEndian();
-			for (uint num3 = 0u; num3 < num; num3++)
+			uint sectionCount = reader.ReadUInt32LittleEndian();
+			var sectionOffset = reader.ReadInt64LittleEndian();
+            long categoryOffset = reader.Position;
+            reader.Position = sectionOffset;
+            for (uint sectionIndex = 0u; sectionIndex < sectionCount; sectionIndex++)
 			{
-				Sections.Add(null);
+				Sections.Add(new MeshSetSection(reader, (int)sectionIndex));
 			}
+			reader.Position = categoryOffset;
 			for (int i = 0; i < MaxCategories; i++)
 			{
-				int num4 = reader.ReadInt32LittleEndian();
-				reader.ReadInt64LittleEndian();
-				CategorySubsetIndices.Add(new List<byte>());
-				for (int j = 0; j < num4; j++)
+				int subsetCategoryCount = reader.ReadInt32LittleEndian();
+				var subsetCategoryOffset = reader.ReadInt64LittleEndian();
+
+                var currentPosition = reader.Position;
+                reader.Position = subsetCategoryOffset;
+
+                CategorySubsetIndices.Add(new List<byte>());
+				for (int j = 0; j < subsetCategoryCount; j++)
 				{
-					CategorySubsetIndices[i].Add(byte.MaxValue);
+					CategorySubsetIndices[i].Add(reader.ReadByte());
 				}
+
+				reader.Position = currentPosition;
 			}
 			Flags = (EMeshLayout)reader.ReadUInt32LittleEndian();
 			indexBufferFormat.format = reader.ReadInt32LittleEndian();
@@ -150,15 +159,15 @@ namespace FrostySdk.Resources
 			long posFullname = reader.ReadInt64LittleEndian();
 			long posShortname = reader.ReadInt64LittleEndian();
 			nameHash = reader.ReadUInt32LittleEndian();
-			uint num5 = 0u;
-			long num6 = 0L;
+			uint boneCount = 0u;
+			long boneOffset = 0L;
 			long num7 = 0L;
 			long num8 = 0L;
             UnknownLongAfterNameHash = reader.ReadInt64LittleEndian();
 			if (Type == MeshType.MeshType_Skinned)
 			{
-				num5 = reader.ReadUInt32LittleEndian();
-				num6 = reader.ReadInt64LittleEndian();
+				boneCount = reader.ReadUInt32LittleEndian();
+				boneOffset = reader.ReadInt64LittleEndian();
 			}
 			else if (Type == MeshType.MeshType_Composite)
 			{
@@ -168,15 +177,15 @@ namespace FrostySdk.Resources
 			long position4 = reader.Position;
 			if (Type == MeshType.MeshType_Skinned)
 			{
-				reader.Position = num6;
-				for (int k = 0; k < num5; k++)
+				reader.Position = boneOffset;
+				for (int k = 0; k < boneCount; k++)
 				{
 					BoneIndexArray.Add(reader.ReadUInt32LittleEndian());
 				}
 				if (num7 != 0L)
 				{
 					reader.Position = num7;
-					for (int l = 0; l < num5; l++)
+					for (int l = 0; l < boneCount; l++)
 					{
 						BoneShortNameArray.Add(reader.ReadUInt32LittleEndian());
 					}
@@ -184,10 +193,10 @@ namespace FrostySdk.Resources
 			}
 			else if (Type == MeshType.MeshType_Composite)
 			{
-				if (num6 != 0L)
+				if (boneOffset != 0L)
 				{
-					reader.Position = num6;
-					for (int m = 0; m < num5; m++)
+					reader.Position = boneOffset;
+					for (int m = 0; m < boneCount; m++)
 					{
 						partBoundingBoxes.Add(reader.ReadAxisAlignedBox());
 					}
@@ -195,7 +204,7 @@ namespace FrostySdk.Resources
 				if (num7 != 0L)
 				{
 					reader.Position = num7;
-					for (int n = 0; n < num5; n++)
+					for (int n = 0; n < boneCount; n++)
 					{
 						partTransforms.Add(reader.ReadLinearTransform());
 					}

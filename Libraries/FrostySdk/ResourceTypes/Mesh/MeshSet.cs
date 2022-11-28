@@ -5,34 +5,34 @@ using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static FrostySdk.ProfileManager;
 
 public class MeshSet
 {
-	private TangentSpaceCompressionType tangentSpaceCompressionType;
+	private TangentSpaceCompressionType tangentSpaceCompressionType { get; set; }
 
-	private AxisAlignedBox boundingBox;
+    private AxisAlignedBox boundingBox { get; set; }
 
-	private string fullName;
+    private string fullName { get; set; }
 
-	private uint nameHash { get; set; }
+    private uint nameHash { get; set; }
 
-	private readonly uint headerSize;
+	private uint headerSize { get; set; }
 
-	private readonly List<uint> unknownUInts = new List<uint>();
+    private List<uint> unknownUInts = new List<uint>();
 
 	//private readonly ushort? unknownUShort;
 
-	private readonly List<ushort> unknownUShorts = new List<ushort>();
+	private List<ushort> unknownUShorts = new List<ushort>();
 
-	private readonly List<long> unknownOffsets = new List<long>();
+	private List<long> unknownOffsets = new List<long>();
 
-	private readonly List<byte[]> unknownBytes = new List<byte[]>();
+	private List<byte[]> unknownBytes = new List<byte[]>();
 
-	private readonly ushort boneCount;
+	private ushort boneCount { get; set; }
 
 	private ushort CullBoxCount { get; set; }
 
@@ -65,14 +65,16 @@ public class MeshSet
 
 	public AxisAlignedBox BoundingBox => boundingBox;
 
-	public List<MeshSetLod> Lods { get; } = new List<MeshSetLod>();
+	public List<MeshSetLod> Lods { get; private set; } = new List<MeshSetLod>();
 
 
-	public MeshType Type { get; set; }
+	public MeshType Type { get; private set; }
 
-	public EMeshLayout MeshLayout { get; }
+    //public EMeshLayout MeshLayout { get; }
 
-	public string FullName
+    public MeshSetLayoutFlags MeshSetLayoutFlags { get; private set; }
+
+    public string FullName
 	{
 		get
 		{
@@ -94,7 +96,7 @@ public class MeshSet
 
 	public int MaxLodCount => (int)MeshLimits.MaxMeshLodCount;
 
-	public byte[] Meta { get; } = new byte[16];
+	public byte[] Meta { get; private set; } = new byte[16];
 
 	public ushort MeshCount { get; set; }
 
@@ -115,106 +117,128 @@ public class MeshSet
 
     public List<ushort> LodFade { get; } = new List<ushort>();
 
-    public MeshSet(Stream stream, ProfileManager.EGame gameVersion = EGame.UNSET)
+	public MeshSet(ResAssetEntry entry, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET)
 	{
-		if (stream == null)
-			return;
+		Read(AssetManager.Instance.GetRes(entry), gameVersion, entry);
+    }
 
-		if (gameVersion == ProfileManager.EGame.UNSET)
-			gameVersion = (ProfileManager.EGame)ProfileManager.LoadedProfile.DataVersion;
+    public MeshSet(Stream stream, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET, ResAssetEntry entry = null)
+	{
+		Read(stream, gameVersion, entry);
+
+    }
+
+	private void Read(Stream stream, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET, ResAssetEntry entry = null)
+	{
+        if (stream == null)
+            return;
+
+		if (entry != null)
+			Meta = entry.ResMeta;
+
+        if (gameVersion == ProfileManager.EGame.UNSET)
+            gameVersion = (ProfileManager.EGame)ProfileManager.LoadedProfile.DataVersion;
 
 #if DEBUG
-		NativeWriter nativeWriterTest = new NativeWriter(new FileStream("_MeshSet.dat", FileMode.Create));
-		nativeWriterTest.Write(((MemoryStream)stream).ToArray());
-		nativeWriterTest.Close();
+        NativeWriter nativeWriterTest = new NativeWriter(new FileStream("_MeshSet.dat", FileMode.Create));
+        nativeWriterTest.Write(((MemoryStream)stream).ToArray());
+        nativeWriterTest.Close();
 		nativeWriterTest.Dispose();
+
 #endif
 
-		FileReader nativeReader = new FileReader(stream);
-		// useful for resetting when live debugging
-		nativeReader.Position = 0;
-		boundingBox = nativeReader.ReadAxisAlignedBox();
-		long[] array = new long[MaxLodCount];
-		for (int i2 = 0; i2 < MaxLodCount; i2++)
-		{
-			array[i2] = nativeReader.ReadLong();
-		}
+        FileReader nativeReader = new FileReader(stream);
+        // useful for resetting when live debugging
+        nativeReader.Position = 0;
+
+        boundingBox = nativeReader.ReadAxisAlignedBox();
+        long[] lodOffsets = new long[MaxLodCount];
+        for (int i2 = 0; i2 < MaxLodCount; i2++)
+        {
+            lodOffsets[i2] = nativeReader.ReadLong();
+        }
         UnknownPostLODCount = nativeReader.ReadLong();
         long offsetNameLong = nativeReader.ReadLong();
-		long offsetNameShort = nativeReader.ReadLong();
-		nameHash = nativeReader.ReadUInt();
-		Type = (MeshType)nativeReader.ReadUInt();
-		if (ProfileManager.IsFIFA23DataVersion())
-		{
-			nativeReader.Position -= 4;
-			Type = (MeshType)nativeReader.ReadByte();
+        long offsetNameShort = nativeReader.ReadLong();
+
+        //nativeReader.Position = offsetNameLong;
+        FullName = nativeReader.ReadNullTerminatedString(false, offset: offsetNameLong);
+        //nativeReader.Position = offsetNameShort;
+        Name = nativeReader.ReadNullTerminatedString(false, offset: offsetNameShort);
+
+
+        nameHash = nativeReader.ReadUInt();
+        Type = (MeshType)nativeReader.ReadUInt();
+        if (gameVersion == ProfileManager.EGame.FIFA23)
+        {
+            nativeReader.Position -= 4;
+            Type = (MeshType)nativeReader.ReadByte();
             // another type?
             FIFA23_Type2 = (MeshType)nativeReader.ReadByte();
-			// lots of zeros?
-			//FIFA23_TypeUnknownBytes = nativeReader.ReadBytes(128 - (int)nativeReader.BaseStream.Position);
-			FIFA23_TypeUnknownBytes = nativeReader.ReadBytes(18);
+            // lots of zeros?
+            FIFA23_TypeUnknownBytes = nativeReader.ReadBytes(18);
+            //FIFA23_TypeUnknownBytes = nativeReader.ReadBytes(19);
 
-			// we should be at 128 anyway?
+            // we should be at 128 anyway?
             //nativeReader.Position = 128;
-		}
+        }
         for (int n = 0; n < MaxLodCount * 2; n++)
         {
             LodFade.Add(nativeReader.ReadUInt16LittleEndian());
         }
-		MeshLayout = (EMeshLayout)nativeReader.ReadByte();
-		unknownUInts.Add(nativeReader.ReadUInt());
-        unknownUInts.Add(nativeReader.ReadUInt());
-		nativeReader.Position -= 1;
-		ShaderDrawOrder = (ShaderDrawOrder)nativeReader.ReadByte();
+        MeshSetLayoutFlags = (MeshSetLayoutFlags)nativeReader.ReadULong();
+        ShaderDrawOrder = (ShaderDrawOrder)nativeReader.ReadByte();
         ShaderDrawOrderUserSlot = (ShaderDrawOrderUserSlot)nativeReader.ReadByte();
-		ShaderDrawOrderSubOrder = (ShaderDrawOrderSubOrder)nativeReader.ReadUShort();
+        ShaderDrawOrderSubOrder = (ShaderDrawOrderSubOrder)nativeReader.ReadUShort();
 
-		ushort lodsCount = 0;
-		if (
-			IsMadden21DataVersion(gameVersion) 
-			|| IsMadden22DataVersion(gameVersion)
-			|| IsMadden23DataVersion(gameVersion)
+        ushort lodsCount = 0;
+        if (
+            ProfileManager.IsMadden21DataVersion(gameVersion)
+            || ProfileManager.IsMadden22DataVersion(gameVersion)
+            || ProfileManager.IsMadden23DataVersion(gameVersion)
             )
-		{
-			nativeReader.ReadUShort();
-			lodsCount = nativeReader.ReadUShort();
-			nativeReader.ReadUInt();
-			nativeReader.ReadUShort();
-		}
-		else
-		{
-			lodsCount = nativeReader.ReadUShort();
-			MeshCount = nativeReader.ReadUShort();
-		}
-        boneCount = 0;
-		if (IsMadden21DataVersion(gameVersion) || IsMadden22DataVersion(gameVersion) || IsMadden23DataVersion(gameVersion))
-		{
-			unknownBytes.Add(nativeReader.ReadBytes(8));
-		}
+        {
+            nativeReader.ReadUShort();
+            lodsCount = nativeReader.ReadUShort();
+            nativeReader.ReadUInt();
+            nativeReader.ReadUShort();
+        }
+        else
+        {
+            lodsCount = nativeReader.ReadUShort();
+            MeshCount = nativeReader.ReadUShort();
+        }
+        //boneCount = 0;
+        if (ProfileManager.IsMadden21DataVersion(gameVersion) || ProfileManager.IsMadden22DataVersion(gameVersion) || ProfileManager.IsMadden23DataVersion(gameVersion))
+        {
+            unknownBytes.Add(nativeReader.ReadBytes(8));
+        }
 
-		// useful for resetting when live debugging
-		var positionBeforeMeshTypeRead = nativeReader.Position;
+#if DEBUG
+        // useful for resetting when live debugging
+        var positionBeforeMeshTypeRead = nativeReader.Position;
         nativeReader.Position = positionBeforeMeshTypeRead;
+#endif
 
         if (Type == MeshType.MeshType_Skinned)
-		{
-            if (gameVersion == EGame.FIFA23)
+        {
+            if (gameVersion == ProfileManager.EGame.FIFA23)
             {
                 // 12 bytes of unknowness
                 FIFA23_SkinnedUnknownBytes = nativeReader.ReadBytes(12);
-			}
+            }
             boneCount = nativeReader.ReadUInt16LittleEndian();
             CullBoxCount = nativeReader.ReadUInt16LittleEndian();
-			if (CullBoxCount != 0)
-			{
-				long cullBoxBoneIndicesOffset = nativeReader.ReadInt64LittleEndian();
-				long cullBoxBoundingBoxOffset = nativeReader.ReadInt64LittleEndian();
-				long position = nativeReader.Position;
-				if (cullBoxBoneIndicesOffset != 0L)
-				{
+            if (CullBoxCount != 0)
+            {
+                long cullBoxBoneIndicesOffset = nativeReader.ReadInt64LittleEndian();
+                long cullBoxBoundingBoxOffset = nativeReader.ReadInt64LittleEndian();
+                long position = nativeReader.Position;
+                if (cullBoxBoneIndicesOffset != 0L)
+                {
                     nativeReader.Position = cullBoxBoneIndicesOffset;
-					for (int m = 0; m < CullBoxCount; m++)
-					{
+                    for (int m = 0; m < CullBoxCount; m++)
+                    {
                         boneIndices.Add(nativeReader.ReadUInt16LittleEndian());
                     }
                 }
@@ -229,105 +253,52 @@ public class MeshSet
                 nativeReader.Position = position;
             }
         }
-		else if (Type == MeshType.MeshType_Composite)
-		{
+        else if (Type == MeshType.MeshType_Composite)
+        {
             boneCount = nativeReader.ReadUShort();
-			boneCount = nativeReader.ReadUShort();
-			long num3 = nativeReader.ReadLong();
-			long num4 = nativeReader.ReadLong();
-			long position3 = nativeReader.Position;
-			if (num3 != 0L)
-			{
-				nativeReader.Position = num3;
-				for (int n2 = 0; n2 < boneCount; n2++)
-				{
-					partTransforms.Add(nativeReader.ReadLinearTransform());
-				}
-			}
-			if (num4 != 0L)
-			{
-				nativeReader.Position = num4;
-				for (int num5 = 0; num5 < boneCount; num5++)
-				{
-					partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
-				}
-			}
-			nativeReader.Position = position3;
-		}
-		nativeReader.Pad(16);
-		headerSize = (uint)nativeReader.Position;
-		for (int n = 0; n < lodsCount; n++)
-		{
-			Lods.Add(new MeshSetLod(nativeReader));
-		}
-		int sectionIndex = 0;
-		foreach (MeshSetLod lod4 in Lods)
-		{
-			for (int m = 0; m < lod4.Sections.Count; m++)
-			{
-				lod4.Sections[m] = new MeshSetSection(nativeReader, sectionIndex++);
-			}
-		}
-		nativeReader.Pad(16);
-		nativeReader.Position = offsetNameLong;
-		FullName = nativeReader.ReadNullTerminatedString();
-		nativeReader.Position = offsetNameShort;
-		Name = nativeReader.ReadNullTerminatedString();
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod3 in Lods)
-		{
-			for (int l = 0; l < lod3.CategorySubsetIndices.Count; l++)
-			{
-				for (int j2 = 0; j2 < lod3.CategorySubsetIndices[l].Count; j2++)
-				{
-					lod3.CategorySubsetIndices[l][j2] = nativeReader.ReadByte();
-				}
-			}
-		}
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod2 in Lods)
-		{
-			nativeReader.Position += lod2.AdjacencyBufferSize;
-		}
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod in Lods)
-		{
-			if (lod.Type == MeshType.MeshType_Skinned)
-			{
-				nativeReader.Position += lod.BoneCount * 4;
-			}
-			else if (lod.Type == MeshType.MeshType_Composite)
-			{
-				nativeReader.Position += lod.Sections.Count * 24;
-			}
-		}
-		if (Type == MeshType.MeshType_Skinned)
-		{
-			nativeReader.Pad(16);
-			for (int k = 0; k < boneCount; k++)
-			{
-				boneIndices.Add(nativeReader.ReadUShort());
-			}
-			nativeReader.Pad(16);
-			for (int j = 0; j < boneCount; j++)
-			{
-				boneBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
-			}
-		}
-		else if (Type == MeshType.MeshType_Composite)
-		{
-			nativeReader.Pad(16);
-			for (int i = 0; i < boneCount; i++)
-			{
-				partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
-			}
-		}
-		nativeReader.Pad(16);
-		foreach (MeshSetLod lod5 in Lods)
-		{
-			lod5.ReadInlineData(nativeReader);
-		}
-	}
+            boneCount = nativeReader.ReadUShort();
+            long num3 = nativeReader.ReadLong();
+            long num4 = nativeReader.ReadLong();
+            long position3 = nativeReader.Position;
+            if (num3 != 0L)
+            {
+                nativeReader.Position = num3;
+                for (int n2 = 0; n2 < boneCount; n2++)
+                {
+                    partTransforms.Add(nativeReader.ReadLinearTransform());
+                }
+            }
+            if (num4 != 0L)
+            {
+                nativeReader.Position = num4;
+                for (int num5 = 0; num5 < boneCount; num5++)
+                {
+                    partBoundingBoxes.Add(nativeReader.ReadAxisAlignedBox());
+                }
+            }
+            nativeReader.Position = position3;
+        }
+        nativeReader.Pad(16);
+        headerSize = (uint)nativeReader.Position;
+        for (int n = 0; n < lodsCount; n++)
+        {
+            nativeReader.Position = lodOffsets[n];
+            var mslod = new MeshSetLod(nativeReader);
+            mslod.SetParts(partTransforms, partBoundingBoxes);
+            Lods.Add(mslod);
+        }
+        uint meshSetLayoutSize = BinaryPrimitives.ReadUInt32LittleEndian(Meta);
+        uint vertexIndexSize = BinaryPrimitives.ReadUInt32LittleEndian(Meta.AsSpan(4));
+        if (meshSetLayoutSize == 0 || vertexIndexSize == 0)
+        {
+            return;
+        }
+        nativeReader.Position = meshSetLayoutSize;
+        foreach (MeshSetLod lod2 in Lods)
+        {
+            lod2.ReadInlineData(nativeReader);
+        }
+    }
 
 	private void PreProcess(MeshContainer meshContainer)
 	{
@@ -391,7 +362,7 @@ public class MeshSet
         return array;
 	}
 
-	private void Write(NativeWriter writer, MeshContainer meshContainer, EGame gameVersion = EGame.UNSET)
+	private void Write(NativeWriter writer, MeshContainer meshContainer, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET)
 	{
 		if (writer == null)
 		{
@@ -439,12 +410,13 @@ public class MeshSet
 			//LodFade.Add(nativeReader.ReadUInt16LittleEndian());
 			writer.Write((ushort)LodFade[n]);
         }
-        //MeshLayout = (EMeshLayout)nativeReader.ReadByte();
-        writer.Write((byte)MeshLayout);
-        //unknownUInts.Add(nativeReader.ReadUInt());
-		writer.Write((uint)unknownUInts[0]);
-		writer.Write((uint)unknownUInts[1]);
-		writer.Position -= 1;
+		//MeshLayout = (EMeshLayout)nativeReader.ReadByte();
+		//writer.Write((byte)MeshLayout);
+		//unknownUInts.Add(nativeReader.ReadUInt());
+		writer.Write((ulong)MeshSetLayoutFlags);
+		//writer.Write((uint)unknownUInts[0]);
+		//writer.Write((uint)unknownUInts[1]);
+		//writer.Position -= 1;
         //ShaderDrawOrder = (ShaderDrawOrder)nativeReader.ReadByte();
         writer.Write((byte)ShaderDrawOrder);
         //ShaderDrawOrderUserSlot = (ShaderDrawOrderUserSlot)nativeReader.ReadByte();
