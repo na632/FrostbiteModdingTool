@@ -365,8 +365,17 @@ namespace FrostySdk.IO._2022.Readers
                 fsDump.Dispose();
                 Position = payloadOffset;
             }
+            if (RootType.Contains("SkinnedMeshAsset", StringComparison.OrdinalIgnoreCase))
+            {
+                Position = 0;
+                var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
+                base.stream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                Position = payloadOffset;
+            }
 #endif
-		}
+        }
 
         public override EbxAsset ReadAsset(EbxAssetEntry entry = null)
         {
@@ -429,10 +438,16 @@ namespace FrostySdk.IO._2022.Readers
 						base.Position += 8L;
 					obj.SetInstanceGuid(new AssetClassGuid(inGuid, num2++));
 					long startOffset = (base.Position - 24);
-					//this.ReadClass(@class, obj, startOffset);
-					//base.Position = classPosition + @class.Size;
 					this.ReadClass(@class, obj, startOffset);
-					base.Position = classPosition + size;
+					//base.Position = classPosition + @class.Size;
+					//this.ReadClass(@class, obj, startOffset);
+					//base.Position = startOffset;
+     //               var orderedProps = ((object)obj).GetType().GetProperties()
+					//.Where(x => x.GetCustomAttribute<IsTransientAttribute>() == null && x.GetCustomAttribute<FieldIndexAttribute>() != null)
+					//.OrderBy(x => x.GetCustomAttribute<FieldIndexAttribute>().Index);
+     //               ReadClass(obj, orderedProps.ToArray());
+
+                    base.Position = classPosition + size;
                 }
 			}
 		}
@@ -539,179 +554,179 @@ namespace FrostySdk.IO._2022.Readers
 			return TypeLibrary.GetType((classType.SecondSize == 1) ? EbxReader22B.patchStd.GetGuid(classType).Value : EbxReader22B.std.GetGuid(classType).Value);
 		}
 
-		public object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
-		{
-			if (obj == null)
-			{
-				base.Position += classMeta.Size;
-				base.Pad(classMeta.Alignment);
-				return null;
-			}
-			if (objType.BaseType != typeof(object))
-			{
-				this.ReadClass(objType.BaseType.GetCustomAttribute<EbxClassMetaAttribute>(), obj, objType.BaseType, startOffset);
-			}
-			PropertyInfo[] properties = objType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
-			foreach (PropertyInfo propertyInfo in properties)
-			{
-				if (propertyInfo.GetCustomAttribute<IsTransientAttribute>() != null)
-				{
-					continue;
-				}
-				IsReferenceAttribute customAttribute = propertyInfo.GetCustomAttribute<IsReferenceAttribute>();
-				EbxFieldMetaAttribute customAttribute2 = propertyInfo.GetCustomAttribute<EbxFieldMetaAttribute>();
-				base.Position = startOffset + customAttribute2.Offset;
-				if (customAttribute2.Type == EbxFieldType.Array)
-				{
-					int index = base.ReadInt32LittleEndian();
-					long position2 = base.Position;
-					EbxArray ebxArray;
-					if (base.magic == EbxVersion.Riff)
-					{
-						long offsetPosition = base.Position - 4;
-						long offsetRelativeToPayload = offsetPosition - this.payloadPosition + index;
-						ebxArray = base.arrays.Find((EbxArray a) => a.Offset == offsetRelativeToPayload);
-						base.Position = ebxArray.Offset + this.payloadPosition;
-					}
-					else
-					{
-						ebxArray = base.arrays[index];
-						base.Position = base.arraysOffset + ebxArray.Offset;
-					}
-					propertyInfo?.GetValue(obj).GetType().GetMethod("Clear")
-						.Invoke(propertyInfo.GetValue(obj), new object[0]);
-					for (int i = 0; i < ebxArray.Count; i++)
-					{
-						object obj2 = this.ReadField(customAttribute2.ArrayType, customAttribute2.BaseType, customAttribute != null);
-						propertyInfo?.GetValue(obj).GetType().GetMethod("Add")
-							.Invoke(propertyInfo.GetValue(obj), new object[1] { obj2 });
-					}
-					base.Position = position2;
-				}
-				else
-				{
-					object value = this.ReadField(customAttribute2.Type, propertyInfo.PropertyType, customAttribute != null);
-					propertyInfo?.SetValue(obj, value);
-				}
-			}
-			long amountRead = base.Position - (startOffset + 16);
-			if (amountRead > classMeta.Size)
-			{
-			}
-			while (amountRead < classMeta.Size)
-			{
-				base.Position++;
-				amountRead = base.Position - (startOffset + 16);
-			}
-			return null;
-		}
+		//public object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
+		//{
+		//	if (obj == null)
+		//	{
+		//		base.Position += classMeta.Size;
+		//		base.Pad(classMeta.Alignment);
+		//		return null;
+		//	}
+		//	if (objType.BaseType != typeof(object))
+		//	{
+		//		this.ReadClass(objType.BaseType.GetCustomAttribute<EbxClassMetaAttribute>(), obj, objType.BaseType, startOffset);
+		//	}
+		//	PropertyInfo[] properties = objType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+		//	foreach (PropertyInfo propertyInfo in properties)
+		//	{
+		//		if (propertyInfo.GetCustomAttribute<IsTransientAttribute>() != null)
+		//		{
+		//			continue;
+		//		}
+		//		IsReferenceAttribute customAttribute = propertyInfo.GetCustomAttribute<IsReferenceAttribute>();
+		//		EbxFieldMetaAttribute customAttribute2 = propertyInfo.GetCustomAttribute<EbxFieldMetaAttribute>();
+		//		base.Position = startOffset + customAttribute2.Offset;
+		//		if (customAttribute2.Type == EbxFieldType.Array)
+		//		{
+		//			int index = base.ReadInt32LittleEndian();
+		//			long position2 = base.Position;
+		//			EbxArray ebxArray;
+		//			if (base.magic == EbxVersion.Riff)
+		//			{
+		//				long offsetPosition = base.Position - 4;
+		//				long offsetRelativeToPayload = offsetPosition - this.payloadPosition + index;
+		//				ebxArray = base.arrays.Find((EbxArray a) => a.Offset == offsetRelativeToPayload);
+		//				base.Position = ebxArray.Offset + this.payloadPosition;
+		//			}
+		//			else
+		//			{
+		//				ebxArray = base.arrays[index];
+		//				base.Position = base.arraysOffset + ebxArray.Offset;
+		//			}
+		//			propertyInfo?.GetValue(obj).GetType().GetMethod("Clear")
+		//				.Invoke(propertyInfo.GetValue(obj), new object[0]);
+		//			for (int i = 0; i < ebxArray.Count; i++)
+		//			{
+		//				object obj2 = this.ReadField(customAttribute2.ArrayType, customAttribute2.BaseType, customAttribute != null);
+		//				propertyInfo?.GetValue(obj).GetType().GetMethod("Add")
+		//					.Invoke(propertyInfo.GetValue(obj), new object[1] { obj2 });
+		//			}
+		//			base.Position = position2;
+		//		}
+		//		else
+		//		{
+		//			object value = this.ReadField(customAttribute2.Type, propertyInfo.PropertyType, customAttribute != null);
+		//			propertyInfo?.SetValue(obj, value);
+		//		}
+		//	}
+		//	long amountRead = base.Position - (startOffset + 16);
+		//	if (amountRead > classMeta.Size)
+		//	{
+		//	}
+		//	while (amountRead < classMeta.Size)
+		//	{
+		//		base.Position++;
+		//		amountRead = base.Position - (startOffset + 16);
+		//	}
+		//	return null;
+		//}
 
-		internal object ReadField(EbxFieldType type, Type baseType, bool dontRefCount = false)
-		{
-			switch (type)
-			{
-				case EbxFieldType.DbObject:
-					throw new InvalidDataException("DbObject");
-				case EbxFieldType.Struct:
-					{
-						object obj = TypeLibrary.CreateObject(baseType);
-						EbxClassMetaAttribute customAttribute = obj.GetType().GetCustomAttribute<EbxClassMetaAttribute>();
-						base.Pad(customAttribute.Alignment);
-						this.ReadClass(customAttribute, obj, obj.GetType(), base.Position);
-						return obj;
-					}
-				case EbxFieldType.Pointer:
-					{
-						int num = base.ReadInt32LittleEndian();
-						//if (base.magic == EbxVersion.Riff)
-						//{
-                            if (num == 0)
-                            {
-                                return default(PointerRef);
-                            }
-                            if (num - 1 >= 0 && num - 1 < objects.Count)
-                            {
-                                if (!dontRefCount)
-                                {
-                                    refCounts[num - 1]++;
-                                }
-                                return new PointerRef(objects[num - 1]);
-                            }
-                            long offset = base.Position - 4 + num;
-                            offset -= payloadPosition;
-                            return new PointerRef(importOffsets.Find((uint o) => o == offset));
-                        //}
-						//if (num >> 31 == 1)
-						//{
-						//	EbxImportReference ebxImportReference = base.imports[(int)((long)num & 0x7FFFFFFFL)];
-						//	if (dontRefCount && !base.dependencies.Contains(ebxImportReference.FileGuid))
-						//	{
-						//		base.dependencies.Add(ebxImportReference.FileGuid);
-						//	}
-						//	return new PointerRef(ebxImportReference);
-						//}
-						//if (num == 0)
-						//{
-						//	return default(PointerRef);
-						//}
-						//if (!dontRefCount)
-						//{
-						//	base.refCounts[num - 1]++;
-						//}
-						//return new PointerRef(base.objects[num - 1]);
-					}
-				case EbxFieldType.String:
-					return base.ReadSizedString(32);
-				case EbxFieldType.CString:
-					{
-						uint stringOffset = base.ReadUInt32LittleEndian();
-						return base.ReadCString(stringOffset);
-					}
-				case EbxFieldType.Enum:
-					return base.ReadInt32LittleEndian();
-				case EbxFieldType.FileRef:
-					return base.ReadFileRef();
-				case EbxFieldType.Boolean:
-					return base.ReadByte() > 0;
-				case EbxFieldType.Int8:
-					return (sbyte)base.ReadByte();
-				case EbxFieldType.UInt8:
-					return base.ReadByte();
-				case EbxFieldType.Int16:
-					return base.ReadInt16LittleEndian();
-				case EbxFieldType.UInt16:
-					return base.ReadUInt16LittleEndian();
-				case EbxFieldType.Int32:
-					return base.ReadInt32LittleEndian();
-				case EbxFieldType.UInt32:
-					return base.ReadUInt32LittleEndian();
-				case EbxFieldType.UInt64:
-					return base.ReadUInt64LittleEndian();
-				case EbxFieldType.Int64:
-					return base.ReadInt64LittleEndian();
-				case EbxFieldType.Float32:
-					return base.ReadSingleLittleEndian();
-				case EbxFieldType.Float64:
-					return base.ReadDoubleLittleEndian();
-				case EbxFieldType.Guid:
-					return base.ReadGuid();
-				case EbxFieldType.Sha1:
-					return base.ReadSha1();
-				case EbxFieldType.ResourceRef:
-					return base.ReadResourceRef();
-				case EbxFieldType.TypeRef:
-					return base.ReadTypeRef();
-				case EbxFieldType.BoxedValueRef:
-					return base.ReadBoxedValueRef();
-				default:
-					{
-						DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(19, 1);
-						defaultInterpolatedStringHandler.AppendLiteral("Unknown field type ");
-						defaultInterpolatedStringHandler.AppendFormatted(type);
-						throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
-					}
-			}
-		}
+		//internal object ReadField(EbxFieldType type, Type baseType, bool dontRefCount = false)
+		//{
+		//	switch (type)
+		//	{
+		//		case EbxFieldType.DbObject:
+		//			throw new InvalidDataException("DbObject");
+		//		case EbxFieldType.Struct:
+		//			{
+		//				object obj = TypeLibrary.CreateObject(baseType);
+		//				EbxClassMetaAttribute customAttribute = obj.GetType().GetCustomAttribute<EbxClassMetaAttribute>();
+		//				base.Pad(customAttribute.Alignment);
+		//				this.ReadClass(customAttribute, obj, obj.GetType(), base.Position);
+		//				return obj;
+		//			}
+		//		case EbxFieldType.Pointer:
+		//			{
+		//				int num = base.ReadInt32LittleEndian();
+		//				//if (base.magic == EbxVersion.Riff)
+		//				//{
+  //                          if (num == 0)
+  //                          {
+  //                              return default(PointerRef);
+  //                          }
+  //                          if (num - 1 >= 0 && num - 1 < objects.Count)
+  //                          {
+  //                              if (!dontRefCount)
+  //                              {
+  //                                  refCounts[num - 1]++;
+  //                              }
+  //                              return new PointerRef(objects[num - 1]);
+  //                          }
+  //                          long offset = base.Position - 4 + num;
+  //                          offset -= payloadPosition;
+  //                          return new PointerRef(importOffsets.Find((uint o) => o == offset));
+  //                      //}
+		//				//if (num >> 31 == 1)
+		//				//{
+		//				//	EbxImportReference ebxImportReference = base.imports[(int)((long)num & 0x7FFFFFFFL)];
+		//				//	if (dontRefCount && !base.dependencies.Contains(ebxImportReference.FileGuid))
+		//				//	{
+		//				//		base.dependencies.Add(ebxImportReference.FileGuid);
+		//				//	}
+		//				//	return new PointerRef(ebxImportReference);
+		//				//}
+		//				//if (num == 0)
+		//				//{
+		//				//	return default(PointerRef);
+		//				//}
+		//				//if (!dontRefCount)
+		//				//{
+		//				//	base.refCounts[num - 1]++;
+		//				//}
+		//				//return new PointerRef(base.objects[num - 1]);
+		//			}
+		//		case EbxFieldType.String:
+		//			return base.ReadSizedString(32);
+		//		case EbxFieldType.CString:
+		//			{
+		//				uint stringOffset = base.ReadUInt32LittleEndian();
+		//				return base.ReadCString(stringOffset);
+		//			}
+		//		case EbxFieldType.Enum:
+		//			return base.ReadInt32LittleEndian();
+		//		case EbxFieldType.FileRef:
+		//			return base.ReadFileRef();
+		//		case EbxFieldType.Boolean:
+		//			return base.ReadByte() > 0;
+		//		case EbxFieldType.Int8:
+		//			return (sbyte)base.ReadByte();
+		//		case EbxFieldType.UInt8:
+		//			return base.ReadByte();
+		//		case EbxFieldType.Int16:
+		//			return base.ReadInt16LittleEndian();
+		//		case EbxFieldType.UInt16:
+		//			return base.ReadUInt16LittleEndian();
+		//		case EbxFieldType.Int32:
+		//			return base.ReadInt32LittleEndian();
+		//		case EbxFieldType.UInt32:
+		//			return base.ReadUInt32LittleEndian();
+		//		case EbxFieldType.UInt64:
+		//			return base.ReadUInt64LittleEndian();
+		//		case EbxFieldType.Int64:
+		//			return base.ReadInt64LittleEndian();
+		//		case EbxFieldType.Float32:
+		//			return base.ReadSingleLittleEndian();
+		//		case EbxFieldType.Float64:
+		//			return base.ReadDoubleLittleEndian();
+		//		case EbxFieldType.Guid:
+		//			return base.ReadGuid();
+		//		case EbxFieldType.Sha1:
+		//			return base.ReadSha1();
+		//		case EbxFieldType.ResourceRef:
+		//			return base.ReadResourceRef();
+		//		case EbxFieldType.TypeRef:
+		//			return base.ReadTypeRef();
+		//		case EbxFieldType.BoxedValueRef:
+		//			return base.ReadBoxedValueRef();
+		//		default:
+		//			{
+		//				DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(19, 1);
+		//				defaultInterpolatedStringHandler.AppendLiteral("Unknown field type ");
+		//				defaultInterpolatedStringHandler.AppendFormatted(type);
+		//				throw new InvalidDataException(defaultInterpolatedStringHandler.ToStringAndClear());
+		//			}
+		//	}
+		//}
 
 		public override object ReadField(EbxClass? parentClass, EbxFieldType fieldType, ushort fieldClassRef, bool dontRefCount = false)
 		{
@@ -741,43 +756,77 @@ namespace FrostySdk.IO._2022.Readers
 			return base.ReadField(parentClass, fieldType, fieldClassRef, dontRefCount);
 		}
 
-
-
-        protected override void ReadArray(object obj, PropertyInfo property, EbxClass classType, EbxField field, bool isReference)
-		{
-            //EbxClass @class = this.GetClass(classType, field.ClassRef);
-
-            long position = base.Position;
-			int arrayOffset = base.ReadInt32LittleEndian();
-			base.Position += arrayOffset - 4;
-			base.Position -= 4L;
-			uint arrayCount = base.ReadUInt32LittleEndian();
-			for (int i = 0; i < arrayCount; i++)
+        public override object Read(Type type, long? readPosition = null, int? paddingAlignment = null)
+        {
+			switch (type.Name)
 			{
-				//if (field.DebugType == EbxFieldType.Inherited)
-				//{
-
-				//}
-				//object obj2 = this.ReadField(classType, field.DebugType, field.ClassRef, isReference);
-				object obj2 = this.ReadField(classType, field.InternalType, field.ClassRef, isReference);
-				if (property != null)
-				{
-					try
-					{
-						property.GetValue(obj).GetType().GetMethod("Add")
-							.Invoke(property.GetValue(obj), new object[1] { obj2 });
-					}
-					catch (Exception)
-					{
-					}
-				}
-				EbxFieldType debugType = field.DebugType;
-				if (debugType == EbxFieldType.Pointer || debugType == EbxFieldType.CString)
-				{
-					base.Pad(8);
-				}
+				case "ResourceRef":
+					return this.ReadResourceRef();
+				case "CString":
+					return base.ReadCString(base.ReadUInt32LittleEndian());
+				case "FileRef":
+					return this.ReadFileRef();
+				case "TypeRef":
+					return this.ReadTypeRef();
+				case "BoxedValueRef":
+					return this.ReadBoxedValueRef();
+				case "Pointer":
+				case "PointerRef":
+                    int num = base.ReadInt32LittleEndian();
+                    if (num == 0)
+                    {
+                        return default(PointerRef);
+                    }
+                    if ((num & 1) == 1)
+                    {
+                        //return new PointerRef(base.imports[num >> 1]);
+						return default(PointerRef);
+                    }
+                    long offset = base.Position - 4 + num - this.payloadPosition;
+                    int dc = this.dataContainerOffsets.IndexOf((uint)offset);
+                    if (dc == -1)
+                    {
+                        return default(PointerRef);
+                    }
+                    return new PointerRef(objects[dc]);
+                default:
+					return base.Read(type, readPosition, paddingAlignment);
 			}
-			base.Position = position;
-		}
+        }
+
+        public override object ReadArray(object obj, PropertyInfo property)
+        {
+            long position = base.Position;
+            int arrayOffset = Read<int>(); // base.ReadInt32LittleEndian();
+            base.Position += arrayOffset - 4;
+            base.Position -= 4L;
+            uint arrayCount = Read<uint>();// base.ReadUInt32LittleEndian();
+			if (arrayCount == 0)
+				return obj;
+
+            for (int i = 0; i < arrayCount; i++)
+            {
+                var genT = property.PropertyType;
+                var genArg0 = genT.GetGenericArguments()[0];
+
+                object obj2 = null;
+
+				if (genArg0.Name == "PointerRef")
+					obj2 = this.ReadField(default(EbxClass), EbxFieldType.Pointer, ushort.MaxValue, false);
+				else if (genArg0.Name == "CString")
+					obj2 = this.ReadField(default(EbxClass), EbxFieldType.CString, ushort.MaxValue, false);
+				else
+					obj2 = Read(genArg0);
+
+               
+                property.GetValue(obj).GetType().GetMethod("Add")
+                    .Invoke(property.GetValue(obj), new object[1] { obj2 });
+               
+            }
+            base.Position = position;
+			return obj;
+        }
+
+        
 	}
 }
