@@ -1,10 +1,13 @@
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace FMT.FileTools
@@ -434,34 +437,17 @@ namespace FMT.FileTools
 			return num;
 		}
 
-		public string ReadNullTerminatedString(bool reverse = false)
+		public string ReadNullTerminatedString(bool reverse = false, long? offset = null)
 		{
 			var startPosition = Position;
-#if DEBUG
-			Position = startPosition; // useful for debugging
 
+#if DEBUG
+            Position = startPosition; // useful for debugging
 #endif
 
-			//var b = new Span<byte>(new byte[1024]) ;
-			//stream.Read(b);
-			//var b2 = new ReadOnlySpan<byte>(b.ToArray());
-			//         b.Clear();
-			//b = null;
-			//         var indexOfNull = b2.IndexOf(new byte[] { 0x0 });
-			//if (indexOfNull == -1)
-			//	return null;
-
-			//var b3 = b2.Slice(0, indexOfNull);
-
-			//         var result = Encoding.UTF8.GetString(b3.ToArray());
-			//Position = startPosition + indexOfNull + 1;
-
-			//b2 = null;
-			//b3 = null;
-
-			//         return result;
-			//var startPosition = Position;
-			//var size = 0;
+			if (offset.HasValue)
+				Position = offset.Value;
+			
 			StringBuilder stringBuilder = new StringBuilder();
 			while (true)
 			{
@@ -470,18 +456,17 @@ namespace FMT.FileTools
 				{
 					break;
 				}
-				//char c = (char)ReadBytes(1).First();
-				//if (c == '\0')
-				//{
-				//    break;
-				//}
+				
 				stringBuilder.Append((char)b[0]);
 
 				if (stringBuilder.Length > 10000)
 					throw new Exception("Can't find a text in this byte array");
 			}
 
-			return !reverse ? stringBuilder.ToString() : stringBuilder.ToString().Reverse().ToString();
+			if (offset.HasValue)
+				Position = startPosition;
+
+            return !reverse ? stringBuilder.ToString() : stringBuilder.ToString().Reverse().ToString();
 		}
 
 		public string ReadSizedString(int strLen)
@@ -599,7 +584,114 @@ namespace FMT.FileTools
 			return result;
 		}
 
-		private void ReadIntoSpan(Span<byte> buffer)
+		public virtual object Read(Type type, long? readPosition = null, int? paddingAlignment = null)
+        {
+			if (readPosition.HasValue)
+				Position = readPosition.Value;
+
+
+
+            switch (type.Name)
+			{
+				case "Boolean":
+					return ReadByte() > 0;
+                case "Int8":
+                    return (sbyte)ReadByte();
+                case "UInt8":
+                    return ReadByte();
+                case "Int16":
+                    return ReadInt16LittleEndian();
+                case "UInt16":
+                    return ReadUInt16LittleEndian();
+                case "Int32":
+					return ReadInt32LittleEndian();
+                case "UInt32":
+                    return ReadUInt32LittleEndian();
+                case "Int64":
+                    return ReadInt64LittleEndian();
+                case "UInt64":
+                    return ReadUInt64LittleEndian();
+                case "Single":
+					return ReadSingleLittleEndian();
+                case "Double":
+                    return ReadDoubleLittleEndian();
+                case "Guid":
+					return ReadGuid();
+                case "Enum":
+                    return ReadInt32LittleEndian();
+                case "String":
+                    return ReadSizedString(32);
+                case "ResourceRef":
+                    throw new NotImplementedException("ResourceRef is not known to FMT.FileTools");
+                case "Sha1":
+                    throw new NotImplementedException("Sha1 is not known to FMT.FileTools");
+                case "CString":
+                    throw new NotImplementedException("CString is not known to FMT.FileTools");
+                case "FileRef":
+                    throw new NotImplementedException("FileRef is not known to FMT.FileTools");
+                case "TypeRef":
+                    throw new NotImplementedException("TypeRef is not known to FMT.FileTools");
+                case "BoxedValueRef":
+                    throw new NotImplementedException("BoxedValueRef is not known to FMT.FileTools");
+                case "Pointer":
+                case "PointerRef":
+					throw new NotImplementedException("PointerRef is not known to FMT.FileTools");
+                default: // attempt to create a class object instance
+					if (type.BaseType == typeof(Enum))
+					{
+                        return ReadInt32LittleEndian();
+                    }
+					else
+					{
+						var obj = Activator.CreateInstance(type);
+						if (paddingAlignment.HasValue)
+							Pad(paddingAlignment.Value);
+                        obj = ReadClass(obj);
+						return obj;
+					}
+            }
+        }
+
+
+        public virtual T Read<T>()
+		{
+			return (T)Read(typeof(T));
+		}
+
+        public virtual object ReadClass(object obj, PropertyInfo[] orderedProperties = null)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+
+			if (orderedProperties == null)
+			{
+				orderedProperties = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToArray();
+			}
+            foreach (var property in orderedProperties)
+            {
+                if (property.PropertyType.Name.Contains("List`"))
+                {
+                    ReadArray(obj, property);
+                    continue;
+                }
+
+				object value = Read(property.PropertyType);
+                property.SetValue(obj, value);
+                
+            }
+
+            return obj;
+        }
+
+		public virtual object ReadArray(object obj, PropertyInfo property)
+        {
+			return null;
+		}
+
+
+        private void ReadIntoSpan(Span<byte> buffer)
 		{
 			if (buffer == null)
 			{
