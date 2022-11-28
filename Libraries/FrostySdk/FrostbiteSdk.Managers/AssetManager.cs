@@ -1065,21 +1065,21 @@ namespace FrostySdk.Managers
         /// <returns></returns>
         public void AddChunk(ChunkAssetEntry entry)
         {
-            if (!Chunks.TryAdd(entry.Id, entry))
-            {
-                // If it already exists, then add bundles to the entry
-                var existingChunk = (ChunkAssetEntry)Chunks[entry.Id].Clone();
+			if (!Chunks.TryAdd(entry.Id, entry))
+			{
+				// If it already exists, then add bundles to the entry
+				var existingChunk = (ChunkAssetEntry)Chunks[entry.Id].Clone();
 
-                foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
-                    existingChunk.Bundles.Add(bundle);
+				foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
+					existingChunk.Bundles.Add(bundle);
 
-                foreach (var bundle in existingChunk.Bundles.Where(x => !entry.Bundles.Contains(x)))
-                    entry.Bundles.Add(bundle);
+				foreach (var bundle in existingChunk.Bundles.Where(x => !entry.Bundles.Contains(x)))
+					entry.Bundles.Add(bundle);
 
-                // Always overwrite if the new item is a patch version
-                if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
-                    Chunks[entry.Id] = entry;
-            }
+				// Always overwrite if the new item is a patch version
+				if (!existingChunk.ExtraData.IsPatch && entry.ExtraData.IsPatch)
+					Chunks[entry.Id] = entry;
+			}
 
 			if (entry.IsTocChunk)
 			{
@@ -1090,10 +1090,10 @@ namespace FrostySdk.Managers
 					// If it already exists, then add bundles to the entry
 					var existingChunk = (ChunkAssetEntry)SuperBundleChunks[hashedId].Clone();
 
-                    foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
-                        existingChunk.Bundles.Add(bundle);
+					foreach (var bundle in entry.Bundles.Where(x => !existingChunk.Bundles.Contains(x)))
+						existingChunk.Bundles.Add(bundle);
 
-                    foreach (var bundle in existingChunk.Bundles)
+					foreach (var bundle in existingChunk.Bundles)
 						entry.Bundles.Add(bundle);
 
 					// Always overwrite if the new item is a patch version
@@ -1826,7 +1826,7 @@ namespace FrostySdk.Managers
                 return RES[$"[{typeof(ResAssetEntry).Name}]({loweredString})"];
 
             // Search by Fnv1
-            if (EBX.ContainsKey($"{Fnv1.HashString(loweredString)}"))
+            if (RES.ContainsKey($"{Fnv1.HashString(loweredString)}"))
                 return RES[$"{Fnv1.HashString(loweredString)}"];
 
 			return null;
@@ -1834,13 +1834,14 @@ namespace FrostySdk.Managers
 
 		public ChunkAssetEntry GetChunkEntry(Guid id)
 		{
-            if (SuperBundleChunks.TryGetValue(Fnv1a.HashString(id.ToString()), out var sbChunkEntry))
-                return sbChunkEntry;
-
             if (Chunks.TryGetValue(id, out var entry))
 				return entry;
 
-			return null;
+            if (SuperBundleChunks.TryGetValue(Fnv1a.HashString(id.ToString()), out var sbChunkEntry))
+                return sbChunkEntry;
+
+
+            return null;
 		}
 
         public async ValueTask<ChunkAssetEntry> GetChunkEntryAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken))
