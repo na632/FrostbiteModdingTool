@@ -9,14 +9,11 @@ The Frostbite Modding Tool (FMT) was born out of necessity when the "Frosty Tool
 The original `code` for this tool was developed from using ILSpy to dump the badly decompiled "Frosty" `code` into a .NET Framework 4.5 library. 
 This code was then cleaned up, fixed and converted into the `FrostySdk` library. However, all the "Frosty" User Interface was unusable!
 
-FMT in its infancy was the first tool available to create some fairly simple mods for FIFA 21 and developed completely separately from (and unaware of) FIFA Editor Tool. 
+FMT in its infancy was the first tool available to create some fairly simple mods for FIFA 21 and developed completely separately from (and unaware of) FIFA Editor Tool. After about three months FIFA Editor Tool (which seems to have the original code for Frosty) surpassed this tool in almost every way and much more feature rich. 
 
-After about three months FIFA Editor Tool (which seems to have the original code for Frosty) surpassed this tool in almost every way and much more feature rich. 
-This tool is STILL used & developed for a hobby. Generally because of a few technical issues with & direction of FIFA Editor Tool (i.e. it is only developed for one mod to sell). 
+This tool is used & developed for a hobby. It is a great suite of code to learn new C# .NET features and best practices. 
 
-Moving on to recent times FIFA Editor Tool is a much more feature rich and stable modding tool for Frostbite games beyond FIFA 21 and has a much bigger backing (in both money and developer time) than this one. 
-
-This remains a hobby project and now open source for others to use/research as they wish.
+It is open source for others to use/research as they wish and happy to accept Forks & Pull Requests.
 
 It is however requested that you send a quick message if you wish to sell this commercially (Patreon or otherwise).
 
@@ -63,3 +60,9 @@ As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github
 - Open the FrostbiteModdingUI.sln using Visual Studio 2022 (Community edition is fine)
 - Right click FrostbiteModdingUI project and select "Set as Startup Project"
 - Press F5 to Debug
+
+## Obtaining Release Statistics
+- Git Bash curl -s https://api.github.com/repos/paulov-t/FrostbiteModdingTool/releases | egrep '"name"|"download_count"'
+
+## Auto releases
+- Draft releases are built and released via a separate Azure DevOps Pipeline whenever code is checked in to master
