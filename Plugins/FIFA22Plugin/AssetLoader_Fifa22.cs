@@ -34,100 +34,61 @@ namespace FIFA22Plugin
 			}
 		}
 
-		//public class BaseBundleInfo
-		//{
-		//	public static int BundleItemIndex = 0;
+        //public class BaseBundleInfo
+        //{
+        //	public static int BundleItemIndex = 0;
 
-		//	public string Name { get; set; }
+        //	public string Name { get; set; }
 
-		//	public long Offset { get; set; }
+        //	public long Offset { get; set; }
 
-		//	public long TOCSizePosition { get; set; }
+        //	public long TOCSizePosition { get; set; }
 
-		//	public long Size { get; set; }
+        //	public long Size { get; set; }
 
-		//	public long TocOffset { get; set; }
+        //	public long TocOffset { get; set; }
 
-		//	public int CasIndex { get; internal set; }
-		//	public int Unk { get; internal set; }
+        //	public int CasIndex { get; internal set; }
+        //	public int Unk { get; internal set; }
 
-		//	public int TocBundleIndex { get; set; }
+        //	public int TocBundleIndex { get; set; }
 
-		//	public override string ToString()
-  //          {
-		//		return $"Offset:{Offset}-Size:{Size}-Index:{TocBundleIndex}";
-		//	}
+        //	public override string ToString()
+        //          {
+        //		return $"Offset:{Offset}-Size:{Size}-Index:{TocBundleIndex}";
+        //	}
 
-  //      }
+        //      }
 
-		public void LoadData(AssetManager parent, BinarySbDataHelper helper, string folder = "native_data/")
-		{
-			if (AssetManager.Instance != null && FileSystem.Instance.Catalogs != null && FileSystem.Instance.Catalogs.Count() > 0)
-			{
-				var orderedCatalogs = FileSystem.Instance.EnumerateCatalogInfos().OrderBy(x => x.PersistentIndex.HasValue ? x.PersistentIndex : 0).ToList();
+        public void LoadData(AssetManager assetManager, BinarySbDataHelper helper, string folder = "native_data/")
+        {
+            if (assetManager == null || assetManager.fs.SuperBundles.Count() == 0)
+                return;
 
-                foreach (Catalog catalogInfoItem in orderedCatalogs)
-				{
-					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
-					{
-						SuperBundleEntry superBundleEntry = AssetManager.Instance.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-						int sbIndex = -1;
-						if (superBundleEntry != null)
-						{
-							sbIndex = AssetManager.Instance.superBundles.IndexOf(superBundleEntry);
-						}
-						else
-						{
-                            AssetManager.Instance.superBundles.Add(new SuperBundleEntry
-							{
-								Name = sbName
-								,
-								CatalogInfo = catalogInfoItem
-							});
-							sbIndex = parent.superBundles.Count - 1;
-						}
+            int sbIndex = -1;
 
-						parent.Logger.Log($"Loading data ({sbName})");
-						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
-						if (parent.fs.ResolvePath(folder + tocFile + ".toc") == "")
-						{
-							tocFile = sbName;
-						}
-						List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
-						List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
-						var tocFileRAW = $"{folder}{tocFile}.toc";
-						string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
-						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
-						{
-							TocSbReader_Fifa22 tocSbReader = new TocSbReader_Fifa22();
-							// TOCFile CasDataLoader automatically proceses data
-							tocSbReader.Read(tocFileLocation, sbIndex, sbName, true, tocFileRAW);
+            foreach (var sbName in assetManager.fs.SuperBundles)
+            {
+                var tocFileRAW = $"{folder}{sbName}.toc";
+                string tocFileLocation = assetManager.fs.ResolvePath(tocFileRAW);
+                if (string.IsNullOrEmpty(tocFileLocation) || !File.Exists(tocFileLocation))
+                    continue;
 
-							//var dbObjectsToProcess = tocSbReader.Read(tocFileLocation, sbIndex, new BinarySbDataHelper(parent), sbName, true, tocFileRAW);
-							//if (dbObjectsToProcess != null)
-							//{
-							//	foreach (DbObject @object in dbObjectsToProcess.Where(x => x != null))
-							//	{
-							//		parent.ProcessBundleEbx(@object, parent.bundles.Count - 1, helper);
-							//		parent.ProcessBundleRes(@object, parent.bundles.Count - 1, helper);
-							//		parent.ProcessBundleChunks(@object, parent.bundles.Count - 1, helper);
-							//	}
-							//}
-						}
-					}
-				}
-			}
-		}
+                assetManager.Logger.Log($"Loading data ({tocFileRAW})");
+                using TOCFile tocFile = new TOCFile(tocFileRAW, true, true, false, sbIndex, false);
+                sbIndex++;
+            }
+        }
 
-		public void LoadPatch(AssetManager parent, BinarySbDataHelper helper)
+        public void LoadPatch(AssetManager parent, BinarySbDataHelper helper)
 		{
 			LoadData(parent, helper, "native_patch/");
 		}
 
 		public void Load(AssetManager parent, BinarySbDataHelper helper)
 		{
-			LoadPatch(parent, helper);
-			LoadData(parent, helper);
+			LoadPatch(parent, null);
+			LoadData(parent, null);
         }
 
 		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
