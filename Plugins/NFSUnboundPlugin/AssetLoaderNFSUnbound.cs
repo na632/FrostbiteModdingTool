@@ -40,26 +40,6 @@ namespace NFSUnboundPlugin
 
 			int sbIndex = -1;
 
-			//foreach (Catalog catalogInfoItem in assetManager.fs.EnumerateCatalogInfos().OrderBy(x=> x.PersistentIndex.HasValue ? x.PersistentIndex : 0))
-			//{
-			//	foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
-			//	{
-			//		SuperBundleEntry superBundleEntry = assetManager.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-			//		int sbIndex = -1;
-			//		if (superBundleEntry != null)
-			//		{
-			//			sbIndex = assetManager.superBundles.IndexOf(superBundleEntry);
-			//		}
-			//		else
-			//		{
-			//			assetManager.superBundles.Add(new SuperBundleEntry
-			//			{
-			//				Name = sbName
-			//				,
-			//				CatalogInfo = catalogInfoItem
-			//			});
-			//			sbIndex = assetManager.superBundles.Count - 1;
-			//		}
 			foreach (var sbName in assetManager.fs.SuperBundles)
 			{
 				var tocFileRAW = $"{folder}{sbName}.toc";
