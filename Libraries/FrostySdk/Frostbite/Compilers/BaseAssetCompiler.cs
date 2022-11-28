@@ -10,10 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 using System.Threading.Tasks;
-using static FrostySdk.Frostbite.Compilers.BaseAssetCompiler;
 
 namespace FrostySdk.Frostbite.Compilers
 {
@@ -707,7 +704,7 @@ namespace FrostySdk.Frostbite.Compilers
             var editedBundles = EntriesToNewPosition.SelectMany(x => x.Key.Bundles).Distinct();
             var groupedByTOCSB = new Dictionary<string, List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>>();
             groupedByTOCSB = EntriesToNewPosition
-                .GroupBy(x => x.Key.TOCFileLocation)
+                .GroupBy(x => !string.IsNullOrEmpty(x.Key.SBFileLocation) ? x.Key.SBFileLocation : x.Key.TOCFileLocation)
                 .ToDictionary(x => x.Key, x => x.ToList());
             int sbIndex = -1;
             //foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
@@ -734,7 +731,7 @@ namespace FrostySdk.Frostbite.Compilers
             //                groupedByTOCSB.Add(nativePathToTOCFile, new List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>());
 
             //            var editedBundleEntries = EntriesToNewPosition.Where(x => x.Key.Bundles.Any(y => hashedEntries.Contains(y))).ToArray();
-            //            foreach (var item in editedBundleEntries)
+            //            foreach (var item in editedBundleEntries.Where(x => x.Key is ChunkAssetEntry))
             //                groupedByTOCSB[nativePathToTOCFile].Add(item);
             //        }
             //    }
@@ -823,21 +820,26 @@ namespace FrostySdk.Frostbite.Compilers
                                     }
                                 }
 
-                                if (assetBundle.Key is ChunkAssetEntry)
+                            if (assetBundle.Key is ChunkAssetEntry)
+                            {
+                                //var chunkB = origChunkBundles
+                                //.Where(x => x.List.Any(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name))
+                                //.SingleOrDefault()
+                                //.List.Where(x => ((DbObject)x)["id"].ToString() == assetBundle.Key.Name)
+                                //.ToArray();
+                                foreach (DbObject dbInBundle in origChunkBundles)
                                 {
-
-                                    foreach (DbObject dbInBundle in origChunkBundles)
-                                    {
-                                        origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
-                                        if (origDbo != null)
-                                            break;
-                                    }
-
+                                    origDbo = (DbObject)dbInBundle.List.SingleOrDefault(z => ((DbObject)z)["id"].ToString() == assetBundle.Key.Name);
                                     if (origDbo != null)
-                                    {
-                                        casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
-                                    }
+                                        break;
                                 }
+                                //origDbo = chunkB.SingleOrDefault() as DbObject;
+
+                                if (origDbo != null)
+                                {
+                                    casPath = origDbo.GetValue<string>("ParentCASBundleLocation");
+                                }
+                            }
 
                                 if (origDbo != null && !string.IsNullOrEmpty(casPath))
                                 {
@@ -899,9 +901,11 @@ namespace FrostySdk.Frostbite.Compilers
                     {
                         foreach (var assetEntry in abtc.Value)
                         {
-                            var assetBundle = tocGroup.Value.LastOrDefault(x => x.Key.Equals(assetEntry.Item1));
-
-                            WriteChangesToSuperBundle(assetEntry.Item2, nwCas, assetBundle);
+                            var assetBundles = tocGroup.Value.Where(x => x.Key.Equals(assetEntry.Item1));
+                            foreach (var assetBundle in assetBundles)
+                            {
+                                WriteChangesToSuperBundle(assetEntry.Item2, nwCas, assetBundle);
+                            }
                         }
                     }
                 }
