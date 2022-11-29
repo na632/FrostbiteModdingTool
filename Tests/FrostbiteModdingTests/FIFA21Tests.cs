@@ -346,7 +346,7 @@ namespace FrostbiteModdingTests
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V9\Paulv2k4 FIFA 21 Gameplay Version 9 Alpha 19.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 21\V10\Paulv2k4 FIFA 21 Gameplay Version 10 Alpha 3.fbproject");
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -480,6 +480,8 @@ namespace FrostbiteModdingTests
             var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
             var ebxFile = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("file", StringComparison.OrdinalIgnoreCase));
             var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("collector", StringComparison.OrdinalIgnoreCase));
+            var ebxFileCollect1 = AssetManager.Instance.EnumerateEbx().Where(x => x.FullPath.Contains("collector", StringComparison.OrdinalIgnoreCase));
+            var ebxFileCollect2 = AssetManager.Instance.EnumerateEbx("ChunkFileCollector");
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
         }
 

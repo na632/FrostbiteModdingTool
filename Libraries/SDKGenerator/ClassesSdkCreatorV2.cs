@@ -107,6 +107,9 @@ namespace SDKGenerator
                         EbxClass stdClass = std.Classes[k].Value;
                         Guid guid = std.Guids[k];
                         DbObject dboClass = (DbObject)classList.list.SingleOrDefault(x => ((DbObject)x).GetValue<uint>("nameHash") == stdClass.NameHash);
+                        if (dboClass == null)
+                            continue;
+
                         if (!dboClass.HasValue("typeInfoGuid"))
                         {
                             dboClass.SetValue("typeInfoGuid", DbObject.CreateList());

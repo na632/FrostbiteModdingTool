@@ -737,7 +737,7 @@ namespace FrostySdk.Managers
 
 
 		public Type EbxReaderType { get; set; }
-		public EbxReader EbxReaderInstance { get; set; }
+		//public EbxReader EbxReaderInstance { get; set; }
 
         public void UpdateEbxListItem(EbxAssetEntry ebx)
         {
@@ -753,19 +753,24 @@ namespace FrostySdk.Managers
 						
 						if (!string.IsNullOrEmpty(ProfileManager.EBXReader))
 						{
-							if (EbxReaderType == null || EbxReaderInstance == null)
+							if (EbxReaderType == null)
 							{
-                                EbxReaderInstance = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
-								EbxReaderType = EbxReaderInstance.GetType();
+        //                        EbxReaderInstance = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
+								//EbxReaderType = EbxReaderInstance.GetType();
 							}
 							ebxStream.Position = 0;
-							//EbxReaderInstance = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
-							//EbxReaderInstance.Position = 0;
-							try
+                            //EbxReaderInstance = (EbxReader)Activator.CreateInstance(EbxReaderType, ebxStream, true);
+                            //EbxReaderInstance.Position = 0;
+                            var readerInst = (EbxReader)LoadTypeByName(ProfileManager.EBXReader, ebxStream, true);
+                            try
 							{
-								EbxReaderInstance.InitialRead(ebxStream, false);
-                                EBX[ebx.Name].Type = EbxReaderInstance.RootType;
-								EBX[ebx.Name].Id = EbxReaderInstance.FileGuid;
+								//EbxReaderInstance.InitialRead(ebxStream, false);
+                                EBX[ebx.Name].Type = readerInst.RootType;
+								if(EBX[ebx.Name].Type != "NewWaveAsset")
+								{
+
+								}
+								EBX[ebx.Name].Id = readerInst.FileGuid;
 							}
 							catch (Exception)
 							{

@@ -116,18 +116,18 @@ namespace FIFA21Plugin
 
             //}
 
-            using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read)))
-            {
-                if (nativeReader.Length > 1)
-                {
-                    SBFile = new SBFile(this, TOCFile, SBIndex);
-                    SBFile.NativeFileLocation = nativeSBPath;
-                    SBFile.FileLocation = sbPath;
-                    SBFile.DoLogging = DoLogging;
-                    //SBFile.ProcessData = ProcessData;
-                    return SBFile.Read(nativeReader);
-                }
-            }
+            //using (NativeReader nativeReader = new NativeReader(new FileStream(sbPath, FileMode.Open, FileAccess.Read)))
+            //{
+            //    if (nativeReader.Length > 1)
+            //    {
+            //        SBFile = new SBFile(this, TOCFile, SBIndex);
+            //        SBFile.NativeFileLocation = nativeSBPath;
+            //        SBFile.FileLocation = sbPath;
+            //        SBFile.DoLogging = DoLogging;
+            //        //SBFile.ProcessData = ProcessData;
+            //        return SBFile.Read(nativeReader);
+            //    }
+            //}
             return null;
         }
     }

@@ -34,155 +34,42 @@ namespace FIFA21Plugin
 			}
 		}
 
-		
 
-		public void LoadData(AssetManager parent, BinarySbDataHelper helper)
-		{
-			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
-			{
-				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
-				{
-					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
-					{
-						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-						int sbIndex = -1;
-						if (superBundleEntry != null)
-						{
-							sbIndex = parent.superBundles.IndexOf(superBundleEntry);
-						}
-						else
-						{
-							parent.superBundles.Add(new SuperBundleEntry
-							{
-								Name = sbName
-								,
-								CatalogInfo = catalogInfoItem
-							});
-							sbIndex = parent.superBundles.Count - 1;
-						}
-                        // Test to fix Arsenal Kit -- CareerSBA is useless anyway
-                        if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
-                            continue;
 
-                        if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
-                            continue;
+        public void LoadData(AssetManager assetManager, BinarySbDataHelper helper, string folder = "native_data/")
+        {
+            if (assetManager == null || assetManager.fs.SuperBundles.Count() == 0)
+                return;
 
-                        //if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
-                        //    continue;
+            int sbIndex = 0;
 
-                        if (sbName.Contains("storysba", StringComparison.OrdinalIgnoreCase))
-                            continue;
+            foreach (var sbName in assetManager.fs.SuperBundles)
+            {
+                var tocFileRAW = $"{folder}{sbName}.toc";
+                string tocFileLocation = assetManager.fs.ResolvePath(tocFileRAW);
+                if (string.IsNullOrEmpty(tocFileLocation) || !File.Exists(tocFileLocation))
+                    continue;
 
-                        parent.Logger.Log($"Loading data ({sbName})");
-						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
-						if (parent.fs.ResolvePath("native_data/" + tocFile + ".toc") == "")
-						{
-							tocFile = sbName;
-						}
-						List<BaseBundleInfo> listOfBundles_Data = new List<BaseBundleInfo>();
-						List<BaseBundleInfo> listOfBundles_Patch = new List<BaseBundleInfo>();
-						var tocFileRAW = $"native_data/{tocFile}.toc";
-						string tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
-						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
-						{
-							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, sbName, true, tocFileRAW);
-							if (dbObjects != null)
-							{
-								foreach (DbObject @object in dbObjects.Where(x => x != null))
-								{
-									parent.ProcessBundleEbx(@object, parent.Bundles.Count - 1, helper);
-									parent.ProcessBundleRes(@object, parent.Bundles.Count - 1, helper);
-									parent.ProcessBundleChunks(@object, parent.Bundles.Count - 1, helper);
-								}
-							}
-						}
-						//else
-						//{
-						//	parent.logger.LogError($"Unable to find {tocFileLocation}");
-						//}
-					}
-				}
-			}
-		}
-
-		public void LoadPatch(AssetManager parent, BinarySbDataHelper helper)
-		{
-			if (parent != null && parent.fs.Catalogs != null && parent.fs.Catalogs.Count() > 0)
-			{
-				foreach (Catalog catalogInfoItem in parent.fs.EnumerateCatalogInfos())
-				{
-					foreach (string sbName in catalogInfoItem.SuperBundles.Where(x => !x.Value).Select(x => x.Key))
-					{
-						SuperBundleEntry superBundleEntry = parent.superBundles.Find((SuperBundleEntry a) => a.Name == sbName);
-						int sbIndex = -1;
-						if (superBundleEntry != null)
-						{
-							sbIndex = parent.superBundles.IndexOf(superBundleEntry);
-						}
-						else
-						{
-							parent.superBundles.Add(new SuperBundleEntry
-							{
-								Name = sbName
-								,
-								CatalogInfo = catalogInfoItem
-							});
-							sbIndex = parent.superBundles.Count - 1;
-						}
-
-                        // Test to fix Arsenal Kit -- CareerSBA is useless anyway
-                        //if (sbName.Contains("careersba", StringComparison.OrdinalIgnoreCase))
-                        //	continue;
-
-                        if (sbName.Contains("storycharsb", StringComparison.OrdinalIgnoreCase))
-                            continue;
-
-                        if (sbName.Contains("story", StringComparison.OrdinalIgnoreCase))
-                            continue;
-
-                        parent.Logger.Log($"Loading data ({sbName})");
-						string tocFile = sbName.Replace("win32", catalogInfoItem.Name).Replace("cs/", "");
-						if (parent.fs.ResolvePath("native_patch/" + tocFile + ".toc") == "")
-						{
-							tocFile = sbName;
-						}
-
-						var tocFileRAW = $"native_patch/{tocFile}.toc";
-						var tocFileLocation = parent.fs.ResolvePath(tocFileRAW);
-						if (!string.IsNullOrEmpty(tocFileLocation) && File.Exists(tocFileLocation))
-						{
-							TocSbReader_FIFA21 tocSbReader_FIFA21 = new TocSbReader_FIFA21();
-							var dbObjects = tocSbReader_FIFA21.Read(tocFileLocation, sbIndex, sbName, false, tocFileRAW);
-							if (dbObjects != null)
-							{
-
-								foreach (DbObject @object in dbObjects.Where(x => x != null))
-								{
-									parent.ProcessBundleEbx(@object, parent.Bundles.Count - 1, helper);
-									parent.ProcessBundleRes(@object, parent.Bundles.Count - 1, helper);
-									parent.ProcessBundleChunks(@object, parent.Bundles.Count - 1, helper);
-								}
-
-							}
-						}
-						else
-						{
-							parent.Logger.LogError($"Unable to find {tocFileLocation}");
-						}
-
-					}
-				}
-			}
-		}
-
-		public void Load(AssetManager parent, BinarySbDataHelper helper)
-		{
-			LoadPatch(parent, helper);
-			LoadData(parent, helper);
+                assetManager.Logger.Log($"Loading data ({tocFileRAW})");
+                using TOCFile tocFile = new TOCFile(tocFileRAW, true, true, false, sbIndex, false);
+				using SBFile sbFile = new SBFile(tocFile, tocFileRAW.Replace(".toc",".sb"), true, true, false, sbIndex, false);
+                
+				sbIndex++;
+            }
         }
 
-		static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
+        public void LoadPatch(AssetManager parent, BinarySbDataHelper helper)
+        {
+            LoadData(parent, helper, "native_patch/");
+        }
+
+        public void Load(AssetManager parent, BinarySbDataHelper helper)
+        {
+            LoadPatch(parent, null);
+            LoadData(parent, null);
+        }
+
+        static public List<int> SearchBytePattern(byte[] pattern, byte[] bytes)
 		{
 			List<int> positions = new List<int>();
 			int patternLength = pattern.Length;

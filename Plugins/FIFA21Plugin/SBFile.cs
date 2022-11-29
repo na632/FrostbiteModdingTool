@@ -36,20 +36,45 @@ namespace FIFA21Plugin
 
         private int SuperBundleIndex = 0;
 
-        private TocSbReader_FIFA21 ParentReader;
+        //private TocSbReader_FIFA21 ParentReader;
 
-        public SBFile() { }
+        //public SBFile() { }
 
-        public SBFile(TOCFile parentTOC)
+        //public SBFile(TOCFile parentTOC)
+        //{
+        //    AssociatedTOCFile = parentTOC;
+        //}
+
+        //public SBFile(TocSbReader_FIFA21 parent, TOCFile parentTOC, int sbIndex)
+        //{
+        //    //ParentReader = parent;
+        //    AssociatedTOCFile = parentTOC;
+        //    SuperBundleIndex = sbIndex;
+        //}
+
+        public SBFile(TOCFile tocFile, string nativeFilePath, bool log = true, bool process = true, bool modDataPath = false, int sbIndex = -1, bool headerOnly = false)
         {
-            AssociatedTOCFile = parentTOC;
-        }
+            AssociatedTOCFile = tocFile;
+            NativeFileLocation = nativeFilePath;
+            FileLocation = FileSystem.Instance.ResolvePath(nativeFilePath, modDataPath);
 
-        public SBFile(TocSbReader_FIFA21 parent, TOCFile parentTOC, int sbIndex)
-        {
-            ParentReader = parent;
-            AssociatedTOCFile = parentTOC;
+            if (string.IsNullOrEmpty(FileLocation) || !File.Exists(FileLocation) || new FileInfo(FileLocation).Length == 0)
+            {
+                //Debug.WriteLine("Unable to process " + nativeFilePath);
+                return;
+            }
+
+            DoLogging = log;
+            ProcessData = process;
             SuperBundleIndex = sbIndex;
+
+            if (headerOnly)
+            {
+                ShouldReadCASBundles = false;
+            }
+
+            using (NativeReader reader = new NativeReader(new FileStream(FileLocation, FileMode.Open)))
+                Read(reader);
         }
 
         public struct EBX
@@ -69,15 +94,16 @@ namespace FIFA21Plugin
 
         public bool DoLogging = true;
 
+        public bool ProcessData { get; private set; }
 
-        public List<DbObject> Read()
-        {
-            if (AssociatedTOCFile == null)
-                throw new FileNotFoundException("Unable to process SB file without knowing its location");
+        //public List<DbObject> Read()
+        //{
+        //    if (AssociatedTOCFile == null)
+        //        throw new FileNotFoundException("Unable to process SB file without knowing its location");
 
-            var sbLocation = AssociatedTOCFile.FileLocation.Replace(".toc", ".sb", StringComparison.OrdinalIgnoreCase);
-            return Read(new NativeReader(File.ReadAllBytes(sbLocation)));
-        }
+        //    var sbLocation = AssociatedTOCFile.FileLocation.Replace(".toc", ".sb", StringComparison.OrdinalIgnoreCase);
+        //    return Read(new NativeReader(File.ReadAllBytes(sbLocation)));
+        //}
 
         /// <summary>
         /// Reads the entire SBFile from the Associated TOC Bundles
@@ -133,7 +159,7 @@ namespace FIFA21Plugin
                     //cachingSBData.Bundles.Add(cachingSBDataBundle);
                 }
 
-                if (AssetManager.Instance != null && ParentReader.ProcessData)
+                if (AssetManager.Instance != null && ProcessData)
                     AssetManager.Instance.Bundles.Add(bundleEntry);
 
                 BundleEntry.PersistedIndexCount++;
@@ -145,6 +171,66 @@ namespace FIFA21Plugin
 
             //CachingSB.CachingSBs.Add(cachingSBData);
             //CachingSB.Save();
+            if(ProcessData)
+            {
+                foreach (var dboObj in dbObjects)
+                {
+                    var EbxObjectList = dboObj.GetValue<DbObject>("ebx");
+                    if(EbxObjectList != null) 
+                    { 
+                        foreach(DbObject ebxObject in EbxObjectList)
+                            ebxObject.SetValue("ebx", true);
+                    }
+                    var ResObjectList = dboObj.GetValue<DbObject>("res");
+                    if (ResObjectList != null)
+                    {
+                        foreach (DbObject resObject in ResObjectList)
+                            resObject.SetValue("res", true);
+                    }
+                    var ChunkObjectList = dboObj.GetValue<DbObject>("chunks");
+                    if (ChunkObjectList != null)
+                    {
+                        foreach (DbObject chunkObject in ChunkObjectList)
+                            chunkObject.SetValue("chunk", true);
+                    }
+
+                    if (EbxObjectList == null
+                        && ResObjectList == null
+                        && ChunkObjectList == null)
+                        continue;
+
+
+                    foreach (DbObject item in
+                                    EbxObjectList.List
+                                    .Union(ResObjectList.List)
+                                    .Union(ChunkObjectList.List)
+                                    )
+                    {
+                        AssetEntry asset = null;
+                        if (item.HasValue("ebx"))
+                            asset = new EbxAssetEntry();
+                        else if (item.HasValue("res"))
+                            asset = new ResAssetEntry();
+                        else if (item.HasValue("chunk"))
+                            asset = new ChunkAssetEntry();
+
+                        asset = AssetLoaderHelpers.ConvertDbObjectToAssetEntry(item, asset);
+                        asset.CASFileLocation = FileSystem.Instance.GetFilePath((byte)asset.ExtraData.Catalog, (byte)asset.ExtraData.Cas, asset.ExtraData.IsPatch);
+                        asset.SBFileLocation = NativeFileLocation;
+                        asset.TOCFileLocation = AssociatedTOCFile.NativeFileLocation;
+                        if (AssociatedTOCFile.ProcessData)
+                        {
+                            if (asset is EbxAssetEntry ebxAssetEntry)
+                                AssetManager.Instance.AddEbx(ebxAssetEntry);
+                            else if (asset is ResAssetEntry resAssetEntry)
+                                AssetManager.Instance.AddRes(resAssetEntry);
+                            else if (asset is ChunkAssetEntry chunkAssetEntry)
+                                AssetManager.Instance.AddChunk(chunkAssetEntry);
+                        }
+                    }
+                }
+            }
+
             return dbObjects;
         }
 
@@ -199,6 +285,7 @@ namespace FIFA21Plugin
         }
 
         public CachingSBData.Bundle CachedBundle { get; set; }
+        public bool ShouldReadCASBundles { get; private set; }
 
         /// <summary>
         /// Reads the reader from a viewstream of the internal bundle
@@ -261,6 +348,8 @@ namespace FIFA21Plugin
             CachedBundle.BinaryDataOffsetEnd = (int)binarySbReader2.Position;
             dbObject.SetValue("BinarySize", CachedBundle.BinaryDataOffsetEnd - 32);
 
+            if (SBHeaderInformation == null)
+                return CachedBundle;
             // END OF BINARY READER
             // ---------------------------------------------------------------------------------------------------------------------
 
