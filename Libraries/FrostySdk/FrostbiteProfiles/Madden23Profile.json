@@ -60,7 +60,7 @@
   // File Type to save to when compiling a mod from the Editor
   "ModCompilerFileType": "fbmod",
   // Can the Launcher support this Game?
-  "CanLaunchMods": true,
+  "CanLaunchMods": false,
   // Can this Application Edit this Game?
   "CanEdit": true,
   "EbxVersion": 4,

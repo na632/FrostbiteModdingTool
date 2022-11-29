@@ -11,7 +11,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
     {
         public int unk1 { get; set; }
         public int unk2 { get; set; }
-        public int unk3 { get; set; }
+        public int HeaderSize { get; set; }
         public int unk4 { get; set; }
         public int unk5 { get; set; }
 

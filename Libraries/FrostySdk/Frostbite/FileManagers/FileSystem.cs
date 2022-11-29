@@ -431,7 +431,12 @@ namespace FrostySdk
 		public string GetFilePath(int catalog, int cas, bool patch)
 		{
 			Catalog catalogInfo = catalogs[catalog];
-			return (patch ? "native_patch/" : "native_data/") + catalogInfo.Name + "/cas_" + cas.ToString("D2") + ".cas";
+			var result = (patch ? "native_patch/" : "native_data/") + catalogInfo.Name + "/cas_" + cas.ToString("D2") + ".cas";
+			if(new ReadOnlySpan<char>(ResolvePath(result).ToArray()).IsEmpty)
+			{
+
+			}
+			return result;
 		}
 		public string GetCasFilePath(int catalog, int cas, bool patch)
 		{

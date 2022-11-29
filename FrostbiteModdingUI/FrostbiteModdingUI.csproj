@@ -184,6 +184,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+    <None Update="Resources\images\Madden23Cover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\images\NeedForSpeedUnboundCover.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SDK\BF4SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	<ExcludeFromSingleFile>true</ExcludeFromSingleFile>

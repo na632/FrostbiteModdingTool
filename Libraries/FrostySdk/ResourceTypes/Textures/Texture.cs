@@ -400,6 +400,11 @@ namespace FrostySdk.Resources
                 ReadInStreamMadden23(nativeReader);
                 return;
             }
+            if (ProfileManager.IsGameVersion(ProfileManager.EGame.NFSUnbound))
+            {
+                ReadInStreamNFSU(nativeReader);
+                return;
+            }
             mipOffsets[0] = nativeReader.ReadUInt();
             mipOffsets[1] = nativeReader.ReadUInt();
             type = (TextureType)nativeReader.ReadUInt();
@@ -485,6 +490,38 @@ namespace FrostySdk.Resources
             assetNameHash = nativeReader.ReadUInt();
 			TextureGroup = nativeReader.ReadSizedString(16);
             unknownBytes.Add(nativeReader.ReadBytes(8));
+
+            if (AssetManager.Instance.Logger != null)
+                AssetManager.Instance.Logger.Log($"Texture: Loading ChunkId: {chunkId}");
+
+            ChunkEntry = AssetManager.Instance.GetChunkEntry(chunkId);
+            data = AssetManager.Instance.GetChunk(ChunkEntry);
+        }
+
+        private void ReadInStreamNFSU(NativeReader nativeReader)
+        {
+            mipOffsets[0] = nativeReader.ReadUInt();
+            mipOffsets[1] = nativeReader.ReadUInt();
+            type = (TextureType)nativeReader.ReadUInt();
+            pixelFormat = nativeReader.ReadInt();
+			unknown1 = nativeReader.ReadUInt();
+			flags = (TextureFlags)nativeReader.ReadUShort();
+            width = nativeReader.ReadUShort();
+            height = nativeReader.ReadUShort();
+            depth = nativeReader.ReadUShort();
+            sliceCount = nativeReader.ReadUShort();
+            mipCount = nativeReader.ReadByte();
+            firstMip = nativeReader.ReadByte();
+            unknownBytes.Add(nativeReader.ReadBytes(4));
+            chunkId = nativeReader.ReadGuid();
+            for (int i = 0; i < 15; i++)
+            {
+                mipSizes[i] = nativeReader.ReadUInt();
+            }
+            chunkSize = nativeReader.ReadUInt();
+            assetNameHash = nativeReader.ReadUInt();
+            TextureGroup = nativeReader.ReadNullTerminatedString();
+            unknownBytes.Add(nativeReader.ReadBytes((int)nativeReader.Length - (int)nativeReader.Position));
 
             if (AssetManager.Instance.Logger != null)
                 AssetManager.Instance.Logger.Log($"Texture: Loading ChunkId: {chunkId}");

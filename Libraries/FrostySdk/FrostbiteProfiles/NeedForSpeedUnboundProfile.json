@@ -51,7 +51,7 @@
   // Will the Launcher support this Game?
   "CanLaunchMods": false,
   // Can this Application Edit this Game?
-  "CanEdit": false,
+  "CanEdit": true,
 
   // Custom .cache file Writer - Write these exclusively (example - NFSUnboundCacheWriter)
   "CacheWriter": "CacheWriterNFSUnbound",

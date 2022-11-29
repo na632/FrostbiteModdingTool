@@ -440,8 +440,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 		public void ReadCasBundles(NativeReader nativeReader)
 		{
-			_ = nativeReader.Position;
-			if (nativeReader.Position < nativeReader.Length)
+            var remainingByteLength = nativeReader.Length - nativeReader.Position;
+			if (remainingByteLength > 0)
 			{
 
 				if (AssetManager.Instance != null && DoLogging)
@@ -449,7 +449,9 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 				for (int i = 0; i < MetaData.BundleCount; i++)
 				{
-					CASBundle bundle = new CASBundle();
+                    nativeReader.Position = (Bundles[i].Offset + 556);
+
+                    CASBundle bundle = new CASBundle();
 					if (BundleEntries.Count == 0)
 						continue;
 
@@ -457,13 +459,17 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 					long startPosition = nativeReader.Position;
 					bundle.unk1 = nativeReader.ReadInt(Endian.Big);
-					bundle.unk2 = nativeReader.ReadInt(Endian.Big);
-					bundle.FlagsOffset = nativeReader.ReadInt(Endian.Big);
+                    bundle.unk2 = nativeReader.ReadInt(Endian.Big);
+                    bundle.FlagsOffset = nativeReader.ReadInt(Endian.Big);
 					bundle.EntriesCount = nativeReader.ReadInt(Endian.Big);
 					bundle.EntriesOffset = nativeReader.ReadInt(Endian.Big);
-					bundle.unk3 = nativeReader.ReadInt(Endian.Big);
-					bundle.unk4 = nativeReader.ReadInt(Endian.Big);
-					bundle.unk5 = nativeReader.ReadInt(Endian.Big);
+					bundle.HeaderSize = nativeReader.ReadInt(Endian.Big);
+                    if (bundle.HeaderSize != 32)
+                    {
+						throw new Exception("Bundle Header Size should be 32!");
+                    }
+                    bundle.unk4 = nativeReader.ReadInt(Endian.Big);
+                    bundle.unk5 = nativeReader.ReadInt(Endian.Big);
 					byte unk = 0;
 					bool isInPatch = false;
 					byte catalog = 0;
@@ -471,25 +477,25 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 					nativeReader.Position = startPosition + bundle.FlagsOffset;
 					bundle.Flags = nativeReader.ReadBytes(bundle.EntriesCount);
 					nativeReader.Position = startPosition + bundle.EntriesOffset;
+					var sum = 0;
 					for (int j2 = 0; j2 < bundle.EntriesCount; j2++)
 					{
 						bool hasCasIdentifier = bundle.Flags[j2] == 1;
 						if (hasCasIdentifier)
 						{
 							unk = nativeReader.ReadByte();
-							if(unk != 0)
-							{
-
-							}
 							isInPatch = nativeReader.ReadBoolean();
 							catalog = nativeReader.ReadByte();
 							cas = nativeReader.ReadByte();
-						}
+							sum += 4;
+
+                        }
 						long locationOfOffset = nativeReader.Position;
 						uint bundleOffsetInCas = nativeReader.ReadUInt(Endian.Big);
 						long locationOfSize = nativeReader.Position;
 						uint bundleSizeInCas = nativeReader.ReadUInt(Endian.Big);
-						if (j2 == 0)
+                        sum += 8;
+                        if (j2 == 0)
 						{
 							bundle.Unk = unk;
 							bundle.BundleOffset = bundleOffsetInCas;
@@ -524,7 +530,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 						);
 					}
 					CasBundles.Add(bundle);
-					nativeReader.Position = startPosition + bundle.FlagsOffset + bundle.EntriesCount;
+					
 				}
 
 
@@ -535,6 +541,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 					foreach (var bundle in CasBundles)
 					{
+						if(bundle.Cas == 0)
+						{
+							continue;
+						}
 						var path = FileSystem.Instance.GetFilePath(bundle.Catalog, bundle.Cas, bundle.Patch);
 						if (!string.IsNullOrEmpty(path))
 						{
@@ -550,6 +560,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 							lstBundles.Add(bundle);
 							CASToBundles[path] = lstBundles;
+						}
+						else
+						{
+							Debug.WriteLine("Unable to find path for Bundle");
 						}
 					}
 
@@ -660,7 +674,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     writer.Write(cBundle.EntriesCount, Endian.Big);
                     long EntriesOffsetLocation = writer.Position;
                     writer.Write(cBundle.EntriesOffset, Endian.Big);
-                    writer.Write(cBundle.unk3, Endian.Big);
+                    writer.Write(cBundle.HeaderSize, Endian.Big);
                     writer.Write(cBundle.unk4, Endian.Big);
                     writer.Write(cBundle.unk5, Endian.Big);
 

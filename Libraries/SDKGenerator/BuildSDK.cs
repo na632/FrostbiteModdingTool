@@ -62,7 +62,9 @@ namespace SdkGenerator
 			var process = allProcesses.FirstOrDefault(x =>
 				   (x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
 				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase))
+				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("NeedForSpeedUnbound", StringComparison.OrdinalIgnoreCase)
+                   )
 				   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
 				   );
 
@@ -76,8 +78,10 @@ namespace SdkGenerator
 				process = allProcesses.FirstOrDefault(x =>
 				   (x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
 				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase))
-				   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase)
+				   || x.ProcessName.Contains("NeedForSpeedUnbound", StringComparison.OrdinalIgnoreCase)
+                   )
+                   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
 				   );
 				Thread.Sleep(1000);
 			}

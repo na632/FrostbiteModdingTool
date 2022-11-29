@@ -35,12 +35,15 @@ namespace FMT.Windows
             InitializeComponent();
             Owner = owner;
             SelectedProfile = selectedProfile;
+            btnLoadGameModLauncher.IsEnabled = SelectedProfile.CanLaunchMods;
+            btnLoadGameEditor.IsEnabled = SelectedProfile.CanEdit;
             //Loaded += GameVsEditorVsTools_Loaded;
             //Closing += GameVsEditorVsTools_Closing;
         }
 
         private void GameVsEditorVsTools_Loaded(object sender, RoutedEventArgs e)
         {
+            
         }
 
         private void GameVsEditorVsTools_Closing(object sender, System.ComponentModel.CancelEventArgs e)

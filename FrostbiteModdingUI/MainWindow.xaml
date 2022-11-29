@@ -51,13 +51,14 @@
         <ItemsControl Grid.Row="4" ItemsSource="{Binding ProfilesWithEditor}" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Visible" HorizontalAlignment="Center" HorizontalContentAlignment="Stretch">
             <ItemsControl.ItemTemplate>
                 <DataTemplate >
-                    <mah:Tile Title="{Binding DisplayName}" Tag="{Binding}" Style="{Binding EditorIcon}" Background="Black" Margin="1" Click="Tile_Click">
+                    <mah:Tile Title="{Binding DisplayName}" Tag="{Binding}" Style="{Binding EditorIcon}" Background="Black" Padding="0" Margin="1" Click="Tile_Click">
                         <Grid Margin="1">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="2*"></RowDefinition>
-                                <RowDefinition Height="2*"></RowDefinition>
+                                <RowDefinition Height="1*"></RowDefinition>
                             </Grid.RowDefinitions>
                             <Image Grid.Row="0" Source="{Binding EditorIcon}" Stretch="Fill" Margin="1" />
+                            <!--<TextBlock Text="{Binding DisplayName}"></TextBlock>-->
                         </Grid>
                     </mah:Tile>
                 </DataTemplate>

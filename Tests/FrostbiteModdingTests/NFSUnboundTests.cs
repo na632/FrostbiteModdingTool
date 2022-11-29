@@ -1,5 +1,6 @@
 ﻿using FrostySdk.Frostbite;
 using FrostySdk.Managers;
+using FrostySdk.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 using SdkGenerator;
@@ -120,12 +121,30 @@ namespace FrostbiteModdingTests
         public void LoadLegacy()
         {
             var buildCache = new CacheManager();
-            buildCache.LoadData("NFSUnbound", GamePath, this, false, true);
+            buildCache.LoadData("NeedForSpeedUnbound", GamePath, this, false, true);
 
             var ebxFCC = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("legacy", StringComparison.OrdinalIgnoreCase));
             var ebxFile = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("file", StringComparison.OrdinalIgnoreCase));
             var ebxCollector = AssetManager.Instance.EBX.Keys.Where(x => x.Contains("collector", StringComparison.OrdinalIgnoreCase));
             var legacyItems = AssetManager.Instance.EnumerateCustomAssets("legacy").ToList();
+        }
+
+        [TestMethod]
+        public void LoadSplashscreenTexture()
+        {
+            var buildCache = new CacheManager();
+            buildCache.LoadData("NeedForSpeedUnbound", GamePath, this, false, true);
+            var entryName = "ui/textures/bootflow/excaliburloadingscreen";
+            var ebxEntrySplash = AssetManager.Instance.GetEbxEntry(entryName);
+            Assert.IsNotNull(ebxEntrySplash);
+            var ebxSplash = AssetManager.Instance.GetEbx(ebxEntrySplash);
+            var resEntrySplash = AssetManager.Instance.GetResEntry(entryName);
+            Assert.IsNotNull(resEntrySplash);
+            //var resSplash = AssetManager.Instance.GetRes(resEntrySplash);
+            using (Texture textureAsset = new Texture(resEntrySplash))
+            {
+
+            }
         }
 
     }
