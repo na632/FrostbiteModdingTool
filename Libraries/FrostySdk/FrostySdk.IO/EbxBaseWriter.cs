@@ -146,12 +146,14 @@ namespace FrostySdk.IO
 
                     decompressedArray = ((MemoryStream)ebxBaseWriter.BaseStream).ToArray();
                 }
-            }).Wait(TimeSpan.FromSeconds(6)))
+            }).Wait(TimeSpan.FromSeconds(GetEbxLoadWaitSeconds)))
             {
                 //AssetManager.Instance.LogError($"{entry.Name} failed to write!");
                 return null;
             }
 			return decompressedArray;
         }
+
+		public static double GetEbxLoadWaitSeconds { get; set; } = 6;
 	}
 }

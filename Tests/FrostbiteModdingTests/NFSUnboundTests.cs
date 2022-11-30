@@ -147,5 +147,15 @@ namespace FrostbiteModdingTests
             }
         }
 
+        [TestMethod]
+        public void LoadEbxGameplayGameModes()
+        {
+            var buildCache = new CacheManager();
+            buildCache.LoadData("NeedForSpeedUnbound", GamePath, this, false, true);
+            var entryName = "gameplay/gamemodes/races/defaultracegamemodesettings";
+            var ebxEntry = AssetManager.Instance.GetEbxEntry(entryName);
+            var ebx = AssetManager.Instance.GetEbx(ebxEntry);
+        }
+
     }
 }

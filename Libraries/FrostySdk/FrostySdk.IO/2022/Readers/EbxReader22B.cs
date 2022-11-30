@@ -117,16 +117,16 @@ namespace FrostySdk.IO._2022.Readers
             Position = 0;
             this.patched = inPatched;
             base.magic = (EbxVersion)base.ReadUInt32LittleEndian();
-            try
-            {
+            //try
+            //{
                 this.LoadRiffEbx();
                 this.isValid = true;
-                return;
-            }
-            catch (EndOfStreamException)
-            {
-                throw;
-            }
+            //    return;
+            //}
+            //catch (EndOfStreamException)
+            //{
+            //    throw;
+            //}
         }
 
         private void LoadRiffEbx()
@@ -549,10 +549,10 @@ namespace FrostySdk.IO._2022.Readers
 			return TypeLibrary.CreateObject(EbxReader22B.std.GetGuid(classType).Value);
 		}
 
-		public override Type GetType(EbxClass classType)
-		{
-			return TypeLibrary.GetType((classType.SecondSize == 1) ? EbxReader22B.patchStd.GetGuid(classType).Value : EbxReader22B.std.GetGuid(classType).Value);
-		}
+		//public override Type GetType(EbxClass classType)
+		//{
+		//	return TypeLibrary.GetType((classType.SecondSize == 1) ? EbxReader22B.patchStd.GetGuid(classType).Value : EbxReader22B.std.GetGuid(classType).Value);
+		//}
 
 		//public object ReadClass(EbxClassMetaAttribute classMeta, object obj, Type objType, long startOffset)
 		//{
@@ -728,33 +728,36 @@ namespace FrostySdk.IO._2022.Readers
 		//	}
 		//}
 
-		public override object ReadField(EbxClass? parentClass, EbxFieldType fieldType, ushort fieldClassRef, bool dontRefCount = false)
-		{
-			if (fieldType == EbxFieldType.Pointer)
-			{
-				int num = base.ReadInt32LittleEndian();
-				if (num == 0)
-				{
-					return default(PointerRef);
-				}
-				if ((num & 1) == 1)
-				{
-					return new PointerRef(base.imports[num >> 1]);
-				}
-				long offset = base.Position - 4 + num - this.payloadPosition;
-				int dc = this.dataContainerOffsets.IndexOf((uint)offset);
-				if (dc == -1)
-				{
-					return default(PointerRef);
-				}
-				//if (!dontRefCount)
-				//{
-				//	base.refCounts[dc]++;
-				//}
-				return new PointerRef(objects[dc]);
-			}
-			return base.ReadField(parentClass, fieldType, fieldClassRef, dontRefCount);
-		}
+		//public override object ReadField(EbxClass? parentClass, EbxFieldType fieldType, ushort fieldClassRef, bool dontRefCount = false)
+		//{
+		//	if (fieldType == EbxFieldType.Pointer)
+		//	{
+		//		int num = base.ReadInt32LittleEndian();
+		//		if (num == 0)
+		//		{
+		//			return default(PointerRef);
+		//		}
+		//		if ((num & 1) == 1)
+		//		{
+		//			return new PointerRef(base.imports[num >> 1]);
+		//		}
+		//		long offset = base.Position - 4 + num - this.payloadPosition;
+
+		//		int dc = this.dataContainerOffsets.IndexOf((uint)offset);
+		//		if (dc == -1)
+		//			return default(PointerRef);
+
+		//		if(dc > objects.Count - 1)
+		//			return default(PointerRef);
+
+		//		//if (!dontRefCount)
+		//		//{
+		//		//	base.refCounts[dc]++;
+		//		//}
+		//		return new PointerRef(objects[dc]);
+		//	}
+		//	return base.ReadField(parentClass, fieldType, fieldClassRef, dontRefCount);
+		//}
 
         public override object Read(Type type, long? readPosition = null, int? paddingAlignment = null)
         {
@@ -769,7 +772,8 @@ namespace FrostySdk.IO._2022.Readers
 				case "TypeRef":
 					return this.ReadTypeRef();
 				case "BoxedValueRef":
-					return this.ReadBoxedValueRef();
+					throw new NotImplementedException("BoxedValueRef has not been implemented!");
+					//return this.ReadBoxedValueRef();
 				case "Pointer":
 				case "PointerRef":
                     int num = base.ReadInt32LittleEndian();
@@ -788,6 +792,9 @@ namespace FrostySdk.IO._2022.Readers
                     {
                         return default(PointerRef);
                     }
+                    if (dc > objects.Count - 1)
+                        return default(PointerRef);
+
                     return new PointerRef(objects[dc]);
                 default:
 					return base.Read(type, readPosition, paddingAlignment);

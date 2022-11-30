@@ -145,15 +145,9 @@ namespace FrostySdk.Frostbite.IO.Input
             assetManager.ModifyRes(resEntry.Name, resData, meshSet.Meta);
             entry.LinkAsset(resEntry);
 
-			//if (ProfilesLibrary.IsFIFA21DataVersion())
-			//{
-			//if (!ProfilesLibrary.IsFIFA23DataVersion())
-			{
-				var ebxRO = ((dynamic)asset.RootObject);
-				ebxRO.ComputeGraph = default(PointerRef);
-				AssetManager.Instance.ModifyEbx(entry.Name, asset);
-			}
-			//}
+			var ebxRO = ((dynamic)asset.RootObject);
+			ebxRO.ComputeGraph = default(PointerRef);
+			AssetManager.Instance.ModifyEbx(entry.Name, asset);
 		}
 
 		private float CubeMapFaceID(float inX, float inY, float inZ)

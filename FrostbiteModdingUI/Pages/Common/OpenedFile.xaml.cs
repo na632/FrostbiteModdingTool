@@ -264,12 +264,12 @@ namespace FMT.Pages.Common
             DataContext = this;
         }
 
-        private async Task OpenEbxAsset(EbxAssetEntry ebxEntry)
+        private async Task OpenEbxAsset(EbxAssetEntry ebxEntry, CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
                 SelectedEntry = ebxEntry;
-                SelectedEbxAsset = AssetManager.Instance.GetEbx(ebxEntry);
+                SelectedEbxAsset = await AssetManager.Instance.GetEbxAsync(ebxEntry, cancellationToken: cancellationToken);
                 if (ebxEntry.Type == "TextureAsset")
                 {
                     try
@@ -339,40 +339,19 @@ namespace FMT.Pages.Common
                     {
                         return;
                     }
-                    var ebx = ProjectManagement.Instance.Project.AssetManager.GetEbx(ebxEntry);
-                    if (ebx != null)
+                    MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
+
+                    var successful = await EBXViewer.LoadEbx(ebxEntry, SelectedEbxAsset, MainEditorWindow);
+                    Dispatcher.Invoke(() =>
                     {
-                        MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
-
-                        //EBXViewer = new Editor(ebxEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-                            var successful = await EBXViewer.LoadEbx(ebxEntry, ebx, MainEditorWindow);
-                        Dispatcher.Invoke(() =>
-                        {
-                            EBXViewer.Visibility = Visibility.Visible;
-                        });
-                        //EBXViewerPG.SetClass(ebx.RootObject);
-                        //                  EBXViewerPG.Recreate();
-                        //EBXViewerPG.Visibility = Visibility.Visible;
-
-
-                        //EBXViewer.Visibility = successful.Result ? Visibility.Visible : Visibility.Collapsed;
-                        //BackupEBXViewer.Visibility = !successful.Result ? Visibility.Visible : Visibility.Collapsed;
-                        //BackupEBXViewer.SelectedObject = ebx.RootObject;
-                        //BackupEBXViewer.SelectedPropertyItemChanged += BackupEBXViewer_SelectedPropertyItemChanged;
-                        //BackupEBXViewer.Asset = ebx;
-                        //BackupEBXViewer.SetClass(ebx.RootObject);
-                        //BackupEBXViewer.Recreate();
-                        Dispatcher.Invoke(() =>
-                        {
-
-                            btnRevert.IsEnabled = true;
-                            //if (ebxEntry.Type == "HotspotDataAsset")
-                            //{
-                            btnImport.IsEnabled = true;
-                            btnExport.IsEnabled = true;
-                            //}
-                        });
-                    }
+                        EBXViewer.Visibility = Visibility.Visible;
+                    });
+                    Dispatcher.Invoke(() =>
+                    {
+                        btnRevert.IsEnabled = true;
+                        btnImport.IsEnabled = true;
+                        btnExport.IsEnabled = true;
+                    });
                 }
             }
             catch (Exception e)
@@ -519,8 +498,7 @@ namespace FMT.Pages.Common
                         var fbximport_dialogresult = openFileDialog.ShowDialog();
                         if (fbximport_dialogresult.HasValue && fbximport_dialogresult.Value)
                         {
-                            var skinnedMeshEbx = await AssetManager.Instance.GetEbxAsync((EbxAssetEntry)SelectedEntry);
-                            if (skinnedMeshEbx != null)
+                            if (SelectedEbxAsset != null)
                             {
                                 var resentry = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
                                 var res = await AssetManager.Instance.GetResAsync(resentry);
@@ -549,7 +527,7 @@ namespace FMT.Pages.Common
                                 try
                                 {
                                     FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
-                                    importer.ImportFBX(openFileDialog.FileName, meshSet, skinnedMeshEbx, (EbxAssetEntry)SelectedEntry
+                                    importer.ImportFBX(openFileDialog.FileName, meshSet, SelectedEbxAsset, (EbxAssetEntry)SelectedEntry
                                         , new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
                                         {
                                             SkeletonAsset = skeletonEntryText

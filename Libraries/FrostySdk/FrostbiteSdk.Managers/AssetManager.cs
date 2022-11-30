@@ -1900,11 +1900,6 @@ namespace FrostySdk.Managers
 			}
             bool inPatched = false;
 			if ( 
-				//(ProfilesLibrary.IsFIFADataVersion() 
-				//|| ProfilesLibrary.IsMadden21DataVersion() 
-				//|| ProfilesLibrary.IsFIFA21DataVersion()
-				//)
-				//&& 
 				entry.ExtraData.CasPath.StartsWith("native_patch"))
 			{
 				inPatched = true;
@@ -1912,13 +1907,21 @@ namespace FrostySdk.Managers
 
             return GetEbxAssetFromStream(assetStream, inPatched);
         }
-		public async Task<EbxAsset> GetEbxAsync(EbxAssetEntry entry, bool getModified = true)
+
+		public async ValueTask<EbxAsset> GetEbxAsync(EbxAssetEntry entry, bool getModified = true, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			return await Task.Run(() =>
 			{
-				return GetEbx(entry, getModified);
-			});
-
+				EbxAsset ebx = null;
+				Task.Run(() =>
+				{
+					cancellationToken.ThrowIfCancellationRequested();
+					ebx = GetEbx(entry, getModified);
+                }).Wait(TimeSpan.FromSeconds(EbxBaseWriter.GetEbxLoadWaitSeconds), cancellationToken);
+				return ebx;
+			}, cancellationToken);
 		}
 
 
