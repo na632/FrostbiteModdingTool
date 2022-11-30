@@ -545,6 +545,10 @@ namespace FrostySdk.Resources
 			{
                 return ToBytesMadden23();
             }
+            if (ProfileManager.IsGameVersion(ProfileManager.EGame.NFSUnbound))
+            {
+                return Texture.ToNFSUnbound(this);
+            }
 
             MemoryStream memoryStream = new MemoryStream();
             using (NativeWriter nativeWriter = new NativeWriter(memoryStream))
@@ -597,50 +601,27 @@ namespace FrostySdk.Resources
             byte[] finalArray = null;
             using (var nw = new NativeWriter(new MemoryStream()))
             {
-                //mipOffsets[0] = nativeReader.ReadUInt();
                 nw.Write((uint)texture.mipOffsets[0]);
-                //mipOffsets[1] = nativeReader.ReadUInt();
                 nw.Write((uint)texture.mipOffsets[1]);
-                //type = (TextureType)nativeReader.ReadUInt();
                 nw.Write((uint)texture.Type);
-                //pixelFormat = nativeReader.ReadInt();
                 nw.Write((int)texture.pixelFormat);
-
-                //unknown1 = nativeReader.ReadUInt();
                 nw.Write((uint)texture.unknown1);
-                //}
-                //flags = (TextureFlags)nativeReader.ReadUShort();
                 nw.Write((ushort)texture.flags);
-                //width = nativeReader.ReadUShort();
                 nw.Write((ushort)texture.width);
-                //height = nativeReader.ReadUShort();
                 nw.Write((ushort)texture.height);
-                //depth = nativeReader.ReadUShort();
                 nw.Write((ushort)texture.depth);
-                //sliceCount = nativeReader.ReadUShort();
                 nw.Write((ushort)texture.sliceCount);
-                //mipCount = nativeReader.ReadByte();
                 nw.Write((byte)texture.mipCount);
-                //firstMip = nativeReader.ReadByte();
                 nw.Write((byte)texture.firstMip);
-                //if (ProfilesLibrary.IsFIFA23DataVersion())
-                //{
-                //unknown4 = nativeReader.ReadInt();
-                nw.Write((int)texture.unknown4);
-                //}
-                //chunkId = nativeReader.ReadGuid();
+                nw.Write(texture.unknownBytes[0]);
                 nw.Write(texture.chunkId);
                 for (int i = 0; i < 15; i++)
-                {
-                    //mipSizes[i] = nativeReader.ReadUInt();
                     nw.Write((uint)texture.mipSizes[i]);
-                }
-                //chunkSize = nativeReader.ReadUInt();
+
                 nw.Write((uint)texture.chunkSize);
-                //assetNameHash = nativeReader.ReadUInt();
                 nw.Write((uint)texture.assetNameHash);
-                //textureGroup = nativeReader.ReadSizedString(16);
-                nw.WriteFixedSizedString(texture.textureGroup, 16);
+                nw.WriteNullTerminatedString(texture.textureGroup);
+                nw.Write(texture.unknownBytes[1]);
 
                 finalArray = ((MemoryStream)nw.BaseStream).ToArray();
             }
@@ -681,6 +662,40 @@ namespace FrostySdk.Resources
 
             return memoryStream.ToArray();
         }
+
+
+        public static byte[] ToNFSUnbound(Texture texture)
+        {
+            byte[] finalArray = null;
+            using (var nw = new NativeWriter(new MemoryStream()))
+            {
+                nw.Write((uint)texture.mipOffsets[0]);
+                nw.Write((uint)texture.mipOffsets[1]);
+                nw.Write((uint)texture.Type);
+                nw.Write((int)texture.pixelFormat);
+                nw.Write((uint)texture.unknown1);
+                nw.Write((ushort)texture.flags);
+                nw.Write((ushort)texture.width);
+                nw.Write((ushort)texture.height);
+                nw.Write((ushort)texture.depth);
+                nw.Write((ushort)texture.sliceCount);
+                nw.Write((byte)texture.mipCount);
+                nw.Write((byte)texture.firstMip);
+				nw.Write(texture.unknownBytes[0]);
+                nw.Write(texture.chunkId);
+                for (int i = 0; i < 15; i++)
+                    nw.Write((uint)texture.mipSizes[i]);
+
+                nw.Write((uint)texture.chunkSize);
+                nw.Write((uint)texture.assetNameHash);
+                nw.WriteNullTerminatedString(texture.textureGroup);
+                nw.Write(texture.unknownBytes[1]);
+
+                finalArray = ((MemoryStream)nw.BaseStream).ToArray();
+            }
+            return finalArray;
+        }
+
 
         public Texture(TextureType inType, string inFormat, ushort inWidth, ushort inHeight, ushort inDepth = 1)
 		{
