@@ -5,7 +5,7 @@ using FrostySdk.IO;
 
 
 
-internal class MeshContainer
+public class MeshContainer
 {
 	public class RelocPtr
 	{
@@ -22,7 +22,12 @@ internal class MeshContainer
 			Type = type;
 			Data = data;
 		}
-	}
+
+        public override string ToString()
+        {
+			return new ReadOnlySpan<char>(Type.ToCharArray()).IsEmpty ? base.ToString() : Type;
+        }
+    }
 
 	public class RelocArray : RelocPtr
 	{
@@ -92,7 +97,7 @@ internal class MeshContainer
 		}
 	}
 
-	public void FixupRelocPtrs(NativeWriter writer)
+	public void WriteRelocPtrs(NativeWriter writer)
 	{
 		if (writer == null)
 		{
@@ -100,7 +105,16 @@ internal class MeshContainer
 		}
 		foreach (RelocPtr relocPtr in relocPtrs)
 		{
-			writer.BaseStream.Position = relocPtr.Offset;
+			if(relocPtr.Offset <= 0)
+			{
+				throw new Exception("Offset should never be 0!");
+				//continue;
+			}
+            if (relocPtr.Offset > writer.BaseStream.Length)
+            {
+                throw new Exception("Offset should never be greater than the steam length!");
+            }
+            writer.BaseStream.Position = relocPtr.Offset;
 			writer.WriteInt64LittleEndian(relocPtr.DataOffset);
 		}
 	}

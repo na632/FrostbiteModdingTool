@@ -9,6 +9,8 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Xml.Linq;
 
 public class MeshSet
 {
@@ -302,26 +304,26 @@ public class MeshSet
 
 	private void PreProcess(MeshContainer meshContainer)
 	{
-		if (meshContainer == null)
-		{
-			throw new ArgumentNullException("meshContainer");
-		}
-		uint inInlineDataOffset = 0u;
-		foreach (MeshSetLod lod3 in Lods)
-		{
-			lod3.PreProcess(meshContainer, ref inInlineDataOffset);
-		}
-		foreach (MeshSetLod lod2 in Lods)
-		{
-			meshContainer.AddRelocPtr("LOD", lod2);
-		}
-		meshContainer.AddString(fullName, fullName.Replace(Name, ""), ignoreNull: true);
-		meshContainer.AddString(Name, Name);
-		if (Type == MeshType.MeshType_Skinned)
-		{
-			meshContainer.AddRelocPtr("BONEINDICES", boneIndices);
-			meshContainer.AddRelocPtr("BONEBBOXES", boneBoundingBoxes);
-		}
+        if (meshContainer == null)
+        {
+            throw new ArgumentNullException("meshContainer");
+        }
+        uint inlineDataOffset = 0u;
+        foreach (MeshSetLod lod2 in Lods)
+        {
+            lod2.PreProcess(meshContainer, ref inlineDataOffset);
+        }
+        foreach (MeshSetLod lod in Lods)
+        {
+            meshContainer.AddRelocPtr("LOD", lod);
+        }
+        meshContainer.AddString(fullName, fullName.Replace(Name, string.Empty), ignoreNull: true);
+        meshContainer.AddString(Name, Name);
+        if (Type == MeshType.MeshType_Skinned)
+        {
+            meshContainer.AddRelocPtr("BONEINDICES", boneIndices);
+            meshContainer.AddRelocPtr("BONEBBOXES", boneBoundingBoxes);
+        }
         else if (Type == MeshType.MeshType_Composite)
         {
             meshContainer.AddRelocPtr("PARTTRANSFORMS", partTransforms);
@@ -335,7 +337,7 @@ public class MeshSet
 		PreProcess(meshContainer);
 		using FileWriter nativeWriter = new FileWriter(new MemoryStream());
 		Write(nativeWriter, meshContainer);
-		uint num = (uint)nativeWriter.BaseStream.Position;
+		uint resSize = (uint)nativeWriter.BaseStream.Position;
 		uint num2 = 0u;
 		uint num3 = 0u;
 		foreach (MeshSetLod lod in Lods)
@@ -346,20 +348,20 @@ public class MeshSet
 				nativeWriter.WritePadding(16);
 			}
 		}
-		num2 = (uint)(nativeWriter.BaseStream.Position - num);
-		meshContainer.FixupRelocPtrs(nativeWriter);
+		num2 = (uint)(nativeWriter.BaseStream.Position - resSize);
+		meshContainer.WriteRelocPtrs(nativeWriter);
 		meshContainer.WriteRelocTable(nativeWriter);
-		num3 = (uint)(nativeWriter.BaseStream.Position - num - num2);
-		BitConverter.TryWriteBytes(Meta, num);
+		num3 = (uint)(nativeWriter.BaseStream.Position - resSize - num2);
+		BitConverter.TryWriteBytes(Meta, resSize);
 		BitConverter.TryWriteBytes(Meta.AsSpan(4), num2);
 		BitConverter.TryWriteBytes(Meta.AsSpan(8), num3);
 		BitConverter.TryWriteBytes(Meta.AsSpan(12), headerSize);
 		var array = ((MemoryStream)nativeWriter.BaseStream).ToArray();
-
+#if DEBUG
 		if (File.Exists("_MeshSetNEW.dat")) File.Delete("_MeshSetNEW.dat");
         File.WriteAllBytes("_MeshSetNEW.dat", array);
-
-        return array;
+#endif
+		return array;
 	}
 
 	private void Write(NativeWriter writer, MeshContainer meshContainer, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET)
@@ -430,12 +432,12 @@ public class MeshSet
         //{
         //	writer.Write((uint)unknownUInt);
         //}
-        var sumOfLOD = (ushort)(Lods.Sum(x => x.Sections.Count));
+        //var sumOfLOD = (ushort)(Lods.Sum(x => x.Sections.Count));
 		if (ProfileManager.IsMadden21DataVersion(ProfileManager.Game) || ProfileManager.IsMadden22DataVersion(ProfileManager.Game))
 		{
 			writer.WriteUInt16LittleEndian(0);
 			writer.Write((ushort)Lods.Count);
-			writer.WriteUInt32LittleEndian(sumOfLOD);
+			writer.WriteUInt32LittleEndian(MeshCount);
 			writer.Write((ushort)Lods.Count);
 			writer.Write(unknownBytes[0]);
 		}

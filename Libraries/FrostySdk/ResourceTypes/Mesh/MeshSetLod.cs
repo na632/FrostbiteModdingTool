@@ -239,11 +239,15 @@ namespace FrostySdk.Resources
 
 		internal void PreProcess(MeshContainer meshContainer, ref uint inInlineDataOffset)
 		{
-			inlineDataOffset = uint.MaxValue;
+			if (meshContainer == null)
+			{
+				throw new ArgumentNullException("meshContainer");
+			}
+			this.inlineDataOffset = uint.MaxValue;
 			if (inlineData != null)
 			{
-				inlineDataOffset = inInlineDataOffset;
-				inInlineDataOffset += (uint)inlineData.Length;
+				this.inlineDataOffset = inlineDataOffset;
+				inlineDataOffset += (uint)inlineData.Length;
 			}
 			meshContainer.AddRelocArray("SECTION", Sections.Count, Sections);
 			foreach (MeshSetSection section in Sections)
@@ -254,7 +258,7 @@ namespace FrostySdk.Resources
 			{
 				meshContainer.AddRelocArray("SUBSET", subsetCategory.Count, subsetCategory);
 			}
-			if (HasAdjacencyInMesh && inlineDataOffset != uint.MaxValue)
+			if (HasAdjacencyInMesh && this.inlineDataOffset != uint.MaxValue)
 			{
 				meshContainer.AddRelocPtr("ADJACENCY", adjacencyData);
 			}
@@ -265,9 +269,13 @@ namespace FrostySdk.Resources
 			{
 				meshContainer.AddRelocPtr("BONES", BoneIndexArray);
 			}
+			//else if (Type == MeshType.MeshType_Composite && partIndices.Count > 0)
+			//{
+			//	meshContainer.AddRelocPtr("PARTINDICES", partIndices);
+			//}
 		}
 
-		public void ClearBones()
+        public void ClearBones()
 		{
 			BoneIndexArray.Clear();
 			BoneShortNameArray.Clear();
@@ -379,7 +387,7 @@ namespace FrostySdk.Resources
             indexBufferFormat.format = (int)((newSize == 2) ? v2 : v4);
 		}
 
-		internal void Write(NativeWriter writer, MeshContainer meshContainer)
+		public void Write(NativeWriter writer, MeshContainer meshContainer)
 		{
 			if (writer == null)
 			{
