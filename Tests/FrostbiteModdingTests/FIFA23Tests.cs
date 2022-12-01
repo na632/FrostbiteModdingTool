@@ -73,6 +73,20 @@ namespace FrostbiteModdingTests
             }
         }
 
+        private Dictionary<string, Stream> _testProjects;
+
+        internal Dictionary<string, Stream> TestProjects
+        {
+            get
+            {
+                if (_testProjects != null)
+                    return _testProjects;
+
+                _testProjects = FMT.FileTools.EmbeddedResourceHelper.GetEmbeddedResourcesByName(new string[] { "FIFA23.", ".fbproject" });
+                return _testProjects;
+            }
+        }
+
         public void Log(string text, params object[] vars)
         {
             if (prevText != text)
@@ -440,7 +454,7 @@ namespace FrostbiteModdingTests
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V3\V Gameplay Mod - v3a1.fbproject").Result;
+            var projectResult = projectManagement.Project.LoadAsync(@"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V3\V Gameplay Mod - v3a2.fbproject").Result;
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -933,6 +947,32 @@ namespace FrostbiteModdingTests
                 }.ToArray()).Wait();
 
         }
+
+
+        [TestMethod]
+        public void LoadUltraSlowGameplayMod()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE, this);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            projectManagement.Project.Load(TestProjects.Single(x => x.Key.EndsWith("FIFA23.UltraSlowDribblingTest.fbproject")).Value);
+            var testR = "test.fbmod";
+            projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+        }
+
+        [TestMethod]
+        public void LoadAndLaunchUltraSlowGameplayMod()
+        {
+            LoadUltraSlowGameplayMod();
+
+            ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
+            frostyModExecutor.ForceRebuildOfMods = true;
+            frostyModExecutor.Run(this, GameInstanceSingleton.Instance.GAMERootPath, "",
+                new System.Collections.Generic.List<string>() {
+                    "test.fbmod"
+                }.ToArray()).Wait();
+        }
+
     }
 }
 

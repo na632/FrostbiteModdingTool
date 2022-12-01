@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <None Remove="FbProjects\FIFA22\FIFA22.UltraSlowExampleTest.fbproject" />
+    <None Remove="FbProjects\FIFA23\FIFA23.UltraSlowDribblingTest.fbproject" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +42,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="FbProjects\FIFA22\FIFA22.UltraSlowExampleTest.fbproject" />
+    <EmbeddedResource Include="FbProjects\FIFA23\FIFA23.UltraSlowDribblingTest.fbproject" />
   </ItemGroup>
 
   <ItemGroup>
