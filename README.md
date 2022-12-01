@@ -17,6 +17,9 @@ It is open source for others to use/research as they wish and happy to accept Fo
 
 It is however requested that you send a quick message if you wish to sell this commercially (Patreon or otherwise).
 
+## Wiki
+Please refer to the [Wiki](https://github.com/paulov-t/FrostbiteModdingTool/wiki) for more information and tutorials
+
 ## Credits
 - Paulv2k4 / Paulov-t - Main developer of this Tool
 - Jaycensolo - Jay has been a great help in testing almost everything this Tool does
