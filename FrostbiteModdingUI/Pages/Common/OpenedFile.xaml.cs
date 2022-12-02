@@ -1,5 +1,6 @@
 ﻿using AvalonDock.Layout;
 using CSharpImageLibrary;
+using FMT.FileTools;
 using Frostbite.Textures;
 using FrostbiteModdingUI.Models;
 using FrostbiteModdingUI.Windows;
@@ -303,12 +304,8 @@ namespace FMT.Pages.Common
                     }
 
                     MainEditorWindow.Log("Loading 3D Model " + ebxEntry.Filename);
-
-                    var resentry = AssetManager.Instance.GetResEntry(ebxEntry.Name);
-                    var res = AssetManager.Instance.GetRes(resentry);
-                    MeshSet meshSet = new MeshSet(res);
-
                     var exporter = new MeshSetToFbxExport();
+                    MeshSet meshSet = exporter.LoadMeshSet(ebxEntry);
                     exporter.Export(AssetManager.Instance, SelectedEbxAsset.RootObject, "test_noSkel.obj", "2012", "Meters", true, null, "*.obj", meshSet);
                     Thread.Sleep(150);
 
