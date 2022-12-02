@@ -1,3 +1,4 @@
+using FMT.FileTools;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -348,12 +349,47 @@ namespace FrostySdk.Resources
 
 		public Stream ResStream { get; set; }
 
-		/// <summary>
-		/// Build a Texture Object from a Stream
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <param name="am"></param>
-		public Texture(ResAssetEntry resAssetEntry)
+		public Texture(EbxAssetEntry ebxAssetEntry)
+		{
+			var resAssetEntry = AssetManager.Instance.GetResEntry(ebxAssetEntry.Name);
+			ResStream = AssetManager.Instance.GetRes(resAssetEntry);
+			if (ResStream == null)
+			{
+				return;
+			}
+			if (resAssetEntry == null)
+			{
+				return;
+			}
+			using (NativeReader nativeReader = new NativeReader(ResStream))
+			{
+				ResStream.Position = 0;
+#if DEBUG
+				if (!Directory.Exists("Debugging"))
+					Directory.CreateDirectory("Debugging");
+
+				if (!Directory.Exists("Debugging\\Other\\"))
+					Directory.CreateDirectory("Debugging\\Other\\");
+
+				if (File.Exists("Debugging\\Other\\_TextureExport.dat"))
+					File.Delete("Debugging\\Other\\_TextureExport.dat");
+
+				using (FileStream fileStream = new FileStream("Debugging\\Other\\_TextureExport.dat", FileMode.OpenOrCreate))
+				{
+					ResStream.CopyTo(fileStream);
+				}
+				ResStream.Position = 0;
+#endif
+				ReadInStream(nativeReader);
+			}
+		}
+
+        /// <summary>
+        /// Build a Texture Object from a Stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="am"></param>
+        public Texture(ResAssetEntry resAssetEntry)
 		{
 			ResStream = AssetManager.Instance.GetRes(resAssetEntry);
 			if (ResStream == null)

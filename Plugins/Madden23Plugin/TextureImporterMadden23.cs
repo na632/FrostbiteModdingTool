@@ -1,4 +1,5 @@
-﻿using Frostbite.Textures;
+﻿using FMT.FileTools;
+using Frostbite.Textures;
 using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.IO;

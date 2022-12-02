@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using FMT.FileTools;
 using FrostbiteSdk;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
@@ -63,7 +64,15 @@ namespace FrostySdk.Frostbite.IO.Input
 		{
 		}
 
-		public void ImportFBX(string filename, MeshSet inMeshSet, EbxAsset asset, EbxAssetEntry entry, MeshImportSettings inSettings)
+		public void ImportFBX(string filename, EbxAssetEntry entry, MeshImportSettings inSettings)
+		{
+            var resEntry = AssetManager.Instance.GetResEntry(entry.Name);
+			var res = assetManager.GetRes(resEntry);
+            MeshSet meshSet = new MeshSet(res, ProfileManager.Game, resEntry);
+			ImportFBX(filename, meshSet, AssetManager.Instance.GetEbx(entry), entry, inSettings);	
+        }
+
+        public void ImportFBX(string filename, MeshSet inMeshSet, EbxAsset asset, EbxAssetEntry entry, MeshImportSettings inSettings)
 		{
 			ulong resRid = ((dynamic)asset.RootObject).MeshSetResource;
 			resEntry = assetManager.GetResEntry(resRid);

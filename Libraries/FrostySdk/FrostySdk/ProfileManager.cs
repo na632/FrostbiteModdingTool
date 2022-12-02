@@ -1,3 +1,4 @@
+using FMT.FileTools;
 using Frostbite.Deobfuscators;
 using Frosty.Hash;
 using FrostySdk.Deobfuscators;

@@ -1,3 +1,5 @@
+using FMT.FileTools;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -6,8 +8,8 @@ using System.Text;
 
 namespace FrostySdk.IO
 {
-	public class DbReader : NativeReader
-	{
+	public class DbReader : DeobfuscatedReader
+    {
 		public byte[] Key { get; set; }
 		public DbReader(Stream inStream) : base(inStream)
         {
@@ -112,8 +114,8 @@ namespace FrostySdk.IO
 			case DbType.Guid:
 				return ReadGuid();
 			case DbType.Sha1:
-				return ReadSha1();
-			case DbType.ByteArray:
+				return new Sha1(ReadBytes(20));// ReadSha1();
+                case DbType.ByteArray:
 				return ReadBytes(Read7BitEncodedInt());
 			default:
 				return null;

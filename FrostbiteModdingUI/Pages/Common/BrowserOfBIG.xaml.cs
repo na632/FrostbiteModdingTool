@@ -1,6 +1,7 @@
 ﻿using AvalonDock.Layout;
 using CSharpImageLibrary;
 using FIFAModdingUI.Pages.Common;
+using FMT.FileTools;
 using Frostbite.FileManagers;
 using Frostbite.Textures;
 using FrostySdk;

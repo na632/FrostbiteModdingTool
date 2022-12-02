@@ -1,3 +1,4 @@
+using FMT.FileTools;
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.FrostySdk.IO;
@@ -622,7 +623,7 @@ namespace FrostySdk.IO
 				case EbxFieldType.ResourceRef:
 					return ReadResourceRef();
 				case EbxFieldType.Sha1:
-					return ReadSha1();
+					throw new NotImplementedException("Sha1 not supported!");
 				case EbxFieldType.String:
 					return ReadSizedString(32);
 				case EbxFieldType.CString:

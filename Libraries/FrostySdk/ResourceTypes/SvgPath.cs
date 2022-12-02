@@ -1,10 +1,12 @@
+using FMT.FileTools;
+using FrostySdk.FrostySdk.IO;
 using FrostySdk.IO;
 using System.Collections.Generic;
 using System.Text;
 
 namespace FrostySdk.Resources
 {
-	public class SvgPath
+    public class SvgPath
 	{
 		private List<Vec2> points = new List<Vec2>();
 

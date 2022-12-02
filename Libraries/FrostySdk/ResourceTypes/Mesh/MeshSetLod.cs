@@ -1,4 +1,6 @@
+using FMT.FileTools;
 using Frosty.Hash;
+using FrostySdk.FrostySdk.IO;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -9,7 +11,7 @@ using static FrostySdk.ProfileManager;
 
 namespace FrostySdk.Resources
 {
-	public class MeshSetLod
+    public class MeshSetLod
 	{
 		[StructLayout(LayoutKind.Explicit)]
 		private struct IndexBufferFormatStruct

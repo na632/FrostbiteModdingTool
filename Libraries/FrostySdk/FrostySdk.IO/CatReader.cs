@@ -1,9 +1,12 @@
+using FMT.FileTools;
+using FrostySdk.IO;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
 using System.IO;
 
 namespace FrostySdk.IO
 {
-	public class CatReader : NativeReader
+	public class CatReader : DeobfuscatedReader
 	{
 		public const string CatMagic = "NyanNyanNyanNyan";
 
@@ -49,7 +52,7 @@ namespace FrostySdk.IO
 		public CatResourceEntry ReadResourceEntry()
 		{
 			CatResourceEntry result = default(CatResourceEntry);
-			result.Sha1 = ReadSha1();
+			result.Sha1 = new Sha1(ReadBytes(20));
 			result.Offset = ReadUInt();
 			result.Size = ReadUInt();
 			if (ProfileManager.DataVersion != 20131115 && ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103)
@@ -63,7 +66,7 @@ namespace FrostySdk.IO
 		public CatResourceEntry ReadEncryptedEntry()
 		{
 			CatResourceEntry result = default(CatResourceEntry);
-			result.Sha1 = ReadSha1();
+			result.Sha1 = new Sha1(ReadBytes(20));// ReadSha1();
 			result.Offset = ReadUInt();
 			result.Size = ReadUInt();
 			result.LogicalOffset = ReadUInt();
@@ -80,10 +83,10 @@ namespace FrostySdk.IO
 		public CatPatchEntry ReadPatchEntry()
 		{
 			CatPatchEntry result = default(CatPatchEntry);
-			result.Sha1 = ReadSha1();
-			result.BaseSha1 = ReadSha1();
-			result.DeltaSha1 = ReadSha1();
-			return result;
+			result.Sha1 = new Sha1(ReadBytes(20));// ReadSha1();
+            result.BaseSha1 = new Sha1(ReadBytes(20));// ReadSha1();
+            result.DeltaSha1 = new Sha1(ReadBytes(20));// ReadSha1();
+            return result;
 		}
 	}
 }

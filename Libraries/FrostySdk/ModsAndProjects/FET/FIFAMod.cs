@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static FrostySdk.ProfileManager;
+using FMT.FileTools;
 
 namespace FrostbiteSdk
 {

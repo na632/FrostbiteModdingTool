@@ -1,5 +1,7 @@
-﻿using FrostbiteSdk.Extras;
+﻿using FMT.FileTools;
+using FrostbiteSdk.Extras;
 using FrostySdk;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -89,7 +91,7 @@ namespace FIFA20Plugin
 				int toc_chunk_offset = 0;
 				byte[] toc_array = null;
 				const int array_offset = 556 + 12;
-				using (NativeReader nativeReader = new NativeReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
+				using (NativeReader nativeReader = new DeobfuscatedReader(new FileStream(tocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
 				{
 					uint num4 = nativeReader.ReadUInt();
 					num2 = nativeReader.ReadInt() - 12;

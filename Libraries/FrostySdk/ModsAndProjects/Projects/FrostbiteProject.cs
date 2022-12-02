@@ -1,8 +1,10 @@
+using FMT.FileTools;
 using Frostbite.FileManagers;
 using FrostbiteSdk;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using Frosty.Hash;
 using FrostySdk.Frosty.FET;
+using FrostySdk.FrostySdk.IO;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
@@ -19,7 +21,7 @@ using System.Threading.Tasks;
 namespace FrostySdk
 {
 
-	public class FrostbiteProject
+    public class FrostbiteProject
 	{
 		//private const uint FormatVersion = 12u;
 		private uint CurrentFormatVersion { get; } = 23u;
@@ -739,7 +741,7 @@ namespace FrostySdk
 		public int ChunkCount;
 		public int LegacyCount;
 
-		private async Task<bool> InternalLoad(IO.NativeReader reader, CancellationToken cancellationToken = default(CancellationToken))
+		private async Task<bool> InternalLoad(NativeReader reader, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (reader.ReadULong() != 98218709832262L)
 				return false;

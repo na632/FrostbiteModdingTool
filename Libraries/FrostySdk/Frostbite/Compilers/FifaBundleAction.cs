@@ -1,4 +1,6 @@
-﻿using Frosty.Hash;
+﻿using FMT.FileTools;
+using Frosty.Hash;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using ModdingSupport;
@@ -84,7 +86,7 @@ namespace FrostySdk.Frostbite.Compilers
                         uint orig_toc_file_num1 = 0u;
                         uint tocchunkposition = 0u;
                         byte[] byte_array_of_original_toc_file = null;
-                        using (NativeReader reader_original_toc_file = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
+                        using (NativeReader reader_original_toc_file = new DeobfuscatedReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
                         {
                             uint orig_toc_file_num = reader_original_toc_file.ReadUInt();
                             orig_toc_file_num1 = reader_original_toc_file.ReadUInt();

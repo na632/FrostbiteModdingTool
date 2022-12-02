@@ -1,8 +1,10 @@
-﻿using FrostbiteSdk.Extras;
+﻿using FMT.FileTools;
+using FrostbiteSdk.Extras;
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.Compilers;
+using FrostySdk.Frostbite.IO;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -268,7 +270,7 @@ namespace Madden21Plugin
                                 File.Copy(location_toc_file, location_toc_file + ".bak");
                         }
 
-                        using (NativeReader reader_original_toc_file = new NativeReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), ModExecuter.fs.CreateDeobfuscator()))
+                        using (NativeReader reader_original_toc_file = new DeobfuscatedReader(new FileStream(location_toc_file, FileMode.Open, FileAccess.Read), ModExecuter.fs.CreateDeobfuscator()))
                         {
                             uint orig_toc_file_num = reader_original_toc_file.ReadUInt();
                             orig_toc_file_num1 = reader_original_toc_file.ReadUInt();

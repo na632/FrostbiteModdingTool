@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using static PInvoke.BCrypt.BCRYPT_ALGORITHM_IDENTIFIER;
 using System.Windows.Media.Media3D;
+using FMT.FileTools;
 
 namespace FIFA23Plugin.Textures
 {

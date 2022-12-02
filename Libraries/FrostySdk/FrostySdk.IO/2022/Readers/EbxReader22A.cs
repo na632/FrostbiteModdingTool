@@ -1,7 +1,6 @@
 ﻿using FrostySdk.Attributes;
 using FrostySdk.Ebx;
-using FrostySdk.FrostySdk.IO;
-using FrostySdk.FrostySdk.IO._2022.Readers;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -544,8 +543,9 @@ namespace FrostySdk.IO._2022.Readers
 				case EbxFieldType.ResourceRef:
 					return this.ReadResourceRef();
 				case EbxFieldType.Sha1:
-					return base.ReadSha1();
-				case EbxFieldType.String:
+					//return base.ReadSha1();
+					throw new NotImplementedException("Sha1 not supported!");
+                case EbxFieldType.String:
 					return base.ReadSizedString(32);
 				case EbxFieldType.CString:
 					return this.ReadCString(base.ReadUInt32LittleEndian());

@@ -29,6 +29,7 @@ using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Frostbite;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using FMT.FileTools;
 
 namespace FrostySdk.Managers
 {
@@ -213,20 +214,16 @@ namespace FrostySdk.Managers
 						{
 							arg = sbName.Replace("win32", item2.Name);
 						}
-						string text = parent.fs.ResolvePath($"{arg}.toc");
-						if (text != "")
+
+						string resolvedTocPath = parent.fs.ResolvePath($"{arg}.toc");
+						if (string.IsNullOrEmpty(resolvedTocPath))
+							continue;
+
 						{
-							//if(ProfilesLibrary.IsMadden21DataVersion())
-       //                     {
-							//	if (!text.Contains("playercontent_sb") // Player uniforms / kits
-					  // && !text.Contains("playercontentlaunch_sb") // Player uniforms / kits
-							//		)
-							//		continue;
-							//}
 							int num2 = 0;
 							int num3 = 0;
 							byte[] array = null;
-							using (NativeReader nativeReader = new NativeReader(new FileStream(text, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
+							using (NativeReader nativeReader = new DeobfuscatedReader(new FileStream(resolvedTocPath, FileMode.Open, FileAccess.Read), parent.fs.CreateDeobfuscator()))
 							{
 								uint num4 = nativeReader.ReadUInt();
 								num2 = nativeReader.ReadInt() - 12;

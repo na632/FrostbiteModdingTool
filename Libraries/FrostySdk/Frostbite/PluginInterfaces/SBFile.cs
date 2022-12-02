@@ -1,4 +1,5 @@
-﻿using Frosty.Hash;
+﻿using FMT.FileTools;
+using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Deobfuscators;
 using FrostySdk.Frostbite.PluginInterfaces;
@@ -60,15 +61,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
         public List<DbObject> DbObjects { get; } = new List<DbObject>();
 
-        //public List<DbObject> Read()
-        //{
-        //    if (AssociatedTOCFile == null)
-        //        throw new FileNotFoundException("Unable to process SB file without knowing its location");
-
-        //    var sbLocation = AssociatedTOCFile.FileLocation.Replace(".toc", ".sb", StringComparison.OrdinalIgnoreCase);
-        //    return Read(new NativeReader(File.ReadAllBytes(sbLocation)));
-        //}
-
         /// <summary>
         /// Reads the entire SBFile from the Associated TOC Bundles
         /// </summary>
@@ -76,22 +68,8 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         /// <returns></returns>
         public List<DbObject> Read(NativeReader nativeReader)
         {
-            //AssetManager.Instance.logger.Log($"Loading data from {FileLocation}");
-
-            //CachingSBData cachingSBData = new CachingSBData();
-            //cachingSBData.SBFile = NativeFileLocation;
-
-
-
             var startOffset = nativeReader.Position;
-            //#if DEBUG
-            //            if (File.Exists("debugSB.dat"))
-            //                File.Delete("debugSB.dat");
-            //            using (NativeWriter writer = new NativeWriter(new FileStream("debugSB.dat", FileMode.OpenOrCreate)))
-            //            {
-            //                writer.Write(nativeReader.ReadToEnd());
-            //            }
-            //#endif
+            
             nativeReader.Position = startOffset;
             var index = 0;
             foreach (BaseBundleInfo BaseBundleItem in AssociatedTOCFile.Bundles)
@@ -112,7 +90,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                     SuperBundleId = SuperBundleIndex,
                     PersistedIndex = BundleEntry.PersistedIndexCount
                 };
-                //using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, nativeReader.Length - BaseBundleItem.Offset)))
                 using (NativeReader binarySbReader2 = new NativeReader(nativeReader.CreateViewStream(BaseBundleItem.Offset, BaseBundleItem.Size)))
                 {
                     dbObject.SetValue("Bundle", BaseBundleItem);
@@ -130,8 +107,6 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 BaseBundleInfo.BundleItemIndex++;
             }
 
-            //CachingSB.CachingSBs.Add(cachingSBData);
-            //CachingSB.Save();
             return DbObjects;
         }
 

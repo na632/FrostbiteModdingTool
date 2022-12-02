@@ -201,6 +201,10 @@
 	  </None>
 	</ItemGroup>
 	
+	<ItemGroup>
+	  <Folder Include="Frostbite\Loaders\" />
+	</ItemGroup>
+	
 	<Target Name="AfterBuild">
 		<Message Text="1. ReferencePath:%0D%0A%09@(ReferencePath->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />
 		<Message Text="2. ReferenceCopyLocalPaths:%0D%0A%09@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" />

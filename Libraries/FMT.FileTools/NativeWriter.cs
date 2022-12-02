@@ -6,7 +6,7 @@ using System.Text;
 
 namespace FMT.FileTools
 {
-	public partial class NativeWriter : BinaryWriter
+	public class NativeWriter : BinaryWriter
 	{
 		public long Length { get { return BaseStream.Length; } }
 		public long Position { get { return BaseStream.Position; } set { BaseStream.Position = value; } }

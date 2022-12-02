@@ -41,18 +41,10 @@
   // SDK Generating Info
   //
   "SDKFilename": "FIFA23SDK",
-  //"SDKFirstTypeInfo": "0x14AF31A70",
-  //"SDKFirstTypeInfo": "0x3CA878B0",
-  //"SDKAOBScan": null,
-  //"SDKAOBScan": "48 8B 05 ?? ?? ?? 02 48 89 05 ?? ?? ?? ?? 48 8d 05 ?? ?? ?? ?? 48 ?? 05", // this found 400
-  //"SDKAOBScan": "48 8B 05 ?? ?? ?? ?? 48 89 05 ?? ?? 21 04 48 8d 05 ?? ?? ?? ?? 48 ?? 05", // this found 2000
-  //"SDKAOBScan": "48 8B 05 ?? ?? 32 02 48 89 05 ?? ?? ?? ?? 48 ?? 05 ?? ?? ?? ?? 48 ?? 05", // this found 489
   "SDKAOBScan": "48 39 1D ?? ?? ?? ?? ?? ?? 48 8b 43 10",
   "SDKClassesFile": "FIFA23.Classes.txt",
   "SDKGeneratorClassInfoType": "SdkGenerator.Fifa23.ClassInfo",
   "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
-  //
-
 
   // Supported Launcher Filetypes
   "SupportedLauncherFileTypes": [ "fbmod", "fifamod", "zip" ],
@@ -73,7 +65,7 @@
   "EnableExecution": true,
   "SharedBundles": {},
   "IgnoredResTypes": [],
-  "CanImportMeshes": true,
+  "CanImportMeshes": false,
   "CanExportMeshes": true,
   // GeometryDeclarationDesc stream count
   "GDDMaxStreams": 16,

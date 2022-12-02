@@ -3,6 +3,7 @@ using FrostySdk.Ebx;
 using FrostySdk.FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -397,7 +398,8 @@ namespace FrostySdk.IO
 				case EbxFieldType.Guid:
 					return ReadGuid();
 				case EbxFieldType.Sha1:
-					return ReadSha1();
+					//return ReadSha1();
+					throw new NotImplementedException("Sha1 not supported!");
 				case EbxFieldType.ResourceRef:
 					return ReadResourceRef();
 				case EbxFieldType.TypeRef:

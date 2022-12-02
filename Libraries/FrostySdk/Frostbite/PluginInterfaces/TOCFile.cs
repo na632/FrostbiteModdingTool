@@ -1,5 +1,4 @@
 ﻿using FrostySdk;
-using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostbiteSdk;
 using System;
@@ -9,12 +8,9 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
-using static FrostySdk.Frostbite.PluginInterfaces.TOCFile;
-using System.Reflection.Metadata.Ecma335;
 using Frosty.Hash;
-using static PInvoke.Kernel32;
+using FMT.FileTools;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
 {

@@ -1,4 +1,5 @@
-﻿using FrostySdk.IO;
+﻿using FMT.FileTools;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using SharpDX.Direct3D11;
@@ -512,8 +513,6 @@ namespace Frostbite.Textures
 
 			public bool Read(NativeReader reader)
 			{
-				//IL_01a3: Unknown result type (might be due to invalid IL or missing references)
-				//IL_01b5: Unknown result type (might be due to invalid IL or missing references)
 				dwMagic = reader.ReadInt();
 				if (dwMagic != 542327876)
 				{

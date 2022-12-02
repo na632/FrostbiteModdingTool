@@ -1,4 +1,5 @@
-﻿using FrostySdk.IO;
+﻿using FMT.FileTools;
+using FrostySdk.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;

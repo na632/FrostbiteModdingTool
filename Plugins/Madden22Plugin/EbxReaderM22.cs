@@ -545,7 +545,7 @@ namespace Madden22Plugin
 				case EbxFieldType.Guid:
 					return ReadGuid();
 				case EbxFieldType.Sha1:
-					return ReadSha1();
+					return new Sha1(ReadBytes(20));
 				case EbxFieldType.ResourceRef:
 					return ReadResourceRef();
 				case EbxFieldType.TypeRef:

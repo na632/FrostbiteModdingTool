@@ -433,7 +433,7 @@ namespace FrostySdk.IO
 				case EbxFieldType.Guid:
 					return ReadGuid();
 				case EbxFieldType.Sha1:
-					return ReadSha1();
+					throw new NotImplementedException("Sha1 not supported!");
 				case EbxFieldType.ResourceRef:
 					return ReadResourceRef();
 				case EbxFieldType.TypeRef:

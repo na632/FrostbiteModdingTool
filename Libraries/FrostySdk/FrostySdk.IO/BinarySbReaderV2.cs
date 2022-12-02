@@ -6,6 +6,7 @@ using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using System.IO;
 using System.Security.Cryptography;
+using FMT.FileTools;
 
 namespace FrostySdk.IO
 {

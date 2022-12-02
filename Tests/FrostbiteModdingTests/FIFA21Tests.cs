@@ -23,6 +23,7 @@ using FifaLibrary;
 using System.Data;
 using System.Collections.Generic;
 using Microsoft.Win32;
+using FMT.FileTools;
 
 namespace FrostbiteModdingTests
 {

@@ -33,6 +33,7 @@ using FrostyModManager;
 using Microsoft.Win32;
 using Frostbite.FileManagers;
 using FrostySdk.Frostbite.Compilers;
+using FMT.FileTools;
 
 namespace ModdingSupport
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using FMT.FileTools;
 using FrostbiteSdk;
 using FrostbiteSdk.FbxExporter;
 using FrostySdk;
@@ -843,7 +844,7 @@ namespace FrostySdk.Frostbite.IO.Output
 
 		public MeshSet LoadMeshSet(EbxAssetEntry ebx)
 		{
-			EbxAsset ebxAsset = AssetManager.Instance.GetEbx(ebx);
+			//EbxAsset ebxAsset = AssetManager.Instance.GetEbx(ebx);
 			//return LoadMeshSet(AssetManager.Instance, ebxAsset.RootObject);
 			return LoadMeshSet(AssetManager.Instance, ebx.Name);
 		}

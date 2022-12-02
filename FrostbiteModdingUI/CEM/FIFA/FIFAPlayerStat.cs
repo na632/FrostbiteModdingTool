@@ -18,6 +18,7 @@ using CareerExpansionMod.CEM.FIFA;
 using FrostySdk.IO;
 using FrostbiteModdingUI.CEM;
 using v2k4FIFAModdingCL;
+using FMT.FileTools;
 
 /// <summary>
 /// This must have properties (not fields) for Json to work!

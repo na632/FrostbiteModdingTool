@@ -1,4 +1,5 @@
-﻿using FrostbiteSdk.Frostbite.FileManagers;
+﻿using FMT.FileTools;
+using FrostbiteSdk.Frostbite.FileManagers;
 using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;

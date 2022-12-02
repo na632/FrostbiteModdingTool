@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using FrostySdk.Attributes;
 using FrostySdk.Ebx;
+using FMT.FileTools;
 
 namespace SdkGenerator
 {

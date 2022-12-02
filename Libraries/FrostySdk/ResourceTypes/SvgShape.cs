@@ -1,10 +1,12 @@
+using FMT.FileTools;
+using FrostySdk.FrostySdk.IO;
 using FrostySdk.IO;
 using System.Collections.Generic;
 using System.Text;
 
 namespace FrostySdk.Resources
 {
-	public class SvgShape
+    public class SvgShape
 	{
 		private bool stroke;
 

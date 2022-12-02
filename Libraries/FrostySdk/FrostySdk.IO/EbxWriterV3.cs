@@ -1,4 +1,5 @@
-﻿using FrostySdk.Attributes;
+﻿using FMT.FileTools;
+using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
 using System;

@@ -1,3 +1,4 @@
+using FMT.FileTools;
 using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 using FrostyEditor.IO;
