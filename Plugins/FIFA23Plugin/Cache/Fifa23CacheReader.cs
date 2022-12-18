@@ -51,101 +51,27 @@ namespace FIFA23Plugin.Cache
 
                 count = nativeReader.ReadInt();
 				for (int k = 0; k < count; k++)
-				{
-					EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
-					ebxAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
-					ebxAssetEntry.Sha1 = nativeReader.ReadSha1();
-					ebxAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(ebxAssetEntry.Sha1);
-					ebxAssetEntry.Size = nativeReader.ReadLong();
-					ebxAssetEntry.OriginalSize = nativeReader.ReadLong();
-					ebxAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-					//ebxAssetEntry.IsInline = nativeReader.ReadBoolean();
-					ebxAssetEntry.Type = nativeReader.ReadLengthPrefixedString();
-					Guid guid = nativeReader.ReadGuid();
-					if (nativeReader.ReadBoolean())
-					{
-						ebxAssetEntry.ExtraData = new AssetExtraData();
-						ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-						ebxAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
-						ebxAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
-						ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
-                    }
-
-                    if (nativeReader.ReadBoolean())
-                        ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-                    if (nativeReader.ReadBoolean())
-                        ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
-
-                    ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-                    ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-                    ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-                    ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-                    int bundleCount = nativeReader.ReadInt();
-                    for (int bundleIndex = 0; bundleIndex < bundleCount; bundleIndex++)
-                    {
-                        ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
-                    }
+                {
+                    EbxAssetEntry ebxAssetEntry = ReadEbxEntry(nativeReader);
                     AssetManager.Instance.AddEbx(ebxAssetEntry);
-				}
-				count = nativeReader.ReadInt();
+                }
+                count = nativeReader.ReadInt();
 				for (int n = 0; n < count; n++)
-				{
-					ResAssetEntry resAssetEntry = new ResAssetEntry();
-					resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
-					resAssetEntry.Sha1 = nativeReader.ReadSha1();
-					resAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(resAssetEntry.Sha1);
-					resAssetEntry.Size = nativeReader.ReadLong();
-					resAssetEntry.OriginalSize = nativeReader.ReadLong();
-					resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
-					resAssetEntry.IsInline = nativeReader.ReadBoolean();
-					resAssetEntry.ResRid = nativeReader.ReadULong();
-					resAssetEntry.ResType = nativeReader.ReadUInt();
-					resAssetEntry.ResMeta = nativeReader.ReadBytes(nativeReader.ReadInt());
-					if (nativeReader.ReadBoolean())
-					{
-						resAssetEntry.ExtraData = new AssetExtraData();
-						resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
-                        resAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
-                        resAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
-                        resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+                {
+                    ResAssetEntry resAssetEntry = ReadResEntry(nativeReader);
+
+                    AssetManager.Instance.RES.TryAdd(resAssetEntry.Name, resAssetEntry);
+                    if (resAssetEntry.ResRid != 0L)
+                    {
+                        if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
+                            AssetManager.Instance.resRidList.TryAdd(resAssetEntry.ResRid, resAssetEntry);
                     }
 
-					var numTFL = nativeReader.ReadInt();
-					//resAssetEntry.TOCFileLocations = new HashSet<string>();
-					for (int iTFL = 0; iTFL < numTFL; iTFL++)
-					{
-						resAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
-					}
+                }
 
-					if (nativeReader.ReadBoolean())
-						resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
-					if (nativeReader.ReadBoolean())
-						resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
-
-					resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
-					resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
-					resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
-					resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
-
-					int bundleCount = nativeReader.ReadInt();
-					for (int num4 = 0; num4 < bundleCount; num4++)
-					{
-						resAssetEntry.Bundles.Add(nativeReader.ReadInt());
-					}
-
-					AssetManager.Instance.RES.TryAdd(resAssetEntry.Name, resAssetEntry);
-					if (resAssetEntry.ResRid != 0L)
-					{
-						if (!AssetManager.Instance.resRidList.ContainsKey(resAssetEntry.ResRid))
-							AssetManager.Instance.resRidList.TryAdd(resAssetEntry.ResRid, resAssetEntry);
-					}
-
-				}
-
-				// ------------------------------------------------------------------------
-				// Chunks
-				var chunkCount = nativeReader.ReadInt();
+                // ------------------------------------------------------------------------
+                // Chunks
+                var chunkCount = nativeReader.ReadInt();
 				for (int chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
 				{
 					ChunkAssetEntry chunkAssetEntry = ReadChunkFromCache(nativeReader);
@@ -165,7 +91,95 @@ namespace FIFA23Plugin.Cache
 			return !patched;
 		}
 
-		private ChunkAssetEntry ReadChunkFromCache(NativeReader nativeReader)
+        private static ResAssetEntry ReadResEntry(NativeReader nativeReader)
+        {
+            ResAssetEntry resAssetEntry = new ResAssetEntry();
+            resAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
+            resAssetEntry.Sha1 = nativeReader.ReadSha1();
+            resAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(resAssetEntry.Sha1);
+            resAssetEntry.Size = nativeReader.ReadLong();
+            resAssetEntry.OriginalSize = nativeReader.ReadLong();
+            resAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
+            resAssetEntry.IsInline = nativeReader.ReadBoolean();
+            resAssetEntry.ResRid = nativeReader.ReadULong();
+            resAssetEntry.ResType = nativeReader.ReadUInt();
+            resAssetEntry.ResMeta = nativeReader.ReadBytes(nativeReader.ReadInt());
+            if (nativeReader.ReadBoolean())
+            {
+                resAssetEntry.ExtraData = new AssetExtraData();
+                resAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
+                resAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
+                resAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
+                resAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+            }
+
+            var numTFL = nativeReader.ReadInt();
+            //resAssetEntry.TOCFileLocations = new HashSet<string>();
+            for (int iTFL = 0; iTFL < numTFL; iTFL++)
+            {
+                resAssetEntry.TOCFileLocations.Add(nativeReader.ReadLengthPrefixedString());
+            }
+
+            if (nativeReader.ReadBoolean())
+                resAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+            if (nativeReader.ReadBoolean())
+                resAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+
+            resAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+            resAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+            resAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+            resAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+
+            int bundleCount = nativeReader.ReadInt();
+            for (int num4 = 0; num4 < bundleCount; num4++)
+            {
+                resAssetEntry.Bundles.Add(nativeReader.ReadInt());
+            }
+
+            return resAssetEntry;
+        }
+
+        private static EbxAssetEntry ReadEbxEntry(NativeReader nativeReader)
+        {
+            EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
+            ebxAssetEntry.Name = nativeReader.ReadLengthPrefixedString();
+            ebxAssetEntry.Sha1 = nativeReader.ReadSha1();
+            ebxAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(ebxAssetEntry.Sha1);
+            ebxAssetEntry.Size = nativeReader.ReadLong();
+            ebxAssetEntry.OriginalSize = nativeReader.ReadLong();
+            ebxAssetEntry.Location = (AssetDataLocation)nativeReader.ReadInt();
+            //ebxAssetEntry.IsInline = nativeReader.ReadBoolean();
+            ebxAssetEntry.Type = nativeReader.ReadLengthPrefixedString();
+            Guid guid = nativeReader.ReadGuid();
+            if (nativeReader.ReadBoolean())
+            {
+                ebxAssetEntry.ExtraData = new AssetExtraData();
+                ebxAssetEntry.ExtraData.DataOffset = nativeReader.ReadUInt();
+                ebxAssetEntry.ExtraData.Catalog = nativeReader.ReadUShort();
+                ebxAssetEntry.ExtraData.Cas = nativeReader.ReadUShort();
+                ebxAssetEntry.ExtraData.IsPatch = nativeReader.ReadBoolean();
+            }
+
+            if (nativeReader.ReadBoolean())
+                ebxAssetEntry.TOCFileLocation = nativeReader.ReadLengthPrefixedString();
+            if (nativeReader.ReadBoolean())
+                ebxAssetEntry.CASFileLocation = nativeReader.ReadLengthPrefixedString();
+
+            ebxAssetEntry.SB_CAS_Offset_Position = nativeReader.ReadInt();
+            ebxAssetEntry.SB_CAS_Size_Position = nativeReader.ReadInt();
+            ebxAssetEntry.SB_Sha1_Position = nativeReader.ReadInt();
+            ebxAssetEntry.SB_OriginalSize_Position = nativeReader.ReadInt();
+
+            int bundleCount = nativeReader.ReadInt();
+            for (int bundleIndex = 0; bundleIndex < bundleCount; bundleIndex++)
+            {
+                ebxAssetEntry.Bundles.Add(nativeReader.ReadInt());
+            }
+
+            return ebxAssetEntry;
+        }
+
+        private ChunkAssetEntry ReadChunkFromCache(NativeReader nativeReader)
 		{
 			ChunkAssetEntry chunkAssetEntry = new ChunkAssetEntry();
 			chunkAssetEntry.Id = nativeReader.ReadGuid();

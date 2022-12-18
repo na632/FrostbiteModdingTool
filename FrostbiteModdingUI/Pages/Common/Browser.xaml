@@ -48,7 +48,7 @@
                                                         <TreeView.ItemTemplate>
                                                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                                                 <ContentControl MouseDoubleClick="Label_MouseDoubleClick"  Tag="{Binding}">
-                                                                    <TextBlock Text="{Binding PathName}"
+                                                                    <TextBlock Text="{Binding DisplayName}"
                                                      >
                                                                         <TextBlock.ContextMenu>
                                                                             <ContextMenu >

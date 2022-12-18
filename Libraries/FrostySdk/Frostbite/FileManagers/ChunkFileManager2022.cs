@@ -595,7 +595,7 @@ namespace Frostbite.FileManagers
             return GetAssetEntry(key) as LegacyFileEntry;
 		}
 
-		long? testDO;
+		//long? testDO;
         private bool disposedValue;
 
         public virtual Stream GetAsset(AssetEntry entry)
@@ -603,45 +603,39 @@ namespace Frostbite.FileManagers
             if (LegacyEntries.Count == 0)
                 Initialize(Logger == null ? new NullLogger() : Logger);
 
-            //LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
             LegacyFileEntry legacyFileEntry = (LegacyFileEntry)GetAssetEntry(entry.Name);
 
             if (legacyFileEntry == null)
 				return null;
 
-			if (legacyFileEntry.ModifiedEntry != null && legacyFileEntry.ModifiedEntry.Data != null)
-			{
-				return new MemoryStream(legacyFileEntry.ModifiedEntry.Data);
-			}
-
-			Stream chunkStream = GetChunkStream(legacyFileEntry);
-			if (chunkStream == null)
-			{
-				return null;
-			}
-			using (NativeReader nativeReader = new NativeReader(chunkStream))
-			{
-				// 
-				if (legacyFileEntry.Name.Contains("voicecommand"))
-				{
-					if (!testDO.HasValue)
-						testDO = legacyFileEntry.ExtraData.DataOffset;
-					else if (testDO.Value != legacyFileEntry.ExtraData.DataOffset)
-						throw new Exception("these should be the same");
-
-				}
-				nativeReader.Position = legacyFileEntry.ExtraData.DataOffset;
-				return new MemoryStream(nativeReader.ReadBytes((int)legacyFileEntry.Size));
-			}
+			return new MemoryStream(GetAssetAsSpan(entry).ToArray());
 		}
 
-		//public void RebuildOneFile(LegacyFileEntry legacyFileEntry)
-		//{
-		//	AssetManager.ModifyChunk(legacyFileEntry.ChunkId, legacyFileEntry.ModifiedEntry.Data);
-		//}
+        public ReadOnlySpan<byte> GetAssetAsSpan(AssetEntry entry)
+        {
+            if (LegacyEntries.Count == 0)
+                Initialize(Logger == null ? new NullLogger() : Logger);
+
+            LegacyFileEntry legacyFileEntry = (LegacyFileEntry)GetAssetEntry(entry.Name);
+
+            if (legacyFileEntry == null)
+                return null;
+
+            if (legacyFileEntry.ModifiedEntry != null && legacyFileEntry.ModifiedEntry.Data != null)
+            {
+                return legacyFileEntry.ModifiedEntry.Data;
+            }
+
+			return GetChunkData(legacyFileEntry);
+        }
+
+        //public void RebuildOneFile(LegacyFileEntry legacyFileEntry)
+        //{
+        //	AssetManager.ModifyChunk(legacyFileEntry.ChunkId, legacyFileEntry.ModifiedEntry.Data);
+        //}
 
 
-		public virtual List<LegacyFileEntry> RebuildEntireChunk(
+        public virtual List<LegacyFileEntry> RebuildEntireChunk(
 			Guid chunkId
 			, List<LegacyFileEntry> replaceFileEntries
 			, List<LegacyFileEntry> newFileEntries = null
@@ -1039,11 +1033,22 @@ namespace Frostbite.FileManagers
 			return chunkStream;
 		}
 
-		/// <summary>
-		/// Cleans up asset and associated chunks (chunks should not be modified but this checks them over)
-		/// </summary>
-		/// <param name="entry"></param>
-		public void RevertAsset(AssetEntry entry)
+        private ReadOnlySpan<byte> GetChunkData(LegacyFileEntry lfe)
+        {
+            var chunkEntry = AssetManager.GetChunkEntry(lfe.ChunkId);
+            if (chunkEntry == null)
+            {
+                return null;
+            }
+			 
+			return AssetManager.GetChunkData(chunkEntry).Slice((int)lfe.ExtraData.DataOffset, (int)lfe.Size);
+        }
+
+        /// <summary>
+        /// Cleans up asset and associated chunks (chunks should not be modified but this checks them over)
+        /// </summary>
+        /// <param name="entry"></param>
+        public void RevertAsset(AssetEntry entry)
 		{
 			LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
 			if (legacyFileEntry != null && AssetManager.Instance != null)

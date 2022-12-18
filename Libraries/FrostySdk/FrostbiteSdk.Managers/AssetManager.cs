@@ -1504,7 +1504,7 @@ namespace FrostySdk.Managers
 							textureAsset.ChunkId = cae.Id;
 							var newTextureData = textureAsset.ToBytes();
 							rae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + EntryToDuplicate.Name, Data = Utils.CompressFile(newTextureData, textureAsset) };
-							cae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + textureAsset.ChunkEntry.Name, Data = Utils.CompressFile(AssetManager.Instance.GetChunkData(cae)) };
+							cae.ModifiedEntry = new ModifiedAssetEntry() { UserData = "DUP;" + textureAsset.ChunkEntry.Name, Data = Utils.CompressFile(AssetManager.Instance.GetChunkData(cae).ToArray()) };
 							cae.Sha1 = Sha1.Create();
 							cae.DuplicatedFromName = textureAsset.ChunkEntry.Name;
 							AssetManager.Instance.AddChunk(cae);
@@ -2009,10 +2009,17 @@ namespace FrostySdk.Managers
 			return GetAsset(entry);
 		}
 
-		public byte[] GetChunkData(ChunkAssetEntry entry)
+        public ReadOnlySpan<byte> GetChunkData(ChunkAssetEntry entry)
 		{
-			return ((MemoryStream)GetAsset(entry)).ToArray();
-		}
+			if(entry == null)
+				throw new ArgumentNullException(nameof(entry));
+
+			if (entry.ModifiedEntry != null)
+				return entry.ModifiedEntry.Data;
+
+			return GetResourceData2(entry.ExtraData.CasPath, entry.ExtraData.DataOffset, entry.Size, entry);// GetChunkData(chunkEntry);
+			//return ((MemoryStream)GetAsset(entry)).ToArray();
+        }
 
         public Sha1 GetBaseSha1(Sha1 sha1)
         {
@@ -2098,6 +2105,42 @@ namespace FrostySdk.Managers
                                 return null;
                             }
                             return new MemoryStream(array);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("[DEBUG] [ERROR] " + e.Message);
+            }
+            return null;
+        }
+
+        public ReadOnlySpan<byte> GetResourceData2(string superBundleName, long offset, long size, AssetEntry entry = null)
+        {
+            superBundleName = superBundleName.Replace("/cs/", "/");
+
+            try
+            {
+                var path = fs.ResolvePath($"{superBundleName}");
+                if (!string.IsNullOrEmpty(path))
+                {
+
+                    using (var f = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    {
+                        using (var nr = new NativeReader(f))
+                        {
+                            byte[] array = null;
+                            using (CasReader casReader = new CasReader(nr.CreateViewStream(offset, size)))
+                            {
+                                casReader.AssociatedAssetEntry = entry;
+                                array = casReader.Read();
+                            }
+                            if (array == null)
+                            {
+                                return null;
+                            }
+							return new ReadOnlySpan<byte>(array);
                         }
                     }
                 }

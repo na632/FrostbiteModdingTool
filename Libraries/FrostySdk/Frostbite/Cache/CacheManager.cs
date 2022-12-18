@@ -101,25 +101,12 @@ namespace FrostySdk.Frostbite
 
         public static EbxAssetEntry GetEbx(string name)
         {
-            EbxAssetEntry entry = null;
-            using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
-            {
-                if (nativeReader.ReadLengthPrefixedString() != ProfileManager.ProfileName)
-                    return null;
+            var reader = GetCacheReader();
 
-                _ = nativeReader.ReadULong();
-
-                var EbxDataOffset = nativeReader.ReadULong();
-                var ResDataOffset = nativeReader.ReadULong();
-                var ChunkDataOffset = nativeReader.ReadULong();
-                var NameToPositionOffset = nativeReader.ReadULong();
-
-
-            }
-            return entry;
+            return EnumerateEbx(name, string.Empty, false, false).Result.First();
         }
 
-        protected async ValueTask<IEnumerable<EbxAssetEntry>> EnumerateEbx(string name, string type, bool modifiedOnly, bool includeLinked)
+        protected static async ValueTask<IEnumerable<EbxAssetEntry>> EnumerateEbx(string name, string type, bool modifiedOnly, bool includeLinked)
         {
             using (NativeReader nativeReader = new NativeReader(AssetManager.CacheDecompress()))
             {
@@ -213,6 +200,16 @@ namespace FrostySdk.Frostbite
         public static async Task<bool> CacheCompressAsync(MemoryStream msCache)
         {
             return await Task.FromResult(CacheCompress(msCache));
+        }
+
+        public static ICacheReader GetCacheReader()
+        {
+            if (!string.IsNullOrEmpty(ProfileManager.CacheReader))
+            {
+                var resultFromPlugin = ((ICacheReader)AssetManager.Instance.LoadTypeFromPlugin(ProfileManager.CacheReader));
+                return resultFromPlugin;
+            }
+            return null;
         }
 
         public static bool CacheRead(out List<EbxAssetEntry> prePatchCache)

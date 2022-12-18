@@ -163,7 +163,23 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 			}
 		}
 
-		public void ModifyAsset(string key, byte[] data)
+        public ReadOnlySpan<byte> GetAssetAsSpan(AssetEntry entry)
+        {
+            LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
+            Stream chunkStream = GetChunkStream(legacyFileEntry);
+            if (chunkStream == null)
+            {
+                return null;
+            }
+            using (NativeReader nativeReader = new NativeReader(chunkStream))
+            {
+                LegacyFileEntry.ChunkCollectorInstance chunkCollectorInstance = legacyFileEntry.IsModified ? legacyFileEntry.CollectorInstances[0].ModifiedEntry : legacyFileEntry.CollectorInstances[0];
+                nativeReader.Position = chunkCollectorInstance.Offset;
+                return nativeReader.ReadBytes((int)chunkCollectorInstance.Size);
+            }
+        }
+
+        public void ModifyAsset(string key, byte[] data)
 		{
 			if (legacyEntries.ContainsKey(key))
 			{

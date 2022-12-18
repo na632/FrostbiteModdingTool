@@ -14,7 +14,9 @@ namespace FrostySdk.FrostySdk.Managers
 
 		public string Name { get; set; }
 
-		public bool IsModified { get; }
+		public string DisplayName { get; }
+
+        public bool IsModified { get; }
 
 	}
 }

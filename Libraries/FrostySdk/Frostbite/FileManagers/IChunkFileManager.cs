@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using FrostySdk;
@@ -13,6 +14,8 @@ namespace Frostbite.FileManagers
 		void FlushCache();
 
 		Stream GetAsset(AssetEntry entry);
+
+		ReadOnlySpan<byte> GetAssetAsSpan(AssetEntry entry);
 
 		AssetEntry GetAssetEntry(string key);
 

@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\FIFA19Profile.json" Link="FrostbiteProfiles\FIFA19Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\FIFA20Profile.json" Link="FrostbiteProfiles\FIFA20Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\FIFA21Profile.json" Link="FrostbiteProfiles\FIFA21Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\FIFA22Profile.json" Link="FrostbiteProfiles\FIFA22Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\FIFA23Profile.json" Link="FrostbiteProfiles\FIFA23Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\Madden21Profile.json" Link="FrostbiteProfiles\Madden21Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\Madden22Profile.json" Link="FrostbiteProfiles\Madden22Profile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\Madden23Profile.json" Link="FrostbiteProfiles\Madden23Profile.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\FrostbiteModdingUI\FrostbiteModdingUI.csproj" />
+    <ProjectReference Include="..\..\Libraries\FrostySdk\FrostySdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="FrostbiteProfiles\" />
+    <Folder Include="Plugins\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Plugins\FIFA21Plugin\bin\Debug\net7.0-windows\FIFA21Plugin.dll" Link="Plugins\FIFA21Plugin.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\Plugins\FIFA23Plugin\bin\Debug\net7.0-windows\FIFA23Plugin.dll" Link="Plugins\FIFA23Plugin.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

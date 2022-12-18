@@ -9,7 +9,7 @@ namespace FrostySdk.Managers
 	{
 		public List<LegacyFileEntry> AddedFileEntries { get; set; }
 
-		void ModifyAsset(string key, byte[] data, bool rebuildChunk);
+		//void ModifyAsset(string key, byte[] data, bool rebuildChunk);
 
 		void AddAsset(string key, LegacyFileEntry lfe);
 
