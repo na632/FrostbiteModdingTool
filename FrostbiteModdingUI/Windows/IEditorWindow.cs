@@ -14,7 +14,7 @@ namespace FrostbiteModdingUI.Windows
 
         public Task UpdateAllBrowsersFull();
 
-        public Task UpdateAllBrowsers();
+        public void UpdateAllBrowsers();
 
         public string LastGameLocation { get; }
 

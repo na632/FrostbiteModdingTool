@@ -23,13 +23,14 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Frostbite.Textures;
-using CSharpImageLibrary;
+//using CSharpImageLibrary;
 using System.Collections;
 using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Frostbite;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using FMT.FileTools;
+using CSharpImageLibrary;
 
 namespace FrostySdk.Managers
 {

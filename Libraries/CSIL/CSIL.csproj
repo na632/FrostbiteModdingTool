@@ -1,11 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">   
   <PropertyGroup>
-	<LangVersion>8.0</LangVersion>
-	
 	<TargetFramework>net7.0-windows</TargetFramework>
 	<PackageId>CSIL</PackageId>
-	  <UseWPF>true</UseWPF>
+	<UseWPF>true</UseWPF>
 	<Authors>paulv2k4</Authors>
 	<Company>paulv2k4</Company>
 

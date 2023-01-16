@@ -144,9 +144,14 @@ namespace FrostySdk.IO._2022.Readers
 			boxedValueRefs.Clear();
 
             uint chunkSize = base.ReadUInt32LittleEndian();
-			long chunkSizeRelativeToPosition = base.Position;
+			if (chunkSize == 0)
+				return;
+            long chunkSizeRelativeToPosition = base.Position;
 			uint chunkName = base.ReadUInt32LittleEndian();
-			if (chunkName != 5784133 && chunkName != 1398293061)
+            if (chunkName == 0)
+                return;
+
+            if (chunkName != 5784133 && chunkName != 1398293061)
 			{
 #if DEBUG
                 Position = 0;

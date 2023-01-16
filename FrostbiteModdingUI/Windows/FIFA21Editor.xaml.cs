@@ -1023,7 +1023,7 @@ namespace FIFAModdingUI.Windows
                 }
                 baseDir.Delete(true);
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -1126,9 +1126,8 @@ namespace FIFAModdingUI.Windows
 
         }
 
-        public async Task UpdateAllBrowsers()
+        public void UpdateAllBrowsers()
         {
-            
             dataBrowser.UpdateAssetListView();
             textureBrowser.UpdateAssetListView();
             gameplayBrowser.UpdateAssetListView();
@@ -1171,7 +1170,7 @@ namespace FIFAModdingUI.Windows
                                  .EnumerateEbx().Where(x => x.Path.ToLower().Contains("character/shoe")).OrderBy(x => x.Path).Select(x => (IAssetEntry)x);
             bootList = bootList.OrderBy(x => x.Name);
 
-            Dispatcher.InvokeAsync(() =>
+            await Dispatcher.InvokeAsync(() =>
             {
                 dataBrowser.AllAssetEntries = dataBrowserData;
                 

@@ -10,16 +10,11 @@
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>   
   
-
-	<ItemGroup>
-		<SupportedPlatform Include="windows" />
-	</ItemGroup>
-	<PropertyGroup>
+	<!--<PropertyGroup>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
-	</PropertyGroup>
+	</PropertyGroup>-->
 
     <ItemGroup>
-		<!--<PackageReference Include="CSharpImageLibrary" Version="4.2.0" />-->
 		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
 		<PackageReference Include="DotNetZip" Version="1.15.0" />
 		<PackageReference Include="HashDepot" Version="2.0.3" />

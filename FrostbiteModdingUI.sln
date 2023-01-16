@@ -75,7 +75,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Madden23Plugin", "Plugins\M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeedForSpeedUnboundPlugin", "Plugins\NFSUnboundPlugin\NeedForSpeedUnboundPlugin.csproj", "{68164018-59ED-42DC-AB62-477E4AB4974A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIFACareerChunkFileTests", "Tests\FIFACareerChunkFileTests\FIFACareerChunkFileTests.csproj", "{4878EE7F-04B8-41BC-BAC7-409560FC9DDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFACareerChunkFileTests", "Tests\FIFACareerChunkFileTests\FIFACareerChunkFileTests.csproj", "{4878EE7F-04B8-41BC-BAC7-409560FC9DDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
