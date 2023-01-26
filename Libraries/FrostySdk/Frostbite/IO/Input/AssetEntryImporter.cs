@@ -1,11 +1,14 @@
 ﻿using Frostbite.Textures;
+using FrostbiteSdk;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using v2k4FIFAModding.Frosty;
@@ -42,10 +45,94 @@ namespace FrostySdk.Frostbite.IO.Input
             if (entryType.StartsWith("SkinnedMeshAsset", StringComparison.OrdinalIgnoreCase))
                 return ImportEbxSkinnedMesh(path);
 
-
-            return false;
+            return ImportWithJSON(path);
         }
-        
+
+        private bool ImportWithJSON(string path)
+        {
+            if(new FileInfo(path).Extension.ToLower() != ".json")
+                return false;
+
+            var ebxAssetEntry = SelectedEntry as EbxAssetEntry;
+            if (ebxAssetEntry == null)
+                return false;
+
+            var ebx = AssetManager.Instance.GetEbx(ebxAssetEntry);
+            if (ebx == null) 
+                return false;
+
+            if (ebx.RootObject == null)
+                return false;
+
+            var replicatedObjFromJson = Activator.CreateInstance(ebx.RootObject.GetType());
+
+            JsonConvert.PopulateObject(File.ReadAllText(path), replicatedObjFromJson);
+
+            foreach(var ebxRootProperty in ebx.RootObject.GetProperties())
+            {
+                var jsonVersionOfProperty = replicatedObjFromJson.GetProperty(ebxRootProperty.Name);
+                if (jsonVersionOfProperty == null)
+                    continue;
+
+                if (ebxRootProperty.PropertyType.Name.StartsWith("PointerRef"))
+                {
+                    var jsonVerOfPropPointerRef = jsonVersionOfProperty.GetValue(replicatedObjFromJson);
+                    if (jsonVerOfPropPointerRef == null)
+                        continue;
+
+                    var ebxVerOfPropPointerRef = ebxRootProperty.GetValue(ebx.RootObject);
+                    if (ebxVerOfPropPointerRef == null)
+                        continue;
+
+                    var jsonInternalV = jsonVerOfPropPointerRef.GetPropertyValue("Internal");
+                    if (jsonInternalV == null)
+                        continue;
+
+                    var jsonInternalType = jsonInternalV.GetType();
+
+                    var ebxInternalV = ebxVerOfPropPointerRef.GetPropertyValue("Internal");
+                    if (ebxInternalV == null)
+                        continue;
+
+                    var ebxInternalType = ebxInternalV.GetType();
+
+                    if (ebxInternalType != jsonInternalType)
+                        continue;
+
+                    foreach (var ebxPRInternalProperty in ebxInternalV.GetProperties())
+                    {
+                        if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__Guid"))
+                            continue;
+
+                        if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__InstanceGuid"))
+                            continue;
+
+                        var jsonVersionOfPropertyInternal = jsonInternalV.GetProperty(ebxPRInternalProperty.Name);
+                        if (jsonVersionOfPropertyInternal == null)
+                            continue;
+
+                        ebxPRInternalProperty.SetValue(ebxInternalV, jsonVersionOfPropertyInternal.GetValue(jsonInternalV));
+
+                    }
+                }
+                else
+                {
+                    try 
+                    {
+                        ebxRootProperty.SetValue(ebx.RootObject, jsonVersionOfProperty.GetValue(replicatedObjFromJson));
+                    }
+                    catch
+                    {
+
+                    }
+                }
+
+            }
+
+            // This is an assumption that everything above worked fine
+            return true;
+        }
+
         public async ValueTask<bool> ImportAsync(string path)
         {
             return await Task.FromResult(Import(path));

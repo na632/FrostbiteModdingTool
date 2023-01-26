@@ -379,9 +379,10 @@ namespace FMT.Pages.Common
             {
                 AssetEntryImporter assetEntryImporter = new AssetEntryImporter(SelectedEntry);
                 var openFileDialog = assetEntryImporter.GetOpenDialogWithFilter();
-                var result = openFileDialog.ShowDialog();
-                if (result.HasValue && result.Value == true)
+                var dialogResult = openFileDialog.ShowDialog();
+                if (dialogResult.HasValue && dialogResult.Value == true)
                 {
+                    MainEditorWindow.Log("Importing " + openFileDialog.FileName);
 
                     if (SelectedEntry.Type == "SkinnedMeshAsset")
                     {
@@ -408,7 +409,12 @@ namespace FMT.Pages.Common
                     }
                     else
                     {
-                        await assetEntryImporter.ImportAsync(openFileDialog.FileName);
+                        var importResult = await assetEntryImporter.ImportAsync(openFileDialog.FileName);
+                        if (!importResult)
+                        {
+                            MainEditorWindow.LogError("Failed to import file to " + SelectedEntry.Name);
+                            return;
+                        }
 
                         if (SelectedEntry.Type == "TextureAsset")
                         {
@@ -418,6 +424,7 @@ namespace FMT.Pages.Common
                         {
                             await OpenAsset(SelectedEntry);
                         }
+                        MainEditorWindow.Log("Imported file " + openFileDialog.FileName + " successfully.");
 
                     }
                 }
