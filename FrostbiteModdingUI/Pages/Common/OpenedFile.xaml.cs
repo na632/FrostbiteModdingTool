@@ -642,10 +642,10 @@ namespace FMT.Pages.Common
                 MainEditorWindow.LogError(ex.Message + Environment.NewLine);
             }
 
-            if (MainEditorWindow != null)
-            {
-                MainEditorWindow.UpdateAllBrowsers();
-            }
+            //if (MainEditorWindow != null)
+            //{
+            //    MainEditorWindow.UpdateAllBrowsers();
+            //}
 
         }
 
@@ -876,8 +876,8 @@ namespace FMT.Pages.Common
                     }
                 }
 
-                if (MainEditorWindow != null)
-                    MainEditorWindow.UpdateAllBrowsers();
+                //if (MainEditorWindow != null)
+                //    MainEditorWindow.UpdateAllBrowsers();
 
                 await OpenAsset(SelectedEntry);
 

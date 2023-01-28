@@ -107,9 +107,12 @@ namespace FIFAModdingUI.Pages.Common
 			robjs[index] = o;
 			RootObjectProperties = robjs;
 
-			if(EditorWindow != null)
-				EditorWindow.UpdateAllBrowsers();
-		}
+            //if(EditorWindow != null)
+            //	EditorWindow.UpdateAllBrowsers();
+
+            if (EditorWindow != null)
+                EditorWindow.Log($"[{DateTime.Now.ToString("t")}] {asset.RootObject} Saved");
+        }
 
 		public void RevertAsset() {
 			AssetManager.Instance.RevertAsset(AssetEntry);
@@ -607,16 +610,18 @@ namespace FIFAModdingUI.Pages.Common
 
 			//await loadingDialog.UpdateAsync("Saving hotspot", "Updating browsers");
 
-            await Dispatcher.InvokeAsync(() =>
-            {
-                if (EditorWindow != null)
-                    EditorWindow.UpdateAllBrowsers();
-            });
+            //await Dispatcher.InvokeAsync(() =>
+            //{
+            //    if (EditorWindow != null)
+            //        EditorWindow.UpdateAllBrowsers();
+            //});
 
             await Dispatcher.InvokeAsync(() =>
 			{
-				
-			});
+                if (EditorWindow != null)
+                    EditorWindow.Log($"[{DateTime.Now.ToString("t")}] {asset.RootObject} Saved");
+
+            });
 
 			if (forceReload)
 			{

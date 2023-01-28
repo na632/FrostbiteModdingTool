@@ -1128,12 +1128,12 @@ namespace FIFAModdingUI.Windows
 
         public void UpdateAllBrowsers()
         {
-            dataBrowser.UpdateAssetListView();
-            textureBrowser.UpdateAssetListView();
-            gameplayBrowser.UpdateAssetListView();
-            legacyBrowser.UpdateAssetListView();
-            faceBrowser.UpdateAssetListView();
-            bootsBrowser.UpdateAssetListView();
+            //dataBrowser.UpdateAssetListView();
+            //textureBrowser.UpdateAssetListView();
+            //gameplayBrowser.UpdateAssetListView();
+            //legacyBrowser.UpdateAssetListView();
+            //faceBrowser.UpdateAssetListView();
+            //bootsBrowser.UpdateAssetListView();
         }
 
         public async Task UpdateAllBrowsersFull()

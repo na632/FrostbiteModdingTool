@@ -767,10 +767,10 @@ namespace FMT.Pages.Common
                 }
             }
 			
-			if(ParentBrowser != null)
-            {
-				ParentBrowser.UpdateAssetListView();
-            }
+			//if(ParentBrowser != null)
+   //         {
+			//	ParentBrowser.UpdateAssetListView();
+   //         }
         }
 
         private void lb_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -836,10 +836,10 @@ namespace FMT.Pages.Common
 				//bigFileEntry.IsModified = true;
 				bigFileEntry.ModifiedEntry = new BigFileEntry.ModifiedBigFileEntry(hexEditor.GetAllBytes(true));
 				Reconstruct(AssetEntry);
-				if (ParentBrowser != null)
-				{
-					ParentBrowser.UpdateAssetListView();
-				}
+				//if (ParentBrowser != null)
+				//{
+				//	ParentBrowser.UpdateAssetListView();
+				//}
 			}
         }
 

@@ -1001,8 +1001,8 @@ namespace FrostbiteModdingUI.Windows
 
         public void UpdateAllBrowsers()
         {
-            dataBrowser.UpdateAssetListView();
-            textureBrowser.UpdateAssetListView();
+            //dataBrowser.UpdateAssetListView();
+            //textureBrowser.UpdateAssetListView();
         }
 
         public async Task UpdateAllBrowsersFull()
