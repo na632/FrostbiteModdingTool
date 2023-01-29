@@ -10,6 +10,7 @@ using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using FMT.FileTools;
 using FrostbiteSdk;
 using Microsoft.Identity.Client;
 
@@ -49,6 +50,8 @@ namespace FMT
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            FileLogger.WriteLine("FMT:OnStartup");
+
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
 
@@ -68,9 +71,10 @@ namespace FMT
             // Language Settings
             LoadLanguageFile();
 
-
-
             base.OnStartup(e);
+
+            FileLogger.WriteLine("FMT:OnStartup:Complete");
+
         }
 
         private async Task StartDiscordRPC()

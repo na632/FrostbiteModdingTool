@@ -424,7 +424,7 @@ namespace FMT.Pages.Common
                         {
                             await OpenAsset(SelectedEntry);
                         }
-                        MainEditorWindow.Log("Imported file " + openFileDialog.FileName + " successfully.");
+                        MainEditorWindow.Log($"Imported file {openFileDialog.FileName} successfully.");
 
                     }
                 }

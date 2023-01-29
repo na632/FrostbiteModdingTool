@@ -1420,7 +1420,7 @@ namespace ModdingSupport
             }
 
             // Delete the Live Updates
-            RunDeleteLiveUpdates();
+            RunDeleteLiveTuningUpdates();
 
             // ---------------------------------------------
             // Load Last Patched Version
@@ -1490,7 +1490,7 @@ namespace ModdingSupport
             RunFIFA23Setup();
 
             // Delete the Live Updates
-            RunDeleteLiveUpdates();
+            RunDeleteLiveTuningUpdates();
 
             //RunSetupFIFAConfig();
             //RunPowershellToUnblockDLLAtLocation(fs.BasePath);
@@ -1679,7 +1679,7 @@ namespace ModdingSupport
         /// <summary>
         /// Deletes the Temporary folder with updates from EA in it
         /// </summary>
-        private void RunDeleteLiveUpdates()
+        private void RunDeleteLiveTuningUpdates()
         {
             if (!DeleteLiveUpdates)
                 return;
