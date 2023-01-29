@@ -149,6 +149,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             {
                 // var resRid = reader.ReadLong(Endian.Little);
                 item3.AddValue("SB_ReRid_Position", reader.Position + baseBundleOffset);
+                item3.AddValue("SB_ResRid_Position", reader.Position + baseBundleOffset);
 
                 var resRid = reader.ReadULong(Endian.Little);
                 item3.SetValue("resRid", resRid);

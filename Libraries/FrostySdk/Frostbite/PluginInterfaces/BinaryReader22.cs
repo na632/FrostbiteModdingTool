@@ -93,9 +93,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 uint sOffset = reader.ReadUInt(Endian.Little);
 
                 dbObject.AddValue("SB_OriginalSize_Position", reader.Position + baseBundleOffset);
+                dbObject.AddValue("SBOSizePos", reader.Position + baseBundleOffset);
                 uint originalSize = reader.ReadUInt(Endian.Little);
 
-                long position = reader.Position;
+                long positionBeforeStringRead = reader.Position;
                 reader.Position = StartOfBundleOffset + information.stringOffset + sOffset;
                 dbObject.AddValue("SB_StringOffsetPosition", reader.Position + baseBundleOffset);
                 var name = reader.ReadNullTerminatedString();
@@ -104,10 +105,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 dbObject.AddValue("sha1", Sha1[i]);
               
                 dbObject.AddValue("name", name);
-                dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
+                //dbObject.AddValue("nameHash", Fnv1.HashString(dbObject.GetValue<string>("name")));
                 dbObject.AddValue("originalSize", originalSize);
                 list.Add(dbObject);
-                reader.Position = position;
+                reader.Position = positionBeforeStringRead;
             }
             return list;
         }

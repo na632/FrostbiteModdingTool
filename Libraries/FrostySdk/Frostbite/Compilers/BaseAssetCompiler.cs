@@ -329,22 +329,27 @@ namespace FrostySdk.Frostbite.Compilers
                 WriteChunkChangesToSuperBundle(origDbo, writer, assetBundle);
         }
 
-        private void WriteEbxChangesToSuperBundle(DbObject origEbxDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteEbxChangesToSuperBundle(DbObject origDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
         {
-            if (origEbxDbo == null)
-                throw new ArgumentNullException(nameof(origEbxDbo));
+            if (origDbo == null)
+                throw new ArgumentNullException(nameof(origDbo));
+
+            if (!ModExecuter.modifiedEbx.ContainsKey(assetBundle.Key.Name))
+                return;
+
+            var originalSizePosition = origDbo.HasValue("SB_OriginalSize_Position")
+                ? origDbo.GetValue<int>("SB_OriginalSize_Position")
+                : origDbo.HasValue("SBOSizePos") ? origDbo.GetValue<int>("SBOSizePos")
+                : 0;
 
             var originalSizeOfData = assetBundle.Value.Item3;
 
-            if (origEbxDbo.HasValue("SB_OriginalSize_Position"))
-            {
-                writer.Position = origEbxDbo.GetValue<long>("SB_OriginalSize_Position");
-                writer.Write((uint)originalSizeOfData, Endian.Little);
-            }
+            writer.Position = originalSizePosition;
+            writer.Write((uint)originalSizeOfData, Endian.Little);
 
-            if (origEbxDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            if (origDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
             {
-                writer.Position = origEbxDbo.GetValue<long>("SB_Sha1_Position");
+                writer.Position = origDbo.GetValue<long>("SB_Sha1_Position");
                 writer.Write(assetBundle.Value.Item4);
             }
         }
@@ -354,29 +359,30 @@ namespace FrostySdk.Frostbite.Compilers
             if (origResDbo == null)
                 throw new ArgumentNullException(nameof(origResDbo));
 
-            if (origResDbo != null
-                && ModExecuter.modifiedRes.ContainsKey(assetBundle.Key.Name)
-                && (assetBundle.Key.Type == "SkinnedMeshAsset"
-                || assetBundle.Key.Type == "MeshSet"
-                || assetBundle.Key.Type == "Texture"))
-            {
-                writer.BaseStream.Position = origResDbo.GetValue<int>("SB_ResMeta_Position");
-                writer.WriteBytes(ModExecuter.modifiedRes[assetBundle.Key.Name].ResMeta);
+            if (!ModExecuter.modifiedRes.ContainsKey(assetBundle.Key.Name))
+                return;
 
-                if (ModExecuter.modifiedRes[assetBundle.Key.Name].ResRid != 0)
-                {
-                    writer.BaseStream.Position = origResDbo.GetValue<int>("SB_ReRid_Position");
-                    writer.Write(ModExecuter.modifiedRes[assetBundle.Key.Name].ResRid);
-                }
+            if (!origResDbo.HasValue("SB_ResMeta_Position") || origResDbo.GetValue<int>("SB_ResMeta_Position") == 0)
+                return;
+
+            var resMetaPosition = origResDbo.GetValue<int>("SB_ResMeta_Position");
+            var originalSizePosition = origResDbo.HasValue("SB_OriginalSize_Position")
+                ? origResDbo.GetValue<int>("SB_OriginalSize_Position")
+                : origResDbo.HasValue("SBOSizePos") ? origResDbo.GetValue<int>("SBOSizePos") 
+                : 0;
+
+            writer.BaseStream.Position = resMetaPosition;
+            writer.WriteBytes(ModExecuter.modifiedRes[assetBundle.Key.Name].ResMeta);
+
+            if (ModExecuter.modifiedRes[assetBundle.Key.Name].ResRid != 0)
+            {
+                writer.BaseStream.Position = origResDbo.GetValue<int>("SB_ReRid_Position");
+                writer.Write(ModExecuter.modifiedRes[assetBundle.Key.Name].ResRid);
             }
 
             var originalSizeOfData = assetBundle.Value.Item3;
-
-            if (origResDbo.HasValue("SB_OriginalSize_Position"))
-            {
-                writer.Position = origResDbo.GetValue<long>("SB_OriginalSize_Position");
-                writer.Write((uint)originalSizeOfData, Endian.Little);
-            }
+            writer.Position = originalSizePosition;
+            writer.Write((uint)originalSizeOfData, Endian.Little);
 
             if (origResDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
             {
@@ -708,35 +714,41 @@ namespace FrostySdk.Frostbite.Compilers
                 .GroupBy(x => !string.IsNullOrEmpty(x.Key.SBFileLocation) ? x.Key.SBFileLocation : x.Key.TOCFileLocation)
                 .ToDictionary(x => x.Key, x => x.ToList());
             int sbIndex = -1;
-            //foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
-            //{
-            //    foreach (
-            //        string sbKey in catalogInfo.SuperBundles.Keys
-            //        )
-            //    {
-            //        sbIndex++;
-            //        string tocFileKey = sbKey;
-            //        if (catalogInfo.SuperBundles[sbKey])
-            //        {
-            //            tocFileKey = sbKey.Replace("win32", catalogInfo.Name);
-            //        }
+            foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
+            {
+                foreach (
+                    string sbKey in catalogInfo.SuperBundles.Keys
+                    )
+                {
+                    sbIndex++;
+                    string tocFileKey = sbKey;
+                    if (catalogInfo.SuperBundles[sbKey])
+                    {
+                        tocFileKey = sbKey.Replace("win32", catalogInfo.Name);
+                    }
 
-            //        var nativePathToTOCFile = $"{directory}/{tocFileKey}.toc";
-            //        var actualPathToTOCFile = FileSystem.Instance.ResolvePath(nativePathToTOCFile, ModExecutor.UseModData);
-            //        using TOCFile tocFile = new TOCFile(nativePathToTOCFile, false, false, true, sbIndex, true);
+                    var nativePathToTOCFile = $"{directory}/{tocFileKey}.toc";
+                    var actualPathToTOCFile = FileSystem.Instance.ResolvePath(nativePathToTOCFile, ModExecutor.UseModData);
+                    using TOCFile tocFile = new TOCFile(nativePathToTOCFile, false, false, true, sbIndex, true);
 
-            //        var hashedEntries = tocFile.BundleEntries.Select(x => Fnv1a.HashString(x.Name));
-            //        if (hashedEntries.Any(x => editedBundles.Contains(x)))
-            //        {
-            //            if (!groupedByTOCSB.ContainsKey(nativePathToTOCFile))
-            //                groupedByTOCSB.Add(nativePathToTOCFile, new List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>());
+                    var hashedEntries = tocFile.BundleEntries.Select(x => Fnv1a.HashString(x.Name));
+                    if (hashedEntries.Any(x => editedBundles.Contains(x)))
+                    {
+                        if (!groupedByTOCSB.ContainsKey(nativePathToTOCFile))
+                            groupedByTOCSB.Add(nativePathToTOCFile, new List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>());
 
-            //            var editedBundleEntries = EntriesToNewPosition.Where(x => x.Key.Bundles.Any(y => hashedEntries.Contains(y))).ToArray();
-            //            foreach (var item in editedBundleEntries.Where(x => x.Key is ChunkAssetEntry))
-            //                groupedByTOCSB[nativePathToTOCFile].Add(item);
-            //        }
-            //    }
-            //}
+                        var editedBundleEntries = EntriesToNewPosition.Where(x => x.Key.Bundles.Any(y => hashedEntries.Contains(y))).ToArray();
+                        //foreach (var item in editedBundleEntries.Where(x => x.Key is ChunkAssetEntry))
+                        //    groupedByTOCSB[nativePathToTOCFile].Add(item);
+
+                        foreach (var item in editedBundleEntries)
+                        {
+                            if(!groupedByTOCSB[nativePathToTOCFile].Any(x => x.Key == item.Key))
+                                groupedByTOCSB[nativePathToTOCFile].Add(item);
+                        }
+                    }
+                }
+            }
 
             List<Task> tasks = new List<Task>();
 
