@@ -355,16 +355,24 @@ namespace FrostySdk.FrostySdk.IO
 			}
 			var ebxxArrays = arrays.Where(x => x.Count > 0).ToArray();
 			var ebxxArrayCount = ebxxArrays.Count();
-            Write(ebxxArrayCount);
-			Write(0u);
-			for(var iEbxxArray = 0; iEbxxArray < ebxxArrayCount; iEbxxArray++)
-            {
-				var arr = ebxxArrays[iEbxxArray];
-				Write((uint)arr.Offset);
-				Write((uint)arr.Count);
-				Write((ushort)origEbxArrays[iEbxxArray].PathDepth);
-				Write((ushort)origEbxArrays[iEbxxArray].TypeFlags);
-				Write((ushort)arr.ClassRef);
+			if (origEbxArrays.Count() <= ebxxArrayCount)
+			{
+                Write(0u);
+                Write(0u);
+            }
+			else
+			{
+				Write(ebxxArrayCount);
+				Write(0u);
+				for (var iEbxxArray = 0; iEbxxArray < ebxxArrayCount; iEbxxArray++)
+				{
+					var arr = ebxxArrays[iEbxxArray];
+					Write((uint)arr.Offset);
+					Write((uint)arr.Count);
+					Write((ushort)origEbxArrays[iEbxxArray].PathDepth);
+					Write((ushort)origEbxArrays[iEbxxArray].TypeFlags);
+					Write((ushort)arr.ClassRef);
+				}
 			}
 			ebxxChunkLength = (uint)base.Position - (uint)ebxxChunkLengthOffset - 4u;
             // ----------------------------------
