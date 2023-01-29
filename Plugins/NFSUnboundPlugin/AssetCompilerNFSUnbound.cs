@@ -130,8 +130,13 @@ namespace NFSUnboundPlugin
             if (entriesToNewPosition == null || entriesToNewPosition.Count == 0)
                 return true;
 
-            bool result = WriteNewDataChangesToSuperBundles(entriesToNewPosition);
-            result = WriteNewDataChangesToSuperBundles(entriesToNewPosition, "native_data");
+            bool result = WriteNewDataChangesToSuperBundles(ref entriesToNewPosition);
+            result = WriteNewDataChangesToSuperBundles(ref entriesToNewPosition, "native_data");
+
+            if (entriesToNewPosition.Count > 0)
+            {
+                parent.Logger.Log($"{entriesToNewPosition.Count} Entries were not written. Some parts of the mod may be removed.");
+            }
             return result;
 
         }

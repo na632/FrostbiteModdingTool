@@ -866,7 +866,8 @@ namespace FMT.Pages.Common
                         AssetManager.Instance.RevertAsset(SelectedEntry);
                     }
                 }
-                else if (SelectedLegacyEntry != null)
+                
+                if (SelectedLegacyEntry != null)
                 {
                     AssetManager.Instance.RevertAsset(SelectedLegacyEntry);
                     if (SelectedLegacyEntry.Type == "DDS")

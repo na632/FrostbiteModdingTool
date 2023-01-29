@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace FrostySdk.Frostbite.Compilers
 {
@@ -697,7 +698,7 @@ namespace FrostySdk.Frostbite.Compilers
         }
 
 
-        protected bool WriteNewDataChangesToSuperBundles(Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition, string directory = "native_patch")
+        protected bool WriteNewDataChangesToSuperBundles(ref Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition, string directory = "native_patch")
         {
             if (EntriesToNewPosition == null)
             {
@@ -710,9 +711,9 @@ namespace FrostySdk.Frostbite.Compilers
             //
             var editedBundles = EntriesToNewPosition.SelectMany(x => x.Key.Bundles).Distinct();
             var groupedByTOCSB = new Dictionary<string, List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>>();
-            groupedByTOCSB = EntriesToNewPosition
-                .GroupBy(x => !string.IsNullOrEmpty(x.Key.SBFileLocation) ? x.Key.SBFileLocation : x.Key.TOCFileLocation)
-                .ToDictionary(x => x.Key, x => x.ToList());
+            //groupedByTOCSB = EntriesToNewPosition
+            //    .GroupBy(x => !string.IsNullOrEmpty(x.Key.SBFileLocation) ? x.Key.SBFileLocation : x.Key.TOCFileLocation)
+            //    .ToDictionary(x => x.Key, x => x.ToList());
             int sbIndex = -1;
             foreach (var catalogInfo in FileSystem.Instance.EnumerateCatalogInfos())
             {
@@ -731,6 +732,14 @@ namespace FrostySdk.Frostbite.Compilers
                     var actualPathToTOCFile = FileSystem.Instance.ResolvePath(nativePathToTOCFile, ModExecutor.UseModData);
                     using TOCFile tocFile = new TOCFile(nativePathToTOCFile, false, false, true, sbIndex, true);
 
+#if DEBUG
+                    if (nativePathToTOCFile.Contains("global"))
+                    {
+
+                    }
+#endif
+
+
                     var hashedEntries = tocFile.BundleEntries.Select(x => Fnv1a.HashString(x.Name));
                     if (hashedEntries.Any(x => editedBundles.Contains(x)))
                     {
@@ -745,7 +754,10 @@ namespace FrostySdk.Frostbite.Compilers
                         {
                             if(!groupedByTOCSB[nativePathToTOCFile].Any(x => x.Key == item.Key))
                                 groupedByTOCSB[nativePathToTOCFile].Add(item);
+
+                            EntriesToNewPosition.Remove(item.Key);
                         }
+
                     }
                 }
             }

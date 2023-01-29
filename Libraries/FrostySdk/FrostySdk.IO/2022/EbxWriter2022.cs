@@ -351,29 +351,30 @@ namespace FrostySdk.FrostySdk.IO
 			var oldEbxStream = AssetManager.Instance.GetEbxStream(oldEntry);
 			using (var reader = new EbxReader22B(oldEbxStream, true))
 			{
-				origEbxArrays.AddRange(reader.arrays);
+				origEbxArrays.AddRange(reader.arrays.Where(x => x.Count > 0).OrderBy(x => x.Offset));
 			}
-			var ebxxArrays = arrays.Where(x => x.Count > 0).ToArray();
+			var ebxxArrays = arrays.Where(x => x.Count > 0).OrderBy(x => x.Offset).ToArray();
 			var ebxxArrayCount = ebxxArrays.Count();
-			if (origEbxArrays.Count() <= ebxxArrayCount)
+			//if (origEbxArrays.Count() <= ebxxArrayCount)
+			//{
+			//             Write(0u);
+			//             Write(0u);
+			//         }
+			//else
+			//{
+			Write(ebxxArrayCount);
+			Write(0u);
+            for (var iEbxxArray = 0; iEbxxArray < ebxxArrayCount; iEbxxArray++)
 			{
-                Write(0u);
-                Write(0u);
-            }
-			else
-			{
-				Write(ebxxArrayCount);
-				Write(0u);
-				for (var iEbxxArray = 0; iEbxxArray < ebxxArrayCount; iEbxxArray++)
-				{
-					var arr = ebxxArrays[iEbxxArray];
-					Write((uint)arr.Offset);
-					Write((uint)arr.Count);
-					Write((ushort)origEbxArrays[iEbxxArray].PathDepth);
-					Write((ushort)origEbxArrays[iEbxxArray].TypeFlags);
-					Write((ushort)arr.ClassRef);
-				}
+				var arr = ebxxArrays[iEbxxArray];
+				Write((uint)arr.Offset);
+				Write((uint)arr.Count);
+				Write((ushort)origEbxArrays[iEbxxArray].PathDepth);
+				//Write((ushort)0);
+				Write((ushort)origEbxArrays[iEbxxArray].TypeFlags);
+				Write((ushort)arr.ClassRef);
 			}
+			//}
 			ebxxChunkLength = (uint)base.Position - (uint)ebxxChunkLengthOffset - 4u;
             // ----------------------------------
 

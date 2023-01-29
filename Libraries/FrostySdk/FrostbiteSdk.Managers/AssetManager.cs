@@ -969,7 +969,7 @@ namespace FrostySdk.Managers
                 assetEntry.AddBundles.Clear();
                 assetEntry.RemBundles.Clear();
 
-				var chunkFileManager = GetLegacyAssetManager() as ChunkFileManager;
+				var chunkFileManager = GetLegacyAssetManager() as IChunkFileManager;
 				if (chunkFileManager != null)
 				{
                     chunkFileManager.RevertAsset(assetEntry);
