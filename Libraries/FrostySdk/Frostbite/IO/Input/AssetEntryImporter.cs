@@ -1,4 +1,5 @@
-﻿using Frostbite.Textures;
+﻿using FMT.FileTools;
+using Frostbite.Textures;
 using FrostbiteSdk;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
@@ -6,6 +7,7 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -45,7 +47,19 @@ namespace FrostySdk.Frostbite.IO.Input
             if (entryType.StartsWith("SkinnedMeshAsset", StringComparison.OrdinalIgnoreCase))
                 return ImportEbxSkinnedMesh(path);
 
-            return ImportWithJSON(path);
+            if(new FileInfo(path).Extension.ToLower() == ".json")
+                return ImportWithJSON(path);
+
+            return ImportBinary(path);
+        }
+
+        private bool ImportBinary(string path)
+        {
+            if (new FileInfo(path).Extension.ToLower() != ".bin")
+                return false;
+
+
+            return false;
         }
 
         private bool ImportWithJSON(string path)
@@ -66,7 +80,16 @@ namespace FrostySdk.Frostbite.IO.Input
 
             var replicatedObjFromJson = Activator.CreateInstance(ebx.RootObject.GetType());
 
-            JsonConvert.PopulateObject(File.ReadAllText(path), replicatedObjFromJson);
+            try
+            {
+                JsonConvert.PopulateObject(File.ReadAllText(path), replicatedObjFromJson);
+            }
+            catch
+            {
+                FileLogger.WriteLine($"Unable to process JSON file {path} into Object {ebx.RootObject.GetType().FullName}");
+                //EventLog.WriteEntry("FMT", $"Unable to process JSON file {path} into Object {ebx.RootObject.GetType().FullName}");
+                return false;
+            }
 
             foreach(var ebxRootProperty in ebx.RootObject.GetProperties())
             {
@@ -76,44 +99,44 @@ namespace FrostySdk.Frostbite.IO.Input
 
                 if (ebxRootProperty.PropertyType.Name.StartsWith("PointerRef"))
                 {
-                    var jsonVerOfPropPointerRef = jsonVersionOfProperty.GetValue(replicatedObjFromJson);
-                    if (jsonVerOfPropPointerRef == null)
-                        continue;
+                    //var jsonVerOfPropPointerRef = jsonVersionOfProperty.GetValue(replicatedObjFromJson);
+                    //if (jsonVerOfPropPointerRef == null)
+                    //    continue;
 
-                    var ebxVerOfPropPointerRef = ebxRootProperty.GetValue(ebx.RootObject);
-                    if (ebxVerOfPropPointerRef == null)
-                        continue;
+                    //var ebxVerOfPropPointerRef = ebxRootProperty.GetValue(ebx.RootObject);
+                    //if (ebxVerOfPropPointerRef == null)
+                    //    continue;
 
-                    var jsonInternalV = jsonVerOfPropPointerRef.GetPropertyValue("Internal");
-                    if (jsonInternalV == null)
-                        continue;
+                    //var jsonInternalV = jsonVerOfPropPointerRef.GetPropertyValue("Internal");
+                    //if (jsonInternalV == null)
+                    //    continue;
 
-                    var jsonInternalType = jsonInternalV.GetType();
+                    //var jsonInternalType = jsonInternalV.GetType();
 
-                    var ebxInternalV = ebxVerOfPropPointerRef.GetPropertyValue("Internal");
-                    if (ebxInternalV == null)
-                        continue;
+                    //var ebxInternalV = ebxVerOfPropPointerRef.GetPropertyValue("Internal");
+                    //if (ebxInternalV == null)
+                    //    continue;
 
-                    var ebxInternalType = ebxInternalV.GetType();
+                    //var ebxInternalType = ebxInternalV.GetType();
 
-                    if (ebxInternalType != jsonInternalType)
-                        continue;
+                    //if (ebxInternalType != jsonInternalType)
+                    //    continue;
 
-                    foreach (var ebxPRInternalProperty in ebxInternalV.GetProperties())
-                    {
-                        if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__Guid"))
-                            continue;
+                    //foreach (var ebxPRInternalProperty in ebxInternalV.GetProperties())
+                    //{
+                    //    if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__Guid"))
+                    //        continue;
 
-                        if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__InstanceGuid"))
-                            continue;
+                    //    if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__InstanceGuid"))
+                    //        continue;
 
-                        var jsonVersionOfPropertyInternal = jsonInternalV.GetProperty(ebxPRInternalProperty.Name);
-                        if (jsonVersionOfPropertyInternal == null)
-                            continue;
+                    //    var jsonVersionOfPropertyInternal = jsonInternalV.GetProperty(ebxPRInternalProperty.Name);
+                    //    if (jsonVersionOfPropertyInternal == null)
+                    //        continue;
 
-                        ebxPRInternalProperty.SetValue(ebxInternalV, jsonVersionOfPropertyInternal.GetValue(jsonInternalV));
+                    //    ebxPRInternalProperty.SetValue(ebxInternalV, jsonVersionOfPropertyInternal.GetValue(jsonInternalV));
 
-                    }
+                    //}
                 }
                 else
                 {
@@ -123,11 +146,13 @@ namespace FrostySdk.Frostbite.IO.Input
                     }
                     catch
                     {
-
+                        FileLogger.WriteLine($"Unable to process JSON property {jsonVersionOfProperty.Name} into Object {ebx.RootObject.GetType().FullName}");
                     }
                 }
 
             }
+
+            AssetManager.Instance.ModifyEbx(ebxAssetEntry.Name, ebx);
 
             // This is an assumption that everything above worked fine
             return true;
@@ -151,7 +176,7 @@ namespace FrostySdk.Frostbite.IO.Input
             else if (entryType.StartsWith("SkinnedMeshAsset", StringComparison.OrdinalIgnoreCase))
                 openFileDialog.Filter = fbxFilter;
             else
-                openFileDialog.Filter = $"Files (*.json)|*.json";
+                openFileDialog.Filter = $"Files (*.json,*.bin)|*.json;*.bin";
 
             return openFileDialog;
         }
