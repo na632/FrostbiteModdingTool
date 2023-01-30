@@ -33,13 +33,13 @@
                                                         <RowDefinition MinHeight="30" Height="30" MaxHeight="30"></RowDefinition>
                                                         <RowDefinition MinHeight="100" Height="*"></RowDefinition>
                                                     </Grid.RowDefinitions>
-                                                    <Label Grid.Column="0">Filter:</Label>
-                                                    <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                            <TextBlock Grid.Column="0" Text="Filter:" />
+                            <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                     KeyUp="txtFilter_KeyUp"  />
                                                     <CheckBox Grid.Column="2" x:Name="chkShowOnlyModified" 
                            Checked="chkShowOnlyModified_Checked" Unchecked="chkShowOnlyModified_Unchecked"
                            Content="Show Only Modified" HorizontalAlignment="Stretch"  />
-                            <Button Grid.Column="3" x:Name="btnRefresh" Click="btnRefresh_Click" Margin="5,0,5,0" Height="20">
+                            <Button Grid.Column="3" x:Name="btnRefresh" IsEnabled="False" Click="btnRefresh_Click" Margin="5,0,5,0" Height="20">
                                 <StackPanel Height="30" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
                                     <MaterialDesign:PackIcon Kind="Refresh" VerticalAlignment="Center" />
                                 </StackPanel>

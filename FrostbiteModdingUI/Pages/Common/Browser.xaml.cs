@@ -65,14 +65,16 @@ namespace FIFAModdingUI.Pages.Common
 			AssetManager.AssetManagerModified += AssetManager_AssetManagerModified;
 		}
 
-		private async void AssetManager_AssetManagerModified(IAssetEntry modifiedAsset)
+		private void AssetManager_AssetManagerModified(IAssetEntry modifiedAsset)
 		{
-			//await Update();
-			//do
-			//{
+			RequiresRefresh = true;
 
-			//}
-			//while (assetTreeView.ItemsSource.GetEnumerator().MoveNext());
+            //await Update();
+            //do
+            //{
+
+            //}
+            //while (assetTreeView.ItemsSource.GetEnumerator().MoveNext());
         }
 
 		public int HalfMainWindowWidth { get { return MainEditorWindow != null ? (int)Math.Round(((Window)MainEditorWindow).ActualWidth / 2) : 400; } }
@@ -92,10 +94,19 @@ namespace FIFAModdingUI.Pages.Common
 
 		public HelixToolkit.Wpf.SharpDX.Camera Camera { get; set; }
 
+		private bool m_RequiresRefresh;
 
-        #region Entry Properties
+		public bool RequiresRefresh
+		{
+			get { return m_RequiresRefresh; }
+			set { m_RequiresRefresh = value; btnRefresh.IsEnabled = value; }
+		}
 
-        private AssetEntry assetEntry1;
+
+
+		#region Entry Properties
+
+		private AssetEntry assetEntry1;
 
 		public AssetEntry SelectedEntry
 		{
@@ -1445,6 +1456,7 @@ namespace FIFAModdingUI.Pages.Common
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
 			_ = Update();
+			RequiresRefresh = false;
         }
     }
 
