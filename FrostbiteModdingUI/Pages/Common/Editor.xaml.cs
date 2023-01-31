@@ -1,4 +1,5 @@
-﻿using FMT.Models;
+﻿using FMT.FileTools;
+using FMT.Models;
 using FrostbiteModdingUI.Pages.Common.EBX;
 using FrostbiteModdingUI.Windows;
 using FrostbiteSdk;
@@ -8,6 +9,7 @@ using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -164,41 +166,38 @@ namespace FIFAModdingUI.Pages.Common
 			
 		//}
 
-		public async Task<bool> LoadEbx(IAssetEntry inAssetEntry
+		public async Task<bool> LoadEbx(
+            IAssetEntry inAssetEntry
 			, EbxAsset inAsset
 			, IEditorWindow inEditorWindow)
         {
+
+            if (inAssetEntry == null)
+                return false;
+
+            if (inAsset == null)
+            {
+                FileLogger.WriteLine($"Unable to load Editor for {inAssetEntry.Name} as Ebx Asset is NULL");
+                return false;
+            }
+
 			CurrentEditorInstance = this;
-			//vanillaAnchorable.Hide();
-			//vanillaAnchorable.ToggleAutoHide();
-
-			//LoadingDialog loadingDialog = new LoadingDialog();
-			//loadingDialog.Show();
-			//await loadingDialog.UpdateAsync("Loading EBX", "Loading EBX");
-
-			//await Task.Delay(1);
-
-			//_VanillaRootProps = null;
+			
 			_rootObjProps = null;
 			PropertyChanged += Editor_PropertyChanged;
-			// intialise objs
 			AssetEntry = inAssetEntry;
 			Asset = inAsset;
 			EditorWindow = inEditorWindow;
 
 			bool success = true;
-			//await loadingDialog.UpdateAsync("Loading EBX", "Building Tree Views");
 			
-				await Dispatcher.InvokeAsync(() =>
-				{
-                    success = CreateEditor(RootObjectProperties, TreeView1).Result;
-                    this.DataContext = null;
-                    this.DataContext = this;
-                    //success = CreateEditor(VanillaRootObjectProperties, TreeViewOriginal).Result;
-                });
-
-			//loadingDialog.Close();
-			//loadingDialog = null;
+			await Dispatcher.InvokeAsync(() =>
+			{
+                success = CreateEditor(RootObjectProperties, TreeView1).Result;
+                this.DataContext = null;
+                this.DataContext = this;
+            });
+		
 			return success;
 		}
 

@@ -811,147 +811,147 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-		private async Task OpenAsset(IAssetEntry entry)
-		{
-			ResetViewers();
-			if (entry is EbxAssetEntry ebxEntry)
-            {
-				await OpenEbxAsset(ebxEntry);
-				return;
-			}
+		//private async Task OpenAsset(IAssetEntry entry)
+		//{
+		//	ResetViewers();
+		//	if (entry is EbxAssetEntry ebxEntry)
+  //          {
+		//		await OpenEbxAsset(ebxEntry);
+		//		return;
+		//	}
 
-			if(entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
-			{
-				await OpenLTUAsset(ltuEntry);
-				return;
-			}
+		//	if(entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+		//	{
+		//		await OpenLTUAsset(ltuEntry);
+		//		return;
+		//	}
 
-			try
-			{
+		//	try
+		//	{
 				
 
 
-							LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
-							if (legacyFileEntry != null)
-							{
-								SelectedLegacyEntry = legacyFileEntry;
-								//btnImport.IsEnabled = true;
+		//					LegacyFileEntry legacyFileEntry = entry as LegacyFileEntry;
+		//					if (legacyFileEntry != null)
+		//					{
+		//						SelectedLegacyEntry = legacyFileEntry;
+		//						//btnImport.IsEnabled = true;
 
-								List<string> textViewers = new List<string>()
-						{
-							"LUA",
-							"XML",
-							"INI",
-							"NAV",
-							"JSON",
-							"TXT",
-							"CSV",
-							"TG", // some custom XML / JS / LUA file that is used in FIFA
-							"JLT", // some custom XML / LUA file that is used in FIFA
-							"PLS" // some custom XML / LUA file that is used in FIFA
-						};
+		//						List<string> textViewers = new List<string>()
+		//				{
+		//					"LUA",
+		//					"XML",
+		//					"INI",
+		//					"NAV",
+		//					"JSON",
+		//					"TXT",
+		//					"CSV",
+		//					"TG", // some custom XML / JS / LUA file that is used in FIFA
+		//					"JLT", // some custom XML / LUA file that is used in FIFA
+		//					"PLS" // some custom XML / LUA file that is used in FIFA
+		//				};
 
-								List<string> imageViewers = new List<string>()
-						{
-							"PNG",
-							"DDS"
-						};
+		//						List<string> imageViewers = new List<string>()
+		//				{
+		//					"PNG",
+		//					"DDS"
+		//				};
 
-							List<string> bigViewers = new List<string>()
-						{
-							"BIG",
-							"AST"
-						};
+		//					List<string> bigViewers = new List<string>()
+		//				{
+		//					"BIG",
+		//					"AST"
+		//				};
 
-							if (textViewers.Contains(legacyFileEntry.Type))
-								{
-									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+		//					if (textViewers.Contains(legacyFileEntry.Type))
+		//						{
+		//							MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
 
-									//btnImport.IsEnabled = true;
-									//btnExport.IsEnabled = true;
-									//btnRevert.IsEnabled = true;
+		//							//btnImport.IsEnabled = true;
+		//							//btnExport.IsEnabled = true;
+		//							//btnRevert.IsEnabled = true;
 
-									//TextViewer.Visibility = Visibility.Visible;
-									//using (var nr = new NativeReader(AssetManager.Instance.GetCustomAsset("legacy", legacyFileEntry)))
-									//{
-									//	TextViewer.Text = UTF8Encoding.UTF8.GetString(nr.ReadToEnd());
-									//}
-								}
-								else if (imageViewers.Contains(legacyFileEntry.Type))
-								{
-									MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
-									//btnImport.IsEnabled = true;
-									//btnExport.IsEnabled = true;
-									//ImageViewerScreen.Visibility = Visibility.Visible;
+		//							//TextViewer.Visibility = Visibility.Visible;
+		//							//using (var nr = new NativeReader(AssetManager.Instance.GetCustomAsset("legacy", legacyFileEntry)))
+		//							//{
+		//							//	TextViewer.Text = UTF8Encoding.UTF8.GetString(nr.ReadToEnd());
+		//							//}
+		//						}
+		//						else if (imageViewers.Contains(legacyFileEntry.Type))
+		//						{
+		//							MainEditorWindow.Log("Loading Legacy File " + SelectedLegacyEntry.Filename);
+		//							//btnImport.IsEnabled = true;
+		//							//btnExport.IsEnabled = true;
+		//							//ImageViewerScreen.Visibility = Visibility.Visible;
 
-									BuildTextureViewerFromStream((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry));
+		//							BuildTextureViewerFromStream((MemoryStream)ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry));
 
 
-								}
-							else if (bigViewers.Contains(legacyFileEntry.Type))
-                            {
-								//BIGViewer.Visibility = Visibility.Visible;
-								//BIGViewer.AssetEntry = legacyFileEntry;
-								//BIGViewer.ParentBrowser = this;
-								//switch(legacyFileEntry.Type)
-        //                        {
-								//	default:
-								//		BIGViewer.LoadBig();
-								//		break;
+		//						}
+		//					else if (bigViewers.Contains(legacyFileEntry.Type))
+  //                          {
+		//						//BIGViewer.Visibility = Visibility.Visible;
+		//						//BIGViewer.AssetEntry = legacyFileEntry;
+		//						//BIGViewer.ParentBrowser = this;
+		//						//switch(legacyFileEntry.Type)
+  //      //                        {
+		//						//	default:
+		//						//		BIGViewer.LoadBig();
+		//						//		break;
 
-								//}
+		//						//}
 
-								//btnImport.IsEnabled = true;
-								//btnExport.IsEnabled = true;
-								//btnRevert.IsEnabled = true;
-                            }
-							else
-							{
-								MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
-								//btnExport.IsEnabled = true;
-        //                        btnImport.IsEnabled = true;
-        //                        btnRevert.IsEnabled = true;
+		//						//btnImport.IsEnabled = true;
+		//						//btnExport.IsEnabled = true;
+		//						//btnRevert.IsEnabled = true;
+  //                          }
+		//					else
+		//					{
+		//						MainEditorWindow.Log("Loading Unknown Legacy File " + SelectedLegacyEntry.Filename);
+		//						//btnExport.IsEnabled = true;
+  //      //                        btnImport.IsEnabled = true;
+  //      //                        btnRevert.IsEnabled = true;
 
-								//unknownFileDocumentsPane.Children.Clear();
-								//var newLayoutDoc = new LayoutDocument();
-								//newLayoutDoc.Title = SelectedEntry.DisplayName;
-								//WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
-        //                        using (var nr = new NativeReader(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
-        //                        {
-        //                            hexEditor.Stream = new MemoryStream(nr.ReadToEnd());
-        //                        }
-        //                        newLayoutDoc.Content = hexEditor;
-								//hexEditor.BytesModified += HexEditor_BytesModified;
-								//unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
-								//unknownFileDocumentsPane.SelectedContentIndex = 0;
+		//						//unknownFileDocumentsPane.Children.Clear();
+		//						//var newLayoutDoc = new LayoutDocument();
+		//						//newLayoutDoc.Title = SelectedEntry.DisplayName;
+		//						//WpfHexaEditor.HexEditor hexEditor = new WpfHexaEditor.HexEditor();
+  //      //                        using (var nr = new NativeReader(ProjectManagement.Instance.Project.AssetManager.GetCustomAsset("legacy", legacyFileEntry)))
+  //      //                        {
+  //      //                            hexEditor.Stream = new MemoryStream(nr.ReadToEnd());
+  //      //                        }
+  //      //                        newLayoutDoc.Content = hexEditor;
+		//						//hexEditor.BytesModified += HexEditor_BytesModified;
+		//						//unknownFileDocumentsPane.Children.Insert(0, newLayoutDoc);
+		//						//unknownFileDocumentsPane.SelectedContentIndex = 0;
 							
 
-								//UnknownFileViewer.Visibility = Visibility.Visible;
-							}
+		//						//UnknownFileViewer.Visibility = Visibility.Visible;
+		//					}
 
-						}
+		//				}
 
-			}
-			catch (Exception e)
-			{
-				MainEditorWindow.Log($"Failed to load file with message {e.Message}");
-				Debug.WriteLine(e.ToString());
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		MainEditorWindow.Log($"Failed to load file with message {e.Message}");
+		//		Debug.WriteLine(e.ToString());
 
-				//DisplayUnknownFileViewer(AssetManager.Instance.GetEbxStream(ebxEntry));
+		//		//DisplayUnknownFileViewer(AssetManager.Instance.GetEbxStream(ebxEntry));
 
-			}
+		//	}
 
-			DataContext = null;
-			DataContext = this;
-		}
+		//	DataContext = null;
+		//	DataContext = this;
+		//}
 
-		private async Task OpenLTUAsset(LiveTuningUpdate.LiveTuningUpdateEntry entry)
-		{
-            MainEditorWindow.Log("Loading EBX " + entry.Filename);
-			var ebx = entry.GetAsset();
-            //var successful = await EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-            //EBXViewer.Visibility = Visibility.Visible;
-        }
+		//private async Task OpenLTUAsset(LiveTuningUpdate.LiveTuningUpdateEntry entry)
+		//{
+  //          MainEditorWindow.Log("Loading EBX " + entry.Filename);
+		//	var ebx = entry.GetAsset();
+  //          //var successful = await EBXViewer.LoadEbx(entry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
+  //          //EBXViewer.Visibility = Visibility.Visible;
+  //      }
 
         private void HexEditor_BytesModified(object sender, WpfHexaEditor.Core.EventArguments.ByteEventArgs e)
         {
@@ -1246,17 +1246,17 @@ namespace FIFAModdingUI.Pages.Common
 			}
 		}
 
-        private void assetListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            IAssetEntry entry = (IAssetEntry)((ListView)sender).SelectedItem;
+        //private void assetListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    IAssetEntry entry = (IAssetEntry)((ListView)sender).SelectedItem;
 
-            if (entry is EbxAssetEntry ebxAssetEntry)
-                OpenAsset(ebxAssetEntry);
-            else if (entry is LegacyFileEntry legacyFileEntry)
-                OpenAsset(legacyFileEntry);
-            else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
-                OpenAsset(ltuEntry);
-        }
+        //    if (entry is EbxAssetEntry ebxAssetEntry)
+        //        OpenAsset(ebxAssetEntry);
+        //    else if (entry is LegacyFileEntry legacyFileEntry)
+        //        OpenAsset(legacyFileEntry);
+        //    else if (entry is LiveTuningUpdate.LiveTuningUpdateEntry ltuEntry)
+        //        OpenAsset(ltuEntry);
+        //}
 
         private void btnDuplicate_Click(object sender, RoutedEventArgs e)
         {

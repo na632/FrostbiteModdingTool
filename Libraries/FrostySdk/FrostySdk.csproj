@@ -87,6 +87,10 @@
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 
 	  </None>
+	  <None Update="FrostbiteProfiles\DeadSpaceProfile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
 	  <None Update="FrostbiteProfiles\NeedForSpeedUnboundProfile.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

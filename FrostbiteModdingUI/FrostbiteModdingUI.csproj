@@ -194,6 +194,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+    <None Update="SDK\DeadSpaceSDK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SDK\FIFA19SDK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -243,6 +246,9 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <None Include="..\Plugins\DeadSpacePlugin\bin\Debug\net7.0-windows\DeadSpacePlugin.dll" Link="Plugins\DeadSpacePlugin.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	  <None Include="..\Plugins\FIFA20Plugin\bin\Debug\net7.0-windows\FIFA20Plugin.dll" Link="Plugins\FIFA20Plugin.dll">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ExcludeFromSingleFile>true</ExcludeFromSingleFile>

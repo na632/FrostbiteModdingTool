@@ -554,24 +554,52 @@ namespace FrostySdk.Managers
 			
         }
 
+		static bool PluginsInitialised { get; set; }
+
 		private static List<string> PluginAssemblies = new List<string>();
 
 		public static bool InitialisePlugins()
         {
+			if (PluginsInitialised)
+				return true;
 
-			if (Directory.Exists("Plugins") && !ProfileManager.DoesNotUsePlugin)
+			if (ProfileManager.DoesNotUsePlugin)
 			{
-				foreach (var p in Directory.EnumerateFiles("Plugins"))
-				{
-					if (p.ToLower().EndsWith(".dll") && p.ToLower().Contains(ProfileManager.ProfileName.ToLower()))
-					{
-                        if (Assembly.UnsafeLoadFrom(p) != null)
-                        {
-							if (!PluginAssemblies.Contains(p))
-								PluginAssemblies.Add(p);
+				FileLogger.WriteLine($"{ProfileManager.ProfileName} does not use a Plugin.");
+				return false;
+			}
 
-							return true;
-						}
+			var pluginsPath = Path.Combine(AppContext.BaseDirectory, "Plugins");
+			if (!Directory.Exists(pluginsPath))
+			{
+				var pluginsDirectoryDoesntExistErrorMessage = $"Plugins Directory does not exist. Please reinstall FMT.";
+                FileLogger.WriteLine(pluginsDirectoryDoesntExistErrorMessage);
+				throw new Exception(pluginsDirectoryDoesntExistErrorMessage);
+            }
+
+			var pluginAssemblies = Directory.EnumerateFiles(pluginsPath)
+				.Select(x => new FileInfo(x))
+				.Where(x => x.Extension.EndsWith(".dll", StringComparison.OrdinalIgnoreCase));
+
+			if (!pluginAssemblies.Any())
+			{
+				var pluginAssembliesDontExistErrorMessage = $"No Plugins in {pluginsPath} found. Please reinstall FMT.";
+                FileLogger.WriteLine(pluginAssembliesDontExistErrorMessage);
+                throw new Exception(pluginAssembliesDontExistErrorMessage);
+            }
+
+            foreach (var fiPlugin in pluginAssemblies)
+			{
+				if (fiPlugin.Name.Contains(ProfileManager.ProfileName.Replace(" ",""), StringComparison.OrdinalIgnoreCase))
+				{
+                    if (Assembly.UnsafeLoadFrom(fiPlugin.FullName) != null)
+                    {
+						if (!PluginAssemblies.Contains(fiPlugin.FullName))
+							PluginAssemblies.Add(fiPlugin.FullName);
+
+						PluginsInitialised = true;
+
+                        return true;
 					}
 				}
 			}
@@ -665,10 +693,10 @@ namespace FrostySdk.Managers
 			}
 
 
-			if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
-			{
-				return;
-			}
+			//if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
+			//{
+			//	return;
+			//}
             List<EbxAssetEntry> prePatchCache = new List<EbxAssetEntry>();
             if (!CacheRead(out prePatchCache))
             {
@@ -685,6 +713,10 @@ namespace FrostySdk.Managers
                 CacheWrite();
             }
 
+            if (!additionalStartup || TypeLibrary.ExistingAssembly == null)
+            {
+                return;
+            }
             DoEbxIndexing();
 
 			// Load these when you need them!

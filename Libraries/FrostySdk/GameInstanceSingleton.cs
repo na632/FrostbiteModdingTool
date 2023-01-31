@@ -61,7 +61,7 @@ namespace v2k4FIFAModdingCL
                 var fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1, filePath.Length - filePath.LastIndexOf("\\") - 1);
                 if (!string.IsNullOrEmpty(fileName))// && GameInstanceSingleton.CompatibleGameVersions.Contains(fileName))
                 {
-                    Instance.GAMEVERSION = fileName.Replace(".exe", "");
+                    Instance.GAMEVERSION = fileName.Replace(".exe", "").Replace(" ", "");
                     Instance.INITIALIZED = true;
                 }
                 if(ProfileManager.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))

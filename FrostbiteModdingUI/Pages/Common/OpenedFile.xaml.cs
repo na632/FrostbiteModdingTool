@@ -339,6 +339,12 @@ namespace FMT.Pages.Common
                     }
                     MainEditorWindow.Log("Loading EBX " + ebxEntry.Filename);
 
+                    if(SelectedEbxAsset == null)
+                    {
+                        MainEditorWindow.Log($"Failed to load Selected Ebx Asset for {ebxEntry.Filename}");
+                        return;
+                    }
+
                     var successful = await EBXViewer.LoadEbx(ebxEntry, SelectedEbxAsset, MainEditorWindow);
                     Dispatcher.Invoke(() =>
                     {
