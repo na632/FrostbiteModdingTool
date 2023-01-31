@@ -47,43 +47,14 @@ namespace SdkGenerator
 
 		public Process GetProcess()
         {
-			var allProcesses = Process.GetProcesses();
-            //var process = allProcesses.FirstOrDefault(x =>
-            //        x.ProcessName.Contains("FIFA18", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.Contains("FIFA19", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.Contains("FIFA20", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.Contains("FIFA21", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.ToUpper().Contains("MADDEN21", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.Contains("bf4", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.Contains("bfv", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.Contains("bf5", StringComparison.OrdinalIgnoreCase)
-            //        || x.ProcessName.Contains("bf1", StringComparison.OrdinalIgnoreCase)
-            //        );
-			var process = allProcesses.FirstOrDefault(x =>
-				   (x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("NeedForSpeedUnbound", StringComparison.OrdinalIgnoreCase)
-                   )
-				   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
-				   );
+			var eP = ProfileManager.EditorProfiles.Select(x => x.Name).ToList();
 
+			var allProcesses = Process.GetProcesses();
+			var process = allProcesses.FirstOrDefault(x => eP.Any(y => y.Equals(x.ProcessName, StringComparison.OrdinalIgnoreCase)));
 			if(process == null)
             {
-				//var psi = new System.Diagnostics.ProcessStartInfo() { FileName = @"F:\Origin Games\Battlefield 2042 Technical Playtest\bf.exe"
-				//			, UseShellExecute = true
-				//			, Verb = "runas"
-				//};
-				//process = System.Diagnostics.Process.Start(psi);
-				process = allProcesses.FirstOrDefault(x =>
-				   (x.ProcessName.Contains("FIFA", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("MADDEN", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("bf", StringComparison.OrdinalIgnoreCase)
-				   || x.ProcessName.Contains("NeedForSpeedUnbound", StringComparison.OrdinalIgnoreCase)
-                   )
-                   && !x.ProcessName.Contains("config", StringComparison.OrdinalIgnoreCase)
-				   );
-				Thread.Sleep(1000);
+				process = allProcesses.FirstOrDefault(x => eP.Any(y => y.Equals(x.ProcessName, StringComparison.OrdinalIgnoreCase)));
+                Thread.Sleep(1000);
 			}
 			//var process = allProcesses.FirstOrDefault(x => x.ProcessName.Contains(ProcessName, StringComparison.OrdinalIgnoreCase));
 			return process;
@@ -115,7 +86,7 @@ namespace SdkGenerator
 
 			if (SdkProcess != null)
 			{
-				ProfileManager.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName : OverrideProfileName);
+				ProfileManager.Initialize(OverrideProfileName == null ? SdkProcess.ProcessName.Replace(" ", "") : OverrideProfileName);
 
 				Debug.WriteLine($"Process Found {SdkProcess.ProcessName}");
 				Trace.WriteLine($"Process Found {SdkProcess.ProcessName}");

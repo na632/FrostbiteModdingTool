@@ -69,7 +69,7 @@
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "Oodle",
-  "LegacyFileManager": "ChunkFileManager2022",
+  "LegacyFileManager": null,
   "CanUseModData": true,
   "ForceUseModData": true,
   "SupportLowMemoryFootprint": true,

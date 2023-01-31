@@ -430,6 +430,8 @@ namespace FrostySdk
 			MADDEN23 = 20220819,
 
 			NFSUnbound = 20221121,
+
+			DeadSpace = 20230127,
         }
 
         public static bool IsGameVersion(EGame game)

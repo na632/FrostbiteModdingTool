@@ -109,6 +109,21 @@ namespace SdkGenerator
 			stringBuilder.AppendLine();
 			stringBuilder.AppendLine("namespace FrostySdk.Ebx");
 			stringBuilder.AppendLine("{");
+
+			if (ProfileManager.LoadedProfile.Name.Contains("Dead"))
+			{
+				stringBuilder.AppendLine("public class BoolChimeraValue");
+				stringBuilder.AppendLine("{");
+				stringBuilder.AppendLine("}");
+                stringBuilder.AppendLine("public class Vec3ChimeraValue");
+                stringBuilder.AppendLine("{");
+                stringBuilder.AppendLine("}");
+                stringBuilder.AppendLine("public class FloatChimeraValue");
+                stringBuilder.AppendLine("{");
+                stringBuilder.AppendLine("}");
+            }
+
+
 			foreach (DbObject @class in classList)
 			{
 				if (@class.GetValue<string>("name").Equals("RenderFormat", StringComparison.OrdinalIgnoreCase))
@@ -294,6 +309,9 @@ namespace SdkGenerator
 			string className = classObj.GetValue<string>("name").Replace(':', '_');
 
 			if (string.IsNullOrEmpty(className))
+				return string.Empty;
+
+			if (className.EndsWith(">") || parentClassName.EndsWith(">"))
 				return string.Empty;
 
 			stringBuilder.Append(WriteClassAttributes(classObj));

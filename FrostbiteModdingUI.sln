@@ -77,6 +77,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeedForSpeedUnboundPlugin",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIFACareerChunkFileTests", "Tests\FIFACareerChunkFileTests\FIFACareerChunkFileTests.csproj", "{4878EE7F-04B8-41BC-BAC7-409560FC9DDE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeadSpacePlugin", "Plugins\DeadSpacePlugin\DeadSpacePlugin.csproj", "{E601ABE5-A11E-4636-88DD-7F3B00905D3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -326,6 +328,18 @@ Global
 		{4878EE7F-04B8-41BC-BAC7-409560FC9DDE}.Release|x64.Build.0 = Release|Any CPU
 		{4878EE7F-04B8-41BC-BAC7-409560FC9DDE}.Release|x86.ActiveCfg = Release|Any CPU
 		{4878EE7F-04B8-41BC-BAC7-409560FC9DDE}.Release|x86.Build.0 = Release|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Debug|x64.Build.0 = Debug|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Debug|x86.Build.0 = Debug|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Release|x64.ActiveCfg = Release|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Release|x64.Build.0 = Release|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Release|x86.ActiveCfg = Release|Any CPU
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -351,6 +365,7 @@ Global
 		{FC88606E-9A44-46F8-B354-315725B83615} = {6F8892DD-C54B-49EE-AAF0-E9ADB3C842F0}
 		{68164018-59ED-42DC-AB62-477E4AB4974A} = {6F8892DD-C54B-49EE-AAF0-E9ADB3C842F0}
 		{4878EE7F-04B8-41BC-BAC7-409560FC9DDE} = {5C006156-EB33-4196-9B78-1B86D71D7C43}
+		{E601ABE5-A11E-4636-88DD-7F3B00905D3D} = {6F8892DD-C54B-49EE-AAF0-E9ADB3C842F0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6B3C45F-539D-4802-8306-6B6542D3CA66}
