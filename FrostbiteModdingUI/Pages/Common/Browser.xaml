@@ -33,7 +33,7 @@
                                                         <RowDefinition MinHeight="30" Height="30" MaxHeight="30"></RowDefinition>
                                                         <RowDefinition MinHeight="100" Height="*"></RowDefinition>
                                                     </Grid.RowDefinitions>
-                            <TextBlock Grid.Column="0" Text="Filter:" />
+                            <TextBlock VerticalAlignment="Center" Grid.Column="0" Text="Filter:" />
                             <TextBox Grid.Column="1" x:Name="txtFilter"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                     KeyUp="txtFilter_KeyUp"  />
                                                     <CheckBox Grid.Column="2" x:Name="chkShowOnlyModified" 

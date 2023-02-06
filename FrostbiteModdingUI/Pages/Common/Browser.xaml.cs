@@ -99,7 +99,7 @@ namespace FIFAModdingUI.Pages.Common
 		public bool RequiresRefresh
 		{
 			get { return m_RequiresRefresh; }
-			set { m_RequiresRefresh = value; btnRefresh.IsEnabled = value; }
+			set { m_RequiresRefresh = value; Dispatcher.Invoke(() => { btnRefresh.IsEnabled = value; }); }
 		}
 
 
@@ -176,16 +176,16 @@ namespace FIFAModdingUI.Pages.Common
             return assets;
         }
 
-		public List<string> CurrentAssets { get; set; }
+		//public List<string> CurrentAssets { get; set; }
 
-		public int CurrentTier { get; set; }
+		//public int CurrentTier { get; set; }
 
-		public string CurrentPath { get; set; }
+		//public string CurrentPath { get; set; }
 
-		public void SelectOption(string name)
-		{
+		//public void SelectOption(string name)
+		//{
 
-		}
+		//}
 
 		private Dictionary<string, AssetPath> assetPathMapping = new Dictionary<string, AssetPath>(StringComparer.OrdinalIgnoreCase);
 		private AssetPath selectedPath = null;
