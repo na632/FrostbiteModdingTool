@@ -379,7 +379,7 @@ namespace FMT.Pages.Common
         private async void btnImport_Click(object sender, RoutedEventArgs e)
         {
             var importStartTime = DateTime.Now;
-            MainEditorWindow.Log(Environment.NewLine);
+            //MainEditorWindow.Log(Environment.NewLine);
 
             try
             {
@@ -912,21 +912,21 @@ namespace FMT.Pages.Common
 
         private void BuildTextureViewerFromAssetEntry(ResAssetEntry res)
         {
+            ImageViewer.Source = null;
 
             using (Texture textureAsset = new Texture(res))
             {
+                //MemoryStream memoryStream = new MemoryStream();
+                Stream expToStream = null;
+
                 try
                 {
-                    ImageViewer.Source = null;
                     CurrentDDSImageFormat = textureAsset.PixelFormat;
-
 
                     var bPath = Directory.GetCurrentDirectory() + @"\temp.png";
 
                     TextureExporter textureExporter = new TextureExporter();
-                    MemoryStream memoryStream = new MemoryStream();
-
-                    Stream expToStream = null;
+                   
                     try
                     {
                         expToStream = textureExporter.ExportToStream(textureAsset, TextureUtils.ImageFormat.PNG);
@@ -952,6 +952,10 @@ namespace FMT.Pages.Common
 
                     //ImageViewer.Source = LoadImage(textureBytes);
                     ImageViewer.Source = LoadImage(((MemoryStream)expToStream).ToArray());
+                    
+                  
+
+
                     ImageViewerScreen.Visibility = Visibility.Visible;
                     ImageViewer.MaxHeight = textureAsset.Height;
                     ImageViewer.MaxWidth = textureAsset.Width;
@@ -966,6 +970,16 @@ namespace FMT.Pages.Common
                     MainEditorWindow.LogError($"Error loading texture with message :: {e.Message}");
                     MainEditorWindow.LogError(e.ToString());
                     ImageViewer.Source = null; ImageViewerScreen.Visibility = Visibility.Collapsed;
+                }
+                finally
+                {
+                    // clean up resources
+                    if (expToStream != null)
+                    {
+                        expToStream.Close();
+                        expToStream.Dispose();
+                        expToStream = null;
+                    }
                 }
             }
         }
@@ -1013,22 +1027,34 @@ namespace FMT.Pages.Common
 
         }
 
-        private static System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
+        System.Windows.Media.Imaging.BitmapImage bitmapImage = new System.Windows.Media.Imaging.BitmapImage();
+
+        private System.Windows.Media.Imaging.BitmapImage LoadImage(byte[] imageData)
         {
-            if (imageData == null || imageData.Length == 0) return null;
-            var image = new System.Windows.Media.Imaging.BitmapImage();
+            if (imageData == null || imageData.Length == 0) 
+                return null;
+
+            if (bitmapImage != null)
+            {
+                bitmapImage = null;
+                bitmapImage = new System.Windows.Media.Imaging.BitmapImage();
+            }
+
             using (var mem = new MemoryStream(imageData))
             {
                 mem.Position = 0;
-                image.BeginInit();
-                image.CreateOptions = System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat;
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = null;
-                image.StreamSource = mem;
-                image.EndInit();
+                bitmapImage.BeginInit();
+                bitmapImage.CreateOptions = System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.UriSource = null;
+                bitmapImage.StreamSource = mem;
+                bitmapImage.EndInit();
             }
-            image.Freeze();
-            return image;
+            bitmapImage.Freeze();
+
+            imageData = null;
+
+            return bitmapImage;
         }
 
         private async Task ExportAsset(AssetEntry assetEntry, string saveLocation)
