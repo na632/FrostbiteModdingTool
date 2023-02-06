@@ -215,7 +215,7 @@ namespace FrostySdk.Frostbite.IO.Input
 
                 Texture texture = new Texture((EbxAssetEntry)SelectedEntry);
                 TextureImporter textureImporter = new TextureImporter();
-                result = (!textureImporter.Import(path, (EbxAssetEntry)SelectedEntry, ref texture));
+                result = textureImporter.Import(path, (EbxAssetEntry)SelectedEntry, ref texture);
                 textureImporter = null;
                 texture = null;
             }
