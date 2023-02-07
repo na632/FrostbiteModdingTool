@@ -36,31 +36,39 @@ namespace Frostbite.Textures
             }
 			else
 			{
-				foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+				var textureImporter = AssetManager.Instance.LoadTypeFromPlugin(ProfileManager.TextureImporter) as ITextureImporter;
+				if(textureImporter == null)
 				{
-					if (a.FullName.Contains("Plugin"))
-					{
-						var loadTypes = a.GetTypes();
-						foreach (Type t in loadTypes)
-						{
-							if (t.GetInterface("ITextureImporter") != null)
-							{
-								try
-								{
-									if (t.Name == ProfileManager.TextureImporter)
-									{
-										((ITextureImporter)Activator.CreateInstance(t)).DoImport(path, assetEntry, ref textureAsset);
-										run = true;
-										break;
-									}
-								}
-								catch
-								{
-								}
-							}
-						}
-					}
+					return false;
 				}
+				textureImporter.DoImport(path, assetEntry, ref textureAsset);
+				run = true;
+
+    //            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+				//{
+				//	if (a.FullName.Contains("Plugin"))
+				//	{
+				//		var loadTypes = a.GetTypes();
+				//		foreach (Type t in loadTypes)
+				//		{
+				//			if (t.GetInterface("ITextureImporter") != null)
+				//			{
+				//				try
+				//				{
+				//					if (t.Name == ProfileManager.TextureImporter)
+				//					{
+				//						((ITextureImporter)Activator.CreateInstance(t)).DoImport(path, assetEntry, ref textureAsset);
+				//						run = true;
+				//						break;
+				//					}
+				//				}
+				//				catch
+				//				{
+				//				}
+				//			}
+				//		}
+				//	}
+				//}
 			}
 			return run;
 		}
