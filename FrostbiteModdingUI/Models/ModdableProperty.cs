@@ -155,6 +155,8 @@ namespace FMT.Models
             PropertyType = property.PropertyType.FullName;
             PropertyValue = property.GetValue(rootObject, BindingFlags.GetProperty, null, null, null);
 
+            PropertyOriginalValue = "";
+
             if (vanillaRootObject != null)
                 PropertyOriginalValue = property.GetValue(vanillaRootObject, BindingFlags.GetProperty, null, null, null);
             else
@@ -170,8 +172,17 @@ namespace FMT.Models
                     PropertyName = ArrayIndex.Value.ToString();
                     PropertyValue = ((IList)property.GetValue(rootObject))[ArrayIndex.Value];
 
-                    if (vanillaRootObject != null)
-                        PropertyOriginalValue = ((IList)property.GetValue(vanillaRootObject))[ArrayIndex.Value];
+                    if (vanillaRootObject == null)
+                        return;
+
+                    var vanillaList = ((IList)property.GetValue(vanillaRootObject));
+                    if (vanillaList == null)
+                        return;
+
+                    if (ArrayIndex.Value > vanillaList.Count - 1)
+                        return;
+                    
+                    PropertyOriginalValue = vanillaList[ArrayIndex.Value];
                 }
 
             }
