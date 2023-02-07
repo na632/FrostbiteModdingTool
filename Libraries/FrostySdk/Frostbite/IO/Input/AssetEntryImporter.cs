@@ -3,16 +3,21 @@ using Frostbite.Textures;
 using FrostbiteSdk;
 using FrostySdk.Managers;
 using FrostySdk.Resources;
+using Ionic.Zlib;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+//using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using v2k4FIFAModding.Frosty;
 
 namespace FrostySdk.Frostbite.IO.Input
@@ -78,86 +83,124 @@ namespace FrostySdk.Frostbite.IO.Input
             if (ebx.RootObject == null)
                 return false;
 
-            var replicatedObjFromJson = Activator.CreateInstance(ebx.RootObject.GetType());
-
+            JObject jobjectFromJson = new JObject();
             try
             {
-                JsonConvert.PopulateObject(File.ReadAllText(path), replicatedObjFromJson);
+                JsonConvert.PopulateObject(File.ReadAllText(path), ebx.RootObject, new JsonSerializerSettings()
+                {
+                    ObjectCreationHandling = ObjectCreationHandling.Auto,
+                    ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Converters = { 
+                        new ReplaceArrayConverter()
+                        , new PointerRefConverter()
+                    },
+                    MaxDepth = 10
+                });
+           
+
+                jobjectFromJson = JObject.Parse(File.ReadAllText(path));
+
             }
-            catch
+            catch (Exception populationException)
             {
                 FileLogger.WriteLine($"Unable to process JSON file {path} into Object {ebx.RootObject.GetType().FullName}");
-                //EventLog.WriteEntry("FMT", $"Unable to process JSON file {path} into Object {ebx.RootObject.GetType().FullName}");
+                FileLogger.WriteLine($"ERROR:");
+                FileLogger.WriteLine(populationException.ToString());
                 return false;
             }
 
-            foreach(var ebxRootProperty in ebx.RootObject.GetProperties())
-            {
-                var jsonVersionOfProperty = replicatedObjFromJson.GetProperty(ebxRootProperty.Name);
-                if (jsonVersionOfProperty == null)
-                    continue;
-
-                if (ebxRootProperty.PropertyType.Name.StartsWith("PointerRef"))
-                {
-                    //var jsonVerOfPropPointerRef = jsonVersionOfProperty.GetValue(replicatedObjFromJson);
-                    //if (jsonVerOfPropPointerRef == null)
-                    //    continue;
-
-                    //var ebxVerOfPropPointerRef = ebxRootProperty.GetValue(ebx.RootObject);
-                    //if (ebxVerOfPropPointerRef == null)
-                    //    continue;
-
-                    //var jsonInternalV = jsonVerOfPropPointerRef.GetPropertyValue("Internal");
-                    //if (jsonInternalV == null)
-                    //    continue;
-
-                    //var jsonInternalType = jsonInternalV.GetType();
-
-                    //var ebxInternalV = ebxVerOfPropPointerRef.GetPropertyValue("Internal");
-                    //if (ebxInternalV == null)
-                    //    continue;
-
-                    //var ebxInternalType = ebxInternalV.GetType();
-
-                    //if (ebxInternalType != jsonInternalType)
-                    //    continue;
-
-                    //foreach (var ebxPRInternalProperty in ebxInternalV.GetProperties())
-                    //{
-                    //    if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__Guid"))
-                    //        continue;
-
-                    //    if (ebxPRInternalProperty.PropertyType.Name.StartsWith("__InstanceGuid"))
-                    //        continue;
-
-                    //    var jsonVersionOfPropertyInternal = jsonInternalV.GetProperty(ebxPRInternalProperty.Name);
-                    //    if (jsonVersionOfPropertyInternal == null)
-                    //        continue;
-
-                    //    ebxPRInternalProperty.SetValue(ebxInternalV, jsonVersionOfPropertyInternal.GetValue(jsonInternalV));
-
-                    //}
-                }
-                else
-                {
-                    try 
-                    {
-                        ebxRootProperty.SetValue(ebx.RootObject, jsonVersionOfProperty.GetValue(replicatedObjFromJson));
-                    }
-                    catch
-                    {
-                        FileLogger.WriteLine($"Unable to process JSON property {jsonVersionOfProperty.Name} into Object {ebx.RootObject.GetType().FullName}");
-                    }
-                }
-
-            }
-
+            // Modify the Ebx after setting object
             AssetManager.Instance.ModifyEbx(ebxAssetEntry.Name, ebx);
 
             // This is an assumption that everything above worked fine
             return true;
         }
 
+        public class ReplaceArrayConverter : JsonConverter
+        {
+            public override bool CanRead => base.CanRead;
+
+            public override bool CanWrite => base.CanWrite;
+
+            public override bool CanConvert(Type objectType)
+            {
+                // check for Array, IList, etc.
+                //return objectType.IsArray || objectType.Name == "EbxImportReference";
+                return objectType.IsArray || objectType.Name == "List`1";
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                // ignore existingValue and just create a new collection
+                return JsonSerializer.CreateDefault().Deserialize(reader, objectType);
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                JsonSerializer.CreateDefault().Serialize(writer, value);
+            }
+        }
+
+        public class PointerRefConverter : JsonConverter
+        {
+            public override bool CanRead => base.CanRead;
+
+            public override bool CanWrite => base.CanWrite;
+
+            public override bool CanConvert(Type objectType)
+            {
+                // check for Array, IList, etc.
+                //return objectType.IsArray || objectType.Name == "EbxImportReference";
+                return objectType.Name == "PointerRef";
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                // -----------------------------------------------------------------------
+                // This will ATTEMPT to resolve the object dynamically
+
+                try
+                {
+
+                    // Load JObject from stream
+                    JObject jObject = JObject.Load(reader);
+                    var externalObject = jObject["External"];
+                    var internalObject = jObject["Internal"];
+                    var nwInternal = jObject["Internal"].ToObject(existingValue.GetProperty("Internal").PropertyType);
+
+                    foreach(var p in existingValue.GetProperties())
+                    {
+                        var vRoot = p.GetValue(existingValue);
+                        if (vRoot != null)
+                        {
+                            foreach (var pVRoot in vRoot.GetProperties().Where(x => !x.Name.Contains("Guid", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                var jsonInternal = internalObject[pVRoot.Name];
+                                if (jsonInternal != null)
+                                {
+                                    pVRoot.SetValue(vRoot, jsonInternal.ToObject(pVRoot.PropertyType));
+                                }
+                            }
+                        }
+                    }
+
+                }
+                finally
+                {
+
+                }
+                
+                return existingValue;
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                JsonSerializer.CreateDefault().Serialize(writer, value);
+            }
+        }
+        
         public async ValueTask<bool> ImportAsync(string path)
         {
             return await Task.FromResult(Import(path));
@@ -250,4 +293,6 @@ namespace FrostySdk.Frostbite.IO.Input
 
 
     }
+
+    
 }
