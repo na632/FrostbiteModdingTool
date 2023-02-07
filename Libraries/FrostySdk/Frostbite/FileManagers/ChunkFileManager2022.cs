@@ -142,7 +142,7 @@ namespace Frostbite.FileManagers
 
 			public List<UnknownItem> UnknownItems = new List<UnknownItem>();
 
-			public List<int> BottomUnknownOffsets = new List<int>();
+			public List<int> BottomUnknownOffsets { get; } = new List<int>();
 
 			public class BootableItem
 			{

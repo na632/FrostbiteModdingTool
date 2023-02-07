@@ -169,7 +169,8 @@ namespace FIFA23Plugin
 						nativeReader.Position = chunkBatch.EndOfStrings;
 						nativeReader.Pad(16);
 						double numberOfEndUnkItems = ((double)nativeReader.Length - (double)nativeReader.Position) / 4;
-						for (int index = 0; index < numberOfEndUnkItems; index++)
+						chunkBatch.BottomUnknownOffsets.Clear();
+                        for (int index = 0; index < numberOfEndUnkItems; index++)
 						{
 							chunkBatch.BottomUnknownOffsets.Add(nativeReader.ReadInt());
 						}
