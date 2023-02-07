@@ -379,6 +379,43 @@ namespace FrostySdk.IO._2022.Readers
                 fsDump.Dispose();
                 Position = payloadOffset;
             }
+            if (RootType.Contains("AttribSchema_gp_positioning_zonal_defense_attribute", StringComparison.OrdinalIgnoreCase))
+            {
+                Position = 0;
+                var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
+                base.stream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                Position = payloadOffset;
+            }
+            if (RootType.Contains("AttribSchema_gp_actor_movement", StringComparison.OrdinalIgnoreCase))
+            {
+                Position = 0;
+                var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
+                base.stream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                Position = payloadOffset;
+            }
+            if (RootType.Contains("gp_cpuai_cpuaiballhandler", StringComparison.OrdinalIgnoreCase))
+            {
+                Position = 0;
+                var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
+                base.stream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                Position = payloadOffset;
+            }
+            if (RootType.Contains("AttribSchema_gp_cpuai_cpuaithroughpass", StringComparison.OrdinalIgnoreCase))
+            {
+                Position = 0;
+                var fsDump = new FileStream($"ebx.{RootType}.read.22.dat", FileMode.OpenOrCreate);
+                base.stream.CopyTo(fsDump);
+                fsDump.Close();
+                fsDump.Dispose();
+                Position = payloadOffset;
+            }
+            
 #endif
         }
 
