@@ -92,6 +92,9 @@ namespace Frostbite.Textures
 					TextureUtils.ReleaseBlob(pOutDatas[k]);
 				}
 			}
+			array = null;
+			array2 = null;
+			GC.Collect();
 		}
 
 		public virtual Stream ExportToStream(Texture textureAsset)
