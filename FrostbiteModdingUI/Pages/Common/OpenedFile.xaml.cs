@@ -379,7 +379,6 @@ namespace FMT.Pages.Common
         private async void btnImport_Click(object sender, RoutedEventArgs e)
         {
             var importStartTime = DateTime.Now;
-            //MainEditorWindow.Log(Environment.NewLine);
 
             try
             {
@@ -388,6 +387,8 @@ namespace FMT.Pages.Common
                 var dialogResult = openFileDialog.ShowDialog();
                 if (dialogResult.HasValue && dialogResult.Value == true)
                 {
+                    _ = UpdateLoadingVisibility(true);
+
                     MainEditorWindow.Log("Importing " + openFileDialog.FileName);
 
                     if (SelectedEntry.Type == "SkinnedMeshAsset")
@@ -435,230 +436,19 @@ namespace FMT.Pages.Common
                     }
                 }
 
-                //var imageFilter = "Image files (*.dds, *.png)|*.dds;*.png";
-                //if (SelectedLegacyEntry != null)
-                //{
-                //    OpenFileDialog openFileDialog = new OpenFileDialog();
-                //    openFileDialog.Filter = $"Files (*.{SelectedLegacyEntry.Type})|*.{SelectedLegacyEntry.Type}";
-                //    openFileDialog.FileName = SelectedLegacyEntry.Filename;
-
-                //    bool isImage = false;
-                //    if (SelectedLegacyEntry.Type == "DDS")
-                //    {
-                //        openFileDialog.Filter = imageFilter;
-                //        isImage = true;
-                //    }
-
-                //    var result = openFileDialog.ShowDialog();
-                //    if (result.HasValue && result.Value == true)
-                //    {
-                //        byte[] bytes = File.ReadAllBytes(openFileDialog.FileName);
-
-                //        if (isImage)
-                //        {
-                //            if (AssetManager.Instance.DoLegacyImageImport(openFileDialog.FileName, SelectedLegacyEntry))
-                //            {
-                //                BuildTextureViewerFromStream((MemoryStream)AssetManager.Instance.GetCustomAsset("legacy", SelectedLegacyEntry));
-                //            }
-                //            else
-                //            {
-                //                return;
-                //            }
-                //        }
-                //        else
-                //        {
-                //            if (SelectedLegacyEntry.Type.ToUpper() != "DB" && SelectedLegacyEntry.Type.ToUpper() != "LOC")
-                //                TextViewer.Text = ASCIIEncoding.UTF8.GetString(bytes);
-
-                //            AssetManager.Instance.ModifyLegacyAsset(
-                //                SelectedLegacyEntry.Name
-                //                , bytes
-                //                , false);
-                //        }
-
-                //        MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedLegacyEntry.Filename}");
-                //    }
-                //}
-                //else if (SelectedEntry != null)
-                //{
-                //    if (SelectedEntry.Type == "TextureAsset" || SelectedEntry.Type == "Texture")
-                //    {
-                //        OpenFileDialog openFileDialog = new OpenFileDialog();
-                //        openFileDialog.Filter = imageFilter;
-                //        openFileDialog.FileName = SelectedEntry.Filename;
-                //        if (openFileDialog.ShowDialog().Value)
-                //        {
-                //            var resEntry = ProjectManagement.Instance.Project.AssetManager.GetResEntry(SelectedEntry.Name);
-                //            if (resEntry != null)
-                //            {
-                //                Texture texture = new Texture(resEntry);
-                //                TextureImporter textureImporter = new TextureImporter();
-                //                EbxAssetEntry ebxAssetEntry = SelectedEntry as EbxAssetEntry;
-
-                //                if (ebxAssetEntry != null)
-                //                {
-                //                    if (!textureImporter.Import(openFileDialog.FileName, ebxAssetEntry, ref texture))
-                //                    {
-                //                        MainEditorWindow.LogError("Unable to import");
-                //                    }
-                //                }
-
-                //                BuildTextureViewerFromAssetEntry(resEntry);
-
-                //                MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Filename}");
-
-                //            }
-                //        }
-                //    }
-
-                //    else if (SelectedEntry.Type == "HotspotDataAsset")
-                //    {
-                //        OpenFileDialog openFileDialog = new OpenFileDialog();
-                //        var filt = "*.json";
-                //        openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-                //        openFileDialog.FileName = SelectedEntry.Filename;
-                //        var dialogResult = openFileDialog.ShowDialog();
-                //        if (dialogResult.HasValue && dialogResult.Value)
-                //        {
-                //            var ebx = AssetManager.Instance.GetEbx((EbxAssetEntry)SelectedEntry);
-                //            if (ebx != null)
-                //            {
-                //                var robj = (dynamic)ebx.RootObject;
-                //                var fileHS = (Newtonsoft.Json.Linq.JArray)JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(openFileDialog.FileName)).Hotspots;
-                //                var fhs2 = fileHS.ToObject<List<dynamic>>();
-                //                for (var i = 0; i < robj.Hotspots.Count; i++)
-                //                {
-                //                    robj.Hotspots[i].Bounds.x = (float)fhs2[i].Bounds.x;
-                //                    robj.Hotspots[i].Bounds.y = (float)fhs2[i].Bounds.y;
-                //                    robj.Hotspots[i].Bounds.z = (float)fhs2[i].Bounds.z;
-                //                    robj.Hotspots[i].Bounds.w = (float)fhs2[i].Bounds.w;
-                //                    robj.Hotspots[i].Rotation = (float)fhs2[i].Rotation;
-                //                }
-                //                AssetManager.Instance.ModifyEbx(SelectedEntry.Name, ebx);
-
-                //                // Update the Viewers
-                //                //EBXViewer = new Editor(SelectedEntry, ebx, ProjectManagement.Instance.Project, MainEditorWindow);
-                //                await EBXViewer.LoadEbx(SelectedEntry, ebx, MainEditorWindow);
-
-                //            }
-                //        }
-                //    }
-
-
-                //    else if (SelectedEntry.Type == "SkinnedMeshAsset")
-                //    {
-                //        OpenFileDialog openFileDialog = new OpenFileDialog();
-                //        openFileDialog.Filter = "Fbx files (*.fbx)|*.fbx";
-                //        openFileDialog.FileName = SelectedEntry.Filename;
-
-                //        var fbximport_dialogresult = openFileDialog.ShowDialog();
-                //        if (fbximport_dialogresult.HasValue && fbximport_dialogresult.Value)
-                //        {
-                //            if (SelectedEbxAsset != null)
-                //            {
-                //                //var resentry = AssetManager.Instance.GetResEntry(SelectedEntry.Name);
-                //                //var res = await AssetManager.Instance.GetResAsync(resentry);
-                //                //MeshSet meshSet = new MeshSet(res);
-
-                //                var skeletonEntryText = "content/character/rig/skeleton/player/skeleton_player";
-                //                MeshSkeletonSelector meshSkeletonSelector = new MeshSkeletonSelector();
-                //                var meshSelectorResult = meshSkeletonSelector.ShowDialog();
-                //                if (meshSelectorResult.HasValue && meshSelectorResult.Value)
-                //                {
-                //                    if (!meshSelectorResult.Value)
-                //                    {
-                //                        MessageBox.Show("Cannot export without a Skeleton");
-                //                        return;
-                //                    }
-
-                //                    skeletonEntryText = meshSkeletonSelector.AssetEntry.Name;
-
-                //                }
-                //                else
-                //                {
-                //                    MessageBox.Show("Cannot export without a Skeleton");
-                //                    return;
-                //                }
-
-                //                try
-                //                {
-                //                    FrostySdk.Frostbite.IO.Input.FBXImporter importer = new FrostySdk.Frostbite.IO.Input.FBXImporter();
-                //                    importer.ImportFBX(openFileDialog.FileName, (EbxAssetEntry)SelectedEntry
-                //                        , new FrostySdk.Frostbite.IO.Input.MeshImportSettings()
-                //                        {
-                //                            SkeletonAsset = skeletonEntryText
-                //                        });
-                //                    MainEditorWindow.Log($"Imported {openFileDialog.FileName} to {SelectedEntry.Name}");
-
-                //                    await OpenAsset(SelectedEntry);
-                //                }
-                //                catch (Exception ImportException)
-                //                {
-                //                    MainEditorWindow.LogError(ImportException.Message);
-
-                //                }
-
-                //            }
-                //        }
-                //    }
-
-                //    else // Raw data import
-                //    {
-                //        MessageBoxResult useJsonResult = MessageBox.Show(
-                //                                                "Would you like to Import as JSON?"
-                //                                                , "Import as JSON?"
-                //                                                , MessageBoxButton.YesNoCancel);
-                //        if (useJsonResult == MessageBoxResult.Yes)
-                //        {
-                //            OpenFileDialog openFileDialog = new OpenFileDialog();
-                //            var filt = "*.json";
-                //            openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-                //            openFileDialog.FileName = SelectedEntry.Filename;
-                //            var dialogResult = openFileDialog.ShowDialog();
-                //            if (dialogResult.HasValue && dialogResult.Value)
-                //            {
-                //                var binaryText = File.ReadAllText(openFileDialog.FileName);
-                //                AssetManager.Instance.ModifyEbxJson(SelectedEntry.Name, binaryText);
-
-                //                OpenAsset(SelectedEntry);
-                //            }
-                //        }
-                //        else if (useJsonResult == MessageBoxResult.No)
-                //        {
-                //            OpenFileDialog openFileDialog = new OpenFileDialog();
-                //            var filt = "*.bin";
-                //            openFileDialog.Filter = filt.Split('.')[1] + " files (" + filt + ")|" + filt;
-                //            openFileDialog.FileName = SelectedEntry.Filename;
-                //            var dialogResult = openFileDialog.ShowDialog();
-                //            if (dialogResult.HasValue && dialogResult.Value)
-                //            {
-                //                var binaryData = File.ReadAllBytes(openFileDialog.FileName);
-                //                AssetManager.Instance.ModifyEbxBinary(SelectedEntry.Name, binaryData);
-
-                //                OpenAsset(SelectedEntry);
-                //            }
-                //        }
-
-                //    }
-                //    }
-
             }
             catch (Exception ex)
             {
                 MainEditorWindow.LogError(ex.Message + Environment.NewLine);
             }
 
-            //if (MainEditorWindow != null)
-            //{
-            //    MainEditorWindow.UpdateAllBrowsers();
-            //}
+            _ = UpdateLoadingVisibility(false);
 
         }
 
         private async void btnExport_Click(object sender, RoutedEventArgs e)
         {
-            
-            UpdateLoadingVisibility(true);
+            _ = UpdateLoadingVisibility(true);
             try
             {
                 if (SelectedLegacyEntry != null)
@@ -815,7 +605,11 @@ namespace FMT.Pages.Common
                                     });
                                     var serialisedObj = await Task.Run(() =>
                                     {
-                                        return JsonConvert.SerializeObject(obj);
+                                        return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings() 
+                                        {
+                                            ReferenceLoopHandling= ReferenceLoopHandling.Ignore,
+                                            MaxDepth = 4,
+                                        });
                                     });
                                     await File.WriteAllTextAsync(saveFileDialog.FileName, serialisedObj);
                                     MainEditorWindow.Log($"Exported {SelectedEntry.Filename} to {saveFileDialog.FileName}");
