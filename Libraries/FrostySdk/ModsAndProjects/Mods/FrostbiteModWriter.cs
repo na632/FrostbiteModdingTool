@@ -181,14 +181,26 @@ namespace FrostySdk
                 {
                     File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
                 }
-                if (name.Contains("head_"))
-				{
-                    File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
-                }
-                if (name.Contains("hotspot"))
+                if (name.Contains("gp_positioning_zonal_defense_attribute", StringComparison.OrdinalIgnoreCase))
                 {
                     File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
                 }
+                if (name.Contains("cpuaiballhandler", StringComparison.OrdinalIgnoreCase))
+                {
+                    File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
+                }
+                if (name.Contains("cpuaithroughpass", StringComparison.OrdinalIgnoreCase))
+                {
+                    File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
+                }
+                //            if (name.Contains("head_"))
+                //{
+                //                File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
+                //            }
+                //            if (name.Contains("hotspot"))
+                //            {
+                //                File.WriteAllBytes($"ebx.{entry.Filename.Replace("\\", "_")}.write.dat", decompressedArray);
+                //            }
 #endif
 
                 if (compressedArray.Length > 0)
