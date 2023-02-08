@@ -249,7 +249,20 @@ namespace FMT.FileTools
 			}
 		}
 
-		public void WriteFixedSizedString(string str, int size)
+        public void WriteLengthPrefixedBytes(byte[] data)
+        {
+            if (data.Length == 0)
+            {
+                Write7BitEncodedInt(0);
+            }
+            else
+            {
+                Write7BitEncodedInt(data.Length);
+				Write(data);
+            }
+        }
+
+        public void WriteFixedSizedString(string str, int size)
 		{
 			WriteString(str);
 			for (int i = 0; i < size - str.Length; i++)

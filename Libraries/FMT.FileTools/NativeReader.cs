@@ -533,7 +533,17 @@ namespace FMT.FileTools
 			return ReadSizedString(byteCount);
 		}
 
-		public byte[] ReadToEnd()
+        public byte[] ReadLengthPrefixedBytes()
+        {
+            int byteCount = Read7BitEncodedInt();
+            if (byteCount == 0)
+            {
+                return null;
+            }
+            return ReadBytes(byteCount);
+        }
+
+        public byte[] ReadToEnd()
 		{
 			long num = Length - Position;
 			if (num < int.MaxValue)
