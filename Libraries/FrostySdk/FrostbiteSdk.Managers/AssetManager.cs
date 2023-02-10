@@ -2,7 +2,6 @@ using FrostbiteSdk;
 using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
 using FrostbiteSdk.FrostbiteSdk.Managers;
-using Frosty.Hash;
 using FrostySdk.Ebx;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Frostbite.PluginInterfaces;
@@ -23,9 +22,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Frostbite.Textures;
-//using CSharpImageLibrary;
 using System.Collections;
-using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Frostbite;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
@@ -106,7 +103,7 @@ namespace FrostySdk.Managers
 		{
 			foreach (DbObject item in deltaList.GetValue<DbObject>(listName))
 			{
-				Sha1 value = item.GetValue<Sha1>("sha1");
+                FMT.FileTools.Sha1 value = item.GetValue<FMT.FileTools.Sha1>("sha1");
 				string text = item.GetValue<string>("name");
 				if (text == null)
 				{
@@ -119,7 +116,7 @@ namespace FrostySdk.Managers
 					{
 						foreach (DbObject item2 in baseList.GetValue<DbObject>(listName))
 						{
-							if (item2.GetValue<Sha1>("sha1") == value)
+							if (item2.GetValue<FMT.FileTools.Sha1>("sha1") == value)
 							{
 								item.SetValue("size", item2.GetValue("size", 0L));
 								item.SetValue("originalSize", item2.GetValue("originalSize", 0L));
@@ -1512,7 +1509,7 @@ namespace FrostySdk.Managers
 
 				ae.Name = NewEntryPath;
 				ae.DuplicatedFromName = EntryToDuplicate.Name;
-				ae.Sha1 = Sha1.Create();
+				ae.Sha1 = FMT.FileTools.Sha1.Create();
 				AssetManager.Instance.AddEbx(ae);
 
 				// Check for "Resource" property
@@ -1523,7 +1520,7 @@ namespace FrostySdk.Managers
 					var rae = resAssetEntry.Clone() as ResAssetEntry;
 					rae.Name = NewEntryPath;
 					rae.ResRid = GetNextRID();
-					rae.Sha1 = Sha1.Create();
+					rae.Sha1 = FMT.FileTools.Sha1.Create();
 					rae.DuplicatedFromName = EntryToDuplicate.Name;
 
 					dynamicRO.Resource = new ResourceRef(rae.ResRid);
@@ -2054,7 +2051,7 @@ namespace FrostySdk.Managers
 			//return ((MemoryStream)GetAsset(entry)).ToArray();
         }
 
-        public Sha1 GetBaseSha1(Sha1 sha1)
+        public FMT.FileTools.Sha1 GetBaseSha1(FMT.FileTools.Sha1 sha1)
         {
             return sha1;
         }
@@ -2256,9 +2253,9 @@ namespace FrostySdk.Managers
 
 					////EbxAssetEntry ebxAssetEntry = AddEbx(item, ProfileManager.IsMadden21DataVersion(ProfileManager.Game));
 					////EbxAssetEntry ebxAssetEntry = AddEbx(item, true);
-					////if (ebxAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+					////if (ebxAssetEntry.Sha1 != item.GetValue<FMT.FileTools.Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
 					////{
-					////	ebxAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+					////	ebxAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
 					////	ebxAssetEntry.IsInline = item.HasValue("idata");
 					////}
 
@@ -2331,10 +2328,10 @@ namespace FrostySdk.Managers
 							//ProfilesLibrary.IsMadden21DataVersion()
 							////|| ProfilesLibrary.IsFIFA22DataVersion()
 							//);
-       //                 if (resAssetEntry.Sha1 != item.GetValue<Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
+       //                 if (resAssetEntry.Sha1 != item.GetValue<FMT.FileTools.Sha1>("sha1") && item.GetValue("casPatchType", 0) != 0)
        //                 {
        //                     resRidList.Remove(resAssetEntry.ResRid);
-       //                     resAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+       //                     resAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
        //                     resAssetEntry.Size = item.GetValue("size", 0L);
        //                     resAssetEntry.ResRid = item.GetValue("resRid", 0UL);
        //                     resAssetEntry.ResMeta = item.GetValue<byte[]>("resMeta");
@@ -2442,7 +2439,7 @@ namespace FrostySdk.Managers
 						chunkAssetEntry = new ChunkAssetEntry();
 					}
 					chunkAssetEntry.Id = item.GetValue<Guid>("id");
-					chunkAssetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+					chunkAssetEntry.Sha1 = item.GetValue<FMT.FileTools.Sha1>("sha1");
 					if (item.GetValue("size", 0L) != 0L)
 					{
 						chunkAssetEntry.Location = AssetDataLocation.SuperBundle;
@@ -2476,7 +2473,7 @@ namespace FrostySdk.Managers
 		//	}
 		//	EbxAssetEntry ebxAssetEntry = new EbxAssetEntry();
 		//	ebxAssetEntry.Name = text;
-		//	ebxAssetEntry.Sha1 = ebx.GetValue<Sha1>("sha1");
+		//	ebxAssetEntry.Sha1 = ebx.GetValue<FMT.FileTools.Sha1>("sha1");
 		//	ebxAssetEntry.BaseSha1 = GetBaseSha1(ebxAssetEntry.Sha1);
 		//	ebxAssetEntry.Size = ebx.GetValue("size", 0L);
 		//	ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
@@ -2536,7 +2533,7 @@ namespace FrostySdk.Managers
 		//	}
 		//	ResAssetEntry resAssetEntry = new ResAssetEntry();
 		//	resAssetEntry.Name = value;
-		//	resAssetEntry.Sha1 = res.GetValue<Sha1>("sha1");
+		//	resAssetEntry.Sha1 = res.GetValue<FMT.FileTools.Sha1>("sha1");
 		//	resAssetEntry.BaseSha1 = rm.GetBaseSha1(resAssetEntry.Sha1);
 		//	resAssetEntry.Size = res.GetValue("size", 0L);
 		//	resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
@@ -2573,8 +2570,8 @@ namespace FrostySdk.Managers
 		//	else if (res.GetValue("casPatchType", 0) == 2)
 		//	{
 		//		resAssetEntry.ExtraData = new AssetExtraData();
-		//		resAssetEntry.ExtraData.BaseSha1 = res.GetValue<Sha1>("baseSha1");
-		//		resAssetEntry.ExtraData.DeltaSha1 = res.GetValue<Sha1>("deltaSha1");
+		//		resAssetEntry.ExtraData.BaseSha1 = res.GetValue<FMT.FileTools.Sha1>("baseSha1");
+		//		resAssetEntry.ExtraData.DeltaSha1 = res.GetValue<FMT.FileTools.Sha1>("deltaSha1");
 		//	}
 
 		//	resAssetEntry.SBFileLocation = res.GetValue<string>("SBFileLocation");
@@ -2611,7 +2608,7 @@ namespace FrostySdk.Managers
 		//	}
 
 		//	chunkAssetEntry.Id = value;
-		//	chunkAssetEntry.Sha1 = chunk.GetValue<Sha1>("sha1");
+		//	chunkAssetEntry.Sha1 = chunk.GetValue<FMT.FileTools.Sha1>("sha1");
 		//	chunkAssetEntry.Size = chunk.GetValue("size", 0L);
 		//	chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
 		//	chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);
@@ -2894,13 +2891,13 @@ namespace FrostySdk.Managers
 			}
 		}
 
-		public Sha1 GenerateSha1(byte[] buffer)
+		public FMT.FileTools.Sha1 GenerateSha1(byte[] buffer)
 		{
 			using(var sha1instance = SHA1.Create())
-				return new Sha1(sha1instance.ComputeHash(buffer));
+				return new FMT.FileTools.Sha1(sha1instance.ComputeHash(buffer));
 			//using (SHA1Managed sHA1Managed = new SHA1Managed())
 			//{
-			//	return new Sha1(sHA1Managed.ComputeHash(buffer));
+			//	return new FMT.FileTools.Sha1(sHA1Managed.ComputeHash(buffer));
 			//}
 		}
 

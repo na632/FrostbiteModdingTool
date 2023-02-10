@@ -1,6 +1,5 @@
 ﻿using FMT.FileTools;
 using FrostbiteSdk.Extras;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.Compilers;
@@ -25,75 +24,6 @@ namespace Madden21Plugin
     /// </summary>
     public class Madden21AssetCompiler : BaseAssetCompiler, IAssetCompiler
     {
-        public const string ModDirectory = "ModData";
-        public const string PatchDirectory = "Patch";
-
-
-        public enum ModType
-        {
-            EBX,
-            RES,
-            CHUNKS
-        }
-
-        public struct ModdedFile
-        {
-            public Sha1 Sha1 { get; set; }
-            public string NamePath { get; set; }
-            public ModType ModType { get; set; }
-            public bool IsAdded { get; set; }
-            public AssetEntry OriginalEntry { get; set; }
-            public int BundleIndex { get; set; }
-
-            public ModdedFile(Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded, AssetEntry inOrigEntry, int inBundleIndex)
-            {
-                Sha1 = inSha1;
-                NamePath = inNamePath;
-                ModType = inModType;
-                IsAdded = inAdded;
-                OriginalEntry = inOrigEntry;
-                BundleIndex = inBundleIndex;
-            }
-        }
-
-        private void MakeTOCOriginals(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
-
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
-            {
-                if (File.Exists(tFile + ".bak"))
-                    File.Copy(tFile + ".bak", tFile, true);
-            }
-
-            foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            {
-                MakeTOCOriginals(internalDir);
-            }
-        }
-
-        private void MakeTOCBackups(string dir)
-        {
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.toc"))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
-
-            foreach (var tFile in Directory.EnumerateFiles(dir, "*.sb"))
-            {
-                File.Copy(tFile, tFile + ".bak", true);
-            }
-
-            foreach (var internalDir in Directory.EnumerateDirectories(dir))
-            {
-                MakeTOCBackups(internalDir);
-            }
-        }
-
         /// <summary>
         /// Construct the Modded Bundles within CAS files
         /// </summary>
@@ -741,115 +671,6 @@ namespace Madden21Plugin
             }
 
            
-
-
-        private static void CopyDataFolder(string from_datafolderpath, string to_datafolderpath, ILogger logger)
-        {
-            Directory.CreateDirectory(to_datafolderpath);
-
-            var dataFiles = Directory.EnumerateFiles(from_datafolderpath, "*.*", SearchOption.AllDirectories);
-            var dataFileCount = dataFiles.Count();
-            var indexOfDataFile = 0;
-            //ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
-            //Parallel.ForEach(dataFiles, (f) =>
-            foreach (var originalFilePath in dataFiles)
-            {
-                var finalDestinationPath = originalFilePath.ToLower().Replace(from_datafolderpath.ToLower(), to_datafolderpath.ToLower());
-
-                bool Copied = false;
-
-                var lastIndexOf = finalDestinationPath.LastIndexOf("\\");
-                var newDirectory = finalDestinationPath.Substring(0, lastIndexOf) + "\\";
-                if (!Directory.Exists(newDirectory))
-                {
-                    Directory.CreateDirectory(newDirectory);
-                }
-
-
-                if (!finalDestinationPath.Contains(ModDirectory, StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new Exception("Incorrect Copy of Files to " + ModDirectory);
-                }
-
-                var fIDest = new FileInfo(finalDestinationPath);
-                var fIOrig = new FileInfo(originalFilePath);
-
-                if (fIDest.Exists && finalDestinationPath.Contains(ModDirectory, StringComparison.OrdinalIgnoreCase))
-                {
-                    var isCas = fIDest.Extension.Contains("cas", StringComparison.OrdinalIgnoreCase);
-
-                    if (
-                        isCas
-                        && fIDest.Length != fIOrig.Length
-                        )
-                    {
-                        fIDest.Delete();
-                    }
-                    else if
-                        (
-                            !isCas
-                            &&
-                            (
-                                fIDest.Length != fIOrig.Length
-                                ||
-                                    (
-                                        //fIDest.LastWriteTime.Day != fIOrig.LastWriteTime.Day
-                                        //&& fIDest.LastWriteTime.Hour != fIOrig.LastWriteTime.Hour
-                                        //&& fIDest.LastWriteTime.Minute != fIOrig.LastWriteTime.Minute
-                                        !File.ReadAllBytes(finalDestinationPath).SequenceEqual(File.ReadAllBytes(originalFilePath))
-                                    )
-                            )
-                        )
-                    {
-                        File.Delete(finalDestinationPath);
-                    }
-                }
-
-                if (!File.Exists(finalDestinationPath))
-                {
-                    // Quick Copy
-                    if (fIOrig.Length < 1024 * 100)
-                    {
-                        using (var inputStream = new NativeReader(File.Open(originalFilePath, FileMode.Open)))
-                        using (var outputStream = new NativeWriter(File.Open(finalDestinationPath, FileMode.Create)))
-                        {
-                            outputStream.Write(inputStream.ReadToEnd());
-                        }
-                    }
-                    else
-                    {
-                        //File.Copy(f, finalDestination);
-                        CopyFile(originalFilePath, finalDestinationPath);
-                    }
-                    Copied = true;
-                }
-                indexOfDataFile++;
-
-                if (Copied)
-                    logger.Log($"Data Setup - Copied ({indexOfDataFile}/{dataFileCount}) - {originalFilePath}");
-                //});
-            }
-        }
-
-        public static void CopyFile(string inputFilePath, string outputFilePath)
-        {
-            using (var inStream = new FileStream(inputFilePath, FileMode.Open))
-            {
-                int bufferSize = 1024 * 1024;
-
-                using (FileStream fileStream = new FileStream(outputFilePath, FileMode.OpenOrCreate, FileAccess.Write))
-                {
-                    fileStream.SetLength(inStream.Length);
-                    int bytesRead = -1;
-                    byte[] bytes = new byte[bufferSize];
-
-                    while ((bytesRead = inStream.Read(bytes, 0, bufferSize)) > 0)
-                    {
-                        fileStream.Write(bytes, 0, bytesRead);
-                    }
-                }
-            }
-        }
 
     }
 }

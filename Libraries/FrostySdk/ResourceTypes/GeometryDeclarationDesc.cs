@@ -1,3 +1,5 @@
+using FMT.FileTools.Modding;
+
 namespace FrostySdk.Resources
 {
 	public struct GeometryDeclarationDesc
@@ -194,9 +196,9 @@ namespace FrostySdk.Resources
 					return 16;
 				case 20190905:
 					return 16;
-				case (int)ProfileManager.EGame.FIFA20: // FIFA20DataVersion
-				case (int)ProfileManager.EGame.FIFA21: // FIFA21DataVersion
-				case (int)ProfileManager.EGame.MADDEN21: // Madden21DataVersion
+				case (int)EGame.FIFA20: // FIFA20DataVersion
+				case (int)EGame.FIFA21: // FIFA21DataVersion
+				case (int)EGame.MADDEN21: // Madden21DataVersion
 					return 16;
 
 

@@ -23,7 +23,7 @@ namespace Madden22Plugin
 		/// </summary>
 		public string Type { get; set; }
 		public Guid? ChunkGuid { get; set; }
-		public Sha1? Sha { get; set; }
+		public FMT.FileTools.Sha1? Sha { get; set; }
 		public string Name { get; set; }
 		public long Offset { get; set; }
 		public long Size { get; set; }
@@ -48,12 +48,6 @@ namespace Madden22Plugin
 				builtString += " " + Name;
             }
 			
-			if (Sha.HasValue)
-			{
-				builtString += " " + Sha.Value.ToString();
-			}
-
-
 			if (!string.IsNullOrEmpty(builtString))
 			{
 				builtString = base.ToString();
@@ -281,7 +275,7 @@ namespace Madden22Plugin
 							}
 
 							// Generate a Sha1 since we dont have one.
-							chunkAssetEntry2.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
+							chunkAssetEntry2.Sha1 = FMT.FileTools.Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry2.Id.ToString()));
 
 							chunkAssetEntry2.LogicalOffset = chunkOffset;
 							chunkAssetEntry2.OriginalSize = (chunkAssetEntry2.LogicalOffset & 0xFFFF) | chunkSize;

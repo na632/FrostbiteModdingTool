@@ -1,13 +1,7 @@
-﻿// Modding.ModDetails
-using System;
-using System.Collections.Generic;
-using System.IO;
-//using System.Windows.Media;
-//using System.Windows.Media.Imaging;
+﻿using System;
 using Modding.Categories;
 using FrostySdk.Frosty.FET;
-using FrostySdk;
-using FrostbiteSdk;
+using FMT.FileTools.Modding;
 
 public class FIFAModDetails : FrostbiteModDetails
 {

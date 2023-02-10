@@ -1,3 +1,4 @@
+using FrostySdk;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Buffers;
@@ -846,7 +847,13 @@ namespace FMT.FileTools
 			this.stream = null;
 			buffer = null;
 		}
-	}
+
+        public Sha1 ReadSha1()
+        {
+            return new FMT.FileTools.Sha1(ReadBytes(20));
+        }
+
+    }
 
 
     public class FileReader : NativeReader

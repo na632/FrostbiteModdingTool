@@ -1,4 +1,4 @@
-using Frosty.Hash;
+using FMT.FileTools;
 
 namespace FrostySdk.Managers
 {
@@ -6,7 +6,7 @@ namespace FrostySdk.Managers
 	{
 		public string Name;
 
-		public int NameHash => Fnv1.HashString(Name);
+		public int NameHash => Fnv1a.HashString(Name);
 
 		public int SuperBundleId;
 

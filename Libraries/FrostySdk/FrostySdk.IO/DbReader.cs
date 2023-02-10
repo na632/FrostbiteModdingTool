@@ -114,7 +114,7 @@ namespace FrostySdk.IO
 			case DbType.Guid:
 				return ReadGuid();
 			case DbType.Sha1:
-				return new Sha1(ReadBytes(20));// ReadSha1();
+				return new FMT.FileTools.Sha1(ReadBytes(20));// ReadSha1();
                 case DbType.ByteArray:
 				return ReadBytes(Read7BitEncodedInt());
 			default:

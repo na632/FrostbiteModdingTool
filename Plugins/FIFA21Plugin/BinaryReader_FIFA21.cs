@@ -1,14 +1,10 @@
 ﻿using FMT.FileTools;
 using Frostbite.Deobfuscators;
-using Frosty.Hash;
 using FrostySdk;
-using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using static FIFA21Plugin.FIFA21AssetLoader;
 
 namespace FIFA21Plugin
 {

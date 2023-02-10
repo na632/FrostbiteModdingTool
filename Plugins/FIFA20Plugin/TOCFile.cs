@@ -255,7 +255,7 @@ namespace FIFA20Plugin
 							int chunkSize = toc_reader.ReadInt();
 
 							chunkAssetEntry.Id = guid;
-							chunkAssetEntry.Sha1 = Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry.Id.ToString()));
+							chunkAssetEntry.Sha1 = FMT.FileTools.Sha1.Create(Encoding.ASCII.GetBytes(chunkAssetEntry.Id.ToString()));
 
 							chunkAssetEntry.OriginalSize = chunkSize;
 							chunkAssetEntry.Size = chunkSize;

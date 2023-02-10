@@ -1,4 +1,6 @@
-﻿using FrostySdk.Attributes;
+﻿using FMT.FileTools;
+using FMT.FileTools.Modding;
+using FrostySdk.Attributes;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -314,7 +316,7 @@ namespace FrostySdk.IO._2022.Readers
 				// TODO: Somehow get this working without having to use this.ReadField. Its related to Struct, all other fields work fine
 
 				// Seems to work very well with NFS Unbound
-				if (ProfileManager.IsGameVersion(ProfileManager.EGame.NFSUnbound))
+				if (ProfileManager.IsGameVersion(EGame.NFSUnbound))
 				{
 					if (genArg0.Name == "PointerRef")
 						obj2 = this.ReadField(classType, EbxFieldType.Pointer, field.ClassRef, isReference);

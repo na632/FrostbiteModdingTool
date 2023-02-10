@@ -84,16 +84,16 @@ namespace Madden21Plugin
             return memoryStream.ToArray();
         }
 
-        private byte[] WriteSha1(DbObject obj)
-        {
-            MemoryStream memoryStream = new MemoryStream();
-            using (NativeWriter writer = new NativeWriter(memoryStream, true))
-            {
-                writer.Write(new Sha1()); // 
-            }
+        //private byte[] WriteSha1(DbObject obj)
+        //{
+        //    MemoryStream memoryStream = new MemoryStream();
+        //    using (NativeWriter writer = new NativeWriter(memoryStream, true))
+        //    {
+        //        writer.Write(new FMT.FileTools.Sha1()); // 
+        //    }
 
-            return memoryStream.ToArray();
-        }
+        //    return memoryStream.ToArray();
+        //}
 
         private void WriteEbx(DbObject obj, NativeWriter writer)
         {

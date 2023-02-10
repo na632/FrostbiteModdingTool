@@ -1,16 +1,10 @@
-﻿using Frosty.Hash;
-using FrostySdk;
+﻿using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.IO;
 using FrostySdk.Managers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using static FrostySdk.Managers.AssetManager;
 
 namespace FIFA22Plugin
 {

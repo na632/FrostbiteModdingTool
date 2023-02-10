@@ -24,7 +24,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using v2k4FIFAModding.Frosty;
-using FrostySdk.FrostySdk.Managers;
+
 using Microsoft.Win32;
 using FIFAModdingUI.Windows;
 using Newtonsoft.Json;
@@ -41,6 +41,7 @@ using FolderBrowserEx;
 using FrostySdk.Frostbite.IO;
 using FrostbiteSdk;
 using FMT.Pages.Common;
+using FMT.FileTools;
 
 namespace FIFAModdingUI.Pages.Common
 {

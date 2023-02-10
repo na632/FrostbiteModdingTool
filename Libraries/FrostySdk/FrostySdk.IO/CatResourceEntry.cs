@@ -2,7 +2,7 @@ namespace FrostySdk.IO
 {
 	public struct CatResourceEntry
 	{
-		public Sha1 Sha1;
+		public FMT.FileTools.Sha1 Sha1;
 
 		public uint Offset;
 

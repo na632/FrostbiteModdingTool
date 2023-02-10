@@ -1,4 +1,5 @@
-﻿using FrostbiteSdk;
+﻿using FMT.FileTools.Modding;
+using FrostbiteSdk;
 using FrostbiteSdk.SdkGenerator;
 using FrostyEditor;
 using FrostyEditor.IO;
@@ -754,30 +755,30 @@ namespace SdkGenerator
             }
             else
             {
+                throw new Exception("SDKGeneratorClassInfoType has not been set on the Profile. Please set this before running the SDK Generator.");
+                //switch (ProfileManager.DataVersion)
+                //{
 
-                switch (ProfileManager.DataVersion)
-                {
+                //    case (int)EGame.FIFA19:
+                //        typeStr = "SdkGenerator.BaseInfo.ClassInfo";
+                //        break;
+                //    case (int)EGame.FIFA20:
+                //        typeStr = "SdkGenerator.Madden20.ClassInfo";
+                //        break;
+                //    case (int)EGame.MADDEN20:
+                //        typeStr = "SdkGenerator.Madden20.ClassInfo";
+                //        break;
+                //    case (int)EGame.FIFA21:
+                //        typeStr = "SdkGenerator.FIFA21.ClassInfo";
+                //        break;
+                //    //case (int)ProfilesLibrary.DataVersions.MADDEN21:
+                //    //    typeStr = "SdkGenerator.Madden21.ClassInfo";
+                //    //    break;
+                //    default:
+                //        typeStr = "SdkGenerator.BaseInfo.ClassInfo";
+                //        break;
 
-                    case (int)ProfileManager.EGame.FIFA19:
-                        typeStr = "SdkGenerator.BaseInfo.ClassInfo";
-                        break;
-                    case (int)ProfileManager.EGame.FIFA20:
-                        typeStr = "SdkGenerator.Madden20.ClassInfo";
-                        break;
-                    case (int)ProfileManager.EGame.MADDEN20:
-                        typeStr = "SdkGenerator.Madden20.ClassInfo";
-                        break;
-                    case (int)ProfileManager.EGame.FIFA21:
-                        typeStr = "SdkGenerator.FIFA21.ClassInfo";
-                        break;
-                    //case (int)ProfilesLibrary.DataVersions.MADDEN21:
-                    //    typeStr = "SdkGenerator.Madden21.ClassInfo";
-                    //    break;
-                    default:
-                        typeStr = "SdkGenerator.BaseInfo.ClassInfo";
-                        break;
-
-                }
+                //}
             }
           
 

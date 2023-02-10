@@ -37,6 +37,7 @@ using v2k4FIFAModding;
 using v2k4FIFAModding.Frosty;
 using v2k4FIFAModdingCL;
 using FrostySdk.Frostbite;
+using FMT.FileTools.Modding;
 
 //namespace FIFAModdingUI
 namespace FMT

@@ -1,6 +1,5 @@
 ﻿using FMT.FileTools;
 using Frostbite.Deobfuscators;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
@@ -19,7 +18,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
         public int SBInformationHeaderLength = 32;
 
         List<long> Sha1Positions = new List<long>();
-        List<Sha1> Sha1 = new List<Sha1>();
+        List<FMT.FileTools.Sha1> Sha1 = new List<FMT.FileTools.Sha1>();
 
 
         public SBHeaderInformation BinaryRead21(
@@ -75,7 +74,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
 
 
 
-        private List<object> ReadEbx(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
+        private List<object> ReadEbx(SBHeaderInformation information, List<FMT.FileTools.Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
             for (int i = 0; i < information.ebxCount; i++)
@@ -102,7 +101,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
             return list;
         }
-        private List<object> ReadRes(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
+        private List<object> ReadRes(SBHeaderInformation information, List<FMT.FileTools.Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
             int shaCount = (int)information.ebxCount;
@@ -156,7 +155,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
             }
             return list;
         }
-        private List<object> ReadChunks(SBHeaderInformation information, List<Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
+        private List<object> ReadChunks(SBHeaderInformation information, List<FMT.FileTools.Sha1> sha1, NativeReader reader, int baseBundleOffset = 0)
         {
             List<object> list = new List<object>();
             int shaCount = (int)(information.ebxCount + information.resCount);

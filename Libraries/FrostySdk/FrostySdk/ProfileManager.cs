@@ -1,6 +1,6 @@
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 using Frostbite.Deobfuscators;
-using Frosty.Hash;
 using FrostySdk.Deobfuscators;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -402,37 +402,11 @@ namespace FrostySdk
         }
 
 
-		/// <summary>
-		/// 20190729 - Madden 20
-		/// 20190911 - FIFA 20
-		/// 
-		/// </summary>
-        [SupportedOSPlatform("windows")]
 		public static int DataVersion => LoadedProfile.DataVersion;
 
 		public static EGame Game => (EGame)LoadedProfile.DataVersion;
 
-		public enum EGame : int
-        {
-			UNSET = -1,
-
-			FIFA17 = 20160927,
-			FIFA18 = 20170929,
-			FIFA19 = 20180914,
-			FIFA20 = 20190911,
-			FIFA21 = 20200929,
-			FIFA22 = 20210922,
-			FIFA23 = 20220927,
-
-			MADDEN20 = 20190729,
-			MADDEN21 = 20200831,
-			MADDEN22 = 20210812,
-			MADDEN23 = 20220819,
-
-			NFSUnbound = 20221121,
-
-			DeadSpace = 20230127,
-        }
+		
 
         public static bool IsGameVersion(EGame game)
         {
@@ -442,10 +416,10 @@ namespace FrostySdk
         public static bool IsFIFADataVersion()
 		{
 
-			bool isFIFA = (LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA17
-				|| LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA18
-				|| LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA19
-				|| LoadedProfile.DataVersion == (int)ProfileManager.EGame.FIFA20
+			bool isFIFA = (LoadedProfile.DataVersion == (int)EGame.FIFA17
+				|| LoadedProfile.DataVersion == (int)EGame.FIFA18
+				|| LoadedProfile.DataVersion == (int)EGame.FIFA19
+				|| LoadedProfile.DataVersion == (int)EGame.FIFA20
 				)
 				;
 
@@ -457,7 +431,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA19);
+			isFIFA = (ProfileManager.DataVersion == (int)EGame.FIFA19);
 
 			return isFIFA;
 		}
@@ -468,7 +442,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA20);
+			isFIFA = (ProfileManager.DataVersion == (int)EGame.FIFA20);
 
 			return isFIFA;
 		}
@@ -479,7 +453,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA21);
+			isFIFA = (ProfileManager.DataVersion == (int)EGame.FIFA21);
 
 			return isFIFA;
 		}
@@ -489,7 +463,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA22);
+			isFIFA = (ProfileManager.DataVersion == (int)EGame.FIFA22);
 
 			return isFIFA;
 		}
@@ -499,7 +473,7 @@ namespace FrostySdk
 
 			bool isFIFA = false;
 
-			isFIFA = (ProfileManager.DataVersion == (int)ProfileManager.EGame.FIFA23);
+			isFIFA = (ProfileManager.DataVersion == (int)EGame.FIFA23);
 
 			return isFIFA;
 		}
@@ -519,7 +493,7 @@ namespace FrostySdk
 
 			bool isMadden = false;
 
-			isMadden = (ProfileManager.DataVersion == (int)ProfileManager.EGame.MADDEN20);
+			isMadden = (ProfileManager.DataVersion == (int)EGame.MADDEN20);
 
 			return isMadden;
 		}
@@ -529,7 +503,7 @@ namespace FrostySdk
 
 			bool isMadden = false;
 
-			isMadden = (version == ProfileManager.EGame.MADDEN21
+			isMadden = (version == EGame.MADDEN21
                 );
 
 			return isMadden;
@@ -540,7 +514,7 @@ namespace FrostySdk
 
 			bool isMadden = false;
 
-			isMadden = version == ProfileManager.EGame.MADDEN22;
+			isMadden = version == EGame.MADDEN22;
 
 			return isMadden;
 		}
@@ -550,7 +524,7 @@ namespace FrostySdk
 
 			bool isMadden = false;
 
-			isMadden = version == ProfileManager.EGame.MADDEN23;
+			isMadden = version == EGame.MADDEN23;
 
 			return isMadden;
 		}

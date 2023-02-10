@@ -1,4 +1,3 @@
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -23,6 +22,8 @@ using FrostySdk.Frostbite.PluginInterfaces;
 using Microsoft.Win32;
 using FrostySdk.Frostbite.Compilers;
 using FMT.FileTools;
+using FMT.FileTools.Modding;
+using Sha1 = FMT.FileTools.Sha1;
 
 namespace ModdingSupport
 {
@@ -102,7 +103,7 @@ namespace ModdingSupport
         {
             private string catalog;
 
-            private List<Sha1> dataRefs = new List<Sha1>();
+            private List<FMT.FileTools.Sha1> dataRefs = new List<FMT.FileTools.Sha1>();
 
             private Dictionary<Sha1, List<CasFileEntry>> fileInfos = new Dictionary<Sha1, List<CasFileEntry>>();
 
@@ -141,7 +142,7 @@ namespace ModdingSupport
                 return dataRefs.Contains(sha1);
             }
 
-            public IEnumerable<Sha1> EnumerateDataRefs()
+            public IEnumerable<FMT.FileTools.Sha1> EnumerateDataRefs()
             {
                 foreach (Sha1 dataRef in dataRefs)
                 {
@@ -233,17 +234,17 @@ namespace ModdingSupport
 
     //        private Exception errorException;
 
-    //        private List<Sha1> dataRefs = new List<Sha1>();
+    //        private List<FMT.FileTools.Sha1> dataRefs = new List<FMT.FileTools.Sha1>();
 
-    //        private List<Sha1> bundleRefs = new List<Sha1>();
+    //        private List<FMT.FileTools.Sha1> bundleRefs = new List<FMT.FileTools.Sha1>();
 
     //        private List<CasFileEntry> fileInfos = new List<CasFileEntry>();
 
     //        private List<byte[]> bundleBuffers = new List<byte[]>();
 
-    //        public List<Sha1> DataRefs => dataRefs;
+    //        public List<FMT.FileTools.Sha1> DataRefs => dataRefs;
 
-    //        public List<Sha1> BundleRefs => bundleRefs;
+    //        public List<FMT.FileTools.Sha1> BundleRefs => bundleRefs;
 
     //        public List<CasFileEntry> FileInfos => fileInfos;
 
@@ -529,15 +530,15 @@ namespace ModdingSupport
     //                        nativeWriter.Write(3735927486u, Endian.Big);
     //                        foreach (DbObject item7 in dbObject.GetValue<DbObject>("ebx"))
     //                        {
-    //                            nativeWriter.Write(item7.GetValue<Sha1>("sha1"));
+    //                            nativeWriter.Write(item7.GetValue<FMT.FileTools.Sha1>("sha1"));
     //                        }
     //                        foreach (DbObject item8 in dbObject.GetValue<DbObject>("res"))
     //                        {
-    //                            nativeWriter.Write(item8.GetValue<Sha1>("sha1"));
+    //                            nativeWriter.Write(item8.GetValue<FMT.FileTools.Sha1>("sha1"));
     //                        }
     //                        foreach (DbObject item9 in dbObject.GetValue<DbObject>("chunks"))
     //                        {
-    //                            nativeWriter.Write(item9.GetValue<Sha1>("sha1"));
+    //                            nativeWriter.Write(item9.GetValue<FMT.FileTools.Sha1>("sha1"));
     //                        }
     //                        long num6 = 0L;
     //                        Dictionary<uint, long> dictionary2 = new Dictionary<uint, long>();

@@ -1,7 +1,7 @@
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 using FrostbiteSdk;
 using FrostbiteSdk.FrostbiteSdk.Managers;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Attributes;
 using FrostySdk.FrostySdk.IO;
@@ -14,7 +14,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using v2k4FIFAModding.Frosty;
 using static PInvoke.Kernel32;
+using Fnv1a = FMT.FileTools.Fnv1a;
 
 namespace FrostySdk
 {
@@ -24,7 +26,7 @@ namespace FrostySdk
 		{
 			private Dictionary<string, int> nameEntries = new Dictionary<string, int>();
 
-			private Dictionary<Sha1, int> sha1Entries = new Dictionary<Sha1, int>();
+			private Dictionary<FMT.FileTools.Sha1, int> sha1Entries = new Dictionary<FMT.FileTools.Sha1, int>();
 
 			private List<object> objects = new List<object>();
 
@@ -36,7 +38,7 @@ namespace FrostySdk
 				return objects.Count - 1;
 			}
 
-			public int Add(Sha1 sha1, byte[] data)
+			public int Add(FMT.FileTools.Sha1 sha1, byte[] data)
 			{
 				if (sha1Entries.ContainsKey(sha1))
 				{
@@ -207,7 +209,7 @@ namespace FrostySdk
 				{
 					size = decompressedArray.LongLength;
 					resourceIndex = manifest.Add(compressedArray);
-					sha1 = Utils.GenerateSha1(compressedArray);
+					sha1 = FMT.FileTools.Sha1.Create(compressedArray);
 				}
 				//}
 				foreach (int bundle in entry.Bundles)
@@ -499,7 +501,119 @@ namespace FrostySdk
 
 		}
 
-		public void AddResource(BaseModResource resource)
+        public virtual void WriteProject()
+        {
+            Write(FrostbiteMod.Magic2);
+            Write(FrostbiteMod.CurrentVersion);
+            Write(16045690984833335023uL);
+            Write(3735928559u);
+            Write(ProfileManager.ProfileName);
+            Write(FileSystem.Instance.Head);
+            ModSettings modSettings = overrideSettings;
+            if (modSettings == null)
+            {
+                modSettings = ProjectManagement.Instance.Project.GetModSettings();
+            }
+            WriteLengthPrefixedString(modSettings.Title);
+            WriteLengthPrefixedString(modSettings.Author);
+            WriteLengthPrefixedString(modSettings.Category);
+            WriteLengthPrefixedString(modSettings.Version);
+            WriteLengthPrefixedString(modSettings.Description);
+
+            // -----------------------------------------------------
+            // Embedded Files
+            // --------------------------------------------------
+            // Convert Locale.Ini mod to EmbeddedFileEntry
+            if (AssetManager.Instance.LocaleINIMod.HasUserData)
+            {
+                AssetManager.Instance.EmbeddedFileEntries.RemoveAll(x
+                    => x.ImportedFileLocation.Contains("Locale.ini", StringComparison.OrdinalIgnoreCase)
+                    || x.ExportedRelativePath.Contains("Locale.ini", StringComparison.OrdinalIgnoreCase)
+                    );
+                AssetManager.Instance.EmbeddedFileEntries.Add(new EmbeddedFileEntry()
+                {
+                    Name = "Locale.ini",
+                    ImportedFileLocation = "PROJECT",
+                    ExportedRelativePath = "Data\\Locale.ini",
+                    Data = AssetManager.Instance.LocaleINIMod.UserDataEncrypted
+                });
+            }
+            // 5 = Icon and Screenshots
+            // The count of embedded files is added
+            Write(5 + AssetManager.Instance.EmbeddedFileEntries.Count);
+            AddResource(new EmbeddedResource("Icon;", modSettings.Icon, manifest));
+            for (int i = 0; i < 4; i++)
+            {
+                AddResource(new EmbeddedResource("Screenshot;" + i.ToString(), modSettings.GetScreenshot(i), manifest));
+            }
+            for (int i = 0; i < AssetManager.Instance.EmbeddedFileEntries.Count; i++)
+            {
+                var efe = AssetManager.Instance.EmbeddedFileEntries[i];
+                AddResource(new EmbeddedResource("efe;" + efe.ExportedRelativePath, efe.Data, manifest));
+            }
+            // end of embedded
+            // ----------------------------------------------------
+
+            foreach (BundleEntry bundleEntry in AssetManager.Instance.EnumerateBundles(BundleType.None, modifiedOnly: true))
+            {
+                if (bundleEntry.Added)
+                {
+                    AddResource(new BundleResource(bundleEntry, manifest));
+                }
+            }
+            foreach (EbxAssetEntry ebxAsset in AssetManager.Instance.EnumerateEbx("", modifiedOnly: true))
+            {
+                if (!ebxAsset.ModifiedEntry.IsTransientModified && ebxAsset.HasModifiedData)
+                {
+                    AddResource(new EbxResource(ebxAsset, manifest));
+                }
+            }
+            foreach (ResAssetEntry resAsset in AssetManager.Instance.EnumerateRes(0u, modifiedOnly: true))
+            {
+                if (resAsset.HasModifiedData)
+                {
+                    AddResource(new ResResource(resAsset, manifest));
+                }
+            }
+            foreach (ChunkAssetEntry chunkEntry in AssetManager.Instance.EnumerateChunks(modifiedOnly: true))
+            {
+                if (chunkEntry.HasModifiedData)
+                {
+                    AddResource(new ChunkResource(chunkEntry, manifest));
+                }
+            }
+            // Write Legacy stuff
+            foreach (LegacyFileEntry lfe in AssetManager.Instance.EnumerateCustomAssets("legacy", true))
+            {
+                if (lfe.HasModifiedData)
+                {
+                    AddResource(new LegacyFileResource(lfe, manifest));
+                }
+            }
+            // Write Embedded stuff
+            foreach (EmbeddedFileEntry efe in AssetManager.Instance.EmbeddedFileEntries)
+            {
+                AddResource(new EmbeddedFileResource(efe, manifest));
+            }
+            Write(resources.Count);
+            foreach (EditorModResource resource in resources)
+            {
+                resource.Write(this);
+            }
+
+
+            long manifestDataPosition = BaseStream.Position;
+            manifest.Write(this);
+            long legacyFilePosition = BaseStream.Position;
+            BaseStream.Position = 12L;
+            Write(manifestDataPosition);
+            Write(manifest.Count);
+
+
+
+        }
+
+        public void AddResource(BaseModResource resource)
 		{
 			resources.Add(resource);
 		}

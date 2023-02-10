@@ -290,7 +290,7 @@ namespace FIFA21Plugin
                         parent.Logger.Log("Chunk ERRORS:: " + ErrorCounts[ModType.CHUNK]);
                 }
 
-                Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
+                Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)>();
 
                 foreach (var item in dictOfModsToCas)
                 {
@@ -630,7 +630,7 @@ namespace FIFA21Plugin
 
         }
 
-        private void WriteEbxChangesToSuperBundle(List<DbObject> origEbxBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteEbxChangesToSuperBundle(List<DbObject> origEbxBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> assetBundle)
         {
             DbObject origEbxDbo = null;
             foreach (DbObject dbInBundle in origEbxBundles)
@@ -650,7 +650,7 @@ namespace FIFA21Plugin
                     writer.Write((uint)originalSizeOfData, Endian.Little);
                 }
 
-                if (origEbxDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+                if (origEbxDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != FMT.FileTools.Sha1.Zero)
                 {
                     writer.Position = origEbxDbo.GetValue<long>("SB_Sha1_Position");
                     writer.Write(assetBundle.Value.Item4);
@@ -658,7 +658,7 @@ namespace FIFA21Plugin
             }
         }
 
-        private void WriteResChangesToSuperBundle(List<DbObject> origResBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteResChangesToSuperBundle(List<DbObject> origResBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> assetBundle)
         {
             DbObject origResDbo = null;
             foreach (DbObject dbInBundle in origResBundles)
@@ -692,14 +692,14 @@ namespace FIFA21Plugin
                 writer.Write((uint)originalSizeOfData, Endian.Little);
             }
 
-            if (origResDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            if (origResDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != FMT.FileTools.Sha1.Zero)
             {
                 writer.Position = origResDbo.GetValue<long>("SB_Sha1_Position");
                 writer.Write(assetBundle.Value.Item4);
             }
         }
 
-        private void WriteChunkChangesToSuperBundle(List<DbObject> origChunkBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteChunkChangesToSuperBundle(List<DbObject> origChunkBundles, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> assetBundle)
         {
             DbObject origChunkDbo = null;
             foreach (DbObject dbInBundle in origChunkBundles)
@@ -728,7 +728,7 @@ namespace FIFA21Plugin
                 writer.Write((uint)originalSizeOfData, Endian.Little);
             }
 
-            if (origChunkDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != Sha1.Zero)
+            if (origChunkDbo.HasValue("SB_Sha1_Position") && assetBundle.Value.Item4 != FMT.FileTools.Sha1.Zero)
             {
                 writer.Position = origChunkDbo.GetValue<long>("SB_Sha1_Position");
                 writer.Write(assetBundle.Value.Item4);

@@ -23,7 +23,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using v2k4FIFAModdingCL;
 using SdkGenerator;
-using Frosty.Hash;
+
 using MahApps.Metro.Controls;
 
 namespace FIFAModdingUI.Windows

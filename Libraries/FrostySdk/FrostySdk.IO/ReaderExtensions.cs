@@ -54,17 +54,17 @@ namespace FMT.FileTools
 
         public static Sha1 ReadSha1(this NativeReader reader)
         {
-            return new Sha1(reader.ReadBytes(20));
+            return new FMT.FileTools.Sha1(reader.ReadBytes(20));
         }
 
         //public static Sha1 ReadSha1(this DeobfuscatedReader reader)
         //{
-        //    return new Sha1(reader.ReadBytes(20));
+        //    return new FMT.FileTools.Sha1(reader.ReadBytes(20));
         //}
 
         public static Sha1 ReadSha1(this DbReader reader)
         {
-            return new Sha1(reader.ReadBytes(20));
+            return new FMT.FileTools.Sha1(reader.ReadBytes(20));
         }
     }
 }

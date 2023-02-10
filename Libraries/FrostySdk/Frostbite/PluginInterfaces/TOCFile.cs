@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Frosty.Hash;
 using FMT.FileTools;
 
 namespace FrostySdk.Frostbite.PluginInterfaces
@@ -839,10 +838,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
                 builtString += " " + Name;
             }
 
-            if (Sha.HasValue)
-            {
-                builtString += " " + Sha.Value.ToString();
-            }
+            //if (Sha.HasValue)
+            //{
+            //    builtString += " " + Sha.Value.ToString();
+            //}
 
 
             if (!string.IsNullOrEmpty(builtString))

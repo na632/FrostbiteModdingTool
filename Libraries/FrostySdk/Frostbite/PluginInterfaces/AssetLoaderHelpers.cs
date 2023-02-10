@@ -1,5 +1,4 @@
-﻿using Frosty.Hash;
-using FrostySdk.FrostySdk.Managers;
+﻿using FMT.FileTools;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,7 @@ namespace FrostySdk.Frostbite.PluginInterfaces
     {
         public static AssetEntry ConvertDbObjectToAssetEntry(DbObject item, AssetEntry assetEntry)
         {
-            assetEntry.Sha1 = new Sha1(item.GetValue<byte[]>("sha1"));
+            assetEntry.Sha1 = new FMT.FileTools.Sha1(item.GetValue<byte[]>("sha1"));
 
             assetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(assetEntry.Sha1);
             assetEntry.Size = item.GetValue("size", 0L);

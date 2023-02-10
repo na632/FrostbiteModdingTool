@@ -33,7 +33,6 @@ namespace FrostySdk.Managers
 		{
 			get 
 			{
-				var thisType = GetType();
 				if(dataObject == null && Data != null && Data.Length > 0
 					&& 
 					(

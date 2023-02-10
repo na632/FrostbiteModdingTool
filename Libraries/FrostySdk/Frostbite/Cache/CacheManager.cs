@@ -1,5 +1,4 @@
 ﻿using FMT.FileTools;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
@@ -83,7 +82,8 @@ namespace FrostySdk.Frostbite
                 new AssetManager(logger);
                 AssetManager.Instance.RegisterLegacyAssetManager();
                 //AssetManager.Instance.SetLogger(logger);
-                AssetManager.Instance.Initialize(additionalStartup: true);
+                //AssetManager.Instance.Initialize(additionalStartup: true);
+                AssetManager.Instance.Initialize(loadSDK);
 
                 logger.Log("Initialised Asset Manager");
 

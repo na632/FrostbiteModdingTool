@@ -1,4 +1,5 @@
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -426,22 +427,22 @@ namespace FrostySdk.Resources
 
 		private void ReadInStream(NativeReader nativeReader)
 		{
-			if(ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA23))
+			if(ProfileManager.IsGameVersion(EGame.FIFA23))
 			{
 				ReadInStreamFIFA23(nativeReader);
 				return;
 			}
-            if (ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+            if (ProfileManager.IsGameVersion(EGame.MADDEN23))
             {
                 ReadInStreamMadden23(nativeReader);
                 return;
             }
-            if (ProfileManager.IsGameVersion(ProfileManager.EGame.NFSUnbound))
+            if (ProfileManager.IsGameVersion(EGame.NFSUnbound))
             {
                 ReadInStreamNFSU(nativeReader);
                 return;
             }
-            if (ProfileManager.IsGameVersion(ProfileManager.EGame.DeadSpace))
+            if (ProfileManager.IsGameVersion(EGame.DeadSpace))
             {
                 ReadInStreamDeadSpace(nativeReader);
                 return;
@@ -610,15 +611,15 @@ namespace FrostySdk.Resources
 
         public byte[] ToBytes()
         {
-            if (ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA23))
+            if (ProfileManager.IsGameVersion(EGame.FIFA23))
 			{
                 return Texture.ToBytesFIFA23(this);
             }
-            if (ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+            if (ProfileManager.IsGameVersion(EGame.MADDEN23))
 			{
                 return ToBytesMadden23();
             }
-            if (ProfileManager.IsGameVersion(ProfileManager.EGame.NFSUnbound))
+            if (ProfileManager.IsGameVersion(EGame.NFSUnbound))
             {
                 return Texture.ToNFSUnbound(this);
             }
@@ -658,8 +659,8 @@ namespace FrostySdk.Resources
                 }
                 else
                 {
-                    if (ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN22)
-						|| ProfileManager.IsGameVersion(ProfileManager.EGame.MADDEN23))
+                    if (ProfileManager.IsGameVersion(EGame.MADDEN22)
+						|| ProfileManager.IsGameVersion(EGame.MADDEN23))
                     {
                         nativeWriter.WriteUInt32LittleEndian(unknown2);
                     }

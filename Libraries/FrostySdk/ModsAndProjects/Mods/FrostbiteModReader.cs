@@ -1,8 +1,8 @@
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 using FrostbiteSdk.Frosty.Abstract;
 using FrostySdk;
 using FrostySdk.Attributes;
-using FrostySdk.FrostySdk.Managers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.ModsAndProjects.Mods;

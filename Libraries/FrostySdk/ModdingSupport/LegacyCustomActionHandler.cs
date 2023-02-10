@@ -1,5 +1,4 @@
 using FMT.FileTools;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -123,7 +122,7 @@ namespace Frosty.ModSupport.Handlers
 					outData = Utils.CompressFile(((MemoryStream)nativeWriter.BaseStream).ToArray());
 					return new ChunkAssetEntry
 					{
-						Sha1 = Utils.GenerateSha1(outData),
+						Sha1 = FMT.FileTools.Sha1.Create(outData),
 						Size = outData.Length,
 						IsTocChunk = true
 					};

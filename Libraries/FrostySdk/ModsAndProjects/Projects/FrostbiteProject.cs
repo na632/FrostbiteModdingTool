@@ -1,8 +1,8 @@
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 using Frostbite.FileManagers;
 using FrostbiteSdk;
 using FrostbiteSdk.FrostbiteSdk.Managers;
-using Frosty.Hash;
 using FrostySdk.Frosty.FET;
 using FrostySdk.FrostySdk.IO;
 using FrostySdk.IO;
@@ -566,39 +566,6 @@ namespace FrostySdk
 
 		}
 
-		//private void WriteToModZstd(string filename, ModSettings overrideSettings, byte[] projectbytes)
-		//{
-		//	MemoryStream zipStream = new MemoryStream(Utils.CompressFile(projectbytes, compressionOverride: CompressionType.ZStd));
-
-		//	if (File.Exists(filename))
-		//		File.Delete(filename);
-
-		//	zipStream.Position = 0;
-		//	NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-		//	nwFinal.Write((ushort)2);
-		//	nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
-		//	nwFinal.Close();
-		//	nwFinal.Dispose();
-
-		//}
-		//private void WriteToModZip(string filename, ModSettings overrideSettings, byte[] projectbytes)
-  //      {
-		//	MemoryStream zipStream = new MemoryStream();
-		//	ZipFile pZip = new ZipFile();
-		//	pZip.AddEntry("mE", projectbytes);
-		//	pZip.Save(zipStream);
-
-		//	if (File.Exists(filename))
-		//		File.Delete(filename);
-
-		//	zipStream.Position = 0;
-		//	NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
-		//	nwFinal.Write((ushort)1);
-		//	nwFinal.Write(new NativeReader(zipStream).ReadToEnd());
-		//	nwFinal.Close();
-		//	nwFinal.Dispose();
-		//}
-
 		public void WriteToFIFAMod(string filename, ModSettings overrideSettings)
 		{
 			if (File.Exists(filename))
@@ -756,7 +723,7 @@ namespace FrostySdk
 				return false;
 
 			// Automatically convert projects to new Format Version
-			if (ProfileManager.Game > ProfileManager.EGame.FIFA21 && ProjectFormatVersion == 12u)
+			if (ProfileManager.Game > EGame.FIFA21 && ProjectFormatVersion == 12u)
 				ProjectFormatVersion = 23u;
 
 			if (reader.ReadNullTerminatedString() != ProfileManager.ProfileName)
@@ -838,7 +805,7 @@ namespace FrostySdk
 				string text = reader.ReadNullTerminatedString();
 				List<AssetEntry> collection2 = LoadLinkedAssets(reader);
 				bool flag2 = reader.ReadBoolean();
-				Sha1 sha = Sha1.Zero;
+                FMT.FileTools.Sha1 sha = FMT.FileTools.Sha1.Zero;
 				long originalSize = 0L;
 				List<int> list2 = new List<int>();
 				byte[] resMeta = null;
@@ -901,7 +868,7 @@ namespace FrostySdk
 			for (int iModifiedChunk = 0; iModifiedChunk < count; iModifiedChunk++)
 			{
 				Guid id = reader.ReadGuid();
-				Sha1 sha2 = reader.ReadSha1();
+                FMT.FileTools.Sha1 sha2 = reader.ReadSha1();
 				uint logicalOffset = reader.ReadUInt();
 				uint logicalSize = reader.ReadUInt();
 				uint rangeStart = reader.ReadUInt();

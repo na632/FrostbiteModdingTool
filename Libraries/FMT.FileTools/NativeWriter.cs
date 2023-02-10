@@ -321,6 +321,26 @@ namespace FMT.FileTools
 			Write(new byte[numberOfBytes]);
 		}
 
+		public void WriteObject(object o)
+		{
+			foreach(var prop in o.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+			{
+				var v = prop.GetValue(o);
+				switch(v.GetType().Name.ToLower())
+				{
+					case "string":
+						Write(v.ToString());
+						break;
+                    case "byte":
+                        Write((byte)v);
+                        break;
+                    case "byte[]":
+						WriteLengthPrefixedBytes((byte[])v);
+                        break;
+                }
+			}
+		}
+
 	}
 
 	public class FileWriter : NativeWriter

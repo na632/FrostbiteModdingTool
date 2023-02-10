@@ -1,5 +1,5 @@
 using FMT.FileTools;
-using Frosty.Hash;
+using FMT.FileTools.Modding;
 using FrostySdk;
 using FrostySdk.Frosty;
 using FrostySdk.IO;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Fnv1a = FMT.FileTools.Fnv1a;
 
 namespace FrostbiteSdk
 {
@@ -82,7 +83,7 @@ namespace FrostbiteSdk
 		public bool IsEncrypted { get; set; }
 
 		public byte[] ModBytes { get; set; }
-		public ProfileManager.EGame Game { get; set; }
+		public EGame Game { get; set; }
 
 		private void ReadFromStream(Stream stream)
 		{

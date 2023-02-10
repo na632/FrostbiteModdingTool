@@ -960,6 +960,8 @@ namespace FrostbiteModdingTests
             projectManagement.Project.Load(TestProjects.Single(x => x.Key.EndsWith("FIFA23.UltraSlowDribblingTest.fbproject")).Value);
             var testR = "test.fbmod";
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
+
+            FrostySdk.ModsAndProjects.Projects.FMTProject.Create("FIFA23.UltraSlowDribblingTest");
         }
 
         [TestMethod]

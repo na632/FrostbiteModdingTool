@@ -14,8 +14,8 @@ using System.Linq;
 using FrostySdk.IO._2022.Readers;
 using System.Collections.Generic;
 using static FrostySdk.FIFAModReader;
-using FrostySdk.FrostySdk.Managers;
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 
 namespace FrostySdk
 {

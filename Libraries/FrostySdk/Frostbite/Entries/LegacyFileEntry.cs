@@ -1,6 +1,6 @@
-using Frosty.Hash;
+using FMT.FileTools;
+using FMT.FileTools.Modding;
 using FrostySdk.FrostbiteSdk.Managers;
-using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Controls;
 using System.Xml;
+using Fnv1a = FMT.FileTools.Fnv1a;
 
 namespace FrostySdk
 {
@@ -78,17 +79,17 @@ namespace FrostySdk
 
 		public Guid ParentGuid { get; set; }
 
-		public int NameHash => Fnv1.HashString(Name);
+		public int NameHash => Fnv1a.HashString(Name);
 
 
-		public Sha1 GetSha1()
+		public FMT.FileTools.Sha1 GetSha1()
 		{ 
 			if(!string.IsNullOrEmpty(Name))
-				return Sha1.Create(Encoding.ASCII.GetBytes(Name));
-			return Sha1.Zero;
+				return FMT.FileTools.Sha1.Create(Encoding.ASCII.GetBytes(Name));
+			return FMT.FileTools.Sha1.Zero;
 		}
 
-        public override Sha1 Sha1 => GetSha1();
+        public override FMT.FileTools.Sha1 Sha1 => GetSha1();
 
         public override string AssetType => "legacy";
 
@@ -178,7 +179,7 @@ namespace FrostySdk
 
 
 			if (
-				ProfileManager.IsGameVersion(ProfileManager.EGame.FIFA23)
+				ProfileManager.IsGameVersion(EGame.FIFA23)
 				&& (pathSpan.Contains("FolderAsset", StringComparison.OrdinalIgnoreCase) || pathSpan.Contains("StoryAsset", StringComparison.OrdinalIgnoreCase))
 				)
 			{

@@ -1,7 +1,6 @@
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
 #pragma warning disable SYSLIB0021 // Type or member is obsolete
 using FMT.FileTools;
-using Frosty.Hash;
 using FrostySdk.Ebx;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -84,13 +83,13 @@ namespace FrostySdk
 			}
 		}
 
-		public static Sha1 GenerateSha1(byte[] buffer)
-		{
-			using (SHA1Managed sHA1Managed = new SHA1Managed())
-			{
-				return new Sha1(sHA1Managed.ComputeHash(buffer));
-			}
-		}
+		//public static Sha1 GenerateSha1(byte[] buffer)
+		//{
+		//	using (SHA1Managed sHA1Managed = new SHA1Managed())
+		//	{
+		//		return new FMT.FileTools.Sha1(sHA1Managed.ComputeHash(buffer));
+		//	}
+		//}
 
 		public static ulong GenerateResourceId()
 		{

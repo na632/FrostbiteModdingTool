@@ -1,5 +1,4 @@
 using FMT.FileTools;
-using Frosty.Hash;
 using FrostySdk.Interfaces;
 using FrostySdk.Managers;
 using System;
@@ -27,7 +26,7 @@ namespace FrostySdk.IO
 
 		private uint metaSize;
 
-		private List<Sha1> sha1 = new List<Sha1>();
+		private List<FMT.FileTools.Sha1> sha1 = new List<FMT.FileTools.Sha1>();
 
 		private bool containsUncompressedData;
 

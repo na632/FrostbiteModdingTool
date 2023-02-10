@@ -77,29 +77,6 @@ namespace v2k4FIFAModdingCL
                     CacheManager buildCache = new CacheManager();
                     return buildCache.LoadData(Instance.GAMEVERSION, Instance.GAMERootPath, Logger, false, loadSDK);
                 }
-                //if(ProfilesLibrary.ProfileName == null && !string.IsNullOrEmpty(Instance.GAMEVERSION))
-                //{
-                //    ProfilesLibrary.Initialize(Instance.GAMEVERSION);
-                //    KeyManager.Instance.ReadInKeys();
-                //    TypeLibrary.Initialize(false);
-                //    {
-                //        if (FileSystem.Instance == null)
-                //        {
-                //            new FileSystem(GameDirectory);
-                //        }
-
-                //        var resourceManager = ResourceManager.Instance != null ? ResourceManager.Instance : new ResourceManager(FileSystem.Instance);
-                //        resourceManager.Initialize();
-                //        if (AssetManager.Instance == null)
-                //        {
-                //            var assetManager = new AssetManager(FileSystem.Instance, resourceManager, logger);
-                //            assetManager.RegisterLegacyAssetManager();
-                //            assetManager.Initialize(additionalStartup: loadCache);
-                //        }
-                //        resourceManager.SetLogger(AssetManager.Instance.logger);
-                //    }
-                //}
-
             }
 
             return Instance.INITIALIZED;

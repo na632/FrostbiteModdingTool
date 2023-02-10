@@ -5,7 +5,6 @@ using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.Compilers;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -299,7 +298,7 @@ namespace FIFA22Plugin
                         parent.Logger.Log("Chunk ERRORS:: " + ErrorCounts[ModType.CHUNK]);
                 }
 
-                Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
+                Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)>();
 
                 foreach (var item in dictOfModsToCas)
                 {

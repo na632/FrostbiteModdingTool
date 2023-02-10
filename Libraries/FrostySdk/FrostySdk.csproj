@@ -17,7 +17,6 @@
     <ItemGroup>
 		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
 		<PackageReference Include="DotNetZip" Version="1.15.0" />
-		<PackageReference Include="HashDepot" Version="2.0.3" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="FastStream" Version="1.6.0" />
 		<PackageReference Include="NetDiscordRpc" Version="1.0.2" />
@@ -29,7 +28,7 @@
 		<PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
 		<PackageReference Include="Standart.Hash.xxHash" Version="3.1.0" />
 		<PackageReference Include="System.Buffers" Version="4.5.1" />
-		<PackageReference Include="System.Memory" Version="4.5.4" />
+		<PackageReference Include="System.Memory" Version="4.5.5" />
 		<PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
 		<PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
 		<PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />

@@ -100,8 +100,9 @@ namespace SdkGenerator
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.AppendLine("using System;");
 			stringBuilder.AppendLine("using System.Collections.Generic;");
+			stringBuilder.AppendLine("using FMT.FileTools;");
 			stringBuilder.AppendLine("using FrostySdk;");
-			stringBuilder.AppendLine("using FrostySdk.Attributes;");
+            stringBuilder.AppendLine("using FrostySdk.Attributes;");
 			stringBuilder.AppendLine("using FrostySdk.Managers;");
 			stringBuilder.AppendLine("using System.Reflection;");
 			stringBuilder.AppendLine();
@@ -224,7 +225,8 @@ namespace SdkGenerator
 					MetadataReference.CreateFromFile(dotnetcore_directory + @"\netstandard.dll"),
 					MetadataReference.CreateFromFile(dotnetcore_directory + @"\System.Runtime.dll"),
 					MetadataReference.CreateFromFile("FrostySdk.dll"),
-			};
+					MetadataReference.CreateFromFile("FMT.FileTools.dll"),
+            };
 
 			if (File.Exists("EbxClasses.dll"))
 				File.Delete("EbxClasses.dll");

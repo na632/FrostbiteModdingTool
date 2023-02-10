@@ -8,7 +8,6 @@ using FrostySdk;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Frostbite.IO.Input;
 using FrostySdk.Frostbite.IO.Output;
-using FrostySdk.FrostySdk.Managers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using FrostySdk.Resources;

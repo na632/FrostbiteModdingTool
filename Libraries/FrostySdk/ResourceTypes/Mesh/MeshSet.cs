@@ -1,5 +1,5 @@
 using FMT.FileTools;
-using Frosty.Hash;
+using FMT.FileTools.Modding;
 using FrostySdk;
 using FrostySdk.FrostySdk.IO;
 using FrostySdk.FrostySdk.Resources;
@@ -88,7 +88,7 @@ public class MeshSet
 		{
 			fullName = value.ToLower();
 			if(nameHash == 0)
-				nameHash = (uint)Fnv1.HashString(fullName);
+				nameHash = (uint)FMT.FileTools.Fnv1a.HashString(fullName);
 			int num = fullName.LastIndexOf('/');
 			Name = ((num != -1) ? fullName.Substring(num + 1) : string.Empty);
 		}
@@ -121,18 +121,18 @@ public class MeshSet
 
     public List<ushort> LodFade { get; } = new List<ushort>();
 
-	public MeshSet(ResAssetEntry entry, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET)
+	public MeshSet(ResAssetEntry entry, EGame gameVersion = EGame.UNSET)
 	{
 		Read(AssetManager.Instance.GetRes(entry), gameVersion, entry);
     }
 
-    public MeshSet(Stream stream, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET, ResAssetEntry entry = null)
+    public MeshSet(Stream stream, EGame gameVersion = EGame.UNSET, ResAssetEntry entry = null)
 	{
 		Read(stream, gameVersion, entry);
 
     }
 
-	private void Read(Stream stream, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET, ResAssetEntry entry = null)
+	private void Read(Stream stream, EGame gameVersion = EGame.UNSET, ResAssetEntry entry = null)
 	{
         if (stream == null)
             return;
@@ -140,8 +140,8 @@ public class MeshSet
 		if (entry != null)
 			Meta = entry.ResMeta;
 
-        if (gameVersion == ProfileManager.EGame.UNSET)
-            gameVersion = (ProfileManager.EGame)ProfileManager.LoadedProfile.DataVersion;
+        if (gameVersion == EGame.UNSET)
+            gameVersion = (EGame)ProfileManager.LoadedProfile.DataVersion;
 
 #if DEBUG
         NativeWriter nativeWriterTest = new NativeWriter(new FileStream("_MeshSet.dat", FileMode.Create));
@@ -173,7 +173,7 @@ public class MeshSet
 
         nameHash = nativeReader.ReadUInt();
         Type = (MeshType)nativeReader.ReadUInt();
-        if (gameVersion == ProfileManager.EGame.FIFA23)
+        if (gameVersion == EGame.FIFA23)
         {
             nativeReader.Position -= 4;
             Type = (MeshType)nativeReader.ReadByte();
@@ -226,7 +226,7 @@ public class MeshSet
 
         if (Type == MeshType.MeshType_Skinned)
         {
-            if (gameVersion == ProfileManager.EGame.FIFA23)
+            if (gameVersion == EGame.FIFA23)
             {
                 // 12 bytes of unknowness
                 FIFA23_SkinnedUnknownBytes = nativeReader.ReadBytes(12);
@@ -366,7 +366,7 @@ public class MeshSet
 		return array;
 	}
 
-	private void Write(NativeWriter writer, MeshContainer meshContainer, ProfileManager.EGame gameVersion = ProfileManager.EGame.UNSET)
+	private void Write(NativeWriter writer, MeshContainer meshContainer, EGame gameVersion = EGame.UNSET)
 	{
 		if (writer == null)
 		{
@@ -377,8 +377,8 @@ public class MeshSet
 			throw new ArgumentNullException("meshContainer");
 		}
 
-        if (gameVersion == ProfileManager.EGame.UNSET)
-            gameVersion = (ProfileManager.EGame)ProfileManager.LoadedProfile.DataVersion;
+        if (gameVersion == EGame.UNSET)
+            gameVersion = (EGame)ProfileManager.LoadedProfile.DataVersion;
 
         writer.WriteAxisAlignedBox(boundingBox);
 		for (int i = 0; i < MaxLodCount; i++)

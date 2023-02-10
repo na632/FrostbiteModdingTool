@@ -1,9 +1,9 @@
-using Frosty.Hash;
+using FMT.FileTools;
 using FrostySdk.FrostbiteSdk.Managers;
-using FrostySdk.FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Fnv1a = FMT.FileTools.Fnv1a;
 
 namespace FrostySdk.Managers
 {
@@ -19,9 +19,9 @@ namespace FrostySdk.Managers
 
 		public Guid Id { get; set; }
 
-		public virtual Sha1 Sha1 { get; set; }
+		public virtual FMT.FileTools.Sha1 Sha1 { get; set; }
 
-		public virtual Sha1 BaseSha1 { get; set; }
+		public virtual FMT.FileTools.Sha1 BaseSha1 { get; set; }
 
 		private long _size;
 
@@ -331,12 +331,13 @@ namespace FrostySdk.Managers
 		public int SB_CAS_Size_Position { get; set; }
 		public int SB_Sha1_Position { get; set; }
 		public int SB_OriginalSize_Position { get; set; }
+        public string ExtraInformation { get; set; }
 
-		//public int ParentBundleOffset { get; set; }
-		//public int ParentBundleSize { get; set; }
+        //public int ParentBundleOffset { get; set; }
+        //public int ParentBundleSize { get; set; }
 
 
-		public bool IsLegacy = false;
+        public bool IsLegacy = false;
 
 
 		// ---- -----------------------------------------------------------------
@@ -354,11 +355,11 @@ namespace FrostySdk.Managers
 			{
 				if (assetToLink.HasModifiedData)
 				{
-					(assetToLink as ChunkAssetEntry).ModifiedEntry.H32 = Fnv1.HashString(Name);
+					(assetToLink as ChunkAssetEntry).ModifiedEntry.H32 = Fnv1a.HashString(Name);
 				}
 				else
 				{
-					(assetToLink as ChunkAssetEntry).H32 = Fnv1.HashString(Name);
+					(assetToLink as ChunkAssetEntry).H32 = Fnv1a.HashString(Name);
 				}
 			}
 		}

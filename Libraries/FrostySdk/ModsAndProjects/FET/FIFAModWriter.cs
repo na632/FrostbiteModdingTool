@@ -1,7 +1,6 @@
 ﻿using FMT.FileTools;
 using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
-using Frosty.Hash;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using Standart.Hash.xxHash;
@@ -197,7 +196,7 @@ namespace FrostySdk.Frosty.FET
             public FIFAEditorLegacyResource(string inName, string ebxName, byte[] data, IEnumerable<int> bundles, Manifest manifest)
             {
                 name = inName;
-                sha1 = Sha1.Create(data);
+                sha1 = FMT.FileTools.Sha1.Create(data);
                 resourceIndex = manifest.Add(data);
                 size = data.Length;
                 flags = 2;

@@ -1,6 +1,5 @@
 ﻿using FMT.FileTools;
 using Frostbite.FileManagers;
-using Frosty.Hash;
 using FrostySdk.Frostbite.PluginInterfaces;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
@@ -320,7 +319,7 @@ namespace FrostySdk.Frostbite.Compilers
             return false;
         }
 
-        public void WriteChangesToSuperBundle(DbObject origDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        public void WriteChangesToSuperBundle(DbObject origDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> assetBundle)
         {
             if (assetBundle.Key is EbxAssetEntry)
                 WriteEbxChangesToSuperBundle(origDbo, writer, assetBundle);
@@ -330,7 +329,7 @@ namespace FrostySdk.Frostbite.Compilers
                 WriteChunkChangesToSuperBundle(origDbo, writer, assetBundle);
         }
 
-        private void WriteEbxChangesToSuperBundle(DbObject origDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteEbxChangesToSuperBundle(DbObject origDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> assetBundle)
         {
             if (origDbo == null)
                 throw new ArgumentNullException(nameof(origDbo));
@@ -355,7 +354,7 @@ namespace FrostySdk.Frostbite.Compilers
             }
         }
 
-        private void WriteResChangesToSuperBundle(DbObject origResDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteResChangesToSuperBundle(DbObject origResDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> assetBundle)
         {
             if (origResDbo == null)
                 throw new ArgumentNullException(nameof(origResDbo));
@@ -392,7 +391,7 @@ namespace FrostySdk.Frostbite.Compilers
             }
         }
 
-        private void WriteChunkChangesToSuperBundle(DbObject origChunkDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, Sha1)> assetBundle)
+        private void WriteChunkChangesToSuperBundle(DbObject origChunkDbo, NativeWriter writer, KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> assetBundle)
         {
             if (origChunkDbo == null)
                 throw new ArgumentNullException(nameof(origChunkDbo));
@@ -577,7 +576,7 @@ namespace FrostySdk.Frostbite.Compilers
         /// <param name="dictOfModsToCas"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        protected Dictionary<AssetEntry, (long, int, int, Sha1)> WriteNewDataToCasFiles(Dictionary<string, List<ModdedFile>> dictOfModsToCas)
+        protected Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> WriteNewDataToCasFiles(Dictionary<string, List<ModdedFile>> dictOfModsToCas)
         {
             if (dictOfModsToCas == null || dictOfModsToCas.Count == 0)
                 return null;
@@ -592,7 +591,7 @@ namespace FrostySdk.Frostbite.Compilers
                     ModExecuter.Logger.Log("Chunk ERRORS:: " + ErrorCounts[ModType.CHUNK]);
             }
 
-            Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, Sha1)>();
+            Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> EntriesToNewPosition = new Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)>();
 
             foreach (var item in dictOfModsToCas)
             {
@@ -698,7 +697,7 @@ namespace FrostySdk.Frostbite.Compilers
         }
 
 
-        protected bool WriteNewDataChangesToSuperBundles(ref Dictionary<AssetEntry, (long, int, int, Sha1)> EntriesToNewPosition, string directory = "native_patch")
+        protected bool WriteNewDataChangesToSuperBundles(ref Dictionary<AssetEntry, (long, int, int, FMT.FileTools.Sha1)> EntriesToNewPosition, string directory = "native_patch")
         {
             if (EntriesToNewPosition == null)
             {
@@ -710,7 +709,7 @@ namespace FrostySdk.Frostbite.Compilers
             // Step 1. Discovery phase. Find the Edited Bundles and what TOC/SB they affect
             //
             var editedBundles = EntriesToNewPosition.SelectMany(x => x.Key.Bundles).Distinct();
-            var groupedByTOCSB = new Dictionary<string, List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>>();
+            var groupedByTOCSB = new Dictionary<string, List<KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)>>>();
             //groupedByTOCSB = EntriesToNewPosition
             //    .GroupBy(x => !string.IsNullOrEmpty(x.Key.SBFileLocation) ? x.Key.SBFileLocation : x.Key.TOCFileLocation)
             //    .ToDictionary(x => x.Key, x => x.ToList());
@@ -744,7 +743,7 @@ namespace FrostySdk.Frostbite.Compilers
                     if (hashedEntries.Any(x => editedBundles.Contains(x)))
                     {
                         if (!groupedByTOCSB.ContainsKey(nativePathToTOCFile))
-                            groupedByTOCSB.Add(nativePathToTOCFile, new List<KeyValuePair<AssetEntry, (long, int, int, Sha1)>>());
+                            groupedByTOCSB.Add(nativePathToTOCFile, new List<KeyValuePair<AssetEntry, (long, int, int, FMT.FileTools.Sha1)>>());
 
                         var editedBundleEntries = EntriesToNewPosition.Where(x => x.Key.Bundles.Any(y => hashedEntries.Contains(y))).ToArray();
                         //foreach (var item in editedBundleEntries.Where(x => x.Key is ChunkAssetEntry))
@@ -942,14 +941,14 @@ namespace FrostySdk.Frostbite.Compilers
 
         public struct ModdedFile
         {
-            public Sha1 Sha1 { get; set; }
+            public FMT.FileTools.Sha1 Sha1 { get; set; }
             public string NamePath { get; set; }
             public ModType ModType { get; set; }
             public bool IsAdded { get; set; }
             public AssetEntry ModEntry { get; set; }
             public AssetEntry OriginalEntry { get; set; }
 
-            public ModdedFile(Sha1 inSha1, string inNamePath, bool inAdded)
+            public ModdedFile(FMT.FileTools.Sha1 inSha1, string inNamePath, bool inAdded)
             {
                 ModType = ModType.EBX;
                 Sha1 = inSha1;
@@ -959,7 +958,7 @@ namespace FrostySdk.Frostbite.Compilers
                 ModEntry = null;
             }
 
-            public ModdedFile(Sha1 inSha1, string inNamePath, bool inAdded, AssetEntry inModEntry, AssetEntry inOrigEntry)
+            public ModdedFile(FMT.FileTools.Sha1 inSha1, string inNamePath, bool inAdded, AssetEntry inModEntry, AssetEntry inOrigEntry)
             {
                 Sha1 = inSha1;
                 NamePath = inNamePath;
@@ -977,7 +976,7 @@ namespace FrostySdk.Frostbite.Compilers
                 ModEntry = inModEntry;
             }
 
-            public ModdedFile(Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded)
+            public ModdedFile(FMT.FileTools.Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded)
             {
                 Sha1 = inSha1;
                 NamePath = inNamePath;
@@ -987,7 +986,7 @@ namespace FrostySdk.Frostbite.Compilers
                 ModEntry = null;
             }
 
-            public ModdedFile(Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded, AssetEntry inOrigEntry)
+            public ModdedFile(FMT.FileTools.Sha1 inSha1, string inNamePath, ModType inModType, bool inAdded, AssetEntry inOrigEntry)
             {
                 Sha1 = inSha1;
                 NamePath = inNamePath;

@@ -1,11 +1,9 @@
 ﻿using Frostbite.FileManagers;
 using FrostbiteSdk.Frostbite.FileManagers;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.Compilers;
 using FrostySdk.Frostbite.PluginInterfaces;
-using FrostySdk.FrostySdk.Managers;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;

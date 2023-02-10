@@ -1,5 +1,5 @@
 ﻿using FMT.FileTools;
-using FrostySdk.FrostySdk.Managers;
+using FrostySdk.FrostbiteSdk.Managers;
 using FrostySdk.IO;
 using FrostySdk.Managers;
 using System;
@@ -162,6 +162,16 @@ namespace FrostySdk.Frostbite.IO
             public int Size { get; }
 
             public ModifiedAssetEntry ModifiedAssetEntry { get; set; }
+
+            public FMT.FileTools.Sha1 Sha1 { get; set; }
+
+            public IModifiedAssetEntry ModifiedEntry { get; set; }
+
+            public long OriginalSize { get; set; }
+
+            public List<int> Bundles { get; set; }
+
+            public string ExtraInformation { get; set; }
 
             public LiveTuningUpdateEntry(in string entry, in int position, in int size)
             {

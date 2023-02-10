@@ -1,6 +1,5 @@
 ﻿using FMT.FileTools;
 using FrostbiteSdk.Extras;
-using Frosty.Hash;
 using FrostySdk;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -397,7 +396,7 @@ namespace Madden21Plugin
 						ebxAssetEntry = AssetManager.Instance.EBX[ebxName];
 
 					ebxAssetEntry.Name = ebxName;
-					ebxAssetEntry.Sha1 = ebx.GetValue<Sha1>("sha1");
+					ebxAssetEntry.Sha1 = ebx.GetValue<FMT.FileTools.Sha1>("sha1");
 					ebxAssetEntry.Size = ebx.GetValue("size", 0L);
 					ebxAssetEntry.OriginalSize = ebx.GetValue("originalSize", 0L);
 					ebxAssetEntry.Location = AssetDataLocation.CasNonIndexed;
@@ -436,7 +435,7 @@ namespace Madden21Plugin
 						resAssetEntry = AssetManager.Instance.RES[resName];
 
 					resAssetEntry.Name = resName;
-					resAssetEntry.Sha1 = res.GetValue<Sha1>("sha1");
+					resAssetEntry.Sha1 = res.GetValue<FMT.FileTools.Sha1>("sha1");
 					resAssetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(resAssetEntry.Sha1);
 					resAssetEntry.Size = res.GetValue("size", 0L);
 					resAssetEntry.OriginalSize = res.GetValue("originalSize", 0L);
@@ -493,7 +492,7 @@ namespace Madden21Plugin
 					//}
 
 					chunkAssetEntry.Id = chunkName;
-					chunkAssetEntry.Sha1 = chunk.GetValue<Sha1>("sha1");
+					chunkAssetEntry.Sha1 = chunk.GetValue<FMT.FileTools.Sha1>("sha1");
 					chunkAssetEntry.Size = chunk.GetValue("size", 0L);
 					chunkAssetEntry.LogicalOffset = chunk.GetValue("logicalOffset", 0u);
 					chunkAssetEntry.LogicalSize = chunk.GetValue("logicalSize", 0u);

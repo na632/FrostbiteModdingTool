@@ -1,7 +1,8 @@
 using FMT.FileTools;
-using Frosty.Hash;
+using FMT.FileTools.Modding;
 using FrostySdk.IO;
 using System.Globalization;
+using Fnv1a = FMT.FileTools.Fnv1a;
 
 namespace FrostySdk
 {
@@ -46,7 +47,7 @@ namespace FrostySdk
 			writer.Write((byte)resType);
 			if (resType == ModResourceType.Custom)
 			{
-				writer.Write(Fnv1.HashString(customTypeName));
+				writer.Write(Fnv1a.HashString(customTypeName));
 			}
 		}
 

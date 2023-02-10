@@ -3,6 +3,7 @@ using FIFAModdingUI.Models;
 using FIFAModdingUI.Pages.Common;
 using FMT;
 using FMT.Controls.Pages;
+using FMT.FileTools;
 using FMT.Pages.Common;
 using FMT.Windows;
 using FolderBrowserEx;
@@ -16,7 +17,7 @@ using FrostySdk;
 using FrostySdk.Ebx;
 using FrostySdk.Frostbite;
 using FrostySdk.Frosty.FET;
-using FrostySdk.FrostySdk.Managers;
+
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
@@ -1190,12 +1191,6 @@ namespace FIFAModdingUI.Windows
             UpdateAllBrowsers();
 
             Log("Updated Browsers");
-        }
-
-        private void btnOpenModBundler_Click(object sender, RoutedEventArgs e)
-        {
-            FrostbiteModBundler frostbiteModBundler = new FrostbiteModBundler();
-            frostbiteModBundler.ShowDialog();
         }
 
         private void btnCleanUpLegacyFiles_Click(object sender, RoutedEventArgs e)

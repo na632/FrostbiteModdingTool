@@ -5,7 +5,7 @@ using FrostbiteModdingUI.Windows;
 using FrostbiteSdk;
 using FrostySdk;
 using FrostySdk.FrostySdk.Ebx;
-using FrostySdk.FrostySdk.Managers;
+
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;

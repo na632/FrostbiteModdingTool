@@ -1,8 +1,4 @@
-﻿using FrostySdk.FrostySdk.Managers;
-using FrostySdk.Managers;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FrostySdk.Managers;
 
 namespace FrostbiteSdk.FrostbiteSdk.Managers
 {

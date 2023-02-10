@@ -44,7 +44,7 @@ namespace FIFA21Plugin
             writer.WriteUInt32LittleEndian(0u);
             writer.WriteUInt32LittleEndian(0u);
             writer.WriteUInt32LittleEndian(0u);
-            List<Sha1> sha1s = bundle.GetValue<List<Sha1>>("sha1s");
+            List<FMT.FileTools.Sha1> sha1s = bundle.GetValue<List<FMT.FileTools.Sha1>>("sha1s");
             for (int i = 0; i < totalCount; i++)
             {
                 writer.Write(sha1s[i]);
@@ -217,7 +217,7 @@ namespace FIFA21Plugin
                 writer.Write((int)0); // meta offset
                 writer.Write((int)0); // meta size
 
-                List<Sha1> sha1s = obj.GetValue<List<Sha1>>("sha1s");
+                List<FMT.FileTools.Sha1> sha1s = obj.GetValue<List<FMT.FileTools.Sha1>>("sha1s");
                 for (int i = 0; i < totalCount; i++)
                 {
                     writer.Write(sha1s[i]);
@@ -264,16 +264,16 @@ namespace FIFA21Plugin
             return memoryStream.ToArray();
         }
 
-        private byte[] WriteSha1(DbObject obj)
-        {
-            MemoryStream memoryStream = new MemoryStream();
-            using (NativeWriter writer = new NativeWriter(memoryStream, true))
-            {
-                writer.Write(new Sha1()); // 
-            }
+        //private byte[] WriteSha1(DbObject obj)
+        //{
+        //    MemoryStream memoryStream = new MemoryStream();
+        //    using (NativeWriter writer = new NativeWriter(memoryStream, true))
+        //    {
+        //        writer.Write(new FMT.FileTools.Sha1()); // 
+        //    }
 
-            return memoryStream.ToArray();
-        }
+        //    return memoryStream.ToArray();
+        //}
 
         private void WriteEbx(DbObject obj, NativeWriter writer)
         {

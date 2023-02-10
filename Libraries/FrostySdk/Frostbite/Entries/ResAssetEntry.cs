@@ -1,5 +1,4 @@
-using Frosty.Hash;
-using FrostySdk.FrostySdk.Managers;
+using FMT.FileTools;
 using System.Text;
 
 namespace FrostySdk.Managers
@@ -42,7 +41,7 @@ namespace FrostySdk.Managers
 			if(obj is ResAssetEntry)
             {
 				var other = obj as ResAssetEntry;
-				if (Fnv1.HashString(other.Name) == Fnv1.HashString(Name))
+				if (Fnv1a.HashString(other.Name) == Fnv1a.HashString(Name))
 					return true;
 
 				if (other.Name.Equals(Name))
