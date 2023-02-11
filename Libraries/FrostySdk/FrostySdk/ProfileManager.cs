@@ -205,6 +205,8 @@ namespace FrostySdk
 			public bool UseACBypass { get; set; }
 
 			public string EADesktopCommandLineSetting { get; set; }
+
+			public string SteamId { get; set; }
         }
 		public static string GetModProfileParentDirectoryPath()
 		{
@@ -267,7 +269,10 @@ namespace FrostySdk
         [SupportedOSPlatform("windows")]
 		public static Profile LoadedProfile;
 
-		private static string DeobfuscatorNamespace = typeof(NullDeobfuscator).Namespace;
+        [SupportedOSPlatform("windows")]
+        public static Profile Instance { get { return LoadedProfile; } }
+
+        private static string DeobfuscatorNamespace = typeof(NullDeobfuscator).Namespace;
 
 		private static string AssetLoaderNamespace = typeof(AssetManager).FullName;
 
