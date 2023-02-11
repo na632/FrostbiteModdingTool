@@ -102,21 +102,20 @@ namespace FIFA23Plugin
 
         public bool Run()
         {
-            parent.Logger.Log("Loading files to know what to change.");
+            //parent.Logger.Log("Loading files to know what to change.");
             if (parent.modifiedEbx.Count == 0 && parent.modifiedRes.Count == 0 && parent.ModifiedChunks.Count == 0 && parent.modifiedLegacy.Count == 0)
                 return true;
 
-            if (AssetManager.Instance == null)
-            {
-                CacheManager buildCache = new CacheManager();
-                buildCache.LoadData(ProfileManager.ProfileName, parent.GamePath, parent.Logger, false, true);
-            }
+            //if (AssetManager.Instance == null)
+            //{
+            //    CacheManager buildCache = new CacheManager();
+            //    buildCache.LoadData(ProfileManager.ProfileName, parent.GamePath, parent.Logger, false, true);
+            //}
 
             if (!ModExecutor.UseModData && GameWasPatched)
             {
                 DeleteBakFiles(parent.GamePath);
             }
-
 
             parent.Logger.Log("Retreiving list of Modified CAS Files.");
             var dictOfModsToCas = GetModdedCasFiles();

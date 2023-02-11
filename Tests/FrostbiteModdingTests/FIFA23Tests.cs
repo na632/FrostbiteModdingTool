@@ -473,7 +473,8 @@ namespace FrostbiteModdingTests
         public void TestGPMod()
         {
             var modPath = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V3\V Gameplay Mod - v3a11.fbmod";
-            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            //GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, logger: this);
 
             ModdingSupport.ModExecutor frostyModExecutor = new ModdingSupport.ModExecutor();
             frostyModExecutor.ForceRebuildOfMods = true;

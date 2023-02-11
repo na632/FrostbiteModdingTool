@@ -235,6 +235,13 @@ namespace FrostySdk.Frostbite.Compilers
 
         protected Dictionary<string, List<ModdedFile>> GetModdedCasFiles()
         {
+            // -----------------------------------------------------------
+            // Only load cache when required
+            if (AssetManager.Instance == null)
+            {
+                CacheManager buildCache = new CacheManager();
+                buildCache.LoadData(ProfileManager.ProfileName, ModExecuter.GamePath, ModExecuter.Logger, false, true);
+            }
 
             // ------ End of handling Legacy files ---------
 
@@ -276,6 +283,14 @@ namespace FrostySdk.Frostbite.Compilers
             // process modified legacy chunks and make live changes
             if (ModExecuter.modifiedLegacy.Count > 0)
             {
+                // -----------------------------------------------------------
+                // Only load cache when required
+                if (AssetManager.Instance == null)
+                {
+                    CacheManager buildCache = new CacheManager();
+                    buildCache.LoadData(ProfileManager.ProfileName, ModExecuter.GamePath, ModExecuter.Logger, false, true);
+                }
+
                 ModExecuter.Logger.Log($"Legacy :: {ModExecuter.modifiedLegacy.Count} Legacy files found. Modifying associated chunks");
 
                 Dictionary<string, byte[]> legacyData = ModExecuter.modifiedLegacy.ToDictionary(x => x.Key, x => x.Value.ModifiedEntry.Data);
