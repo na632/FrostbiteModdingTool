@@ -440,6 +440,20 @@ namespace FrostySdk.Managers
 
         public ConcurrentDictionary<ulong, ResAssetEntry> resRidList { get; } = new ConcurrentDictionary<ulong, ResAssetEntry>();
 
+		public IEnumerable<IAssetEntry> ModifiedEntries 
+		{ 
+			get 
+			{
+				var e =	EBX.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+				var r =	RES.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+				var c = Chunks.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+				//var custom = EBX.Values.Where(e => e.IsModified).Select(x => (IAssetEntry)x);
+				//return e.Union(r).Union(c).Union(custom);
+				return e.Union(r).Union(c);
+
+            } 
+		}
+
 		public Dictionary<string, ICustomAssetManager> CustomAssetManagers { get; } = new Dictionary<string, ICustomAssetManager>(1);
 
 		public List<EmbeddedFileEntry> EmbeddedFileEntries { get; } = new List<EmbeddedFileEntry>();

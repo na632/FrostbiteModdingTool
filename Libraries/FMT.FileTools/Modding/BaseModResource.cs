@@ -191,5 +191,13 @@ namespace FMT.FileTools.Modding
             if (ModifiedBundles != null && ModifiedBundles.Any())
                 entry.Bundles.AddRange(ModifiedBundles); 
         }
+
+        public override string ToString()
+        {
+			if (!string.IsNullOrEmpty(name))
+				return name;
+
+            return base.ToString();
+        }
     }
 }

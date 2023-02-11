@@ -24,17 +24,8 @@ namespace FrostySdk.Managers
 
         public override string ToString()
         {
-			StringBuilder sb = new StringBuilder();
-			sb.Append(Type);
-			sb.Append(" - ");
-			sb.Append(Filename);
-
-			if(sb.Length > 0 )
-            {
-				return sb.ToString();
-            }
-			return base.ToString();
-        }
+			return $"[ResAssetEntry][{Type}]{Filename}";
+		}
 
         public override bool Equals(object obj)
         {

@@ -1,6 +1,7 @@
 ﻿using FIFA23Plugin;
 using FifaLibrary;
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 using Frostbite.Textures;
 using FrostbiteModdingUI.CEM;
 using FrostySdk;
@@ -960,38 +961,7 @@ namespace FrostbiteModdingTests
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
             projectManagement.Project = new FrostySdk.FrostbiteProject();
             FIFAModReader reader = new FIFAModReader(new FileStream(@"G:\Work\FIFA Modding\GraphicMod\FIFA 23\FIFER Licensing Mod V2.fifamod", FileMode.Open));
-            var resources = reader.ReadResources();
-
-            foreach(var r in resources)
-            {
-                IAssetEntry entry = new AssetEntry();
-                var t = r.GetType().Name;
-                switch(t)
-                {
-                    case "EbxResource":
-                        entry = new EbxAssetEntry();
-                        break;
-                    case "ResResource":
-                        entry = new ResAssetEntry();
-                        break;
-                    case "ChunkResource":
-                        entry = new ChunkAssetEntry();
-                        break;
-                    default:
-                        entry = null;
-                        break;
-                }
-
-                if (entry != null)
-                {
-                    r.FillAssetEntry(entry);
-                    var d = reader.GetResourceData(r);
-                    CasReader casReader = new CasReader(new MemoryStream(d));
-                    var d2 = casReader.Read();
-                    AssetManager.Instance.ModifyEntry(entry, d2);
-                }
-            }
-
+            projectManagement.Project.Load(reader);
             projectManagement.Project.Save("test.fbproject");
         }
 
