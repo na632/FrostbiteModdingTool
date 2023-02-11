@@ -2923,20 +2923,33 @@ namespace FrostySdk.Managers
 			return guid;
 		}
 
-		//public void Log(string text, params object[] vars)
-		//{
-		//	Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}] {text}");
-		//}
+        public void ModifyEntry(IAssetEntry entry, byte[] d2)
+        {
+			if (entry is EbxAssetEntry ebxEntry)
+				ModifyEbxBinary(ebxEntry.Name, d2);
 
-		//public void LogWarning(string text, params object[] vars)
-		//{
-  //          Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][WARNING] {text}");
-  //      }
+			if (entry is ResAssetEntry resEntry)
+				ModifyRes(resEntry.Name, d2);
 
-  //      public void LogError(string text, params object[] vars)
-		//{
-  //          Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][ERROR] {text}");
-  //      }
+            if (entry is ChunkAssetEntry chunkEntry)
+                ModifyChunk(chunkEntry, d2);
+
+        }
+
+        //public void Log(string text, params object[] vars)
+        //{
+        //	Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}] {text}");
+        //}
+
+        //public void LogWarning(string text, params object[] vars)
+        //{
+        //          Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][WARNING] {text}");
+        //      }
+
+        //      public void LogError(string text, params object[] vars)
+        //{
+        //          Debug.WriteLine($"[AM][{DateTime.Now.ToShortTimeString()}][ERROR] {text}");
+        //      }
     }
 }
 #pragma warning restore SYSLIB0021 // Type or member is obsolete

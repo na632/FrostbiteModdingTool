@@ -78,6 +78,7 @@
   "ForceUseModData": true,
   "SupportLowMemoryFootprint": true,
   "GameIdentifier": 16115019,
-  "UseACBypass": false // Can only be used with TU2 or below
+  "UseACBypass": false, // Can only be used with TU2 or below
+  "EADesktopCommandLineSetting": "user.gamecommandline.origin.ofr.50.0004970"
 
 }

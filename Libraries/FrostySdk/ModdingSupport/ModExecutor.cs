@@ -24,6 +24,8 @@ using FrostySdk.Frostbite.Compilers;
 using FMT.FileTools;
 using FMT.FileTools.Modding;
 using Sha1 = FMT.FileTools.Sha1;
+using System.Windows.Data;
+using System.Threading.Channels;
 
 namespace ModdingSupport
 {
@@ -1555,8 +1557,6 @@ namespace ModdingSupport
             {
                 if (EADesktopIsInstalled)
                 {
-                    Logger.Log("Launching EADesktop. Please set the Advanced Launch Option to -dataPath ModData and launch the game through the App.");
-
                     RunEADesktop();
                     LaunchedViaEADesktop = true;
                 }
@@ -1581,31 +1581,99 @@ namespace ModdingSupport
                 var r = GameInstanceSingleton.InjectDLL(new FileInfo(@"ThirdParty\\FIFA23\\FIFA.dll").FullName, true).Result;
             }
 
-            // ------------------------------------------------------------------------------------------------------------------------------------------------
-            // Run any Plugin defined cleanup operations
-            //var pluginCompiler = AssetManager.LoadTypeFromPlugin2(ProfileManager.AssetCompilerName);
-            //if (pluginCompiler == null && !string.IsNullOrEmpty(ProfileManager.AssetCompilerName))
-            //    throw new NotImplementedException($"Could not find class {ProfileManager.AssetCompilerName} in any plugin! Remember this is case sensitive!!");
-
-            //if (pluginCompiler != null)
-            //{
-            //    ((IAssetCompiler)pluginCompiler).Cleanup(fs, logger, this);
-            //}
-
             GC.Collect();
+            GC.WaitForPendingFinalizers();
             return true;
         }
 
-        private void RunEADesktop()
+        private async void RunEADesktop()
         {
-            Process p = new();
-            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            p.StartInfo.FileName = "cmd.exe";
-            p.StartInfo.Arguments = "/C start \"\" \"";
-            p.StartInfo.Arguments += Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Electronic Arts\EA Desktop")?.GetValue("ClientPath")?.ToString(); ;
-            p.StartInfo.Arguments += "\"";
-            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Electronic Arts\EA Desktop")?.GetValue("ClientPath")?.ToString());
-            p.Start();
+            FileLogger.WriteLine("ModExecutor:RunEADesktop");
+
+            Logger.Log($"Launching {ProfileManager.DisplayName} via EADesktop.");
+
+            // -------------------------------------------------------------------------------------------------------------------
+            // IF EADesktopCommandLineSetting hasn't been set. Throw exception. This process requires EADesktopCommandLineSetting
+            if (string.IsNullOrEmpty(ProfileManager.LoadedProfile.EADesktopCommandLineSetting))
+            {
+                FileLogger.WriteLine($"ModExecutor:RunEADesktop: Profile's EADesktopCommandLineSetting has not been set in {ProfileManager.ProfileName}Profile.json. Please set this before using EADesktop with this game.");
+                throw new Exception($"ModExecutor:RunEADesktop: Profile's EADesktopCommandLineSetting has not been set in {ProfileManager.ProfileName}Profile.json. Please set this before using EADesktop with this game.");
+            }
+
+            // ----------------------------------------------------------------------------------
+            // edit user_*.ini with -dataPath ModData
+            var localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!Directory.Exists(localAppDataPath))
+            {
+                FileLogger.WriteLine("ModExecutor:RunEADesktop: Unable to find LocalApplicationData");
+                throw new DirectoryNotFoundException("ModExecutor:RunEADesktop: Unable to find LocalApplicationData");
+            }
+            var eaDesktopConfigAppDataPath = Path.Combine(localAppDataPath, "Electronic Arts", "EA Desktop");
+            if (!Directory.Exists(eaDesktopConfigAppDataPath))
+            {
+                FileLogger.WriteLine("ModExecutor:RunEADesktop: Unable to find EA Desktop Directory in LocalApplicationData");
+                throw new DirectoryNotFoundException("ModExecutor:RunEADesktop: Unable to find EA Desktop Directory in LocalApplicationData");
+            }
+            var userIniPaths = Directory.GetFiles(eaDesktopConfigAppDataPath, "user_*.ini");
+            if (!userIniPaths.Any())
+            {
+                FileLogger.WriteLine("ModExecutor:RunEADesktop: Unable to find user *.ini to apply -dataPath=ModData");
+                throw new FileNotFoundException("Unable to find user *.ini to apply -dataPath=ModData. Please ensure EADesktop is properly installed and run at least once!");
+            }
+
+            var desiredCommandLineSetting = ProfileManager.LoadedProfile.EADesktopCommandLineSetting + "=-dataPath ModData";
+            foreach (var userIniPath in userIniPaths)
+            {
+                var allTextOfUserIni = await File.ReadAllTextAsync(userIniPath);
+                StringBuilder sb = new StringBuilder(allTextOfUserIni);
+                if (!allTextOfUserIni.Contains(ProfileManager.LoadedProfile.EADesktopCommandLineSetting)
+                    || !allTextOfUserIni.Contains(desiredCommandLineSetting)
+                    )
+                {
+                    FileLogger.WriteLine("ModExecutor:RunEADesktop: -dataPath=ModData does not exist for this game. Setting it up.");
+
+                    // ----------------------------------------------------------------------------------
+                    // If we have to make the change. Find opened EA Desktop process and close it
+                    try
+                    {
+                        var eaDesktopProcesses = Process.GetProcessesByName("EADesktop");
+                        if (eaDesktopProcesses != null)
+                        {
+                            foreach (var proc in eaDesktopProcesses)
+                            {
+                                FileLogger.WriteLine($"ModExecutor:RunEADesktop: Killing {proc.ProcessName} to apply changes");
+                                Logger.Log("Killing EADesktop process to apply changes");
+                                proc.Kill();
+                            }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        FileLogger.WriteLine("ModExecutor:RunEADesktop: Unable to Kill EA Process. You may need to do this manually before running the game.");
+                        FileLogger.WriteLine(ex.ToString());
+                    }
+
+                    sb.AppendLine(string.Empty);
+                    sb.Append(desiredCommandLineSetting);
+                    sb.AppendLine(string.Empty);
+                    var finalUserIniText = sb.ToString();
+                    // ----------------------------------------------------------------------------------
+                    // Write the new config for this game
+                    await File.WriteAllTextAsync(userIniPath, finalUserIniText);
+                }
+
+            }
+
+            ExecuteProcess(fs.BasePath + ProfileManager.ProfileName + ".exe", "");
+
+            //Process p = new();
+            //p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //p.StartInfo.FileName = "cmd.exe";
+            //p.StartInfo.Arguments = "/C start \"\" \"";
+            //p.StartInfo.Arguments += Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Electronic Arts\EA Desktop")?.GetValue("ClientPath")?.ToString(); ;
+            //p.StartInfo.Arguments += "\"";
+            //p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Electronic Arts\EA Desktop")?.GetValue("ClientPath")?.ToString());
+            //p.Start();
         }
 
         private void RunFIFA23Setup()

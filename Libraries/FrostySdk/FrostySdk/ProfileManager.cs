@@ -201,7 +201,10 @@ namespace FrostySdk
 			public string ProjectEbxReader { get; set; }
 
 			public string GameIdentifier { get; set; }
+
 			public bool UseACBypass { get; set; }
+
+			public string EADesktopCommandLineSetting { get; set; }
         }
 		public static string GetModProfileParentDirectoryPath()
 		{

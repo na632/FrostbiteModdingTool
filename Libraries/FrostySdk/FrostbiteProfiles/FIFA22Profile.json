@@ -81,6 +81,7 @@
   "LegacyFileManager": "LFM_Fifa22",
   "CanUseModData": true,
   "ForceUseModData": true,
-  "GameIdentifier": 196837
+  "GameIdentifier": 196837,
+  "EADesktopCommandLineSetting": "user.gamecommandline.origin.ofr.50.0004566"
 
 }

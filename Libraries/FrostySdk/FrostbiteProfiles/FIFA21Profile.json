@@ -74,6 +74,8 @@
   "CacheWriter": "Fifa21CacheWriter",
   // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
   "CacheReader": "Fifa21CacheReader",
-  "GameIdentifier": 195853
+  "GameIdentifier": 195853,
+  "EADesktopCommandLineSetting": "user.gamecommandline.origin.ofr.50.0004195"
+
 
 }
