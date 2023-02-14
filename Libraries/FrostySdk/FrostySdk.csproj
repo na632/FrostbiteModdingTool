@@ -90,6 +90,10 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
+	  <None Update="FrostbiteProfiles\StarWarsSquadronsProfile.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </None>
 	  <None Update="FrostbiteProfiles\NeedForSpeedUnboundProfile.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -197,10 +201,6 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </None>
-	</ItemGroup>
-	
-	<ItemGroup>
-	  <Folder Include="Frostbite\Loaders\" />
 	</ItemGroup>
 	
 	<Target Name="AfterBuild">

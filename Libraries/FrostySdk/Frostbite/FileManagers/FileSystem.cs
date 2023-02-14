@@ -1,4 +1,5 @@
 using FMT.FileTools;
+using FMT.FileTools.Modding;
 using FrostySdk.Frostbite;
 using FrostySdk.Frostbite.IO;
 using FrostySdk.Interfaces;
@@ -13,9 +14,12 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
+using System.Windows.Shapes;
+using static FrostySdk.FrostbiteModWriter;
 
 namespace FrostySdk
 {
@@ -315,8 +319,11 @@ namespace FrostySdk
 		public string ResolvePath(ManifestFileRef fileRef)
 		{
 			string filename = (fileRef.IsInPatch ? "native_patch/" : "native_data/") + catalogs[fileRef.CatalogIndex].Name + "/cas_" + fileRef.CasIndex.ToString("D2") + ".cas";
+			if (string.IsNullOrEmpty(ResolvePath(filename)))
+				filename = "native_data/" + catalogs[fileRef.CatalogIndex].Name + "/cas_" + fileRef.CasIndex.ToString("D2") + ".cas";
+			
 			return ResolvePath(filename);
-		}
+        }
 
 		public string GetCatalogFromSuperBundle(string sbName)
 		{
@@ -733,21 +740,33 @@ namespace FrostySdk
 			{
 				foreach (DbObject item in value.GetValue<DbObject>("installChunks"))
 				{
-					if (!item.GetValue("testDLC", defaultValue: false))
-					{
+					if (item.GetValue("testDLC", defaultValue: false))
+						continue;
+					
+					//{
 						bool alwaysInstalled = item.GetValue("alwaysInstalled", defaultValue: false);
-						string name = "win32/" + item.GetValue<string>("name");
-						//if (
-						//	(ProfilesLibrary.DataVersion != 20180628 
-						//		|| !(text == "win32/installation/default")) 
-						//		&& (File.Exists(ResolvePath(text + "/cas.cat"))
-						//		|| (item.HasValue("files") && item.GetValue<DbObject>("files").Count != 0
-						//	) 
-						//	|| ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190905 || ProfilesLibrary.DataVersion == 20180628)
-							
-						//	|| ProfilesLibrary.IsFIFA21DataVersion()
-						//	)
+						string path = "win32/" + item.GetValue<string>("name");
+
+                        if (ProfileManager.IsLoaded(EGame.StarWarsSquadrons, EGame.BFV))
 						{
+                            if (path == "win32/installation/default")
+                            {
+                                continue;
+                            }
+                        }
+
+
+                        //if (
+                        //	(ProfilesLibrary.DataVersion != 20180628 
+                        //		|| !(text == "win32/installation/default")) 
+                        //		&& (File.Exists(ResolvePath(text + "/cas.cat"))
+                        //		|| (item.HasValue("files") && item.GetValue<DbObject>("files").Count != 0
+                        //	) 
+                        //	|| ProfilesLibrary.DataVersion == 20181207 || ProfilesLibrary.DataVersion == 20190905 || ProfilesLibrary.DataVersion == 20180628)
+
+                        //	|| ProfilesLibrary.IsFIFA21DataVersion()
+                        //	)
+                        //{
 							Catalog catalogInfo = null;
 							Guid catalogId = item.GetValue<Guid>("id");
 							catalogInfo = catalogs.Find((Catalog ci) => ci.Id == catalogId);
@@ -755,7 +774,7 @@ namespace FrostySdk
 							{
 								catalogInfo = new Catalog();
 								catalogInfo.Id = item.GetValue<Guid>("id");
-								catalogInfo.Name = name;
+								catalogInfo.Name = path;
 								catalogInfo.AlwaysInstalled = alwaysInstalled;
 
 								if (item.HasValue("PersistentIndex"))
@@ -805,8 +824,8 @@ namespace FrostySdk
 								}
 							}
 							catalogs.Add(catalogInfo);
-						}
-					}
+						//}
+					//}
 				}
 				return;
 			}
@@ -967,55 +986,71 @@ namespace FrostySdk
 
 		private void ProcessManifest(DbObject patchLayout)
 		{
-			DbObject value = patchLayout.GetValue<DbObject>("manifest");
-			if (value != null)
-			{
-				List<ManifestFileInfo> list = new List<ManifestFileInfo>();
-				ManifestFileRef fileRef = value.GetValue("file", 0);
+			DbObject manifest = patchLayout.GetValue<DbObject>("manifest");
+			if (manifest == null)
+				return;
+
+				List<ManifestFileInfo> manifestFiles = new List<ManifestFileInfo>();
+				ManifestFileRef fileRef = manifest.GetValue("file", 0);
 				_ = catalogs[fileRef.CatalogIndex];
-				using (NativeReader nativeReader = new NativeReader(new FileStream(ResolvePath(fileRef), FileMode.Open, FileAccess.Read)))
+				var fsPath = ResolvePath(fileRef);
+				if (string.IsNullOrEmpty(fsPath))
+					return;
+
+                using (NativeReader reader = new NativeReader(new FileStream(fsPath, FileMode.Open, FileAccess.Read)))
 				{
-					long position = value.GetValue("offset", 0);
-					value.GetValue("size", 0);
-					nativeReader.Position = position;
-					uint num = nativeReader.ReadUInt();
-					uint num2 = nativeReader.ReadUInt();
-					uint num3 = nativeReader.ReadUInt();
-					for (uint num4 = 0u; num4 < num; num4++)
-					{
-						ManifestFileInfo item = new ManifestFileInfo
-						{
-							file = nativeReader.ReadInt(),
-							offset = nativeReader.ReadUInt(),
-							size = nativeReader.ReadLong(),
-							isChunk = false
-						};
-						list.Add(item);
-					}
-					for (uint num5 = 0u; num5 < num2; num5++)
-					{
-						ManifestBundleInfo manifestBundleInfo = new ManifestBundleInfo();
-						manifestBundleInfo.hash = nativeReader.ReadInt();
-						int num6 = nativeReader.ReadInt();
-						int num7 = nativeReader.ReadInt();
-						nativeReader.ReadLong();
-						for (int i = 0; i < num7; i++)
-						{
-							manifestBundleInfo.files.Add(list[num6 + i]);
-						}
-						manifestBundles.Add(manifestBundleInfo);
-					}
-					for (uint num8 = 0u; num8 < num3; num8++)
-					{
-						ManifestChunkInfo manifestChunkInfo = new ManifestChunkInfo();
-						manifestChunkInfo.guid = nativeReader.ReadGuid();
-						manifestChunkInfo.fileIndex = nativeReader.ReadInt();
-						manifestChunkInfo.file = list[manifestChunkInfo.fileIndex];
-						manifestChunkInfo.file.isChunk = true;
-						manifestChunks.Add(manifestChunkInfo);
-					}
-				}
-			}
+                    long manifestOffset = manifest.GetValue<int>("offset");
+                    long manifestSize = manifest.GetValue<int>("size");
+
+                    reader.Position = manifestOffset;
+
+                    uint fileCount = reader.ReadUInt();
+                    uint bundleCount = reader.ReadUInt();
+                    uint chunksCount = reader.ReadUInt();
+
+                    // files
+                    for (uint i = 0; i < fileCount; i++)
+                    {
+                        ManifestFileInfo fi = new ManifestFileInfo()
+                        {
+                            file = reader.ReadInt(),
+                            offset = reader.ReadUInt(),
+                            size = reader.ReadLong(),
+                            isChunk = false
+                        };
+                        manifestFiles.Add(fi);
+                    }
+
+                    // bundles
+                    for (uint i = 0; i < bundleCount; i++)
+                    {
+                        ManifestBundleInfo bi = new ManifestBundleInfo { hash = reader.ReadInt() };
+
+                        int startIndex = reader.ReadInt();
+                        int count = reader.ReadInt();
+
+                        int unk1 = reader.ReadInt();
+                        int unk2 = reader.ReadInt();
+
+                        for (int j = 0; j < count; j++)
+                            bi.files.Add(manifestFiles[startIndex + j]);
+
+                        manifestBundles.Add(bi);
+                    }
+
+                    // chunks
+                    for (uint i = 0; i < chunksCount; i++)
+                    {
+                        ManifestChunkInfo ci = new ManifestChunkInfo
+                        {
+                            guid = reader.ReadGuid(),
+                            fileIndex = reader.ReadInt()
+                        };
+                        ci.file = manifestFiles[ci.fileIndex];
+                        ci.file.isChunk = true;
+                        manifestChunks.Add(ci);
+                    }
+                }
 		}
 
         public static string LastPatchedVersionPath

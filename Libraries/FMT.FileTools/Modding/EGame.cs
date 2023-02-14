@@ -15,6 +15,7 @@ namespace FMT.FileTools.Modding
         FIFA19 = 20180914,
         FIFA20 = 20190911,
         FIFA21 = 20200929,
+        StarWarsSquadrons = 20201001,
         FIFA22 = 20210922,
         FIFA23 = 20220927,
 
@@ -26,5 +27,8 @@ namespace FMT.FileTools.Modding
         NFSUnbound = 20221121,
 
         DeadSpace = 20230127,
+
+        BFV = 20180628,
+
     }
 }

@@ -1,92 +1,90 @@
-using FMT.FileTools;
-using FrostySdk.IO;
-using FrostySdk.Frostbite.IO;
-using FrostySdk.Interfaces;
 using System.IO;
+using FMT.FileTools;
+using FrostySdk.Interfaces;
 
 namespace FrostySdk.IO
 {
-	public class CatReader : DeobfuscatedReader
-	{
-		public const string CatMagic = "NyanNyanNyanNyan";
+    public class CatReader : NativeReader
+    {
+        public const string CatMagic = "NyanNyanNyanNyan";
 
-		private uint entryCount;
+        public uint ResourceCount { get; }
+        public uint PatchCount { get; }
+        public uint EncryptedCount { get; }
 
-		private uint patchCount;
+        public CatReader(Stream inStream, IDeobfuscator inDeobfuscator)
+            : base(inStream)
+        {
+            string magic = ReadSizedString(16);
+            if (magic != CatMagic)
+                return;
 
-		private uint encryptedCount;
+            ResourceCount = (uint)(Length - Position) / 0x20;
+            PatchCount = 0;
+            EncryptedCount = 0;
 
-		public uint ResourceCount => entryCount;
+            //if (ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed)
+            //{
+            ResourceCount = ReadUInt();
+            PatchCount = ReadUInt();
 
-		public uint PatchCount => patchCount;
+            //    if (ProfilesLibrary.DataVersion == (int)ProfileVersion.MassEffectAndromeda || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa17 || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefrontII || ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa18
+            //        || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedPayback || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5 || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsSquadrons)
+            //    {
+            EncryptedCount = ReadUInt();
+            Position += 12;
 
-		public uint EncryptedCount => encryptedCount;
+            //        if (ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefrontII || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedPayback || ProfilesLibrary.DataVersion == (int)ProfileVersion.Madden19 || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5 || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsSquadrons)
+            EncryptedCount = 0;
+            //    }
+            //}
+        }
 
-		public CatReader(Stream inStream, IDeobfuscator inDeobfuscator)
-			: base(inStream, inDeobfuscator)
-		{
-			if (ReadSizedString(16) != "NyanNyanNyanNyan")
-			{
-				return;
-			}
-			entryCount = (uint)(Length - Position) / 32u;
-			patchCount = 0u;
-			encryptedCount = 0u;
-			if (ProfileManager.DataVersion == 20131115 || ProfileManager.DataVersion == 20141118 || ProfileManager.DataVersion == 20141117 || ProfileManager.DataVersion == 20151103)
-			{
-				return;
-			}
-			entryCount = ReadUInt();
-			patchCount = ReadUInt();
-			if (ProfileManager.DataVersion == 20170321 || ProfileManager.DataVersion == 20160927 || ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20170929 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180628)
-			{
-				encryptedCount = ReadUInt();
-				Position += 12L;
-				if (ProfileManager.DataVersion == 20171117 || ProfileManager.DataVersion == 20171110 || ProfileManager.DataVersion == 20180807 || ProfileManager.DataVersion == 20180628)
-				{
-					encryptedCount = 0u;
-				}
-			}
-		}
+        public CatResourceEntry ReadResourceEntry()
+        {
+            CatResourceEntry entry = new CatResourceEntry
+            {
+                Sha1 = ReadSha1(),
+                Offset = ReadUInt(),
+                Size = ReadUInt()
+            };
 
-		public CatResourceEntry ReadResourceEntry()
-		{
-			CatResourceEntry result = default(CatResourceEntry);
-			result.Sha1 = new FMT.FileTools.Sha1(ReadBytes(20));
-			result.Offset = ReadUInt();
-			result.Size = ReadUInt();
-			if (ProfileManager.DataVersion != 20131115 && ProfileManager.DataVersion != 20141118 && ProfileManager.DataVersion != 20141117 && ProfileManager.DataVersion != 20151103)
-			{
-				result.LogicalOffset = ReadUInt();
-			}
-			result.ArchiveIndex = (ReadInt() & 0xFF);
-			return result;
-		}
+            //if (ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed)
+                entry.LogicalOffset = ReadUInt();
+            entry.ArchiveIndex = ReadInt() & 0xFF;
+            return entry;
+        }
 
-		public CatResourceEntry ReadEncryptedEntry()
-		{
-			CatResourceEntry result = default(CatResourceEntry);
-			result.Sha1 = new FMT.FileTools.Sha1(ReadBytes(20));// ReadSha1();
-			result.Offset = ReadUInt();
-			result.Size = ReadUInt();
-			result.LogicalOffset = ReadUInt();
-			result.ArchiveIndex = (ReadInt() & 0xFF);
-			result.Unknown = ReadUInt();
-			result.IsEncrypted = true;
-			result.KeyId = ReadSizedString(8);
-			result.UnknownData = ReadBytes(32);
-			result.EncryptedSize = result.Size;
-			result.Size += 16 - result.Size % 16u;
-			return result;
-		}
+        public CatResourceEntry ReadEncryptedEntry()
+        {
+            CatResourceEntry entry = new CatResourceEntry
+            {
+                Sha1 = ReadSha1(),
+                Offset = ReadUInt(),
+                Size = ReadUInt(),
+                LogicalOffset = ReadUInt(),
+                ArchiveIndex = ReadInt() & 0xFF,
+                Unknown = ReadUInt(),
+                IsEncrypted = true,
+                KeyId = ReadSizedString(8),
+                UnknownData = ReadBytes(32)
+            };
 
-		public CatPatchEntry ReadPatchEntry()
-		{
-			CatPatchEntry result = default(CatPatchEntry);
-			result.Sha1 = new FMT.FileTools.Sha1(ReadBytes(20));// ReadSha1();
-            result.BaseSha1 = new FMT.FileTools.Sha1(ReadBytes(20));// ReadSha1();
-            result.DeltaSha1 = new FMT.FileTools.Sha1(ReadBytes(20));// ReadSha1();
-            return result;
-		}
-	}
+            entry.EncryptedSize = entry.Size;
+            entry.Size = entry.Size + (16 - (entry.Size % 16));
+
+            return entry;
+        }
+
+        public CatPatchEntry ReadPatchEntry()
+        {
+            CatPatchEntry entry = new CatPatchEntry
+            {
+                Sha1 = ReadSha1(),
+                BaseSha1 = ReadSha1(),
+                DeltaSha1 = ReadSha1()
+            };
+            return entry;
+        }
+    }
 }

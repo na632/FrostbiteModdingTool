@@ -37,7 +37,8 @@
     <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\Madden22Profile.json" Link="FrostbiteProfiles\Madden22Profile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\Madden23Profile.json" Link="FrostbiteProfiles\Madden23Profile.json" />
+	  <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\Madden23Profile.json" Link="FrostbiteProfiles\Madden23Profile.json" />
+	  <Content Include="..\..\Libraries\FrostySdk\FrostbiteProfiles\StarWarsSquadronsProfile.json" Link="FrostbiteProfiles\StarWarsSquadronsProfile.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -82,6 +83,9 @@
     <None Include="..\..\Plugins\NFSUnboundPlugin\bin\Debug\net7.0-windows\NeedForSpeedUnboundPlugin.dll" Link="Plugins\NeedForSpeedUnboundPlugin.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	  <None Include="..\..\Plugins\StarWarsSquadronsPlugin\bin\Debug\net7.0-windows\StarWarsSquadronsPlugin.dll" Link="Plugins\StarWarsSquadronsPlugin.dll">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
   </ItemGroup>
 
 </Project>

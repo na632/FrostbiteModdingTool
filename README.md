@@ -1,5 +1,7 @@
 # Frostbite Modding Tool
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N2IQ7YJ)
+
 ## Summary
 The Frostbite Modding Tool (FMT) is a tool to create mods for FIFA, Madden and other Frostbite Engine games.
 
@@ -33,17 +35,30 @@ As of September 2022, Frosty Toolsuite is open source on [GitHub](https://github
 
 ## Supported Games
 ### 100% supported
-- FIFA 20
 - FIFA 21
-- FIFA 22
 
-### 99% supported
-- FIFA 23 (Mesh Import is not working as expected, use FIFA Editor Tool to create these mods instead, for now)
+### 99% supported - Minor issues
+- FIFA 23 (Mesh Import is not working as expected, use [FIFA Editor Tool](https://www.fifaeditortool.com/) to create these mods instead)
 
-### 50% supported
+### 50% supported - Likely missing or broken major features
 - MADDEN 21
-- MADDEN 23 (Read only)
+
+### Read Only Support
 - NFS Unbound (Read only)
+- Dead Space (Read only)
+- MADDEN 23 (Read only)
+
+### Potential to be supported (Plugins, SDK and Profiles exist but not tested)
+- Battlefield 4
+- Battlefield 5
+- Battlefield 2042
+- FIFA 18
+- FIFA 19
+- FIFA 20
+- MADDEN 20
+- Star Wars Squadrons
+- MADDEN 22
+- FIFA 22
 
 ## Solution explanation
 - All projects use C# .NET 7 and dependant on each other (i.e. if you attempt to build FrostbiteModdingUI, it will expect the other projects to exist in your file system)

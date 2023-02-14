@@ -718,7 +718,8 @@ namespace FrostySdk.Managers
                     ((IAssetLoader)Activator.CreateInstance(ProfileManager.AssetLoader)).Load(this, binarySbDataHelper);
                 else
                 {
-                    ((IAssetLoader)LoadTypeFromPlugin(ProfileManager.AssetLoaderName)).Load(this, binarySbDataHelper);
+                    ((IAssetLoader)LoadTypeByName(ProfileManager.AssetLoaderName)).Load(this, binarySbDataHelper);
+                    //((IAssetLoader)LoadTypeFromPlugin(ProfileManager.AssetLoaderName)).Load(this, binarySbDataHelper);
                 }
                 GC.Collect();
                 CacheWrite();

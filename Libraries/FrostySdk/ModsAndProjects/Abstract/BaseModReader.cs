@@ -126,6 +126,12 @@ namespace FrostbiteSdk.Frosty.Abstract
 				{
 					chunkAssetEntry.FirstMip = 0;
 				}
+
+				if (chunkAssetEntry.ModifiedEntry == null)
+					chunkAssetEntry.ModifiedEntry = new ModifiedAssetEntry();
+
+				if(!string.IsNullOrEmpty(userData))
+					chunkAssetEntry.ModifiedEntry.UserData = userData;
 			}
 		}
 

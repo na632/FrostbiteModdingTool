@@ -1,7 +1,9 @@
 ﻿using FMT.FileTools;
+using FMT.FileTools.Modding;
 using FrostbiteSdk.FrostbiteSdk.Managers;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Frosty.FET;
+using FrostySdk.IO;
 using FrostySdk.Managers;
 using Newtonsoft.Json;
 using System;
@@ -218,6 +220,53 @@ namespace FrostySdk.ModsAndProjects.Projects
             using NativeWriter nwFinal = new NativeWriter(new FileStream(filename, FileMode.CreateNew));
             nwFinal.Write(projectbytes);
 
+        }
+
+        public bool ReadFromFIFAMod(in FIFAModReader reader)
+        {
+            var resources = reader.ReadResources()
+                .OrderBy(x => x.Name)
+                .ThenBy(x => x.Name);
+
+            foreach (BaseModResource r in resources)
+            {
+                IAssetEntry entry = new AssetEntry();
+                var t = r.GetType().Name;
+                switch (t)
+                {
+                    case "EbxResource":
+                        entry = new EbxAssetEntry();
+                        break;
+                    case "ResResource":
+                        entry = new ResAssetEntry();
+                        break;
+                    case "ChunkResource":
+                        entry = new ChunkAssetEntry();
+                        break;
+                    default:
+                        entry = null;
+                        break;
+                }
+
+                if (entry != null)
+                {
+                    r.FillAssetEntry(entry);
+                    var d = reader.GetResourceData(r);
+                    CasReader casReader = new CasReader(new MemoryStream(d));
+                    var d2 = casReader.Read();
+                    AssetManager.Instance.ModifyEntry(entry, d2);
+                    if(entry is ChunkAssetEntry)
+                    {
+                        if(entry.ModifiedEntry != null && !string.IsNullOrEmpty(entry.ModifiedEntry.UserData))
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            var modifiedEntries = AssetManager.Instance.ModifiedEntries;
+            return modifiedEntries.Any();
         }
 
         public void WriteToFIFAMod(string filename, ModSettings overrideSettings)

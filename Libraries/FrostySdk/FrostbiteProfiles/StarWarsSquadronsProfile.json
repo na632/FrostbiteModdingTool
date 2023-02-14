@@ -1,0 +1,81 @@
+{
+  "Name": "StarWarsSquadrons",
+  "DisplayName": "Star Wars Squadrons",
+  "DataVersion": 20201001,
+  "CacheName": "swsquadrons",
+  "Deobfuscator": "NullDeobfuscator",
+  "AssetLoader": "StarWarsSquadronsPlugin.AssetLoaderSWSquadrons",
+  "AssetCompiler": "FrostbiteNullCompiler",
+  "EditorScreen": "DefaultEditor",
+  // Texture Importer (Overriding the base Importer)
+  "TextureImporter": "TextureImporterSWSquadrons",
+  // Texture Exporter (Overriding the base Exporter)
+  "TextureExporter": "TextureExporter",
+  // EBX Reader (Overriding the base Reader)
+  "EBXReader": "EbxReader",
+  // EBX Writer (Overriding the base Writer)
+  "EBXWriter": "EbxWriter",
+  // EBX Importer (Overriding the base Importer)
+  "EBXImporter": null,
+  // EBX Exporter (Overriding the base Exporter)
+  "EBXExporter": null,
+
+  //"ProjectEbxWriter": "EbxWriter2023",
+  //"ProjectEbxReader": "EbxReader22B",
+
+
+  "Sources": [
+    {
+      "Path": "Patch",
+      "SubDirs": false
+    },
+    {
+      "Path": "Data",
+      "SubDirs": false
+    }
+  ],
+
+  // --------------------------------------------------------
+  // SDK Generating Info
+  //
+  "SDKFilename": "SWSSDK",
+  "SDKAOBScan": "48 39 1D ?? ?? ?? ?? ?? ?? 48 8b 43 10",
+  "SDKClassesFile": "FIFA23.Classes.txt",
+  "SDKGeneratorClassInfoType": "SdkGenerator.Fifa23.ClassInfo",
+  "EBXTypeDescriptor": "EBXSharedTypeDescriptorV2",
+
+  // Supported Launcher Filetypes
+  "SupportedLauncherFileTypes": [ "fbmod" ],
+  // Will the Launcher support this Game?
+  "CanLaunchMods": false,
+  // Can this Application Edit this Game?
+  "CanEdit": true,
+
+  // Custom .cache file Writer - Write these exclusively (example - Madden22CacheWriter)
+  "CacheWriter": "CacheWriterSWSquadrons",
+  // Custom .cache file Reader - Write these exclusively (example - Madden22CacheReader)
+  "CacheReader": "CacheReaderSWSquadrons",
+
+  "Banner": "",
+  "EbxVersion": 4,
+  "RequiresKey": true,
+  "MustAddChunks": false,
+  "EnableExecution": true,
+  "SharedBundles": {},
+  "IgnoredResTypes": [],
+  "CanImportMeshes": false,
+  "CanExportMeshes": true,
+  // GeometryDeclarationDesc stream count
+  "GDDMaxStreams": 16,
+  "CompressedFormatEBX": "Oodle", // Checked on GP files. FIFA 23 only uses Oodle!
+  "CompressedFormatRES": "Oodle",
+  "CompressedFormatChunk": "Oodle",
+  "CompressedFormatLegacy": "Oodle",
+  "LegacyFileManager": "ChunkFileManager",
+  "CanUseModData": true,
+  "ForceUseModData": true,
+  "SupportLowMemoryFootprint": true,
+  "EADesktopCommandLineSetting": "",
+  "SteamId": ""
+
+}

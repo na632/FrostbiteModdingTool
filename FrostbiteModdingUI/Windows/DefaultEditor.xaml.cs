@@ -211,15 +211,12 @@ namespace FrostbiteModdingUI.Windows
         { 
             get 
             {
-                var gv = GameInstanceSingleton.GetGameVersion() ?? "FIFA";
-                var initialTitle = $"FMT [{gv}] Editor - {App.ProductVersion} - ";
+                var gameVersion = GameInstanceSingleton.GetGameVersion() ?? "FIFA";
+                var readOnlyTitleText = !ProfileManager.LoadedProfile.CanLaunchMods ? "[READ ONLY]" : "";
+                var initialTitle = $"FMT [{gameVersion}]{readOnlyTitleText} Editor - {App.ProductVersion} - ";
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.Append(initialTitle);
                 stringBuilder.Append("[" + AdditionalTitle + "]");
-                //if(!ProfilesLibrary.EnableExecution)
-                //{
-                //    stringBuilder.Append(" (Read Only)");
-                //}
                 return stringBuilder.ToString();
             }
         }

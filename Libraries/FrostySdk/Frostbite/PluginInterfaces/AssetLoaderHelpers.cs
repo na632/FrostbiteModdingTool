@@ -1,4 +1,5 @@
 ﻿using FMT.FileTools;
+using FMT.FileTools.Modding;
 using FrostySdk.Managers;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,10 @@ namespace FrostySdk.Frostbite.PluginInterfaces
     {
         public static AssetEntry ConvertDbObjectToAssetEntry(DbObject item, AssetEntry assetEntry)
         {
-            assetEntry.Sha1 = new FMT.FileTools.Sha1(item.GetValue<byte[]>("sha1"));
+            if(ProfileManager.IsLoaded(EGame.StarWarsSquadrons))
+                assetEntry.Sha1 = item.GetValue<Sha1>("sha1");
+            else
+                assetEntry.Sha1 = new FMT.FileTools.Sha1(item.GetValue<byte[]>("sha1"));
 
             assetEntry.BaseSha1 = AssetManager.Instance.GetBaseSha1(assetEntry.Sha1);
             assetEntry.Size = item.GetValue("size", 0L);

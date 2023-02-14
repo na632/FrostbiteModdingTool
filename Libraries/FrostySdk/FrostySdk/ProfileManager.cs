@@ -217,8 +217,13 @@ namespace FrostySdk
 			return dir;
 		}
 
+        public static bool IsLoaded(params EGame[] games)
+        {
+            return games.Contains((EGame)DataVersion);
+        }
 
-		public static string GetModProfileDirectoryPath()
+
+        public static string GetModProfileDirectoryPath()
         {
 			var dir = AppContext.BaseDirectory + "/Mods/Profiles/" + ProfileName + "/";
 			if (!Directory.Exists(dir))
