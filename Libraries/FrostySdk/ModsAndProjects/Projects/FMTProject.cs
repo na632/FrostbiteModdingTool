@@ -1,6 +1,7 @@
 ﻿using FMT.FileTools;
 using FMT.FileTools.Modding;
 using FrostbiteSdk.FrostbiteSdk.Managers;
+using FrostySdk.Frostbite.IO.Input;
 using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Frosty.FET;
 using FrostySdk.IO;
@@ -35,6 +36,9 @@ namespace FrostySdk.ModsAndProjects.Projects
 
         public FMTProject(string filePath)
         {
+            if (!filePath.EndsWith(projectExtension, StringComparison.Ordinal))
+                filePath += projectExtension;
+
             projectFilePath = filePath;
         }
 
@@ -60,17 +64,50 @@ namespace FrostySdk.ModsAndProjects.Projects
 
         public static FMTProject Read(string filePath)
         {
-            if(!File.Exists(filePath))
+            if (!filePath.EndsWith(projectExtension, StringComparison.Ordinal))
+                filePath += projectExtension;
+
+            if (!File.Exists(filePath))
                 throw new FileNotFoundException(filePath);
 
             FMTProject project = new FMTProject(filePath);
+            using (NativeReader nr = new NativeReader(filePath))
+            {
+                nr.ReadInt();
+                nr.ReadInt();
+                nr.ReadLengthPrefixedString();
+
+                var assetManagerPositions = new Dictionary<string, long>();
+                var countOfAssetManagers = nr.ReadInt();
+                for (var indexAM = 0; indexAM < countOfAssetManagers; indexAM++)
+                {
+                    assetManagerPositions.Add(nr.ReadLengthPrefixedString(), nr.ReadLong());
+                }
+                // Read Data
+                nr.Position = assetManagerPositions["ebx"];
+                EBXAssetsRead(nr);
+                nr.Position = assetManagerPositions["res"];
+                ResourceAssetsRead(nr);
+                nr.Position = assetManagerPositions["chunks"];
+                ChunkAssetsRead(nr);
+                foreach(var kvp in assetManagerPositions.Skip(3))
+                {
+                    nr.Position = kvp.Value;
+                    if(kvp.Key == "legacy")
+                    {
+                    }
+                }
+            }
             return project;
         }
+
 
         public FMTProject Update()
         {
             if (File.Exists(projectFilePath))
                 File.Delete(projectFilePath);
+
+            Dictionary<string, long> writePositions = new Dictionary<string, long>();
 
             //var entryExporter = new AssetEntryExporter();
             using (var ms = new MemoryStream())
@@ -83,21 +120,67 @@ namespace FrostySdk.ModsAndProjects.Projects
                     nw.Write(ProfileManager.DataVersion);
                     // Mod Settings Json
                     nw.WriteLengthPrefixedString(JsonConvert.SerializeObject(GetModSettings()));
+
+                    // number of positional stuff. ebx, res, chunks + legacy etc
+                    nw.Write(3 + AssetManager.Instance.CustomAssetManagers.Count);
+                    // --------- TODO: Convert these to "Custom" Asset Managers -----------------
+                    nw.WriteLengthPrefixedString("ebx"); // key of cam
+                    var ebxWritePosition = nw.Position;
+                    nw.WriteULong(0ul); // position of data
+
+                    nw.WriteLengthPrefixedString("res"); // key of cam
+                    var resWritePosition = nw.Position;
+                    nw.WriteULong(0ul); // position of data
+
+                    nw.WriteLengthPrefixedString("chunks"); // key of cam
+                    var chunksWritePosition = nw.Position;
+                    nw.WriteULong(0ul); // position of data
+
+                    var startOfCAMPosition = nw.Position;
+                    // Custom Asset Managers
+                    foreach (var cam in AssetManager.Instance.CustomAssetManagers)
+                    {
+                        nw.WriteLengthPrefixedString(cam.Key); // key of cam
+                        nw.WriteULong(0ul); // position of data
+                    }
+
                     // EBX
+                    writePositions.Add("ebx", nw.Position);
                     EBXAssetsWrite(nw);
                     // RES
+                    writePositions.Add("res", nw.Position);
                     ResourceAssetsWrite(nw);
                     // CHUNK
+                    writePositions.Add("chunks", nw.Position);
                     ChunkAssetsWrite(nw);
+                   
                     // Legacy
+                    writePositions.Add("legacy", nw.Position);
                     LegacyFilesModifiedWrite(nw);
                     LegacyFilesAddedWrite(nw);
                     // -----------------------
                     // Embedded files
+                    writePositions.Add("embedded", nw.Position);
                     EmbeddedFilesWrite(nw);
                     // ------------------------
                     // Locale.ini mod
+                    writePositions.Add("localeini", nw.Position);
                     LocaleINIWrite(nw);
+
+                    nw.Position = ebxWritePosition;
+                    nw.Write(writePositions["ebx"]);
+                    nw.Position = resWritePosition;
+                    nw.Write(writePositions["res"]);
+                    nw.Position = chunksWritePosition;
+                    nw.Write(writePositions["chunks"]);
+
+                    nw.Position = startOfCAMPosition;
+                    // Custom Asset Managers
+                    foreach (var cam in AssetManager.Instance.CustomAssetManagers)
+                    {
+                        nw.WriteLengthPrefixedString(cam.Key); // key of cam
+                        nw.Write(writePositions[cam.Key]);
+                    }
                 }
 
                 //var msComp = new MemoryStream();
@@ -124,6 +207,24 @@ namespace FrostySdk.ModsAndProjects.Projects
             }
         }
 
+        private static void EBXAssetsRead(NativeReader nr)
+        {
+            // EBX Count
+            var count = nr.ReadInt();
+            for(var i = 0 ; i < count; i++) 
+            {
+                // Item Name
+                //nw.WriteLengthPrefixedString(item.Name);
+                var assetName = nr.ReadLengthPrefixedString();
+                // EBX Stream to Json
+                //nw.WriteLengthPrefixedString(assetEntryExporter.ExportToJson());
+                var json = nr.ReadLengthPrefixedString();
+
+                AssetEntryImporter assetEntryImporter = new AssetEntryImporter(AssetManager.Instance.GetEbxEntry(assetName));
+                assetEntryImporter.Import(Encoding.UTF8.GetBytes(json));
+            }
+        }
+
         private static void ResourceAssetsWrite(NativeWriter nw)
         {
             var modifiedResourceAssets = AssetManager.Instance.EnumerateRes(modifiedOnly: true);
@@ -134,7 +235,21 @@ namespace FrostySdk.ModsAndProjects.Projects
                 // Item Name
                 nw.WriteLengthPrefixedString(item.Name);
                 // Item Data
-                nw.Write(item.ModifiedEntry.Data);
+                nw.WriteLengthPrefixedBytes(item.ModifiedEntry.Data);
+            }
+        }
+
+        private static void ResourceAssetsRead(NativeReader nr)
+        {
+            // RES Count
+            var count = nr.ReadInt();
+            for (var i = 0; i < count; i++)
+            {
+                // Item Name
+                var assetName = nr.ReadLengthPrefixedString();
+                // Item Data
+                var data = nr.ReadLengthPrefixedBytes();
+                AssetManager.Instance.ModifyRes(assetName, data);
             }
         }
 
@@ -146,9 +261,23 @@ namespace FrostySdk.ModsAndProjects.Projects
             foreach (var item in modifiedChunkAssets)
             {
                 // Item Name
-                nw.WriteLengthPrefixedString(item.Name);
+                nw.Write(item.Id);
                 // Item Data
-                nw.Write(item.ModifiedEntry.Data);
+                nw.WriteLengthPrefixedBytes(item.ModifiedEntry.Data);
+            }
+        }
+
+        private static void ChunkAssetsRead(NativeReader nr)
+        {
+            // CHUNK Count
+            var count = nr.ReadInt();
+            for (var i = 0; i < count; i++)
+            {
+                // Item Name
+                var assetName = nr.ReadGuid();
+                // Item Data
+                var data = nr.ReadLengthPrefixedBytes();
+                AssetManager.Instance.ModifyChunk(assetName, data);
             }
         }
 
@@ -156,27 +285,65 @@ namespace FrostySdk.ModsAndProjects.Projects
         {
             // -----------------------
             // Added Legacy Files
-            var hasAddedLegacyFiles = AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries.Count > 0;
-            nw.Write(hasAddedLegacyFiles);
-            if (hasAddedLegacyFiles)
+            nw.WriteLengthPrefixedString("legacy"); // CFC 
+            nw.Write(AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries.Count); // Count Added
+            foreach (var lfe in AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries)
             {
-                nw.Write(AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries.Count);
-                foreach (var lfe in AssetManager.Instance.CustomAssetManagers["legacy"].AddedFileEntries)
-                {
-                    nw.WriteLengthPrefixedString(JsonConvert.SerializeObject(lfe));
-                }
+                nw.WriteLengthPrefixedString(JsonConvert.SerializeObject(lfe));
+            }
+        }
+
+        private static void LegacyFilesAddedRead(NativeReader nr) 
+        {
+            // -----------------------
+            // Added Legacy Files
+            nr.ReadLengthPrefixedString(); // CFC 
+            var countAdded = nr.ReadInt(); // Count Added
+            for(var iCount = 0; iCount < countAdded; iCount++)
+            {
+                nr.ReadLengthPrefixedString();
             }
         }
 
         private static void LegacyFilesModifiedWrite(NativeWriter nw)
         {
-            nw.Write(AssetManager.Instance.EnumerateCustomAssets("legacy", modifiedOnly: true).Count());
+            nw.WriteLengthPrefixedString("legacy"); // CFC
+            nw.Write(AssetManager.Instance.EnumerateCustomAssets("legacy", modifiedOnly: true).Count()); // Count Added
             foreach (LegacyFileEntry lfe in AssetManager.Instance.EnumerateCustomAssets("legacy", modifiedOnly: true))
             {
                 if (lfe.Name != null)
                 {
                     var serialisedLFE = JsonConvert.SerializeObject(lfe);
                     nw.WriteLengthPrefixedString(serialisedLFE);
+                }
+            }
+        }
+
+        private static void LegacyFilesModifiedRead(NativeReader nr)
+        {
+            // -----------------------
+            // Modified Legacy Files
+            nr.ReadLengthPrefixedString(); // CFC 
+            var count = nr.ReadInt(); // Count Added
+            for (var iCount = 0; iCount < count; iCount++)
+            {
+                nr.ReadLengthPrefixedString();
+            }
+        }
+
+        private static void ChunkFileCollectorAssetsRead(NativeReader nr)
+        {
+            foreach (var cam in AssetManager.Instance.CustomAssetManagers)
+            {
+                // CHUNK Count
+                var count = nr.ReadInt();
+                for (var i = 0; i < count; i++)
+                {
+                    // Item Name
+                    var assetName = nr.ReadGuid();
+                    // Item Data
+                    var data = nr.ReadLengthPrefixedBytes();
+                    AssetManager.Instance.ModifyChunk(assetName, data);
                 }
             }
         }
@@ -235,13 +402,13 @@ namespace FrostySdk.ModsAndProjects.Projects
                 switch (t)
                 {
                     case "EbxResource":
-                        entry = new EbxAssetEntry();
+                        entry = AssetManager.Instance.GetEbxEntry(r.Name);
                         break;
                     case "ResResource":
-                        entry = new ResAssetEntry();
+                        entry = AssetManager.Instance.GetResEntry(r.Name);
                         break;
                     case "ChunkResource":
-                        entry = new ChunkAssetEntry();
+                        entry = AssetManager.Instance.GetChunkEntry(Guid.Parse(r.Name));
                         break;
                     default:
                         entry = null;
@@ -251,20 +418,32 @@ namespace FrostySdk.ModsAndProjects.Projects
                 if (entry != null)
                 {
                     r.FillAssetEntry(entry);
-                    var d = reader.GetResourceData(r);
-                    CasReader casReader = new CasReader(new MemoryStream(d));
-                    var d2 = casReader.Read();
-                    AssetManager.Instance.ModifyEntry(entry, d2);
-                    if(entry is ChunkAssetEntry)
+                    if (entry is ChunkAssetEntry)
                     {
-                        if(entry.ModifiedEntry != null && !string.IsNullOrEmpty(entry.ModifiedEntry.UserData))
+                    }
+                    var d = reader.GetResourceData(r);
+                    using (CasReader casReader = new CasReader(new MemoryStream(d)))
+                    {
+                        var d2 = casReader.Read();
+                        AssetManager.Instance.ModifyEntry(entry, d2);
+                        if (entry is ChunkAssetEntry)
                         {
+                            if(r.IsLegacyFile)
+                            {
 
+                            }
+                            if (entry.ModifiedEntry != null && !string.IsNullOrEmpty(entry.ModifiedEntry.UserData))
+                            {
+
+                            }
                         }
                     }
+                    d = null;
                 }
             }
 
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             var modifiedEntries = AssetManager.Instance.ModifiedEntries;
             return modifiedEntries.Any();
         }

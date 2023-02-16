@@ -10,6 +10,7 @@ using FrostySdk.Frostbite.IO.Output;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.ModsAndProjects.Projects;
 using FrostySdk.Resources;
 using FrostySdk.ThirdParty;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -437,7 +438,7 @@ namespace FrostbiteModdingTests
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
-            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-23-Career-Mod\V Career Mod - Alpha 5.fbproject");
+            projectManagement.Project.Load(@"G:\Work\FIFA Modding\Career Mod\FIFA-23-Career-Mod\V Career Mod - Alpha 6.fbproject");
 
             projectManagement.Project.WriteToMod("test.fbmod", new FrostySdk.ModSettings());
 
@@ -473,7 +474,7 @@ namespace FrostbiteModdingTests
         [TestMethod]
         public void TestGPMod()
         {
-            var modPath = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V3\V Gameplay Mod - v3a11.fbmod";
+            var modPath = @"G:\Work\FIFA Modding\Gameplay mod\FIFA 23\V3\V Gameplay Mod - v3a12.fbmod";
             //GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this);
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, logger: this);
 
@@ -967,6 +968,26 @@ namespace FrostbiteModdingTests
 
 
         [TestMethod]
+        public void ImportFETFIFAModIntoNewProject2()
+        {
+            GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
+            ProjectManagement projectManagement = new ProjectManagement(GamePathEXE);
+            projectManagement.Project = new FrostySdk.FrostbiteProject();
+            FIFAModReader reader = new FIFAModReader(new FileStream(@"G:\Work\FIFA Modding\GraphicMod\FIFA 23\FIFER Licensing Mod V2.fifamod", FileMode.Open));
+
+            var fmtProj = new FMTProject("test");
+            fmtProj.ReadFromFIFAMod(reader);
+            fmtProj.Update();
+            fmtProj = null;
+
+            fmtProj = FMTProject.Read("test");
+
+
+        }
+
+
+
+        [TestMethod]
         public void LoadUltraSlowGameplayMod()
         {
             GameInstanceSingleton.InitializeSingleton(GamePathEXE, true, this, true);
@@ -977,6 +998,7 @@ namespace FrostbiteModdingTests
             projectManagement.Project.WriteToMod(testR, new FrostySdk.ModSettings());
 
             FrostySdk.ModsAndProjects.Projects.FMTProject.Create("FIFA23.UltraSlowDribblingTest");
+            FrostySdk.ModsAndProjects.Projects.FMTProject.Read("FIFA23.UltraSlowDribblingTest");
         }
 
         [TestMethod]
