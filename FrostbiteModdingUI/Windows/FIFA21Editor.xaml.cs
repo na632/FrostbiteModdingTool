@@ -21,6 +21,7 @@ using FrostySdk.Frosty.FET;
 using FrostySdk.Interfaces;
 using FrostySdk.IO;
 using FrostySdk.Managers;
+using FrostySdk.ModsAndProjects.Projects;
 using FrostySdk.Resources;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
@@ -695,28 +696,75 @@ namespace FIFAModdingUI.Windows
             //LegacyFileManager_FMTV2.CleanUpChunks(true); // no longer needed as it should be handled by the Asset Manager Reset
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Project files|*.fbproject";
+            //openFileDialog.Filter = "Project files|*.fbproject;*.fifamod;*.fmtproj";
+            openFileDialog.Filter = "Project files|*.fbproject;*.fifamod";
             var result = openFileDialog.ShowDialog();
             if (result.HasValue && result.Value)
             {
-                if (!string.IsNullOrEmpty(openFileDialog.FileName))
+                if (string.IsNullOrEmpty(openFileDialog.FileName))
+                    return;
+
                 {
                     loadingDialog.Update("Loading Project", "Resetting files");
                     await AssetManager.Instance.ResetAsync();
                     //AssetManager.Instance.Reset();
 
-                    loadingDialog.Update("Loading Project", "Loading Project File");
+                    await loadingDialog.UpdateAsync("Loading Project", "Loading Project File");
+                    await Task.Delay(1);
 
-                    ProjectManagement.Project.ModifiedAssetEntries = null;
-                    CancellationToken cancellation = default(CancellationToken);
-                    try
+                    var fiFile = new FileInfo(openFileDialog.FileName);
+                    if (!fiFile.Exists) 
                     {
-                        await ProjectManagement.Project.LoadAsync(openFileDialog.FileName, cancellation);
+                        LogError("Unable to load project. The file doesn't exist");
+                        return;
                     }
-                    catch(Exception ex)
+                    var fileExtension = fiFile.Extension.ToLower();
+                    switch(fileExtension)
                     {
-                        LogError("Unable to load project. This may be due to a Title Update. Message: " + ex.Message);
+                        case ".fbproject":
+                            ProjectManagement.Project.ModifiedAssetEntries = null;
+                            CancellationToken cancellation = default(CancellationToken);
+                            try
+                            {
+                                await ProjectManagement.Project.LoadAsync(openFileDialog.FileName, cancellation);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogError("Unable to load project. This may be due to a Title Update. Message: " + ex.Message);
+                            }
+                            break;
+                        case ".fmtproj":
+                            var mbFmtProj = MessageBox.Show("This is a NEW/UPCOMMING file format. This does nothing right now!", "EXPERIMENTAL");
+                            break;
+                        case ".fifamod":
+
+                            var mbFIFAMod = MessageBox.Show(
+                                "You are opening a compiled FIFAMod from FIFA Editor Tool. " + Environment.NewLine +
+                                "This is experimental and may crash the Application. " + Environment.NewLine +
+                                "This process may be missing or losing files. " + Environment.NewLine +
+                                "Please always give credit to other's work!", "EXPERIMENTAL");
+                            if (mbFIFAMod == MessageBoxResult.OK)
+                            {
+                                using (FIFAModReader reader = new FIFAModReader(new FileStream(fiFile.FullName, FileMode.Open)))
+                                {
+                                    var fmtProjLoadInFIFAMod = new FMTProject("loadInFIFAMod");
+                                    if (fmtProjLoadInFIFAMod.ReadFromFIFAMod(reader))
+                                    {
+                                        Log($"Successfully opened {fiFile.FullName}");
+                                        fmtProjLoadInFIFAMod = null;
+                                        if (File.Exists("loadInFIFAMod.fmtproj"))
+                                            File.Delete("loadInFIFAMod.fmtproj");
+                                    }
+                                    else
+                                    {
+                                        Log($"Failed to open {fiFile.FullName}");
+                                    }
+                                    fmtProjLoadInFIFAMod = null;
+                                }
+                            }
+                            break;
                     }
+                    
                     // A chunk clean up of bad and broken projects
                     await Task.Run(() =>
                     {
