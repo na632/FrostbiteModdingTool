@@ -410,7 +410,8 @@ namespace FrostySdk
 					nativeWriter.Write(modifiedChunk.ModifiedEntry.RangeEnd);
 					nativeWriter.Write(modifiedChunk.ModifiedEntry.FirstMip);
 					nativeWriter.Write(modifiedChunk.ModifiedEntry.H32);
-					nativeWriter.Write(modifiedChunk.ModifiedEntry.AddToChunkBundle);
+					//nativeWriter.Write(modifiedChunk.ModifiedEntry.AddToChunkBundle);
+					nativeWriter.Write(false);
 					nativeWriter.WriteNullTerminatedString(modifiedChunk.ModifiedEntry.UserData);
 					nativeWriter.Write(modifiedChunk.AddBundles.Count);
 					foreach (int addBundle3 in modifiedChunk.AddBundles)
@@ -955,7 +956,7 @@ namespace FrostySdk
 				chunkAssetEntry2.ModifiedEntry.RangeEnd = rangeEnd;
 				chunkAssetEntry2.ModifiedEntry.FirstMip = firstMip;
 				chunkAssetEntry2.ModifiedEntry.H32 = h;
-				chunkAssetEntry2.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
+				//chunkAssetEntry2.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
 				chunkAssetEntry2.ModifiedEntry.UserData = userData3;
 				chunkAssetEntry2.ModifiedEntry.Data = data;
 			}

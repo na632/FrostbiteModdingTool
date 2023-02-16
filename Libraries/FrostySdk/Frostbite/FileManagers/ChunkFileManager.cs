@@ -199,7 +199,7 @@ namespace FrostbiteSdk.Frostbite.FileManagers
 					collectorInstance.ModifiedEntry.CompressedOffset = 0L;
 					collectorInstance.ModifiedEntry.Size = data.Length;
 					collectorInstance.ModifiedEntry.CompressedSize = chunkEntry.ModifiedEntry.Data.Length;
-					chunkEntry.ModifiedEntry.AddToChunkBundle = true;
+					//chunkEntry.ModifiedEntry.AddToChunkBundle = true;
 					chunkEntry.ModifiedEntry.UserData = "legacy;" + legacyFileEntry.Name;
 					legacyFileEntry.LinkAsset(chunkEntry);
 					collectorInstance.Entry.LinkAsset(legacyFileEntry);

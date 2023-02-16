@@ -1266,7 +1266,7 @@ namespace FrostySdk.Managers
                 chunkAssetEntry.ModifiedEntry.FirstMip = texture.FirstMip;
             }
             chunkAssetEntry.IsDirty = true;
-            chunkAssetEntry.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
+            //chunkAssetEntry.ModifiedEntry.AddToChunkBundle = addToChunkBundle;
             return true;
         }
 
@@ -1748,16 +1748,39 @@ namespace FrostySdk.Managers
 
 		public IEnumerable<AssetEntry> EnumerateCustomAssets(string type, bool modifiedOnly = false)
 		{
+			if(type == "ebx")
+				return EnumerateEbx(type, modifiedOnly);
+
+
+
 			if (CustomAssetManagers.ContainsKey(type))
 			{
-				foreach (AssetEntry item in CustomAssetManagers[type].EnumerateAssets(modifiedOnly))
-				{
-					yield return item;
-				}
+				return CustomAssetManagers[type].EnumerateAssets(modifiedOnly);
+                //{
+                //    yield return item;
+                //}
+    //            foreach (AssetEntry item in CustomAssetManagers[type].EnumerateAssets(modifiedOnly))
+				//{
+				//	yield return item;
+				//}
 			}
+			return null;
 		}
 
-		public int GetSuperBundleId(SuperBundleEntry sbentry)
+        public IEnumerable<AssetEntry> ModifiedAssetEntries
+        {
+            get
+            {
+                List<AssetEntry> entries = new List<AssetEntry>();
+                entries.AddRange(EnumerateEbx(modifiedOnly: true));
+                entries.AddRange(EnumerateRes(modifiedOnly: true));
+                entries.AddRange(EnumerateChunks(modifiedOnly: true));
+                entries.AddRange(EnumerateCustomAssets("legacy", modifiedOnly: true));
+                return entries;
+            }
+        }
+
+        public int GetSuperBundleId(SuperBundleEntry sbentry)
 		{
 			return superBundles.FindIndex((SuperBundleEntry sbe) => sbe.Name.Equals(sbentry.Name));
 		}
@@ -2938,17 +2961,24 @@ namespace FrostySdk.Managers
 			return guid;
 		}
 
-        public void ModifyEntry(IAssetEntry entry, byte[] d2)
+        public bool ModifyEntry(IAssetEntry entry, byte[] d2)
         {
 			if (entry is EbxAssetEntry ebxEntry)
+			{
 				ModifyEbxBinary(ebxEntry.Name, d2);
+				return true;
+			}
 
 			if (entry is ResAssetEntry resEntry)
+			{
 				ModifyRes(resEntry.Name, d2);
+				return true;
+			}
 
             if (entry is ChunkAssetEntry chunkEntry)
-                ModifyChunk(chunkEntry, d2);
+                return ModifyChunk(chunkEntry, d2);
 
+			return false;
         }
 
         //public void Log(string text, params object[] vars)

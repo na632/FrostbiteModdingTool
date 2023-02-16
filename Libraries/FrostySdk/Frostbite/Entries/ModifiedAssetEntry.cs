@@ -88,9 +88,9 @@ namespace FrostySdk.Managers
         }
 
 
-		public bool AddToChunkBundle { get; set; } = true;
+		//public bool AddToChunkBundle { get; set; } = false;
 
-		public bool AddToTOCChunks { get; set; } = false;
+		//public bool AddToTOCChunks { get; set; } = false;
 
 		public bool IsTransientModified { get; set; }
 
@@ -125,6 +125,13 @@ namespace FrostySdk.Managers
 						return UserData.Split(";")[1];
 					}
 				}
+                if (!string.IsNullOrEmpty(ExtraInformation))
+                {
+                    if (ExtraInformation.Contains(";"))
+                    {
+                        return ExtraInformation.Split(";")[1];
+                    }
+                }
 				return null;
 			}
 		}

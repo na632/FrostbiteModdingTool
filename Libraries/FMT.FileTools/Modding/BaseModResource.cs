@@ -20,8 +20,6 @@ namespace FMT.FileTools.Modding
 
 		protected int handlerHash;
 
-		protected string userData = "";
-
 		protected List<int> bundlesToModify = new List<int>();
 
 		protected List<int> bundlesToAdd = new List<int>();
@@ -38,7 +36,7 @@ namespace FMT.FileTools.Modding
 
 		public int Handler => handlerHash;
 
-		public string UserData => userData;
+		public string UserData { get; protected set; }
 
 		public bool IsModified => bundlesToModify.Count != 0;
 
@@ -84,6 +82,7 @@ namespace FMT.FileTools.Modding
 						return UserData.Split(";")[1];
 					}
 				}
+				//if(!string.IsNullOrEmpty(Extr))
 				return null;
 			}
         }
@@ -157,7 +156,7 @@ namespace FMT.FileTools.Modding
 				size = reader.ReadLong();
 				flags = reader.ReadByte();
 				handlerHash = reader.ReadInt();
-                userData = ReadString(reader, modVersion);
+                UserData = ReadString(reader, modVersion);
                 int num = reader.ReadInt();
 				for (int i = 0; i < num; i++)
 				{
@@ -184,7 +183,7 @@ namespace FMT.FileTools.Modding
 
 			//           entry.ModifiedEntry.UserData = userData;
 			//       }
-			entry.ExtraInformation = userData;
+			entry.ExtraInformation = UserData;
 
             if (AddedBundles != null && AddedBundles.Any())
                 entry.Bundles.AddRange(AddedBundles);

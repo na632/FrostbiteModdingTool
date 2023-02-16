@@ -155,7 +155,7 @@ namespace FrostySdk
 				byte[] decompressedArray = null;
 				byte[] compressedArray = null;
                 name = entry.Name.ToLower();
-				userData = entry.ModifiedEntry.UserData;
+				UserData = entry.ModifiedEntry.UserData;
 
 				FileInfo fileInfo = new FileInfo(Path.Combine("EBX", entry.Filename.ToLower() + ".dat"));
 				if (fileInfo.Exists)
@@ -246,7 +246,7 @@ namespace FrostySdk
 				resType = entry.ResType;
 				resRid = entry.ResRid;
 				resMeta = ((entry.ModifiedEntry.ResMeta != null) ? entry.ModifiedEntry.ResMeta : entry.ResMeta);
-				userData = entry.ModifiedEntry.UserData;
+				UserData = entry.ModifiedEntry.UserData;
 				flags = (byte)(entry.IsInline ? 1 : 0);
 				foreach (int bundle in entry.Bundles)
 				{
@@ -300,16 +300,16 @@ namespace FrostySdk
 				logicalSize = entry.ModifiedEntry.LogicalSize;
 				h32 = entry.ModifiedEntry.H32;
 				firstMip = entry.ModifiedEntry.FirstMip;
-				userData = entry.ModifiedEntry.UserData;
+				UserData = entry.ModifiedEntry.UserData;
 				flags = (byte)(entry.IsInline ? 1 : 0);
 				//flags |= (byte)(entry.ModifiedEntry.AddToChunkBundle ? 2 : 0);
-				if (entry.ModifiedEntry.AddToChunkBundle)
-				{
-					//if (ProfileManager.MustAddChunks || entry.IsAdded)
-					//	AddBundle("chunks", modify: false);
-					//else
-						AddBundle("chunks", modify: true);
-				}
+				//if (entry.ModifiedEntry.AddToChunkBundle)
+				//{
+				//	//if (ProfileManager.MustAddChunks || entry.IsAdded)
+				//	//	AddBundle("chunks", modify: false);
+				//	//else
+				//		AddBundle("chunks", modify: true);
+				//}
 
 				foreach (int bundle in entry.Bundles)
 				{

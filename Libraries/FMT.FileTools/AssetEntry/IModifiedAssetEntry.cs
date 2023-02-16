@@ -41,9 +41,9 @@ namespace FrostySdk.FrostbiteSdk.Managers
         public int FirstMip { get; set; }
 
 
-        public bool AddToChunkBundle { get; set; }
+        //public bool AddToChunkBundle { get; set; }
 
-        public bool AddToTOCChunks { get; set; }
+        //public bool AddToTOCChunks { get; set; }
 
         public bool IsTransientModified { get; set; }
 

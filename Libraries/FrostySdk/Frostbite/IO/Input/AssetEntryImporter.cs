@@ -18,6 +18,7 @@ using System.Text;
 //using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using System.Windows.Shapes;
 using v2k4FIFAModding.Frosty;
 
 namespace FrostySdk.Frostbite.IO.Input
@@ -67,7 +68,12 @@ namespace FrostySdk.Frostbite.IO.Input
             return false;
         }
 
-        private bool ImportWithJSON(string path)
+        public bool Import(byte[] bytes)
+        {
+            return false;
+        }
+
+        public bool ImportWithJSON(string path)
         {
             if(new FileInfo(path).Extension.ToLower() != ".json")
                 return false;
@@ -77,7 +83,32 @@ namespace FrostySdk.Frostbite.IO.Input
                 return false;
 
             var ebx = AssetManager.Instance.GetEbx(ebxAssetEntry);
-            if (ebx == null) 
+            if (ebx == null)
+                return false;
+
+            if (ebx.RootObject == null)
+                return false;
+
+            try
+            {
+                return ImportWithJSON(File.ReadAllBytes(path));
+            }
+            catch
+            {
+                FileLogger.WriteLine($"Unable to process JSON {path} into Object {ebx.RootObject.GetType().FullName}");
+            }
+
+            return false;
+        }
+
+        public bool ImportWithJSON(byte[] bytes)
+        {
+            var ebxAssetEntry = SelectedEntry as EbxAssetEntry;
+            if (ebxAssetEntry == null)
+                return false;
+
+            var ebx = AssetManager.Instance.GetEbx(ebxAssetEntry);
+            if (ebx == null)
                 return false;
 
             if (ebx.RootObject == null)
@@ -86,26 +117,26 @@ namespace FrostySdk.Frostbite.IO.Input
             JObject jobjectFromJson = new JObject();
             try
             {
-                JsonConvert.PopulateObject(File.ReadAllText(path), ebx.RootObject, new JsonSerializerSettings()
+                JsonConvert.PopulateObject(Encoding.UTF8.GetString(bytes), ebx.RootObject, new JsonSerializerSettings()
                 {
                     ObjectCreationHandling = ObjectCreationHandling.Auto,
                     ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                     NullValueHandling = NullValueHandling.Ignore,
-                    Converters = { 
+                    Converters = {
                         new ReplaceArrayConverter()
                         , new PointerRefConverter()
                     },
                     MaxDepth = 10
                 });
-           
 
-                jobjectFromJson = JObject.Parse(File.ReadAllText(path));
+
+                jobjectFromJson = JObject.Parse(Encoding.UTF8.GetString(bytes));
 
             }
             catch (Exception populationException)
             {
-                FileLogger.WriteLine($"Unable to process JSON file {path} into Object {ebx.RootObject.GetType().FullName}");
+                FileLogger.WriteLine($"Unable to process JSON bytes into Object {ebx.RootObject.GetType().FullName}");
                 FileLogger.WriteLine($"ERROR:");
                 FileLogger.WriteLine(populationException.ToString());
                 return false;

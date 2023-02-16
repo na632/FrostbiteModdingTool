@@ -681,8 +681,8 @@ namespace Frostbite.FileManagers
 						legacyItem.ModifiedEntry.CompressedOffsetEnd = chunkEntryClone.ModifiedEntry.Size;
 
 						chunkEntryClone.ModifiedEntry.Sha1 = AssetManager.Instance.GenerateSha1(Encoding.UTF8.GetBytes(legacyItem.Name));
-                        chunkEntryClone.ModifiedEntry.AddToChunkBundle = true;
-                        chunkEntryClone.ModifiedEntry.AddToTOCChunks = true;
+                        //chunkEntryClone.ModifiedEntry.AddToChunkBundle = true;
+                        //chunkEntryClone.ModifiedEntry.AddToTOCChunks = true;
                         ModifiedChunks.Add(chunkEntryClone);
 
 						editedLegacyFilesByProcess.Add(legacyItem);
@@ -765,8 +765,8 @@ namespace Frostbite.FileManagers
 								OriginalSize = ms_newChunkGroup.Length,
                                 //Sha1 = AssetManager.Instance.GenerateSha1(newChunkAlreadyCompressed.newChunk),
                                 Sha1 = groupChunkEntryClone.Sha1,
-                                AddToChunkBundle = true,
-								AddToTOCChunks = true
+        //                        AddToChunkBundle = true,
+								//AddToTOCChunks = true
 							};
 							ModifiedChunks.Add(groupChunkEntryClone);
 						}
@@ -841,8 +841,8 @@ namespace Frostbite.FileManagers
                 //cE.ModifiedEntry.OriginalSize = msNewBatch.Length;
                 //cE.ModifiedEntry.LogicalSize = Convert.ToUInt32(Utils.CompressFile(newBatchData, null, ResourceType.Invalid, compressionType).Length);
                 //cE.ModifiedEntry.Size = cE.ModifiedEntry.LogicalSize;
-                cE.ModifiedEntry.AddToChunkBundle = true;
-                cE.ModifiedEntry.AddToTOCChunks = true;
+                //cE.ModifiedEntry.AddToChunkBundle = true;
+                //cE.ModifiedEntry.AddToTOCChunks = true;
                 ModifiedChunks.Add(cE);
 
 
@@ -889,8 +889,8 @@ namespace Frostbite.FileManagers
 				legacyFileEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry()
                 {
 					Data = data,
-					AddToTOCChunks = true,
-					AddToChunkBundle = true,
+					//AddToTOCChunks = true,
+					//AddToChunkBundle = true,
 				};
 
 				legacyFileEntry.IsDirty = true;
@@ -918,8 +918,8 @@ namespace Frostbite.FileManagers
 				legacyFileEntry.ModifiedEntry = new FrostySdk.FrostbiteSdk.Managers.ModifiedLegacyAssetEntry()
                 {
 					Data = dpi.Value,
-					AddToTOCChunks = true,
-					AddToChunkBundle = true,
+					//AddToTOCChunks = true,
+					//AddToChunkBundle = true,
 				};
 
 				legacyFileEntry.IsDirty = true;
@@ -1138,7 +1138,7 @@ namespace Frostbite.FileManagers
             };
             Guid guid = AssetManager.AddChunk(data, GenerateDeterministicGuid(legacyFileEntry));
             ChunkAssetEntry chunkEntry = AssetManager.GetChunkEntry(guid);
-            chunkEntry.ModifiedEntry.AddToChunkBundle = true;
+            //chunkEntry.ModifiedEntry.AddToChunkBundle = true;
             chunkEntry.ModifiedEntry.UserData = "legacy;" + legacyFileEntry.Name;
             legacyFileEntry.LinkAsset(chunkEntry);
             legacyFileEntry.IsDirty = true;
@@ -1182,7 +1182,7 @@ namespace Frostbite.FileManagers
             //    };
             //    newCollectorInstance.Entry.LinkAsset(legacyFileEntry);
             //}
-            chunkEntry.ModifiedEntry.AddToChunkBundle = true;
+            //chunkEntry.ModifiedEntry.AddToChunkBundle = true;
             chunkEntry.ModifiedEntry.UserData = "legacy;" + legacyFileEntry.Name + ";dupof;" + originalAsset.Name;
             legacyFileEntry.LinkAsset(chunkEntry);
             legacyFileEntry.IsDirty = true;

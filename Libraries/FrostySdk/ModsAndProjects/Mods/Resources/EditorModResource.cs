@@ -24,10 +24,13 @@ namespace FrostySdk
 				writer.Write(flags);
 				writer.Write(handlerHash);
 
+				if(string.IsNullOrEmpty(UserData))
+					UserData = string.Empty;	
+
                 if (writerVersion >= 28u)
-                    writer.WriteLengthPrefixedString(userData);
+                    writer.WriteLengthPrefixedString(UserData);
                 else
-                    writer.WriteNullTerminatedString(userData);
+                    writer.WriteNullTerminatedString(UserData);
 
 				writer.Write(bundlesToModify.Count);
 				foreach (int item in bundlesToModify)

@@ -201,7 +201,7 @@ namespace FrostySdk.Frosty.FET
                 size = data.Length;
                 flags = 2;
                 handlerHash = (int)Hash;
-                userData = "legacy;Collector (" + ebxName + ")";
+                UserData = "legacy;Collector (" + ebxName + ")";
                 AddBundle("chunks", modify: true);
                 //foreach (int bundle in bundles)
                 //{
