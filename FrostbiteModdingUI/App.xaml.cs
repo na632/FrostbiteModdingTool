@@ -177,7 +177,8 @@ namespace FMT
         private void MyHandler(object sender, UnhandledExceptionEventArgs args)
         {
             Exception e = (Exception)args.ExceptionObject;
-            MessageBoxResult result = MessageBox.Show(e.ToString());
+
+            FileLogger.WriteLine($"{e.Message}");
 
             if (File.Exists("ErrorLogging.txt"))
                 File.Delete("ErrorLogging.txt");
@@ -191,6 +192,7 @@ namespace FMT
             Console.WriteLine(e.ToString());
             Debug.WriteLine(e.ToString());
 
+            MessageBoxResult result = MessageBox.Show(e.ToString());
         }
 
         public static void LoadLanguageFile(string newLanguage = null)
