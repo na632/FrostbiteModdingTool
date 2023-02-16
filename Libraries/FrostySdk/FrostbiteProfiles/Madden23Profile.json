@@ -76,6 +76,6 @@
   "CompressedFormatRES": "Oodle",
   "CompressedFormatChunk": "Oodle",
   "CompressedFormatLegacy": "LZ4",
-  "LegacyFileManager": "ChunkFileManager2022"
-
+  "LegacyFileManager": "ChunkFileManager2022",
+  "EADesktopCommandLineSetting": "user.gamecommandline.origin.ofr.50.0004987"
 }
